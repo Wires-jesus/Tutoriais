@@ -12,7 +12,7 @@ steps:
       submodules: 'true'
       persistCredentials: 'true'
     - task: PythonScript@0
-    inputs:
+      inputs:
         scriptSource: 'filePath'
         scriptPath: 'C:\azure\Esteira-PortalADMDB\EsteiraTrabalho.py'
         arguments: $(Build.SourceBranch)
