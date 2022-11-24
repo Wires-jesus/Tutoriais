@@ -1,0 +1,18 @@
+trigger:
+    - feature/*
+    - hotfix/*
+    - bugfix/*
+
+pool: "Agente-VD-GO"
+
+steps:
+    - script: 'cd $(Build.SourcesDirectory)'
+    - checkout: self
+      fetchDepth: 0
+      submodules: 'true'
+      persistCredentials: 'true'
+    - task: PythonScript@0
+    inputs:
+        scriptSource: 'filePath'
+        scriptPath: 'C:\azure\Esteira-PortalADMDB\EsteiraTrabalho.py'
+        arguments: $(Build.SourceBranch)
