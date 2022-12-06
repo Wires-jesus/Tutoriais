@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION RETORNA_COD_BENEF_FISCAL(P_TIPOOPER       IN     VARCHAR2
+CREATE OR REPLACE FUNCTION RETORNA_COD_BENEF_FISCAL(P_TIPOOPER       IN     VARCHAR2
                                                    ,P_CODCLI_FORNEC  IN     NUMBER
                                                    ,P_CODENDENT      IN     NUMBER
                                                    ,P_CODPROD        IN     NUMBER
@@ -11,8 +11,8 @@
   RETURN VARCHAR2 IS
   /**********************************************************************************
    *P_CODCLI_FORNEC = PODE SER CLIENTE OU FORNECEDOR. DEPENDENDO DO TIPO DE ENTRADA,*
-   *                 ELE Ã‰ TRATADO COMO FORNECEDOR, CASO SEJA ENTRADA, OU CLIENTE,  *
-   *                 EM CASOS DE SAÃDA.                                             *
+   *                 ELE É TRATADO COMO FORNECEDOR, CASO SEJA ENTRADA, OU CLIENTE,  *
+   *                 EM CASOS DE SAÍDA.                                             *
    *********************************************************************************/
 
   VSTIPOCLIFORNEC    VARCHAR2(6);
@@ -57,7 +57,7 @@ BEGIN
       VSTIPOCLIFORNEC := 'NRPA';
     END IF;
   
-    --ORGÃƒO PUBLICO
+    --ORGÃO PUBLICO
     IF (CLIENTE.ORGAOPUB = 'S') OR (CLIENTE.ORGAOPUBFEDERAL = 'S')
     THEN
       VSTIPOCLIFORNEC := 'ORGP';
@@ -95,7 +95,7 @@ BEGIN
      WHERE P.CODPROD = P_CODPROD;
   EXCEPTION
     WHEN NO_DATA_FOUND THEN
-      P_MSG     := 'Produto nÃ£o localizado';
+      P_MSG     := 'Produto não localizado';
       P_SUCESSO := FALSE;
       RETURN '';
     WHEN OTHERS THEN
@@ -112,7 +112,7 @@ BEGIN
      WHERE F.CODIGO = P_CODFILIAL;
   EXCEPTION
     WHEN NO_DATA_FOUND THEN
-      P_MSG     := 'UF da filial nÃ£o localizado';
+      P_MSG     := 'UF da filial não localizado';
       P_SUCESSO := FALSE;
       RETURN '';
     WHEN OTHERS THEN
@@ -132,7 +132,7 @@ BEGIN
        WHERE F.CODFORNEC = P_CODCLI_FORNEC;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        P_MSG     := 'Fornecedor nÃ£o localizado';
+        P_MSG     := 'Fornecedor não localizado';
         P_SUCESSO := FALSE;
         RETURN '';
       WHEN OTHERS THEN

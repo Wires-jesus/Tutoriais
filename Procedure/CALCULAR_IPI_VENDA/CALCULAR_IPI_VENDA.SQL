@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE CALCULAR_IPI_VENDA(
+CREATE OR REPLACE PROCEDURE CALCULAR_IPI_VENDA(
                                          pCODFILIAL IN VARCHAR2,
                                          pCODPROD IN NUMBER,
                                          pPRECOVENDA IN NUMBER,

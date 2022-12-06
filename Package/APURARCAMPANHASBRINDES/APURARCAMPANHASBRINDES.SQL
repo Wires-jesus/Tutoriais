@@ -1,4 +1,4 @@
-﻿create or replace package Apurarcampanhasbrindes is
+create or replace package Apurarcampanhasbrindes is
 
   /*
 

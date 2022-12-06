@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION Fnc_Saldorcamenosdescfin(Pcodusur IN NUMBER
+CREATE OR REPLACE FUNCTION Fnc_Saldorcamenosdescfin(Pcodusur IN NUMBER
                                                    ,Pcodfilial IN VARCHAR2)
  RETURN NUMBER
  IS

@@ -1,4 +1,4 @@
-﻿create or replace type body pljson_value as
+create or replace type body pljson_value as
   
   constructor function pljson_value(elem pljson_element) return self as result as
   begin

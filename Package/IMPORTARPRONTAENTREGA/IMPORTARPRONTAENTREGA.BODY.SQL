@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY IMPORTARPRONTAENTREGA IS
+CREATE OR REPLACE PACKAGE BODY IMPORTARPRONTAENTREGA IS
 
 	/*
       Package de Importação de Pedidos de Pronta Entrega (venda manifesto) com Sistemas de Forca de Vendas

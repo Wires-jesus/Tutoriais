@@ -1,4 +1,4 @@
-﻿create or replace trigger TRG_ATU_QT_INTEGRADORA
+create or replace trigger TRG_ATU_QT_INTEGRADORA
  after
  DELETE OR UPDATE OF qt
  ON PCPEDI

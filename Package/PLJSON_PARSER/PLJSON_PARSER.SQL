@@ -1,4 +1,4 @@
-﻿create or replace package pljson_parser as
+create or replace package pljson_parser as
   /*
   Copyright (c) 2010 Jonas Krogsboell
 

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TRIGGER trg_gravar_pcclient_cgeentaux
+CREATE OR REPLACE TRIGGER trg_gravar_pcclient_cgeentaux
  BEFORE
   INSERT OR UPDATE
  ON pcclient

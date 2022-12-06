@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TYPE T_RELBRINDES_DR IS OBJECT(
+CREATE OR REPLACE TYPE T_RELBRINDES_DR IS OBJECT(
     codcamp        NUMBER(6),
     grpregrabrinde NUMBER(6),
     grpregracamp   NUMBER(6),

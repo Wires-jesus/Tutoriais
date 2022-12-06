@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_MONTAGEMKIT(p_validaestoque IN VARCHAR2,
+CREATE OR REPLACE PROCEDURE PRC_MONTAGEMKIT(p_validaestoque IN VARCHAR2,
                                             p_matricula     IN NUMBER,
                                             p_codfilial     IN VARCHAR2,
                                             p_numped        IN NUMBER,

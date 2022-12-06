@@ -1,4 +1,4 @@
-﻿create or replace package pljson_printer as
+create or replace package pljson_printer as
   /*
   Copyright (c) 2010 Jonas Krogsboell
   Permission is hereby granted, free of charge, to any person obtaining a copy

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT( 
+CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT( 
            msg                 VARCHAR2(1000),              
            codesconto          NUMBER,                      
            codescontobase      NUMBER,                      

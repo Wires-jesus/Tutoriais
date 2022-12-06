@@ -1,4 +1,4 @@
-﻿create or replace function fnc_busca_dias_roteiro(p_mes          in number,
+create or replace function fnc_busca_dias_roteiro(p_mes          in number,
                                                    p_ano          in number,
                                                    p_semana       in number,
                                                    p_tipo         in varchar2
@@ -32,7 +32,7 @@
 
 begin
 /*
---ESQUEMA PARA ACHAR ERRO NAS DATAS FOI MUITO UTIL DEIXEI O CÃ“DIGO AQUI
+--ESQUEMA PARA ACHAR ERRO NAS DATAS FOI MUITO UTIL DEIXEI O CÓDIGO AQUI
 create table teste_dias_roteiro(data date, texto varchar2(400)) tablespace ts_dados;
 select * from teste_dias_roteiro;
 -- delete teste_dias_roteiro;
@@ -67,7 +67,7 @@ begin
    where pcdatas.data = vddatainicio_1;
 
   if vsdiautil = 'S' or
-     trim(to_char(vddatainicio_1, 'DAY')) in ('SATURDAY', 'SUNDAY', 'SÃBADO', 'DOMINGO' ) then
+     trim(to_char(vddatainicio_1, 'DAY')) in ('SATURDAY', 'SUNDAY', 'SÁBADO', 'DOMINGO' ) then
 
     p_datainicio_1 := vddatainicio_1;
 
@@ -76,7 +76,7 @@ begin
     while p_datainicio_1 is null loop
 
       if vsdiautil = 'S' or
-         trim(to_char(vddatainicio_1, 'DAY')) in ('SATURDAY', 'SUNDAY', 'SÃBADO', 'DOMINGO') then
+         trim(to_char(vddatainicio_1, 'DAY')) in ('SATURDAY', 'SUNDAY', 'SÁBADO', 'DOMINGO') then
 
         p_datainicio_1 := vddatainicio_1;
       else
@@ -143,7 +143,7 @@ end;
    where pcdatas.data = vddatainicio_2;
 
   if vsdiautil = 'S' or
-     trim(to_char(vddatainicio_2, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+     trim(to_char(vddatainicio_2, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
     p_datainicio_2 := vddatainicio_2;
 
@@ -152,7 +152,7 @@ end;
     while p_datainicio_2 is  null loop
 
       if vsdiautil = 'S' or
-         trim(to_char(vddatainicio_2, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+         trim(to_char(vddatainicio_2, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
         p_datainicio_2 := vddatainicio_2;
       else
@@ -204,7 +204,7 @@ end;
    where pcdatas.data = vddatainicio_3;
 
   if vsdiautil = 'S' or
-     trim(to_char(vddatainicio_3, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+     trim(to_char(vddatainicio_3, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
     p_datainicio_3 := vddatainicio_3;
 
@@ -213,7 +213,7 @@ end;
     while p_datainicio_3 is  null loop
 
       if vsdiautil = 'S' or
-         trim(to_char(vddatainicio_3, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+         trim(to_char(vddatainicio_3, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
         p_datainicio_3 := vddatainicio_3;
       else
@@ -264,7 +264,7 @@ end;
    where pcdatas.data = vddatainicio_4;
 
   if vsdiautil = 'S' or
-     trim(to_char(vddatainicio_4, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+     trim(to_char(vddatainicio_4, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
     p_datainicio_4 := vddatainicio_4;
 
@@ -273,7 +273,7 @@ end;
     while p_datainicio_4 is  null loop
 
       if vsdiautil = 'S' or
-         trim(to_char(vddatainicio_4, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+         trim(to_char(vddatainicio_4, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
         p_datainicio_4 := vddatainicio_4;
       else
@@ -326,7 +326,7 @@ end;
    where pcdatas.data = vddatainicio_5;
 
   if vsdiautil = 'S' or
-     trim(to_char(vddatainicio_5, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+     trim(to_char(vddatainicio_5, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
     p_datainicio_5 := vddatainicio_5;
 
@@ -335,7 +335,7 @@ end;
     while p_datainicio_5 is null loop
 
       if vsdiautil = 'S' or
-         trim(to_char(vddatainicio_5, 'DAY')) in ('SATURDAY', 'SUNDAY','SÃBADO','DOMINGO') then
+         trim(to_char(vddatainicio_5, 'DAY')) in ('SATURDAY', 'SUNDAY','SÁBADO','DOMINGO') then
 
         p_datainicio_5 := vddatainicio_5;
       else

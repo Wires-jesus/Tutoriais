@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY PKG_CAMPANHACOMBO IS
+CREATE OR REPLACE PACKAGE BODY PKG_CAMPANHACOMBO IS
   /*--------------------------------------------------------------------------------------------------------------------
   AUTOR                SOLICITAÇÃO        DATA         DESCRIÇÃO
   Iran Junior          HIS.03255.2016    19/12/2016   Criação da nova package para operações logísticas(Mód-011).

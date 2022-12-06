@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE VIEW VW_ALIENACAO_FORNEC AS
+CREATE OR REPLACE VIEW VW_ALIENACAO_FORNEC AS
 SELECT pcprodut.codprod,
        pcprodut.codprodprinc,
        pcprodut.codfornec,

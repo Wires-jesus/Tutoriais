@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE P_PC_Validar_PCPRAZOADICIONAL
+CREATE OR REPLACE PROCEDURE P_PC_Validar_PCPRAZOADICIONAL
 /******************************************************************************************
 ->Nome da PROCEDURE : P_PC_Validar_PCPRAZOADICIONAL
 ->Objetivo          : Faturar pedidos nao faturados.

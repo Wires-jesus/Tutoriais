@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE PC_PKG_CONTROLASALDORCAFORNEC IS
+CREATE OR REPLACE PACKAGE PC_PKG_CONTROLASALDORCAFORNEC IS
 
 /******************************************************************************************************
   29/01/2013 Marcos Garcia e Thiago Melo - Criação

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_GERAR_PEDIDO_BRINDE_BNF(pnumped     IN NUMBER,
+CREATE OR REPLACE PROCEDURE PRC_GERAR_PEDIDO_BRINDE_BNF(pnumped     IN NUMBER,
                                                         pnumpedrest OUT NUMBER,
                                                         pmsg        OUT VARCHAR2,
                                                         pcodbnf     IN NUMBER DEFAULT 0) IS

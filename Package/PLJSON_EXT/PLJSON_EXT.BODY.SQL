@@ -1,4 +1,4 @@
-﻿create or replace package body pljson_ext as
+create or replace package body pljson_ext as
   /*
   Copyright (c) 2009 Jonas Krogsboell
   

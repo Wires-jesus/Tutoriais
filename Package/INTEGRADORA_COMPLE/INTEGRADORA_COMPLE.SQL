@@ -1,4 +1,4 @@
-﻿create or replace package INTEGRADORA_COMPLE is
+create or replace package INTEGRADORA_COMPLE is
 
 ---------------------------------------
 vsVersao varchar(100) := 'v29.4.28.5';

@@ -1,4 +1,4 @@
-﻿create or replace package body IMPORTARINDENIZACOES is
+create or replace package body IMPORTARINDENIZACOES is
 
   /*
 

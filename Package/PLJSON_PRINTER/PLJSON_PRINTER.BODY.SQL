@@ -1,4 +1,4 @@
-﻿create or replace package body pljson_printer as
+create or replace package body pljson_printer as
   max_line_len number := 0;
   cur_line_len number := 0;
   

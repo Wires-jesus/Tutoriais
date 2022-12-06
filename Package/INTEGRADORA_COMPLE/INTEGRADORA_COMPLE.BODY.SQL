@@ -1,4 +1,4 @@
-﻿create or replace package body INTEGRADORA_COMPLE is
+create or replace package body INTEGRADORA_COMPLE is
 
      PROCEDURE proc_registralog
   (

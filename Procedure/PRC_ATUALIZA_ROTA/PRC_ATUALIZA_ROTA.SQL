@@ -1,4 +1,4 @@
-﻿create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar2,
+create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar2,
                                                   p_atualizarotanomomentovenda in varchar2,
                                                   p_codcli      in pcpedc.codcli%type,
                                                   p_codusur     in pcpedc.codusur%type,

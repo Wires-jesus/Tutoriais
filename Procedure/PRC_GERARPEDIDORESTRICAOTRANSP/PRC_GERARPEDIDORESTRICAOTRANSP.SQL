@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_GERARPEDIDORESTRICAOTRANSP (
+CREATE OR REPLACE PROCEDURE PRC_GERARPEDIDORESTRICAOTRANSP (
    pnumped                    IN       NUMBER
   ,pnumpedrest                OUT      NUMBER
   ,pmsg                       OUT      VARCHAR2
