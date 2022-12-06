@@ -2798,7 +2798,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
       IF (NVL(VNLISTANUMTRANSVENDA, 0) = 0) OR (VNLISTANUMTRANSVENDA = -1) THEN
 	    P_ZerarValorPCGMMETACOMB(PNCODMETA);
-        DBMS_OUTPUT.put_line('TRANSAÃ‡ÃƒO NÃƒO ENCONTRADA. CODENTIDADE ' ||
+        DBMS_OUTPUT.put_line('TRANSAÇÃO NÃO ENCONTRADA. CODENTIDADE ' ||
                              DADOSCOMB.CODENTIDADE || ' LINHA ' ||
                              $$PLSQL_LINE);
         EXIT;
