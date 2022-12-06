@@ -1,7 +1,9 @@
 trigger:
     - develop
     - master
-    
+    - release
+    - suporte
+
 pool: "Agente-VD-GO"
     
 steps:
