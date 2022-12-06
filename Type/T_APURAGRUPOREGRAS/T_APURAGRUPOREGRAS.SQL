@@ -1,0 +1,1 @@
+﻿CREATE OR REPLACE TYPE T_ApuraGrupoRegras IS TABLE OF T_ApuraRegra;
