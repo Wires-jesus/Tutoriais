@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY VENDAS IS
+CREATE OR REPLACE PACKAGE BODY VENDAS IS
   -- HISTÓRICO DE MODIFICAÇÕES
   -- Nome               Data      Comentários
   -- --------------   ----------  ------------------------------------------

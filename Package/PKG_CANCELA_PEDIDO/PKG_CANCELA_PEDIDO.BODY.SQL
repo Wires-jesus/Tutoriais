@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE Package body Pkg_Cancela_pedido is
+CREATE OR REPLACE Package body Pkg_Cancela_pedido is
 /*  Package de cancelamento de pedido
     ----------------     Historico     ----------------
     Data        Responsável    Tarefa     Comentario

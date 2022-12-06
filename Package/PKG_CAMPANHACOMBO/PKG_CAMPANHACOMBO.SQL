@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE PKG_CAMPANHACOMBO IS
+CREATE OR REPLACE PACKAGE PKG_CAMPANHACOMBO IS
 
   /*--------------------------------------------------------------------------------------------------------------------
   Autor                Solicitação        Data         Descrição

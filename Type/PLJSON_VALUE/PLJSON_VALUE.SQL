@@ -1,4 +1,4 @@
-﻿create or replace type pljson_value as object (
+create or replace type pljson_value as object (
   
   /*
   Copyright (c) 2010 Jonas Krogsboell

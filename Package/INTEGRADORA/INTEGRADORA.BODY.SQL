@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
+CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
   /*
     Package de Integracao do Winthor com Sistemas de Forca

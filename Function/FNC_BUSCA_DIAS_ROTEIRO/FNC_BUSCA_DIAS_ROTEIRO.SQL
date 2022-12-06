@@ -1,4 +1,4 @@
-﻿create or replace function fnc_busca_dias_roteiro(p_mes          in number,
+create or replace function fnc_busca_dias_roteiro(p_mes          in number,
                                                    p_ano          in number,
                                                    p_semana       in number,
                                                    p_tipo         in varchar2

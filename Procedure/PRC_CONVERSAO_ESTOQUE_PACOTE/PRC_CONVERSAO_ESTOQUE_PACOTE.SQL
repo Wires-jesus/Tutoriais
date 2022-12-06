@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_CONVERSAO_ESTOQUE_PACOTE(p_CondVenda    IN NUMBER,
+CREATE OR REPLACE PROCEDURE PRC_CONVERSAO_ESTOQUE_PACOTE(p_CondVenda    IN NUMBER,
                                                          p_codfilial    IN VARCHAR2,
                                                          p_codprod      IN NUMBER,
                                                          p_qtsolicitada IN NUMBER,

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY FUNCOESVENDAS IS
+CREATE OR REPLACE PACKAGE BODY FUNCOESVENDAS IS
 
   FUNCTION validarpoliticaprecofixo -- 18 parametros
   (p_codprod                 IN NUMBER,

@@ -1,4 +1,4 @@
-﻿create or replace package pljson_ac as
+create or replace package pljson_ac as
   --json type methods
   
   procedure object_remove(p_self in out nocopy pljson, pair_name varchar2);

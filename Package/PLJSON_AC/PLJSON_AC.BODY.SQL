@@ -1,4 +1,4 @@
-﻿create or replace package body pljson_ac as
+create or replace package body pljson_ac as
   procedure object_remove(p_self in out nocopy pljson, pair_name varchar2) as
   begin p_self.remove(pair_name); end;
   procedure object_put(p_self in out nocopy pljson, pair_name varchar2, pair_value pljson_value, position pls_integer default null) as

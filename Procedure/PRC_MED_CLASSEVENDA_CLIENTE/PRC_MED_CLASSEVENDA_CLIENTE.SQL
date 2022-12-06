@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_MED_CLASSEVENDA_CLIENTE(po_vOcorreramErros OUT VARCHAR2,
+CREATE OR REPLACE PROCEDURE PRC_MED_CLASSEVENDA_CLIENTE(po_vOcorreramErros OUT VARCHAR2,
                                                         po_vMsgErros       OUT VARCHAR2)
 /*******************************************************************************
  Nome         : PRC_MED_CLASSEVENDA_CLIENTE

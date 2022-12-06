@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_GERARPEDIDOITEMCOMST (
+CREATE OR REPLACE PROCEDURE PRC_GERARPEDIDOITEMCOMST (
    pnumped                    IN       NUMBER
   ,pnumpedst                  OUT      NUMBER
   ,pmsg                       OUT      VARCHAR2

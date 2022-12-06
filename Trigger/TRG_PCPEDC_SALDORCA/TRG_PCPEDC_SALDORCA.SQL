@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TRIGGER trg_pcpedc_saldorca
+CREATE OR REPLACE TRIGGER trg_pcpedc_saldorca
  BEFORE
   INSERT
  ON pcpedc

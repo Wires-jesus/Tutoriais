@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TRIGGER trg_gravar_pccontato_cgccpfaux
+CREATE OR REPLACE TRIGGER trg_gravar_pccontato_cgccpfaux
  BEFORE
   INSERT OR UPDATE
  ON pccontato

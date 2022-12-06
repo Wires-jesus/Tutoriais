@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_GERARPEDTV8(PNUMPED        IN NUMBER
+CREATE OR REPLACE PROCEDURE PRC_GERARPEDTV8(PNUMPED        IN NUMBER
                                            ,PMSG           OUT VARCHAR2
                                            ,PNUMPEDGERADO  OUT NUMBER
                                            ,PPOSICAOGERADO OUT VARCHAR2

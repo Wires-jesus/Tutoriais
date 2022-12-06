@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TYPE T_REL_CAMPACUMUL_DR IS OBJECT(
+CREATE OR REPLACE TYPE T_REL_CAMPACUMUL_DR IS OBJECT(
     codcamp            NUMBER(6),
     gruporegra         NUMBER(6),
     tipo               VARCHAR2(2),

@@ -1,4 +1,4 @@
-﻿create or replace type pljson under pljson_element (
+create or replace type pljson under pljson_element (
   
   /*
   Copyright (c) 2010 Jonas Krogsboell

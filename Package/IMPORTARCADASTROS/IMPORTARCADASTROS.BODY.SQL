@@ -1,4 +1,4 @@
-﻿create or replace package body IMPORTARCADASTROS is
+create or replace package body IMPORTARCADASTROS is
 
  /*
     Package de Importação de Cadastros com Sistemas de Forca de Vendas

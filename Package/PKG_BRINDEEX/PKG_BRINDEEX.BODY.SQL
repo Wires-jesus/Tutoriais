@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY PKG_BRINDEEX IS
+CREATE OR REPLACE PACKAGE BODY PKG_BRINDEEX IS
 
   /**************************************************************************************************************
   Proposito: Validar novo método de campanhas de brinde (Brinde Express)

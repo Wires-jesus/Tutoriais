@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE PKG_MOTIVOBLOQUEIO IS
+CREATE OR REPLACE PACKAGE PKG_MOTIVOBLOQUEIO IS
 
   /*****************************************************************************************
                                    CURSORES GLOBAIS

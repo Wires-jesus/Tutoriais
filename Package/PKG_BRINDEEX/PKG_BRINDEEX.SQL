@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE PKG_BRINDEEX IS
+CREATE OR REPLACE PACKAGE PKG_BRINDEEX IS
 /******************************************
      Versão 29 Pacote
 ******************************************/

@@ -1,4 +1,4 @@
-﻿create or replace package PKG_GESTAOMETA is
+create or replace package PKG_GESTAOMETA is
 
    -- Author  : DEYVID.COSTA
    -- Created : 10/01/2019 15:19:30
