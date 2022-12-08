@@ -1,0 +1,1 @@
+{"nome":"PKG_PROMOCAO_MED","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"PKG_FUNCOESVENDAS_MED","tipo":"OBJETO_PLSQL","versao":"3.0.02.000"},{"nome":"PCMED_PROMOCAO","tipo":"TABELA","versao":"3.0.01.000"}]}
