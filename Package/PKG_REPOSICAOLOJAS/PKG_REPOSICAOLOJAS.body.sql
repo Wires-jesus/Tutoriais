@@ -8643,6 +8643,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            vrItemPedido.vOBSERVACAOSTFONTE,
                                            vvRETIRAIMPOSTO201); -- DDVENDAS-37042
 
+              vrItemPedido.nVLIPI  := NVL(vnValorIpi,0);
+
               -- Agrega o ICMS no Preço da Transferência (Módulo Vendas) (antes do cálculo de ST - DDMEDICA-2444)
               -- DDVENDAS-37042 - A 316 aplica após calcular o ST
               IF (NVL(vrParamFilial.vUTILIZACONTROLEMEDICAM,'N') <> 'S') THEN
