@@ -39,6 +39,7 @@ CREATE OR REPLACE PACKAGE PKG_DICIONARIOS_MED
   17/10/2022  Anderson Silva     DDVENDAS-38410  Enviar como I - Inclusão nos registros de CDs e Prazos
   19/10/2022  Anderson Silva     DDVENDAS-38410  Enviar faixas começando com zero
   22/11/2022  Anderson Silva     DDVENDAS-39005  Enviar Promoções Futuras como Ativas Hypera
+  12/12/2022  Anderson Silva     DDVENDAS-39326  Gravação obrigatória do campo CODST na 2313 porque passou a ser usado no customizadd
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
          
