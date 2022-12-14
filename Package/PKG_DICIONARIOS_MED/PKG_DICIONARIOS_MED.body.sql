@@ -33,6 +33,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DICIONARIOS_MED
   17/10/2022  Anderson Silva     DDVENDAS-38410  Enviar como I - Inclusão nos registros de CDs e Prazos
   19/10/2022  Anderson Silva     DDVENDAS-38410  Enviar faixas começando com zero
   22/11/2022  Anderson Silva     DDVENDAS-39005  Enviar Promoções Futuras como Ativas Hypera
+  12/12/2022  Anderson Silva     DDVENDAS-39326  Gravação obrigatória do campo CODST na 2313 porque passou a ser usado no customizadd
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -47,13 +48,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38129        v@31.1.5
   DDVENDAS-38410        v@33.0.2
   DDVENDAS-39005        v@33.0.3
+  DDVENDAS-39326        v@33.0.4
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.3';
+    vvVersao := 'v@33.0.4';
   
     RETURN 'MED_' || vvVersao;
     
@@ -1197,6 +1199,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnBaseSt                     PCPEDI.BASEICST%TYPE;
     vnValorSt                    PCPEDI.ST%TYPE;
     vnCodSt                      PCPEDI.CODST%TYPE;
+    vnCodStTribut                PCPEDI.CODST%TYPE;
     vvMensagemSt                 VARCHAR2(2000);
   
     -- Dados do Plano de Pagamento
@@ -5218,6 +5221,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , PCTRIBUT.ALIQICMS1FONTE
                        , PCTRIBUT.ALIQICMS2FONTE
                        , PCTRIBUT.PERCBASEREDSTFONTE
+                       , PCTRIBUT.CODST
                     INTO vnPercIcm
                        , vnPercBaseRedIcm
                        , vnPautaFonte
@@ -5229,6 +5233,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , vnAliqIcms1Fonte
                        , vnAliqIcms2Fonte
                        , vnPercBaseRedStFonte
+                       , vnCodStTribut
                     FROM PCTRIBUT
                    WHERE (PCTRIBUT.CODST = vnCodSt);
                 EXCEPTION
@@ -5244,7 +5249,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vnAliqIcms1Fonte      := 0;
                     vnAliqIcms2Fonte      := 0;
                     vnPercBaseRedStFonte  := 0;
-  
+                    vnCodStTribut         := NULL;
                 END;
                 IF (NVL(vnPercBaseRedIcm,0) = 0) THEN
                   vnPercBaseRedIcm := 100;
@@ -5760,7 +5765,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , vnCodPromocaoMed
                             , vnBaseSt
                             , vnValorSt
-                            , vnCodSt
+                            , NVL(vnCodSt,vnCodStTribut)
                             , vc_RegiaoFilial.CODFILIALST
                             , vc_RegiaoFilial.CODCLIST
                             , NVL(vnPrecoPromocional,0) -->> NÃO PODE FICAR NULO
