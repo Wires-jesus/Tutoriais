@@ -3211,7 +3211,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vSqlEstTransito := vSqlEstTransito || '
                        SELECT PCPEDC.CODFILIAL
                             , PCPEDI.CODPROD
-                            , SUM(PCPEDI.QT) QTTRANSITO
+                            , PCPEDI.QT QTTRANSITO
                             , PCFILIAL.CODIGO
                          FROM PCPEDC
                             , PCPEDI
@@ -3251,7 +3251,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vSqlEstTransito := vSqlEstTransito || '
                        SELECT PCPEDC.CODFILIAL
                             , PCPEDI.CODPROD
-                            , SUM(PCPEDI.QT) QTTRANSITO
+                            , PCPEDI.QT QTTRANSITO
                             , PCFILIAL.CODIGO
                          FROM PCPEDC
                             , PCPEDI
@@ -3390,9 +3390,6 @@ IS PRAGMA SERIALLY_REUSABLE;
                           AND NOT EXISTS (SELECT 1
                                             FROM PCPEDIDO
                                            WHERE NUMTRANSVENDA = PCPEDC.NUMTRANSVENDA)
-                       GROUP BY PCPEDC.CODFILIAL
-                              , PCPEDI.CODPROD
-                              , PCFILIAL.CODIGO
                        UNION ALL ';
          
       IF (TRIM(P_PRODUTO) IS NOT NULL) THEN 
