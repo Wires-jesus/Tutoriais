@@ -1,1 +1,1 @@
-{"nome":"PKG_GESTAOMETA","tipoPLSQL":"PACKAGE","dependencias":""}
+{"nome":"PKG_GESTAOMETA","tipoPLSQL":"PACKAGE","dependencias":[{"nome": "PCGMMETACONSOLIDADA","tipo": "TABELA","versao": "3.0.01.000"}]}
