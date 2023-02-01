@@ -1,1 +1,5 @@
-{"nome":"TD_CONSOLIDA_COTA_PROMOCAO","tipoPLSQL":"TYPE","dependencias":""}
+{"nome":"TD_CONSOLIDA_COTA_PROMOCAO","tipoPLSQL":"TYPE","dependencias":[{
+  "nome": "TR_CONSOLIDA_COTA_PROMOCAO",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+}]}
