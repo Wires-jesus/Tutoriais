@@ -1,0 +1,16 @@
+CREATE OR REPLACE TYPE TR_CONSOLIDA_COTA_PROMOCAO IS OBJECT ( 
+           CODPROMOCAOMED      NUMBER(9),
+           DESCRICAORESUMIDA   VARCHAR2(80),
+           DESCRICAODETALHADA  VARCHAR2(400),
+           DATAINICIAL         DATE,
+           DATAFINAL           DATE,
+           REGRARESTRICAO      VARCHAR2(1),
+           CODCLI              NUMBER(9),
+           CLIENTE             VARCHAR(120),
+           FANTASIA            VARCHAR(80),
+           TIPOCOTA            NUMBER(3),
+           DESCRICAOTIPOCOTA   VARCHAR2(100), 
+           VALORCOTA           NUMBER(16,3),
+           VALORUTILIZADO      NUMBER(16,3),
+           NUMPED              NUMBER(20),
+           CODPROD             NUMBER(12));
