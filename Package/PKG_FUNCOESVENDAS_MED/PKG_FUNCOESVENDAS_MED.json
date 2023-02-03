@@ -1,0 +1,9 @@
+{"nome":"PKG_FUNCOESVENDAS_MED","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"PCTRIBUT","tipo":"TABELA","versao":"3.0.06.000"},{
+  "nome": "TR_CONSOLIDA_COTA_PROMOCAO",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+},{
+  "nome": "TD_CONSOLIDA_COTA_PROMOCAO",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+}]}
