@@ -7210,6 +7210,8 @@ IS
     -- HIS.01277.2017
     vUSACARGAMINIMADEFERIMSTFONTE PCTRIBUT.USACARGAMINIMADEFERIMSTFONTE%TYPE; 
     nPERCARGAMINIMADEFERIMSTFONTE PCTRIBUT.PERCARGAMINIMADEFERIMSTFONTE%TYPE;
+    vUSAVLSTMAIORPERCMINPMC       PCTRIBUT.USAVLSTMAIORPERCMINPMC%TYPE; 
+    nPERVLSTMAIORPERCMINPMC       PCTRIBUT.PERVLSTMAIORPERCMINPMC%TYPE;	
     p_pautafonteaplicado          PCTRIBUT.PAUTAFONTE%TYPE;          -- HIS.01838.2017             
     v_participafuncep             PCCLIENT.PARTICIPAFUNCEP%TYPE;     -- HIS.04200.2017
     v_utilizamotorcalculo         PCTRIBUT.UTILIZAMOTORCALCULO%TYPE; -- HIS.04200.2017
@@ -7459,6 +7461,8 @@ IS
        p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,   -- 5661.146071.2016                  
        p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N', -- HIS.01277.2017
        p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,   -- HIS.01277.2017          
+       p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N', -- DDVENDAS-40134
+       p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,   -- DDVENDAS-40134
        po_nBaseStFonte               OUT NUMBER,
        po_nValorStFonte              OUT NUMBER,
        po_vMensagem                  OUT VARCHAR2,
@@ -7599,6 +7603,8 @@ IS
                                 p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,   -- 5661.146071.2016                  
                                 p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N', -- HIS.01277.2017
                                 p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,   -- HIS.01277.2017     
+                                p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N', -- DDVENDAS-40134
+                                p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,   -- DDVENDAS-40134     								
                                 p_pautafonteaplicado           OUT NUMBER,              -- HIS.01838.2017             
                                 p_observacaostfonte            OUT VARCHAR2,            -- HIS.01838.2017             
                                 p_codfilialfaturamento         IN VARCHAR2,             -- HIS.03371.2017
@@ -7658,6 +7664,7 @@ IS
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
+        vnStPercMinPMC                 NUMBER;
         -- Variáveis Auxiliares da Memória de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
@@ -8981,6 +8988,27 @@ IS
         po_nVlFreteOutrasDespBaseIcms := vnVlFreteOutrasDespBaseSt;
         -- MED-2346 - Retorno do Percentual de Redução da Base de Icms
         po_nPercBaseRedIcmsFecp       := vnpercbaseredIcmsFecp;
+		
+        IF (NVL(p_USAVLSTMAIORPERCMINPMC, 'N') = 'S') AND
+           (NVL(p_PERVLSTMAIORPERCMINPMC,0) > 0) AND
+           (NVL(p_PRECOMAXCONSUM,0) > 0) THEN
+		   
+          vnStPercMinPMC := p_PRECOMAXCONSUM * p_PERVLSTMAIORPERCMINPMC / 100; 
+          
+          IF p_tipocalcst = 'T2' THEN
+            vnStPercMinPMC := trunc((vnStPercMinPMC) * 100) / 100;
+          ELSIF p_tipocalcst = 'A2' THEN
+            vnStPercMinPMC := round((vnStPercMinPMC) * 100) / 100;
+          ELSIF p_tipocalcst = 'PV' THEN
+            vnStPercMinPMC := round(vnStPercMinPMC, p_numcasasdecvenda);       
+          END IF;		   
+		   
+          IF vnStPercMinPMC > vnstfonte THEN
+            vnstfonte := vnStPercMinPMC;
+                                                                                                                                             -- Memória de Cálculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substituição do Valor do ST conforme Percentual Minimo PMC', NULL, NULL, vnstfonte);                                                  			
+          END IF;
+        END IF;		
               
        /*--------------------------------------------------------------------------------------------
         Retornos Base e Valor do ST
@@ -9073,6 +9101,8 @@ IS
                                         p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,   -- 5661.146071.2016                  
                                         p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N', -- HIS.01277.2017
                                         p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,   -- HIS.01277.2017     
+                                        p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N', -- DDVENDAS-40134
+                                        p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,   -- DDVENDAS-40134     										
                                         p_codfilialfaturamento         IN VARCHAR2,             -- HIS.03371.2017
                                         p_USAREDICMNORMVENDASTFONTE    IN VARCHAR2,             -- MED-1080
                                         p_PERCBASERED                  IN NUMBER,               -- MED-1080
@@ -9130,6 +9160,7 @@ IS
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
+        vnStPercMinPMC                 NUMBER;		
         -- Variáveis Auxiliares da Memória de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
@@ -9725,6 +9756,12 @@ IS
             p_mensagem := 'Funcionalidade não habilitada para o ST com Carga Mínima de Deferimento do ST Fonte';
                                                         
           END IF; -- FIM: CARGA MÍNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
+		  
+          IF (p_USAVLSTMAIORPERCMINPMC = 'S') THEN
+                         
+            p_mensagem := 'Funcionalidade não habilitada para o Valor de ST Maior que Percentual Mínimo sobre PMC';
+                                                        
+          END IF; 		  
   
   
   
@@ -10369,6 +10406,8 @@ IS
                                                        p_PERCREDUTORCAT49BASESTFONTE , -- 5661.146071.2016                                                             
                                                        p_USACARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017
                                                        p_PERCARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017     
+                                                       p_USAVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
+                                                       p_PERVLSTMAIORPERCMINPMC, -- DDVENDAS-40134     													   
                                                        p_codfilialfaturamento,         -- HIS.03371.2017
                                                        p_USAREDICMNORMVENDASTFONTE,    -- MED-1080
                                                        p_PERCBASERED,                  -- MED-1080
@@ -10462,6 +10501,8 @@ IS
                                                p_PERCREDUTORCAT49BASESTFONTE , -- 5661.146071.2016                                                             
                                                p_USACARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017
                                                p_PERCARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017     
+                                               p_USAVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
+                                               p_PERVLSTMAIORPERCMINPMC, -- DDVENDAS-40134     											   
                                                p_pautafonteaplicado,           -- HIS.01838.2017             
                                                po_vObservacaoStFonte,          -- HIS.01838.2017                                                        
                                                p_codfilialfaturamento,         -- HIS.03371.2017
@@ -10957,6 +10998,8 @@ IS
            , PCTRIBUT.PERCREDUTORCAT49BASESTFONTE  -- 5661.146071.2016           
            , PCTRIBUT.USACARGAMINIMADEFERIMSTFONTE -- HIS.01277.2017
            , PCTRIBUT.PERCARGAMINIMADEFERIMSTFONTE -- HIS.01277.2017
+           , PCTRIBUT.USAVLSTMAIORPERCMINPMC -- DDVENDAS-40134
+           , PCTRIBUT.PERVLSTMAIORPERCMINPMC -- DDVENDAS-40134		   
            , PCTRIBUT.UTILIZAMOTORCALCULO          -- HIS.04200.2017
            , PCTRIBUT.FORMULAPVENDA                -- HIS.04200.2017  
            , PCTRIBUT.PERACRESCIMOFUNCEP           -- HIS.04200.2017                              
@@ -11007,6 +11050,8 @@ IS
            , nPERCREDUTORCAT49BASESTFONTE  -- 5661.146071.2016  
            , vUSACARGAMINIMADEFERIMSTFONTE -- HIS.01277.2017
            , nPERCARGAMINIMADEFERIMSTFONTE -- HIS.01277.2017
+           , vUSAVLSTMAIORPERCMINPMC -- DDVENDAS-40134
+           , nPERVLSTMAIORPERCMINPMC -- DDVENDAS-40134
            , v_utilizamotorcalculo         -- HIS.04200.2017
            , v_formulapvenda               -- HIS.04200.2017    
            , v_peracrescimofuncep          -- HIS.04200.2017                            
@@ -11257,6 +11302,8 @@ IS
                     nPERCREDUTORCAT49BASESTFONTE , -- 5661.146071.2016                  
                     vUSACARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017
                     nPERCARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017                            
+                    vUSAVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
+                    nPERVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
                     po_nBaseStFonte              , -->> BASE ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_nValorStFonte             , -->> VALOR ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_vMensagem                 , -->> Mensagem de Erro de Retorno 
@@ -11530,6 +11577,8 @@ IS
     -- HIS.01277.2017
     vUSACARGAMINIMADEFERIMSTFONTE PCTRIBUT.USACARGAMINIMADEFERIMSTFONTE%TYPE; 
     nPERCARGAMINIMADEFERIMSTFONTE PCTRIBUT.PERCARGAMINIMADEFERIMSTFONTE%TYPE;
+    vUSAVLSTMAIORPERCMINPMC       PCTRIBUT.USAVLSTMAIORPERCMINPMC%TYPE; 
+    nPERVLSTMAIORPERCMINPMC       PCTRIBUT.PERVLSTMAIORPERCMINPMC%TYPE;	
     p_pautafonteaplicado          PCTRIBUT.PAUTAFONTE%TYPE;          -- HIS.01838.2017             
     v_participafuncep             PCCLIENT.PARTICIPAFUNCEP%TYPE;     -- HIS.04200.2017
     v_utilizamotorcalculo         PCTRIBUT.UTILIZAMOTORCALCULO%TYPE; -- HIS.04200.2017
@@ -11818,6 +11867,8 @@ IS
        p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,   -- 5661.146071.2016                  
        p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N', -- HIS.01277.2017
        p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,   -- HIS.01277.2017          
+       p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N', -- DDVENDAS-40134
+       p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,   -- DDVENDAS-40134
        po_nBaseStFonte               OUT NUMBER,
        po_nValorStFonte              OUT NUMBER,
        po_vMensagem                  OUT VARCHAR2,
@@ -11979,6 +12030,8 @@ IS
                                 p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,
                                 p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N',
                                 p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,
+                                p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N',
+                                p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,								
                                 p_pautafonteaplicado           OUT NUMBER,
                                 p_observacaostfonte            OUT VARCHAR2,
                                 p_codfilialfaturamento         IN VARCHAR2,
@@ -12050,6 +12103,7 @@ IS
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
+        vnStPercMinPMC                 NUMBER;		
         -- Variáveis Auxiliares da Memória de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
@@ -13493,6 +13547,27 @@ IS
         po_nVlFreteOutrasDespBaseIcms := vnVlFreteOutrasDespBaseSt;
         -- MED-2346 - Retorno do Percentual de Redução da Base de Icms
         po_nPercBaseRedIcmsFecp       := vnpercbaseredIcmsFecp;
+		
+        IF (NVL(p_USAVLSTMAIORPERCMINPMC, 'N') = 'S') AND
+           (NVL(p_PERVLSTMAIORPERCMINPMC,0) > 0) AND
+           (NVL(p_PRECOMAXCONSUM,0) > 0) THEN
+		   
+          vnStPercMinPMC := p_PRECOMAXCONSUM * p_PERVLSTMAIORPERCMINPMC / 100; 
+          
+          IF p_tipocalcst = 'T2' THEN
+            vnStPercMinPMC := trunc((vnStPercMinPMC) * 100) / 100;
+          ELSIF p_tipocalcst = 'A2' THEN
+            vnStPercMinPMC := round((vnStPercMinPMC) * 100) / 100;
+          ELSIF p_tipocalcst = 'PV' THEN
+            vnStPercMinPMC := round(vnStPercMinPMC, p_numcasasdecvenda);       
+          END IF;		   
+		   
+          IF vnStPercMinPMC > vnstfonte THEN
+            vnstfonte := vnStPercMinPMC;
+                                                                                                                                             -- Memória de Cálculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substituição do Valor do ST conforme Percentual Minimo PMC', NULL, NULL, vnstfonte);                                                  			
+          END IF;
+        END IF;		
               
        /*--------------------------------------------------------------------------------------------
         Retornos Base e Valor do ST
@@ -13585,6 +13660,8 @@ IS
                                         p_PERCREDUTORCAT49BASESTFONTE  IN NUMBER   DEFAULT 0,   -- 5661.146071.2016                  
                                         p_USACARGAMINIMADEFERIMSTFONTE IN VARCHAR2 DEFAULT 'N', -- HIS.01277.2017
                                         p_PERCARGAMINIMADEFERIMSTFONTE IN NUMBER   DEFAULT 0,   -- HIS.01277.2017     
+                                        p_USAVLSTMAIORPERCMINPMC       IN VARCHAR2 DEFAULT 'N', -- DDVENDAS-40134
+                                        p_PERVLSTMAIORPERCMINPMC       IN NUMBER   DEFAULT 0,   -- DDVENDAS-40134
                                         p_codfilialfaturamento         IN VARCHAR2,             -- HIS.03371.2017
                                         p_USAREDICMNORMVENDASTFONTE    IN VARCHAR2,             -- MED-1080
                                         p_PERCBASERED                  IN NUMBER,               -- MED-1080
@@ -13643,6 +13720,7 @@ IS
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
+        vnStPercMinPMC                 NUMBER;		
         -- Variáveis Auxiliares da Memória de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
@@ -14240,6 +14318,12 @@ IS
             p_mensagem := 'Funcionalidade não habilitada para o ST com Carga Mínima de Deferimento do ST Fonte';
                                                         
           END IF; -- FIM: CARGA MÍNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
+		  
+          IF (p_USAVLSTMAIORPERCMINPMC = 'S') THEN
+                         
+            p_mensagem := 'Funcionalidade não habilitada para o Valor de ST Maior que Percentual Mínimo sobre PMC';
+                                                        
+          END IF;		  
   
   
   
@@ -14884,6 +14968,8 @@ IS
                                                        p_PERCREDUTORCAT49BASESTFONTE , -- 5661.146071.2016                                                             
                                                        p_USACARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017
                                                        p_PERCARGAMINIMADEFERIMSTFONTE, -- HIS.01277.2017     
+                                                       p_USAVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
+                                                       p_PERVLSTMAIORPERCMINPMC, -- DDVENDAS-40134
                                                        p_codfilialfaturamento,         -- HIS.03371.2017
                                                        p_USAREDICMNORMVENDASTFONTE,    -- MED-1080
                                                        p_PERCBASERED,                  -- MED-1080
@@ -14978,6 +15064,8 @@ IS
                                                p_PERCREDUTORCAT49BASESTFONTE ,
                                                p_USACARGAMINIMADEFERIMSTFONTE,
                                                p_PERCARGAMINIMADEFERIMSTFONTE,
+                                               p_USAVLSTMAIORPERCMINPMC,
+                                               p_PERVLSTMAIORPERCMINPMC,											   
                                                p_pautafonteaplicado,
                                                po_vObservacaoStFonte,
                                                p_codfilialfaturamento,
@@ -15560,6 +15648,8 @@ IS
            , PCTRIBUT.PERCREDUTORCAT49BASESTFONTE
            , PCTRIBUT.USACARGAMINIMADEFERIMSTFONTE
            , PCTRIBUT.PERCARGAMINIMADEFERIMSTFONTE
+           , PCTRIBUT.USAVLSTMAIORPERCMINPMC
+           , PCTRIBUT.PERVLSTMAIORPERCMINPMC
            , PCTRIBUT.UTILIZAMOTORCALCULO
            , PCTRIBUT.FORMULAPVENDA
            , PCTRIBUT.PERACRESCIMOFUNCEP
@@ -15625,6 +15715,8 @@ IS
            , nPERCREDUTORCAT49BASESTFONTE
            , vUSACARGAMINIMADEFERIMSTFONTE
            , nPERCARGAMINIMADEFERIMSTFONTE
+           , vUSAVLSTMAIORPERCMINPMC
+           , nPERVLSTMAIORPERCMINPMC		   
            , v_utilizamotorcalculo
            , v_formulapvenda
            , v_peracrescimofuncep
@@ -15925,6 +16017,8 @@ IS
                     nPERCREDUTORCAT49BASESTFONTE ,
                     vUSACARGAMINIMADEFERIMSTFONTE,
                     nPERCARGAMINIMADEFERIMSTFONTE,
+                    vUSAVLSTMAIORPERCMINPMC      ,
+                    nPERVLSTMAIORPERCMINPMC      ,
                     po_nBaseStFonte              , -->> BASE ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_nValorStFonte             , -->> VALOR ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_vMensagem                 , -->> Mensagem de Erro de Retorno 
