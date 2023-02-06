@@ -16267,4 +16267,3 @@ IS
   END F_OBTER_ST_FONTE;
                                            
 END PKG_FUNCOESVENDAS_MED;
-/
