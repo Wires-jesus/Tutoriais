@@ -34,6 +34,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DICIONARIOS_MED
   19/10/2022  Anderson Silva     DDVENDAS-38410  Enviar faixas começando com zero
   22/11/2022  Anderson Silva     DDVENDAS-39005  Enviar Promoções Futuras como Ativas Hypera
   12/12/2022  Anderson Silva     DDVENDAS-39326  Gravação obrigatória do campo CODST na 2313 porque passou a ser usado no customizadd
+  22/02/2023  Anderson Silva     DDVENDAS-40602  ST Antecipado
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -49,13 +50,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38410        v@33.0.2
   DDVENDAS-39005        v@33.0.3
   DDVENDAS-39326        v@33.0.4
+  DDVENDAS-40602        v@33.0.5
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.4';
+    vvVersao := 'v@33.0.5';
   
     RETURN 'MED_' || vvVersao;
     
@@ -624,9 +626,16 @@ IS PRAGMA SERIALLY_REUSABLE;
          nCODCONFIGFUNCEPMED           PCPEDI.CODCONFIGFUNCEPMED%TYPE  -- HIS.04200.2017
          );
     vrDadosFuncep                      TRecDadosFuncep;
+    --
+    vnBCSTRETANTERIOR                  NUMBER;
+    vnVLICMSSUBSTITUTOANTERIOR         NUMBER;                               
+    vnVLICMSSTRETANTERIOR              NUMBER;
+    vnSTCLIENTEGNRE                    NUMBER;
+    vnPMPF                             NUMBER;
+    vvClienteFonteSt                   VARCHAR2(255);
   BEGIN
 
-    PKG_MEDICAMENTOS.P_OBTEM_STFONTE_40(pi_vCodFilial,
+    PKG_MEDICAMENTOS.P_OBTEM_STFONTE_42(pi_vCodFilial,
                                         pi_nCodProd,
                                         pi_nCodCli,
                                         pi_nNumRegiao,
@@ -675,10 +684,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         'F', -- pi_vOrdemCalculo
                                         'N', -- pi_vMemoriaCalculo
                                         0,   -- pi_nValorNotaFiscal
-                                        'N'  -- pi_vPedidoAvaria
-                                        );
+                                        'N', -- pi_vPedidoAvaria
+                                        vnBCSTRETANTERIOR,
+                                        vnVLICMSSUBSTITUTOANTERIOR,                               
+                                        vnVLICMSSTRETANTERIOR,
+                                        vnSTCLIENTEGNRE,
+                                        vnPMPF,
+                                        vvClienteFonteSt);
 
-    po_nValorStFonte := NVL(po_nValorStFonte,0) + NVL(vrDadosFuncep.nVLFECP,0);
+    po_nValorStFonte := NVL(po_nValorStFonte,0) + NVL(vrDadosFuncep.nVLFECP,0) + NVL(vnVLICMSSTRETANTERIOR,0);
 
   END P_OBTEM_STFONTE_4PMPF;
 
