@@ -26,6 +26,7 @@ CREATE OR REPLACE PACKAGE PKG_FUNCOESVENDAS_MED
   28/09/2022  Anderson Silva     DDVENDAS-38075 - PMC não entra nas Exceções CMED
   06/10/2022  Anderson Silva     DDVENDAS-38166 - Validação de Cotas da Promoção
   30/01/2023  Anderson Silva     DDVENDAS-40111 - Consolidação do uso das cotas da promoção  
+  28/02/2023  Anderson Silva     DDVENDAS-40446 - Performance cálculo Função PIS_COFINS_ICMS
  ************************************************************************************************/
 IS
 
