@@ -1306,6 +1306,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtEstoque_CodProd            TTEstoque_CodProd;
     vtEstoque_Saldo              TTEstoque_Saldo;
     vtEstoque_CodProd_Saldo      TTEstoque_Saldo;
+    vvBLOQUEIAVENDAESTPENDENTE   PCPARAMFILIAL.VALOR%TYPE;	
     -- Estoque do Produto
     vnSaldoEstoque               PCEST.QTESTGER%TYPE;
   
@@ -4706,7 +4707,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -------------------------------------------------------------------------------------------------
     -- LAÇO DE REGIÕES E FILIAIS
     ----------------------------
-    ----------------------------
+    ----------------------------	
     vbAchouCondicoes := FALSE;
     FOR vc_RegiaoFilial IN (SELECT DISTINCT -- Precisa do Distinct por causa das Condições de Venda
                                    PCMED_VIEWOLSISTCONDVENDA_TMP.NUMREGIAO
@@ -4789,12 +4790,31 @@ IS PRAGMA SERIALLY_REUSABLE;
       vtEstoque_CodProd.DELETE;
       vtEstoque_Saldo.DELETE;
       vtEstoque_CodProd_Saldo.DELETE;
-      SELECT CODPROD
-           , (NVL(QTESTGER,0) - NVL(QTRESERV,0) - NVL(QTBLOQUEADA,0))
-      BULK COLLECT INTO vtEstoque_CodProd
-                      , vtEstoque_Saldo
-       FROM PCEST
-      WHERE (CODFILIAL = vvCodFilialRetira); -- DDMEDICA-5782
+	  
+      vvBLOQUEIAVENDAESTPENDENTE := 'N';
+      IF vnNumDicionario = 18 THEN
+        POBTEM_PARAMFILIAL_STRING(vc_RegiaoFilial.CODFILIALST,
+                                  'BLOQUEIAVENDAESTPENDENTE',
+                                  'N',
+                                  vvBLOQUEIAVENDAESTPENDENTE);	  
+      END IF;	  
+      
+      IF NVL(vvBLOQUEIAVENDAESTPENDENTE, 'N') = 'S' THEN	  
+        SELECT CODPROD
+             , GREATEST((NVL(QTESTGER,0) - NVL(QTRESERV,0) - NVL(QTBLOQUEADA,0) - NVL(QTPENDENTE,0)), 0)
+        BULK COLLECT INTO vtEstoque_CodProd
+                        , vtEstoque_Saldo
+         FROM PCEST
+        WHERE (CODFILIAL = vvCodFilialRetira); -- DDMEDICA-5782	  	  
+      ELSE
+        SELECT CODPROD
+             , GREATEST((NVL(QTESTGER,0) - NVL(QTRESERV,0) - NVL(QTBLOQUEADA,0)), 0)
+        BULK COLLECT INTO vtEstoque_CodProd
+                        , vtEstoque_Saldo
+         FROM PCEST
+        WHERE (CODFILIAL = vvCodFilialRetira); -- DDMEDICA-5782	  
+      END IF;
+	  
       -- Carrega Array Indexado pelo Produto
       IF (vtEstoque_CodProd.COUNT > 0) THEN
         FOR viIdxEstoque IN vtEstoque_CodProd.FIRST..vtEstoque_CodProd.LAST LOOP
