@@ -1,0 +1,1 @@
+{"nome":"P_CTBCONTABILIZALANCAMENTOS","tipoPLSQL":"PROCEDURE","dependencias":[{"nome":"PCFILASALDOCNB","tipo":"TABELA","versao":"3.0.01.000"}]}
