@@ -65,6 +65,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GRAVACAO_PEDIDO_MED
   03/11/2022  Anderson Silva     DDVENDAS-38538 - Serviço de Limite de Crédito
   08/11/2022  Anderson Silva     DDVENDAS-38786 - Alteração da forma de incluir um novo pedido por quebra
   14/12/2022  Anderson Silva     DDVENDAS-39352 - Ajuste descrição produto críticas promoções
+  24/03/2023  Anderson Silva     DDVENDAS-41227 - Validar múltiplo no corte
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -96,13 +97,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38538        v@33.0.3
   DDVENDAS-38786        v@33.0.4
   DDVENDAS-39352        v@33.0.5  
+  DDVENDAS-41227        v@33.0.6
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.5';
+    vvVersao := 'v@33.0.6';
   
     RETURN 'MED_' || vvVersao;
     
@@ -3578,7 +3580,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                               pi_nCondVenda          IN NUMBER,
                               pi_nCodProd            IN NUMBER,
                               pi_nQt                 IN NUMBER,
-                              po_vDescricaoRejeicao OUT VARCHAR2)
+                              pi_vCodFilial          IN VARCHAR2, -- DDVENDAS-41227
+                              po_vDescricaoRejeicao OUT VARCHAR2,
+                              po_nMultiplo          OUT NUMBER)   -- DDVENDAS-41227
   RETURN BOOLEAN IS
     vbRetValidarMultiplo    BOOLEAN;
     vVALIDARMULTIPLOVENDA   PCCLIENT.VALIDARMULTIPLOVENDA%TYPE;
@@ -3603,18 +3607,24 @@ IS PRAGMA SERIALLY_REUSABLE;
         vVALIDARMULTIPLOVENDA := 'N';
     END;
     
-    -- Pesquisa Dados do Produto
+    -- Pesquisa Dados do Produto (DDVENDAS-41227 - PCPRODFILIAL)
     BEGIN
-      SELECT CHECARMULTIPLOVENDABNF
-           , MULTIPLO
-        INTO vCHECARMULTIPLOVENDABNF
-           , nMULTIPLO
+      SELECT NVL((SELECT PCPRODFILIAL.MULTIPLO
+                    FROM PCPRODFILIAL
+                  WHERE PCPRODFILIAL.CODPROD = PCPRODUT.CODPROD
+                    AND PCPRODFILIAL.CODFILIAL = '1'), PCPRODUT.MULTIPLO) MULTIPLO
+           , NVL((SELECT PCPRODFILIAL.CHECARMULTIPLOVENDABNF
+                    FROM PCPRODFILIAL
+                  WHERE PCPRODFILIAL.CODPROD = PCPRODUT.CODPROD
+                    AND PCPRODFILIAL.CODFILIAL = '1'), PCPRODUT.CHECARMULTIPLOVENDABNF) MULTIPLO         
+        INTO nMULTIPLO
+           , vCHECARMULTIPLOVENDABNF
         FROM PCPRODUT
-       WHERE (CODPROD = pi_nCodProd);
+      WHERE (PCPRODUT.CODPROD = pi_nCodProd);                      
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        vCHECARMULTIPLOVENDABNF := 'N';
         nMULTIPLO               := 1;
+        vCHECARMULTIPLOVENDABNF := 'N';
     END;
     
     -- Quantidade para Validação
@@ -3661,11 +3671,51 @@ IS PRAGMA SERIALLY_REUSABLE;
        end if;
 
     end if;
+
+    -- Retorna também o múltiplo -- DDVENDAS-41227
+    po_nMultiplo := nMULTIPLO;
     
     -- Retorno
     RETURN vbRetValidarMultiplo;
   
   END F_VALIDAR_MULTIPLO;
+
+ /*******************************************************************************
+  Nome         : F_OBTER_ESTOQUE_MULTIPLO
+  Descricão    : Funçao para Obter o Estoque Múltiplo - DDVENDAS-41227
+  ********************************************************************************/   
+  FUNCTION F_OBTER_ESTOQUE_MULTIPLO(pi_nCodCli            IN NUMBER,
+                                    pi_nCondVenda         IN NUMBER,
+                                    pi_nCodProd           IN NUMBER,
+                                    pi_nQt                IN NUMBER,
+                                    pi_vCodFilial         IN VARCHAR2,
+                                    pi_nEstoqueDisponivel IN NUMBER)
+  RETURN NUMBER IS
+    vnRetEstoqueMultiplo NUMBER;
+    vvDescricaoRejeicao  VARCHAR2(2000);
+    vnMultiplo           NUMBER;
+  BEGIN
+  
+    -- Inicializa Retorno
+    vnRetEstoqueMultiplo := 0;
+
+    -- Se Valida o Estoque Múltiplo
+    IF F_VALIDAR_MULTIPLO(pi_nCodCli,
+                          pi_nCondVenda,
+                          pi_nCodProd,
+                          pi_nQt,
+                          pi_vCodFilial,
+                          vvDescricaoRejeicao,
+                          vnMultiplo)  THEN
+
+      vnRetEstoqueMultiplo := TRUNC(NVL(pi_nEstoqueDisponivel,0) / NVL(vnMultiplo,0)) * NVL(vnMultiplo,0);                          
+
+    END IF;
+    
+    -- Retorno
+    RETURN vnRetEstoqueMultiplo;
+  
+  END F_OBTER_ESTOQUE_MULTIPLO;  
   
  /*******************************************************************************
   Nome         : F_VALIDAR_MULTIPLO
@@ -4230,6 +4280,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnQtdeLimite             NUMBER);
     vrDadosRetValidaProd          TRecDadosRetValidaProd;
 
+    vnMultiplo                    NUMBER; -- DDVENDAS-41227
+
   BEGIN
 
     -- Inicializa Retornos
@@ -4771,7 +4823,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                nCONDVENDA,
                                vrDadosItens.CODPROD,
                                vrDadosItens.QT,
-                               vvDescricaoRejeicao)) THEN
+                               pi_vCodFilial,    -- DDVENDAS-41227
+                               vvDescricaoRejeicao,
+                               vnMultiplo)) THEN -- DDVENDAS-41227
           P_INSERE_TABTEMP(pi_nNumPed,
                            vrDadosItens.CODPROD,
                            vrDadosItens.NUMSEQ,
@@ -7472,6 +7526,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnOrigemChamadaReservaEst           NUMBER;
     vvOperacaoReservaEst                VARCHAR2(10);
     vbPedidoPodeAtualizarEstoque        BOOLEAN; 
+    vnEstoqueMultiplo                   NUMBER;  -- DDVENDAS-41227
   
     -- Variável auxiliar de Cálculo do Estoque Disponível
     vnQtReserv_Pedido                   PCEST.QTRESERV%TYPE;
@@ -16913,9 +16968,31 @@ IS PRAGMA SERIALLY_REUSABLE;
             --------------------------------
                               
             -- Se não tem Quantidade suficiente para atender a Quantidade do Item do Pedido
-            IF (NVL(vnEstoqueDisponivel,0) < NVL(vrItemPedValidarVlMinimo.vnQtdeAtendida,0)) THEN              
+            IF (NVL(vnEstoqueDisponivel,0) < NVL(vrItemPedValidarVlMinimo.vnQtdeAtendida,0)) THEN    
+
               -- A Quantidade Atendida será Restringida ao Estoque Disponivel
               vrItemPedValidarVlMinimo.vnQtdeAtendida := NVL(vnEstoqueDisponivel,0);                
+
+              ------------------------------------------------------------------
+              -- RECALCULO DA QUANTIDADE ATENDIDA quando Multiplo DDVENDAS-41227
+              ------------------------------------------------------------------
+
+              vnEstoqueMultiplo := F_OBTER_ESTOQUE_MULTIPLO(vrPedido.vnCodCli,
+                                                            vrPedido.vnCondVenda,
+                                                            vrItemPedValidarVlMinimo.vnCodProd,
+                                                            vrItemPedValidarVlMinimo.vnQtdeAtendida,
+                                                            vrPedido.vvCodFilial,
+                                                            NVL(vnEstoqueDisponivel,0));
+
+              -- Se não tem Quantidade Multipla suficiente para atender a Quantidade do Item do Pedido
+              IF (NVL(vnEstoqueMultiplo,0) > 0) AND
+                 (NVL(vnEstoqueMultiplo,0) < NVL(vrItemPedValidarVlMinimo.vnQtdeAtendida,0)) THEN              
+
+                -- A Quantidade Atendida será Restringida ao Estoque Multiplo Disponivel
+                vrItemPedValidarVlMinimo.vnQtdeAtendida := NVL(vnEstoqueMultiplo,0);
+
+              END IF;
+
             END IF;               
             
             -- Guarda o Estoque Disponível
@@ -18029,6 +18106,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   ------------------------------------------------------------------------------------------
                   IF (po_vPosicaoFinalPedido IN ('L','M')) OR
                      (NVL(vvCortarItemSemEstPedBloq,'N') = 'S') THEN -- MED-2625
+
+                    vnEstoqueMultiplo := 0; -- DDVENDAS-41227
                 
                     -------------------------------------------
                     -- Pesquisa Informações de Estoque da PCEST 
@@ -18140,17 +18219,39 @@ IS PRAGMA SERIALLY_REUSABLE;
                     IF (vrItemPedido.OLD_vPOSICAO IN ('L','M')) THEN
                       vnEstoqueDisponivel := NVL(vnEstoqueDisponivel,0) + NVL(vrItemPedido.OLD_nQT,0); 
                     END IF;
-          
+
                     ------------------------------------------------------------
                     -- RECALCULO DA QUANTIDADE ATENDIDA com o Estoque Atualizado
                     ------------------------------------------------------------
                         
                     -- Se não tem Quantidade suficiente para atender a Quantidade do Item do Pedido
                     IF (NVL(vnEstoqueDisponivel,0) < NVL(vrItemPedido.vnQtdeAtendida,0)) THEN              
+
                       -- A Quantidade Atendida será Restringida ao Estoque Disponivel
-                      vrItemPedido.vnQtdeAtendida := NVL(vnEstoqueDisponivel,0);                
+                      vrItemPedido.vnQtdeAtendida := NVL(vnEstoqueDisponivel,0);
+
+                      ------------------------------------------------------------------
+                      -- RECALCULO DA QUANTIDADE ATENDIDA quando Multiplo DDVENDAS-41227
+                      ------------------------------------------------------------------
+
+                      vnEstoqueMultiplo := F_OBTER_ESTOQUE_MULTIPLO(vrPedido.vnCodCli,
+                                                                    vrPedido.vnCondVenda,
+                                                                    vrItemPedido.vnCodProd,
+                                                                    vrItemPedido.vnQtdeAtendida,
+                                                                    vrPedido.vvCodFilial,
+                                                                    NVL(vnEstoqueDisponivel,0));
+
+                      -- Se não tem Quantidade Multipla suficiente para atender a Quantidade do Item do Pedido
+                      IF (NVL(vnEstoqueMultiplo,0) > 0) AND
+                         (NVL(vnEstoqueMultiplo,0) < NVL(vrItemPedido.vnQtdeAtendida,0)) THEN              
+
+                        -- A Quantidade Atendida será Restringida ao Estoque Multiplo Disponivel
+                        vrItemPedido.vnQtdeAtendida := NVL(vnEstoqueMultiplo,0);
+
+                      END IF;
+
                     END IF;               
-                                                                                        
+
                     ----------------------------------
                     -- CALCULO DA QUANTIDADE DE FALTAS
                     ----------------------------------
@@ -18778,7 +18879,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                  'vnQtdePedido = '                     || vrItemPedido.vnQtdePedido     || CHR(13) ||
                                                  'vnQtdeAtendida = '                   || vrItemPedido.vnQtdeAtendida   || CHR(13) ||
                                                  'OLD_nQT = '                          || vrItemPedido.OLD_nQT          || CHR(13) ||
-                                                 'vvOperacaoReservaEst = '             || vvOperacaoReservaEst,
+                                                 'vvOperacaoReservaEst = '             || vvOperacaoReservaEst          || CHR(13) ||
+                                                 'vnEstoqueMultiplo = '                || vnEstoqueMultiplo,            -- DDVENDAS-41227',
                                                  vrItemPedido.vnCodProd);                                                                                        
                     
                     END IF; -- Fim Condição: Se precisa Atualizar o Estoque  
