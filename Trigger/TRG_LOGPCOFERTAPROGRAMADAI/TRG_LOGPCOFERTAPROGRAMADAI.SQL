@@ -1,0 +1,33 @@
+﻿DELETE FROM PCVERSAOBD
+WHERE ROTINA='PCSIS2000.PC' AND OPCAO=52;
+
+CREATE OR REPLACE TRIGGER TRG_LOGPCOFERTAPROGRAMADAI
+AFTER INSERT OR UPDATE OR DELETE ON PCOFERTAPROGRAMADAI
+REFERENCING OLD AS OLD NEW AS NEW
+FOR EACH ROW
+BEGIN
+  IF DELETING THEN
+      INSERT INTO PCOFERTAPROGRAMADAI_HIST (DATAALTER, CODFILIAL, CODOFERTA, CODITEM, CODAUXILIAR,
+                                            VLOFERTA, MOTIVOOFERTA, DTEMISSAOETIQ,
+                                            QTMAXVENDA, CODOFERTAORIG, QTMAXOFERTA,
+                                            QTVENDAOFERTA, VLOFERTAATAC, CODPROD,
+                                            RECOMPOSICAO, MOTIVO, DATAEXCLUSAO)
+                                    VALUES (SYSDATE, :OLD.CODFILIAL, :OLD.CODOFERTA, :OLD.CODITEM, :OLD.CODAUXILIAR,
+                                            :OLD.VLOFERTA, :OLD.MOTIVOOFERTA, :OLD.DTEMISSAOETIQ,
+                                            :OLD.QTMAXVENDA, :OLD.CODOFERTAORIG, :OLD.QTMAXOFERTA,
+                                            :OLD.QTVENDAOFERTA, :OLD.VLOFERTAATAC, :OLD.CODPROD,
+                                            :OLD.RECOMPOSICAO, :OLD.MOTIVO, SYSDATE);
+    END IF;
+    IF (INSERTING OR UPDATING) THEN
+      INSERT INTO PCOFERTAPROGRAMADAI_HIST (DATAALTER, CODFILIAL, CODOFERTA, CODITEM, CODAUXILIAR,
+                                            VLOFERTA, MOTIVOOFERTA, DTEMISSAOETIQ,
+                                            QTMAXVENDA, CODOFERTAORIG, QTMAXOFERTA,
+                                            QTVENDAOFERTA, VLOFERTAATAC, CODPROD,
+                                            RECOMPOSICAO, MOTIVO, DATAEXCLUSAO)
+                                    VALUES (SYSDATE, :NEW.CODFILIAL, :NEW.CODOFERTA, :NEW.CODITEM, :NEW.CODAUXILIAR,
+                                            :NEW.VLOFERTA, :NEW.MOTIVOOFERTA, :NEW.DTEMISSAOETIQ,
+                                            :NEW.QTMAXVENDA, :NEW.CODOFERTAORIG, :NEW.QTMAXOFERTA,
+                                            :NEW.QTVENDAOFERTA, :NEW.VLOFERTAATAC, :NEW.CODPROD,
+                                            :NEW.RECOMPOSICAO, :NEW.MOTIVO, :NEW.DATAEXCLUSAO);
+    END IF;
+END;

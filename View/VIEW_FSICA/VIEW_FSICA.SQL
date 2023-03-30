@@ -1,0 +1,44 @@
+﻿CREATE OR REPLACE VIEW VIEW_FSICA 
+AS
+SELECT PCFICHAREST.NUMFICHA
+       ,PCFICHAREST.CODFILIAL
+       ,CASE WHEN REGISTROS.NUMFICHA IS NULl     THEN 'L' --Sem venda e livre
+             WHEN REGISTROS.NUMFICHA IS NOT NULL 
+              AND REGISTROS.DTCANCEL IS NOT NULL THEN 'L' --Verifica se esta cancelado a ficha
+             WHEN REGISTROS.NUMFICHA IS NOT NULL 
+              AND REGISTROS.QTITENS = 0 THEN 'L' --Verifica se esta cancelado a ficha
+             ELSE 'C'
+        END STATUSCOMANDA
+   FROM PCFICHAREST
+      , (SELECT F.NUMFICHA
+              , C.DTCANCEL
+              , C.CODFILIAL
+              , NVL((SELECT COUNT(1)
+                      FROM PCORCAVENDAI
+                     WHERE PCORCAVENDAI.NUMORCA = C.NUMORCA),0) QTITENS
+           FROM PCFICHAREST F
+              , PCORCAVENDAC C
+              , (SELECT CASE WHEN COUNT(1) > 0 THEN 'S' ELSE 'N' END MESAEDICAO
+                      , NUMFICHA
+                      , CODFILIAL
+                   FROM PCLOGMOVFICHA
+                  WHERE (DTGRAVACAO IS NULL) AND (DTCANCELAMENTO IS NULL)
+                  GROUP 
+                     BY NUMFICHA
+                      , CODFILIAL) TBLFICHAEMEDICAO
+          WHERE F.DTINATIV IS NULL
+            AND C.NUMFICHA = F.NUMFICHA
+            AND C.CODFILIAL = F.CODFILIAL
+            AND C.NUMFICHA = TBLFICHAEMEDICAO.NUMFICHA(+)
+            AND C.CODFILIAL = TBLFICHAEMEDICAO.CODFILIAL(+)
+            AND C.DTIMPORTACAO IS NULL
+            --AND C.DTCANCEL IS NULL
+            AND C.NUMFICHA IS NOT NULL
+            AND F.DTINATIV IS NULL
+            AND NVL(C.ORCAMENTOUTILIZADO, 'N') = 'N'
+            --AND NVL(F.TIPO, 'F') IN ('F') Todas os tipos
+            ) REGISTROS
+  WHERE PCFICHAREST.NUMFICHA = REGISTROS.NUMFICHA(+)
+    AND PCFICHAREST.CODFILIAL = REGISTROS.CODFILIAL(+)
+ORDER BY PCFICHAREST.NUMFICHA
+       ,PCFICHAREST.CODFILIAL

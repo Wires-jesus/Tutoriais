@@ -1,0 +1,35 @@
+﻿CREATE OR REPLACE FUNCTION F_LIMPA_MD5PAF RETURN  VARCHAR2
+IS VRESULTADO VARCHAR2(1);
+   VSPROGRAMA VARCHAR2(48);
+   vCXECF NUMBER(4);
+   PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+  VRESULTADO := 'N';
+  
+   SELECT COUNT(*) 
+    INTO vCXECF
+    FROM PCCAIXA 
+   WHERE UPPER(PCCAIXA.TIPODOCFISCAL) = 'ECF'
+     AND DTFIM IS NULL;
+  
+  IF (vCXECF > 0) THEN
+    VSPROGRAMA    := F_OBTERNOMEAPLICACAO;
+    /*
+    Verificar se e um aplicativo PC Sistemas
+      * PC = PCSISXXXX.PC,
+      * AU = AutoServico.Faturamento.exe
+      * WI = WinthorAnyWare
+  */
+  IF (SUBSTR(UPPER(VSPROGRAMA), 1, 2) IN ('PC', 'AU', 'WI')) THEN
+
+    /*So deve atualizar caso a aplicação seja diferente de 2030*/
+    IF (SUBSTR(UPPER(VSPROGRAMA), 6, 4) <> '2030') THEN
+      VRESULTADO := 'S';
+    END IF;
+
+  END IF;
+  
+END IF;
+  RETURN VRESULTADO;
+
+END F_LIMPA_MD5PAF;
