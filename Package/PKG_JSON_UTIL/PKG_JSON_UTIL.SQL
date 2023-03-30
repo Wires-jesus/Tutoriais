@@ -1,0 +1,31 @@
+﻿CREATE OR REPLACE PACKAGE PKG_JSON_UTIL
+AS
+
+  /*
+
+  PURPOSE:    JSON UTILITIES FOR PL/SQL
+
+  REMARKS:
+
+  WHO     DATE        DESCRIPTION
+  ------  ----------  -------------------------------------
+  VALK    10.01.2018  CREATED - WINTHOR
+  SAN
+  DRO
+
+  */
+
+  -- GENERATE JSON FROM REF CURSOR
+  FUNCTION REF_CURSOR_TO_JSON (P_REF_CURSOR IN SYS_REFCURSOR,
+                               P_MAX_ROWS IN NUMBER := NULL,
+                               P_SKIP_ROWS IN NUMBER := NULL) RETURN CLOB;
+
+  -- GENERATE JSON FROM SQL STATEMENT
+  FUNCTION SQL_TO_JSON (P_SQL IN VARCHAR2,
+                        P_PARAM_NAMES IN T_PC_STR_ARRAY := NULL,
+                        P_PARAM_VALUES IN T_PC_STR_ARRAY := NULL,
+                        P_MAX_ROWS IN NUMBER := NULL,
+                        P_SKIP_ROWS IN NUMBER := NULL) RETURN CLOB;
+
+
+END PKG_JSON_UTIL; 
