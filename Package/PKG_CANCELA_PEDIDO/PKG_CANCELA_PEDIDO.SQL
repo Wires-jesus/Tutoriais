@@ -1,4 +1,4 @@
-create or replace package Pkg_cancela_pedido
+﻿create or replace package Pkg_cancela_pedido
 is
 /*  Package de cancelamento de pedido
 

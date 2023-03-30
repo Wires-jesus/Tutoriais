@@ -1,3 +1,4 @@
+﻿
 CREATE OR REPLACE Package body Pkg_Cancela_pedido is
 /*  Package de cancelamento de pedido
     ----------------     Historico     ----------------
@@ -942,9 +943,7 @@ end if;
    vnvltotal                       pcpedc.vltotal%type;
    vntotpeso                       pcpedc.totpeso%type;
    vntotvolume                     pcpedc.totvolume%type;
-   vnnumitens                      pcpedc.numitens%type;
-
-    
+   vnnumitens                      pcpedc.numitens%type;    
                              
   begin
   
@@ -1163,9 +1162,6 @@ end if;
    vnnumpedentfut                  pcpedc.numpedentfut%type;
    vsmensagemtv8                   varchar2(1000);
    vnnovopedidogerado              pcpedc.numped%type;
-   vs_movest                       varchar2(100);
-   msgest                          varchar2(1000);
-   ERRO_BAIXA_ESTOQUE              EXCEPTION;
    
   begin
 
@@ -1274,7 +1270,7 @@ end if;
                for reg_itens in (select pcpedi.codprod,pcpedi.numseq,pcpedi.qt,pcpedi.posicao,pcpedi.pvenda,pcpedi.ptabela,pcpedi.pbaserca,
                                         pcpedi.numlote,pcpedi.codcertific,pcpedi.pesobruto,pcpedi.codauxiliar
                                  from pcpedi
-                                 where pcpedi.numped  = regpedido.numped
+                                 where pcpedi.numped  = regpedido.numped 
                                  and   pcpedi.codprod = cr_pcest.codprod
                                   ) loop
 
@@ -1350,40 +1346,25 @@ end if;
                            end if;
 
                           begin
-
-                            vs_movest := pkg_estoque.RESERVA_BAIXAR(regpedido.numped, reg_itens.codprod, reg_itens.numseq,  'BQ', msgest);
-
-                            if vs_movest = 'N' THEN
-                              RAISE ERRO_BAIXA_ESTOQUE;
-                            END IF;
-
-                          exception
-                          when ERRO_BAIXA_ESTOQUE then
-                            vsmensagem := 'Erro ao baixar estoque: '||SQLCODE||'-'||SQLERRM||' - '||msgest;
+                            update pcest
+                            set qtreserv = greatest((nvl(qtreserv,0) - reg_itens.qt),0)
+                            where codfilial = cr_pcest.codfilial
+                            and   codprod   = cr_pcest.codprod;
+                                                exception when others then
+                            vsmensagem := 'Erro ao atualizar a quantidade reservada na pcest : '||SQLCODE||'-'||SQLERRM;
                             vbvalido := false;
                             exit;
-                          when others then
-                            vsmensagem := 'Erro ao atualizar a quantidade reservada na pcest : '||SQLCODE||'-'||SQLERRM||' - '||msgest;
-                            vbvalido := false;
-                            exit;
-                          end;
+                          end; 
  
                          
                        else
                          begin
-                          vs_movest := pkg_estoque.PENDENTE_BAIXAR(regpedido.numped, reg_itens.codprod, reg_itens.numseq,  'BQ', msgest);
-
-                          if vs_movest = 'N' THEN
-                            RAISE ERRO_BAIXA_ESTOQUE;
-                          END IF;
-
-                         exception
-                         when ERRO_BAIXA_ESTOQUE then
-                          vsmensagem := 'Erro ao baixar estoque: '||SQLCODE||'-'||SQLERRM||' - '||msgest;
-                          vbvalido := false;
-                          exit;
-                         when others then
-                            vsmensagem := 'Erro ao atualizar a quantidade pendente na pcest : '||SQLCODE||'-'||SQLERRM||' - '||msgest;
+                          update pcest
+                          set qtpendente = greatest((nvl(qtpendente,0) - reg_itens.qt ),0)
+                          where codfilial = cr_pcest.codfilial
+                          and   codprod   = cr_pcest.codprod;
+                         exception when others then
+                            vsmensagem := 'Erro ao atualizar a quantidade pendente na pcest : '||SQLCODE||'-'||SQLERRM;
                             vbvalido := false;
                             exit;
                          end; 
@@ -1407,7 +1388,7 @@ end if;
                          if vnqtestger > vnqtreserv and vsfimestoque = 'S'then
 
                            begin
-                             UPDATE PCEST
+                             UPDATE PCEST 
                              SET FIMESTOQUE = '' 
                              WHERE CODFILIAL = cr_pcest.codfilial 
                              AND CODPROD     = reg_itens.codprod;

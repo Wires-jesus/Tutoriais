@@ -1,4 +1,4 @@
-CREATE OR REPLACE TRIGGER TRG_INT_TROCAMANIF
+﻿CREATE OR REPLACE TRIGGER TRG_INT_TROCAMANIF
  AFTER UPDATE OF NUMNOTA
  ON PCINDC
  REFERENCING OLD AS OLD NEW AS NEW
@@ -25,7 +25,7 @@ begin
              begin
                   update pctrocafvmanif
                      set dtdevol = :new.dtdevol,
-                         motivo  = (select a.motivo
+                         motivo  = (select motivo
                                       from pctabdev a, pcnfent b
                                      where b.coddevol = a.coddevol
                                        and b.numnota = :new.numnota),
@@ -42,4 +42,3 @@ begin
      end if;
 
 end;
-/
