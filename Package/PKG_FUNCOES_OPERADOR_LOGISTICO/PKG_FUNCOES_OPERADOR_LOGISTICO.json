@@ -1,0 +1,9 @@
+{"nome":"PKG_FUNCOESVENDAS_MED","tipoPLSQL":"PACKAGE","dependencias":[{
+  "nome": "TIPO_MED_PEDIDOS_HUB_INTEGRA",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+},{
+  "nome": "TABELA_MED_PEDIDOS_HUB_INTEGRA",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+}]}
