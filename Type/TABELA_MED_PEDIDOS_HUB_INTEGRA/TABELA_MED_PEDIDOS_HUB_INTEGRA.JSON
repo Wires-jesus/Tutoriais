@@ -1,0 +1,5 @@
+{"nome":"TABELA_MED_PEDIDOS_HUB_INTEGRA","tipoPLSQL":"TYPE","dependencias":[{
+  "nome": "TIPO_MED_PEDIDOS_HUB_INTEGRA",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "3.0.01.000"
+}]}
