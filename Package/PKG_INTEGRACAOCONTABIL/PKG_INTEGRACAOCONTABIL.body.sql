@@ -12593,6 +12593,7 @@ IS
         TYPE CONSULTA_INCLUSAOCREDITOS IS RECORD
         (
             CODCLIENTE PCCLIENT.CODCLI%TYPE,
+            CLIENTE PCCLIENT.CLIENTE%TYPE,
             CODROTINA PCCRECLI.CODROTINA%TYPE,
             DATAOPERACAO DATE,
             DATAOPERACAO1 DATE,
@@ -12750,6 +12751,8 @@ IS
                         REPLACE (VS_DOCUMENTO, 'NUMTRANS', ITEM.NUMTRANS);
                     VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'CODCLI', ITEM.CODCLIENTE);
+                    VS_DOCUMENTO :=
+                        REPLACE (VS_DOCUMENTO, 'CLIENTE', ITEM.CLIENTE);
 					VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'NUMEROCREDITO', ITEM.NUMEROCREDITO);
 
@@ -12849,6 +12852,10 @@ IS
                                 REPLACE (VS_HISTORICO,
                                          '[CODCLI]',
                                          ITEM.CODCLIENTE);
+                            VS_HISTORICO :=
+                                REPLACE (VS_HISTORICO,
+                                         '[CLIENTE]',
+                                         ITEM.CLIENTE);
                             VS_HISTORICO := SUBSTR (VS_HISTORICO, 1, 200);
 
                             --FIM HISTÓRICO COMPLEMENTAR INFORMADA NO FILTRO-----------------------------------
