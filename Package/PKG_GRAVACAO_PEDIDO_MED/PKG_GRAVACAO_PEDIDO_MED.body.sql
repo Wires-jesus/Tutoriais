@@ -66,6 +66,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GRAVACAO_PEDIDO_MED
   08/11/2022  Anderson Silva     DDVENDAS-38786 - Alteração da forma de incluir um novo pedido por quebra
   14/12/2022  Anderson Silva     DDVENDAS-39352 - Ajuste descrição produto críticas promoções
   24/03/2023  Anderson Silva     DDVENDAS-41227 - Validar múltiplo no corte
+  04/04/2023  Anderson Silva     DDVENDAS-38983 - Pré-Pedido PFIZER
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -98,13 +99,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38786        v@33.0.4
   DDVENDAS-39352        v@33.0.5  
   DDVENDAS-41227        v@33.0.6
+  DDVENDAS-38983        v@33.0.7
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.6';
+    vvVersao := 'v@33.0.7';
   
     RETURN 'MED_' || vvVersao;
     
@@ -828,16 +830,22 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            po_vSituacao              OUT VARCHAR2,
                                            po_vDescricaoSituacao     OUT VARCHAR2,
                                            po_nNumTransVendaOriginal OUT NUMBER) IS
-    vvStatusOrd PCPEDRETORNO.STATUSORD%TYPE; 
-    vvGerouRet  PCPEDRETORNO.GEROURET%TYPE;                                                
+    vEnviaPrePedidoApi  PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI%TYPE;                                           
+    vvStatusOrd         PCPEDRETORNO.STATUSORD%TYPE; 
+    -- DDVENDAS-38983
+    vvGerouRet          PCPEDRETORNO.GEROURET%TYPE;    
+    vnNumPedRca         PCPEDRETORNO.NUMPEDRCA%TYPE;    
+    vdDtAberturaPedPalm PCPEDRETORNO.DTABERTURAPEDPALM%TYPE;    
   BEGIN
   
     -- Verifica se o Pedido já foi gravado
     BEGIN
       SELECT NUMPED
            , NUMTRANSVENDAORIGINAL
+           , ENVIAPREPEDIDOAPI -- DDVENDAS-38983
         INTO po_nNumPedOperLog
            , po_nNumTransVendaOriginal
+           , vEnviaPrePedidoApi -- DDVENDAS-38983
         FROM PCPEDCOMPRAOPERLOGCAB
        WHERE (NUMPEDORIGINAL = pi_nNumPed)
          AND (ROWNUM         = '1');
@@ -845,11 +853,81 @@ IS PRAGMA SERIALLY_REUSABLE;
       WHEN NO_DATA_FOUND THEN
         po_nNumPedOperLog         := NULL;
         po_nNumTransVendaOriginal := NULL;
+        vEnviaPrePedidoApi        := NULL; -- DDVENDAS-38983
     END;
     
-    -- Verifica a Situação
-    IF (NVL(po_nNumTransVendaOriginal,0) > 0) THEN
+    -- Se Processo de Envio de Pré-Pedido -- DDVENDAS-38983
+    IF (NVL(vEnviaPrePedidoApi,'N') = 'S') THEN
+      
+      BEGIN
+        SELECT STATUSORD
+             , GEROURET
+             , NUMPEDRCA
+             , DTABERTURAPEDPALM
+          INTO vvStatusOrd
+             , vvGerouRet
+             , vnNumPedRca
+             , vdDtAberturaPedPalm
+          FROM PCPEDRETORNO
+         WHERE (NUMPED = pi_nNumPed)
+           AND (ROWNUM = 1);
+        -- Se AR - Aguardando Resposta que é considerado Autorizado e Pode Liberar o Pedido
+        IF    (NVL(vvStatusOrd,'NP') = 'AR') THEN
+          po_vSituacao          := 'A'; -- Autorizado
+          po_vDescricaoSituacao := 'Autorizado, aguardando Retorno do Pedido';
+        -- Se AN - Aguardando Nota já foi liberada a continuidade do Canal Autorizador  
+        ELSIF (NVL(vvStatusOrd,'NP') = 'AN') THEN
+          po_vSituacao          := 'L'; -- Liberado
+          po_vDescricaoSituacao := 'Aguardando Nota Fiscal';
+        -- Se NR - Nota Recebida, já foi liberada a continuidade do Canal Autorizador  
+        ELSIF (NVL(vvStatusOrd,'NP') = 'NR') THEN
+          po_vSituacao          := 'L'; -- Liberado
+          po_vDescricaoSituacao := 'Nota Fiscal foi recebida';
+        -- Se AP - Aguardando Processameno
+        ELSIF (NVL(vvStatusOrd,'NP') = 'AP') THEN
+          -- Se já gerou o Retorno já autorizou
+          IF (NVL(vvGerouRet,'N') = 'S') THEN
+            po_vSituacao          := 'T'; -- Em Transmissão
+            po_vDescricaoSituacao := 'Pedido Autorizado em processamento na Indústria';
+          -- Se não gerou o Retorno ainda não autorizou
+          ELSE
+            po_vSituacao          := 'T'; -- Em Transmissão
+            po_vDescricaoSituacao := 'Pedido em processamento aguardando autorização da Indústria';
+          END IF;
+        -- Se EP - Erro no Processameno
+        ELSIF (NVL(vvStatusOrd,'NP') = 'EP') THEN
+          -- Se já gerou o Retorno já autorizou
+          IF (NVL(vvGerouRet,'N') = 'S') THEN
+            po_vSituacao          := 'E'; -- Erro
+            po_vDescricaoSituacao := 'Informações enviadas após a Autorização não foram aceitos pela Indústria';
+          -- Se não gerou o Retorno ainda não autorizou
+          ELSE
+            po_vSituacao          := 'E'; -- Erro
+            po_vDescricaoSituacao := 'O Pedido Rejeitado - Não foi Autorizado pela Indústria';
+          END IF;
+        -- Demais casos - Exportado
+        ELSE
+          po_vSituacao          := 'T'; -- Em Transmissão
+          po_vDescricaoSituacao := 'Pedido em processamento no Canal Autorizador.';
+        END IF;
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN -- Se ainda não gerou o Arquivo ORDER
+          po_vSituacao          := 'P';
+          po_vDescricaoSituacao := 'Pedido Pendente de Transmissão para o Canal Autorizador.';
+      END;  
+      
+      -- Se a API respondeu, replicar alguns valores da PCPEDRETORNO para a PCPEDC para se conseguir gerar os retornos
+      IF (NVL(vvStatusOrd,'NP') IN ('AR','EP'))  THEN
+        
+        UPDATE PCPEDC
+           SET NUMPEDRCA         = vnNumPedRca
+             , DTABERTURAPEDPALM = vdDtAberturaPedPalm
+         WHERE (NUMPED = pi_nNumPed);
+        
+      END IF;
     
+    -- Se Processo de Nota Extra
+    ELSIF (NVL(po_nNumTransVendaOriginal,0) > 0) THEN    
       BEGIN
         SELECT STATUSORD
              , GEROURET
@@ -946,6 +1024,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                  para o Canal Autorizador CA PBM
   *********************************************************************/
   PROCEDURE P_GRAVAR_PEDIDO_CA_PBM(pi_nNumPed        IN NUMBER,
+                                   pi_nCodCli        IN NUMBER, -- DDVENDAS-38983
                                    pi_nCodProd       IN NUMBER,
                                    pi_nNumSeq        IN NUMBER,
                                    pi_nIntegradora   IN NUMBER,
@@ -958,6 +1037,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvDescricaoSituacao     VARCHAR2(255);
     vnCodFornec             PCPRODUT.CODFORNEC%TYPE;
     vnNumTransVendaOriginal PCPEDCOMPRAOPERLOGCAB.NUMTRANSVENDAORIGINAL%TYPE;
+    -- DDVENDAS-38983
+    vvEnviaPrePedidoApi     PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI%TYPE;
+    vvArquivoPed            PCPEDCOMPRAOPERLOGCAB.ARQUIVOPED%TYPE;
     
   BEGIN  
   
@@ -986,17 +1068,48 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vnCodFornec := NULL;
       END;  
-      
-      -- Gera o NUMTRANSVENDA que será temporário somente para utilizar o processo da Nota Extra Padrão
+
+      -- Verifica se Envia Pré-Pedido para a API - DDVENDAS-38983
       BEGIN
-        EXECUTE IMMEDIATE 'SELECT FERRAMENTAS.F_PROX_NUMTRANSVENDA AS NUMTRANSVENDA FROM DUAL'
-                     INTO vnNumTransVendaOriginal;
+        SELECT PCLAYOUTINTEGRAVERSOPERLOG.ENVIAPREPEDIDOAPI
+          INTO vvEnviaPrePedidoApi
+          FROM PCINTEGRADORA
+             , PCLAYOUTINTEGRAVERSOPERLOG
+         WHERE (PCINTEGRADORA.LAYOUT      = PCLAYOUTINTEGRAVERSOPERLOG.LAYOUT)
+           AND (PCINTEGRADORA.SEQVERSAO   = PCLAYOUTINTEGRAVERSOPERLOG.SEQVERSAO)
+           AND (PCINTEGRADORA.INTEGRADORA = pi_nIntegradora);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          vnNumTransVendaOriginal := NULL;
-        WHEN OTHERS THEN
-          vnNumTransVendaOriginal := NULL;
+          vvEnviaPrePedidoApi := 'N';
       END;
+      
+      -- Gera o NUMTRANSVENDA que será temporário somente para utilizar o processo da Nota Extra Padrão
+      vnNumTransVendaOriginal := NULL;
+      IF (NVL(vvEnviaPrePedidoApi,'N') <> 'S') THEN
+        BEGIN
+          EXECUTE IMMEDIATE 'SELECT FERRAMENTAS.F_PROX_NUMTRANSVENDA AS NUMTRANSVENDA FROM DUAL'
+                       INTO vnNumTransVendaOriginal;
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vnNumTransVendaOriginal := NULL;
+          WHEN OTHERS THEN
+            vnNumTransVendaOriginal := NULL;
+        END;
+      END IF;
+      
+      -- Gera o ARQUIVOPED quando envia o Pré-Pedido para a API - DDVENDAS-38983
+      vvArquivoPed := NULL;
+      IF (NVL(vvEnviaPrePedidoApi,'N') = 'S') THEN
+        BEGIN        
+          SELECT 'PRE-PED_' || NVL(pi_nIntegradora,0) || '_' || REGEXP_REPLACE(PCCLIENT.CGCENT, '[^[:digit:]]') || '_' || NVL(pi_nNumPed,0) ARQUIVOPED
+            INTO vvArquivoPed
+            FROM PCCLIENT
+           WHERE (CODCLI = pi_nCodCli);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vvArquivoPed :=  'PRE-PED_' || NVL(pi_nIntegradora,0) || '_' || NVL(pi_nNumPed,0);
+        END;
+      END IF;
             
       -- Insere na PCPEDCOMPRAOPERLOGCAB
       INSERT INTO PCPEDCOMPRAOPERLOGCAB
@@ -1009,6 +1122,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , SITUACAO
                 , NUMPEDORIGINAL
                 , NUMTRANSVENDAORIGINAL
+                , ENVIAPREPEDIDOAPI -- DDVENDAS-38983
+                , ARQUIVOPED
                 )
           VALUES( po_nNumPedOperLog
                 , TRUNC(SYSDATE)
@@ -1019,6 +1134,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , 'P' -- Situação Pendente
                 , pi_nNumPed
                 , vnNumTransVendaOriginal
+                , vvEnviaPrePedidoApi -- DDVENDAS-38983
+                , vvArquivoPed
                 );
     
     -- Se o Pedido já existe
@@ -1066,7 +1183,8 @@ IS PRAGMA SERIALLY_REUSABLE;
   DESCRIÇÃO : Função para verificar críticas de Pedido que será enviado
               para o Canal Autorizador CA PBM
   *********************************************************************/
-  FUNCTION F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed IN NUMBER) 
+  FUNCTION F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed IN NUMBER,
+                                   pi_nCodCli IN NUMBER) -- DDVENDAS-38983
   RETURN VARCHAR2 IS
 
     vnNumPedOperLog            NUMBER;
@@ -1079,7 +1197,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     viQtdeContratosPbm         INTEGER;    
     vvRetMsgCriticas           VARCHAR2(255);
     vnNumTransVendaOriginal    PCPEDCOMPRAOPERLOGCAB.NUMTRANSVENDAORIGINAL%TYPE;
-    
+    vvEnviaPrePedidoApi        PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI%TYPE; -- DDVENDAS-38983   
     
   BEGIN  
   
@@ -1101,23 +1219,41 @@ IS PRAGMA SERIALLY_REUSABLE;
       FROM PCPEDI
      WHERE (NUMPED = pi_nNumPed);
 
-    -- Verifica quantos itens tem no Pedido do Canal Autorizador
-    SELECT COUNT(DISTINCT PCPEDCOMPRAOPERLOGITE.CODPROD) 
-         , SUM(PCPEDCOMPRAOPERLOGITE.QTPED)
-         , COUNT(DISTINCT PCPEDCOMPRAOPERLOGITE.INTEGRADORAPROD)
-      INTO viItensPbm
-         , viQtdePbm
-         , viQtdeContratosPbm
-      FROM PCPEDCOMPRAOPERLOGITE
-         , PCPEDCOMPRAOPERLOGCAB
-     WHERE (PCPEDCOMPRAOPERLOGITE.NUMPED         = PCPEDCOMPRAOPERLOGCAB.NUMPED)
-       AND (PCPEDCOMPRAOPERLOGCAB.NUMPEDORIGINAL = pi_nNumPed);  
+    -- Verifica quantos itens tem no Pedido do Canal Autorizador - DDVENDAS-38983
+    BEGIN
+      SELECT PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI
+           , COUNT(DISTINCT PCPEDCOMPRAOPERLOGITE.CODPROD) 
+           , SUM(PCPEDCOMPRAOPERLOGITE.QTPED)
+           , COUNT(DISTINCT PCPEDCOMPRAOPERLOGITE.INTEGRADORAPROD)
+        INTO vvEnviaPrePedidoApi
+           , viItensPbm
+           , viQtdePbm
+           , viQtdeContratosPbm
+        FROM PCPEDCOMPRAOPERLOGITE
+           , PCPEDCOMPRAOPERLOGCAB
+       WHERE (PCPEDCOMPRAOPERLOGITE.NUMPED         = PCPEDCOMPRAOPERLOGCAB.NUMPED)
+         AND (PCPEDCOMPRAOPERLOGCAB.NUMPEDORIGINAL = pi_nNumPed)
+       GROUP BY PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI;  
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vvEnviaPrePedidoApi := NULL;  
+        viItensPbm          := 0;
+        viQtdePbm           := 0; 
+        viQtdeContratosPbm  := 0;
+      WHEN TOO_MANY_ROWS THEN
+        vvEnviaPrePedidoApi := NULL;  
+        viItensPbm          := 0;
+        viQtdePbm           := 0; 
+        viQtdeContratosPbm  := 0;
+        vvRetMsgCriticas    := 'Encontrado mais de um registro de reposição de PBM';
+    END;
   
     -- Se existem Produtos do Canal Autorizador
     IF (NVL(viItensPbm,0) > 0) THEN
     
-      -- Se problemas com o NUMTRANSVENDAORIGINAL
-      IF (NVL(vnNumTransVendaOriginal,0) = 0) THEN
+      -- Se problemas com o NUMTRANSVENDAORIGINAL (rejeição exclusiva Canal Autorizador)
+      IF (NVL(vvEnviaPrePedidoApi,'N') <> 'S') AND -- DDVENDAS-38983
+         (NVL(vnNumTransVendaOriginal,0) = 0)  THEN
 
         vvRetMsgCriticas := 'Pedido sem Sequencial de Transação';
       
@@ -6755,9 +6891,22 @@ IS PRAGMA SERIALLY_REUSABLE;
       SELECT 'S'
         INTO vvExiste
         FROM PCINTEGRADORA
-       WHERE (PCINTEGRADORA.LAYOUT   = 58)
-         AND (PCINTEGRADORA.SITUACAO = 'A')
-         AND (ROWNUM                 = 1);    
+       WHERE (PCINTEGRADORA.INTEGRADORA IN (SELECT I.INTEGRADORA
+                                              FROM PCINTEGRADORA I
+                                             WHERE (I.LAYOUT = 58)
+                                               AND (I.SITUACAO = 'A')
+                                             UNION -- DDVENDAS-38983
+                                            SELECT I.INTEGRADORA
+                                              FROM PCINTEGRADORA I
+                                                 , PCLAYOUTINTEGRAVERSOPERLOG V
+                                                 , PCLAYOUTINTEGRACABOPERLOG C
+                                             WHERE (I.LAYOUT = V.LAYOUT)
+                                               AND (I.SEQVERSAO = V.SEQVERSAO)
+                                               AND (C.LAYOUT = V.LAYOUT)
+                                               AND (C.ESTRUTURA = 'API')
+                                               AND (I.SITUACAO = 'A')
+                                               AND (V.ENVIAPREPEDIDOAPI = 'S')))                                             
+         AND (ROWNUM = 1);    
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vvExiste := 'N';
@@ -6844,14 +6993,27 @@ IS PRAGMA SERIALLY_REUSABLE;
         FROM PCINTEGRADORA
            , PCINTEGRADORAPROD
        WHERE (PCINTEGRADORA.INTEGRADORA = PCINTEGRADORAPROD.INTEGRADORA)
+         AND (PCINTEGRADORA.INTEGRADORA IN (SELECT I.INTEGRADORA
+                                              FROM PCINTEGRADORA I
+                                             WHERE (I.LAYOUT = 58)
+                                               AND (I.SITUACAO = 'A')
+                                             UNION -- DDVENDAS-38983
+                                            SELECT I.INTEGRADORA
+                                              FROM PCINTEGRADORA I
+                                                 , PCLAYOUTINTEGRAVERSOPERLOG V
+                                                 , PCLAYOUTINTEGRACABOPERLOG C
+                                             WHERE (I.LAYOUT = V.LAYOUT)
+                                               AND (I.SEQVERSAO = V.SEQVERSAO)
+                                               AND (C.LAYOUT = V.LAYOUT)
+                                               AND (C.ESTRUTURA = 'API')
+                                               AND (I.SITUACAO = 'A')
+                                               AND (V.ENVIAPREPEDIDOAPI = 'S'))) 
          AND (PCINTEGRADORAPROD.CODPROD = pi_nCodProd)
-         AND (PCINTEGRADORA.LAYOUT      = 58)
-         AND (PCINTEGRADORA.SITUACAO    = 'A')
-         AND (ROWNUM                    = 1);    
+         AND (ROWNUM = 1);    
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vnIntegradora := NULL;
-    END;      
+    END;
     
     -- Se não achou Integradora por Produto
     IF (NVL(vnIntegradora,0) = 0) THEN
@@ -6874,36 +7036,47 @@ IS PRAGMA SERIALLY_REUSABLE;
           FROM PCINTEGRADORA
              , PCCONFIGSISTOPERLOG
              , PCCONFIGSISTMARCAOPERLOG
-         WHERE (PCINTEGRADORA.INTEGRADORA         = PCCONFIGSISTOPERLOG.INTEGRADORA)
-           AND (PCCONFIGSISTOPERLOG.CODSISTEMA    = PCCONFIGSISTMARCAOPERLOG.CODSISTEMA)
-           AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA = vnCodMarca)
-           AND (PCINTEGRADORA.LAYOUT              = 58)
-           AND (PCINTEGRADORA.SITUACAO            = 'A')
-           AND (ROWNUM                            = 1);    
+         WHERE (PCINTEGRADORA.INTEGRADORA = PCCONFIGSISTOPERLOG.INTEGRADORA)
+           AND (PCCONFIGSISTOPERLOG.CODSISTEMA = PCCONFIGSISTMARCAOPERLOG.CODSISTEMA)
+           AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA = vnCodMarca)	
+           AND (PCINTEGRADORA.INTEGRADORA IN (SELECT I.INTEGRADORA
+                                                 FROM PCINTEGRADORA I
+                                                WHERE (I.LAYOUT = 58)
+                                                  AND (I.SITUACAO = 'A')
+                                                UNION -- DDVENDAS-38983
+                                               SELECT I.INTEGRADORA
+                                                 FROM PCINTEGRADORA I
+                                                    , PCLAYOUTINTEGRAVERSOPERLOG V
+                                                    , PCLAYOUTINTEGRACABOPERLOG C
+                                                WHERE (I.LAYOUT = V.LAYOUT)
+                                                  AND (I.SEQVERSAO = V.SEQVERSAO)
+                                                 AND (C.LAYOUT = V.LAYOUT)
+                                                  AND (C.ESTRUTURA = 'API')
+                                                  AND (I.SITUACAO = 'A')
+                                                  AND (V.ENVIAPREPEDIDOAPI = 'S')))    
+           AND (ROWNUM = 1);    
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           vnIntegradora := NULL;
-      END;      
+      END;     
       
       -- Se achou cadastro por Marca
       IF (NVL(vnIntegradora,0) > 0) THEN
        
-        -- Verifica se essa Integradora tem Restrições para outros Produtos
+        -- Verifica se essa Integradora tem Restrições para outros Produtos (Tanto Layout 58 como API - DDVENDAS-38983)
         BEGIN
           SELECT 'S'
             INTO vvExistemRestricoes
             FROM PCINTEGRADORA
                , PCINTEGRADORAPROD
-           WHERE (PCINTEGRADORA.INTEGRADORA     = PCINTEGRADORAPROD.INTEGRADORA)
+           WHERE (PCINTEGRADORA.INTEGRADORA = PCINTEGRADORAPROD.INTEGRADORA)
              AND (PCINTEGRADORAPROD.INTEGRADORA = vnIntegradora) -- Integradora Encontrada
-             AND (PCINTEGRADORAPROD.CODPROD    <> pi_nCodProd)   -- Outros Produtos
-             AND (PCINTEGRADORA.LAYOUT          = 58)
-             AND (PCINTEGRADORA.SITUACAO        = 'A')
-             AND (ROWNUM                        = 1);    
+             AND (PCINTEGRADORAPROD.CODPROD <> pi_nCodProd)   -- Outros Produtos
+             AND (ROWNUM = 1);    
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
             vvExistemRestricoes := 'N';
-        END;    
+        END; 
         
         -- Se existem Restrições pra outros Produtos, essa Integradora não é válida
         IF (vvExistemRestricoes = 'S') THEN
@@ -11769,7 +11942,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- CRÍTICA - Canal Autorizador PBM - CA PBM
       -------------------------------------------------
       IF (vrPedido.vvOrigemPed = 'T') AND
-         (NVL(vrPedido.vnCodPromocaoMed,0) > 0) AND
+         -- DDVENDAS-38983-(NVL(vrPedido.vnCodPromocaoMed,0) > 0) AND
          (NVL(vrParametros.vHABILITCANALAUTORIZPBMTELEV,'N') = 'S') THEN
                             
         -- Se existe Integradora CA PBM
@@ -11803,6 +11976,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                           
             -- Insere o Pedido de Operador Logístico
             P_GRAVAR_PEDIDO_CA_PBM(pi_nNumPed,
+                                   vrPedido.vnCodCli, -- DDVENDAS-38983
                                    pi_nCodProd,
                                    pi_nNumSeq,
                                    vnIntegradoraCaPbm,
@@ -12769,7 +12943,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF (vc_Criticas.CODREJEICAO IN (33)) THEN   
         
           -- Verifica Críticas do Canal Autorizador
-          vvCriticasCaPbm := F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed);
+          vvCriticasCaPbm := F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed,
+                                                     vrPedido.vnCodCli); -- DDVENDAS-38983
           
           -- Se tem Críticas do Canal Autorizador
           IF (vvCriticasCaPbm IS NOT NULL) THEN
