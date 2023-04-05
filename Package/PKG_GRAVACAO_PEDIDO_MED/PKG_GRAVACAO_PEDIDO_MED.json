@@ -1,1 +1,9 @@
-{"nome":"PKG_GRAVACAO_PEDIDO_MED","tipoPLSQL":"PACKAGE","dependencias":[]}
+{"nome":"PKG_GRAVACAO_PEDIDO_MED","tipoPLSQL":"PACKAGE","dependencias":[{
+  "nome": "PCPEDCOMPRAOPERLOGCAB",
+  "tipo": "TABELA",
+  "versao": "3.0.01.000"
+},{
+  "nome": "PCLAYOUTINTEGRAVERSOPERLOG",
+  "tipo": "TABELA",
+  "versao": "3.0.01.000"
+}]}

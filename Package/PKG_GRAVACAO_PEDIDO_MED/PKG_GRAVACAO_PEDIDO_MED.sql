@@ -73,6 +73,7 @@ CREATE OR REPLACE PACKAGE PKG_GRAVACAO_PEDIDO_MED
   01/11/2022  Anderson Silva     DDVENDAS-38483 - Quebra de Pedidos do Força de Vendas
   08/11/2022  Anderson Silva     DDVENDAS-38786 - Alteração da forma de incluir um novo pedido por quebra
   14/12/2022  Anderson Silva     DDVENDAS-39352 - Ajuste descrição produto críticas promoções
+  04/04/2023  Anderson Silva     DDVENDAS-38983 - Pré-Pedido PFIZER
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -342,7 +343,8 @@ IS PRAGMA SERIALLY_REUSABLE;
   DESCRIÇÃO : Função para verificar críticas de Pedido que será enviado
               para o Canal Autorizador CA PBM
   *********************************************************************/
-  FUNCTION F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed IN NUMBER) RETURN VARCHAR2;
+  FUNCTION F_CRITICA_PEDIDO_CA_PBM(pi_nNumPed IN NUMBER,
+                                   pi_nCodCli IN NUMBER) RETURN VARCHAR2; -- DDVENDAS-38983
   
  /***********************************************************************************************
   FUNÇÃO...: F_VALIDARESTRICAOVENDAFIL
