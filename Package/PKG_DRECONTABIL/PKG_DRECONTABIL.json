@@ -1,0 +1,1 @@
+{"nome":"PKG_DRECONTABIL","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"UTIL_DATATABLE","tipo":"OBJETO_PLSQL","versao":"3.0.01.000"},{"nome":"UTIL_DATAROW","tipo":"OBJETO_PLSQL","versao":"3.0.01.000"}]}
