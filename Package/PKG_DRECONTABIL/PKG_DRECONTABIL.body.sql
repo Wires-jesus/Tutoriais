@@ -492,6 +492,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   BEGIN
      VN_VALORENCERRAMENTO := 0;
      VN_SALDOACUMULADODFC := 0;
+     
      IF VS_ESTRUTURADFC = 'S' THEN
        
      IF PTIPOSALDO = 'I' THEN
@@ -1211,8 +1212,7 @@ BEGIN
           A.CODIGO,
           A.DESCRICAO,
           A.VALOR,
-		  CASE WHEN  (SUM(A.VALOR) OVER()) = 0 THEN 0 ELSE 
-          ROUND(A.VALOR / (SUM(A.VALOR) OVER()) * 100,2) END PERCENTUAL
+          ROUND(A.VALOR / (SUM(A.VALOR) OVER()) * 100,2) PERCENTUAL
         FROM (SELECT PCLANCAMENTO.CODREDUZIDO_PC
           , PCLANCAMENTO.CODPLANOCONTA
           , PCCENTRORECEITA.CODIGOCENTRORECEITA CODIGO
@@ -1516,7 +1516,7 @@ BEGIN
                              END IF;
                           END IF;
 						  
-                          IF NVL(VS_ESTRUTURADFC, 'N') = 'N' then
+                          IF NVL(VS_ESTRUTURADFC, 'N') = 'N' OR (DRE_ANALITICO.TIPORESULTADO = 'S') then
                             IF VN_VALORCONTAANALITICAANT < 0 THEN
                               OUTROW.VALORANTERIOR := '(' || TRIM(TO_CHAR(ABS(VN_VALORCONTAANALITICAANT), '999,999,999,999.99')) || ')';
                             ELSE
@@ -1584,7 +1584,7 @@ BEGIN
                  OUTROW.DESCRICAO := '    ' || DRE_ANALITICO.CODCONTAREDUZIDO || '-' || DRE_ANALITICO.DESC_OPERACAO;
               END IF;
               
-							IF NVL(VS_ESTRUTURADFC, 'N') = 'N' then
+							IF (NVL(VS_ESTRUTURADFC, 'N') = 'N') OR (DRE_ANALITICO.TIPORESULTADO = 'S') then
 							  --Colocar os parÃªntes caso o valor seja negativo
 							  IF VN_VALOR < 0 THEN
 								  OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
@@ -1601,12 +1601,20 @@ BEGIN
 															 '999,999,999,999.99'));
 							  END IF;
 							ELSE
+                IF DRE_ANALITICO.TIPORESULTADO = 'S' THEN 
+                 IF VN_VALOR < 0 THEN
+                    OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
+                  ELSE
+                    OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
+                  END IF;                
+                ELSE  
 							  --Colocar os parÃªntes caso o valor seja positivo
-							  IF VN_VALOR > 0 THEN
-								  OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
-							  ELSE
-								  OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
-							  END IF;
+                  IF VN_VALOR > 0 THEN
+                    OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
+                  ELSE
+                    OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
+                  END IF;
+                END IF;
 
 							  IF VN_VALORANTERIOR > 0 THEN
 								  OUTROW.VALORANTERIOR := '(' ||
@@ -1639,10 +1647,16 @@ BEGIN
               VRETORNO(VRETORNO.COUNT) := OUTROW;
            END IF;
         END IF;
-
-        VN_VLRTOTAL            := VN_VLRTOTAL + VN_VALOR;
-        VN_VLRSUBTOTAL         := VN_VLRSUBTOTAL + VN_VALOR;
-        VN_VLRSUBTOTALANTERIOR := VN_VLRSUBTOTALANTERIOR + VN_VALORANTERIOR;
+        
+        IF NVL(VS_ESTRUTURADFC, 'N') = 'N' OR DRE_ANALITICO.TIPORESULTADO = 'S' THEN
+          VN_VLRTOTAL            := VN_VLRTOTAL + VN_VALOR;
+          VN_VLRSUBTOTAL         := VN_VLRSUBTOTAL + VN_VALOR;
+          VN_VLRSUBTOTALANTERIOR := VN_VLRSUBTOTALANTERIOR + VN_VALORANTERIOR;
+        ELSE    
+          VN_VLRTOTAL            := VN_VLRTOTAL - VN_VALOR;
+          VN_VLRSUBTOTAL         := VN_VLRSUBTOTAL - VN_VALOR;
+          VN_VLRSUBTOTALANTERIOR := VN_VLRSUBTOTALANTERIOR - VN_VALORANTERIOR;        
+        END IF;
 
         IF PEXIBIRRATEIO_RECEITA_CUSTO = 'S' THEN
 
@@ -1691,25 +1705,22 @@ BEGIN
 
      IF (VN_POSICAO_EM_ALTERACAO > 0) THEN
         IF OUTROW.TIPO = 'G' THEN
-				
-				IF NVL(VS_ESTRUTURADFC, 'N') = 'N' then
-				  IF VN_VLRSUBTOTAL < 0 THEN
+				IF VN_VLRSUBTOTAL < 0 THEN
 					 OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VLRSUBTOTAL), '999,999,999,999.99')) || ')';
 				  ELSE
 					 OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VLRSUBTOTAL), '999,999,999,999.99'));
 				  END IF;
+				IF NVL(VS_ESTRUTURADFC, 'N') = 'N' OR DRE_ANALITICO.TIPORESULTADO = 'S' then
+				  
 
-				  IF VN_VLRSUBTOTALANTERIOR < 0 THEN
+				  IF VN_VLRSUBTOTALANTERIOR < 0 THEN   
 					 OUTROW.VALORANTERIOR := '(' || TRIM(TO_CHAR(ABS(VN_VLRSUBTOTALANTERIOR), '999,999,999,999.99')) || ')';
 				  ELSE
 					 OUTROW.VALORANTERIOR := TRIM(TO_CHAR(ABS(VN_VLRSUBTOTALANTERIOR), '999,999,999,999.99'));
 				  END IF;
 				ELSE
-				  IF VN_VLRSUBTOTAL > 0 THEN
-					 OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VLRSUBTOTAL), '999,999,999,999.99')) || ')';
-				  ELSE
-					 OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VLRSUBTOTAL), '999,999,999,999.99'));
-				  END IF;
+
+ 
 
 				  IF VN_VLRSUBTOTALANTERIOR > 0 THEN
 					 OUTROW.VALORANTERIOR := '(' || TRIM(TO_CHAR(ABS(VN_VLRSUBTOTALANTERIOR), '999,999,999,999.99')) || ')';
@@ -1756,20 +1767,13 @@ BEGIN
          OUTROW := VRETORNO(VN_POSICAOATUAL);
       END IF;
 
-      /* REGRA -> PARA DFC A LÓGICA É INVERTIDA, SÃO OS VALORES POSITIVOS QUE RECEBEM O PARENTESES.*/
-      IF VS_ESTRUTURADFC = 'N' THEN
-          IF VN_VALOR < 0  THEN
+
+       IF VN_VALOR < 0  THEN
              OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
-          ELSE
-             OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
-          END IF;
-      ELSE
-        IF VN_VALOR > 0  THEN
-           OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
         ELSE
-           OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
-        END IF;
-      END IF;
+             OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
+       END IF;
+
 
       IF VN_VALORANTERIOR < 0 THEN
          OUTROW.VALORANTERIOR := '(' || TRIM(TO_CHAR(ABS(VN_VALORANTERIOR), '999,999,999,999.99')) || ')';
@@ -1793,8 +1797,11 @@ BEGIN
       OUTROW.SEMREGRA           := 'N';
       OUTROW.NOTAEXPLICATIVA    := VS_NOTAEXPLICATIVA;
       VRETORNO(VN_POSICAOATUAL) := OUTROW;
-
-      VN_VLRTOTAL := VN_VLRTOTAL + VN_VALOR;
+      IF NVL(VS_ESTRUTURADFC, 'N') = 'N' OR DRE_ANALITICO.TIPORESULTADO = 'S' THEN
+        VN_VLRTOTAL := VN_VLRTOTAL + VN_VALOR;
+      ELSE
+         VN_VLRTOTAL := VN_VLRTOTAL - VN_VALOR;
+      END IF;   
     END IF;
   END LOOP;
 
