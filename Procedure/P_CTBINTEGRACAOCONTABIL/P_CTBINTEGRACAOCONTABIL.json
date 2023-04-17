@@ -1,0 +1,1 @@
+{"nome":"P_CTBINTEGRACAOCONTABIL","tipoPLSQL":"PROCEDURE","dependencias":[{"nome":"PKG_INTEGRACAOCONTABIL","tipo":"OBJETO_PLSQL","versao":"3.0.06.000"}]}
