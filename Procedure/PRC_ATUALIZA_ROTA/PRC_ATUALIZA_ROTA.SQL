@@ -23,14 +23,14 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
   vncodcli       pcmovrotacli.codcli%type;
   vncodusur      pcmovrotacli.codusur%type;
   vstipomotivo   pcmotvisita.tipomotivo%type;
-  
+
   vicont         number;
   vbvalido       boolean;
 
 
 /*************************************************************************************************************************************
  Procedure criada para atualizar movimentação de rotas
- 
+
  Data        Responsável       Tarefa        Comentário
  26/04/2012  Andréa            158674        Primeira versão
  04/05/2012  Andréa                          Ajustes em mensagens e acesso a pcmotvisita
@@ -56,39 +56,39 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
 
 
      end if;
-     
+
      if p_data is null then
 
         vbvalido := false;
         p_mensagem := 'Precisa informar a data da movimentacao';
 
 
-     end if;     
+     end if;
 
 
       select count(*)
       into vicont
       from pcmovrotacli p;
-      
+
       if vicont = 0 then
-      
+
         vbvalido := false;
         p_mensagem := 'Não existe registro de rota cadastrada na rotina 354.';
-        
-        
+
+
       else
-      
+
           select count(*)
           into vicont
           from pcmovrotacli p
           where p.codusur = p_codusur;
 
             if vicont = 0 then
-            
+
               vbvalido := false;
               p_mensagem := 'Não existe registro de rota cadastrada na rotina 354 para o rca : '||p_codusur;
-              
-              
+
+
             else
 
               select count(*)
@@ -96,18 +96,18 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
               from pcmovrotacli p
               where p.codusur = p_codusur
               and   p.codcli  = p_codcli;
-    
+
                 if vicont = 0 then
-                
+
                   vbvalido := false;
                   p_mensagem := 'Não existe registro de rota cadastrada na rotina 354 para o rca : '||p_codusur||' e cliente : '||p_codcli;
-                  
+
                 end if;
 
 
 
             end if;
-      
+
       end if;
 
 
@@ -131,7 +131,7 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
               and   dtpedido               is null
               and   dtjustific             is null;
 
-               commit; 
+               commit;
 
 
               select count(*)
@@ -142,11 +142,11 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
               and   (p.dtpedido is null or   p.dtpedido = p_data) --não tem pedido ou teve no mesmo dia
               and   dtcancel    is null
               and   dtjustific  is null                 --não tem justificativa
-                 ;     
+                 ;
 
 
              if vicont > 1 then
-             
+
               select count(*)
               into vicont
               from pcmovrotacli p
@@ -155,26 +155,26 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
               and   p.dtpedido          = p_data -- teve no mesmo dia
               and   dtcancel            is null
               and   dtjustific          is null                 --não tem justificativa
-                 ;     
+                 ;
 
                    if vicont = 1 then
 
                       select rowid
-                      into vnrowid  
+                      into vnrowid
                       from pcmovrotacli p
                       where p.codusur           = p_codusur
                       and   p.codcli            = p_codcli
                       and   p.dtpedido          = p_data -- teve no mesmo dia
                       and   dtcancel            is null
                       and   dtjustific          is null                 --não tem justificativa
-                         ;     
-    
+                         ;
+
                        update  PCMOVROTACLI
                        set qtpedido = nvl(qtpedido,0) + 1
                        where rowid = vnrowid;
-    
+
                        commit;
-                   end if;    
+                   end if;
 
               elsif vicont = 1 then --encontrado apenas um registro
 
@@ -189,7 +189,7 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
               		and   p.dtcancel is null
                   and   dtjustific  is null
                   and   (p.dtpedido is null or   p.dtpedido = p_data); --não tem pedido ou teve no mesmo dia
-                         
+
 
                  exception when others then
 
@@ -202,23 +202,23 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
 
 
                   if vddtvisitaprog > p_Data then
-                  
+
                    p_mensagem := 'Rota Antecipada';
-                  
+
                   else
 
 
                           if vncodvisita is not null then --teve uma visita para este dia
-        
+
                              update pcvisita
                              set cancelado = 'S',
                                  observacao = 'Justificativa cancelada, importado pedido : '||p_numped
                              where codvisita = vncodvisita;
-        
-        
+
+
                           end if;
-        
-        
+
+
                           update  pcmovrotacli
                           set dtultvisitaprev = vddtproxvisita,
                 	            dtproxvisita    = dtproxvisita +
@@ -230,7 +230,7 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                     45,
                                                     42,
                                                     to_number(periodicidade)),
-          
+
                               dtpedido       = p_data,
                 	            tipovisita     = (case when trunc(p_data) = pcmovrotacli.dtvisitaprog then 'E'
                 	                                   when trunc(p_data) > pcmovrotacli.dtvisitaprog then 'P'
@@ -239,8 +239,8 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                 	            codvisita      = null,
                 	            qtpedido       = 1
                 	         where  rowid = vnrowid;
-        
-        
+
+
                          update pcrotacli
                          set dtultvisitaprev = dtproxvisita,
                              dtproxvisita    = DECODE(nvl(DIAFIXO, 'N'),
@@ -257,10 +257,10 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                           NEXT_DAY(dtproxvisita, DIASEMANA))
                           where codusur = p_codusur
                           and   codcli  = p_codcli
-                          and   dtproxvisita <= vdDTVISITAPROG 
+                          and   dtproxvisita <= vdDTVISITAPROG
                           and   dtproxvisita is not null
                           and   periodicidade in   ('1', '7', '14', '21', '28', '35', '42', '15', '30', '45');
-        
+
                          commit;
 
                    end if;
@@ -283,20 +283,20 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
 
 
            if p_codvisita is null then
-           
+
               p_justvalida := false;
               p_mensagem := 'Favor informar o codigo da justificativa';
-           
+
            end if;
 
            if p_codmotivovis is null then
-           
+
               p_justvalida := false;
               p_mensagem := 'Favor informar o codigo do motivo da justificativa';
-              
-            else  
- 
- 
+
+            else
+
+
               BEGIN
                 select p.tipomotivo
                   into vstipomotivo
@@ -318,14 +318,14 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                       p_mensagem := 'Motivo não compra não cadastrado :'||p_codmotivovis;
                   end if;
               end;
-           
+
            end if;
 
 
           if p_justvalida = true then
 
                --CANCELA REGISTROS ANTIGOS
-    
+
                update pcmovrotacli
                set dtcancel = sysdate,
                    tipovisita = 'C'
@@ -335,10 +335,10 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                and   codcli      = p_codcli
                and   dtpedido    is null
                and   dtjustific  is null;
-    
+
                commit;
-    
-    
+
+
                select count(*)
                into vicont
                from PCMOVROTACLI P
@@ -346,11 +346,11 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                and   p.codcli  = p_codcli
                and   p.dtjustific is null
                and   p.dtcancel is null
-               and   p.dtpedido is null  ;     
-    
-    
+               and   p.dtpedido is null  ;
+
+
                  if vicont = 1 then
-    
+
                 		select rowid,dtjustific, codvisita,dtvisitaprog
                 		into vnrowid,vddtjustific, vncodvisita, vddtvisitaprog
                 		from pcmovrotacli p
@@ -358,17 +358,17 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                 		and   p.codcli          = p_codcli
                 		and   p.dtjustific      is null
                 		and   p.dtcancel        is null
-                    and   p.dtpedido        is null      ;   
-    
-    
+                    and   p.dtpedido        is null      ;
+
+
                   if vddtvisitaprog > p_Data then
-                  
+
                    p_mensagem := 'Nao ha rota programada para este cliente';
                    p_justvalida := false;
-                  
+
                   else
-    
-    
+
+
                     update  pcmovrotacli
                     set dtultvisitaprev = dtproxvisita,
                         dtproxvisita    = dtproxvisita +
@@ -380,14 +380,14 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                         45,
                                         42,
                                         to_number(periodicidade)),
-                        dtpedido = null, 
+                        dtpedido = null,
                         tipovisita  = decode(vstipomotivo,3,'N',4,'X'),
                         dtjustific  = trunc(p_data),
                         codvisita   = p_codvisita,
                         qtpedido    = null
                      where rowid = vnrowid;
-    
-    
+
+
                      update pcrotacli
                      set dtultvisitaprev = dtproxvisita,
                          dtproxvisita    = dtproxvisita +
@@ -401,97 +401,97 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                   to_number(periodicidade))
                       where codusur = p_codusur
                       and   codcli  = p_codcli
-                      and   dtproxvisita <= vdDTVISITAPROG 
+                      and   dtproxvisita <= vdDTVISITAPROG
                       and   dtproxvisita is not null
                       and   periodicidade in  ('1', '7', '14', '21', '28', '35', '42', '15', '30', '45');
-    
-    
+
+
                        commit;
-    
-                end if; 
-        
+
+                end if;
+
                 end if;
            end if;
 
            end if;
 
 
-      
+
 
 
        else
 
          if p_tipo = 'PED' then
-         
-         
+
+
               select count(*)
               into vicont
               from pcmovrotacli p
               where codrota = p_codrota;
-         
+
                 if vicont = 0 then
-                
+
                   p_mensagem := 'Nao existe rota cadastrada com este codigo :'||p_codrota;
-                
+
                 elsif vicont = 1 then
-                
+
                   select p.dtpedido,p.codvisita,p.dtcancel,p.codcli,p.codusur,p.dtvisitaprog,p.dtproxvisita
                   into vddtpedido,vncodvisita,vddtcancel,vncodcli,vncodusur,vddtvisitaprog,vddtproxvisita
                   from pcmovrotacli p
                   where codrota = p_codrota;
-                 
-                 
-                  if vddtcancel is not null then                 
-                  
+
+
+                  if vddtcancel is not null then
+
                     p_mensagem := 'Rota : '||p_codrota||' cancelada na data :'||vddtcancel;
-                    
+
                   elsif vncodcli <> p_codcli then
-                   
+
                     p_mensagem := 'Rota : '||p_codrota||' nao existe para cliente : '||p_codcli;
-                    
+
                   elsif vncodusur <> p_Codusur then
-                    p_mensagem := 'Rota : '||p_codrota||' nao existe para rca : '||p_codusur;  
-                  
+                    p_mensagem := 'Rota : '||p_codrota||' nao existe para rca : '||p_codusur;
+
                   elsif vncodvisita is not null then
-                                    
+
                      update pcvisita
                      set cancelado = 'S',
                          observacao = 'Justificativa cancelada, importado pedido : '||p_numped
                      where codvisita = vncodvisita;
-                  
+
                      commit;
-                     
- 
-                  
+
+
+
                   else
 
 
                     if vddtvisitaprog > p_data then
-                 
+
                         p_mensagem := 'Nao ha rota programada para este cliente';
-                  
+
                     end if;
 
 
                         if vddtpedido is not null then --já teve um pedido para esta rota
-             
-             
+
+
                            if trunc(vddtpedido) = trunc(p_data) then
-             
+
                               update pcmovrotacli
                               set qtpedido = nvl(qtpedido,0) + 1
                               where codrota = p_codrota;
-                              
+
                               commit;
-                              
+
                            else -- tentando atualizar para uma rota que já foi atualizada em data diferente
-                           
+
                               p_mensagem := 'Rota :'||p_codrota||' já foi atualizada. Favor entrar em contato seu força de vendas';
-                           
-                               
-                            end if;   
+
+
+                            end if;
                          else
-                         
+
                               update  pcmovrotacli
                               set dtultvisitaprev = vddtproxvisita,
                     	            dtproxvisita    = dtproxvisita +
@@ -503,7 +503,7 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                         45,
                                                         42,
                                                         to_number(periodicidade)),
-              
+
                                   dtpedido       = p_data,
                     	            tipovisita     = (case when trunc(p_data) = pcmovrotacli.dtvisitaprog then 'E'
                     	                                   when trunc(p_data) > pcmovrotacli.dtvisitaprog then 'P'
@@ -512,8 +512,8 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                   dtjustific     = null,
                     	            codvisita      = null,
                     	            qtpedido       = 1
-                    	         where  codrota = p_codrota;   
-                               
+                    	         where  codrota = p_codrota;
+
                                update pcrotacli
                                set dtultvisitaprev = dtproxvisita,
                                    dtproxvisita    = dtproxvisita +
@@ -527,57 +527,57 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                             to_number(periodicidade))
                                 where codusur = p_codusur
                                 and   codcli  = p_codcli
-                                and dtproxvisita <= vdDTVISITAPROG 
+                                and dtproxvisita <= vdDTVISITAPROG
                                 and dtproxvisita is not null
                                 and periodicidade in
                                     ('1', '7', '14', '21', '28', '35', '42', '15', '30', '45');
-                                     
+
                                commit;
-           
+
                          end if;
-                         
-                         
-                           
+
+
+
                 end if;
-         
+
                end if;
-         
-         
+
+
          elsif p_tipo = 'VIS' then
-         
+
               select count(*)
               into vicont
               from pcmovrotacli p
               where codrota = p_codrota;
-         
+
                 if vicont = 0 then
-                
+
                   p_mensagem := 'Nao existe rota cadastrada com este codigo :'||p_codrota;
                   p_justvalida := false;
-                
+
                 elsif vicont = 1 then
-                
+
                   select p.dtpedido,p.codvisita,p.dtcancel,p.dtvisitaprog,p_codcli,p.codusur
                   into vddtpedido,vncodvisita,vddtcancel,vddtvisitaprog,vncodcli,vncodusur
                   from pcmovrotacli p
                   where codrota = p_codrota;
-                 
-                 
-                  if vddtcancel is not null then                 
-                  
+
+
+                  if vddtcancel is not null then
+
                     p_mensagem := 'Rota : '||p_codrota||' cancelada na data :'||vddtcancel;
-                   p_justvalida := false;    
-                   
+                   p_justvalida := false;
+
                   elsif vncodcli <> p_codcli then
-                   
+
                     p_mensagem := 'Rota : '||p_codrota||' nao existe para cliente : '||p_codcli;
                     p_justvalida := false;
-                    
+
                   elsif vncodusur <> p_Codusur then
-                    p_mensagem := 'Rota : '||p_codrota||' nao existe para rca : '||p_codusur;  
+                    p_mensagem := 'Rota : '||p_codrota||' nao existe para rca : '||p_codusur;
                     p_justvalida := false;
-                                 
-                  
+
+
                   else
 
 
@@ -585,23 +585,23 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
 
                        p_mensagem := 'Rota : '||p_codrota||' ja atualizada com um pedido.';
                        p_justvalida := false;
-         
+
                      else
 
                        if vncodvisita is not null then
-         
+
                           p_mensagem := 'Rota :'||p_codrota||' já foi atualizada. Favor entrar em contato seu força de vendas';
                           p_justvalida := false;
-                           
+
                        elsif vddtvisitaprog > p_data then
-                       
+
                           p_mensagem := 'Visita fora da rota :'||p_codrota||'. Data programada : '||to_char(vddtvisitaprog,'dd/mm/yyyy') ;
                           p_justvalida := false;
 
-                           
+
                        else
 
-                     
+
                           update  pcmovrotacli
                           set dtultvisitaprev = dtproxvisita,
                               dtproxvisita    = dtproxvisita +
@@ -613,13 +613,13 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                               45,
                                               42,
                                               to_number(periodicidade)),
-                              dtpedido = null, 
+                              dtpedido = null,
                               tipovisita  = decode(vstipomotivo,3,'N',4,'X'),
                               dtjustific  = trunc(p_data),
                               codvisita   = p_codvisita,
                               qtpedido    = null
-                   	         where  codrota = p_codrota;    
-                             
+                   	         where  codrota = p_codrota;
+
                              update pcrotacli
                              set dtultvisitaprev = dtproxvisita,
                                  dtproxvisita    = dtproxvisita +
@@ -633,18 +633,18 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
                                                           to_number(periodicidade))
                               where codusur = p_codusur
                               and   codcli  = p_codcli
-                              and   dtproxvisita <= vdDTVISITAPROG 
+                              and   dtproxvisita <= vdDTVISITAPROG
                               and   dtproxvisita is not null
                               and   periodicidade in  ('1', '7', '14', '21', '28', '35', '42', '15', '30', '45');
-                                  
+
                            commit;
-                        
+
                      end if;
-                       
+
                 end if;
-         
+
                end if;
-               
+
              end if;
 
          end if;
