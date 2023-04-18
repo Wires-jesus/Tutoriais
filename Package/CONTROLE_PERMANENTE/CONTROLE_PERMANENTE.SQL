@@ -1,0 +1,16 @@
+﻿CREATE OR REPLACE PACKAGE CONTROLE_PERMANENTE AUTHID CURRENT_USER IS
+
+  FUNCTION ATUALIZARCUSTOINICIALOPMES(P_CODFILIAL VARCHAR2,
+                                      PCODPROD    INTEGER,
+                                      DTINICIAL   DATE,
+                                      DTFINAL     DATE) RETURN VARCHAR2;
+
+  FUNCTION PROCESSAR(P_CODFILIAL VARCHAR2,
+                     DTINICIAL   DATE,
+                     DTFINAL     DATE,
+                     PCODPROD    INTEGER) RETURN VARCHAR2;
+
+  FUNCTION RECALCULARCUSTOS(P_CODFILIAL VARCHAR2,
+                            DTINICIAL   DATE,
+                            DTFINAL     DATE) RETURN VARCHAR2;
+END;
