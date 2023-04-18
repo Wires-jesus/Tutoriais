@@ -1,0 +1,275 @@
+﻿CREATE OR REPLACE PROCEDURE P_PC_CANCELA_NF_COMODATA(PNCODIGOFUNCIONARIO IN VARCHAR2,
+                                                     PNNUMTRANSVENDA     IN NUMBER,
+                                                     PVC2MOTIVOCANCEL    IN VARCHAR2,
+                                                     PNCODROTINA         IN NUMBER,
+                                                     PVC2MENSSAGEM       OUT VARCHAR2) IS
+  /*******************************************************************************
+                          HISTORICO DE ALTERACOES
+  --------------------------------------------------------------------------------
+       DATA     RESPONSAVEL       COMENTARIO
+    ----------  ----------------  ------------------------------------------------
+    22/11/2006  RAFAEL            CRIACAO DA PROCEDURE
+  
+  *******************************************************************************/
+  -- VARIAVEIS AUXILIARES PARA COLUNAS DE TABELAS-- TABELA PCMOV
+  V_CODIGOUSUATRIO PCMOV.CODUSUR%TYPE;
+  V_CODIGOCLIENTE  PCMOV.CODCLI%TYPE;
+  V_CODIGOFILIAL   PCMOV.CODFILIAL%TYPE;
+  -- TABELA PCNFSAID
+  V_VALORTOTALCANCEL NUMBER;
+  VNCOMISSAO         NUMBER;
+  V_SERIE            PCNFSAID.SERIE%TYPE;
+  V_NUMERONOTA       NUMBER;
+  V_EMITENTE         NUMBER;
+  V_VALORTOTALGER    NUMBER;
+  V_DATASAIDA        DATE;
+  V_CODUSUR          NUMBER;
+  V_CODSUPERVISOR    NUMBER;
+  V_VALORTABELA      NUMBER;
+  VSCODFILIAL        PCNFSAID.CODFILIAL%TYPE;
+  VNCODCLI           PCNFSAID.CODCLI%TYPE;
+  -- TABELA PCCONSUM
+  VNPROXNUMLANC PCCONSUM.PROXNUMLANC%TYPE;
+  -- TABELA PCEMPR
+  VNMATRICULAFUNCIONARIO NUMBER;
+
+  VNNUMTRANSWMS NUMBER;
+  VNNUMSEQ      NUMBER;
+  VNNUMCAR      NUMBER;
+  VNUSAWMS      VARCHAR2(1);
+BEGIN
+
+  SELECT MATRICULA
+    INTO VNMATRICULAFUNCIONARIO
+    FROM PCEMPR
+   WHERE UPPER(LTRIM(RTRIM(NOME_GUERRA))) =
+         UPPER(LTRIM(RTRIM(PNCODIGOFUNCIONARIO)));
+
+  --
+  --1-SELEC?O DOS DADOS "ESTATICOS" PARA TODOS OS PRODUTOS DE UMA NOTA, NA TABELA PCMOV
+  --
+  PVC2MENSSAGEM := '1';
+
+  SELECT DISTINCT PCMOV.CODUSUR, PCMOV.CODCLI, PCMOV.CODFILIAL
+    INTO V_CODIGOUSUATRIO, V_CODIGOCLIENTE, V_CODIGOFILIAL
+    FROM PCMOV
+   WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  --
+  --2-SELEC?O DOS DADOS DO CABECALHO DA NOTA, NA TABELA PCNFSAID
+  --
+  PVC2MENSSAGEM := '2';
+
+  SELECT VLTOTAL,
+         COMISSAO,
+         SERIE,
+         NUMNOTA,
+         VLTOTGER,
+         DTSAIDA,
+         CODEMITENTE,
+         CODUSUR,
+         CODSUPERVISOR,
+         VLTABELA,
+         CODFILIAL,
+         CODCLI
+    INTO V_VALORTOTALCANCEL,
+         VNCOMISSAO,
+         V_SERIE,
+         V_NUMERONOTA,
+         V_VALORTOTALGER,
+         V_DATASAIDA,
+         V_EMITENTE,
+         V_CODUSUR,
+         V_CODSUPERVISOR,
+         V_VALORTABELA,
+         VSCODFILIAL,
+         VNCODCLI
+    FROM PCNFSAID
+   WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  -- ATUALIZA O ESTOQUE --
+  PVC2MENSSAGEM := '3';
+  --
+  --4-EXCLUI TODOS OS REGISTRO REFENRENTES A NOTA CANCELADA DA TABELA PCNFBASE
+  --
+  PVC2MENSSAGEM := '4';
+
+  DELETE PCNFBASE WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  --
+  --5-CRIA UM REGISTRO DE LOG PARA O CANCELAMENTO DA NOTA, NA TABELA PCNFCAN
+  --
+  PVC2MENSSAGEM := '5';
+
+  --5-CRIA UM REGISTRO DE LOG PARA O CANCELAMENTO DA NOTA, NA TABELA PCNFCAN
+  INSERT INTO PCNFCAN
+    (NUMTRANSVENDA,
+     CODFUNCCANC,
+     DATACANC,
+     CODCLI,
+     MOTIVO,
+     CODFUNCEMITE,
+     DATAEMISSAO,
+     VLTOTAL,
+     CODROTINA)
+  VALUES
+    (PNNUMTRANSVENDA,
+     VNMATRICULAFUNCIONARIO,
+     SYSDATE,
+     V_CODIGOCLIENTE,
+     PVC2MOTIVOCANCEL,
+     V_EMITENTE,
+     V_DATASAIDA,
+     V_VALORTOTALGER,
+     PNCODROTINA);
+
+  --6
+  PVC2MENSSAGEM := '6';
+
+  UPDATE PCNFSAID
+     SET VLTOTAL       = 0,
+         COMISSAO      = 0,
+         VLTOTGER      = 0,
+         VLTABELA      = 0,
+         VLCUSTOREAL   = 0,
+         VLCUSTOFIN    = 0,
+         BCST          = 0,
+         STRIBUT       = 0,
+         DTCANCEL      = SYSDATE,
+         CODFUNCCANCEL = VNMATRICULAFUNCIONARIO,
+         TOTPESO       = 0,
+         TOTVOLUME     = 0,
+         NUMITENS      = 0,
+         ICMSRETIDO    = 0,
+         VLIPI         = 0,
+         VLBASEIPI     = 0,
+         OBS           = 'NF CANCELADA'
+   WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  --
+  PVC2MENSSAGEM := '7';
+
+  UPDATE PCMOV
+     SET DTCANCEL = TRUNC(SYSDATE)
+   WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  --7-INCLUI UM MOVIMENTO NO PCMOV COM QTDE NEGATIVA
+  PVC2MENSSAGEM := '4';
+
+  INSERT INTO PCMOV
+    (DTMOV,
+     CODPROD,
+     NUMNOTA,
+     CODOPER,
+     QT,
+     PUNIT,
+     CODFILIAL,
+     STATUS,
+     CODCLI,
+     CODUSUR,
+     CUSTOFIN,
+     NUMCAR,
+     NUMPED,
+     PTABELA,
+     NUMREGIAO,
+     CUSTOCONT,
+     ST,
+     SITTRIBUT,
+     BASEICMS,
+     BASEICST,
+     ALIQICST,
+     QTCONT,
+     PUNITCONT,
+     CUSTOREAL,
+     NUMNOTADEV,
+     NUMTRANSVENDA,
+     CODEPTO,
+     CODSEC,
+     VLFRETE,
+     VLOUTROS,
+     CUSTOCONTANT,
+     CUSTOREALANT,
+     CUSTOFINANT,
+     NUMBONUS,
+     NUMTRANSENT,
+     CODFORNEC,
+     CODPLPAG,
+     PERCIPI,
+     PERCICM,
+     PERCST,
+     PERCBON,
+     PERCFRETE,
+     PERCDESC,
+     NUMTRANSDEV,
+     CODST,
+     DTCANCEL,
+     CODFISCAL,
+     CODEQUIPAMENTO)
+    (SELECT TRUNC(SYSDATE),
+            CODPROD,
+            NUMNOTA,
+            CODOPER,
+            NVL(QT, 0) * (-1),
+            PUNIT,
+            CODFILIAL,
+            STATUS,
+            CODCLI,
+            CODUSUR,
+            CUSTOFIN,
+            NUMCAR,
+            NUMPED,
+            PTABELA,
+            NUMREGIAO,
+            CUSTOCONT,
+            ST,
+            SITTRIBUT,
+            BASEICMS,
+            BASEICST,
+            ALIQICST,
+            NVL(QTCONT, 0) * (-1),
+            PUNITCONT,
+            CUSTOREAL,
+            NUMNOTADEV,
+            NUMTRANSVENDA,
+            CODEPTO,
+            CODSEC,
+            VLFRETE,
+            VLOUTROS,
+            CUSTOCONTANT,
+            CUSTOREALANT,
+            CUSTOFINANT,
+            NUMBONUS,
+            NUMTRANSENT,
+            CODFORNEC,
+            CODPLPAG,
+            PERCIPI,
+            PERCICM,
+            PERCST,
+            PERCBON,
+            PERCFRETE,
+            PERCDESC,
+            0,
+            CODST,
+            TRUNC(SYSDATE),
+            CODFISCAL,
+            CODEQUIPAMENTO
+       FROM PCMOV
+      WHERE NUMTRANSVENDA = PNNUMTRANSVENDA);
+
+  --8 - LIBERAR O EQUIPAMENTO PARA COMODATA
+  PVC2MENSSAGEM := '8';
+  UPDATE PCEQUIPAMENTO
+     SET NUMTRANSVENDA = NULL
+   WHERE NUMTRANSVENDA = PNNUMTRANSVENDA;
+
+  --
+  PVC2MENSSAGEM := 'OK';
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    PVC2MENSSAGEM := SQLCODE || '-' || SQLERRM || '-' || PVC2MENSSAGEM ||
+                     '- PROBLEMAS NO CANCELAMENTO DA NOTA COM O N. DE TRANSACAO DE COMODATA IGUAL A ' ||
+                     PNNUMTRANSVENDA ||
+                     ' CONTACTE O RESPONSAVEL CASO O ERRO PERSISTA';
+END;
+
