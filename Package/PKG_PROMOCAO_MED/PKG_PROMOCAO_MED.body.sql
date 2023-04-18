@@ -19507,7 +19507,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Classes informadas
       -- Grupos Comerciais informados
       -- DDMEDICA-2258 (Somente carregará as inf se a promoção não for "Por Rede/Cliente (1)")
-      IF ((nvl(vnTipoRestricao,0) NOT IN (1))) THEN
+      IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
         INSERT INTO PCLOGPROMOCAOCLASSEVENDAMED(
                     CODPROMOCAOMED
                   , CLASSEVENDA
@@ -20672,7 +20672,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         END IF;
 
         -- Carrega Array com as Atividades informadas
-        IF ((vnTipoRestricao NOT IN (1))) THEN -- Não for Rede/Cliente
+        IF ((vnTipoRestricao NOT IN (1, 4))) THEN -- Não for Rede/Cliente
           SELECT *
             BULK COLLECT INTO vtPCMED_PROMOCAOATIV
             FROM PCMED_PROMOCAOATIV;
@@ -20686,7 +20686,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- Carrega Array com as Redes informadas
         -- (Pode ficar sem dados no Array)
-        IF ((vnTipoRestricao IN (1))) THEN -- Se Rede/Cliente
+        IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
           SELECT *
             BULK COLLECT INTO vtPCMED_PROMOCAOREDE
             FROM PCMED_PROMOCAOREDE;
@@ -20694,7 +20694,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- Carrega Array com os Clientes informados
         -- (Pode ficar sem dados no Array)
-        IF ((vnTipoRestricao IN (1))) THEN -- Se Rede/Cliente
+        IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
           SELECT *
             BULK COLLECT INTO vtPCMED_PROMOCAOCLI
             FROM PCMED_PROMOCAOCLI;
@@ -20710,7 +20710,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- Carrega Array com os Supervisores informados
         -- (Pode ficar sem dados no Array)
-        IF ((vnTipoRestricao IN (2))) THEN -- Se Supervisor/RCA
+        IF ((vnTipoRestricao IN (2, 4))) THEN -- Se Supervisor/RCA
           SELECT *
             BULK COLLECT INTO vtPCMED_PROMOCAOSUP
             FROM PCMED_PROMOCAOSUP;
@@ -20718,7 +20718,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- Carrega Array com os RCA's informados
         -- (Pode ficar sem dados no Array)
-        IF ((vnTipoRestricao IN (2))) THEN -- Se Supervisor/RCA
+        IF ((vnTipoRestricao IN (2, 4))) THEN -- Se Supervisor/RCA
           SELECT *
             BULK COLLECT INTO vtPCMED_PROMOCAOUSUR
             FROM PCMED_PROMOCAOUSUR;
@@ -21132,7 +21132,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              FROM PCMED_PROMOCAOPRACA;
 
       -- Atividades informadas
-      IF ((vnTipoRestricao NOT IN (1))) THEN -- Não for Rede/Cliente
+      IF ((vnTipoRestricao NOT IN (1, 4))) THEN -- Não for Rede/Cliente
         INSERT INTO PCPROMOCAORAMOATIVMED(
                     CODPROMOCAOMED
                   , CODATIV )
@@ -21142,7 +21142,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Redes informadas
-      IF ((vnTipoRestricao IN (1))) THEN -- Se Rede/Cliente
+      IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
         INSERT INTO PCPROMOCAOREDEMED(
                     CODPROMOCAOMED
                   , CODREDE )
@@ -21152,7 +21152,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Clientes informados
-      IF ((vnTipoRestricao IN (1))) THEN -- Se Rede/Cliente
+      IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
         INSERT INTO PCPROMOCAOCLIMED(
                     CODPROMOCAOMED
                   , CODCLI )
@@ -21172,7 +21172,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Supervisores informados
-      IF ((vnTipoRestricao IN (2))) THEN -- Se Supervisor/RCA
+      IF ((vnTipoRestricao IN (2, 4))) THEN -- Se Supervisor/RCA
         INSERT INTO PCPROMOCAOSUPERVMED(
                     CODPROMOCAOMED
                   , CODSUPERV )
@@ -21183,7 +21183,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- RCA's informados
       -- (Pode ficar sem dados no Array)
-      IF ((vnTipoRestricao IN (2))) THEN -- Se Supervisor/RCA
+      IF ((vnTipoRestricao IN (2, 4))) THEN -- Se Supervisor/RCA
         INSERT INTO PCPROMOCAOUSURMED(
                     CODPROMOCAOMED
                   , CODUSUR )
@@ -21211,7 +21211,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Classes informadas
       -- Grupos Comerciais informados
       -- DDMEDICA-2258 (Somente carregará as inf se a promoção não for "Por Rede/Cliente (1)")
-      IF ((nvl(vnTipoRestricao,0) NOT IN (1))) THEN
+      IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
         INSERT INTO PCPROMOCAOCLASSEVENDAMED(
                     CODPROMOCAOMED
                   , CLASSEVENDA )
@@ -21596,7 +21596,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Grupos Comerciais
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
               -- DDMEDICA-2258 (Somente carregará as inf se a promoção não for "Por Rede/Cliente (1)")
-              IF ((nvl(vnTipoRestricao,0) NOT IN (1))) THEN
+              IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
                 INSERT INTO PCMED_PROMOCAOCLASSE(
                             CLASSE )
                      SELECT CLASSEVENDA
