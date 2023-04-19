@@ -662,4 +662,3 @@ create or replace procedure PRC_ATUALIZA_ROTA  (p_utilizaroteirizacao in varchar
 
 
 end PRC_ATUALIZA_ROTA;
-/
