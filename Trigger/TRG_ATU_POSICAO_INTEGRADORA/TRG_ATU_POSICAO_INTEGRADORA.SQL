@@ -122,4 +122,3 @@ begin
   end if;
 
 end TRG_ATU_POSICAO_INTEGRADORA;
-/
