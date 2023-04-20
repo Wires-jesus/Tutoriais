@@ -1,0 +1,1 @@
+{"nome":"ATUALIZACAO_DIARIA","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"PCHISTESTFILA","tipo":"TABELA","versao":"3.0.02.000"},{"nome":"PCHISTEST","tipo":"TABELA","versao":"3.0.02.000"}]}
