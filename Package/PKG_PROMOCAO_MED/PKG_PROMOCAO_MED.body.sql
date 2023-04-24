@@ -55,6 +55,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_PROMOCAO_MED
   06/10/2022  Anderson Silva     DDVENDAS-38166 - Validação de Cotas da Promoção
   26/10/2022  Anderson Silva     DDVENDAS-38534 - Ajuste gravação restrições clientes sem normalização da promoção
   16/11/2022  Anderson Silva     DDVENDAS-38892 - Melhoria de performance na gravação da promoção
+  24/04/2023  Anderson Silva     DDVENDAS-41697 - Revalição inclusão orçamento
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -71,13 +72,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38166        v@31.1.7
   DDVENDAS-38534        v@33.1.1
   DDVENDAS-38892        v@33.1.2
+  DDVENDAS-41697        v@33.0.3
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.1.2';
+    vvVersao := 'v@33.1.3';
   
     RETURN 'MED_' || vvVersao;
     
@@ -7550,7 +7552,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvMsgVendaRejeitadaCota   VARCHAR2(4000);
     vnCotaUtilizadaGeral      NUMBER;
     vnCotaUtilizadaCliente    NUMBER;
-    
+
+    viQtItensPed              INTEGER; -- DDVENDAS-41697    
+
     -------------------------------------------------------------------
     -- Procedimento para Consulta da Verba CMV do Cliente - MED-2453
     -------------------------------------------------------------------
@@ -8336,7 +8340,20 @@ IS PRAGMA SERIALLY_REUSABLE;
         RAISE e_Tratado;
       END IF;
     END IF;
-    
+
+    -- Se o Tipo de Chamada for Inclusão de itens o orçamento - DDVENDAS-41697
+    IF (pi_nTipoChamada = 11) THEN
+      SELECT COUNT(1)
+        INTO viQtItensPed
+        FROM PCPEDI
+       WHERE (NUMPED = pi_nNumPed);
+      -- Se o Pedido já tiver itens Aborta
+      IF (viQtItensPed > 0) THEN
+        po_vMotivoNaoPodeGravar := 'Já existem produtos no Pedido, inclusão não permitida!';
+        RAISE e_Tratado;
+      END IF;
+    END IF;
+
     -- DDMEDICA-5009 - Controle de Verba da Promoção    
     SELECT COUNT(1)
       INTO vnQtVerbaPromocao
