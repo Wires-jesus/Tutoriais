@@ -1,6 +1,6 @@
 CREATE OR REPLACE PACKAGE BODY PKG_PROMOCAO_MED
 /************************************************************************************************
-  Package de Processos Específicos de Promoção Módulo de Medicamentos.
+  Package de Processos Específicos de Promoção Módulo de Medicamentos..
   ----------------     Historico     ------------------------------------------------------------
   Data        Responsável        Tarefa          Comentario
   11/09/2019  Anderson Silva     DDMEDICA-755    Primeira Versão
