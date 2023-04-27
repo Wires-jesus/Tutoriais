@@ -24,6 +24,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_FUNCOESVENDAS_MED
   28/09/2022  Anderson Silva     DDVENDAS-38075 - PMC não entra nas Exceções CMED
   30/01/2023  Anderson Silva     DDVENDAS-40111 - Consolidação do uso das cotas da promoção  
   28/02/2023  Anderson Silva     DDVENDAS-40446 - Performance cálculo Função PIS_COFINS_ICMS
+  27/04/2023  Anderson Silva     DDVENDAS-41753 - Inclusão de prioriadade de exceção do Convênio Isenção ICMS
  ************************************************************************************************/
 IS
 
@@ -39,13 +40,14 @@ IS
   DDVENDAS-38075        v@31.1.6
   DDVENDAS-40111        v@31.1.7
   DDVENDAS-40446        v@33.0.1
+  DDVENDAS-41753        v@33.0.2
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.1';
+    vvVersao := 'v@33.0.2';
   
     RETURN 'MED_' || vvVersao;
     
@@ -6251,14 +6253,17 @@ IS
         
     -- DDVENDAS-38075 - PMC não entra nas Exceções
     IF (UPPER(pi_vTipoPreco) NOT IN ('PMC','PMCLICIT')) THEN
-        
+
+      -- Regra da Prioridade: Exceções do Convênio Isenção ICMS (existir um relacionamento na PCUFMEDABCFARMA para o código da exceção e o convênio '1' = Convênio Isenção ICMS)
       FOR vc_Excecao IN (SELECT E.CODEXCECAO
+                              , NVL((SELECT 1 FROM PCUFMEDABCFARMA TB WHERE TB.UF = E.CODEXCECAO AND TB.TIPOMEDICAMENTO = '1' AND pi_vConvenioIsencao = 'S'),2) PRIORIDADE
                            FROM PCEXCECAOUFMEDABCFARMA E
                           WHERE ( (NOT EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'F')) OR
                                   (EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'F' AND RF.VALOR = vvCodFilial)) )
                             AND ( (NOT EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'U')) OR
                                   (EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'U' AND RF.VALOR = vvUf)) )     
-                            AND (EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'C' AND RF.VALOR = pi_vTipoCliMed))) LOOP
+                            AND (EXISTS (SELECT 'S' FROM PCRESTRICAOUFMEDABCFARMA RF WHERE RF.CODEXCECAO = E.CODEXCECAO AND RF.TIPO = 'C' AND RF.VALOR = pi_vTipoCliMed))
+                          ORDER BY PRIORIDADE) LOOP
                             
         BEGIN
   
