@@ -4371,6 +4371,7 @@ VCOUNT NUMBER(10);
 VDATATESTADA DATE;
 BEGIN
 
+  IF PCODROTINA <> 117 THEN  
     BEGIN
       SELECT NVL(COUNT(DISTINCT F.DATA),0), NVL(to_date(F.DTGERACAO, 'dd/mm/yyyy'),SYSDATE)
       INTO VCOUNT, VDATATESTADA
@@ -4383,10 +4384,12 @@ BEGIN
       VCOUNT := 0;
       VDATATESTADA := SYSDATE;
     END;
+
+
+    IF VCOUNT > 7 THEN
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+    END IF;
   
-  
-  IF VCOUNT > 7 THEN
-    raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
   END IF;
 
   /*Apagando registros gerados pela rotina 117*/
@@ -4527,7 +4530,8 @@ VCOUNT NUMBER(10);
 VDATATESTADA DATE;
 BEGIN
   
-    BEGIN  
+  IF PCODROTINA <> 117 THEN  
+    BEGIN
       SELECT COUNT(DISTINCT F.DATA), to_date(F.DTGERACAO, 'dd/mm/yyyy')
       INTO VCOUNT, VDATATESTADA
       FROM PCFINANC2 F
@@ -4535,14 +4539,16 @@ BEGIN
       AND F.CODFILIAL = PCODFILIAL
       GROUP BY to_date(F.DTGERACAO, 'dd/mm/yyyy');
     EXCEPTION
-      WHEN NO_DATA_FOUND THEN      
+      WHEN NO_DATA_FOUND THEN
          VCOUNT := 0;
          VDATATESTADA := SYSDATE;
-    END;    
+    END;
+
+
+    IF VCOUNT > 7 THEN
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+    END IF;
   
-  
-  IF VCOUNT > 7 THEN
-    raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
   END IF;
   
   VCOUNT := 0;
@@ -5588,6 +5594,8 @@ PROCEDURE ATUALIZARSALDOSFINANCEIROS(PCODFILIAL VARCHAR2, PCODROTINA NUMBER, PCO
   VCODFILIAL VARCHAR2(4000);
   VCOUNT NUMBER(10);
   VDATAPROCESSADA  DATE;
+
+  PRAGMA AUTONOMOUS_TRANSACTION;
 BEGIN
 
   /*Caso filial seja vazia ou 99 realizar para todas filiais */
@@ -5629,7 +5637,7 @@ BEGIN
     IF VCOUNT <= 0 THEN
 
       /*Atualizando titulos*/
-      FOR TITULOS_DESD IN ( SELECT ROWID RID
+      /*FOR TITULOS_DESD IN ( SELECT ROWID RID
                               FROM PCPREST
                              WHERE CODCOB = 'DESD'
                                AND DTPAG  IS NULL
@@ -5639,7 +5647,14 @@ BEGIN
         UPDATE PCPREST
            SET CODCOB = NVL(CODCOBORIG, CODCOB)
          WHERE ROWID = TITULOS_DESD.RID;
-      END LOOP;
+      END LOOP;*/
+
+      UPDATE PCPREST
+         SET CODCOB = NVL(CODCOBORIG, CODCOB)
+       WHERE CODCOB = 'DESD'
+         AND DTPAG  IS NULL
+         AND VPAGO  IS NULL
+         AND PCPREST.CODFILIAL IN (FILIAIS.CODIGO);
 
       /*Inicio feração dados PCFINANC2*/
       GERAR_PCFINANC2( FILIAIS.CODIGO
@@ -5663,6 +5678,7 @@ BEGIN
            VALUES             (FILIAIS.CODIGO, VDATAPROCESSADA -1, TRUNC(SYSDATE), PCODFUNC, PCODROTINA, SYSDATE );
     END IF;
   /*Fim loop filiais*/
+    COMMIT;
   END LOOP;
 
   /*Somente atualizar caso execute o processo*/
