@@ -1,5 +1,5 @@
-CREATE OR REPLACE PROCEDURE PROC_TESTE 
+CREATE OR REPLACE PROCEDURE PROC_TESTE
 IS
 BEGIN
-  raise_application_error(-20001, 'Olá!');
+  raise_application_error(-20001, 'Olá!!!!');
 END;
