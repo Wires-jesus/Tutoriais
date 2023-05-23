@@ -1,0 +1,6 @@
+{
+    "nome": "MIG_TESTE_2",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+     ]
+  }
