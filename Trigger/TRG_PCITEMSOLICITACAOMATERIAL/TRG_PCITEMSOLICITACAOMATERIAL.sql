@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE TRIGGER TRG_PCITEMSOLICITACAOMATERIAL                                                                                                 
+CREATE OR REPLACE TRIGGER TRG_PCITEMSOLICITACAOMATERIAL                                                                                                 
   BEFORE INSERT OR UPDATE ON PCITEMSOLICITACAOMATERIAL                                                                                                  
   REFERENCING NEW AS NEW OLD AS OLD                                                                                                  
   FOR EACH ROW                                                                                                                       
