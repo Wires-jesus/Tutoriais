@@ -1,7 +1,7 @@
 DECLARE
   iCOUNT Integer;
 BEGIN
---teste
+--teste tttt
   FOR DADOS IN (
           SELECT 'AFEGANISTAO' NOME FROM DUAL UNION
           SELECT 'ALBANIA' NOME FROM DUAL UNION
