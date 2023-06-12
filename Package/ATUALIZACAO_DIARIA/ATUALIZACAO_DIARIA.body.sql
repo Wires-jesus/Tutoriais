@@ -4372,22 +4372,21 @@ VDATATESTADA DATE;
 BEGIN
 
   IF PCODROTINA <> 117 THEN  
-    BEGIN
-      SELECT NVL(COUNT(DISTINCT F.DATA),0), NVL(to_date(F.DTGERACAO, 'dd/mm/yyyy'),SYSDATE)
-      INTO VCOUNT, VDATATESTADA
-      FROM PCFINANC F
-      WHERE F.DTGERACAO >= TRUNC(SYSDATE)
-      AND F.CODFILIAL = PCODFILIAL
-      GROUP BY NVL(to_date(F.DTGERACAO, 'dd/mm/yyyy'),SYSDATE);
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-      VCOUNT := 0;
-      VDATATESTADA := SYSDATE;
-    END;
-
-
+      BEGIN
+        SELECT NVL(COUNT(DISTINCT F.DATA),0), NVL(TRUNC(F.DTGERACAO),SYSDATE)
+        INTO VCOUNT, VDATATESTADA
+        FROM PCFINANC F
+        WHERE F.DTGERACAO >= TRUNC(SYSDATE)
+        AND F.CODFILIAL = PCODFILIAL
+        GROUP BY NVL(TRUNC(F.DTGERACAO),SYSDATE);
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+        VCOUNT := 0;
+        VDATATESTADA := SYSDATE;
+      END;  
+  
     IF VCOUNT > 7 THEN
-      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
   
   END IF;
@@ -4532,12 +4531,12 @@ BEGIN
   
   IF PCODROTINA <> 117 THEN  
     BEGIN
-      SELECT COUNT(DISTINCT F.DATA), to_date(F.DTGERACAO, 'dd/mm/yyyy')
+      SELECT COUNT(DISTINCT F.DATA), TRUNC(F.DTGERACAO)
       INTO VCOUNT, VDATATESTADA
       FROM PCFINANC2 F
       WHERE F.DTGERACAO >= TRUNC(SYSDATE)
       AND F.CODFILIAL = PCODFILIAL
-      GROUP BY to_date(F.DTGERACAO, 'dd/mm/yyyy');
+      GROUP BY TRUNC(F.DTGERACAO);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
          VCOUNT := 0;
@@ -4546,7 +4545,7 @@ BEGIN
 
 
     IF VCOUNT > 7 THEN
-      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
   
   END IF;
@@ -5757,12 +5756,12 @@ END ATUALIZARSALDOSFINANCEIROS;
   BEGIN
   
     BEGIN  
-        SELECT COUNT(DISTINCT F.DATAREFERENCIA), to_date(F.DATAGERACAO, 'dd/mm/yyyy')
+        SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
         INTO VCOUNT, VDATATESTADA
         FROM PCFINANC3PREST F
         WHERE F.DATAGERACAO >= TRUNC(SYSDATE)
         AND F.CODFILIAL = PSCODFILIAL
-        GROUP BY to_date(F.DATAGERACAO, 'dd/mm/yyyy');
+        GROUP BY TRUNC(F.DATAGERACAO);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN      
          VCOUNT := 0;
@@ -5771,7 +5770,7 @@ END ATUALIZARSALDOSFINANCEIROS;
     
     
     IF VCOUNT > 7 THEN
-      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
     
     VS_SQL_INSERT_PCFINANC2 := F_CABECALHO_INSERT_PCFINANC2;
@@ -5879,12 +5878,12 @@ END ATUALIZARSALDOSFINANCEIROS;
   BEGIN
     
     BEGIN
-      SELECT COUNT(DISTINCT F.DATAREFERENCIA), to_date(F.DATAGERACAO, 'dd/mm/yyyy')
+      SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
       INTO VCOUNT, VDATATESTADA
       FROM PCFINANC3VERBAS F
       WHERE F.DATAGERACAO >= TRUNC(SYSDATE)
       AND F.CODFILIAL = PSCODFILIAL
-      GROUP BY to_date(F.DATAGERACAO, 'dd/mm/yyyy');
+      GROUP BY TRUNC(F.DATAGERACAO);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN      
          VCOUNT := 0;
@@ -5893,7 +5892,7 @@ END ATUALIZARSALDOSFINANCEIROS;
     
     
     IF VCOUNT > 7 THEN
-      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
     
     VCOUNT := 0;
@@ -6048,12 +6047,12 @@ END ATUALIZARSALDOSFINANCEIROS;
   BEGIN
 
     BEGIN
-        SELECT COUNT(DISTINCT F.DATAREFERENCIA), to_date(F.DATAGERACAO, 'dd/mm/yyyy')
+        SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
         INTO VCOUNT, VDATATESTADA
         FROM PCFINANC3LANCFORNEC F
         WHERE F.DATAGERACAO >= TRUNC(SYSDATE)
         AND F.CODFILIAL = PSCODFILIAL
-        GROUP BY to_date(F.DATAGERACAO, 'dd/mm/yyyy');
+        GROUP BY TRUNC(F.DATAGERACAO);
         EXCEPTION
     WHEN NO_DATA_FOUND THEN  
          VCOUNT := 0;
@@ -6061,7 +6060,7 @@ END ATUALIZARSALDOSFINANCEIROS;
     END;
 
     IF VCOUNT > 7 THEN
-           raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
 
     VS_SQL_INSERT_PCFINANC2 := F_CABECALHO_INSERT_PCFINANC2;
@@ -6295,12 +6294,12 @@ END ATUALIZARSALDOSFINANCEIROS;
     BEGIN
 
         BEGIN
-            SELECT COUNT(DISTINCT F.DATAREFERENCIA), to_date(F.DATAGERACAO, 'dd/mm/yyyy')
+            SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
             INTO VCOUNT, VDATATESTADA
             FROM PCFINANC3LANCOUTROS F
             WHERE F.DATAGERACAO >= TRUNC(SYSDATE)
             AND F.CODFILIAL = PSCODFILIAL
-            GROUP BY to_date(F.DATAGERACAO, 'dd/mm/yyyy');
+            GROUP BY TRUNC(F.DATAGERACAO);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN      
          VCOUNT := 0;
@@ -6309,7 +6308,7 @@ END ATUALIZARSALDOSFINANCEIROS;
 
 
     IF VCOUNT > 7 THEN
-      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(to_date(VDATATESTADA, 'dd/mm/yyyy'))||'.');
+      raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
   
     
