@@ -825,7 +825,14 @@ begin
       --------------------------------------------------------------------
       -- Cálculo das colunas de "Saídas Tributadas" e "Total Saídas
       V_TOTALTRIBUTADAS := V_TOTALTRIBUTADAS - V_ENTRADATRIBUTADA;
+      IF V_TOTALTRIBUTADAS <= 0 THEN
+         V_TOTALTRIBUTADAS :=0;
+      END IF; 
+            
       V_TOTALSAIDAS := V_TOTALSAIDAS - V_ENTRADATOTAL;
+      IF V_TOTALSAIDAS <= 0 THEN
+         V_TOTALSAIDAS :=0;
+      END IF; 
       -- Calcular valores mensais a partir dos dados acima
       ------------------------------------------------------------------------
       insert into PCCIAPITEM(CODITEM,
