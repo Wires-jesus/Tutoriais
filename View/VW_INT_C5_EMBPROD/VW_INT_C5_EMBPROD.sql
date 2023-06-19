@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
+CREATE OR REPLACE VIEW VW_TB_EMBPROD_NEW AS
 (SELECT     e.codfilial,
             e.dtulalterintegra,
             e.dtcadastro,
@@ -81,9 +81,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             f.indescalarelevante,
             f.cnpjfabricante,
             e.dtalterc5
-       FROM local.pcembalagem e,
-            local.pcprodut p,
-            LOCAL.pcprodfilial f,
+       FROM pcembalagem e,
+            pcprodut p,
+            pcprodfilial f,
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
              where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
