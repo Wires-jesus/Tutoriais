@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_TB_EMBPROD_NEW AS
+CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 (SELECT     e.codfilial,
             e.dtulalterintegra,
             e.dtcadastro,
