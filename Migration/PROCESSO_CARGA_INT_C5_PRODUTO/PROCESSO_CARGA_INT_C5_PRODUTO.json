@@ -1,1 +1,6 @@
-{"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipoPLSQL":"MIGRATION","dependencias":[]}
+{
+    "nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+     ]
+  }
