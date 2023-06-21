@@ -19,4 +19,4 @@ values
    'VALIDO',
    null,
    'RETORNO',
-   'CONTAS_RECEBER');
+   'CONTAS_RECEBER')
