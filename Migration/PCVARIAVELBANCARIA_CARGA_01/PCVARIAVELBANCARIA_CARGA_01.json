@@ -1,0 +1,6 @@
+{
+   "nome": "PCVARIAVELBANCARIA_CARGA_01",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+     ]
+}
