@@ -3,7 +3,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
   SELECT DISTINCT
          p.codprod seqfamilia,
          NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
-         /*p.nbm codnbmsh,*/
          p.codncmsh,
          p.aceitavendafracao permitedecimal,
          p.permitemultiplicacao,
