@@ -44,7 +44,7 @@ SELECT c.codcli seqpessoa,
        c.dtultalter,
        c.dtcadastro,
        2 codperfildestino
-  FROM local.pcclient c,
+  FROM pcclient c,
        (SELECT LEAST(A.ultimaexecucao, B.ultimaexecucao, C.ultimaexecucao) ULTIMAEXECUCAO
          FROM (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PESSOA') A,
        (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CLIENTE') B,
