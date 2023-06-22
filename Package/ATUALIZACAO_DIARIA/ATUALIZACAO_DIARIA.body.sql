@@ -5321,88 +5321,149 @@ begin
 end PCFINANC2_GRAVAR;
 
 
-PROCEDURE ATUALIZARSALDOSFINANCEIROS(PCODFILIAL VARCHAR2, PCODROTINA NUMBER, PCODFUNC NUMBER, PDATAPROCESSADA  DATE, PATUALIZARDTPROCESSAMENTO varchar2) IS
-  VCODFILIAL VARCHAR2(4000);
-  VCOUNT NUMBER(10);
-  VDATAPROCESSADA  DATE;
---  PRAGMA AUTONOMOUS_TRANSACTION; TS.Silva
+PROCEDURE ATUALIZARSALDOSFINANCEIROS (
+  PCODFILIAL                VARCHAR2,
+  PCODROTINA                NUMBER,
+  PCODFUNC                  NUMBER,
+  PDATAPROCESSADA           DATE,
+  PATUALIZARDTPROCESSAMENTO VARCHAR2
+) IS
+
+  VCODFILIAL      VARCHAR2(4000);
+  VCOUNT          NUMBER(10);
+  VDATAPROCESSADA DATE;
+
+  PROCEDURE UPDATES_FILIAIS (
+    VCODFILIAL                VARCHAR2,
+    VCOUNT                    OUT NUMBER,
+    VDATAPROCESSADA           OUT DATE,
+    PCODROTINA                NUMBER,
+    PCODFUNC                  NUMBER,
+    PDATAPROCESSADA           DATE,
+    PATUALIZARDTPROCESSAMENTO VARCHAR2
+  ) IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+
+      /*Cursor com filiais para execução*/
+      FOR FILIAIS IN (
+          SELECT
+              CODIGO
+          FROM
+              PCFILIAL
+          WHERE
+              PCFILIAL.CODIGO IN (
+                  SELECT
+                      TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL))
+                  FROM
+                      DUAL
+                  CONNECT BY
+                      TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL)) IS NOT NULL
+              )
+              OR ( PCFILIAL.CODIGO IN ( DECODE(VCODFILIAL, '99', PCFILIAL.CODIGO, VCODFILIAL) ) )
+      ) LOOP /*Inicio loop Filiais*/
+
+          /*Não deve executar caso ja exista*/
+          SELECT
+              COUNT(1)
+          INTO VCOUNT
+          FROM
+              PCFINANC2
+          WHERE
+                  DATA = TRUNC(PDATAPROCESSADA)
+              AND CODROTINA IN ( 504, 820 )
+              AND CODFILIAL = FILIAIS.CODIGO
+              AND ROWNUM = 1;
+
+          /*Obtendo data para atualização PCCONSUM, PCPARAMFILIAL*/
+          IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
+            SELECT
+              TRUNC(DTPROCESSAMENTO + 1)
+            INTO VDATAPROCESSADA
+            FROM
+              PCCONSUM;
+
+          END IF;
+
+          IF VCOUNT <= 0 THEN
+            /*Atualizando titulos*/
+            UPDATE PCPREST
+            SET
+              CODCOB = NVL(CODCOBORIG, CODCOB)
+            WHERE
+                  CODCOB = 'DESD'
+              AND DTPAG IS NULL
+              AND VPAGO IS NULL
+              AND PCPREST.CODFILIAL IN ( FILIAIS.CODIGO );
+
+              /*Inicio feração dados PCFINANC2*/
+              GERAR_PCFINANC2(FILIAIS.CODIGO, PCODROTINA, PCODFUNC, PDATAPROCESSADA);
+
+              /*final feração dados PCFINANC2*/
+              GERAR_PCFINANC(FILIAIS.CODIGO, PCODROTINA, PCODFUNC, PDATAPROCESSADA);
+
+          END IF;
+
+          /*Incluindo no log a execução*/
+          IF (
+                ( VCOUNT <= 0 )
+            AND ( PATUALIZARDTPROCESSAMENTO = 'S' )
+          ) THEN
+              INSERT INTO PCLOGFINANC (
+                CODFILIAL,
+                DATA,
+                DTGERACAO,
+                CODFUNC,
+                CODROTINA,
+                DATAHORA
+              ) VALUES (
+                FILIAIS.CODIGO,
+                VDATAPROCESSADA - 1,
+                TRUNC(SYSDATE),
+                PCODFUNC,
+                PCODROTINA,
+                SYSDATE
+              );
+
+          END IF;
+
+          COMMIT;-- AUTONOMOUS_TRANSACTION
+
+      END LOOP;
+
+  END UPDATES_FILIAIS;
+
 BEGIN
-  /*Caso filial seja vazia ou 99 realizar para todas filiais */
-  VCODFILIAL := (CASE
-                   WHEN TRIM(PCODFILIAL) IS NULL THEN
-                     '99'
-                   ELSE
-                     PCODFILIAL
-                END);
 
-  /*Cursor com filiais para execução*/
-  FOR FILIAIS IN (SELECT CODIGO
-                    FROM PCFILIAL
-                   WHERE PCFILIAL.CODIGO IN
-                         (SELECT TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL))
-                            FROM DUAL
-                          CONNECT BY TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL)) IS NOT NULL)
-                      OR (PCFILIAL.CODIGO IN
-                         (DECODE(VCODFILIAL, '99', PCFILIAL.CODIGO, VCODFILIAL))))
-  /*Inicio loop Filiais*/
-  LOOP
-    /*Não deve executar caso ja exista*/
-    SELECT COUNT(1)
-      INTO VCOUNT
-      FROM PCFINANC2
-     WHERE DATA = TRUNC(PDATAPROCESSADA)
-       AND CODROTINA in (504,820)
-       AND CODFILIAL = FILIAIS.CODIGO
-       AND ROWNUM = 1;
+    /*Caso filial seja vazia ou 99 realizar para todas filiais */
+    VCODFILIAL := ( CASE
+        WHEN TRIM(PCODFILIAL) IS NULL THEN
+            '99'
+        ELSE PCODFILIAL
+    END );
 
-    /*Obtendo data para atualização PCCONSUM, PCPARAMFILIAL*/
+    UPDATES_FILIAIS(
+        VCODFILIAL
+      , VCOUNT
+      , VDATAPROCESSADA
+      , PCODROTINA
+      , PCODFUNC
+      , PDATAPROCESSADA
+      , PATUALIZARDTPROCESSAMENTO
+    );
+
+    /*Somente atualizar caso execute o processo*/
     IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
-      SELECT TRUNC(DTPROCESSAMENTO + 1)
-        INTO VDATAPROCESSADA
-        FROM PCCONSUM;
+        UPDATE PCCONSUM
+        SET
+          DTPROCESSAMENTO = VDATAPROCESSADA;
+        UPDATE PCPARAMFILIAL
+        SET
+          PCPARAMFILIAL.VALOR = TO_CHAR(VDATAPROCESSADA, 'DD/MM/YYYY')
+        WHERE
+          NOME = 'CON_DTPROCESSAMENTO';
+
     END IF;
-
-    IF VCOUNT <= 0 THEN
-      /*Atualizando titulos*/
-      UPDATE PCPREST
-         SET CODCOB = NVL(CODCOBORIG, CODCOB)
-       WHERE CODCOB = 'DESD'
-         AND DTPAG  IS NULL
-         AND VPAGO  IS NULL
-         AND PCPREST.CODFILIAL IN (FILIAIS.CODIGO);
-
-      /*Inicio feração dados PCFINANC2*/
-      GERAR_PCFINANC2( FILIAIS.CODIGO
-                     , PCODROTINA
-                     , PCODFUNC
-                     , PDATAPROCESSADA);
-
-      /*final feração dados PCFINANC2*/
-      GERAR_PCFINANC( FILIAIS.CODIGO
-                    , PCODROTINA
-                    , PCODFUNC
-                    , PDATAPROCESSADA);
-    /*Fim IF VCOUNT <= 0 THEN */
-    END IF;
-
-    /*Incluindo no log a execução*/
-    IF ((VCOUNT <= 0) AND (PATUALIZARDTPROCESSAMENTO='S')) THEN
-      INSERT INTO PCLOGFINANC (CODFILIAL,      DATA,            DTGERACAO,      CODFUNC,  CODROTINA, DATAHORA)
-           VALUES             (FILIAIS.CODIGO, VDATAPROCESSADA -1, TRUNC(SYSDATE), PCODFUNC, PCODROTINA, SYSDATE );
-    END IF;
-  /*Fim loop filiais*/
---    COMMIT; TS.Silva
-  END LOOP;
-
-  /*Somente atualizar caso execute o processo*/
-  IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
-    UPDATE PCCONSUM
-       SET DTPROCESSAMENTO = VDATAPROCESSADA;
-
-    UPDATE PCPARAMFILIAL
-       SET PCPARAMFILIAL.VALOR = TO_CHAR(VDATAPROCESSADA, 'DD/MM/YYYY')
-     WHERE NOME = 'CON_DTPROCESSAMENTO';
-  END IF;
 
 END ATUALIZARSALDOSFINANCEIROS;
 
