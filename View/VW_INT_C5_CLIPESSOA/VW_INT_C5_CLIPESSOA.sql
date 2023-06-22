@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_TB_CLIPESSOA AS
+CREATE OR REPLACE VIEW VW_INT_C5_CLIPESSOA AS
 (
 SELECT c.codcli seqpessoa,
        SUBSTR(UPPER(COALESCE(c.cliente,c.fantasia, ' ')),1,50) nomerazao,
