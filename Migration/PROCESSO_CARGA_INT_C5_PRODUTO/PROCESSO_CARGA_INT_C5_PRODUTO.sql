@@ -1,3 +1,16 @@
+CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
+(
+SELECT  m.codmarca seqmarca,
+        SUBSTR(m.marca,1,20) marca,
+        COALESCE(m.ativo,'S') ativo,
+        m.dtultalter,
+        m.dtcadastro
+  FROM  pcmarca m
+ WHERE  m.codmarca > 0
+ )
+
+ \
+
 CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 (
   SELECT DISTINCT
