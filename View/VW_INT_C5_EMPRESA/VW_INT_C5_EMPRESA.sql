@@ -1,32 +1,21 @@
-CREATE OR REPLACE VIEW VW_INT_C5_EMPRESA AS
+CREATE OR REPLACE VIEW INTERMEDIARIO.VW_INT_C5_EMPRESA AS
 (
-  select  e.seqproduto,
-        e.nroempresa,
-        e.nrosegmento,
-        e.qtdembalagem,
-        e.promocao,
-        1 preco,
-        e.ativo,
-        e.dtultalter_prod,
-        e.dtcadastro_prod,
-        e.dtcadastroemb,
-        e.dtulalterintegra,
-        e.dtultaltpvenda,
-        e.codauxiliar
-  FROM (SELECT
-         e.codauxiliar || e.codfilial seqproduto,
-         e.codfilial nroempresa,
-         NVL(e.qtunit,1) qtdembalagem,
-         1 nrosegmento,
-         'N' promocao,
-         e.codauxiliar,
-         'S' ativo,
-         e.dtultalter_prod,
-         e.dtcadastro_prod,
-         e.dtcadastro dtcadastroemb,
-         e.dtulalterintegra,
-         e.dtultaltpvenda
-          FROM VW_INT_C5_EMBPROD e 
-         ) e
-)
-
+SELECT f.codigo nroempresa,
+       NVL(f.codcli,1) seqpessoa,
+       1 nrodivisao,
+       1 nrosegmento,
+       SUBSTR(COALESCE(f.fantasia, F.RAZAOSOCIAL, ' '), 1, 20) nomereduzido,
+       f.codigo nroempresamatriz,
+       0 nroempresaseguranca,
+       (CASE
+            WHEN f.dtexclusao IS NULL
+                THEN 'S'
+            ELSE
+          'N'
+        END) ativo
+      
+  FROM pcfilial f,
+       (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
+ WHERE f.codigo >= 0
+   AND f.codigo < '99'
+   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO)
