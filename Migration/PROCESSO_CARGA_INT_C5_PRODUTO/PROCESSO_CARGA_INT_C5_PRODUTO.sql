@@ -122,6 +122,16 @@ SELECT
  FROM  VW_INT_C5_EMBPROD e 
 )
 
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
+(SELECT
+       e.codprod seqfamilia,
+       1 nrosegmento,
+       'S' ativo
+  FROM  VW_INT_C5_EMBPROD e
+)
+
 
 
 
