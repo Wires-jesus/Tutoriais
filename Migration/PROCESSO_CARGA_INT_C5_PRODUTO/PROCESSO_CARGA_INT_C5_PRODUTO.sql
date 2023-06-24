@@ -132,6 +132,24 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
   FROM  VW_INT_C5_EMBPROD e
 )
 
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
+(
+SELECT
+         e.codauxiliar||e.codfilial seqproduto,
+         e.codfilial nroempresa,
+         NVL(e.qtunit, 1) qtdembalagem,
+         1 nrosegmento,
+         'N' promocao,
+         e.codauxiliar,
+         e.pvenda
+         'S' ativo
+         FROM VW_INT_C5_EMBPROD e
+         WHERE NVL(e.pvenda, 0) >= 0
+        
+   )
+
 
 
 
