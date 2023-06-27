@@ -67,6 +67,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GRAVACAO_PEDIDO_MED
   14/12/2022  Anderson Silva     DDVENDAS-39352 - Ajuste descrição produto críticas promoções
   24/03/2023  Anderson Silva     DDVENDAS-41227 - Validar múltiplo no corte
   04/04/2023  Anderson Silva     DDVENDAS-38983 - Pré-Pedido PFIZER
+  24/05/2023  Anderson Silva     DDVENDAS-41449 - Modalidade V - Venda no Pré-Pedido OL
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -100,13 +101,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-39352        v@33.0.5  
   DDVENDAS-41227        v@33.0.6
   DDVENDAS-38983        v@33.0.7
+  DDVENDAS-41449        v@34.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.7';
+    vvVersao := 'v@34.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -848,6 +850,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            , vEnviaPrePedidoApi -- DDVENDAS-38983
         FROM PCPEDCOMPRAOPERLOGCAB
        WHERE (NUMPEDORIGINAL = pi_nNumPed)
+         AND (MODALIDADE     = 'V') -- DDVENDAS-41449 
          AND (ROWNUM         = '1');
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
@@ -1124,6 +1127,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , NUMTRANSVENDAORIGINAL
                 , ENVIAPREPEDIDOAPI -- DDVENDAS-38983
                 , ARQUIVOPED
+                , MODALIDADE -- DDVENDAS-41449                 
                 )
           VALUES( po_nNumPedOperLog
                 , TRUNC(SYSDATE)
@@ -1136,6 +1140,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , vnNumTransVendaOriginal
                 , vvEnviaPrePedidoApi -- DDVENDAS-38983
                 , vvArquivoPed
+                , 'V' -- DDVENDAS-41449 
                 );
     
     -- Se o Pedido já existe
@@ -1233,6 +1238,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            , PCPEDCOMPRAOPERLOGCAB
        WHERE (PCPEDCOMPRAOPERLOGITE.NUMPED         = PCPEDCOMPRAOPERLOGCAB.NUMPED)
          AND (PCPEDCOMPRAOPERLOGCAB.NUMPEDORIGINAL = pi_nNumPed)
+         AND (PCPEDCOMPRAOPERLOGCAB.MODALIDADE     = 'V') -- DDVENDAS-41449 
        GROUP BY PCPEDCOMPRAOPERLOGCAB.ENVIAPREPEDIDOAPI;  
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
