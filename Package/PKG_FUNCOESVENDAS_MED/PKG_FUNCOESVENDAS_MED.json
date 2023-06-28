@@ -21,6 +21,11 @@
 			"nome": "TABELA_MED_OBTER_LOTES_PEDIDO",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCINT_RELACIONA_DEPOSITO_ESTOQ",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
 		}
 	]
 }
