@@ -1,0 +1,6 @@
+{"nome":"PROCESSO_CARGA_INT_C5_TRIBUTACAO",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias":[{"nome":"PCTRIBUT","tipo":"TABELA","versao":"4.0.01.000"}, 
+                 {"nome":"PCCONSOLIDATRIBUTACAO","tipo":"TABELA","versao":"4.0.02.000"}
+                ]}
+
