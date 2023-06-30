@@ -25,7 +25,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 percaliqfcpst,
             c.calcicmsdeson,
             c.percdesoneracao percaliqicmsdeson,
-            c.motivodesoneracao motivodesonicms,
+            c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
             t.codst,
             t.mensagem || ' - TRIBUTACAO' tributacao,
