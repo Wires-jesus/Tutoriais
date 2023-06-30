@@ -105,8 +105,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAOCATEGORIA AS
        1 nrodivisao,
        'S' ativo
   
-  FROM  local.pcdepto  d,
-        local.pcsecao  s,
+  FROM  pcdepto  d,
+        pcsecao  s,
         VW_INT_C5_EMBPROD e,
         (select s.ultimaexecucao ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA') DTPADRAO
  WHERE  e.codepto = d.codepto
