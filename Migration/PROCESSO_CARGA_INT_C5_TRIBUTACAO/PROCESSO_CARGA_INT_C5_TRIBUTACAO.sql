@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
 (SELECT     t.codst nrotributacao,
-            c.uf uforigem,
-            c.uf ufdestino,
+            c.UFORIGEM uforigem,
+            c.UFDESTINO ufdestino,
             'SN' tipotributacao,
             0 nroregtributacao,
             c.percaliquota,
