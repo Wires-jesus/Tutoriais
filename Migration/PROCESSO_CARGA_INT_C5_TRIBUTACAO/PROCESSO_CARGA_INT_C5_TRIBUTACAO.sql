@@ -37,8 +37,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
 
             COALESCE(t.aliqicms1,0) aliqicms1,
             COALESCE(t.aliqicms2,0) aliqicms2
-FROM local.pctribut t,
-     local.PCCONSOLIDATRIBUTACAO c,
+FROM pctribut t,
+     PCCONSOLIDATRIBUTACAO c,
      (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
 
 WHERE t.codst = c.codst
