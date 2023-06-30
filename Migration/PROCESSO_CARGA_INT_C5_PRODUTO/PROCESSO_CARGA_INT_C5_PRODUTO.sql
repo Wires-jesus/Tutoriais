@@ -143,7 +143,7 @@ SELECT
          1 nrosegmento,
          'N' promocao,
          e.codauxiliar,
-         e.pvenda
+         e.pvenda,
          'S' ativo
          FROM VW_INT_C5_EMBPROD e
          WHERE NVL(e.pvenda, 0) >= 0
