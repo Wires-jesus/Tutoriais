@@ -39,13 +39,13 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
        'N' pesoaferido,
        'S' ativo,
 
-       (select nvl(emb.unidade, '1') from local.pcembalagem emb
+       (select nvl(emb.unidade, '1') from pcembalagem emb
         where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) embalagem,
 
-       (select nvl(emb.pesobruto,0) from local.pcembalagem emb
+       (select nvl(emb.pesobruto,0) from pcembalagem emb
         where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) pesobruto,
 
-       (select nvl(emb.pesoliq, 0) from local.pcembalagem emb
+       (select nvl(emb.pesoliq, 0) from pcembalagem emb
         where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) pesoliq
 FROM
      /*O SELECT ABAIXO TRANSFORMA A REGRA NEGOCIAL DO WINTHOR PARA ATENDER A REGRA NEGOCIAL DA CONSINCO,
@@ -64,7 +64,7 @@ FROM
             count(e.codauxiliar) qtdecodigobarras,
             e.codprod seqfamilia,
             NVL(e.qtunit, 1) qtdembalagem,
-            (select emb.codauxiliar from local.pcembalagem emb where emb.codprod = e.codprod and emb.qtunit = NVL(e.qtunit, 1) and rownum = 1) codauxreferencia
+            (select emb.codauxiliar from pcembalagem emb where emb.codprod = e.codprod and emb.qtunit = NVL(e.qtunit, 1) and rownum = 1) codauxreferencia
       FROM VW_INT_C5_EMBPROD e
       group by  e.codprod, NVL(e.qtunit, 1)
      )fb
