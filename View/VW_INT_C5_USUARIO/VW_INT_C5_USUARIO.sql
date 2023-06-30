@@ -14,6 +14,7 @@ SELECT  r.codfilial,
                  1
           END) nivel,
         r.dtexpirasenha dtaexpirar,
+        
         (CASE
              WHEN NVL(r.perdescmaxitem,0) > 0
                   THEN r.perdescmaxitem
