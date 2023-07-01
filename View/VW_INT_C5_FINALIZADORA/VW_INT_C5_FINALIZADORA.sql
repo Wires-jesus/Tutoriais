@@ -32,10 +32,14 @@ SELECT  f.CODFINALIZADORA nroformapagto,
          END) ativo,
         f.codcob,
         COALESCE(c.boleto,'N') boleto,
-        GREATEST(NVL(f.dtultalter, d.datapadrao),
+        
+        /*GREATEST(NVL(f.dtultalter, d.datapadrao),
                 NVL(f.dtcadastro, d.datapadrao),
                 NVL(c.dtultalter, d.datapadrao),
-                NVL(c.dtcadastro, d.datapadrao)) data
+                NVL(c.dtcadastro, d.datapadrao)) data*/
+        
+        GREATEST(NVL(f.DTALTERC5, d.datapadrao),
+                 NVL(c.DTALTERC5, d.datapadrao)) data
   FROM  VW_INT_C5_ESPECIE_FORMAPGTO vef,
         pcfinalizadora f,
         pccob c,
