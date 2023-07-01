@@ -3,7 +3,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             c.UFORIGEM uforigem,
             c.UFDESTINO ufdestino,
             'SN' tipotributacao,
-            0 nroregtributacao,
+            C.NUMREGIAO nroregtributacao,
             c.percaliquota,
             '0' || NVL (t.sittributpf, t.sittributecf) situacaotributacao,
             c.percisento,
