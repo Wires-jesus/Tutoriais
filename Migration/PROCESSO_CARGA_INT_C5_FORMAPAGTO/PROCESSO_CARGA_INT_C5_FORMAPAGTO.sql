@@ -56,9 +56,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
        "ABREGAVETA",
        "ALTERNATIVA",
        "FATURAMENTO",
-       "ATIVO",
-       "DATA",
-       "DATAPADRAO"
+       "ATIVO"
+       --"DATA",
+      -- "DATAPADRAO"
   from (SELECT f.codfilial nroempresa,
                1 nrosegmento,
                f.codfinalizadora nroformapagto,
@@ -95,14 +95,14 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
                   'S'
                  ELSE
                   'N'
-               END) ativo,
-               GREATEST(NVL(f.dtalterc5, d.datapadrao),
+               END) ativo
+               /*GREATEST(NVL(f.dtalterc5, d.datapadrao),
                         NVL(o.dtalterc5, d.datapadrao),
                         NVL(p.dtalterc5, d.datapadrao)) data,
-               d.datapadrao
-          FROM pcfinalizadora f,
-               pccob o,
-               pcplpag p,
+               d.datapadrao*/
+          /*FROM local.pcfinalizadora f,
+               local.pccob o,
+               local.pcplpag p,
                (SELECT s.ultimaexecucao datapadrao
                   FROM pccontroleconsinco s
                  WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA') d
@@ -111,6 +111,28 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
            AND f.codfilial IS NOT NULL
            and f.codfinalizadora is not null
            and f.codfilial >= '0') a
- where data >= a.datapadrao
+ where data >= a.datapadrao*/
+
+          FROM VW_INT_C5_ESPECIE_FORMAPGTO vef,
+               local.pcfilial e,
+               local.pcfinalizadora   f,
+               local.pccob            o,
+               local.pcplpag          p,
+               (SELECT s.ultimaexecucao
+                FROM pccontroleconsinco s
+                WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA') D
+          WHERE f.especie = vef.winthor(+)
+          AND   F.CODFILIAL = E.codigo
+          AND   f.codcob = o.codcob(+)
+          AND   f.codplpag = p.codplpag(+)
+          AND   f.codfilial IS NOT NULL
+          and   f.codfinalizadora is not null
+          AND   E.codigo >= 0
+          AND   E.codigo < '99'
+          AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
+                NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
+                NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
+                NVL(p.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao))a
 )
+
 
