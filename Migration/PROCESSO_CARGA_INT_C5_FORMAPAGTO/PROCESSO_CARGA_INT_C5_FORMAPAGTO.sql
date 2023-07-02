@@ -114,10 +114,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
  where data >= a.datapadrao*/
 
           FROM VW_INT_C5_ESPECIE_FORMAPGTO vef,
-               local.pcfilial e,
-               local.pcfinalizadora   f,
-               local.pccob            o,
-               local.pcplpag          p,
+               pcfilial e,
+               pcfinalizadora   f,
+               pccob            o,
+               pcplpag          p,
                (SELECT s.ultimaexecucao
                 FROM pccontroleconsinco s
                 WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA') D
