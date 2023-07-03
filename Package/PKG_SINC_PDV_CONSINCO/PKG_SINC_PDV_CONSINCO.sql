@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE pkg_sinc_PDV_Consinco AS
+CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   g_final_execucao  TIMESTAMP;
   g_inicio_execucao TIMESTAMP;
@@ -71,4 +71,4 @@ CREATE OR REPLACE PACKAGE pkg_sinc_PDV_Consinco AS
 
   PROCEDURE exec_sinc_PRECO;
 
-END pkg_sinc_PDV_consinco;
+END PKG_SINC_PDV_CONSINCO;

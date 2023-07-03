@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY pkg_sinc_pdv_consinco AS
+CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP) AS
   BEGIN
@@ -2270,4 +2270,4 @@ END;
 
   END;
 
-END pkg_sinc_pdv_consinco;
+END PKG_SINC_PDV_CONSINCO;
