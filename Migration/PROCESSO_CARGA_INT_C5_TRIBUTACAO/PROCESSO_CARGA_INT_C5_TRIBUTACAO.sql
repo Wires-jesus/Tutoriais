@@ -97,3 +97,18 @@ SELECT NROTRIBUTACAO,
        ALIQICMS2
   FROM VW_INT_C5_TRIB_UF 
  WHERE DATA >= (SELECT MIN(S.ULTIMAEXECUCAO) FROM PCCONTROLECONSINCO S WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_TRIBUTACAO'))
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
+(SELECT DISTINCT
+        R.CODPROD seqfamilia,
+        R.CODST nrotributacao,
+        (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = R.CODPROD and rownum = 1 )codorigemtrib,
+        R.numregiao nrodivisao,
+        'S' ativo
+     FROM VW_INT_C5_FAMILIA T,
+          PCTABPR R
+     WHERE T.SEQFAMILIA = R.CODPROD
+     AND R.CODST IS NOT NULL
+ )
