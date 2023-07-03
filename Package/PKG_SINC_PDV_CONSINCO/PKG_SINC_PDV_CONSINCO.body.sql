@@ -15,14 +15,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
   END;
 
-  PROCEDURE set_inicio_execucao(p_id IN intermediario.pccontroleconsinco.id%TYPE) AS
+  PROCEDURE set_inicio_execucao(p_id IN pccontroleconsinco.id%TYPE) AS
 
-    l_ultima_execucao intermediario.pccontroleconsinco.ultimaexecucao%TYPE;
+    l_ultima_execucao pccontroleconsinco.ultimaexecucao%TYPE;
 
   BEGIN
     SELECT ultimaexecucao
       INTO l_ultima_execucao
-      FROM intermediario.pccontroleconsinco
+      FROM pccontroleconsinco
      WHERE id = p_id;
 
     g_inicio_execucao := l_ultima_execucao;
@@ -89,10 +89,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
   END;
 
-  PROCEDURE atualiza_sinc_processo(p_id IN intermediario.pccontroleconsinco.id%TYPE) AS
+  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
 
-    UPDATE intermediario.pccontroleconsinco
+    UPDATE pccontroleconsinco
        SET ultimaexecucao = pkg_sinc_PDV_consinco.get_final_execucao,
            dtalteracao    = CURRENT_TIMESTAMP
      WHERE id = p_id;
@@ -102,7 +102,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     VALUES
       ('pkg_sinc_PDV_Consinco',
        'atualiza_sinc_processo',
-       'UPDATE intermediario.pccontroleconsinco OK: ' || TO_CHAR(p_id),
+       'UPDATE pccontroleconsinco OK: ' || TO_CHAR(p_id),
        SYSDATE,
        CURRENT_TIMESTAMP);
 
@@ -117,7 +117,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       VALUES
         ('pkg_sinc_PDV_Consinco',
          'atualiza_sinc_processo',
-         'UPDATE intermediario.pccontroleconsinco ERRO',
+         'UPDATE pccontroleconsinco ERRO',
          SYSDATE,
          CURRENT_TIMESTAMP);
       COMMIT;
@@ -2069,7 +2069,7 @@ EXCEPTION
 
     CURSOR c_processo IS
       SELECT id, codprocesso, ultimaexecucao, tipo, objetoreferencia
-        FROM intermediario.pccontroleconsinco
+        FROM pccontroleconsinco
        WHERE ativo = 'A'
        ORDER BY precedencia ASC;
 

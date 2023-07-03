@@ -5,13 +5,13 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP);
 
-  PROCEDURE set_inicio_execucao(p_id IN intermediario.pccontroleconsinco.id%TYPE);
+  PROCEDURE set_inicio_execucao(p_id IN pccontroleconsinco.id%TYPE);
 
   FUNCTION get_final_execucao RETURN TIMESTAMP;
 
   FUNCTION get_inicio_execucao RETURN TIMESTAMP;
 
-  PROCEDURE atualiza_sinc_processo(p_id IN intermediario.pccontroleconsinco.id%TYPE);
+  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_pessoa;
 
