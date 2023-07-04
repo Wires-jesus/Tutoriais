@@ -7,20 +7,21 @@ SELECT f.codigo nroempresa,
        SUBSTR(COALESCE(f.fantasia, F.RAZAOSOCIAL, ' '), 1, 20) nomereduzido,
        f.codigo nroempresamatriz,
        0 nroempresaseguranca,
+       f.dtultalter,
+       f.dtcadastro,
        (CASE
             WHEN f.dtexclusao IS NULL
                 THEN 'S'
             ELSE
           'N'
-        END) ativo
-      
+        END) ativo,
+        ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo,1) idref
   FROM pcfilial f,
-       (SELECT LEAST(A.ultimaexecucao, B.ultimaexecucao) ULTIMAEXECUCAO
-         FROM (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') A,
-              (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESASEGMENTO') B
-       ) DTPADRAO
-       
-       --(select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
+       tb_divisao tbd,
+       tb_pessoa tbp,
+       (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
  WHERE f.codigo >= 0
    AND f.codigo < '99'
-   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO)
+   AND tbd.nrodivisao = 1
+   AND tbp.seqpessoa = NVL(f.codcli,1)
+   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO);
