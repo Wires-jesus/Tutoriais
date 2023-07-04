@@ -16,12 +16,10 @@ SELECT f.codigo nroempresa,
           'N'
         END) ativo,
         ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo,1) idref
-  FROM pcfilial f,
-       tb_divisao tbd,
-       tb_pessoa tbp,
+  FROM  pcfilial f,
        (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
  WHERE f.codigo >= 0
    AND f.codigo < '99'
-   AND tbd.nrodivisao = 1
-   AND tbp.seqpessoa = NVL(f.codcli,1)
-   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO);
+   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
+
+);
