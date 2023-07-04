@@ -156,8 +156,8 @@ BEGIN
                                               P_CSTICMS,       -- P_CSTICMS IN VARCHAR2 DEFAULT '',
                                               P_CODFISCAL,     -- P_CODFISCAL IN NUMBER DEFAULT 0,
                                               P_CODCLI_FORNEC, -- P_CODCLI IN NUMBER DEFAULT 0,
-                                              'S',                  -- P_NOVOPROCESSO IN VARCHAR2 DEFAULT 'N'
-                                              P_CODBENEFICIOCOMPLE);--P_CODBENEFICIOCOMPLE 
+                                              'S'                  -- P_NOVOPROCESSO IN VARCHAR2 DEFAULT 'N'
+                                              /*P_CODBENEFICIOCOMPLE*/);--P_CODBENEFICIOCOMPLE 
   IF (UPPER(SUBSTR(P_MSG, 1, 1)) = 'N')
   THEN
     P_SUCESSO := FALSE;
