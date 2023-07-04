@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
+/*CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
 (
 SELECT  m.codmarca seqmarca,
         SUBSTR(m.marca,1,20) marca,
@@ -7,7 +7,20 @@ SELECT  m.codmarca seqmarca,
         m.dtcadastro
   FROM  pcmarca m
  WHERE  m.codmarca > 0
- )
+ )*/
+
+CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
+(
+SELECT  DISTINCT m.codmarca     AS seqmarca,
+        SUBSTR(m.marca,1,20)    AS marca,
+        COALESCE(m.ativo,'S')   AS ativo,
+        m.dtultalter            AS dtultalter,
+        m.dtcadastro            AS dtcadastro
+FROM pcprodut p
+INNER JOIN pcmarca m
+ON m.codmarca = p.codmarca
+AND m.codmarca > 0
+)
 
  \
 
