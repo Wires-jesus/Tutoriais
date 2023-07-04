@@ -15,10 +15,10 @@ SELECT f.codigo nroempresa,
             ELSE
           'N'
         END) ativo,
-        local.ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo,1) idref
-  FROM local.pcfilial f,
-       MONITORPDVMIDDLE.tb_divisao tbd,
-       monitorpdvmiddle.tb_pessoa tbp,
+        ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo,1) idref
+  FROM pcfilial f,
+       tb_divisao tbd,
+       tb_pessoa tbp,
        (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
  WHERE f.codigo >= 0
    AND f.codigo < '99'
