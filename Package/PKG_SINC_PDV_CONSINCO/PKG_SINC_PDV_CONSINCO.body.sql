@@ -42,7 +42,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -110,7 +110,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   EXCEPTION
     WHEN OTHERS THEN
-      record_error();
+      prc_record_error();
       ROLLBACK;
       INSERT INTO dev_log
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -179,7 +179,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -257,7 +257,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -300,7 +300,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -354,7 +354,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -415,7 +415,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -481,7 +481,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -549,7 +549,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -597,7 +597,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -640,7 +640,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -716,7 +716,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 EXCEPTION
   WHEN OTHERS THEN
     BEGIN
-      record_error();
+      prc_record_error();
       ROLLBACK;
       INSERT INTO dev_log
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -763,7 +763,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -808,7 +808,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -907,7 +907,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1019,7 +1019,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1060,7 +1060,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1120,7 +1120,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1177,7 +1177,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1221,7 +1221,7 @@ EXCEPTION
   EXCEPTION
   WHEN OTHERS THEN
     BEGIN
-      record_error();
+      prc_record_error();
       ROLLBACK;
       INSERT INTO dev_log
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1268,7 +1268,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1332,7 +1332,7 @@ EXCEPTION
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          record_error();
+          prc_record_error();
           ROLLBACK;
           INSERT INTO dev_log
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1387,7 +1387,7 @@ EXCEPTION
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          record_error();
+          prc_record_error();
           ROLLBACK;
           INSERT INTO dev_log
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1579,7 +1579,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1630,7 +1630,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1857,7 +1857,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1990,7 +1990,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2050,7 +2050,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2116,7 +2116,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        record_error();
+        prc_record_error();
         ROLLBACK;
         INSERT INTO dev_log
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
