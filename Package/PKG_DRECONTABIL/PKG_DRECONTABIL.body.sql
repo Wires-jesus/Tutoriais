@@ -22,9 +22,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
       PDATAFIM_ESP              IN DATE DEFAULT NULL)
       RETURN DRECONTABIL_DATATABLE IS                                                                               /*PARALLEL_ENABLE PIPELINED*/
 /****************************************************************************
-  DeclaraÃ§Ã£o de variÃ¡veis
+  Declaração de variáveis
 *****************************************************************************/
-  --Declara Valores de SaÃ­da
+  --Declara Valores de Saí­da
   OUTROW DRECONTABIL_DATAROW := DRECONTABIL_DATAROW(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                                                     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL);
   --Arrays
@@ -47,7 +47,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
                            NATUREZACONTA    PCMODELOPC.NATUREZA%TYPE,
                            TIPOCONTA        PCMODELOPC.TIPOCONTA%TYPE);
 
-  DRE_ANALITICO CONSULTA; --SERÃ SETADO OS VALORES DO SQL FILHO AQUI.
+  DRE_ANALITICO CONSULTA; --SERÁ SETADO OS VALORES DO SQL FILHO AQUI.
 
   CURSORANALITICO SYS_REFCURSOR;
 
@@ -64,7 +64,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 
   RATEIOCURSOR SYS_REFCURSOR;
 
-  --VARIÃVEIS AUXILIARES
+  --VARIÁVEIS AUXILIARES
   V_SQL                     VARCHAR2(30000);
   V_SQL_RATEIO              VARCHAR2(30000);
   VS_ERRO                   VARCHAR2(500);
@@ -119,7 +119,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   
   
   /****************************************************************************
-    FUNÃ‡ÃƒO: RETORNA O SALDO DA CONTA SEM SER DFC
+    FUNÇÃO: RETORNA O SALDO DA CONTA SEM SER DFC
   *****************************************************************************/
   FUNCTION CALCULASALDOTOTAL (PCODREDUZIDO     IN  VARCHAR2,
                               PMESINI          IN  NUMBER,
@@ -179,7 +179,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
                                    AND  S.ANO = :ANO
                                    GROUP BY S.CODREDUZIDO_PC, M.NATUREZA';
   
-       -- Troca o parÃ¢metro de filial pela stingr repassada no mÃ©todo
+       -- Troca o parâmetro de filial pela stingr repassada no método
        PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,':PCODFILIAL', FALSE, V_SQLAUX2);
        
        
@@ -257,7 +257,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
                                                              AND V.CODGRUPOFILIAL = (SELECT CODGRUPOFILIAL FROM PCCONFFILIAL WHERE CODFILIAL = :PCODFILIAL  AND ANO =  ' || PANO || '))';
           END IF;
        END IF;                             
-       -- Troca o parÃ¢metro de filial pela stingr repassada no mÃ©todo
+       -- Troca o parâmetro de filial pela stingr repassada no método
        PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,':PCODFILIAL', FALSE, V_SQLAUX2);
        
 
@@ -290,7 +290,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   END CALCULASALDOTOTAL;
 
   /****************************************************************************
-    FUNÃ‡ÃƒO: RETORNA O SALDO DA DFC
+    FUNÇÃO: RETORNA O SALDO DA DFC
   *****************************************************************************/
   FUNCTION CALCULASALDOTOTAL_DFC(PCODREDUZIDO     IN  VARCHAR2,
                                  PNATUREZA_DFC    IN VARCHAR2,
@@ -360,7 +360,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 								 AND A.DTLANC BETWEEN TO_DATE(''01/''||TO_CHAR(' || PMESINI || ')||''/''||TO_CHAR(' || PANO || '),''DD/MM/YYYY'') AND LAST_DAY(TO_DATE(''01/''||TO_CHAR(' || PMESFIM || ')||''/''||TO_CHAR(' || PANO || '),''DD/MM/YYYY''))
 
                                  AND M1.COMPORDFC = ''S''
-                                 --Agrupamento feito para forÃ§ar a somar a contrapartida de DFC somente uma vez
+                                 --Agrupamento feito para forí§ar a somar a contrapartida de DFC somente uma vez
                                  GROUP BY M1.NATUREZA, NUMLANCTO, A.DTLANC, ';
 
     IF (PCONSOLIDAR <> 'S') AND (PAGRUPAFILIAL <> 'S') THEN
@@ -414,7 +414,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
    V_SQLAUX2 := V_SQLAUX2 ||
                    '   AND CONTRAPARTIDA.NUMSEQ <> L.NUMSEQ
                              GROUP BY CONTRAPARTIDA.NATUREZACONTRPARTIDA )';
-     -- Troca o parÃ¢metro de filial pela stingr repassada no mÃ©todo
+     -- Troca o parâmetro de filial pela stingr repassada no método
      PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,':PCODFILIAL', FALSE, V_SQLAUX2);
 
      IF PCONSOLIDAR = 'S' THEN
@@ -466,7 +466,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   END CALCULASALDOTOTAL_DFC;
 
   /****************************************************************************
-    FUNÃ‡ÃƒO: BUSCA VALORES
+    FUNÇÃO: BUSCA VALORES
   *****************************************************************************/
   FUNCTION BUSCAVALOR(PCODREDUZIDO  IN VARCHAR2,
                       PTIPOSALDO    IN VARCHAR2,
@@ -647,7 +647,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 
     END LOOP;
 
-    --BUSCA VALORES DE CONTAS NA EXPRESSÃƒO
+    --BUSCA VALORES DE CONTAS NA EXPRESSÃO
     LOOP
       --EXECUTA ENQUANTO TIVER {
       IF INSTR(VS_FORMULA, '{') = 0 THEN
@@ -711,7 +711,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
     VN_POSFIM        := 0;
     VN_VALORANTERIOR := 0;
 
-    --BUSCA VALORES DE CONTAS NA EXPRESSÃƒO
+    --BUSCA VALORES DE CONTAS NA EXPRESSÃO
     LOOP
       --EXECUTA ENQUANTO TIVER {
       IF INSTR(VS_FORMULA, '{') = 0 THEN
@@ -825,7 +825,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 
   
 /****************************************************************************
-    FUNÃ‡ÃƒO: RETORNA O SALDO CREDITO DA CONTA DA FORMULA MATEMATICA
+    FUNÇÃO: RETORNA O SALDO CREDITO DA CONTA DA FORMULA MATEMÁTICA
   *****************************************************************************/
   FUNCTION CALCULASLDTOTCREDFORMULA (PCODREDUZIDO     IN  VARCHAR2,
                               PMESINI          IN  NUMBER,
@@ -881,17 +881,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 								 AND  S.MES <> 0
                                  GROUP BY S.CODREDUZIDO_PC, M.NATUREZA';
 
-     -- Troca o parÃ¢metro de filial pela stingr repassada no mÃ©todo
+     -- Troca o parâmetro de filial pela stingr repassada no método
      PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,':PCODFILIAL', FALSE, V_SQLAUX2);
 
      IF PCONSOLIDAR = 'S' THEN
---        EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
---                                    USING PMESINI, PMESFIM, PCODREDUZIDO, PCODFILIAL, PANO, PCODPLANOCONTA, PANO;
         EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
                                     USING PMESINI, PMESFIM, PCODREDUZIDO, PANO, PCODPLANOCONTA, PANO;
      ELSE
---        EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
---                                    USING PMESINI, PMESFIM, PCODREDUZIDO, PCODFILIAL, PCODPLANOCONTA, PANO;
         EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
                                     USING PMESINI, PMESFIM, PCODREDUZIDO, PCODPLANOCONTA, PANO;
      END IF;
@@ -913,9 +909,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   END CALCULASLDTOTCREDFORMULA;
 
 
-    /****************************************************************************
-    FUNÃ‡ÃƒO: RETORNA O SALDO DEBITO DA CONTA DA FORMULA MATEMATICA
-  *****************************************************************************/
+   /****************************************************************************
+    FUNÇÃO: RETORNA O SALDO DEBITO DA CONTA DA FORMULA MATEMATICA
+   *****************************************************************************/
   FUNCTION CALCULASLDTOTDEBFORMULA (PCODREDUZIDO     IN  VARCHAR2,
                               PMESINI          IN  NUMBER,
                               PMESFIM          IN  NUMBER,
@@ -970,17 +966,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 								 AND  S.MES <> 0
                                  GROUP BY S.CODREDUZIDO_PC, M.NATUREZA';
 
-     -- Troca o parÃ¢metro de filial pela stingr repassada no mÃ©todo
+     -- Troca o parâmetro de filial pela stingr repassada no método
      PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,':PCODFILIAL', FALSE, V_SQLAUX2);
 
      IF PCONSOLIDAR = 'S' THEN
---        EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
---                                    USING PMESINI, PMESFIM, PCODREDUZIDO, PCODFILIAL, PANO, PCODPLANOCONTA, PANO;
         EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
                                     USING PMESINI, PMESFIM, PCODREDUZIDO, PANO, PCODPLANOCONTA, PANO;
      ELSE
---        EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
---                                    USING PMESINI, PMESFIM, PCODREDUZIDO, PCODFILIAL, PCODPLANOCONTA, PANO;
         EXECUTE IMMEDIATE V_SQLAUX2 INTO VS_CODREDUZIDO, VS_NATUREZA, VN_SALDOTOTAL, VN_SALDOTOTENCERRAMENTO
                                     USING PMESINI, PMESFIM, PCODREDUZIDO, PCODPLANOCONTA, PANO;
      END IF;
@@ -1002,7 +994,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   END CALCULASLDTOTDEBFORMULA;
 
   /****************************************************************************
-    FUNÃ‡ÃƒO: BUSCA VALORES DA FORMULA PARA DFC INDIRETO
+    FUNÇÃO: BUSCA VALORES DA FORMULA PARA DFC INDIRETO
   *****************************************************************************/
   FUNCTION BUSCAVALORFORMULA(PCODREDUZIDO            IN VARCHAR2,
                       PFORMULA_DESC_RESULTADO IN VARCHAR2,
@@ -1075,7 +1067,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
   END IF;
   /*** SALDO FINAL ***/
 
-  /*** MOVIMENTAÃ‡ÃƒO DE CRÃ‰DITO ***/
+  /*** MOVIMENTAÇÃO DE CRÉDITO ***/
   IF INSTR(VS_FORMULA, VS_MOVIM_CREDITO) > 0 THEN
     VN_VALORENCERRAMENTO := 0;
     VN_SALDOACUMULADODFC := 0;
@@ -1090,9 +1082,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
     END IF;
 	VS_FORMULA := REGEXP_REPLACE(VS_FORMULA , VS_MOVIM_CREDITO, NVL(VN_MOVIMCREDITO, 0));
   END IF;
-  /*** MOVIMENTAÃ‡ÃƒO DE CRÃ‰DITO ***/
+  /*** MOVIMENTAÇÃO DE CRÉDITO ***/
 
-  /*** MOVIMENTAÃ‡ÃƒO DE DÃ‰BITO ***/
+  /*** MOVIMENTAÇÃO DE DÉBITO ***/
   IF INSTR(VS_FORMULA, VS_MOVIM_DEBITO) > 0 THEN
     VN_VALORENCERRAMENTO := 0;
     VN_SALDOACUMULADODFC := 0;
@@ -1108,7 +1100,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 	VS_FORMULA := REGEXP_REPLACE( VS_FORMULA , VS_MOVIM_DEBITO, NVL(VN_MOVIMDEBITO, 0));
 
   END IF;
-  /*** MOVIMENTAÃ‡ÃƒO DE DÃ‰BITO ***/
+  /*** MOVIMENTAÇÃO DE DÉBITO ***/
 
   V_SQL  :=  'SELECT '|| VS_FORMULA ||' AS VALOR FROM DUAL';
   EXECUTE IMMEDIATE V_SQL INTO VN_VALOR;
@@ -1122,7 +1114,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
     
   
 /****************************************************************************
-  Inicio FunÃ§Ã£o Principal
+  Inicio Função Principal
 *****************************************************************************/
 BEGIN
   VN_CODCONFIGPAI        := 0;
@@ -1198,7 +1190,7 @@ BEGIN
 
     VRETORNO(VN_POSICAO_EM_ALTERACAO) := OUTROW;
 
-    --RETORNA VALORES ANALÃTICOS
+    --RETORNA VALORES ANALÍTICOS
 
      VS_NATUREZA     := '';
 
@@ -1350,13 +1342,13 @@ BEGIN
 
      OPEN CURSORANALITICO FOR V_SQL USING PCODDRE, PCODPLANOCONTA, VN_CODCONFIGPAI;
      FETCH CURSORANALITICO INTO DRE_ANALITICO;
-     --Caso nÃ£o tenha encontrado nenhum registro filho
+     --Caso não tenha encontrado nenhum registro filho
         IF (DRE_CABECALHO.TIPORESULTADO = 'G') AND (CURSORANALITICO%NOTFOUND) THEN
             OUTROW.SEMREGRA                   :=  'S';
             VRETORNO(VN_POSICAO_EM_ALTERACAO) := OUTROW;
         ELSIF (DRE_CABECALHO.TIPORESULTADO = 'I') AND (CURSORANALITICO%NOTFOUND) THEN
             LIMPAVARIAVEIS;
-            OUTROW.DESCRICAO :=  'FÃ³rmula: '||DRE_CABECALHO.DESC_RESULTADO;
+            OUTROW.DESCRICAO :=  'Fórmula: '||DRE_CABECALHO.DESC_RESULTADO;
             OUTROW.VALOR     :=  TRIM(TO_CHAR(CALCULARINDICE(DRE_CABECALHO.DESC_RESULTADO, PANO, 'N'), '999,999,999,999.99'));
 
             IF OUTROW.VALOR = '.00' THEN
@@ -1375,7 +1367,7 @@ BEGIN
         EXIT WHEN CURSORANALITICO%NOTFOUND;
 
         IF VS_TIPOPAI = 'G' THEN
-           IF DRE_ANALITICO.TIPORESULTADO IN ('C', 'S', 'F') THEN --Tipo C e S (e F (fÃ³rmula DFC-indireto))
+           IF DRE_ANALITICO.TIPORESULTADO IN ('C', 'S', 'F') THEN --Tipo C e S (e F (fórmula DFC-indireto))
               IF DRE_ANALITICO.TIPORESULTADO = 'C' THEN
                  VN_VALOR     := BUSCAVALOR(DRE_ANALITICO.CODCONTAREDUZIDO, 'F', PANO, DRE_ANALITICO.NATUREZALANC, DRE_ANALITICO.SALDODFC,'N', VS_NATUREZA, PDATAINI_ESP, PDATAFIM_ESP);
                  VS_TIPOREGRA := 'F';
@@ -1398,7 +1390,7 @@ BEGIN
                  END IF;
               END IF;
 			  
-              --BUSCA TODAS AS CONTAS ANALÃTICAS DO GRUPO INFORMADO
+              --BUSCA TODAS AS CONTAS ANALÍTICAS DO GRUPO INFORMADO
               IF PEXIBIRCONTASANALITICAS = 'S' THEN
                  BEGIN
                    SELECT CODCONTA_PC
@@ -1456,7 +1448,7 @@ BEGIN
                           VRETORNO.EXTEND;
                           VN_POSICAO_EM_ALTERACAO := VRETORNO.COUNT;
 
-                          --Atribui valores se nÃ£o estiver marcado para exibir cÃ³digo reduzido
+                          --Atribui valores se não estiver marcado para exibir código reduzido
                           IF PEXIBIRCODREDUZIDO = 'N' THEN
                              IF (LENGTH (VS_MASCARA_PC) = LENGTH (CONTASANALITICAS.CODCONTA_PC)) AND (VCONTCONTASANALITICAS > 1) THEN
                                 OUTROW.DESCRICAO := '        ' || CONTASANALITICAS.NOME_CONTA;
@@ -1501,7 +1493,7 @@ BEGIN
                           VRETORNO.EXTEND;
                           VN_POSICAO_EM_ALTERACAO := VRETORNO.COUNT;
 
-                          --Atribui valores se nÃ£o estiver marcado para exibir cÃ³digo reduzido
+                          --Atribui valores se não estiver marcado para exibir código reduzido
                           IF PEXIBIRCODREDUZIDO = 'N' THEN
                              IF (LENGTH (VS_MASCARA_PC) = LENGTH (CONTASANALITICAS.CODCONTA_PC)) AND (VCONTCONTASANALITICAS > 1) THEN
                                 OUTROW.DESCRICAO    := '        ' || CONTASANALITICAS.NOME_CONTA;
@@ -1573,7 +1565,7 @@ BEGIN
               END IF;
            END IF;
 
-           --ATRIBUI VALORES QUANDO NÃƒO FOR CONTAS ANALÃTICAS MARCADO = 'S'
+           --ATRIBUI VALORES QUANDO NÃO FOR CONTAS ANALÍTICAS MARCADO = 'S'
            IF ((VN_VALOR <> 0) OR (VN_VALORANTERIOR <> 0) OR (PEXIBIRCONTASSALDOZERO = 'S')) AND (PEXIBIRCONTASANALITICAS = 'N') THEN
               LIMPAVARIAVEIS ();
               VRETORNO.EXTEND;
@@ -1585,7 +1577,7 @@ BEGIN
               END IF;
               
 							IF (NVL(VS_ESTRUTURADFC, 'N') = 'N') OR (DRE_ANALITICO.TIPORESULTADO = 'S') then
-							  --Colocar os parÃªntes caso o valor seja negativo
+							  --Colocar os parêntes caso o valor seja negativo
 							  IF VN_VALOR < 0 THEN
 								  OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
 							  ELSE
@@ -1608,7 +1600,7 @@ BEGIN
                     OUTROW.VALOR := TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99'));
                   END IF;                
                 ELSE  
-							  --Colocar os parÃªntes caso o valor seja positivo
+							  --Colocar os parêntes caso o valor seja positivo
                   IF VN_VALOR > 0 THEN
                     OUTROW.VALOR := '(' || TRIM(TO_CHAR(ABS(VN_VALOR), '999,999,999,999.99')) || ')';
                   ELSE
@@ -1691,7 +1683,7 @@ BEGIN
      END LOOP LOOP_SUBCONSULTA_DO_ANALITICO;
 
 
-     --ACHA POSIÃ‡ÃƒO PRINCIPAL PARA SETAR VALORES ACHADOS NAS INFORMAÃ‡Ã•ES ANALÃTICAS
+     --ACHA POSIÇÃO PRINCIPAL PARA SETAR VALORES ACHADOS NAS INFORMAí‡í•ES ANALÍTICAS
      VN_POSICAO_EM_ALTERACAO := 0;
 
      FOR VN_POSICAO IN 1 .. VRETORNO.COUNT
@@ -1825,7 +1817,7 @@ BEGIN
     END LOOP;
   END IF;
 
-  --LIMPA VETOR COM VALORES ZERADOS E OPÃ‡ÃƒO EXIBIRSALDOZERO = 'N'
+  --LIMPA VETOR COM VALORES ZERADOS E OPÇÃO EXIBIRSALDOZERO = 'N'
   IF (PEXIBIRCONTASSALDOZERO = 'N') AND (PEXIBIRCONTASANALITICAS = 'N') THEN
     FOR VN_POSICAO IN 1 .. VRETORNO.COUNT
     LOOP
