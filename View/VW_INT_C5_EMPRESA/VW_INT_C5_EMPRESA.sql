@@ -22,4 +22,4 @@ SELECT f.codigo nroempresa,
    AND f.codigo < '99'
    AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
 
-);
+)
