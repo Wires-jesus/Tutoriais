@@ -12,8 +12,8 @@ BEGIN
                                 ,  created_by)
         VALUES (l_code
               , l_mesg
-              , sys.DBMS_UTILITY.format_error_backtrace
-              , sys.DBMS_UTILITY.format_call_stack
+              , DBMS_UTILITY.format_error_backtrace
+              , DBMS_UTILITY.format_call_stack
               , SYSDATE
               , USER);
    COMMIT;
