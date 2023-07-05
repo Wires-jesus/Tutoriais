@@ -3,7 +3,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP) AS
   BEGIN
     g_final_execucao := p_final_execucao;
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -27,7 +27,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
     g_inicio_execucao := l_ultima_execucao;
 
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -44,7 +44,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -97,7 +97,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            dtalteracao    = CURRENT_TIMESTAMP
      WHERE id = p_id;
 
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -112,7 +112,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     WHEN OTHERS THEN
       prc_record_error();
       ROLLBACK;
-      INSERT INTO dev_log
+      INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco',
@@ -164,7 +164,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.PERCDESCMAXIMO,
                    b.ATIVO);
 
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -181,7 +181,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -243,7 +243,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.email,
                    b.ativo);
     
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -259,7 +259,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -302,7 +302,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -356,7 +356,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -417,7 +417,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -483,7 +483,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -551,7 +551,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -599,7 +599,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -642,7 +642,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -718,7 +718,7 @@ EXCEPTION
     BEGIN
       prc_record_error();
       ROLLBACK;
-      INSERT INTO dev_log
+      INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'c_tb_prodempresa', 'c_tb_prodempresa ERRO', SYSDATE, CURRENT_TIMESTAMP);
@@ -765,7 +765,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -810,7 +810,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -909,7 +909,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1021,7 +1021,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1062,7 +1062,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1122,7 +1122,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1179,7 +1179,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1223,7 +1223,7 @@ EXCEPTION
     BEGIN
       prc_record_error();
       ROLLBACK;
-      INSERT INTO dev_log
+      INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'carrega_tb_famdivisaocategoria', 'carrega_tb_famdivisaocategoria ERRO', SYSDATE, CURRENT_TIMESTAMP);
@@ -1270,7 +1270,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1334,7 +1334,7 @@ EXCEPTION
         BEGIN
           prc_record_error();
           ROLLBACK;
-          INSERT INTO dev_log
+          INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
           VALUES
             ('pkg_sinc_PDV_Consinco', 'carrega_tb_famembalagem', 'carrega_tb_famembalagem ERRO', SYSDATE, CURRENT_TIMESTAMP);
@@ -1377,7 +1377,7 @@ EXCEPTION
                    b.tipo,
                    b.ativo);
       
-      INSERT INTO dev_log
+      INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -1389,7 +1389,7 @@ EXCEPTION
         BEGIN
           prc_record_error();
           ROLLBACK;
-          INSERT INTO dev_log
+          INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
           VALUES
             ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo ERRO', SYSDATE, CURRENT_TIMESTAMP);
@@ -1563,7 +1563,7 @@ EXCEPTION
     END LOOP;
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -1581,7 +1581,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1632,7 +1632,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1859,7 +1859,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1974,7 +1974,7 @@ EXCEPTION
     END LOOP;
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-    INSERT INTO dev_log
+    INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco',
@@ -1992,7 +1992,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -2052,7 +2052,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -2098,7 +2098,7 @@ EXCEPTION
 
       EXECUTE IMMEDIATE ('BEGIN ' || text_to_run || '; END;');
 
-      INSERT INTO dev_log
+      INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco',
@@ -2118,7 +2118,7 @@ EXCEPTION
       BEGIN
         prc_record_error();
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
