@@ -9,6 +9,7 @@ FROM pcprodut p
 INNER JOIN pcmarca m
 ON m.codmarca = p.codmarca
 AND m.codmarca > 0
+AND m.ativo = 'S'
 )
 
  \
