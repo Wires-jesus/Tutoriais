@@ -1428,7 +1428,7 @@ EXCEPTION
     vNumRegiao     NUMBER := 0;
   BEGIN
     -- for i IN 1 .. listaDados.COUNT loop
-    OPEN c_tb_prodpreco;
+    /*OPEN c_tb_prodpreco;
     LOOP
       FETCH c_tb_prodpreco BULK COLLECT
         INTO listaDados LIMIT 1000;
@@ -1497,43 +1497,6 @@ EXCEPTION
 
         COMMIT;
 
-        /*BEGIN
-        select count(1)
-          into countReg
-          from monitorpdvmiddle.tb_prodpreco
-         where seqproduto = r_tb_prodpreco.seqproduto
-           AND qtdembalagem = r_tb_prodpreco.qtdembalagem
-           AND nrosegmento = r_tb_prodpreco.nrosegmento
-           AND nroempresa = r_tb_prodpreco.nroempresa;
-
-        IF (countReg = 0) THEN
-          INSERT INTO monitorpdvmiddle.tb_prodpreco
-            (preco,
-             promocao,
-             ativo,
-             seqproduto,
-             qtdembalagem,
-             nrosegmento,
-             nroempresa)
-          VALUES
-            (r_tb_prodpreco.preco,
-             r_tb_prodpreco.promocao,
-             r_tb_prodpreco.ativo,
-             r_tb_prodpreco.seqproduto,
-             r_tb_prodpreco.qtdembalagem,
-             r_tb_prodpreco.nrosegmento,
-             r_tb_prodpreco.nroempresa);
-        ELSE
-          UPDATE monitorpdvmiddle.tb_prodpreco
-             SET preco    = r_tb_prodpreco.preco,
-                 promocao = r_tb_prodpreco.promocao,
-                 ativo    = r_tb_prodpreco.ativo
-           WHERE seqproduto = r_tb_prodpreco.seqproduto
-             AND qtdembalagem = r_tb_prodpreco.qtdembalagem
-             AND nrosegmento = r_tb_prodpreco.nrosegmento
-             AND nroempresa = r_tb_prodpreco.nroempresa;
-        END IF;*/
-
       EXCEPTION
         WHEN OTHERS THEN
           INSERT INTO error_log s
@@ -1591,7 +1554,7 @@ EXCEPTION
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-      END;
+      END;*/
   END;
 
   PROCEDURE carrega_tb_tributacao AS
@@ -2131,7 +2094,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE atualizarProdPreco AS
+  /*PROCEDURE atualizarProdPreco AS
     MSG        VARCHAR2(232);
     vPreco     NUMBER;
     vnumregiao NUMBER;
@@ -2186,9 +2149,9 @@ EXCEPTION
       --dbms_output.put_line(vPrecoAtac || ' - ' || MSG);
     END LOOP;
 
-  END;
+  END;*/
 
-PROCEDURE atualizarPrecoAtac AS
+/*PROCEDURE atualizarPrecoAtac AS
 
   MSG        VARCHAR2(232);
   vPrecoAtac NUMBER;
@@ -2248,9 +2211,9 @@ BEGIN
     --dbms_output.put_line(vPrecoAtac || ' - ' || MSG);
   END LOOP;
 
-END;
-
-  PROCEDURE exec_sinc_PRECO AS
+END;*/
+exec_sinc_PRECO
+  /*PROCEDURE  AS
     p_final_execucao TIMESTAMP;
   BEGIN
     atualizarProdPreco;
@@ -2268,6 +2231,6 @@ END;
         NULL;
     END;
 
-  END;
+  END;*/
 
 END PKG_SINC_PDV_CONSINCO;
