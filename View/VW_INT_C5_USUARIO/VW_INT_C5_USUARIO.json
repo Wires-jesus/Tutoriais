@@ -1,1 +1,1 @@
-{"nome":"VW_INT_C5_USUARIO","tipoPLSQL":"VIEW","dependencias":""}
+{"nome":"VW_INT_C5_USUARIO","tipoPLSQL":"VIEW","dependencias":[{"nome":"FNC_INT_C5_PWD","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"}]}
