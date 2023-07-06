@@ -33,9 +33,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 (SELECT
-       /*APOS AGRUPAR AS EMBALAGENS NA TABELA TEMPORARIA "FB" DA CLAUSULA "FROM",
-         É PRECISO BUSCAR MAIS ALGUMAS INFORMAÇÕES ATRAVES DOS SUBSELECTS CONTIDOS
-         NESSE SELECT*/
        fb.seqfamilia,
        fb.qtdembalagem,
        'N' pesoaferido,
@@ -48,27 +45,22 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
         where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) pesobruto,
 
        (select nvl(emb.pesoliq, 0) from pcembalagem emb
-        where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) pesoliq
+        where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1)  pesoliq
 FROM
-     /*O SELECT ABAIXO TRANSFORMA A REGRA NEGOCIAL DO WINTHOR PARA ATENDER A REGRA NEGOCIAL DA CONSINCO,
-       AGRUPANDO AS EMBALAGENS COM O MESMO QTUNIT.
-
-       A TABELA TB_FAMEMBALAGEM ESPERA RECEBER APENAS 1 EMBALAGEM POR QTUNIT
-       INDPENDENTE DA FILIAL, POR ISSO É NECESSÁRIO AGRUPAR AS MESMAS PARA ENVIAR APENAS 1
-       POR QTUNIT PARA A TB_FAMEMBALAGEM
-       EX.:
-          - WINTHOR: A COCA-COLA POSSUI 3 EMBALAGENS COM QTUNIT IGUAL A 1 E 2 COM QTUNIT IGUAL A 6;
-          - CONSINCO: A FAMEMBALAGEM VAI RECEBER APENAS 1 EMBALAGEM COM QTUNIT IGUAL A 1 E 1 COM QTUNIT IGUAL A 6;
-
-          *SEMPRE 1 DE CADA QTUNIT, INDEPENDENTE SE ESTA REPETINDO POR FILIAL NA PCEMBALAGEM*/
 
      (SELECT
+        EMB.qtdecodigobarras,
+        EMB.seqfamilia,
+        EMB.qtdembalagem,
+        (select s.codauxiliar from pcembalagem s where s.codprod = EMB.seqfamilia and s.qtunit = NVL(EMB.qtdembalagem, 1) and rownum = 1) codauxreferencia
+      FROM
+         (select
             count(e.codauxiliar) qtdecodigobarras,
             e.codprod seqfamilia,
-            NVL(e.qtunit, 1) qtdembalagem,
-            (select emb.codauxiliar from pcembalagem emb where emb.codprod = e.codprod and emb.qtunit = NVL(e.qtunit, 1) and rownum = 1) codauxreferencia
-      FROM VW_INT_C5_EMBPROD e
-      group by  e.codprod, NVL(e.qtunit, 1)
+            NVL(e.qtunit, 1) qtdembalagem
+          from VW_INT_C5_EMBPROD e
+          group by  e.codprod, NVL(e.qtunit, 1)
+          ) EMB
      )fb
 )
 
