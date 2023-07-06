@@ -101,20 +101,28 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
 CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAOCATEGORIA AS
 (SELECT
        e.codprod seqfamilia,
-       COALESCE(s.codsec,d.codepto) seqcategoria,
-       1 nrodivisao,
+       -- COALESCE(s.codsec,d.codepto) seqcategoria,
+       
+       (select COALESCE(s.codsec, d.codepto) 
+        from pcdepto d, pcsecao s 
+        where e.codepto = d.codepto
+        AND  e.codsec = s.codsec(+)
+        and   d.codepto = s.codepto(+)
+        and   (d.codepto <> 999 OR s.codsec <> 9999 )
+       ) seqcategoria,
+        
+        1 nrodivisao,
        'S' ativo
-  
-  FROM  pcdepto  d,
+  FROM  VW_INT_C5_EMBPROD e
+        /*pcdepto  d,
         pcsecao  s,
-        VW_INT_C5_EMBPROD e,
         (select s.ultimaexecucao ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA') DTPADRAO
  WHERE  e.codepto = d.codepto
-   AND  e.codsec = s.codsec
-   AND  d.codepto = s.codepto
+   AND  e.codsec = s.codsec(+)
+   AND  d.codepto = s.codepto(+)
    AND  (d.codepto <> 999
          OR
          s.codsec <> 9999)
   AND GREATEST(NVL(S.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-               NVL(D.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO)
+               NVL(D.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO*/);
 
