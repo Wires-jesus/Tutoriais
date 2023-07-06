@@ -59,7 +59,7 @@ FROM
             e.codprod seqfamilia,
             NVL(e.qtunit, 1) qtdembalagem
           from VW_INT_C5_EMBPROD e
-          group by  e.codprod, NVL(e.qtunit, 1)
+          group by e.codprod, NVL(e.qtunit, 1)
           ) EMB
      )fb
 )
