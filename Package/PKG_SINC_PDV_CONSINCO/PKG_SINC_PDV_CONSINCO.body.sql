@@ -72,7 +72,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                             pCALLSTACK   CLOB) IS
     PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
-    INSERT INTO error_log s
+    INSERT INTO PCERRORLOGCONSINCO s
       (ERROR_CODE,
        ERROR_MESSAGE,
        BACKTRACE,
@@ -1537,8 +1537,8 @@ EXCEPTION
 
     COMMIT;
 
-    CLOSE c_tb_prodpreco;
-
+    CLOSE c_tb_prodpreco;*/
+  COMMIT;
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
@@ -1554,7 +1554,7 @@ EXCEPTION
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-      END;*/
+      END;
   END;
 
   PROCEDURE carrega_tb_tributacao AS
@@ -2211,8 +2211,8 @@ BEGIN
     --dbms_output.put_line(vPrecoAtac || ' - ' || MSG);
   END LOOP;
 
-END;*/
-exec_sinc_PRECO
+END;
+exec_sinc_PRECO*/
   /*PROCEDURE  AS
     p_final_execucao TIMESTAMP;
   BEGIN
