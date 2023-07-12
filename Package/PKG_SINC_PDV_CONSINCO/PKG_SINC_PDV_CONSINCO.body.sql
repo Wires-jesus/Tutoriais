@@ -16,9 +16,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE set_inicio_execucao(p_id IN pccontroleconsinco.id%TYPE) AS
-
     l_ultima_execucao pccontroleconsinco.ultimaexecucao%TYPE;
-
   BEGIN
     SELECT ultimaexecucao
       INTO l_ultima_execucao
@@ -42,7 +40,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -110,7 +108,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   EXCEPTION
     WHEN OTHERS THEN
-      prc_record_error();
+      prc_record_error(p_id);
       ROLLBACK;
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -124,7 +122,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       RAISE;
   END;
 
-  PROCEDURE carrega_tb_usuario AS
+  PROCEDURE carrega_tb_usuario(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_usuario s
         USING (SELECT *
@@ -179,7 +177,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -194,7 +192,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_pessoa AS
+  PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_pessoa s
         USING (SELECT *
@@ -257,7 +255,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -272,7 +270,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_segmento AS
+  PROCEDURE carrega_tb_segmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_segmento s
         USING (SELECT 1 nrosegmento, 'VAREJO' segmento, 'S' ativo FROM DUAL) b
@@ -300,7 +298,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -315,7 +313,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_empresa AS
+  PROCEDURE carrega_tb_empresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_empresa t
     USING (SELECT DISTINCT * FROM VW_INT_C5_EMPRESA) s
@@ -354,7 +352,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -370,7 +368,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
 
-  PROCEDURE carrega_tb_cliente AS
+  PROCEDURE carrega_tb_cliente(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_cliente s
         USING (SELECT C.*
@@ -415,7 +413,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -430,7 +428,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_empresasegmento AS
+  PROCEDURE carrega_tb_empresasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_empresasegmento s
         USING (
@@ -481,7 +479,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -497,7 +495,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
 
-  PROCEDURE carrega_tb_produto AS
+  PROCEDURE carrega_tb_produto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_produto s
         USING (
@@ -549,7 +547,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -564,7 +562,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_famgrupo AS
+  PROCEDURE carrega_tb_famgrupo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famgrupo s
         USING (SELECT 1 seqfamgrupo, 'VAREJO' grupofamilia, 'S' ativo, 0 nrocarga FROM dual ) b
@@ -597,7 +595,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -612,7 +610,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_marca AS
+  PROCEDURE carrega_tb_marca(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_marca s
         USING (SELECT * FROM VW_INT_C5_MARCA M ) b
@@ -640,7 +638,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -655,7 +653,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_familia AS
+  PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE) AS
 
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_familia s
@@ -708,7 +706,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       NVL(B.seqfamilia,0),
                       B.pesavel);
 
-  
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
   COMMIT;
@@ -716,7 +713,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 EXCEPTION
   WHEN OTHERS THEN
     BEGIN
-      prc_record_error();
+      prc_record_error(p_id);
       ROLLBACK;
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -763,7 +760,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -808,7 +805,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -907,7 +904,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1019,7 +1016,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1060,7 +1057,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1120,7 +1117,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1177,7 +1174,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1221,7 +1218,7 @@ EXCEPTION
   EXCEPTION
   WHEN OTHERS THEN
     BEGIN
-      prc_record_error();
+      prc_record_error(p_id);
       ROLLBACK;
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1268,7 +1265,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1332,7 +1329,7 @@ EXCEPTION
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          prc_record_error();
+          prc_record_error(p_id);
           ROLLBACK;
           INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1387,7 +1384,7 @@ EXCEPTION
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          prc_record_error();
+          prc_record_error(p_id);
           ROLLBACK;
           INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1542,7 +1539,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1593,7 +1590,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1820,7 +1817,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -1953,7 +1950,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2013,7 +2010,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2042,6 +2039,8 @@ EXCEPTION
     countReg    NUMBER := 0;
 
   BEGIN
+    EXECUTE IMMEDIATE ('BEGIN delete from error_log; end;');
+    EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
 
     OPEN c_processo;
 
@@ -2059,7 +2058,7 @@ EXCEPTION
 
       text_to_run := r_processo.objetoreferencia;
 
-      EXECUTE IMMEDIATE ('BEGIN ' || text_to_run || '; END;');
+      EXECUTE IMMEDIATE ('BEGIN ' || text_to_run ||'('||r_processo.id ||')'||'; END;');
 
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2072,6 +2071,8 @@ EXCEPTION
 
       pkg_sinc_PDV_Consinco.atualiza_sinc_processo(r_processo.id);
 
+      EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''N'' where id = '|| r_processo.id ||'; end;');
+
     END LOOP;
 
     CLOSE c_processo;
@@ -2079,7 +2080,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error();
+        prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
