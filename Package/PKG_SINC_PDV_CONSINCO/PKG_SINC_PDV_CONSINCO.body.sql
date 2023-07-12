@@ -710,7 +710,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   
   COMMIT;
 
-EXCEPTION
+  EXCEPTION
   WHEN OTHERS THEN
     BEGIN
       prc_record_error(p_id);
@@ -724,7 +724,7 @@ EXCEPTION
     END;
   END carrega_tb_familia;
 
-  PROCEDURE carrega_tb_formapagtoespecie AS
+  PROCEDURE carrega_tb_formapagtoespecie(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_formapagtoespecie s
         USING (SELECT DISTINCT v.especie,
@@ -775,7 +775,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_clientesegmento AS
+  PROCEDURE carrega_tb_clientesegmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_clientesegmento s
         USING (SELECT c.seqpessoa,
@@ -820,7 +820,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_formapagto AS
+  PROCEDURE carrega_tb_formapagto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_formapagto s
         USING(
@@ -920,7 +920,7 @@ EXCEPTION
   END;
 
 
-  PROCEDURE carrega_tb_formapagtoempresa AS
+  PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
         USING (SELECT distinct f.nroempresa,
@@ -1031,7 +1031,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_famsegmento AS
+  PROCEDURE carrega_tb_famsegmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famsegmento s
         USING (SELECT DISTINCT e.seqfamilia, e.nrosegmento, e.ativo
@@ -1072,7 +1072,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_divisao AS
+  PROCEDURE carrega_tb_divisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_divisao s
         /*USING (SELECT
@@ -1132,7 +1132,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_categoria AS
+  PROCEDURE carrega_tb_categoria(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_categoria s
         USING (SELECT DISTINCT *
@@ -1189,7 +1189,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_famdivisaocategoria AS
+  PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_famdivisaocategoria s
         USING (SELECT DISTINCT SD.seqfamilia, SD.seqcategoria, SD.nrodivisao, SD.ativo
@@ -1229,7 +1229,7 @@ EXCEPTION
     END;
   END carrega_tb_famdivisaocategoria;
 
-  PROCEDURE carrega_tb_prodempresa AS
+  PROCEDURE carrega_tb_prodempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_prodempresa s
         USING (SELECT DISTINCT
@@ -1280,7 +1280,7 @@ EXCEPTION
       END;
   END carrega_tb_prodempresa;
 
-  PROCEDURE carrega_tb_famembalagem AS
+  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_famembalagem s
         USING (SELECT DISTINCT e.seqfamilia,
@@ -1340,7 +1340,7 @@ EXCEPTION
         END;
     END carrega_tb_famembalagem;
 
-  PROCEDURE carrega_tb_prodcodigo AS
+  PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_prodcodigo s
         USING (SELECT DISTINCT e.nroempresa,
@@ -1396,7 +1396,7 @@ EXCEPTION
     END carrega_tb_prodcodigo;
 
 
-  PROCEDURE carrega_tb_prodpreco AS
+  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
     TYPE ARRAY IS TABLE OF VW_TB_PRODPRECO_NEW%ROWTYPE INDEX BY PLS_INTEGER;
     listaDados ARRAY;
 
@@ -1554,7 +1554,7 @@ EXCEPTION
       END;
   END;
 
-  PROCEDURE carrega_tb_tributacao AS
+  PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_tributacao s
     USING (SELECT DISTINCT NROTRIBUTACAO,
@@ -1606,7 +1606,7 @@ EXCEPTION
   END;
 
 
-  PROCEDURE carrega_tb_tributacaouf AS
+  PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE) AS
 
     CURSOR c_tb_tributacaouf IS
       SELECT DISTINCT E.*
@@ -1833,7 +1833,7 @@ EXCEPTION
   END;
 
 
-  PROCEDURE carrega_tb_enderecoalternativo AS
+  PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
 
     CURSOR c_tb_enderecoalternativo IS
       SELECT f.codcli seqpessoa,
@@ -1965,7 +1965,7 @@ EXCEPTION
       END;
   END;
   
-  PROCEDURE carrega_tb_famdivisao AS
+  PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
         USING (SELECT DISTINCT E.seqfamilia,
@@ -2080,7 +2080,7 @@ EXCEPTION
   EXCEPTION
     WHEN OTHERS THEN
       BEGIN
-        prc_record_error(p_id);
+        prc_record_error(r_processo.id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
