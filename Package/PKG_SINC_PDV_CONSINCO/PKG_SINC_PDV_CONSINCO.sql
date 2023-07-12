@@ -13,59 +13,59 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_pessoa;
+  PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_usuario;
+  PROCEDURE carrega_tb_usuario(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_segmento;
+  PROCEDURE carrega_tb_segmento(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_empresa;
+  PROCEDURE carrega_tb_empresa(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cliente;
+  PROCEDURE carrega_tb_cliente(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_empresasegmento;
+  PROCEDURE carrega_tb_empresasegmento(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_produto;
+  PROCEDURE carrega_tb_produto(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_famgrupo;
+  PROCEDURE carrega_tb_famgrupo(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_marca;
+  PROCEDURE carrega_tb_marca(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_familia;
+  PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_formapagtoespecie;
+  PROCEDURE carrega_tb_formapagtoespecie(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_clientesegmento;
+  PROCEDURE carrega_tb_clientesegmento(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_formapagto;
+  PROCEDURE carrega_tb_formapagto(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_formapagtoempresa;
+  PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_famsegmento;
+  PROCEDURE carrega_tb_famsegmento(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_divisao;
+  PROCEDURE carrega_tb_divisao(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_categoria;
+  PROCEDURE carrega_tb_categoria(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_famdivisaocategoria;
+  PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_prodempresa;
+  PROCEDURE carrega_tb_prodempresa(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_famembalagem;
+  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_prodcodigo;
+  PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_prodpreco;
+  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_tributacao;
+  PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_tributacaouf;
+  PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_enderecoalternativo;
+  PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE);
 
   --PROCEDURE carrega_tb_prodprecoapartir;
 
-  PROCEDURE carrega_tb_famdivisao;
+  PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE exec_sinc;
 
