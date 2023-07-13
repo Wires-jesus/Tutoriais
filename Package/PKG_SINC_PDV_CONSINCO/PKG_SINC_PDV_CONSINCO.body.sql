@@ -2039,7 +2039,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     countReg    NUMBER := 0;
 
   BEGIN
-    EXECUTE IMMEDIATE ('BEGIN delete from error_log; end;');
+    EXECUTE IMMEDIATE ('BEGIN delete from PCERRORLOGCONSINCO; end;');
     EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
 
     OPEN c_processo;
