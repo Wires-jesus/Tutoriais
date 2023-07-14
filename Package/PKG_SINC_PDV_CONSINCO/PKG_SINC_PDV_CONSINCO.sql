@@ -60,6 +60,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_cargatributaria(p_id IN intermediario.pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE);
 

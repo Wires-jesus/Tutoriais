@@ -1832,6 +1832,79 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
+  PROCEDURE carrega_tb_cargatributaria(p_id IN intermediario.pccontroleconsinco.id%TYPE) AS
+    BEGIN
+    MERGE INTO monitorpdvmiddle.tb_cargatributaria s
+        USING (SELECT *
+               FROM VW_INT_C5_LEITRANSP b
+              ) b
+         
+      ON (s.codnbmsh = b.codnbmsh)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.codfilial             = b.codfilial,
+               s.ufdestino             = b.ufdestino,
+               s.perctributoimportado  = b.perctributoimportado,
+               s.perctributonacfederal = b.perctributonacfederal,
+               s.perctributoimpfederal = b.perctributoimpfederal,
+               s.perctributoestadual   = b.perctributoestadual,
+               s.perctributomunicipal  = b.perctributomunicipal,
+               s.ex                    = b.ex,
+               s.ativo                 = b.ativo
+        
+      WHEN NOT MATCHED THEN
+        INSERT (s.codnbmsh,
+                s.codfilial,
+                s.ufdestino,
+                s.perctributoimportado,
+                s.perctributonacfederal,
+                s.perctributoimpfederal,
+                s.perctributoestadual,
+                s.perctributomunicipal,
+                s.ex,
+                s.ativo)
+                VALUES
+                  (b.codnbmsh,
+                   b.codfilial,
+                   b.ufdestino,
+                   b.perctributoimportado,
+                   b.perctributonacfederal,
+                   b.perctributoimpfederal,
+                   b.perctributoestadual,
+                   b.perctributomunicipal,
+                   b.ex,
+                   b.ativo);
+    
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_cargatributaria',
+       'carrega_tb_cargatributaria OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cargatributaria',
+           'carrega_tb_cargatributaria ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
 
