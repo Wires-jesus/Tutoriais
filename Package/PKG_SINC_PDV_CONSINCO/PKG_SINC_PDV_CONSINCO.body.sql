@@ -1892,7 +1892,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       BEGIN
         prc_record_error(p_id);
         ROLLBACK;
-        INSERT INTO dev_log
+        INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
