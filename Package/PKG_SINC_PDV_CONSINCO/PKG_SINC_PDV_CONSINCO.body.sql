@@ -1832,7 +1832,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
-  PROCEDURE carrega_tb_cargatributaria(p_id IN intermediario.pccontroleconsinco.id%TYPE) AS
+  PROCEDURE carrega_tb_cargatributaria(p_id IN pccontroleconsinco.id%TYPE) AS
     BEGIN
     MERGE INTO monitorpdvmiddle.tb_cargatributaria s
         USING (SELECT *
