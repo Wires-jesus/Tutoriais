@@ -1907,106 +1907,56 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
-
-    CURSOR c_tb_enderecoalternativo IS
-      SELECT f.codcli seqpessoa,
-             f.codcli || f.codigo seqlogradouro,
-             'P' tipo,
-             COALESCE(f.endereco, c.enderent) logradouro,
-             f.numero nrologradouro,
-             COALESCE(f.bairro, c.bairroent) bairro,
-             COALESCE(f.complementoendereco, c.complementoent) complemento,
-             COALESCE(f.cidade, c.municent) cidade,
-             COALESCE(f.uf, c.estent) uf,
-             REPLACE(REPLACE(REPLACE(COALESCE(f.cep, c.cepent), '.', ''),
-                             '/',
-                             ''),
-                     '-',
-                     '') cep,
-             (CASE
-               WHEN f.dtexclusao IS NULL THEN
-                'S'
-               ELSE
-                'N'
-             END) ativo,
-             f.codmun codibge,
-             0 nrocarga
-        FROM pcfilial            f,
-             pcclient            c,
-             (SELECT s.ultimaexecucao
-              FROM pccontroleconsinco s
-              WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_ENDERECOALTERNATIVO') D,
-             monitorpdvmiddle.tb_pessoa tbp
-       WHERE c.codcli = f.codcli
-         AND c.codcli = tbp.seqpessoa
-         AND  (NVL(f.dtalterc5, D.ultimaexecucao)>= D.ultimaexecucao OR
-               NVL(c.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao);
-
-    r_tb_enderecoalternativo c_tb_enderecoalternativo%ROWTYPE;
-    countReg                 NUMBER := 0;
-  BEGIN
-    OPEN c_tb_enderecoalternativo;
-    LOOP
-      FETCH c_tb_enderecoalternativo
-        INTO r_tb_enderecoalternativo;
-      EXIT WHEN c_tb_enderecoalternativo%NOTFOUND;
-
-      SELECT COUNT(1)
-        INTO countReg
-        FROM monitorpdvmiddle.tb_enderecoalternativo
-       WHERE seqpessoa = r_tb_enderecoalternativo.seqpessoa
-         AND seqlogradouro = r_tb_enderecoalternativo.seqlogradouro;
-
-      IF (countReg = 0) THEN
-        INSERT INTO monitorpdvmiddle.tb_enderecoalternativo
-          (tipo,
-           logradouro,
-           nrologradouro,
-           bairro,
-           complemento,
-           cidade,
-           uf,
-           cep,
-           ativo,
-           codibge,
-           nrocarga,
-           seqpessoa,
-           seqlogradouro)
+  BEGIN 
+    MERGE INTO monitorpdvmiddle.tb_enderecoalternativo EnderecoAlternativoC5
+    USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) ViewEnderecoAlt
+    ON (EnderecoAlternativoC5.seqpessoa = ViewEnderecoAlt.seqpessoa and EnderecoAlternativoC5.seqlogradouro = ViewEnderecoAlt.SEQLOGRADOURO)
+    WHEN MATCHED THEN
+      UPDATE SET 
+        EnderecoAlternativoC5.tipo = ViewEnderecoAlt.tipo,
+        EnderecoAlternativoC5.logradouro = ViewEnderecoAlt.logradouro,
+        EnderecoAlternativoC5.nrologradouro = ViewEnderecoAlt.nrologradouro,
+        EnderecoAlternativoC5.bairro = ViewEnderecoAlt.bairro,
+        EnderecoAlternativoC5.complemento = ViewEnderecoAlt.complemento,
+        EnderecoAlternativoC5.cidade = ViewEnderecoAlt.cidade,
+        EnderecoAlternativoC5.uf = ViewEnderecoAlt.uf,
+        EnderecoAlternativoC5.cep = ViewEnderecoAlt.cep,
+        EnderecoAlternativoC5.ativo = ViewEnderecoAlt.ativo,
+        EnderecoAlternativoC5.codibge = ViewEnderecoAlt.codibge
+      WHEN NOT MATCHED THEN
+        INSERT  
+        (
+	        EnderecoAlternativoC5.seqpessoa,
+	        EnderecoAlternativoC5.seqlogradouro,
+	        EnderecoAlternativoC5.tipo,
+	        EnderecoAlternativoC5.logradouro,
+	        EnderecoAlternativoC5.nrologradouro,
+	        EnderecoAlternativoC5.bairro,
+	        EnderecoAlternativoC5.complemento,
+	        EnderecoAlternativoC5.cidade,
+	        EnderecoAlternativoC5.uf,
+	        EnderecoAlternativoC5.cep,
+	        EnderecoAlternativoC5.ativo,
+	        EnderecoAlternativoC5.codibge
+        )
         VALUES
-          (r_tb_enderecoalternativo.tipo,
-           r_tb_enderecoalternativo.logradouro,
-           r_tb_enderecoalternativo.nrologradouro,
-           r_tb_enderecoalternativo.bairro,
-           r_tb_enderecoalternativo.complemento,
-           r_tb_enderecoalternativo.cidade,
-           r_tb_enderecoalternativo.uf,
-           r_tb_enderecoalternativo.cep,
-           r_tb_enderecoalternativo.ativo,
-           r_tb_enderecoalternativo.codibge,
-           r_tb_enderecoalternativo.nrocarga,
-           r_tb_enderecoalternativo.seqpessoa,
-           r_tb_enderecoalternativo.seqlogradouro);
-      ELSE
-
-        UPDATE monitorpdvmiddle.tb_enderecoalternativo
-           SET tipo          = r_tb_enderecoalternativo.tipo,
-               logradouro    = r_tb_enderecoalternativo.logradouro,
-               nrologradouro = r_tb_enderecoalternativo.nrologradouro,
-               bairro        = r_tb_enderecoalternativo.bairro,
-               complemento   = r_tb_enderecoalternativo.complemento,
-               cidade        = r_tb_enderecoalternativo.cidade,
-               uf            = r_tb_enderecoalternativo.uf,
-               cep           = r_tb_enderecoalternativo.cep,
-               ativo         = r_tb_enderecoalternativo.ativo,
-               codibge       = r_tb_enderecoalternativo.codibge,
-               nrocarga      = r_tb_enderecoalternativo.nrocarga
-         WHERE seqpessoa = r_tb_enderecoalternativo.seqpessoa
-           AND seqlogradouro = r_tb_enderecoalternativo.seqlogradouro;
-      END IF;
-
-    END LOOP;
-
+        (
+          ViewEnderecoAlt.seqpessoa,
+          ViewEnderecoAlt.seqlogradouro,
+          ViewEnderecoAlt.tipo,
+          ViewEnderecoAlt.logradouro,
+          ViewEnderecoAlt.nrologradouro,
+          ViewEnderecoAlt.bairro,
+          ViewEnderecoAlt.complemento,
+          ViewEnderecoAlt.cidade,
+          ViewEnderecoAlt.uf,
+          ViewEnderecoAlt.cep,
+          ViewEnderecoAlt.ativo,
+          ViewEnderecoAlt.codibge
+         );
+         
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -2015,10 +1965,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
        'carrega_tb_enderecoalternativo OK',
        SYSDATE,
        CURRENT_TIMESTAMP);
-
     COMMIT;
-
-    CLOSE c_tb_enderecoalternativo;
 
   EXCEPTION
     WHEN OTHERS THEN
