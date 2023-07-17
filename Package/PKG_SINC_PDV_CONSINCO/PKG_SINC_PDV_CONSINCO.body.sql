@@ -87,7 +87,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
   END;
 
-  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE) AS 
   BEGIN
 
     UPDATE pccontroleconsinco
