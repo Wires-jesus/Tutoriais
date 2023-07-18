@@ -1,1 +1,5 @@
-{"nome":"TRG_PCSOLICITACAOMATERIAL","tipoPLSQL":"TRIGGER","dependencias":""}
+{
+    "nome":"TRG_PCSOLICITACAOMATERIAL",
+    "tipoPLSQL":"TRIGGER",
+    "dependencias":""
+}

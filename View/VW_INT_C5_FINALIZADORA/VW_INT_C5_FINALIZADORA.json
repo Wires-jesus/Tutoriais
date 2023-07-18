@@ -1,0 +1,2 @@
+{"nome":"VW_INT_C5_FINALIZADORA","tipoPLSQL":"VIEW","dependencias":[{"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO","tipo":"MIGRATION","versao":"4.0.01.000"}]}
+

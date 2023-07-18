@@ -166,7 +166,6 @@ begin
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) +                                     
-                                    
                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
@@ -703,6 +702,8 @@ begin
                    V_SQLETRI := V_SQLETRI || ' AND  (' || V_CONDICAOCFOPTOTSAI || ' ) ';
                 END IF;
 
+--        INSERT INTO SQL_GERADO (TEXTO_SQL) VALUES (V_SQLETRI);
+
                 execute immediate V_SQLETRI
                    into V_ENTRADATOTAL
                    using PEXERCICIO, V_MES, PCODFILIAL;
@@ -784,7 +785,15 @@ begin
         END IF; -- Fechou Ponto1
             
         IF PVALORBASECALC = 'S' THEN
-           V_SQLETRI := 'SELECT NVL(SUM(NVL(VLBASE,0)),0) ';
+        V_SQLETRI := 'SELECT SUM((CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASEENT.VLBASE,0) = 0 THEN 
+                                       DECODE(:PVALORBASECALC,  ''S'', NVL(PCNFBASEENT.VLDESDOBRADO, 0), 0)
+                                  ELSE 
+                                       DECODE(:PVALORBASECALC,  ''S'', NVL(PCNFBASEENT.VLBASE, 0), 0)   +                                     
+                                       DECODE(:PVALOROUTRAS,    ''S'', NVL(PCNFBASEENT.VLOUTRAS, 0), 0) +
+                                       DECODE(:PVALORISENAOTRIB,''S'', NVL(PCNFBASEENT.VLISENTAS, 0), 0)+
+                                       DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASEENT.VLST, 0), 0)     +
+                                       DECODE(:PVALORIPI,       ''S'', NVL(PCNFBASEENT.VLIPI, 0), 0)
+                                END)) VLENTRADATRIBUTADA ';
         ELSE
            V_SQLETRI := 'SELECT NVL(SUM(NVL(VLDESDOBRADO,0)),0) ';
         END IF;
@@ -802,10 +811,20 @@ begin
           V_SQLETRI := V_SQLETRI || ' AND  (' || V_CONDICAOCFOPSAITRIB || ' ) ';
         END IF;
         
+        --INSERT INTO SQL_GERADO (TEXTO_SQL) VALUES (V_SQLETRI);
+        
         execute immediate V_SQLETRI
            into V_ENTRADATRIBUTADA
-           using PEXERCICIO, V_MES, PCODFILIAL;
-             
+          using PUTILIZAVALORCONTABIL,
+                PVALORBASECALC,
+                PVALORBASECALC,                     
+                PVALOROUTRAS, 
+                PVALORISENAOTRIB, 
+                PVALORSUBSTTRIB,
+                PVALORIPI, 
+                PEXERCICIO, 
+                V_MES, 
+                PCODFILIAL;                 
   END IF;
 -------------------------------------------------------------------------------------------------
 -- PROCESSO 7 : FIM
@@ -825,7 +844,14 @@ begin
       --------------------------------------------------------------------
       -- Cálculo das colunas de "Saídas Tributadas" e "Total Saídas
       V_TOTALTRIBUTADAS := V_TOTALTRIBUTADAS - V_ENTRADATRIBUTADA;
+      IF V_TOTALTRIBUTADAS <= 0 THEN
+         V_TOTALTRIBUTADAS :=0;
+      END IF; 
+            
       V_TOTALSAIDAS := V_TOTALSAIDAS - V_ENTRADATOTAL;
+      IF V_TOTALSAIDAS <= 0 THEN
+         V_TOTALSAIDAS :=0;
+      END IF;
       -- Calcular valores mensais a partir dos dados acima
       ------------------------------------------------------------------------
       insert into PCCIAPITEM(CODITEM,
@@ -1109,7 +1135,6 @@ begin
    end;
 end;
 ----------------------------------------------------------------------
--- 02/03/2023 - Última alteração - Gleibe ----------------------------
---            - Implem melhoria no processo de considerar e desconsiderar cfops pela grid. 
---            - Implementado também o novo parâmetro para deduzir a dev de cliente. 
+-- 11/07/2023 - Última alteração -
+-- Implementado alteração no processo de geração do valor de devolução a ser deduzido.
 ----------------------------------------------------------------------

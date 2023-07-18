@@ -1254,6 +1254,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvUsaPmcBaseSt               PCTRIBUT.USAPMCBASEST%TYPE;
     vvBnfNaoCalculaIcms          PCTRIBUT.BNFNAOCALCULAICMS%TYPE;
     vvUsaBaseIcmsReduzida        PCTRIBUT.USABASEICMSREDUZIDA%TYPE;
+    vvutilizarstfonteprecific    PCTRIBUT.utilizarstfonteprecific%TYPE; --sfp
   
     -- Tipo de Pesquisa de Clientes
     vvTipoPesquisaClientes       VARCHAR2(1);
@@ -4957,6 +4958,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PCPRODUT.OBS
                               , PCPRODUT.CODLINHAPRAZO -- DDMEDICA-545
                               , PCDEPTO.TIPOMERC TIPOMERCDEP
+                              , PCTABPR.VLST -- STP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -5255,7 +5257,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , PCTRIBUT.ALIQICMS1FONTE
                        , PCTRIBUT.ALIQICMS2FONTE
                        , PCTRIBUT.PERCBASEREDSTFONTE
-                       , PCTRIBUT.CODST
+                       , PCTRIBUT.utilizarstfonteprecific --STP
                     INTO vnPercIcm
                        , vnPercBaseRedIcm
                        , vnPautaFonte
@@ -5267,7 +5269,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , vnAliqIcms1Fonte
                        , vnAliqIcms2Fonte
                        , vnPercBaseRedStFonte
-                       , vnCodStTribut
+                       , vvutilizarstfonteprecific --STP
                     FROM PCTRIBUT
                    WHERE (PCTRIBUT.CODST = vnCodSt);
                 EXCEPTION
@@ -5283,7 +5285,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vnAliqIcms1Fonte      := 0;
                     vnAliqIcms2Fonte      := 0;
                     vnPercBaseRedStFonte  := 0;
-                    vnCodStTribut         := NULL;
+                    vvutilizarstfonteprecific := 'N';  -- STP    
                 END;
                 IF (NVL(vnPercBaseRedIcm,0) = 0) THEN
                   vnPercBaseRedIcm := 100;
@@ -5335,6 +5337,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                 ELSE
                   vnPreco := 0;
                 END IF;
+                -- Tira st fonte da precificaçao -- STP
+                IF (vvutilizarstfonteprecific = 'S') AND
+                   (vnPreco > 0) THEN
+                  vnPreco := NVL(vnPreco,0) - NVL(vc_Produto.VLST,0);  
+                END IF;                
               -- Aplica Indice sobre o Preço Tabela
               vnIndicePreco := 0;
               IF (NVL(vvGerarAcordoPreco,'N') = 'S')         AND
@@ -8616,6 +8623,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvUsaPmcBaseSt               PCTRIBUT.USAPMCBASEST%TYPE;
     vvBnfNaoCalculaIcms          PCTRIBUT.BNFNAOCALCULAICMS%TYPE;
     vvUsaBaseIcmsReduzida        PCTRIBUT.USABASEICMSREDUZIDA%TYPE;
+    vvutilizarstfonteprecific    PCTRIBUT.utilizarstfonteprecific%TYPE; --sfp
   
     -- Tipo de Pesquisa de Clientes
     vvTipoPesquisaClientes       VARCHAR2(1);
@@ -12645,6 +12653,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PCDEPTO.TIPOMERC TIPOMERCDEP
                               , PCDESCONTO.PERCMARKUPMED           -- DDMEDICA-5980
                               , TO_NUMBER(NULL) PRIORIDADE_PRODUTO -- DDMEDICA-5980
+                              , PCTABPR.VLST -- STP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -12761,6 +12770,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                      WHEN (PCDESCONTO.CODEPTO      IS NOT NULL) THEN 7
                                      ELSE 8
                                 END PRIORIDADE_PRODUTO
+                              , PCTABPR.VLST -- STP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -12890,6 +12900,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                      WHEN (PCDESCONTO.CODEPTO      IS NOT NULL) THEN 7
                                      ELSE 8
                                 END PRIORIDADE_PRODUTO
+                              , PCTABPR.VLST -- STP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -12980,6 +12991,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PCDEPTO.TIPOMERC TIPOMERCDEP
                               , TO_NUMBER(NULL) PERCMARKUPMED -- DDMEDICA-5980
                               , TO_NUMBER(NULL) PRIORIDADE_PRODUTO -- DDMEDICA-5980
+                              , PCTABPR.VLST -- STP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -13394,6 +13406,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , PCTRIBUT.ALIQICMS1FONTE
                        , PCTRIBUT.ALIQICMS2FONTE
                        , PCTRIBUT.PERCBASEREDSTFONTE
+                       , PCTRIBUT.utilizarstfonteprecific --STP
                     INTO vnPercIcm
                        , vnPercBaseRedIcm
                        , vnPautaFonte
@@ -13405,6 +13418,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , vnAliqIcms1Fonte
                        , vnAliqIcms2Fonte
                        , vnPercBaseRedStFonte
+                       , vvutilizarstfonteprecific --STP
                     FROM PCTRIBUT
                    WHERE (PCTRIBUT.CODST = vnCodSt);
                 EXCEPTION
@@ -13420,7 +13434,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vnAliqIcms1Fonte      := 0;
                     vnAliqIcms2Fonte      := 0;
                     vnPercBaseRedStFonte  := 0;
-  
+                    vvutilizarstfonteprecific := 'N';  -- STP  
                 END;
                 IF (NVL(vnPercBaseRedIcm,0) = 0) THEN
                   vnPercBaseRedIcm := 100;
@@ -13471,6 +13485,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vnPreco := NVL(vc_Produto.PVENDA7,0);
                 ELSE
                   vnPreco := 0;
+                END IF;
+                -- Tira st fonte da precificaçao -- STP
+                IF (vvutilizarstfonteprecific = 'S') AND
+                   (vnPreco > 0) THEN
+                  vnPreco := NVL(vnPreco,0) - NVL(vc_Produto.VLST,0);  
                 END IF;
               -- Aplica Indice sobre o Preço Tabela
               vnIndicePreco := 0;

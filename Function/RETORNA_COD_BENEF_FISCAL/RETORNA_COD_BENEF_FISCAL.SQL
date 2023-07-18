@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION RETORNA_COD_BENEF_FISCAL(P_TIPOOPER       IN     VARC
                                                    ,P_CODST          IN     NUMBER
                                                    ,P_MSG            IN OUT VARCHAR2
                                                    ,P_SUCESSO           OUT BOOLEAN
-												   ,P_CSTICMS        IN VARCHAR2 DEFAULT ''
+                                                   ,P_CSTICMS        IN VARCHAR2 DEFAULT ''
                                                    ,P_CODFISCAL      IN NUMBER DEFAULT 0)
   RETURN VARCHAR2 IS
   /**********************************************************************************
@@ -15,12 +15,13 @@ CREATE OR REPLACE FUNCTION RETORNA_COD_BENEF_FISCAL(P_TIPOOPER       IN     VARC
    *                 EM CASOS DE SAÍDA.                                             *
    *********************************************************************************/
 
-  VSTIPOCLIFORNEC    VARCHAR2(6);
-  VNCODPROD    PCPRODUT.CODPROD%TYPE;
-  VSNCM        PCPRODUT.NBM%TYPE;
-  CODBENEFICIO PCCODIGOBENEFICIOFISCALVINCULO.CODIGOBENEFICIO%TYPE;
-  VSUFDEST     PCCLIENT.ESTENT%TYPE;
-  VSUFORIG     PCFILIAL.UF%TYPE;  
+  VSTIPOCLIFORNEC      VARCHAR2(6);
+  VNCODPROD            PCPRODUT.CODPROD%TYPE;
+  VSNCM                PCPRODUT.NBM%TYPE;
+  CODBENEFICIO         PCCODIGOBENEFICIOFISCALVINCULO.CODIGOBENEFICIO%TYPE;
+  P_CODBENEFICIOCOMPLE PCCODIGOBENEFICIOFISCALVINCULO.CODBENEFICIOFISCALCOMPLE%TYPE;  
+  VSUFDEST             PCCLIENT.ESTENT%TYPE;
+  VSUFORIG             PCFILIAL.UF%TYPE;  
 BEGIN
   P_SUCESSO := TRUE;
   P_MSG     := '';
@@ -155,8 +156,8 @@ BEGIN
                                               P_CSTICMS,       -- P_CSTICMS IN VARCHAR2 DEFAULT '',
                                               P_CODFISCAL,     -- P_CODFISCAL IN NUMBER DEFAULT 0,
                                               P_CODCLI_FORNEC, -- P_CODCLI IN NUMBER DEFAULT 0,
-                                              'S'              -- P_NOVOPROCESSO IN VARCHAR2 DEFAULT 'N'
-                                              );
+                                              'S'                  -- P_NOVOPROCESSO IN VARCHAR2 DEFAULT 'N'
+                                              /*P_CODBENEFICIOCOMPLE*/);--P_CODBENEFICIOCOMPLE 
   IF (UPPER(SUBSTR(P_MSG, 1, 1)) = 'N')
   THEN
     P_SUCESSO := FALSE;
@@ -166,3 +167,4 @@ BEGIN
   END IF;
 
 END;
+--Versionamento

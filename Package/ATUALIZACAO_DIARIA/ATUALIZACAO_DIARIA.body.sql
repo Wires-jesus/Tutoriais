@@ -4284,52 +4284,50 @@ VUSUARIO VARCHAR2(60);
 VDESCRICAO VARCHAR2(60);
 
 BEGIN
-/* Description: Procedure criada para gravar o log dos clientes que estão sendo bloqueados
+   /* Description: Procedure criada para gravar o log dos clientes que estão sendo bloqueados
    Date       : 19/02/2014
    Author     : Bruno Lima Martins
    History    : 182510
    Version    : 23
-*/
+   */
 
-IF (TRIM(PUSUARIO) = '') OR (PUSUARIO IS NULL) THEN
-  VUSUARIO := '0';
-ELSE
-  VUSUARIO := PUSUARIO;
-END IF;
+   IF (TRIM(PUSUARIO) = '') OR (PUSUARIO IS NULL) THEN
+      VUSUARIO := '0';
+   ELSE
+      VUSUARIO := PUSUARIO;
+   END IF;
 
-IF (TRIM(PDESCRICAO) = '') OR (PDESCRICAO IS NULL) THEN
-  VDESCRICAO := '0';
-ELSE
-  VDESCRICAO := PDESCRICAO;
-END IF;
+   IF (TRIM(PDESCRICAO) = '') OR (PDESCRICAO IS NULL) THEN
+      VDESCRICAO := '0';
+   ELSE
+      VDESCRICAO := PDESCRICAO;
+   END IF;
 
-INSERT INTO PCLOGLC
-  (CODCLI,
-   DATA,
-   CODEMITE,
-   PROGRAMA,
-   BLOQUEIO,
-   BLOQUEIOANT,
-   LIMCRED,
-   LIMCREDANT,
-   DTREGLIMANT,
-   DTVENCLIMCRED,
-   DTVENCLIMANT,
-   OBS,
-   OBSANT,
-   PRAZO,
-   PRAZOANT,
-   CODCOB,
-   CODCOBANT,
-   OBS1,
-   OBS2,
-   OBS3,
-   OBS4,
-   CODPLPAG,
-   CODPLPAGANT,
-   DTULTCOMP,
-   DTULTCOMPANT)
-
+   INSERT INTO PCLOGLC(CODCLI,
+      DATA,
+      CODEMITE,
+      PROGRAMA,
+      BLOQUEIO,
+      BLOQUEIOANT,
+      LIMCRED,
+      LIMCREDANT,
+      DTREGLIMANT,
+      DTVENCLIMCRED,
+      DTVENCLIMANT,
+      OBS,
+      OBSANT,
+      PRAZO,
+      PRAZOANT,
+      CODCOB,
+      CODCOBANT,
+      OBS1,
+      OBS2,
+      OBS3,
+      OBS4,
+      CODPLPAG,
+      CODPLPAGANT,
+      DTULTCOMP,
+      DTULTCOMPANT)
   SELECT PCCLIENT.CODCLI,
          SYSDATE AS DATA,
          TO_NUMBER(VUSUARIO) AS CODEMITE,
@@ -4358,27 +4356,23 @@ INSERT INTO PCLOGLC
     FROM PCCLIENT
    WHERE PCCLIENT.CODCLI IN (PCODCLI);
 
-  -- COMMIT;
-
 END P_PC_GRAVARLOGBLOQAUTOM;
 
 
 PROCEDURE GERAR_PCFINANC(PCODFILIAL VARCHAR2, PCODROTINA NUMBER, PCODFUNC NUMBER, PDATAPROCESSADA  DATE) IS
 VSALDOCPMANUAL NUMBER(20, 4);
 V_COUNT  NUMBER(5);
-
 VCOUNT NUMBER(10);
 VDATATESTADA DATE;
 BEGIN
-
   IF PCODROTINA <> 117 THEN  
       BEGIN
-        SELECT NVL(COUNT(DISTINCT F.DATA),0), NVL(TRUNC(F.DTGERACAO),SYSDATE)
+        SELECT NVL(COUNT(DISTINCT F.DATA),0), TRUNC(NVL(F.DTGERACAO,SYSDATE))
         INTO VCOUNT, VDATATESTADA
         FROM PCFINANC F
         WHERE F.DTGERACAO >= TRUNC(SYSDATE)
         AND F.CODFILIAL = PCODFILIAL
-        GROUP BY NVL(TRUNC(F.DTGERACAO),SYSDATE);
+        GROUP BY TRUNC(NVL(F.DTGERACAO,SYSDATE));
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
         VCOUNT := 0;
@@ -4466,7 +4460,6 @@ BEGIN
        AND NVL(PCFINANC.PARMULTIFILIALCAIXABANCO3882,'N') = NVL(FINANC2.PARMULTIFILIALCAIXABANCO3882,'N');
   END LOOP;
 
-
   SELECT NVL(SUM(NVL(PCLANC.VALOR,0) -
                  NVL(PCLANC.DESCONTOFIN,0) +
                  NVL(PCLANC.TXPERM,0) -
@@ -4551,18 +4544,9 @@ BEGIN
   END IF;
   
   VCOUNT := 0;
-
   VEXIBIRSALDOBRUTOFORNEC := PARAMFILIAL.OBTERCOMOVARCHAR2('EXIBIRSALDOBRUTOFORNEC');
-
-
   --Chamada da procedure para deleção dos registros da PCFINANC2 e PCFINANC3
   P_DELETAR_PCFINANC2E3(PCODFILIAL, PCODROTINA);
-
-
-  /* --Apagando registros gerados pela rotina 117
-  DELETE PCFINANC2
-   WHERE PCFINANC2.CODFILIAL IN (PCODFILIAL)
-    AND PCFINANC2.CODROTINA = 117; */
 
   /*ADIANTAMENTO FORNECEDOR ANALITICO*/
   FOR ADIANTAMENTO_FORNECEDOR IN (SELECT CODFORNEC
@@ -4588,7 +4572,6 @@ BEGIN
                                      AND PCLANC.DTPAGTO IS NOT NULL
                                      AND PCLANC.DTESTORNOBAIXA IS NULL
                                      AND PCLANC.DTCANCEL IS NULL
---                                     HAVING SUM(NVL(PCLANC.VALOR, 0)) + SUM(NVL(PCLANC.VLVARIACAOCAMBIAL, 0)) - SUM(NVL(PCLANC.VLRUTILIZADOADIANTFORNEC, 0)) <> 0
                                            GROUP BY PCLANC.CODFORNEC
                                                    ,PCLANC.CODFILIAL
                                                    ,PCLANC.RECNUM
@@ -4622,7 +4605,6 @@ BEGIN
                                 GROUP BY PCLANC.CODFORNEC
                                                            ,PCLANC.RECNUM
                                                            ,PCLANC.CODFILIAL
---                                                  HAVING SUM(NVL(PCLANC.VALOR, 0)) + SUM(NVL(PCLANC.VLVARIACAOCAMBIAL, 0)) - SUM(NVL(PCLANC.VLRUTILIZADOADIANTFORNEC, 0)) <> 0
                                            )
                                            GROUP BY CODFORNEC
                                                    ,CODFILIAL
@@ -4644,7 +4626,6 @@ BEGIN
   END LOOP;
 
   ----------------------------------------------------------------------------------------------------------------
-
   /*1. PARA CADA CAIXA, GERAR LINHAS PARA PROCESSO ANTIGO E TAMBÉM PARA NOVO PROCESSO "BANCO/CAIXAS COM MULTIPLAS FILIAIS"*/
   /*1.1 CAIXA ANALITICO --  ATIVO */
   FOR CAIXAS IN ( SELECT PCESTCR.CODBANCO
@@ -4656,11 +4637,9 @@ BEGIN
                   FROM PCESTCR
                      , PCBANCO
                  WHERE PCESTCR.CODBANCO = PCBANCO.CODBANCO
-                   --AND (PCESTCR.VALOR <> 0)
                    AND (PCBANCO.TIPOCXBCO = 'C')
                    AND (PCESTCR.CODCOB = 'D')
                    AND PCBANCO.CODFILIAL = PCODFILIAL
-                   --AND (NVL(PCESTCR.VALOR, 0) + NVL(PCESTCR.VALORCONCILIADO, 0)) <> 0
               GROUP BY PCESTCR.CODBANCO
                      , PCBANCO.NOME
                      , PCESTCR.CODCOB
@@ -4719,7 +4698,6 @@ BEGIN
   END LOOP;
 
   ----------------------------------------------------------------------------------------------------------------
-
   /*2. PARA CADA BANCO, GERAR LINHAS PARA PROCESSO ANTIGO E TAMBÉM PARA NOVO PROCESSO "BANCO/CAIXAS COM MULTIPLAS FILIAIS"*/
   /*2.1 BANCO ANALITICO --  ATIVO*/
   FOR BANCOS IN ( SELECT PCESTCR.CODBANCO
@@ -4735,7 +4713,6 @@ BEGIN
                      AND PCBANCO.TIPOCXBCO = 'B'
                      AND PCESTCR.CODCOB IN ('D', 'DAPL', 'APLI')
                      AND PCBANCO.CODFILIAL = PCODFILIAL
-                     --AND (NVL(PCESTCR.VALOR, 0) + NVL(PCESTCR.VALORCONCILIADO, 0)) <> 0
                 ORDER BY PCESTCR.VALOR DESC)
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4765,7 +4742,6 @@ BEGIN
                      AND PCESTCR.CODCOB IN ('D', 'DAPL', 'APLI')
                      AND VW_PCBANCOFILIAIS.CODBANCO = PCBANCO.CODBANCO
                      AND VW_PCBANCOFILIAIS.CODFILIAL = PCODFILIAL
-                     --AND (NVL(PCESTCR.VALOR, 0) + NVL(PCESTCR.VALORCONCILIADO, 0)) <> 0
                 ORDER BY PCESTCR.VALOR DESC)
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4784,7 +4760,6 @@ BEGIN
   END LOOP;
 
   ----------------------------------------------------------------------------------------------------------------
-
   /*3. PARA CADA VALE, GERAR LINHAS PARA PROCESSO ANTIGO E TAMBÉM PARA NOVO PROCESSO "BANCO/CAIXAS COM MULTIPLAS FILIAIS"*/
   /*3.1 VALES - ATIVO*/
   FOR VALES IN ( SELECT PCESTCR.CODBANCO
@@ -4800,7 +4775,6 @@ BEGIN
                GROUP BY PCESTCR.CODBANCO
                       , PCESTCR.CODCOB
                       , PCBANCO.CODFILIAL
-               --HAVING SUM(PCESTCR.VALOR) <> 0
               )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4832,7 +4806,6 @@ BEGIN
                       , PCESTCR.CODCOB
                       , VW_PCBANCOFILIAIS.CODFILIAL
                       , VW_PCBANCOFILIAIS.FILIAISVINCULADAS
-               --HAVING SUM(PCESTCR.VALOR) <> 0
            )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4851,7 +4824,6 @@ BEGIN
   END LOOP;
 
   ----------------------------------------------------------------------------------------------------------------
-
   /*4. PARA CADA CONTA TRANSITÓRIA, GERAR LINHAS PARA PROCESSO ANTIGO E TAMBÉM PARA NOVO PROCESSO "BANCO/CAIXAS COM MULTIPLAS FILIAIS"*/
   /*4.1. CONTAS TRANSITÓRIAS -- ATIVO*/
   FOR CONTAS_TRANSITORIA IN ( SELECT PCESTCR.CODBANCO
@@ -4869,7 +4841,6 @@ BEGIN
                                  AND PCESTCR.CODCOB NOT IN ('D','DAPL','APLI','VALE')
                                  AND PCBANCO.TIPOCXBCO <> 'E'
                                  AND PCBANCO.CODFILIAL IN ( PCODFILIAL )
-                                 --AND PCESTCR.VALOR <> 0
                              )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4901,7 +4872,6 @@ BEGIN
                                  AND PCBANCO.TIPOCXBCO <> 'E'
                                  AND VW_PCBANCOFILIAIS.CODBANCO = PCBANCO.CODBANCO
                                  AND VW_PCBANCOFILIAIS.CODFILIAL = PCODFILIAL
-                                 --AND PCESTCR.VALOR <> 0
                                )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -4920,112 +4890,16 @@ BEGIN
   END LOOP;
 
   ----------------------------------------------------------------------------------------------------------------
-
-
   --CONTAS A RECEBER ANALÍTICO --  ATIVO
   P_CALC_SALDO_CONTASRECEBER(PCODFILIAL,
                              PCODROTINA,
                              PCODFUNC,
                              PDATAPROCESSADA);
-
-
-  /* --CONTAS A RECEBER ANALÍTICO - ATIVO
-  FOR CONTAS_RECEBER IN ( SELECT \*+ORDERED*\ PCPREST.CODCOB
-                               , SUM(VALOR) VLRTOTAL
-                               , COUNT(1) AS QTDE
-                               , PCPREST.CODFILIAL
-                            FROM PCPREST
-                               , PCCOB
-                           WHERE PCPREST.CODCOB = PCCOB.CODCOB(+)
-                             AND PCPREST.CODFILIAL = PCODFILIAL
-                             AND PCPREST.DTPAG IS NULL
-                        GROUP BY PCPREST.CODCOB
-                               , PCCOB.COBRANCA
-                               , PCPREST.CODFILIAL)
-  LOOP
-    --INSERIR PCFINANC2
-    PCFINANC2_GRAVAR( PDATAPROCESSADA           --PDATA
-                    , CONTAS_RECEBER.CODFILIAL  --PCODFILIAL
-                    , 'CRECEBER'                --PTIPODADO
-                    , 0                         --PCODIGON
-                    , CONTAS_RECEBER.CODCOB     --PCODIGOA
-                    , CONTAS_RECEBER.VLRTOTAL   --PVALOR
-                    , SYSDATE                   --PDTGERACAO
-                    , PCODROTINA                --PCODROTINA
-                    , PCODFUNC                  --PCODFUNC
-                    , 0);                       --PVALOR2
-  END LOOP; */
-
-
   --Contas Receber Fornecedor analitico - Ativo
   P_CALC_SALDO_VERBAS(PCODFILIAL,
                       PCODROTINA,
                       PCODFUNC,
                       PDATAPROCESSADA);
-
-
-  /* --Contas Receber Fornecedor analitico - Ativo ');
-  FOR CONTAS_RECEBER_FORNEC IN ( SELECT FORNECEDORES.CODFORNEC
-                                      , SUM(ROUND(FORNECEDORES.VALOR,2)) VLRTOTAL
-                                      , PCFILIAL.CODIGO CODFILIAL
-                                   FROM PCFILIAL
-                                      , (SELECT DECODE(NVL(PCFORNEC.CODFORNECPRINC,0),0,PCFORNEC.CODFORNEC,PCFORNEC.CODFORNECPRINC) CODFORNEC
-                                              , PCVERBA.DTEMISSAO
-                                              , PCVERBA.DTVENC
-                                              , PCVERBA.REFERENCIA
-                                              , PCVERBA.REFERENCIA1
-                                              , (SELECT F.FORNECEDOR
-                                                   FROM PCFORNEC F
-                                                  WHERE F.CODFORNEC = PCFORNEC.CODFORNECPRINC) FORNECEDOR
-                                              , SUM((DECODE(PCMOVCRFOR.TIPO, 'D', NVL(PCMOVCRFOR.VALOR, 0), 0) - DECODE(PCMOVCRFOR.TIPO, 'C', NVL(PCMOVCRFOR.VALOR, 0), 0))) VALOR
-                                          FROM PCMOVCRFOR, PCVERBA, PCFORNEC
-                                         WHERE PCMOVCRFOR.NUMVERBA = PCVERBA.NUMVERBA(+)
-                                           AND PCMOVCRFOR.CODFORNEC = PCFORNEC.CODFORNEC
-                                           AND PCFORNEC.CODFORNECPRINC IS NOT NULL
-                                           AND PCMOVCRFOR.CODFILIAL IN (PCODFILIAL)
-                                      GROUP BY PCFORNEC.CODFORNECPRINC,DECODE(NVL(PCFORNEC.CODFORNECPRINC,0),0,PCFORNEC.CODFORNEC,PCFORNEC.CODFORNECPRINC)
-                                             , PCFORNEC.FORNECEDOR
-                                             , PCVERBA.DTEMISSAO
-                                             , PCVERBA.DTVENC
-                                             , PCVERBA.REFERENCIA
-                                             , PCVERBA.REFERENCIA1
-                                     UNION ALL
-                                        SELECT PCFORNEC.CODFORNEC CODFORNEC
-                                             , PCVERBA.DTEMISSAO
-                                             , PCVERBA.DTVENC
-                                             , PCVERBA.REFERENCIA
-                                             , PCVERBA.REFERENCIA1
-                                             , (SELECT F.FORNECEDOR
-                                                  FROM PCFORNEC F
-                                                 WHERE F.CODFORNEC = PCFORNEC.CODFORNEC) FORNECEDOR
-                                             , SUM((DECODE(PCMOVCRFOR.TIPO, 'D', NVL(PCMOVCRFOR.VALOR, 0), 0) - DECODE(PCMOVCRFOR.TIPO, 'C', NVL(PCMOVCRFOR.VALOR, 0), 0))) VALOR
-                                          FROM PCMOVCRFOR, PCVERBA, PCFORNEC
-                                         WHERE PCMOVCRFOR.NUMVERBA = PCVERBA.NUMVERBA(+)
-                                           AND PCMOVCRFOR.CODFORNEC = PCFORNEC.CODFORNEC
-                                           AND PCFORNEC.CODFORNECPRINC IS NULL
-                                           AND PCMOVCRFOR.CODFILIAL IN(PCODFILIAL)
-                                      GROUP BY PCFORNEC.CODFORNEC
-                                             , PCFORNEC.FORNECEDOR
-                                             , PCVERBA.DTEMISSAO
-                                             , PCVERBA.DTVENC
-                                             , PCVERBA.REFERENCIA
-                                             , PCVERBA.REFERENCIA1
-                                      ORDER BY VALOR DESC) FORNECEDORES
-                               WHERE PCFILIAL.CODIGO = PCODFILIAL
-                             GROUP BY FORNECEDORES.CODFORNEC, PCFILIAL.CODIGO
-                               /*HAVING SUM(ROUND(FORNECEDORES.VALOR,2)) <> 0/* )
-  LOOP
-    PCFINANC2_GRAVAR(PDATAPROCESSADA                   --PDATA
-                    , CONTAS_RECEBER_FORNEC.CODFILIAL  --PCODFILIAL
-                    , 'CRFORNEC'                       --PTIPODADO
-                    , CONTAS_RECEBER_FORNEC.CODFORNEC  --PCODIGON
-                    , '0'                              --PCODIGOA
-                    , CONTAS_RECEBER_FORNEC.VLRTOTAL   --PVALOR
-                    , SYSDATE                          --PDTGERACAO
-                    , PCODROTINA                       --PCODROTINA
-                    , PCODFUNC                         --PCODFUNC
-                    , 0);                              --PVALOR2
-  END LOOP; */
 
   /*ESTOQUE ANALITICO*/
   FOR ESTOQUE IN (SELECT PCPRODUT.CODEPTO
@@ -5043,7 +4917,6 @@ BEGIN
                      AND PCEST.CODFILIAL = PCODFILIAL
                 GROUP BY PCPRODUT.CODEPTO
                        , PCEST.CODFILIAL
-                 --HAVING SUM(NVL(PCEST.QTESTGER,0) * NVL(PCEST.CUSTOREP,0)) <> 0
          )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -5059,7 +4932,6 @@ BEGIN
                     , 0);                    --PVALOR2
   END LOOP;
 
-
   --CONTAS A PAGAR - OUTROS FORNECEDORES
   P_CALC_SALDO_CONTASPAGAROUTROS(PCODFILIAL,
                                  PCODROTINA,
@@ -5067,147 +4939,12 @@ BEGIN
                                  PDATAPROCESSADA,
                                  VEXIBIRSALDOBRUTOFORNEC);
 
-
-    /*-- CONTAS A PAGAR - OUTROS FORNECEDORES  LUCAS
-    FOR CONTAS_PAGAR IN ( SELECT L.CODFORNEC,
-                                 L.CODFILIAL,
-                                 DECODE(VEXIBIRSALDOBRUTOFORNEC, 'S', SUM(NVL(L.VALOR, 0)),
-                                                          NVL(SUM(NVL(L.VALOR, 0) -
-                                                                  NVL(L.DESCONTOFIN, 0) +
-                                                                  NVL(L.TXPERM, 0) -
-                                                                  NVL(L.VALORDEV, 0)
-                                                                 ),
-                                                             0)
-                                       ) VALOR
-                            FROM PCLANC L, PCCONTA
-                           WHERE L.TIPOPARCEIRO = 'F'
-                             AND L.TIPOLANC = 'C'
-                             AND L.CODCONTA = PCCONTA.CODCONTA
-                             AND L.DTPAGTO IS NULL
-                             AND L.VPAGOBORDERO IS NULL
-                             AND NVL(PCCONTA.INVESTIMENTO, 'N') <> 'S'
-                             AND L.CODFILIAL IN (PCODFILIAL)
-                             AND L.CODCONTA NOT IN (SELECT NVL(P.VALOR,0)
-                                                      FROM PCPARAMFILIAL P
-                                                     WHERE P.NOME IN ('CON_CODCONTFOR',
-                                                                      'CON_CODCONTFRE',
-                                                                      'CON_CODCONTOUT',
-                                                                      'CON_CODCONTAADIANTFOR',
-                                                                      'CON_CODCONTAADIANTFOROUTROS',
-                                                                      'CON_CODCONTAVERBAFORNEC',
-                                                                      'CON_CODCONTAVERBACMV',
-                                                                      'CON_CODCONTEMPREST',
-                                                                      'CODCONTAEMPRESTIMONACIONAL',
-                                                                      'CODCONTAEMPRESTIMOESTRANGEIRO'
-                                                                     )
-                                                   )
-                            --AND L.VALOR <> 0
-                           GROUP BY L.CODFORNEC, L.CODFILIAL )
-    LOOP
-      PCFINANC2_GRAVAR( PDATAPROCESSADA          --PDATA
-                      , CONTAS_PAGAR.CODFILIAL   --PCODFILIAL
-                      , 'CPOUTROS'               --PTIPODADO
-                      , CONTAS_PAGAR.CODFORNEC   --PCODIGON
-                      , '0'                      --PCODIGOA
-                      , CONTAS_PAGAR.VALOR       --PVALOR
-                      , SYSDATE                  --PDTGERACAO
-                      , PCODROTINA               --PCODROTINA
-                      , PCODFUNC                 --PCODFUNC
-                      , 0);                      --PVALOR2
-    END LOOP;  */
-
-
   --CONTAS A PAGAR A FORNECEDORES (CADASTRADOS E NÃO CADASTRADOS) ANALÍTICO
   P_CALC_SALDO_CONTASPAGARFORNEC(PCODFILIAL,
                                  PCODROTINA,
                                  PCODFUNC,
                                  PDATAPROCESSADA,
                                  VEXIBIRSALDOBRUTOFORNEC);
-
-
-  /* -- CONTAS A PAGAR ANALÍTICO
-  FOR CONTAS_PAGAR IN ( SELECT DISTINCT (F.CODFORNECPRINC)
-                             , F.CODFORNEC
-                             , NVL(CONTAS.VALOR ,0)  VLRTOTAL
-                             , CONTAS.CODFILIAL
-                          FROM (SELECT PCPRODUT.CODFORNEC
-                                     , SUM(NVL(PCEST.QTESTGER,0)*NVL(PCEST.CUSTOREP,0)) VLESTOQUE
-                                     , 0 AS VALOR
-                                     , PCEST.CODFILIAL
-                                  FROM PCPRODUT, PCEST, PCDEPTO
-                                 WHERE (PCPRODUT.CODPROD = PCEST.CODPROD)
-                                   AND (PCPRODUT.CODEPTO = PCDEPTO.CODEPTO)
-                                   AND (NVL(PCDEPTO.TIPOMERC, 'XX') NOT IN ('IM','CI') )
-                                   AND (NVL(PCEST.QTESTGER,0) <> 0)
-                                   AND PCEST.CODFILIAL IN(PCODFILIAL)
-                              GROUP BY PCPRODUT.CODFORNEC, PCEST.CODFILIAL
-                              UNION ALL
-                              SELECT PCLANC.CODFORNEC
-                                     ,0 AS VLESTOQUE
-                                     , DECODE( VEXIBIRSALDOBRUTOFORNEC
-                                             , 'S'
-                                             , SUM(NVL (PCLANC.VALOR, 0))
-                                             , NVL(SUM(NVL(PCLANC.VALOR,0) -  NVL(PCLANC.DESCONTOFIN,0) +
-                                               NVL(PCLANC.TXPERM,0)- NVL(PCLANC.VALORDEV,0) ),0)) VALOR
-                                     , PCLANC.CODFILIAL
-                                  FROM PCLANC
-                                 WHERE EXISTS (SELECT 1
-                        FROM PCCONSUM
-                       WHERE ((PCLANC.CODCONTA = PCCONSUM.CODCONTFOR) OR
-                           (PCLANC.CODCONTA = PCCONSUM.CODCONTFRE) OR
-                           (PCLANC.CODCONTA = PCCONSUM.CODCONTOUT)))
-                                  AND PCLANC.DTPAGTO IS NULL
-                                  AND PCLANC.CODFILIAL IN (PCODFILIAL)
-                             GROUP BY PCLANC.CODFORNEC, PCLANC.CODFILIAL ) CONTAS
-                             JOIN PCFORNEC F ON F.CODFORNEC = CONTAS.CODFORNEC
-                         --WHERE NVL(CONTAS.VALOR ,0) <> 0
-                      ORDER BY NVL(CONTAS.VALOR ,0) DESC)
-  LOOP
-    PCFINANC2_GRAVAR( PDATAPROCESSADA          --PDATA
-                    , CONTAS_PAGAR.CODFILIAL   --PCODFILIAL
-                    , 'CPAGAR'                 --PTIPODADO
-                    , CONTAS_PAGAR.CODFORNEC   --PCODIGON
-                    , '0'                      --PCODIGOA
-                    , CONTAS_PAGAR.VLRTOTAL    --PVALOR
-                    , SYSDATE                  --PDTGERACAO
-                    , PCODROTINA               --PCODROTINA
-                    , PCODFUNC                 --PCODFUNC
-                    , 0);                      --PVALOR2
-  END LOOP;
-
-   -- CONTAS A PAGAR ANALÍTICO FORNECEDOR NAO CADASTRADOS
-  FOR CONTAS_PAGAR IN ( SELECT TO_NUMBER(-1) CODFORNEC
-                              , DECODE( VEXIBIRSALDOBRUTOFORNEC
-                                      , 'S'
-                                      , SUM(NVL (PCLANC.VALOR, 0))
-                                      , NVL(SUM(NVL(PCLANC.VALOR,0) -  NVL(PCLANC.DESCONTOFIN,0) +  NVL(PCLANC.TXPERM,0)- NVL(PCLANC.VALORDEV,0) ),0)
-                                      ) VLRTOTAL
-                             , PCLANC.CODFILIAL
-                          FROM PCLANC
-                             , PCFORNEC
-
-                         WHERE EXISTS (SELECT 1
-                      FROM PCCONSUM
-                     WHERE ((PCLANC.CODCONTA = PCCONSUM.CODCONTFOR) OR
-                         (PCLANC.CODCONTA = PCCONSUM.CODCONTFRE) OR
-                         (PCLANC.CODCONTA = PCCONSUM.CODCONTOUT)))
-                           AND  PCLANC.DTPAGTO IS NULL
-                           AND  PCLANC.CODFORNEC = PCFORNEC.CODFORNEC(+)
-                           AND  PCFORNEC.CODFORNEC IS NULL
-                           AND  PCLANC.CODFILIAL IN (PCODFILIAL)
-                      GROUP BY PCLANC.CODFILIAL )
-  LOOP
-    PCFINANC2_GRAVAR( PDATAPROCESSADA          --PDATA
-                    , CONTAS_PAGAR.CODFILIAL   --PCODFILIAL
-                    , 'CPAGAR'                 --PTIPODADO
-                    , CONTAS_PAGAR.CODFORNEC   --PCODIGON
-                    , '0'                      --PCODIGOA
-                    , CONTAS_PAGAR.VLRTOTAL    --PVALOR
-                    , SYSDATE                  --PDTGERACAO
-                    , PCODROTINA               --PCODROTINA
-                    , PCODFUNC                 --PCODFUNC
-                    , 0);                      --PVALOR2
-  END LOOP; */
 
   ----------------------------------------------------------------------------------------------------------------
   /*5. PARA CADA EMPRESTIMO ATIVO, GERAR LINHAS PARA PROCESSO ANTIGO E TAMBÉM PARA NOVO PROCESSO "BANCO/CAIXAS COM MULTIPLAS FILIAIS"*/
@@ -5376,7 +5113,6 @@ BEGIN
 
      WHERE F.CODFORNEC = ESTOQUE.CODFORNEC(+)
        AND F.CODFORNEC = LANCAMENTOS.CODFORNEC(+)
-       --AND NVL(LANCAMENTOS.VALOR, 0) <> 0
   )
   LOOP
     /*INSERIR PCFINANC2*/
@@ -5391,8 +5127,6 @@ BEGIN
                     , PCODFUNC                          --PCODFUNC
                     , 0);                               --PVALOR2
   END LOOP;
-
-
 
   /*CREDITO DO CLIENTE ANALÍTICO*/
   FOR CREDITO_CLIENTE IN (SELECT PCCRECLI.CODCLI
@@ -5459,7 +5193,6 @@ BEGIN
                     , PCODROTINA                      --PCODROTINA
                     , PCODFUNC                        --PCODFUNC
                     , 0);
-
   END LOOP;
 
   /*Titulos descontados vendor*/
@@ -5545,9 +5278,7 @@ BEGIN
                     , 0);                    --PVALOR2
   END LOOP;
 
-
 END GERAR_PCFINANC2;
-
 
 
 procedure PCFINANC2_GRAVAR( PDATA DATE
@@ -5589,172 +5320,208 @@ begin
              , NVL(PLISTAFILIAIS,PCODFILIAL));
 end PCFINANC2_GRAVAR;
 
-PROCEDURE ATUALIZARSALDOSFINANCEIROS(PCODFILIAL VARCHAR2, PCODROTINA NUMBER, PCODFUNC NUMBER, PDATAPROCESSADA  DATE, PATUALIZARDTPROCESSAMENTO varchar2) IS
-  VCODFILIAL VARCHAR2(4000);
-  VCOUNT NUMBER(10);
-  VDATAPROCESSADA  DATE;
 
-  PRAGMA AUTONOMOUS_TRANSACTION;
+PROCEDURE ATUALIZARSALDOSFINANCEIROS (
+  PCODFILIAL                VARCHAR2,
+  PCODROTINA                NUMBER,
+  PCODFUNC                  NUMBER,
+  PDATAPROCESSADA           DATE,
+  PATUALIZARDTPROCESSAMENTO VARCHAR2
+) IS
+
+  VCODFILIAL      VARCHAR2(4000);
+  VCOUNT          NUMBER(10);
+  VDATAPROCESSADA DATE;
+
+  PROCEDURE UPDATES_FILIAIS (
+    VCODFILIAL                VARCHAR2,
+    VCOUNT                    OUT NUMBER,
+    VDATAPROCESSADA           OUT DATE,
+    PCODROTINA                NUMBER,
+    PCODFUNC                  NUMBER,
+    PDATAPROCESSADA           DATE,
+    PATUALIZARDTPROCESSAMENTO VARCHAR2
+  ) IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+
+      /*Cursor com filiais para execução*/
+      FOR FILIAIS IN (
+          SELECT
+              CODIGO
+          FROM
+              PCFILIAL
+          WHERE
+              PCFILIAL.CODIGO IN (
+                  SELECT
+                      TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL))
+                  FROM
+                      DUAL
+                  CONNECT BY
+                      TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL)) IS NOT NULL
+              )
+              OR ( PCFILIAL.CODIGO IN ( DECODE(VCODFILIAL, '99', PCFILIAL.CODIGO, VCODFILIAL) ) )
+      ) LOOP /*Inicio loop Filiais*/
+
+          /*Não deve executar caso ja exista*/
+          SELECT
+              COUNT(1)
+          INTO VCOUNT
+          FROM
+              PCFINANC2
+          WHERE
+                  DATA = TRUNC(PDATAPROCESSADA)
+              AND CODROTINA IN ( 504, 820 )
+              AND CODFILIAL = FILIAIS.CODIGO
+              AND ROWNUM = 1;
+
+          /*Obtendo data para atualização PCCONSUM, PCPARAMFILIAL*/
+          IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
+            SELECT
+              TRUNC(DTPROCESSAMENTO + 1)
+            INTO VDATAPROCESSADA
+            FROM
+              PCCONSUM;
+
+          END IF;
+
+          IF VCOUNT <= 0 THEN
+            /*Atualizando titulos*/
+            UPDATE PCPREST
+            SET
+              CODCOB = NVL(CODCOBORIG, CODCOB)
+            WHERE
+                  CODCOB = 'DESD'
+              AND DTPAG IS NULL
+              AND VPAGO IS NULL
+              AND PCPREST.CODFILIAL IN ( FILIAIS.CODIGO );
+
+              /*Inicio feração dados PCFINANC2*/
+              GERAR_PCFINANC2(FILIAIS.CODIGO, PCODROTINA, PCODFUNC, PDATAPROCESSADA);
+
+              /*final feração dados PCFINANC2*/
+              GERAR_PCFINANC(FILIAIS.CODIGO, PCODROTINA, PCODFUNC, PDATAPROCESSADA);
+
+          END IF;
+
+          /*Incluindo no log a execução*/
+          IF (
+                ( VCOUNT <= 0 )
+            AND ( PATUALIZARDTPROCESSAMENTO = 'S' )
+          ) THEN
+              INSERT INTO PCLOGFINANC (
+                CODFILIAL,
+                DATA,
+                DTGERACAO,
+                CODFUNC,
+                CODROTINA,
+                DATAHORA
+              ) VALUES (
+                FILIAIS.CODIGO,
+                VDATAPROCESSADA - 1,
+                TRUNC(SYSDATE),
+                PCODFUNC,
+                PCODROTINA,
+                SYSDATE
+              );
+
+          END IF;
+
+          COMMIT;-- AUTONOMOUS_TRANSACTION
+
+      END LOOP;
+
+  END UPDATES_FILIAIS;
+
 BEGIN
 
-  /*Caso filial seja vazia ou 99 realizar para todas filiais */
-  VCODFILIAL := (CASE
-                   WHEN TRIM(PCODFILIAL) IS NULL THEN
-                     '99'
-                   ELSE
-                     PCODFILIAL
-                END);
+    /*Caso filial seja vazia ou 99 realizar para todas filiais */
+    VCODFILIAL := ( CASE
+        WHEN TRIM(PCODFILIAL) IS NULL THEN
+            '99'
+        ELSE PCODFILIAL
+    END );
 
-  /*Cursor com filiais para execução*/
-  FOR FILIAIS IN (SELECT CODIGO
-                    FROM PCFILIAL
-                   WHERE PCFILIAL.CODIGO IN
-                         (SELECT TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL))
-                            FROM DUAL
-                          CONNECT BY TRIM(REGEXP_SUBSTR(VCODFILIAL, '[^,|^''''|^, ''''|^,'''']+', 1, LEVEL)) IS NOT NULL)
-                      OR (PCFILIAL.CODIGO IN
-                         (DECODE(VCODFILIAL, '99', PCFILIAL.CODIGO, VCODFILIAL))))
-  /*Inicio loop Filiais*/
-  LOOP
+    UPDATES_FILIAIS(
+        VCODFILIAL
+      , VCOUNT
+      , VDATAPROCESSADA
+      , PCODROTINA
+      , PCODFUNC
+      , PDATAPROCESSADA
+      , PATUALIZARDTPROCESSAMENTO
+    );
 
-    /*Não deve executar caso ja exista*/
-    SELECT COUNT(1)
-      INTO VCOUNT
-      FROM PCFINANC2
-     WHERE DATA = TRUNC(PDATAPROCESSADA)
-       AND CODROTINA in (504,820)
-       AND CODFILIAL = FILIAIS.CODIGO
-       AND ROWNUM = 1;
-
-    /*Obtendo data para atualização PCCONSUM, PCPARAMFILIAL*/
+    /*Somente atualizar caso execute o processo*/
     IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
-      SELECT TRUNC(DTPROCESSAMENTO + 1)
-        INTO VDATAPROCESSADA
-        FROM PCCONSUM;
+        UPDATE PCCONSUM
+        SET
+          DTPROCESSAMENTO = VDATAPROCESSADA;
+        UPDATE PCPARAMFILIAL
+        SET
+          PCPARAMFILIAL.VALOR = TO_CHAR(VDATAPROCESSADA, 'DD/MM/YYYY')
+        WHERE
+          NOME = 'CON_DTPROCESSAMENTO';
+
     END IF;
-
-    IF VCOUNT <= 0 THEN
-
-      /*Atualizando titulos*/
-      /*FOR TITULOS_DESD IN ( SELECT ROWID RID
-                              FROM PCPREST
-                             WHERE CODCOB = 'DESD'
-                               AND DTPAG  IS NULL
-                               AND VPAGO  IS NULL
-                               AND PCPREST.CODFILIAL IN (FILIAIS.CODIGO))
-      LOOP
-        UPDATE PCPREST
-           SET CODCOB = NVL(CODCOBORIG, CODCOB)
-         WHERE ROWID = TITULOS_DESD.RID;
-      END LOOP;*/
-
-      UPDATE PCPREST
-         SET CODCOB = NVL(CODCOBORIG, CODCOB)
-       WHERE CODCOB = 'DESD'
-         AND DTPAG  IS NULL
-         AND VPAGO  IS NULL
-         AND PCPREST.CODFILIAL IN (FILIAIS.CODIGO);
-
-      /*Inicio feração dados PCFINANC2*/
-      GERAR_PCFINANC2( FILIAIS.CODIGO
-                     , PCODROTINA
-                     , PCODFUNC
-                     , PDATAPROCESSADA);
-
-      /*final feração dados PCFINANC2*/
-      GERAR_PCFINANC( FILIAIS.CODIGO
-                    , PCODROTINA
-                    , PCODFUNC
-                    , PDATAPROCESSADA);
-
-
-    /*Fim IF VCOUNT <= 0 THEN */
-    END IF;
-
-    /*Incluindo no log a execução*/
-    IF ((VCOUNT <= 0) AND (PATUALIZARDTPROCESSAMENTO='S')) THEN
-      INSERT INTO PCLOGFINANC (CODFILIAL,      DATA,            DTGERACAO,      CODFUNC,  CODROTINA, DATAHORA)
-           VALUES             (FILIAIS.CODIGO, VDATAPROCESSADA -1, TRUNC(SYSDATE), PCODFUNC, PCODROTINA, SYSDATE );
-    END IF;
-  /*Fim loop filiais*/
-    COMMIT;
-  END LOOP;
-
-  /*Somente atualizar caso execute o processo*/
-  IF PATUALIZARDTPROCESSAMENTO = 'S' THEN
-    UPDATE PCCONSUM
-       SET DTPROCESSAMENTO = VDATAPROCESSADA;
-
-    UPDATE PCPARAMFILIAL
-       SET PCPARAMFILIAL.VALOR = TO_CHAR(VDATAPROCESSADA, 'DD/MM/YYYY')
-     WHERE NOME = 'CON_DTPROCESSAMENTO';
-  END IF;
-
 
 END ATUALIZARSALDOSFINANCEIROS;
 
 /*Chamadas sem código filial para compatibilidade com 504 e outros processos que não usam 820*/
-  PROCEDURE P_PC_ZERARACUMVENDADIA(
-                                   -- Parametro de saida
-                                   PVC2MENSSAGEN OUT VARCHAR2) is
-  BEGIN
+PROCEDURE P_PC_ZERARACUMVENDADIA(-- Parametro de saida
+                                 PVC2MENSSAGEN OUT VARCHAR2) is
+BEGIN
   P_PC_ZERARACUMVENDADIA(
     '99',
     PVC2MENSSAGEN);
-  END P_PC_ZERARACUMVENDADIA;
+END P_PC_ZERARACUMVENDADIA;
 
 
-
-  --Armazenar Saldos Estoque  (P_PC_ARMAZENARSALDOSESTOQUE)
-  PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(
-                                        -- Parametros de entrada
-                                        PDTPROCESSAMENTO IN DATE,
-                                        -- Parametro de saida
-                                        PVC2MENSSAGEN OUT VARCHAR2) is
-  BEGIN
+--Armazenar Saldos Estoque  (P_PC_ARMAZENARSALDOSESTOQUE)
+PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(-- Parametros de entrada
+                                      PDTPROCESSAMENTO IN DATE,
+                                      -- Parametro de saida
+                                      PVC2MENSSAGEN OUT VARCHAR2) is
+BEGIN
     P_PC_ARMAZENARSALDOSESTOQUE(
     PDTPROCESSAMENTO,
     '99',
     PVC2MENSSAGEN);
-  END P_PC_ARMAZENARSALDOSESTOQUE;
+END P_PC_ARMAZENARSALDOSESTOQUE;
 
-  --Armazenar Saldos Estoque de Lote  (P_PC_ARMAZENASALDOESTOQUELOTE)
-  PROCEDURE P_PC_ARMAZENASALDOESTOQUELOTE(
-                                          -- Parametros de entrada
-                                          PDTPROCESSAMENTO IN DATE,
-                                          -- Parametro de saida
-                                          PVC2MENSSAGEN OUT VARCHAR2) is
-  BEGIN
+--Armazenar Saldos Estoque de Lote  (P_PC_ARMAZENASALDOESTOQUELOTE)
+PROCEDURE P_PC_ARMAZENASALDOESTOQUELOTE(-- Parametros de entrada
+                                        PDTPROCESSAMENTO IN DATE,
+                                        -- Parametro de saida
+                                        PVC2MENSSAGEN OUT VARCHAR2) is
+BEGIN
   P_PC_ARMAZENASALDOESTOQUELOTE(
     PDTPROCESSAMENTO,
     '99',
     PVC2MENSSAGEN);
-  END P_PC_ARMAZENASALDOESTOQUELOTE;
+END P_PC_ARMAZENASALDOESTOQUELOTE;
 
-  --Recálculo do %Venda para Pessoa Física  (P_PC_RECALCPERCENTVENDAPF)
-  PROCEDURE P_PC_RECALCPERCENTVENDAPF(
-                                      -- Parametro de saida
-                                      PVC2MENSSAGEN OUT VARCHAR2) is
-  BEGIN
+--Recálculo do %Venda para Pessoa Física  (P_PC_RECALCPERCENTVENDAPF)
+PROCEDURE P_PC_RECALCPERCENTVENDAPF(-- Parametro de saida
+                                    PVC2MENSSAGEN OUT VARCHAR2) is
+BEGIN
   P_PC_RECALCPERCENTVENDAPF(
     '99',
     PVC2MENSSAGEN);
-  END P_PC_RECALCPERCENTVENDAPF;
+END P_PC_RECALCPERCENTVENDAPF;
 
-  PROCEDURE P_CALC_SALDO_CONTASRECEBER(PSCODFILIAL VARCHAR2,
-                                         PNCODROTINA NUMBER,
-                                         PNCODFUNC NUMBER,
-                                         PDDATAPROCESSADA  DATE) IS
+PROCEDURE P_CALC_SALDO_CONTASRECEBER(PSCODFILIAL VARCHAR2,
+                                     PNCODROTINA NUMBER,
+                                     PNCODFUNC NUMBER,
+                                     PDDATAPROCESSADA  DATE) IS
     VS_SQL_INSERT_PCFINANC2  VARCHAR2(10000);
     VS_SQL_PCFINANC2         VARCHAR2(10000);
     VS_SQL_INSERT_PCFINANC3  VARCHAR2(10000);
     VS_SQL_PCFINANC3         VARCHAR2(10000);
     VS_SQL_CORPO             VARCHAR2(10000);
-
     VCOUNT                   NUMBER(10);
     VDATATESTADA             DATE;
-  BEGIN
-  
+BEGIN  
     BEGIN  
         SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
         INTO VCOUNT, VDATATESTADA
@@ -5767,8 +5534,7 @@ END ATUALIZARSALDOSFINANCEIROS;
          VCOUNT := 0;
          VDATATESTADA := SYSDATE;
     END;
-    
-    
+
     IF VCOUNT > 7 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
@@ -5855,28 +5621,25 @@ END ATUALIZARSALDOSFINANCEIROS;
                                 PCPREST.VALORMULTA ' ||
                                 VS_SQL_CORPO;
 
-
     /*CONTAS A RECEBER ANALÍTICO --  ATIVO*/
     EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC2 || ' ' || VS_SQL_PCFINANC2;
     IF (PNCODROTINA <> 117) AND (VCOUNT = 0) THEN
       EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC3 || ' ' || VS_SQL_PCFINANC3;
     END IF;
-  END P_CALC_SALDO_CONTASRECEBER;
+END P_CALC_SALDO_CONTASRECEBER;
 
-  PROCEDURE P_CALC_SALDO_VERBAS(PSCODFILIAL VARCHAR2,
-                                PNCODROTINA NUMBER,
-                                PNCODFUNC NUMBER,
-                                PDDATAPROCESSADA  DATE) IS
+PROCEDURE P_CALC_SALDO_VERBAS(PSCODFILIAL VARCHAR2,
+                              PNCODROTINA NUMBER,
+                              PNCODFUNC NUMBER,
+                              PDDATAPROCESSADA  DATE) IS
     VS_SQL_INSERT_PCFINANC2  VARCHAR2(10000);
     VS_SQL_PCFINANC2         VARCHAR2(10000);
     VS_SQL_INSERT_PCFINANC3  VARCHAR2(10000);
     VS_SQL_PCFINANC3         VARCHAR2(10000);
     VS_SQL_CORPO             VARCHAR2(10000);
-
     VCOUNT                   NUMBER(10);
     VDATATESTADA             DATE;
-  BEGIN
-    
+BEGIN
     BEGIN
       SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
       INTO VCOUNT, VDATATESTADA
@@ -6002,7 +5765,6 @@ END ATUALIZARSALDOSFINANCEIROS;
                           ORDER BY PCFILIAL.CODIGO,
                                    FORNECEDORES.CODFORNEC ' ;
 
-
     VS_SQL_PCFINANC3 := ' SELECT ''' || PDDATAPROCESSADA || ''' DATAREFERENCIA,
                                 SYSDATE DATAGERACAO, '
                                 || PNCODROTINA || ' CODROTINAGERACAO,
@@ -6022,30 +5784,27 @@ END ATUALIZARSALDOSFINANCEIROS;
                         ' ORDER BY PCFILIAL.CODIGO,
                                    FORNECEDORES.CODFORNEC ';
 
-
     /*CONTAS A RECEBER ANALÍTICO --  ATIVO*/
     EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC2 || ' ' || VS_SQL_PCFINANC2;
 
     IF (PNCODROTINA <> 117) AND (VCOUNT = 0) THEN
       EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC3 || ' ' || VS_SQL_PCFINANC3;
     END IF;
-  END P_CALC_SALDO_VERBAS;
+END P_CALC_SALDO_VERBAS;
 
-  PROCEDURE P_CALC_SALDO_CONTASPAGARFORNEC(PSCODFILIAL VARCHAR2,
-                                           PNCODROTINA NUMBER,
-                                           PNCODFUNC NUMBER,
-                                           PDDATAPROCESSADA  DATE,
-                                           PSEXIBIRSALDOBRUTOFORNEC VARCHAR2) IS
+PROCEDURE P_CALC_SALDO_CONTASPAGARFORNEC(PSCODFILIAL VARCHAR2,
+                                         PNCODROTINA NUMBER,
+                                         PNCODFUNC NUMBER,
+                                         PDDATAPROCESSADA  DATE,
+                                         PSEXIBIRSALDOBRUTOFORNEC VARCHAR2) IS
     VS_SQL_INSERT_PCFINANC2  VARCHAR2(10000);
     VS_SQL_PCFINANC2         VARCHAR2(10000);
     VS_SQL_INSERT_PCFINANC3  VARCHAR2(10000);
     VS_SQL_PCFINANC3         VARCHAR2(10000);
     VS_SQL_CORPO             VARCHAR2(10000);
-
     VCOUNT                   NUMBER(10);
     VDATATESTADA             DATE;
-  BEGIN
-
+BEGIN
     BEGIN
         SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
         INTO VCOUNT, VDATATESTADA
@@ -6236,7 +5995,6 @@ END ATUALIZARSALDOSFINANCEIROS;
                          --HAVING SUM(NVL(CONTAS.VALOR, 0)) <> 0
                           ORDER BY VALOR DESC ' ;
 
-
     VS_SQL_PCFINANC3 := ' SELECT DISTINCT CONTAS.DATAREFERENCIA,
                                           CONTAS.DATAGERACAO,
                                           CONTAS.CODROTINAGERACAO,
@@ -6269,30 +6027,27 @@ END ATUALIZARSALDOSFINANCEIROS;
                            --WHERE CONTAS.VALOR <> 0
                            ORDER BY VALOR DESC';
 
-
     /*CONTAS A RECEBER ANALÍTICO --  ATIVO*/
     EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC2 || ' ' || VS_SQL_PCFINANC2;
 
     IF (PNCODROTINA <> 117) AND (VCOUNT = 0) THEN
       EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC3 || ' ' || VS_SQL_PCFINANC3;
     END IF;
-  END P_CALC_SALDO_CONTASPAGARFORNEC;
+END P_CALC_SALDO_CONTASPAGARFORNEC;
 
-  PROCEDURE P_CALC_SALDO_CONTASPAGAROUTROS(PSCODFILIAL VARCHAR2,
-                                           PNCODROTINA NUMBER,
-                                           PNCODFUNC NUMBER,
-                                           PDDATAPROCESSADA  DATE,
-                                           PSEXIBIRSALDOBRUTOFORNEC VARCHAR2) IS
+PROCEDURE P_CALC_SALDO_CONTASPAGAROUTROS(PSCODFILIAL VARCHAR2,
+                                         PNCODROTINA NUMBER,
+                                         PNCODFUNC NUMBER,
+                                         PDDATAPROCESSADA  DATE,
+                                         PSEXIBIRSALDOBRUTOFORNEC VARCHAR2) IS
     VS_SQL_INSERT_PCFINANC2  VARCHAR2(10000);
     VS_SQL_PCFINANC2         VARCHAR2(10000);
     VS_SQL_INSERT_PCFINANC3  VARCHAR2(10000);
     VS_SQL_PCFINANC3         VARCHAR2(10000);
     VS_SQL_CORPO             VARCHAR2(10000);
-
     VCOUNT                   NUMBER(10);
     VDATATESTADA             DATE;
-    BEGIN
-
+BEGIN
         BEGIN
             SELECT COUNT(DISTINCT F.DATAREFERENCIA), TRUNC(F.DATAGERACAO)
             INTO VCOUNT, VDATATESTADA
@@ -6306,11 +6061,9 @@ END ATUALIZARSALDOSFINANCEIROS;
          VDATATESTADA := SYSDATE;
     END;
 
-
     IF VCOUNT > 7 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
-    END IF;
-  
+    END IF;  
     
     VS_SQL_INSERT_PCFINANC2 := F_CABECALHO_INSERT_PCFINANC2;
 
@@ -6386,7 +6139,6 @@ END ATUALIZARSALDOSFINANCEIROS;
                         ' GROUP BY PCLANC.CODFILIAL,
                                    PCLANC.CODFORNEC ' ;
 
-
     VS_SQL_PCFINANC3 := ' SELECT ''' || PDDATAPROCESSADA || ''' DATAREFERENCIA,
                                 SYSDATE DATAGERACAO, '
                                 || PNCODROTINA || ' CODROTINAGERACAO,
@@ -6419,17 +6171,16 @@ END ATUALIZARSALDOSFINANCEIROS;
                                 NVL(PCCONTA.INVESTIMENTO, ''N'') INVESTIMENTO '
                                 || VS_SQL_CORPO;
 
-
     /*CONTAS A RECEBER ANALÍTICO --  ATIVO*/
     EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC2 || ' ' || VS_SQL_PCFINANC2;
 
     IF (PNCODROTINA <> 117) AND (VCOUNT = 0) THEN
       EXECUTE IMMEDIATE VS_SQL_INSERT_PCFINANC3 || ' ' || VS_SQL_PCFINANC3;
     END IF;
-  END P_CALC_SALDO_CONTASPAGAROUTROS;
+END P_CALC_SALDO_CONTASPAGAROUTROS;
 
-  PROCEDURE P_DELETAR_PCFINANC2E3(PSCODFILIAL VARCHAR2, PNCODROTINA NUMBER) IS
-  BEGIN
+PROCEDURE P_DELETAR_PCFINANC2E3(PSCODFILIAL VARCHAR2, PNCODROTINA NUMBER) IS
+BEGIN
     /*Apagando registros das PCFINANC3 gerados pela rotina 117*/
     --Apagando registros de crédito de cliente
    IF PNCODROTINA <> 117 THEN
@@ -6490,12 +6241,12 @@ END ATUALIZARSALDOSFINANCEIROS;
     DELETE PCFINANC2
      WHERE PCFINANC2.CODFILIAL IN (PSCODFILIAL)
        AND PCFINANC2.CODROTINA = 117;
+END P_DELETAR_PCFINANC2E3;
 
-  END P_DELETAR_PCFINANC2E3;
 
-  FUNCTION F_CABECALHO_INSERT_PCFINANC2 RETURN VARCHAR2 IS
+FUNCTION F_CABECALHO_INSERT_PCFINANC2 RETURN VARCHAR2 IS
     VS_SQL VARCHAR2(10000) := '';
-  BEGIN
+BEGIN
     VS_SQL := 'INSERT INTO PCFINANC2
                   (DATA,
                    CODFILIAL,
@@ -6510,14 +6261,14 @@ END ATUALIZARSALDOSFINANCEIROS;
                    PARMULTIFILIALCAIXABANCO3882,
                    LISTAFILIAISBANCOCAIXA) ';
     RETURN VS_SQL;
-  END;
+END;
 
-  FUNCTION TEM_DADOS_RETROATIVOS(pnCODFILIAL IN VARCHAR DEFAULT NULL)
+FUNCTION TEM_DADOS_RETROATIVOS(pnCODFILIAL IN VARCHAR DEFAULT NULL)
     RETURN TB_VALIDAR_PERIODO PIPELINED IS
     PORCENTAGEMQTDE   NUMBER;
     QTDE              NUMBER;
     vrVALIDAR_PERIODO VALIDAR_PERIODO;
-  BEGIN
+BEGIN
     vrVALIDAR_PERIODO.CODFILIAL := NULL;
     vrVALIDAR_PERIODO.DATA      := NULL;
     -- CONTAGEM 10
@@ -6543,7 +6294,6 @@ END ATUALIZARSALDOSFINANCEIROS;
                   GROUP BY F.CODIGO
                           ,F.RAZAOSOCIAL)
     LOOP
-
       SELECT (
         (SELECT COUNT(PCHISTESTFILA.CODPROD)
           FROM PCHISTESTFILA
@@ -6556,7 +6306,6 @@ END ATUALIZARSALDOSFINANCEIROS;
            AND PCHISTEST.DATA = TRUNC(SYSDATE) - 1))
         INTO QTDE
         FROM DUAL;
-
 
       PORCENTAGEMQTDE := ((FILIAIS.QTDEPCEST - QTDE) / FILIAIS.QTDEPCEST) * 100;
 
@@ -6594,12 +6343,12 @@ END ATUALIZARSALDOSFINANCEIROS;
        END IF;
      END LOOP;
      RETURN;
-  END;
+END;
 
-  PROCEDURE PRC_EXECUTAR_DADOS_RETROATIVOS(psCODFILIAL IN PCMOV.CODFILIAL%TYPE
-                                          ,pdDATA_PROCESSAMENTO IN DATE
-                                          ,psMSG_RETORNO OUT VARCHAR2) IS
-  BEGIN
+PROCEDURE PRC_EXECUTAR_DADOS_RETROATIVOS(psCODFILIAL IN PCMOV.CODFILIAL%TYPE
+                                        ,pdDATA_PROCESSAMENTO IN DATE
+                                        ,psMSG_RETORNO OUT VARCHAR2) IS
+BEGIN
     FOR DATAS IN ( SELECT (pdDATA_PROCESSAMENTO + ROWNUM - 1) DATA_PROCESSAMENTO
                      FROM DUAL
                   CONNECT BY LEVEL <= TRUNC(SYSDATE) - pdDATA_PROCESSAMENTO
@@ -6620,5 +6369,6 @@ END ATUALIZARSALDOSFINANCEIROS;
        WHERE CODFILIAL = psCODFILIAL
          AND NOME LIKE '%DTPROCESSAMENTOFILIAL%';
     END IF;
-  END;
+END;
+
 END;
