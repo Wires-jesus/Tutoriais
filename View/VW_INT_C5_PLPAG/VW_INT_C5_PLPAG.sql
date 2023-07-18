@@ -12,4 +12,4 @@ CREATE OR REPLACE VIEW VW_INT_C5_PLPAG AS
     pcplpag.status ATIVO
   FROM PCPLPAG
   WHERE NVL(pcplpag.usaplpagautoservico,'N') = 'S'
-);
+)
