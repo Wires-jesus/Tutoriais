@@ -68,7 +68,9 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   --PROCEDURE carrega_tb_prodprecoapartir;
 
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE);
-
+  
+  PROCEDURE carrega_tb_condicaopagto(p_id IN pccontroleconsinco.id%TYPE);
+  
   PROCEDURE exec_sinc;
 
   --PROCEDURE exec_sinc_PRECO;
