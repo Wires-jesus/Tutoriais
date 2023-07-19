@@ -10,7 +10,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PLPAG AS
      ELSE 0 END) NROMAXIMOPARCELA,
     pcplpag.numdias NRODIASVENCTO,
     (CASE WHEN pcplpag.status = 'A' THEN 'S'
-     ELSE 'N' END) ATIVO
+      ELSE 'N' END) ATIVO
   FROM PCPLPAG
   WHERE NVL(pcplpag.usaplpagautoservico,'N') = 'S'
 )
