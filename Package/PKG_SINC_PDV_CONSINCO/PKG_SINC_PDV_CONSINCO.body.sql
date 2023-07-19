@@ -2044,6 +2044,70 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         RAISE;
       END;
   END carrega_tb_famdivisao;
+  
+  PROCEDURE carrega_tb_condicaopagto(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.TB_CONDICAOPAGTO s
+        USING (SELECT *
+               FROM vw_int_c5_plpag c
+               ) b
+
+      ON (s.nrocondicaopagto = b.nrocondicaopagto)
+      WHEN MATCHED THEN
+      UPDATE SET
+              s.CONDICAOPAGTO = b.CONDICAOPAGTO,
+              s.PERCACRESCIMO = b.PERCACRESCIMO,
+              s.NROMAXIMOPARCELA = b.NROMAXIMOPARCELA,
+              s.NRODIASVENCTO = b.NRODIASVENCTO,
+              s.ATIVO = b.ATIVO
+
+
+      WHEN NOT MATCHED THEN
+        INSERT (s.NROCONDICAOPAGTO,
+                s.CONDICAOPAGTO,
+                s.PERCACRESCIMO,
+                s.NROMAXIMOPARCELA,
+                s.NRODIASVENCTO,
+                s.ATIVO
+                )
+                VALUES
+                  (b.NROCONDICAOPAGTO,
+                   b.CONDICAOPAGTO,
+                   b.PERCACRESCIMO,
+                   b.NROMAXIMOPARCELA,
+                   b.NRODIASVENCTO,
+                   b.ATIVO
+                   );
+    
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_condicaopagto',
+       'carrega_tb_condicaopagto OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_condicaopagto',
+           'carrega_tb_condicaopagto ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
 
   PROCEDURE exec_sinc AS
 
