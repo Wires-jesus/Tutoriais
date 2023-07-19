@@ -8,7 +8,7 @@ SELECT SUBSTR(CODNBMSH,0,INSTR(CODNBMSH,'.')) AS codnbmsh,
        "PERCTRIBUTOESTADUAL",
        "PERCTRIBUTOMUNICIPAL",
        "PERCTRIBUTOS",
-       SUBSTR(CODNBMSH, INSTR(CODNBMSH,'.')+1) AS ex,
+       NVL(SUBSTR(CODNBMSH, INSTR(CODNBMSH,'.')+1),0) AS ex,
        "ATIVO"
    FROM(
     SELECT DISTINCT NVL(tribncmfilial.codncm, produt.codncmex)  as codnbmsh,
