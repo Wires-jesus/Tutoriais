@@ -8,14 +8,9 @@
 			"versao": "3.0.06.000"
 		},
 		{
-			"nome": "TR_CONSOLIDA_COTA_PROMOCAO",
-			"tipo": "OBJETO_PLSQL",
-			"versao": "3.0.02.000"
-		},
-		{
 			"nome": "TD_CONSOLIDA_COTA_PROMOCAO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "3.0.01.000"
+			"versao": "4.0.01.000"
 		},
 		{
 			"nome": "TABELA_MED_OBTER_LOTES_PEDIDO",
