@@ -1,6 +1,5 @@
 CREATE OR REPLACE VIEW VW_INT_C5_LEITRANSP AS
-SELECT SUBSTR(CODNBMSH,0,INSTR(CODNBMSH,'.')) AS codnbmsh,
-       "CODFILIAL",
+SELECT SUBSTR(CODNBMSH,0,INSTR(CODNBMSH,'.')-1) AS codnbmsh,
        "UFDESTINO",
        "PERCTRIBUTOIMPORTADO",
        "PERCTRIBUTONACFEDERAL",
@@ -11,17 +10,17 @@ SELECT SUBSTR(CODNBMSH,0,INSTR(CODNBMSH,'.')) AS codnbmsh,
        NVL(SUBSTR(CODNBMSH, INSTR(CODNBMSH,'.')+1),0) AS ex,
        "ATIVO"
    FROM(
-    SELECT DISTINCT NVL(tribncmfilial.codncm, produt.codncmex)  as codnbmsh,
-           NVL(tribncmfilial.codfilial, prodfilial.codfilial)   as codfilial,
-           filial.uf                                            as ufdestino,
-           tribncmfilial.percfisicaestimp                       as perctributoimportado,
-           tribncmfilial.percentfisica                          as perctributonacfederal,
-           tribncmfilial.percentfisicaimportado                 as perctributoimpfederal,
-           tribncmfilial.percfisicaestnac                       as perctributoestadual,
-           tribncmfilial.percfisicamunicnac                     as perctributomunicipal,
-           0                                                    as perctributos,
-           tribncmfilial.codex                                  as ex,
-           'S'                                                  as ativo
+     
+      SELECT DISTINCT NVL(tribncmfilial.codncm, produt.codncmex)                                                          as codnbmsh,
+                (SELECT percfisicaestimp FROM pctribncmfilial WHERE codncm = tribncmfilial.codncm AND ROWNUM = 1)         as perctributoimportado,
+                (SELECT percentfisica    FROM pctribncmfilial WHERE codncm = tribncmfilial.codncm AND ROWNUM = 1)         as perctributonacfederal,
+                (SELECT percentfisicaimportado  FROM pctribncmfilial WHERE codncm = tribncmfilial.codncm AND ROWNUM = 1)  as perctributoimpfederal,
+                (SELECT percfisicaestnac   FROM pctribncmfilial WHERE codncm = tribncmfilial.codncm AND ROWNUM = 1)       as perctributoestadual,
+                (SELECT percfisicamunicnac FROM pctribncmfilial WHERE codncm = tribncmfilial.codncm AND ROWNUM = 1)       as perctributomunicipal,
+                filial.uf                                                                                                 as ufdestino,
+                 0                                                                                                        as perctributos,
+                tribncmfilial.codex                                                                                       as ex,
+                'S'                                                                                                       as ativo          
       FROM pctribncmfilial tribncmfilial,
            pcfilial filial,
            pcprodut produt,
