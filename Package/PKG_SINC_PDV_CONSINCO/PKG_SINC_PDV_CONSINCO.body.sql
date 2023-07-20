@@ -1842,7 +1842,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       ON (s.codnbmsh = b.codnbmsh)
       WHEN MATCHED THEN
       UPDATE SET
-               s.idref                 = b.codfilial,
                s.ufdestino             = b.ufdestino,
                s.perctributoimportado  = b.perctributoimportado,
                s.perctributonacfederal = b.perctributonacfederal,
@@ -1854,7 +1853,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         
       WHEN NOT MATCHED THEN
         INSERT (s.codnbmsh,
-                s.idref,
                 s.ufdestino,
                 s.perctributoimportado,
                 s.perctributonacfederal,
@@ -1865,7 +1863,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.ativo)
                 VALUES
                   (b.codnbmsh,
-                   b.codfilial,
                    b.ufdestino,
                    b.perctributoimportado,
                    b.perctributonacfederal,
