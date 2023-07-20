@@ -1908,21 +1908,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN 
+    UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
+
     MERGE INTO monitorpdvmiddle.tb_enderecoalternativo EnderecoAlternativoC5
     USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) ViewEnderecoAlt
     ON (EnderecoAlternativoC5.seqpessoa = ViewEnderecoAlt.seqpessoa and EnderecoAlternativoC5.seqlogradouro = ViewEnderecoAlt.SEQLOGRADOURO)
     WHEN MATCHED THEN
       UPDATE SET 
-        EnderecoAlternativoC5.tipo = ViewEnderecoAlt.tipo,
-        EnderecoAlternativoC5.logradouro = ViewEnderecoAlt.logradouro,
+        EnderecoAlternativoC5.tipo          = ViewEnderecoAlt.tipo,
+        EnderecoAlternativoC5.logradouro    = ViewEnderecoAlt.logradouro,
         EnderecoAlternativoC5.nrologradouro = ViewEnderecoAlt.nrologradouro,
-        EnderecoAlternativoC5.bairro = ViewEnderecoAlt.bairro,
-        EnderecoAlternativoC5.complemento = ViewEnderecoAlt.complemento,
-        EnderecoAlternativoC5.cidade = ViewEnderecoAlt.cidade,
-        EnderecoAlternativoC5.uf = ViewEnderecoAlt.uf,
-        EnderecoAlternativoC5.cep = ViewEnderecoAlt.cep,
-        EnderecoAlternativoC5.ativo = ViewEnderecoAlt.ativo,
-        EnderecoAlternativoC5.codibge = ViewEnderecoAlt.codibge
+        EnderecoAlternativoC5.bairro        = ViewEnderecoAlt.bairro,
+        EnderecoAlternativoC5.complemento   = ViewEnderecoAlt.complemento,
+        EnderecoAlternativoC5.cidade        = ViewEnderecoAlt.cidade,
+        EnderecoAlternativoC5.uf            = ViewEnderecoAlt.uf,
+        EnderecoAlternativoC5.cep           = ViewEnderecoAlt.cep,
+        EnderecoAlternativoC5.ativo         = ViewEnderecoAlt.ativo,
+        EnderecoAlternativoC5.codibge       = ViewEnderecoAlt.codibge
       WHEN NOT MATCHED THEN
         INSERT  
         (
