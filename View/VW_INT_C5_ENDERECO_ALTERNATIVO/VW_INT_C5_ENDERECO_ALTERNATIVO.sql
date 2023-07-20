@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_ENDERECO_ALTERNATIVO AS(
   SELECT
     f.codigo codfilial,
     f.codcli seqpessoa,
-    f.codcli || ROWNUM seqlogradouro,
+    f.codcli || f.codigo seqlogradouro,
     'P' tipo,
     UPPER(
       SUBSTR(
@@ -53,5 +53,3 @@ CREATE OR REPLACE VIEW VW_INT_C5_ENDERECO_ALTERNATIVO AS(
   WHERE 
   	LENGTH(TRIM(TRANSLATE(f.codigo, '0123456789',' '))) IS null
 )
-  order by     
-    f.codigo
