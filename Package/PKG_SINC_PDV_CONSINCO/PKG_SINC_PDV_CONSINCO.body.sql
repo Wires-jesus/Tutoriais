@@ -1834,6 +1834,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_cargatributaria(p_id IN pccontroleconsinco.id%TYPE) AS
     BEGIN
+
+    UPDATE monitorpdvmiddle.tb_cargatributaria SET ativo = 'N';
     MERGE INTO monitorpdvmiddle.tb_cargatributaria s
         USING (SELECT *
                FROM VW_INT_C5_LEITRANSP b
