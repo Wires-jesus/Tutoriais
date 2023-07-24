@@ -923,28 +923,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
-        USING (SELECT distinct f.nroempresa,
-                      f.nrosegmento,
-                      f.nroformapagto,
-                      f.percjuromensal,
-                      f.perctaxaadm,
-                      f.nrodiasvencto,
-                      f.solicitavencto,
-                      f.permitetroco,
-                      f.vlrminimo,
-                      f.vlrmaximo,
-                      f.gerasangria,
-                      f.prazomaximo,
-                      f.usatef,
-                      f.TIPOCALCULOJUROS,
-                      f.emitevaletroco,
-                      f.emitecomprovante,
-                      f.abregaveta,
-                      f.alternativa,
-                      f.faturamento,
-                      f.ativo
-        FROM VW_INT_C5_FORMAPAGTOEMPRESA f
-       WHERE F.NROEMPRESA NOT IN('2A') ) b
+        USING (SELECT distinct * FROM VW_INT_C5_FORMAPAGTOEMPRESA) b
 
       ON (s.nroformapagto = b.nroformapagto  AND s.nrosegmento = b.nrosegmento  AND s.nroempresa = b.nroempresa)
       WHEN MATCHED THEN
@@ -965,7 +944,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.emitecomprovante = b.emitecomprovante,
                s.abregaveta       = b.abregaveta,
                s.alternativa      = b.alternativa,
-               s.faturamento      = b.faturamento
+               s.faturamento      = b.faturamento,
+               s.idref            = b.codCob 
       WHEN NOT MATCHED THEN
         INSERT
             (s.percjuromensal,
@@ -986,7 +966,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.faturamento,
              s.nroformapagto,
              s.nrosegmento,
-             s.nroempresa
+             s.nroempresa,
+             s.idref
              )
           VALUES
             (b.percjuromensal,
@@ -1007,7 +988,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.faturamento,
              b.nroformapagto,
              b.nrosegmento,
-             b.nroempresa);
+             b.nroempresa,
+             b.codCob);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
