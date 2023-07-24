@@ -20,7 +20,10 @@ SELECT P.CODPLPAG NROCONDICAOPAGTO,
             ELSE
              'N'
         END) ATIVO
-  FROM PCPLPAG P
-  WHERE (NVL(P.STATUS,'A') = 'A' 
-         AND NVL(P.USAPLPAGAUTOSERVICO,'N') = 'S')
+FROM PCPLPAG P,
+     (select min(s.ultimaexecucao) ultimaexecucao
+      from pccontroleconsinco s
+      where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CONDICAOPAGTO')
+      ) DTPADRAO
+    where NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
 );
