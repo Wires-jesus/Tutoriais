@@ -1,16 +1,27 @@
 CREATE OR REPLACE VIEW VW_INT_C5_PLPAG AS
 (
-  SELECT
-    pcplpag.codplpag NROCONDICAOPAGTO,
-    SUBSTR(pcplpag.descricao,1,40) CONDICAOPAGTO,
-    NVL(pcplpag.pertxfim,0) PERCACRESCIMO,
-    (CASE WHEN pcplpag.formaparcelamento = 'T' THEN  
-          pcplpag.numeroparcelasdiafixo WHEN pcplpag.formaparcelamento = 'V' THEN 
-          pcplpag.numparcelas 
-     ELSE 0 END) NROMAXIMOPARCELA,
-    pcplpag.numdias NRODIASVENCTO,
-    (CASE WHEN pcplpag.status = 'A' THEN 'S'
-      ELSE 'N' END) ATIVO
-  FROM PCPLPAG
-  WHERE NVL(pcplpag.usaplpagautoservico,'N') = 'S'
+SELECT P.CODPLPAG NROCONDICAOPAGTO,
+       SUBSTR(P.DESCRICAO,1,40) CONDICAOPAGTO,
+       NVL(P.PERTXFIM,0) PERCACRESCIMO,
+       (CASE
+            WHEN P.FORMAPARCELAMENTO = 'T' 
+              THEN P.NUMEROPARCELASDIAFIXO
+            WHEN P.FORMAPARCELAMENTO = 'V' 
+              THEN P.NUMPARCELAS
+            ELSE
+              0
+        END) NROMAXIMOPARCELA,
+       P.NUMDIAS NRODIASVENCTO,
+       (CASE
+            WHEN NVL(P.STATUS,'A') = 'A'
+              THEN 'S'
+            WHEN NVL(P.USAPLPAGAUTOSERVICO,'N') = 'S'
+              THEN 'S'
+            ELSE
+             'N'
+        END) ATIVO
+  FROM PCPLPAG P
+  WHERE (NVL(P.STATUS,'A') = 'A' 
+         AND NVL(P.USAPLPAGAUTOSERVICO,'N') = 'S')
+
 )
