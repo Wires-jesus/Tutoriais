@@ -16,6 +16,7 @@ SELECT DISTINCT
        pctribncmfilial.percentfisicaimportado perctributoimpfederal,
        pctribncmfilial.percfisicaestnac perctributoestadual,
        pctribncmfilial.percfisicamunicnac perctributomunicipal,
+       
        (CASE
            WHEN NCMFILIAL.DTEXCLUSAO IS NULL THEN
                 'S' 
