@@ -1833,45 +1833,44 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE carrega_tb_cargatributaria(p_id IN pccontroleconsinco.id%TYPE) AS
-    BEGIN
-
-    UPDATE monitorpdvmiddle.tb_cargatributaria SET ativo = 'N';
+  BEGIN
     MERGE INTO monitorpdvmiddle.tb_cargatributaria s
         USING (SELECT *
                FROM VW_INT_C5_LEITRANSP b
               ) b
          
-      ON (s.codnbmsh = b.codnbmsh)
+      ON (s.codnbmsh = b.codncmsh and s.ufdestino = b.ufdestino and s.ex = b.ex)
       WHEN MATCHED THEN
       UPDATE SET
-               s.ufdestino             = b.ufdestino,
-               s.perctributoimportado  = b.perctributoimportado,
-               s.perctributonacfederal = b.perctributonacfederal,
-               s.perctributoimpfederal = b.perctributoimpfederal,
-               s.perctributoestadual   = b.perctributoestadual,
-               s.perctributomunicipal  = b.perctributomunicipal,
-               s.ex                    = b.ex,
+               s.perctributo           = nvl(b.perctributos, 0),
+               s.perctributoimportado  = nvl(b.perctributoimportado, 0),
+               s.perctributonacfederal = nvl(b.perctributonacfederal, 0),
+               s.perctributoimpfederal = nvl(b.perctributoimpfederal, 0),
+               s.perctributoestadual   = nvl(b.perctributoestadual, 0),
+               s.perctributomunicipal  = nvl(b.perctributomunicipal, 0),
                s.ativo                 = b.ativo
         
       WHEN NOT MATCHED THEN
         INSERT (s.codnbmsh,
                 s.ufdestino,
+                s.ex,
+                s.perctributo,
                 s.perctributoimportado,
                 s.perctributonacfederal,
                 s.perctributoimpfederal,
                 s.perctributoestadual,
                 s.perctributomunicipal,
-                s.ex,
                 s.ativo)
                 VALUES
-                  (b.codnbmsh,
+                  (b.codncmsh,
                    b.ufdestino,
-                   b.perctributoimportado,
-                   b.perctributonacfederal,
-                   b.perctributoimpfederal,
-                   b.perctributoestadual,
-                   b.perctributomunicipal,
                    b.ex,
+                   nvl(b.perctributos, 0),
+                   nvl(b.perctributoimportado, 0),
+                   nvl(b.perctributonacfederal, 0),
+                   nvl(b.perctributoimpfederal, 0),
+                   nvl(b.perctributoestadual, 0),
+                   nvl(b.perctributomunicipal, 0),
                    b.ativo);
     
     INSERT INTO PCDEVLOGCONSINCO
