@@ -22,6 +22,6 @@
 		 {"nome":"PRC_RECORD_ERROR","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
 		 {"nome":"VW_INT_C5_ENDERECO_ALTERNATIVO","tipo": "OBJETO_PLSQL","versao": "4.0.04.000"},
 		 {"nome":"TRIGGER_DTALTERC5","tipo": "MIGRATION","versao": "4.0.01.000"},
-		 {"nome":"VW_INT_C5_PLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"}
+		 {"nome":"VW_INT_C5_PLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.02.000"}
         ]}
 
