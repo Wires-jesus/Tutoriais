@@ -65,7 +65,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                     'S'
               END) ativo,
             NVL(p.revenda,'S') revenda,
-            0 codcest, --LOCAL.FNC_INT_C5_CODCEST(e.codprod) codcest,
+            (SELECT CODCEST FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST WHERE PCCESTPRODUTO.CODPROD = p.CODPROD) codcest,
             p.codsec,
             p.codepto,
             p.codcategoria,
