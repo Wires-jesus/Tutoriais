@@ -13,9 +13,7 @@ SELECT P.CODPLPAG NROCONDICAOPAGTO,
         END) NROMAXIMOPARCELA,
        P.NUMDIAS NRODIASVENCTO,
        (CASE
-            WHEN NVL(P.STATUS,'A') = 'A'
-              THEN 'S'
-            WHEN NVL(P.USAPLPAGAUTOSERVICO,'N') = 'S'
+            WHEN (NVL(P.STATUS,'A') = 'A' AND NVL(P.USAPLPAGAUTOSERVICO,'N') = 'S')
               THEN 'S'
             ELSE
              'N'
