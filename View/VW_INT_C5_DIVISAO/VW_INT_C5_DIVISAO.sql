@@ -1,0 +1,16 @@
+CREATE OR REPLACE VIEW VW_INT_C5_DIVISAO AS
+(
+SELECT PCREGIAO.NUMREGIAO NRODIVISAO,
+       PCREGIAO.REGIAO DIVISAO,
+       'V' TIPO,
+       (CASE
+           WHEN NVL(PCREGIAO.STATUS, 'A') = 'A' THEN
+                'S'
+           ELSE 'N'  
+        END) ATIVO,
+        PCREGIAO.UF IDREF
+FROM PCREGIAO,
+     (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_DIVISAO') DTPADRAO
+ WHERE NVL(PCREGIAO.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
+
+)
