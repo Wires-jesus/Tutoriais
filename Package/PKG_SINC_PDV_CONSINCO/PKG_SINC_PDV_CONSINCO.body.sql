@@ -1846,7 +1846,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 VALUES
                   (b.codncmsh,
                    b.ufdestino,
-                   b.ex,
+                   nvl(b.ex, 0),
                    nvl(b.perctributos, 0),
                    nvl(b.perctributoimportado, 0),
                    nvl(b.perctributonacfederal, 0),
