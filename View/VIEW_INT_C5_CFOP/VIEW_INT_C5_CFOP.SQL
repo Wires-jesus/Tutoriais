@@ -1,5 +1,5 @@
 CREATE OR REPLACE VIEW VW_INT_C5_CFOP AS
-SELECT *FROM (
+SELECT * FROM (
   SELECT  ROWNUM                          AS CODGERALOPER,
           PCCFO.DESCCFO                   AS DESCRICAO,
           PCCFO.CODFISCAL                 AS CFOP,
