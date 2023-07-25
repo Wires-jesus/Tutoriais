@@ -3,6 +3,7 @@ SELECT DISTINCT
        NCMFILIAL.CODNCM codncmsh,
        NCMFILIAL.CODEX ex,
        NCMFILIAL.UF ufdestino,
+       
        (SELECT PERCTRIBUTOS
         FROM PCTRIBUT 
         WHERE CODST = (select distinct t.codst 
@@ -11,11 +12,12 @@ SELECT DISTINCT
                        and   t.numregiao = r.numregiao
                        and   r.uf = NCMFILIAL.UF
                        and   p.codncmex = NCMFILIAL.CODNCM||'.'||NCMFILIAL.CODEX AND ROWNUM = 1)) perctributos,
-       pctribncmfilial.percentfisica perctributonacfederal,
-       pctribncmfilial.percfisicaestimp perctributoimportado,
-       pctribncmfilial.percentfisicaimportado perctributoimpfederal,
-       pctribncmfilial.percfisicaestnac perctributoestadual,
-       pctribncmfilial.percfisicamunicnac perctributomunicipal,
+        
+        TRIBNCMFILIAL.percentfisica perctributonacfederal,
+        TRIBNCMFILIAL.percfisicaestimp perctributoimportado,
+        TRIBNCMFILIAL.percentfisicaimportado perctributoimpfederal,
+        TRIBNCMFILIAL.percfisicaestnac perctributoestadual,
+        TRIBNCMFILIAL.percfisicamunicnac perctributomunicipal,
        
        (CASE
            WHEN NCMFILIAL.DTEXCLUSAO IS NULL THEN
@@ -23,34 +25,43 @@ SELECT DISTINCT
            ELSE
                 'N'
        END) ativo
-FROM (SELECT DISTINCT 
-        PCNCM.CODNCM,/*CODNCM É CADASTRADO SEM O "." */
-        PCNCM.CODNCMEX,/*CODNCM DA PCNCM É CADASTRADO COM "." E JÁ POSSUI A EXCEÇÃO CASO EXISTA*/
-        PCNCM.CODEX,
-        PCNCM.DTEXCLUSAO,
-        PCNCM.DTALTERC5,
-        PCFILIAL.UF
-     FROM PCNCM,
-          PCFILIAL 
-     WHERE PCFILIAL.CODIGO <> '99'
-     AND   PCFILIAL.UF IS NOT NULL
-     AND   PCNCM.CODNCMEX > 0
+FROM 
+    (SELECT 
+       NCM.*,
+       (SELECT CODIGO FROM PCFILIAL WHERE UF = NCM.UF AND REGEXP_LIKE(CODIGO, '^[[:digit:]]+$') AND CODIGO <> 99 AND ROWNUM = 1) CODFILIAL
+     FROM
+         (SELECT DISTINCT 
+             PCNCM.CODNCM,/*CODNCM É CADASTRADO SEM O "." */
+             PCNCM.CODNCMEX,/*CODNCM DA PCNCM É CADASTRADO COM "." E JÁ POSSUI A EXCEÇÃO CASO EXISTA*/
+             PCNCM.CODEX,
+             PCNCM.DTEXCLUSAO,
+             PCNCM.DTALTERC5,
+             PCFILIAL.UF
+           FROM PCNCM,
+                PCFILIAL 
+           WHERE PCFILIAL.CODIGO <> '99'
+           AND   REGEXP_LIKE(PCFILIAL.CODIGO, '^[[:digit:]]+$')
+           AND   PCFILIAL.UF IS NOT NULL
+           AND   PCNCM.CODNCMEX > 0
+           )NCM
      )NCMFILIAL,
+     
+    (SELECT 
+       PCTRIBNCMFILIAL.codncm||PCTRIBNCMFILIAL.codfilial ID,
+       PCTRIBNCMFILIAL.percentfisica,
+       PCTRIBNCMFILIAL.percfisicaestimp, 
+       PCTRIBNCMFILIAL.percentfisicaimportado, 
+       PCTRIBNCMFILIAL.percfisicaestnac, 
+       PCTRIBNCMFILIAL.percfisicamunicnac
+     FROM PCTRIBNCMFILIAL
+     WHERE PCTRIBNCMFILIAL.CODFILIAL <> '99'
+     AND   REGEXP_LIKE(PCTRIBNCMFILIAL.CODFILIAL, '^[[:digit:]]+$')
+     )TRIBNCMFILIAL,
      
      (select min(s.ultimaexecucao) ultimaexecucao
       from pccontroleconsinco s
       where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
-     ) DTPADRAO,
-             
-     pctribncmfilial
+     ) DTPADRAO
           
-WHERE NCMFILIAL.CODNCMEX =  PCTRIBNCMFILIAL.CODNCM(+) /*CODNCM DA PCTRIBNCMFILIAL É ALIMENTADO COM O CAMPO PCNCM.CODNCMEX*/
-AND  NCMFILIAL.UF = (SELECT UF FROM PCFILIAL WHERE CODIGO = pctribncmfilial.codfilial)
-AND  NVL(NCMFILIAL.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
-
-
-
-
-
-
-
+WHERE NCMFILIAL.CODNCMEX||NCMFILIAL.CODFILIAL = TRIBNCMFILIAL.ID(+)
+AND NVL(NCMFILIAL.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
