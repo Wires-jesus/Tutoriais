@@ -847,7 +847,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                ELSE
                 'D'
              END) especie,
-             f.descricao formapagto,
+             SUBSTR(f.descricao, 1, 40) formapagto,
              f.codfilial,
              (CASE
                WHEN f.dtinativacao IS NULL THEN
