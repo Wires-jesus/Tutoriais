@@ -20,6 +20,6 @@ SELECT f.codigo nroempresa,
        (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') DTPADRAO
  WHERE f.codigo >= 0
    AND f.codigo < '99'
-   AND NVL(F.Dtalterc5,DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
+   AND NVL(F.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
 
 )
