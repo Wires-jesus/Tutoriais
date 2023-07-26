@@ -1057,20 +1057,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_divisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_divisao s
-        /*USING (SELECT
-                 1 nrodivisao,
-                 'VAREJO' divisao,
-                 'V' tipo,
-                 'S' ativo,
-                 0 nrocarga
-               FROM dual) b*/
         USING (SELECT
-                 NUMREGIAO nrodivisao,
-                 SUBSTR(REGIAO, 1, 19) divisao,
-                 'V' tipo,
-                 'S' ativo,
-                 0 nrocarga
-               FROM PCREGIAO) b
+                 *
+               FROM VW_INT_C5_DIVISAO) b
 
       ON (s.nrodivisao = b.nrodivisao)
       WHEN MATCHED THEN
@@ -1078,19 +1067,22 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.tipo     = b.tipo,
         s.ativo    = b.ativo,
         s.nrocarga = b.nrocarga,
-        s.divisao  = b.divisao
+        s.divisao  = SUBSTR(b.divisao, 1, 19),
+        s.idref    = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.tipo,
                 s.ativo,
                 s.nrocarga,
                 s.nrodivisao,
-                s.divisao)
+                s.divisao,
+                s.idref)
                 VALUES
                 (b.tipo,
                  b.ativo,
                  b.nrocarga,
                  b.nrodivisao,
-                 b.divisao);
+                 SUBSTR(b.divisao, 1, 19),
+                 b.idref);
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
