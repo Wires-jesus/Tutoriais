@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW VW_INT_C5_LEITRANSP AS
 SELECT DISTINCT
        NCMFILIAL.CODNCM codncmsh,
-       NCMFILIAL.CODEX ex,
+       NVL(NCMFILIAL.CODEX, 0) ex,
        NCMFILIAL.UF ufdestino,
        
        (SELECT PERCTRIBUTOS
@@ -13,11 +13,11 @@ SELECT DISTINCT
                        and   r.uf = NCMFILIAL.UF
                        and   p.codncmex = NCMFILIAL.CODNCM||'.'||NCMFILIAL.CODEX AND ROWNUM = 1)) perctributos,
         
-        TRIBNCMFILIAL.percentfisica perctributonacfederal,
-        TRIBNCMFILIAL.percfisicaestimp perctributoimportado,
-        TRIBNCMFILIAL.percentfisicaimportado perctributoimpfederal,
-        TRIBNCMFILIAL.percfisicaestnac perctributoestadual,
-        TRIBNCMFILIAL.percfisicamunicnac perctributomunicipal,
+        NVL(TRIBNCMFILIAL.percentfisica, 0) perctributonacfederal,
+        NVL(TRIBNCMFILIAL.percfisicaestimp, 0) perctributoimportado,
+        NVL(TRIBNCMFILIAL.percentfisicaimportado, 0) perctributoimpfederal,
+        NVL(TRIBNCMFILIAL.percfisicaestnac, 0) perctributoestadual,
+        NVL(TRIBNCMFILIAL.percfisicamunicnac, 0) perctributomunicipal,
        
        (CASE
            WHEN NCMFILIAL.DTEXCLUSAO IS NULL THEN
