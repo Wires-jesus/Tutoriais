@@ -1,16 +1,22 @@
-CREATE OR REPLACE VIEW VW_INT_C5_DIVISAO AS
-(
-SELECT PCREGIAO.NUMREGIAO NRODIVISAO,
-       PCREGIAO.REGIAO DIVISAO,
-       'V' TIPO,
-       (CASE
-           WHEN NVL(PCREGIAO.STATUS, 'A') = 'A' THEN
-                'S'
-           ELSE 'N'  
-        END) ATIVO,
-        PCREGIAO.UF IDREF
-FROM PCREGIAO,
-     (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_DIVISAO') DTPADRAO
- WHERE NVL(PCREGIAO.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
-
-)
+CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
+(SELECT
+    PRODTRIB."SEQFAMILIA",PRODTRIB."NROTRIBUTACAO",PRODTRIB."NRODIVISAO",PRODTRIB."ATIVO",
+    (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = PRODTRIB.seqfamilia and rownum = 1 )codorigemtrib
+ FROM
+     (SELECT DISTINCT
+        R.CODPROD seqfamilia,
+        R.CODST nrotributacao,
+        R.numregiao nrodivisao,
+        'S' ativo
+      FROM VW_INT_C5_FAMILIA T,
+          PCTABPR R
+      WHERE T.SEQFAMILIA = R.CODPROD
+      AND R.CODST IS NOT NULL
+      AND R.NUMREGIAO IN (SELECT VALOR
+                          FROM PCPARAMFILIAL
+                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                          AND VALOR <> '99'
+                          AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                          AND VALOR IS NOT NULL)
+      )PRODTRIB
+ )
