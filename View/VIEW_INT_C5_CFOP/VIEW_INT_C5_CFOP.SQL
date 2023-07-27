@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_INT_C5_CFOP AS
+CREATE OR REPLACE VIEW VIEW_INT_C5_CFOP AS
 SELECT *FROM
   (SELECT DISTINCT
           a.cfop                          AS codgeraloper,
