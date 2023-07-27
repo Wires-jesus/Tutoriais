@@ -1874,6 +1874,270 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
+  PROCEDURE carrega_tb_codgeraloper(p_id IN pccontroleconsinco.id%TYPE) AS
+    BEGIN
+      
+    MERGE INTO monitorpdvmiddle.tb_codgeraloper s
+        USING (
+        SELECT *FROM(
+        SELECT DISTINCT CODGERALOPER, 
+                      DESCRICAO, 
+                      APLICACAO, 
+                      NROTRIBUTACAO, 
+                      CFOPESTADO, 
+                      CFOPFORAESTADO, 
+                      ATIVO,
+                      TIPOTRIBUTACAO,
+                      VENDAPRESENCIAL,
+                      CONSUMIDORFINAL,
+                      TIPOFATURAMENTO,
+                      CALCULAFECP,
+                      TIPOCALCULOIPI,
+                      CALCULAIPI,
+                      GERAREDUCAOBASEST,
+                      CALCULAICMSST,
+                      DTALTERC5,
+                      (SELECT MIN(S.ULTIMAEXECUCAO) 
+                              FROM PCCONTROLECONSINCO S 
+                       WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPER') AS ULTIMAEXECAUCAO
+                 FROM VW_INT_C5_CFOP)
+                 WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO) b
+                
+         
+      ON (s.CODGERALOPER = b.CODGERALOPER)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.DESCRICAO           = b.DESCRICAO,
+               s.APLICACAO           = b.APLICACAO,
+               s.Cfopestado          = b.CFOPESTADO,
+               s.CFOPFORAESTADO      = b.CFOPFORAESTADO,
+               s.CALCULAICMSST       = b.CALCULAICMSST,
+               s.GERAREDUCAOBASEST   = b.GERAREDUCAOBASEST,
+               s.CALCULAIPI          = b.CALCULAIPI,
+               s.TIPOCALCULOIPI      = b.TIPOCALCULOIPI,
+               s.CALCULAFECP         = b.CALCULAFECP,
+               s.TIPOFATURAMENTO     = b.TIPOFATURAMENTO,
+               s.ATIVO               = b.ATIVO,
+               s.CONSUMIDORFINAL     = b.CONSUMIDORFINAL,
+               s.VENDAPRESENCIAL     = b.VENDAPRESENCIAL,
+               s.TIPOTRIBUTACAO      = b.TIPOTRIBUTACAO
+                  
+      WHEN NOT MATCHED THEN
+        INSERT (s.CODGERALOPER,
+                s.DESCRICAO,
+                s.APLICACAO,
+                s.Cfopestado,        
+                s.CFOPFORAESTADO,
+                s.CALCULAICMSST,
+                s.GERAREDUCAOBASEST,
+                s.CALCULAIPI,
+                s.TIPOCALCULOIPI,
+                s.CALCULAFECP,
+                s.TIPOFATURAMENTO,
+                s.ATIVO,
+                s.CONSUMIDORFINAL,
+                s.VENDAPRESENCIAL,
+                s.TIPOTRIBUTACAO
+                )
+                VALUES
+                 (b.CODGERALOPER,
+                  b.DESCRICAO,
+                  b.APLICACAO,
+                  b.Cfopestado,        
+                  b.CFOPFORAESTADO,
+                  b.CALCULAICMSST,
+                  b.GERAREDUCAOBASEST,
+                  b.CALCULAIPI,
+                  b.TIPOCALCULOIPI,
+                  b.CALCULAFECP,
+                  b.TIPOFATURAMENTO,
+                  b.ATIVO,
+                  b.CONSUMIDORFINAL,
+                  b.VENDAPRESENCIAL,
+                  b.TIPOTRIBUTACAO);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_codgeraloper',
+       'carrega_tb_codgeraloper OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_codgeraloper',
+           'carrega_tb_codgeraloper ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+  
+  PROCEDURE carrega_tb_codgeralopercfop(p_id IN pccontroleconsinco.id%TYPE) AS
+    BEGIN
+      
+    MERGE INTO monitorpdvmiddle.tb_codgeralopercfop s
+        USING (
+              SELECT *FROM( 
+                 SELECT DISTINCT CODGERALOPER,
+                   NROTRIBUTACAO,
+                   CONTRIBICMS,   
+                   CFOPESTADO,     
+                   ATIVO,
+                   DTALTERC5,
+                   (SELECT MIN(S.ULTIMAEXECUCAO) 
+                                FROM PCCONTROLECONSINCO S 
+                         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP') AS ULTIMAEXECAUCAO
+                    FROM VW_INT_C5_CFOP)
+                WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO) b
+                 
+      ON (s.CODGERALOPER = b.CODGERALOPER)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.NROTRIBUTACAO  = b.NROTRIBUTACAO,
+               s.CONTRIBICMS    = b.CONTRIBICMS ,
+               s.CFOPESTADO     = b.CFOPESTADO,
+               s.ATIVO          = b.ATIVO
+ 
+      WHEN NOT MATCHED THEN
+         INSERT (s.CODGERALOPER,
+                 s.NROTRIBUTACAO,
+                 s.CONTRIBICMS,   
+                 s.CFOPESTADO,     
+                 s.ATIVO)
+                VALUES
+                  (b.CODGERALOPER,
+                   b.NROTRIBUTACAO,
+                   b.CONTRIBICMS,   
+                   b.CFOPESTADO,     
+                   b.ATIVO);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'tb_codgeralopercfop',
+       'tb_codgeralopercfop OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'tb_codgeralopercfop',
+           'tb_codgeralopercfop ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+  
+  PROCEDURE carrega_tb_codgeralopercfopuf(p_id IN pccontroleconsinco.id%TYPE) AS
+    BEGIN
+      
+    DELETE from monitorpdvmiddle.TB_CODGERALOPERCFOPUF;
+    MERGE INTO monitorpdvmiddle.TB_CODGERALOPERCFOPUF s
+        USING (
+                SELECT*FROM
+                  (
+                    SELECT CODGERALOPER,
+                           NROTRIBUTACAO,   
+                           CONTRIBICMS,     
+                           UFORIGEM,
+                           UFDESTINO,
+                           CFOPESTADO,
+                           ATIVO,
+                           NROREGTRIBUTACAO,
+                           DTALTERC5,
+                           (SELECT MIN(S.ULTIMAEXECUCAO) 
+                                    FROM PCCONTROLECONSINCO S 
+                             WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOPUF') AS ULTIMAEXECAUCAO
+                       FROM VW_INT_C5_CFOP                     
+                     ) WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO
+                 ) b
+         
+      ON (s.CODGERALOPER = b.CODGERALOPER)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.NROTRIBUTACAO = b.NROTRIBUTACAO ,
+               s.CONTRIBICMS   = b.CONTRIBICMS ,
+               s.UFORIGEM      = b.UFORIGEM,
+               s.UFDESTINO     = b.UFDESTINO,
+               s.CFOPESTADO    = b.CFOPESTADO,
+               s.ATIVO         = b.ATIVO 
+      WHEN NOT MATCHED THEN
+        INSERT ( s.CODGERALOPER,
+                 s.NROTRIBUTACAO,   
+                 s.CONTRIBICMS,     
+                 s.UFORIGEM,
+                 s.UFDESTINO,
+                 s.CFOPESTADO,
+                 s.ATIVO,
+                 s.NROREGTRIBUTACAO)
+                VALUES
+                  (b.CODGERALOPER,
+                   b.NROTRIBUTACAO,   
+                   b.CONTRIBICMS,     
+                   b.UFORIGEM,
+                   b.UFDESTINO,
+                   b.CFOPESTADO,
+                   b.ATIVO,
+                   0);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'tb_codgeralopercfopuf',
+       'tb_codgeralopercfopuf OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'tb_codgeralopercfopuf',
+           'tb_codgeralopercfopuf ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
+
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN 
