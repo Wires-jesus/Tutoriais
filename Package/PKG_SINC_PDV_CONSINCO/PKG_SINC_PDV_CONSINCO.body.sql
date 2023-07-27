@@ -1344,7 +1344,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.qtdembalagem,
                    b.tipo,
                    b.ativo);
-      
+  
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -1368,146 +1368,47 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 
   PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
-    TYPE ARRAY IS TABLE OF VW_TB_PRODPRECO_NEW%ROWTYPE INDEX BY PLS_INTEGER;
-    listaDados ARRAY;
-
-    CURSOR c_tb_prodpreco IS
-         SELECT
-                    /*DISTINCT E.seqproduto,*/
-                    E.seqproduto,
-                    E.nroempresa,
-                    E.nrosegmento,
-                    E.qtdembalagem,
-                    E.promocao,
-                    1 preco,
-                    E.ativo,
-                    E.dtultalter_prod,
-                    E.dtcadastro_prod,
-                    E.dtcadastroemb,
-                    E.dtulalterintegra,
-                    E.dtultaltpvenda,
-                    E.codauxiliar
-      FROM VW_TB_PRODPRECO_NEW E/*, MONITORPDVMIDDLE.TB_PRODEMPRESA TBE
-     WHERE E.SEQPRODUTO = TBE.SEQPRODUTO
-       AND E.NROEMPRESA = TBE.NROEMPRESA*/;
-
-
-    r_tb_prodpreco VW_TB_PRODPRECO_NEW%ROWTYPE;
-    vNumRegiao     NUMBER := 0;
   BEGIN
-    -- for i IN 1 .. listaDados.COUNT loop
-    /*OPEN c_tb_prodpreco;
-    LOOP
-      FETCH c_tb_prodpreco BULK COLLECT
-        INTO listaDados LIMIT 1000;
-      BEGIN
+      MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
+        USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
+      on(
+        TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto 
+        AND TB_PRODPRECO_C5.qtdembalagem = VIEW_TB_PRODPRECO.qtdembalagem 
+        AND TB_PRODPRECO_C5.nrosegmento  = VIEW_TB_PRODPRECO.nrosegmento 
+        AND TB_PRODPRECO_C5.nroempresa   = VIEW_TB_PRODPRECO.nroempresa
+      )
+       WHEN MATCHED THEN
+        UPDATE SET
+          TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
+          TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
+          TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco
+       WHEN NOT MATCHED THEN
+        INSERT(
+          TB_PRODPRECO_C5.seqproduto,
+          TB_PRODPRECO_C5.qtdembalagem,
+          TB_PRODPRECO_C5.nrosegmento,
+          TB_PRODPRECO_C5.nroempresa,
+          TB_PRODPRECO_C5.ativo,
+          TB_PRODPRECO_C5.promocao,
+          TB_PRODPRECO_C5.preco
+        ) 
+        VALUES(
+          VIEW_TB_PRODPRECO.seqproduto,
+          VIEW_TB_PRODPRECO.qtdembalagem,
+          VIEW_TB_PRODPRECO.nrosegmento,
+          VIEW_TB_PRODPRECO.nroempresa,
+          VIEW_TB_PRODPRECO.ativo,
+          VIEW_TB_PRODPRECO.promocao,
+          VIEW_TB_PRODPRECO.preco
+        );
 
-        FOR i IN 1 .. listaDados.COUNT LOOP
-          -- if vNumRegiao = 0 then
-          vNumRegiao := ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
-                                                                 listaDados(i).nroempresa,
-                                                                 1);
-          --end if;
-          BEGIN
-            listaDados(i).preco := coluna_preco(buscaprecos_consinco(listaDados(i).nroempresa,
-                                                                                   vNumRegiao,
-                                                                                   listaDados(i).codauxiliar,
-                                                                                   TRUNC(SYSDATE),
-                                                                                   0,
-                                                                                   0,
-                                                                                   0,
-                                                                                   0,
-                                                                                   0),
-                                                       'PVENDA');
-
-          EXCEPTION
-            WHEN OTHERS THEN
-              listadados(i).preco := 0;
-          END;
-
-        END LOOP;
-
-        FORALL i IN 1 .. listaDados.COUNT
-          MERGE INTO monitorpdvmiddle.tb_prodpreco s
-          USING (SELECT listaDados(i).preco AS preco,
-                        listaDados(i).promocao AS promocao,
-                        listaDados(i).ativo AS ativo,
-                        listaDados(i).seqproduto AS seqproduto,
-                        listaDados(i).qtdembalagem AS qtdembalagem,
-                        listaDados(i).nrosegmento AS nrosegmento,
-                        listaDados(i).nroempresa AS nroempresa
-                   FROM dual) mrg
-          ON (s.seqproduto = mrg.seqproduto AND s.qtdembalagem = mrg.qtdembalagem AND s.nrosegmento = mrg.nrosegmento AND s.nroempresa = mrg.nroempresa)
-          WHEN MATCHED THEN
-            UPDATE
-               SET preco    = mrg.preco,
-                   promocao = mrg.promocao,
-                   ativo    = mrg.ativo
-            --WHERE s.seqproduto = mrg.seqproduto AND s.qtdembalagem = mrg.qtdembalagem AND s.nrosegmento = mrg.nrosegmento AND s.nroempresa = mrg.nroempresa
-
-          WHEN NOT MATCHED THEN
-            INSERT
-              (preco,
-               promocao,
-               ativo,
-               seqproduto,
-               qtdembalagem,
-               nrosegmento,
-               nroempresa)
-            VALUES
-              (mrg.preco,
-               mrg.promocao,
-               mrg.ativo,
-               mrg.seqproduto,
-               mrg.qtdembalagem,
-               mrg.nrosegmento,
-               mrg.nroempresa);
-
-        COMMIT;
-
-      EXCEPTION
-        WHEN OTHERS THEN
-          INSERT INTO error_log s
-            (ERROR_CODE,
-             ERROR_MESSAGE,
-             BACKTRACE,
-             CALLSTACK,
-             CREATED_ON,
-             CREATED_BY)
-          VALUES
-            ('400',
-             'carrega_tb_prodpreco ERROR',
-             to_clob(dbms_utility.format_error_backtrace ||
-                     dbms_Utility.format_error_stack),
-             to_clob('Detalhes do erro: ' || CHR(10) || ' seqproduto =>' ||
-                     r_tb_prodpreco.seqproduto || ' qtdembalagem => ' ||
-                     r_tb_prodpreco.qtdembalagem || ' nrosegmento => ' ||
-                     r_tb_prodpreco.nrosegmento || ' nroempresa =>  ' ||
-                     r_tb_prodpreco.nroempresa || ' - ' || CHR(10) ||
-                     dbms_utility.format_call_stack),
-             SYSDATE,
-             'INTERMEDIARIO');
-
-      END;
-
-      EXIT WHEN c_tb_prodpreco%NOTFOUND;
-    END LOOP;
-
-    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-    INSERT INTO PCDEVLOGCONSINCO
-      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-    VALUES
-      ('pkg_sinc_PDV_Consinco',
-       'carrega_tb_prodpreco',
-       'carrega_tb_prodpreco OK',
-       SYSDATE,
-       CURRENT_TIMESTAMP);
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
 
     COMMIT;
-
-    CLOSE c_tb_prodpreco;*/
-  COMMIT;
-  EXCEPTION
+    EXCEPTION
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
