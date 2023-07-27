@@ -4,14 +4,14 @@ SELECT DISTINCT
        NVL(NCMFILIAL.CODEX, 0) ex,
        NCMFILIAL.UF ufdestino,
        
-       (SELECT PERCTRIBUTOS
-        FROM PCTRIBUT 
-        WHERE CODST = (select distinct t.codst 
-                       from pctabpr t, pcprodut p, pcregiao r 
-                       where t.codprod = p.codprod
-                       and   t.numregiao = r.numregiao
-                       and   r.uf = NCMFILIAL.UF
-                       and   p.codncmex = NCMFILIAL.CODNCM||'.'||NCMFILIAL.CODEX AND ROWNUM = 1)) perctributos,
+       NVL((SELECT PERCTRIBUTOS
+            FROM PCTRIBUT 
+            WHERE CODST = (select distinct t.codst 
+                           from pctabpr t, pcprodut p, pcregiao r 
+                           where t.codprod = p.codprod
+                           and   t.numregiao = r.numregiao
+                           and   r.uf = NCMFILIAL.UF
+                           and   p.codncmex = NCMFILIAL.CODNCM||'.'||NCMFILIAL.CODEX AND ROWNUM = 1)), 0) perctributos,
         
         NVL(TRIBNCMFILIAL.percentfisica, 0) perctributonacfederal,
         NVL(TRIBNCMFILIAL.percfisicaestimp, 0) perctributoimportado,
