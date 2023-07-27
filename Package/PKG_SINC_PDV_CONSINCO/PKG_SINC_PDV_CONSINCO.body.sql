@@ -1807,7 +1807,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_cargatributaria s
         USING (SELECT *
-               FROM VW_INT_C5_LEITRANSP b
+               FROM VW_INT_C5_LEITRANSP
               ) b
          
       ON (s.codnbmsh = b.codncmsh and s.ufdestino = b.ufdestino and s.ex = b.ex)
