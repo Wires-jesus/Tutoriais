@@ -3,9 +3,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             c.UFORIGEM uforigem,
             c.UFDESTINO ufdestino,
             'SN' tipotributacao,
-            C.NUMREGIAO nroregtributacao,
+            0 nroregtributacao,
             c.percaliquota,
-            '0' || NVL (t.sittributpf, t.sittributecf) situacaotributacao,
+            '0' || NVL (t.sittributecf, t.sittributpf) situacaotributacao,
             c.percisento,
             c.perctributado,
             0 percacrescst,
@@ -35,8 +35,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
                      NVL(t.DTALTERC5, d.datapadrao),
                      NVL(c.DTALTERC5, d.datapadrao)) data,
 
-            COALESCE(t.aliqicms1,0) aliqicms1,
-            COALESCE(t.aliqicms2,0) aliqicms2
+            COALESCE(c.aliqicms1,0) aliqicms1,
+            COALESCE(c.aliqicms2,0) aliqicms2
 FROM pctribut t,
      PCCONSOLIDATRIBUTACAO c,
      (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
@@ -101,14 +101,24 @@ SELECT NROTRIBUTACAO,
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
-(SELECT DISTINCT
+(SELECT
+    PRODTRIB."SEQFAMILIA",PRODTRIB."NROTRIBUTACAO",PRODTRIB."NRODIVISAO",PRODTRIB."ATIVO",
+    (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = PRODTRIB.seqfamilia and rownum = 1 )codorigemtrib
+ FROM
+     (SELECT DISTINCT
         R.CODPROD seqfamilia,
         R.CODST nrotributacao,
-        (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = R.CODPROD and rownum = 1 )codorigemtrib,
         R.numregiao nrodivisao,
         'S' ativo
-     FROM VW_INT_C5_FAMILIA T,
+      FROM VW_INT_C5_FAMILIA T,
           PCTABPR R
-     WHERE T.SEQFAMILIA = R.CODPROD
-     AND R.CODST IS NOT NULL
+      WHERE T.SEQFAMILIA = R.CODPROD
+      AND R.CODST IS NOT NULL
+      AND R.NUMREGIAO IN (SELECT VALOR
+                          FROM PCPARAMFILIAL
+                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                          AND VALOR <> '99'
+                          AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                          AND VALOR IS NOT NULL)
+      )PRODTRIB
  )
