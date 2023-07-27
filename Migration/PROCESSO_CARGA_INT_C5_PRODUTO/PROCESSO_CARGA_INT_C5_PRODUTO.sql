@@ -132,57 +132,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
 CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
 SELECT
-         e.codauxiliar||e.codfilial seqproduto,
-         e.codfilial nroempresa,
-         NVL(e.qtunit, 1) qtdembalagem,
-         1 nrosegmento,
-         'N' promocao,
-         e.codauxiliar,
-         e.pvenda,
-         'S' ativo
-         FROM VW_INT_C5_EMBPROD e
-         WHERE NVL(e.pvenda, 0) >= 0
-        
-   )
-
-\
-
-CREATE OR REPLACE VIEW VW_TB_PRODPRECO_NEW AS
-(
-  select  e.seqproduto,
-        e.nroempresa,
-        e.nrosegmento,
-        e.qtdembalagem,
-        e.promocao,
-        1 preco,
-        e.ativo,
-        e.dtultalter_prod,
-        e.dtcadastro_prod,
-        e.dtcadastroemb,
-        e.dtulalterintegra,
-        e.dtultaltpvenda,
-        e.codauxiliar
-  FROM (SELECT
-         e.codauxiliar || e.codfilial seqproduto,
-         e.codfilial nroempresa,
-         NVL(e.qtunit,1) qtdembalagem,
-         1 nrosegmento,
-         'N' promocao,
-         e.codauxiliar,
-         'S' ativo,
-         e.dtultalter_prod,
-         e.dtcadastro_prod,
-         e.dtcadastro dtcadastroemb,
-         e.dtulalterintegra,
-         e.dtultaltpvenda
-          FROM VW_INT_C5_EMBPROD e 
-         ) e
+  e.codauxiliar||e.codfilial seqproduto,
+  e.codfilial nroempresa,
+  NVL(e.qtunit, 1) qtdembalagem,
+  1 nrosegmento,
+  'N' promocao,
+  e.pvenda preco,
+  'S' ativo
+FROM VW_INT_C5_EMBPROD e
 )
-
-
-
-
-
-
-
-
