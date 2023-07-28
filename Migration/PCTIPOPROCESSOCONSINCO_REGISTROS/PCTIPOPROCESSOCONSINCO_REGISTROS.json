@@ -1,0 +1,11 @@
+{
+   "nome": "PCTIPOPROCESSOCONSINCO_VALORES_PROCESSOS",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+      {
+        "nome": "PCTIPOPROCESSOCONSINCO",
+        "tipo": "TABELA",
+        "versao": "4.0.01.000"
+      }
+    ]
+}
