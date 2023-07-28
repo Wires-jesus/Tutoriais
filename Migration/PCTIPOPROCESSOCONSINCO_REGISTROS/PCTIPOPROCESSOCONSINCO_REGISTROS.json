@@ -1,5 +1,5 @@
 {
-   "nome": "PCTIPOPROCESSOCONSINCO_VALORES_PROCESSOS",
+   "nome": "PCTIPOPROCESSOCONSINCO_REGISTROS",
    "tipoPLSQL": "MIGRATION",
    "dependencias":[
       {
