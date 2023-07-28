@@ -93,7 +93,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
     AND   f.codplpag = p.codplpag(+)
     AND   f.codfilial IS NOT NULL
     and   f.codfinalizadora is not null
-    AND   E.codigo >= 0
+    AND   E.codigo >= '0'
     AND   E.codigo < '99'
     AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
     AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
