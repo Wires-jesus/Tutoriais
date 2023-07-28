@@ -1,3 +1,7 @@
+delete from pctipoprocessoconsinco
+
+\
+
 insert into pctipoprocessoconsinco (ID, DESCRICAO)
 values (1, 'tb_pessoa')
 
