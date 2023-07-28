@@ -74,12 +74,7 @@ FROM
      FROM PCTRIBNCMFILIAL
      WHERE PCTRIBNCMFILIAL.CODFILIAL <> '99'
      AND   REGEXP_LIKE(PCTRIBNCMFILIAL.CODFILIAL, '^[[:digit:]]+$')
-     )TRIBNCMFILIAL,
-
-     (select min(s.ultimaexecucao) ultimaexecucao
-      from pccontroleconsinco s
-      where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
-     ) DTPADRAO
+     )TRIBNCMFILIAL
 
    WHERE NCMFILIAL.CODNCMEX||NCMFILIAL.CODFILIAL = TRIBNCMFILIAL.ID(+)
    )CARGATRIB,
