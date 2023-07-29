@@ -59,7 +59,7 @@ FROM
            WHERE PCFILIAL.CODIGO <> '99'
            AND   REGEXP_LIKE(PCFILIAL.CODIGO, '^[[:digit:]]+$')
            AND   PCFILIAL.UF IS NOT NULL
-           AND   PCNCM.CODNCMEX > 0
+           AND   PCNCM.CODNCMEX IS NOT NULL
            )NCM
      )NCMFILIAL,
 
