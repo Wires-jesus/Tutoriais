@@ -111,14 +111,17 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
         R.numregiao nrodivisao,
         'S' ativo
       FROM VW_INT_C5_FAMILIA T,
-          PCTABPR R
+           PCTABPR R,
+           PCCONSOLIDATRIBUTACAO C
       WHERE T.SEQFAMILIA = R.CODPROD
-      AND R.CODST IS NOT NULL
-      AND R.NUMREGIAO IN (SELECT VALOR
-                          FROM PCPARAMFILIAL
-                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
-                          AND VALOR <> '99'
-                          AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
-                          AND VALOR IS NOT NULL)
+      AND   R.CODST = C.CODST
+      AND   R.NUMREGIAO = C.NUMREGIAO
+      AND   R.CODST IS NOT NULL
+      AND   R.NUMREGIAO IN (SELECT VALOR
+                            FROM PCPARAMFILIAL
+                            WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                            AND VALOR <> '99'
+                            AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                            AND VALOR IS NOT NULL)
       )PRODTRIB
  )
