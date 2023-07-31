@@ -13,7 +13,7 @@
 		 {"nome":"PCCLIENT","tipo":"TABELA","versao":"4.0.01.000"},
 		 {"nome":"VW_INT_C5_USUARIO","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
 		 {"nome":"VW_INT_C5_CLIPESSOA","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
-		 {"nome":"VW_INT_C5_EMPRESA","tipo":"OBJETO_PLSQL","versao":"4.0.05.000"},
+		 {"nome":"VW_INT_C5_EMPRESA","tipo":"OBJETO_PLSQL","versao":"4.0.06.000"},
 		 {"nome":"VW_INT_C5_LEITRANSP","tipo":"OBJETO_PLSQL","versao":"4.0.11.000"},
 		 {"nome":"VW_INT_C5_DIVISAO","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipo":"MIGRATION","versao":"4.0.07.000"},
