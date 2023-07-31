@@ -10,7 +10,7 @@ SELECT *FROM
           a.uforigem                      AS uforigem,
           a.ufdestino                     AS ufdestino,
           'N'                             AS contribicms,
-           numregiao                      AS nroregtributacao,
+           0                              AS nroregtributacao,
           'S'                             AS ativo,
           a.dtalterc5                     AS dtalterc5,
           'N'                             AS calculaicmsst,
