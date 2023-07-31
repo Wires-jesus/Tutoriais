@@ -1,3 +1,7 @@
+delete from pccontroleconsinco
+
+\
+
 insert into pccontroleconsinco (ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (1, 1, 'Sincronização de tabela TB_PESSOA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_pessoa', 1, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
 
