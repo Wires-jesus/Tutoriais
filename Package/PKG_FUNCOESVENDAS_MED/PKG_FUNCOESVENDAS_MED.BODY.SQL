@@ -6778,9 +6778,9 @@ IS
          vnPrecoFabrica           PCTABMEDABCFARMA.PRECOFABRICA%TYPE);
     vrZonaFrancaPorUf             TRecZonaFrancaPorUf;
     
-    -- Tipo Cliente - DDVENDAS-35697
+    -- Tipo Cliente - DDVENDAS-35830
     vvTipoCliMed                  PCCLIENT.TIPOCLIMED%TYPE;
-    -- Convênio - DDVENDAS-35697
+    -- Convênio - DDVENDAS-35830
     vvConvenioIsencaoIcmsMed      PCPRODUT.CONVENIOISENCAOICMSMED%TYPE;
     
   /*********************************
@@ -6791,23 +6791,38 @@ IS
     -- Inicializa Retornos
     po_nPmc      := 0;
     po_vMensagem := NULL;
-    
+  
    /***************************************
-    Utilizando as Exceções - DDVENDAS-35697
+    Utilizando as Exceções - DDVENDAS-35830
     ***************************************/
+    -- Preço Fábrica por UF
+    BEGIN
+      SELECT NVL(VALOR,'N') VALOR
+        INTO vvUtilizaPrecoFabricaPorUf
+        FROM PCPARAMFILIAL
+       WHERE (CODFILIAL = '99')
+         AND (NOME      = 'UTILIZAPRECOFABRICAPORUF');
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vvUtilizaPrecoFabricaPorUf := 'N';
+    END;         
     
-    IF (NVL(pi_nCodCli,0) > 0) THEN
+    IF NVL(vvUtilizaPrecoFabricaPorUf,'N') = 'S' THEN
+
+      IF (NVL(pi_nCodCli,0) > 0) THEN
     
       -- Tipo Cliente
-      BEGIN
-        SELECT TIPOCLIMED
-          INTO vvTipoCliMed 
-          FROM PCCLIENT
-         WHERE (CODCLI = pi_nCodCli);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vvTipoCliMed := NULL;
-      END;
+        BEGIN
+          SELECT TIPOCLIMED
+            INTO vvTipoCliMed 
+            FROM PCCLIENT
+           WHERE (CODCLI = pi_nCodCli);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vvTipoCliMed := NULL;
+        END;
+    
+      END IF;
       
       -- Convênio
       BEGIN
@@ -6891,18 +6906,6 @@ IS
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           vvUsaPmcUf := 'N';
-      END;         
-      
-      -- Preço Fábrica por UF
-      BEGIN
-        SELECT NVL(VALOR,'N') VALOR
-          INTO vvUtilizaPrecoFabricaPorUf
-          FROM PCPARAMFILIAL
-         WHERE (CODFILIAL = '99')
-           AND (NOME      = 'UTILIZAPRECOFABRICAPORUF');
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vvUtilizaPrecoFabricaPorUf := 'N';
       END;         
     
      /**********
@@ -7041,7 +7044,7 @@ IS
         END IF;
       
       ----------------------------------------------------
-      -- PREÇO FÁBRICA POR PRODUTO ----------------------
+      -- PREÇO FÁBRICA POR PRODUTO -----------------------
       ----------------------------------------------------
       ELSE
     
@@ -7055,13 +7058,13 @@ IS
         END IF;
       
       END IF;
-      
-    END IF; -- Fim Condição: Usando as Exceções
             
+    END IF; -- Fim Condição: Usando as Exceções
+    
   EXCEPTION
     WHEN OTHERS THEN
       po_vMensagem := DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM;
-  END P_OBTEM_PMC_PRODUTO;  
+  END P_OBTEM_PMC_PRODUTO;
 
 /*******************************************************************************
    Nome         : P_OBTEM_STFONTE_42
