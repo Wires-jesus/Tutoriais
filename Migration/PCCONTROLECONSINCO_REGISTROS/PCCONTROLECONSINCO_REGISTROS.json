@@ -1,0 +1,11 @@
+{
+   "nome": "PCCONTROLECONSINCO_REGISTROS",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+      {
+        "nome": "PCCONTROLECONSINCO",
+        "tipo": "TABELA",
+        "versao": "4.0.05.000"
+      }
+    ]
+}
