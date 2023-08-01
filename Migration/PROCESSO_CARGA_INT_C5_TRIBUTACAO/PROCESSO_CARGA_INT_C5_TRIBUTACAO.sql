@@ -8,6 +8,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             '0' || NVL (t.sittributecf, t.sittributpf) situacaotributacao,
             c.percisento,
             c.perctributado,
+            c.percoutro,
             0 percacrescst,
             NVL(t.aliqstsaida,0) percisentost,
             'B' tipocalcfcp,
@@ -42,7 +43,7 @@ FROM pctribut t,
      (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
 
 WHERE t.codst = c.codst
-      AND NVL(t.sittributecf, t.sittribut) IN ('00', '20', '40', '41', '60', '90')
+      AND NVL(t.sittributecf, t.sittribut) IN ('00', '20', '40', '41', '60', '61', '90')
       AND t.codecf IS NOT NULL
       AND t.codst is not null)
 
@@ -59,6 +60,7 @@ SELECT  NROTRIBUTACAO,
         SITUACAOTRIBUTACAO,
         PERCISENTO,
         PERCTRIBUTADO,
+        PERCOUTRO,
         PERCACRESCST,
         PERCISENTOST,
         TIPOCALCFCP,
