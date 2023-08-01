@@ -12520,6 +12520,15 @@ IS
                              'B.DTLANC BETWEEN',
                              'L.DTCOMPETENCIA BETWEEN');
             END IF;
+        ELSIF V_CODFATOGERADOR = 19
+        THEN
+            IF VS_BUSCARDADOSPELADATA = 'L'
+            THEN
+                V_SQLFATO :=
+                    REPLACE (V_SQLFATO,
+                             'PCLANC.DTCOMPETENCIA BETWEEN',
+                             'PCLANC.DTLANC BETWEEN');                
+            END IF;        
         END IF;
 
         IF (V_CODFATOGERADOR = 13) AND (VS_BAIXA_ADIANT_FOR_MOV_NUM = 'N') THEN
