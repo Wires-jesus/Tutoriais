@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW VW_INT_C5_CFOP AS
 SELECT *FROM
   (SELECT DISTINCT
-          a.cfop                          AS codgeraloper,
+          CONCAT(a.codst,o.codfiscal)     AS codgeraloper,
           SUBSTR(UPPER(o.desccfo),1,40)   AS descricao,
           SUBSTR(UPPER(o.desccfo),1,80)   AS aplicacao,
           a.codst                         AS nrotributacao,
