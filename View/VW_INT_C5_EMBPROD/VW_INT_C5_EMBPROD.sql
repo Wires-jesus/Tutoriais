@@ -92,6 +92,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODEMPRESA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCODIGO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECO')
+             or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAO')
+             or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMSEGMENTO')
+             or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
              ) DTPADRAO
       WHERE p.codprod = e.codprod
@@ -106,8 +109,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND NVL(e.enviafrentecaixa,'S') = 'S'
         AND e.dtinativo IS NULL
         AND f.proibidavenda = 'N'
-        AND p.codprod >= 0
+        --AND p.codprod >= 0
         --AND LENGTH(e.codauxiliar) <= 14
         AND NVL(e.pvenda,0) >= 0
-        AND NVL(p.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO)
+        AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                     NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO)
 
