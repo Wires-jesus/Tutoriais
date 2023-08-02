@@ -1781,7 +1781,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_codgeraloper(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_codgeraloper s
-        USING (SELECT * FROM VW_INT_C5_CODOPERGERAL) b
+        USING (SELECT * FROM VW_INT_C5_CODGERALOPER) b
       ON (s.CODGERALOPER = b.CODGERALOPER)
       WHEN MATCHED THEN
       UPDATE SET
