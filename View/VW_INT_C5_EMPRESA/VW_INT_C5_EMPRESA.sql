@@ -17,7 +17,7 @@ SELECT f.codigo nroempresa,
         END) ativo,
         (SELECT UF FROM PCREGIAO WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') ) idref
   FROM  pcfilial f,
-       (select s.ultimaexecucao from pccontroleconsinco s
+       (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
         where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA'
         or upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESASEGMENTO') DTPADRAO
  WHERE f.codigo >= '0'
