@@ -127,3 +127,53 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
                             AND VALOR IS NOT NULL)
       )PRODTRIB
  )
+
+ \
+
+CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPER AS
+(SELECT 65  codgeraloper,
+        SUBSTR(UPPER(O.desccfo),1,40)    descricao,
+        SUBSTR(UPPER(O.desccfo),1,80)    aplicacao,
+        5102                             cfopestado,
+        6102                             cfopforaestado,
+        'N'                              calculaicmsst,
+        'N'                              gerareducaobasest,
+        'N'                              calculaipi,
+        'N'                              tipocalculoipi,
+        'N'                              calculafecp,
+        'T'                              tipofaturamento,
+        'S'                              ativo,
+         O.dtalterc5                     dtalterc5,
+        'N'                              consumidorfinal,
+        'N'                              vendapresencial,
+        'P'                              tipotributacao
+ FROM  PCCFO O,
+       
+       (select min(s.ultimaexecucao) ultimaexecucao
+        from pccontroleconsinco s
+        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPER')
+       )DTPADRAO
+
+ WHERE O.codfiscal = 5102
+ AND   NVL(O.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO)
+
+ \
+
+CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPERCFOP AS
+(SELECT   65      codgeraloper,
+          T.CODST nrotributacao,
+          'N'     contribicms,
+          T.CODFISCAL  cfopestado,
+          T.CODFISCALINTER cfopforaestado,
+          'S' ativo,
+          T.DTALTERC5 dtalterc5
+FROM  PCTRIBUT T,
+      
+     (select s.ultimaexecucao
+      from pccontroleconsinco s
+      where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')
+     )DTPADRAO
+WHERE  NVL(T.SITTRIBUTECF, T.SITTRIBUTPF) IN ('00','20','40','41','60','61','90')
+AND    NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+
+)
