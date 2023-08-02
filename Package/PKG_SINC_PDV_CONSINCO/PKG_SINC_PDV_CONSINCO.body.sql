@@ -1779,35 +1779,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE carrega_tb_codgeraloper(p_id IN pccontroleconsinco.id%TYPE) AS
-    BEGIN
-      
+  BEGIN
     MERGE INTO monitorpdvmiddle.tb_codgeraloper s
-        USING (
-        SELECT *FROM(
-        SELECT DISTINCT CODGERALOPER, 
-                      DESCRICAO, 
-                      APLICACAO, 
-                      NROTRIBUTACAO, 
-                      CFOPESTADO, 
-                      CFOPFORAESTADO, 
-                      ATIVO,
-                      TIPOTRIBUTACAO,
-                      VENDAPRESENCIAL,
-                      CONSUMIDORFINAL,
-                      TIPOFATURAMENTO,
-                      CALCULAFECP,
-                      TIPOCALCULOIPI,
-                      CALCULAIPI,
-                      GERAREDUCAOBASEST,
-                      CALCULAICMSST,
-                      DTALTERC5,
-                      (SELECT MIN(S.ULTIMAEXECUCAO) 
-                              FROM PCCONTROLECONSINCO S 
-                       WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPER') AS ULTIMAEXECAUCAO
-                 FROM VW_INT_C5_CFOP)
-                 WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO) b
-                
-         
+        USING (SELECT * FROM VW_INT_C5_CODOPERGERAL) b
       ON (s.CODGERALOPER = b.CODGERALOPER)
       WHEN MATCHED THEN
       UPDATE SET
@@ -1891,42 +1865,29 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
   
   PROCEDURE carrega_tb_codgeralopercfop(p_id IN pccontroleconsinco.id%TYPE) AS
-    BEGIN
-      
+  BEGIN
     MERGE INTO monitorpdvmiddle.tb_codgeralopercfop s
-        USING (
-              SELECT *FROM( 
-                 SELECT DISTINCT CODGERALOPER,
-                   NROTRIBUTACAO,
-                   CONTRIBICMS,   
-                   CFOPESTADO,     
-                   ATIVO,
-                   DTALTERC5,
-                   (SELECT MIN(S.ULTIMAEXECUCAO) 
-                                FROM PCCONTROLECONSINCO S 
-                         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP') AS ULTIMAEXECAUCAO
-                    FROM VW_INT_C5_CFOP)
-                WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO) b
-                 
-      ON (s.CODGERALOPER = b.CODGERALOPER)
+        USING ( SELECT * FROM VW_INT_C5_CODGERALOPERCFOP) b
+      ON (S.CODGERALOPER = B.CODGERALOPER AND S.NROTRIBUTACAO = B.NROTRIBUTACAO AND S.CONTRIBICMS = B.CONTRIBICMS)
       WHEN MATCHED THEN
       UPDATE SET
-               s.NROTRIBUTACAO  = b.NROTRIBUTACAO,
-               s.CONTRIBICMS    = b.CONTRIBICMS ,
                s.CFOPESTADO     = b.CFOPESTADO,
+               s.cfopforaestado = b.cfopforaestado,
                s.ATIVO          = b.ATIVO
  
       WHEN NOT MATCHED THEN
          INSERT (s.CODGERALOPER,
                  s.NROTRIBUTACAO,
                  s.CONTRIBICMS,   
-                 s.CFOPESTADO,     
+                 s.CFOPESTADO,
+                 s.cfopforaestado,     
                  s.ATIVO)
                 VALUES
                   (b.CODGERALOPER,
                    b.NROTRIBUTACAO,
                    b.CONTRIBICMS,   
-                   b.CFOPESTADO,     
+                   b.CFOPESTADO,  
+                   b.cfopforaestado,   
                    b.ATIVO);
 
     INSERT INTO PCDEVLOGCONSINCO
