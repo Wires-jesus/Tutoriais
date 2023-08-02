@@ -1,2 +1,2 @@
-{"nome":"PROCESSO_CARGA_INT_C5_CATEGORIA","tipoPLSQL":"MIGRATION","dependencias":[{"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"}]}
+{"nome":"PROCESSO_CARGA_INT_C5_CATEGORIA","tipoPLSQL":"MIGRATION","dependencias":[{"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"}]}
 
