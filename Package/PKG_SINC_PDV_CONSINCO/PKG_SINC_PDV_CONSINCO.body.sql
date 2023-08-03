@@ -1117,7 +1117,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.tipo            = b.tipo,
                s.ativo           = b.ativo,
                s.lerpeso         = b.lerpeso,
-               s.NIVELHIERARQUIA = b.nivelhierarquia
+               s.NIVELHIERARQUIA = b.nivelhierarquia,
+               s.idref           = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqcategoriapai,
                 s.categoria,
@@ -1126,7 +1127,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.lerpeso,
                 s.seqcategoria,
                 s.nrodivisao,
-                s.NIVELHIERARQUIA)
+                s.NIVELHIERARQUIA,
+                s.idref)
                 VALUES
                 (b.seqcategoriapai,
                  b.categoria,
@@ -1135,7 +1137,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.lerpeso,
                  b.seqcategoria,
                  b.nrodivisao,
-                 b.nivelhierarquia);
+                 b.nivelhierarquia,
+                 b.idref);
 
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
