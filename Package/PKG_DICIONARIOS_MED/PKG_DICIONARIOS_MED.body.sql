@@ -17899,8 +17899,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                viLiberacaoDeCanais := 0;
               
                viQtdCompraColetiva := 0;
-               IF vtTIPOPROMOCAO(viIdxPromocao) = 'Q' THEN
-                 viQtdCompraColetiva := vtVALORMINIMO(viIdxPromocao); 
+               IF vtTIPOPROMOCAO(viIdxPromocao) IN ('M', 'F') THEN
+                 viQtdCompraColetiva := NVL(vtVALORMINIMO(viIdxPromocao),0); 
                END IF;
 			   
                vvConteudoCondicao := '1'                                                  ||
