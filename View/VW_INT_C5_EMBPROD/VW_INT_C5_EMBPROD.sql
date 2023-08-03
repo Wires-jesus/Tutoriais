@@ -42,8 +42,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(e.prodsemcodbarras,'N') prodsemcodbarras,
             p.codfornec codfornec_prod,
             p.volume volume_prod,
-            --NVL(p.codmarca,1) codmarca,
-            1 codmarca, /*VALOR FIXADO ATÉ REALIZAR A ALTERAÇÃO PARA GARANTIR QUE AS MARCAS VINCULADAS NO PRODUTOS EXISTEM NA PCMARCA*/
+            p.codmarca, 
             NVL(p.tipomerc,'L') tipomerc,
             p.nbm codncmsh,
             LENGTH(p.nbm) tamanho_codncmsh,
