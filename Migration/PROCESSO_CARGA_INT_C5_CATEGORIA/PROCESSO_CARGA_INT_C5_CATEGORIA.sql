@@ -1,118 +1,132 @@
 CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
 (
- SELECT "SEQCATEGORIA","NRODIVISAO","SEQCATEGORIAPAI","TIPO","NIVELHIERARQUIA","CATEGORIA","ATIVO","LERPESO","NROCARGA","DATA","ULTIMAEXECUCAO"
-  FROM (SELECT A.CODEPTO SEQCATEGORIA,
-               1 NRODIVISAO,
-               NULL SEQCATEGORIAPAI,
-               'M' TIPO,
-               1 NIVELHIERARQUIA,
-               SUBSTR(A.descricao, 0, 25)  CATEGORIA,
-               COALESCE(ATIVO, 'S') ATIVO,
-               'N' lerpeso,
-               0 NROCARGA,
-               GREATEST(NVL(C.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(B.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(A.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(D.dtalterc5, DATAPADRAO.ultimaexecucao)) DATA,
-               DATAPADRAO.ultimaexecucao
-          FROM PCSUBCATEGORIA D,
-               PCCATEGORIA C,
-               PCSECAO B,
-               PCDEPTO A,
-               (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
-         WHERE A.CODEPTO = B.CODEPTO(+)
-           and B.CODSEC = C.CODSEC(+)
-           and C.CODCATEGORIA = D.CODCATEGORIA(+)
-        UNION ALL
-        SELECT B.CODSEC SEQCATEGORIA,
-               1 NRODIVISAO,
-               A.CODEPTO SEQCATEGORIAPAI,
-               'M' TIPO,
-               2 NIVELHIERARQUIA,
-               SUBSTR(B.DESCRICAO, 0, 25) CATEGORIA,
-               COALESCE(ATIVO, 'S') ATIVO,
-               'N' lerpeso,
-               0 NROCARGA,
-               GREATEST(NVL(C.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(B.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(A.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(D.dtalterc5, DATAPADRAO.ultimaexecucao)) DATA,
-               DATAPADRAO.ultimaexecucao
-          FROM PCSUBCATEGORIA D,
-               PCCATEGORIA C,
-               PCSECAO B,
-               PCDEPTO A,
-               (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
-         WHERE A.CODEPTO = B.CODEPTO
-           and B.CODSEC = C.CODSEC(+)
-           and C.CODCATEGORIA = D.CODCATEGORIA(+)
+ SELECT DISTINCT
+       REGPARAOVAREJO.VALOR  NRODIVISAO,
+       to_number(DADOSCLASSIFIC.SEQCATEGORIA) SEQCATEGORIA,
+       DADOSCLASSIFIC.SEQCATEGORIAPAI,
+       'M' TIPO,
+       DADOSCLASSIFIC.NIVELHIERARQUIA,
+       DADOSCLASSIFIC.CATEGORIA,
+       DADOSCLASSIFIC.ATIVO,
+       'N' LERPESO,
+       0 NROCARGA,
+       IDREF,
+       DADOSCLASSIFIC.DTALTERC5
 
-        UNION ALL
-        SELECT C.CODCATEGORIA SEQCATEGORIA,
-               1 NRODIVISAO,
-               B.CODSEC SEQCATEGORIAPAI,
-               'M' TIPO,
-               3 NIVELHIERARQUIA,
-               SUBSTR(C.CATEGORIA, 0,25) CATEGORIA,
-               COALESCE(ATIVO, 'S') ATIVO,
-               'N' lerpeso,
-               0 NROCARGA,
-               GREATEST(NVL(C.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(B.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(A.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(D.dtalterc5, DATAPADRAO.ultimaexecucao)) DATA,
-               DATAPADRAO.ultimaexecucao
-          FROM PCSUBCATEGORIA D,
-               PCCATEGORIA C,
-               PCSECAO B,
-               PCDEPTO A,
-               (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
-         WHERE A.CODEPTO = B.CODEPTO
-           and B.CODSEC = C.CODSEC
-           and C.CODCATEGORIA = D.CODCATEGORIA(+)
-        UNION ALL
-        SELECT D.CODSUBCATEGORIA SEQCATEGORIA,
-               1 NRODIVISAO,
-               D.CODCATEGORIA SEQCATEGORIAPAI,
-               'M' TIPO,
-               4 NIVELHIERARQUIA,
-               SUBSTR(D.SUBCATEGORIA, 0 , 25) CATEGORIA,
-               COALESCE(ATIVO, 'S') ATIVO,
-               'N' lerpeso,
-               0 NROCARGA,
-               GREATEST(NVL(C.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(B.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(A.dtalterc5, DATAPADRAO.ultimaexecucao),
-                        NVL(D.dtalterc5, DATAPADRAO.ultimaexecucao)) DATA,
-               DATAPADRAO.ultimaexecucao
-          FROM PCSUBCATEGORIA D,
-               PCCATEGORIA C,
-               PCSECAO B,
-               PCDEPTO A,
-               (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
-         WHERE A.CODEPTO = B.CODEPTO
-           and B.CODSEC = C.CODSEC
-           and C.CODCATEGORIA = D.CODCATEGORIA(+)) A
- WHERE A.DATA >= A.ultimaexecucao
+FROM
+ (SELECT 0||CODEPTO SEQCATEGORIA,
+         NULL SEQCATEGORIAPAI,
+         1 NIVELHIERARQUIA,
+         SUBSTR(UPPER(DESCRICAO), 0, 25) CATEGORIA,
+         NVL(ATIVO, 'S') ATIVO,
+         CODEPTO IDREF,
+         DTALTERC5
+
+  FROM PCDEPTO,
+       (SELECT S.ULTIMAEXECUCAO
+        FROM PCCONTROLECONSINCO S
+        WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
+
+  WHERE NVL(DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+------------------
+UNION ALL
+  SELECT A.CODEPTO||B.CODSEC SEQCATEGORIA,
+       A.CODEPTO SEQCATEGORIAPAI,
+       2 NIVELHIERARQUIA,
+       SUBSTR(UPPER(B.DESCRICAO), 0, 25) CATEGORIA,
+       NVL(A.ATIVO, 'S') ATIVO,
+       B.CODSEC IDREF,
+       B.DTALTERC5
+  FROM PCSECAO B,
+       PCDEPTO A,
+       (SELECT S.ULTIMAEXECUCAO
+        FROM PCCONTROLECONSINCO S
+        WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
+  WHERE A.CODEPTO = B.CODEPTO
+  AND   NVL(B.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+------------------
+UNION ALL
+  SELECT A.CODEPTO||B.CODSEC||C.CODCATEGORIA SEQCATEGORIA,
+       B.CODSEC SEQCATEGORIAPAI,
+       3 NIVELHIERARQUIA,
+       SUBSTR(UPPER(C.CATEGORIA),0,25) CATEGORIA,
+       NVL(A.ATIVO, 'S') ATIVO,
+       C.CODCATEGORIA IDREF,
+       C.DTALTERC5
+  FROM PCCATEGORIA C,
+       PCSECAO B,
+       PCDEPTO A,
+       (SELECT S.ULTIMAEXECUCAO
+          FROM PCCONTROLECONSINCO S
+         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
+  WHERE A.CODEPTO = B.CODEPTO
+  AND B.CODSEC = C.CODSEC
+  AND NVL(C.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+-----------------------
+UNION ALL
+  SELECT A.CODEPTO||B.CODSEC||C.CODCATEGORIA||D.CODSUBCATEGORIA SEQCATEGORIA,
+       C.CODCATEGORIA SEQCATEGORIAPAI,
+       4 NIVELHIERARQUIA,
+       SUBSTR(UPPER(D.SUBCATEGORIA), 0, 25) CATEGORIA,
+       NVL(ATIVO, 'S') ATIVO,
+       D.CODSUBCATEGORIA IDREF,
+       D.DTALTERC5
+  FROM PCSUBCATEGORIA D,
+       PCCATEGORIA C,
+       PCSECAO B,
+       PCDEPTO A,
+       (SELECT S.ULTIMAEXECUCAO
+          FROM PCCONTROLECONSINCO S
+         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') DATAPADRAO
+  WHERE A.CODEPTO = B.CODEPTO
+  AND B.CODSEC = C.CODSEC
+  AND C.CODCATEGORIA = D.CODCATEGORIA
+  AND NVL(D.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+  ) DADOSCLASSIFIC,
+
+  (SELECT DISTINCT PCPARAMFILIAL.VALOR
+   FROM PCPARAMFILIAL
+   WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+   AND VALOR <> '99'
+   AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+  ) REGPARAOVAREJO
+
+WHERE REGPARAOVAREJO.VALOR IS NOT NULL
 )
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAOCATEGORIA AS
 (SELECT
-       e.codprod seqfamilia,
-       -- COALESCE(s.codsec,d.codepto) seqcategoria,
-       
-       (select COALESCE(s.codsec, d.codepto) 
-        from pcdepto d, pcsecao s 
-        where e.codepto = d.codepto
-        AND  e.codsec = s.codsec(+)
-        and   d.codepto = s.codepto(+)
-        and   (d.codepto <> 999 OR s.codsec <> 9999 )
-       ) seqcategoria,
-        
-        1 nrodivisao,
-       'S' ativo
-  FROM  VW_INT_C5_EMBPROD e
-       )
+    VW_INT_C5_CATEGORIA.NRODIVISAO,
+    VW_INT_C5_FAMILIA.SEQFAMILIA,
+    VW_INT_C5_CATEGORIA.SEQCATEGORIA,
+    'S' ATIVO,
+    VW_INT_C5_CATEGORIA.NIVELHIERARQUIA IDREF
 
+ FROM VW_INT_C5_CATEGORIA,
+      VW_INT_C5_FAMILIA,
+      (SELECT
+         CODPROD,
+         CODEPTO,
+         CODSEC,
+         CODCATEGORIA,
+         CODSUBCATEGORIA,
+         (CASE
+            WHEN CODSUBCATEGORIA IS NOT NULL THEN
+                 CODEPTO||CODSEC||CODCATEGORIA||CODSUBCATEGORIA
+            WHEN CODCATEGORIA IS NOT NULL THEN
+                 CODEPTO||CODSEC||CODCATEGORIA
+            WHEN CODSEC IS NOT NULL THEN
+                 CODEPTO||CODSEC
+            ELSE '0'||CODEPTO
+         END) SEQCATEGORIA
+       FROM PCPRODUT
+       WHERE ((CODEPTO IS NOT NULL) AND (CODSEC IS NOT NULL) AND (CODCATEGORIA IS NOT NULL) AND (CODSUBCATEGORIA IS NOT NULL)) --SUBCATEGORIA
+          OR ((CODEPTO IS NOT NULL) AND (CODSEC IS NOT NULL) AND (CODCATEGORIA IS NOT NULL) AND (CODSUBCATEGORIA IS NULL)) -- CATEGORIA
+          OR ((CODEPTO IS NOT NULL) AND (CODSEC IS NOT NULL) AND (CODCATEGORIA IS NULL) AND (CODSUBCATEGORIA IS NULL)) --SECAO
+          OR (CODEPTO IS NOT NULL) --DEPARTAMENTO
+        )PRODCATEGORIA
+ WHERE PRODCATEGORIA.CODPROD = VW_INT_C5_FAMILIA.SEQFAMILIA
+ AND   PRODCATEGORIA.SEQCATEGORIA =  VW_INT_C5_CATEGORIA.SEQCATEGORIA
+)
