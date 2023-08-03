@@ -43,7 +43,7 @@ FROM pctribut t,
      (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
 
 WHERE t.codst = c.codst
-      AND NVL(t.sittributecf, t.sittribut) IN ('00', '20', '40', '41', '60', '61', '90')
+     -- AND NVL(t.sittributecf, t.sittribut) IN ('00', '20', '40', '41', '60', '61', '90')
       AND t.codecf IS NOT NULL
       AND t.codst is not null)
 
@@ -173,7 +173,7 @@ FROM  PCTRIBUT T,
       from pccontroleconsinco s
       where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')
      )DTPADRAO
-WHERE  NVL(T.SITTRIBUTECF, T.SITTRIBUTPF) IN ('00','20','40','41','60','61','90')
-AND    NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+--WHERE  NVL(T.SITTRIBUTECF, T.SITTRIBUTPF) IN ('00','20','40','41','60','61','90')
+WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
 
 )
