@@ -17229,6 +17229,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtFIMINTERVALO_AUX           TT_NUMBER;
     vtOBRIGATORIO_AUX            TT_VARCHAR2;
     vtFAIXAZERO_AUX              TT_VARCHAR2;
+	vtVALORMINIMO_AUX            TT_NUMBER;
     --
     vtCODPROMOCAOMED             TT_NUMBER;
     vtDESCRICAORESUMIDA          TT_VARCHAR2;
@@ -17254,6 +17255,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtFIMINTERVALOPROMOCAOMED    TT_NUMBER;
     vtPROMOCAOMEDOBRIGATORIO     TT_VARCHAR2;
     vtFAIXAZERO                  TT_VARCHAR2;
+	vtVALORMINIMO                TT_NUMBER;
     --
     vtCODPLPAG                   TT_NUMBER;
     vtCGCFILIAL_PLPAG            TT_VARCHAR2;
@@ -17300,6 +17302,12 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvQuebraAnteriorProgressivo  VARCHAR2(255);
     vvNovaQuebraProgressivo      VARCHAR2(255);
     viIdxProxItem                INTEGER;
+	vsVersaoLayout               PCCONFIGSISTOPERLOG.VERSAO%TYPE;
+	vsMixProduto                 VARCHAR(1);
+    vsTipoFaixaProgressivo       VARCHAR(1);
+    viQtdCompraColetiva          PCPROMOCAOMED.VLRMINITENSPROMOCAO%TYPE;
+    viLimitador                  NUMBER; 
+    viLiberacaoDeCanais          NUMBER;
     
     -------------------------------------------------------------------------------------------------------
     -- Procedimento para Gerar as Filiais sempre que houver qualquer alteração da Promoção - DDVENDAS-37737
@@ -17393,9 +17401,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       SELECT PCCONFIGSISTOPERLOG.INTEGRADORA
            , PCCONFIGSISTOPERLOG.GERARACORDOPRECO
            , PCCONFIGSISTOPERLOG.APLICARINDICEACORDOPRECO
+		   , PCCONFIGSISTOPERLOG.VERSAO
         INTO vnIntegradora
            , vvGerarAcordoPreco
            , vvAplicarIndiceAcordoPreco
+		   , vsVersaoLayout
         FROM PCCONFIGSISTOPERLOG
        WHERE (PCCONFIGSISTOPERLOG.CODSISTEMA = pi_vCodSistema);
     EXCEPTION
@@ -17403,6 +17413,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vnIntegradora              := NULL;
         vvGerarAcordoPreco         := NULL;
         vvAplicarIndiceAcordoPreco := NULL;
+		vsVersaoLayout             := NULL;
     END;
     
     -- Pesquisa o Tipo de Preço da Integradora
@@ -17549,6 +17560,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESC_HYPER.FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
+					  , VIEW_MED_PROMOCAO.VALORMINIMO
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17614,6 +17626,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
+					  , VIEW_MED_PROMOCAO.VALORMINIMO
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17729,7 +17742,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtFIMINTERVALOPROMOCAOMED(viIdxProxItem)    := (vtINICIOINTERVALO_AUX(viIdxPromocao) - 1); -- NOVO VALOR FINAL
               vtPROMOCAOMEDOBRIGATORIO(viIdxProxItem)     := vtOBRIGATORIO_AUX(viIdxPromocao);
               vtFAIXAZERO(viIdxProxItem)                  := 'S'; -->> INDICATIVO DE FAIXA ZERO PARA NÃO TER DESCONTO
-              
+              vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
             -- Se a primeira faixa iniciar no valor 1, somente puxa a quantidade inicial para zero
             ELSE
 
@@ -17771,6 +17784,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vtFIMINTERVALOPROMOCAOMED(viIdxProxItem)    := vtFIMINTERVALO_AUX(viIdxPromocao);
         vtPROMOCAOMEDOBRIGATORIO(viIdxProxItem)     := vtOBRIGATORIO_AUX(viIdxPromocao);
         vtFAIXAZERO(viIdxProxItem)                  := vtFAIXAZERO_AUX(viIdxPromocao);
+		vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
       
       END LOOP;
 
@@ -17871,11 +17885,24 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Somente Faixa de Quantidade é Progressivo
             IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F')) THEN              
               vvProgressivoCondicao := 'S';
+			  vsTipoFaixaProgressivo := 'Q';
             ELSE
-            vvProgressivoCondicao := 'N';
+              vvProgressivoCondicao := 'N';
+			  vsTipoFaixaProgressivo := '';
             END IF;            
-            --
-            vvConteudoCondicao := '1'                                                     ||
+            
+			-- Novo Layout
+			IF vsVersaoLayout = '4.18.2' THEN
+               vsMixProduto        := 'N';
+               viLimitador         := 99999;
+               viLiberacaoDeCanais := 0;
+              
+               viQtdCompraColetiva := 0;
+               IF vtTIPOPROMOCAO(viIdxPromocao) = 'Q' THEN
+                 viQtdCompraColetiva := vtVALORMINIMO(viIdxPromocao); 
+               END IF;
+			   
+               vvConteudoCondicao := '1'                                                  ||
                                   RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
                                   GET_CHR_OP                                              ||
                                   RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
@@ -17885,7 +17912,26 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
                                   RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
                                   RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
-                                  RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1);        
+                                  RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1)    ||
+                                  RPAD_BRANCOS(vsMixProduto,1)                            ||
+                                  RPAD_BRANCOS(vsTipoFaixaProgressivo,1)                  ||
+                                  RPAD_BRANCOS(viQtdCompraColetiva,5)                     ||
+                                  RPAD_BRANCOS(viLimitador,5)                             ||
+                                  RPAD_BRANCOS(viLiberacaoDeCanais,1);
+            ELSE
+               vvConteudoCondicao := '1'                                                  ||
+                                  RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
+                                  GET_CHR_OP                                              ||
+                                  RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
+                                  TO_CHAR(vtDATAINICIAL(viIdxPromocao), 'YYYYMMDD')       ||
+                                  TO_CHAR(vtDATAFINAL(viIdxPromocao), 'YYYYMMDD')         ||
+                                  RPAD_BRANCOS(vtATIVA(viIdxPromocao), 1)                 ||
+                                  RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
+                                  RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
+                                  RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
+                                  RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1);
+            END IF; -- vsVersaoLayout = '4.18.2'
+			
           -- Registro de Condição - Demais Promoções
           ELSE
             vvConteudoCondicao := '1'                                                   ||
