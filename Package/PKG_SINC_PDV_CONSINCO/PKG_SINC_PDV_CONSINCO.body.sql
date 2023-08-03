@@ -665,10 +665,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.codncmsh,
                     v.codcest,
                     v.ativo,
-                    v.seqmarca,
+                    NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
                     v.pesavel
-      FROM VW_INT_C5_FAMILIA v
+      FROM VW_INT_C5_FAMILIA v,
+           (SELECT VALOR FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO') PARAM 
+           /*FORA DA VIEW POIS A MESMA É EXECUTADA EM OUTROS PROCESSOS QUE NAO VALIDAM MARCA*/
       ) b
 
       ON (s.seqfamilia = B.seqfamilia)
