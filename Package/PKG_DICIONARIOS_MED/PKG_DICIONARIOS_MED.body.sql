@@ -17690,7 +17690,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , vtINICIOINTERVALO_AUX
                         , vtFIMINTERVALO_AUX
                         , vtOBRIGATORIO_AUX
-                        , vtFAIXAZERO_AUX;
+                        , vtFAIXAZERO_AUX
+						, vtVALORMINIMO_AUX;
     EXCEPTION
       WHEN OTHERS THEN
         RAISE e_View;
@@ -17915,8 +17916,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1)    ||
                                   RPAD_BRANCOS(vsMixProduto,1)                            ||
                                   RPAD_BRANCOS(vsTipoFaixaProgressivo,1)                  ||
-                                  RPAD_BRANCOS(viQtdCompraColetiva,5)                     ||
-                                  RPAD_BRANCOS(viLimitador,5)                             ||
+                                  LPAD_ZEROS(viQtdCompraColetiva,5)                       ||
+                                  LPAD_ZEROS(viLimitador,5)                               ||
                                   RPAD_BRANCOS(viLiberacaoDeCanais,1);
             ELSE
                vvConteudoCondicao := '1'                                                  ||
