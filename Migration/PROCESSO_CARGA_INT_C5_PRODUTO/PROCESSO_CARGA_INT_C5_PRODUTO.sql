@@ -1,15 +1,25 @@
 CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
 (
-SELECT  DISTINCT m.codmarca     AS seqmarca,
-        SUBSTR(m.marca,1,20)    AS marca,
-        COALESCE(m.ativo,'S')   AS ativo,
-        m.dtultalter            AS dtultalter,
-        m.dtcadastro            AS dtcadastro
-FROM pcprodut p
-INNER JOIN pcmarca m
-ON m.codmarca = p.codmarca
-AND m.codmarca > 0
-AND m.ativo = 'S'
+  SELECT DISTINCT
+         MARCA.*
+  FROM(
+        SELECT  DISTINCT 
+              m.codmarca     AS seqmarca,
+              SUBSTR(m.marca,1,20)    AS marca,
+              COALESCE(m.ativo,'S')   AS ativo
+        FROM pcprodut p
+        INNER JOIN pcmarca m
+        ON m.codmarca = p.codmarca
+        AND m.codmarca > 0
+        AND m.ativo = 'S'
+  UNION ALL
+        SELECT  CODMARCA seqmarca,
+                SUBSTR(MARCA,1,20) marca,
+                COALESCE(ATIVO,'S') ativo
+        FROM PCMARCA 
+        WHERE CODMARCA > 0
+        AND ATIVO = 'S'
+        AND CODMARCA = ferramentas.f_buscarparametro_num('MARCAINTEGRACAOCONSINCO', '99', '1')) MARCA
 )
 
  \
