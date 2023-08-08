@@ -1,8 +1,8 @@
 CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
 (
   SELECT 
-  P.CODPRECOPROM AS SEQREGRA, -- chave primária da tabela 
-  'PRECO FIXO' AS REGRA,   -- descrição da regra
+  P.CODPRECOPROM AS SEQREGRA, -- chave primÃ¡ria da tabela 
+  'PRECO FIXO' AS REGRA,   -- descriÃ§Ã£o da regra
   3 AS SEQREGRATIPO, -- enviar 3
   CASE
     WHEN (SELECT L.CODPRECOPROM FROM PCPRECOPROMLOG L 
@@ -10,11 +10,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
     WHEN (SELECT P.CODPRECOPROM FROM PCPRECOPROM P 
             WHERE P.DTFIMVIGENCIA = (SELECT SYSDATE FROM DUAL)) > 0 THEN 'N'  
     ELSE 'S'
-  END AS ATIVO, -- caso a política esteja na tabela PCPRECOPROMLOG ou fora do período de vigência, considerar N, se não, S.
+  END AS ATIVO, -- caso a polÃ­tica esteja na tabela PCPRECOPROMLOG ou fora do perÃ­odo de vigÃªncia, considerar N, se nÃ£o, S.
   'G' AS TIPOREGRA, -- G
   'S' AS CUMULATIVO, -- S
-  P.DTINICIOVIGENCIA DTAHORINICIO, -- data de início da vigência
-  P.DTFIMVIGENCIA  DTAHORFIM, -- data de fim da vigência
+  P.DTINICIOVIGENCIA DTAHORINICIO, -- data de inÃ­cio da vigÃªncia
+  P.DTFIMVIGENCIA  DTAHORFIM, -- data de fim da vigÃªncia
   D.EMBALAGEM SEQPRODUTO,
   D.QTUNIT QTDEMBALAGEM,
   0 PERCDESCONTO,
@@ -27,4 +27,4 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
         ) DTPADRAO
       where NVL(P.DTULTALTER, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND P.CODPROD = D.CODPROD
-);
+)
