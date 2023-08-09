@@ -2270,7 +2270,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
       END;
   END;
 
-PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
         USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
@@ -2301,7 +2301,7 @@ PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE) A
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
-        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraincentivoperiodo', 'carrega_tb_regraincentivoperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraincentperiodo', 'carrega_tb_regraincentperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
 
     COMMIT;
     EXCEPTION
@@ -2313,8 +2313,8 @@ PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE) A
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_regraincentivoperiodo',
-           'carrega_tb_regraincentivoperiodo ERRO',
+           'carrega_tb_regraincentperiodo',
+           'carrega_tb_regraincentperiodo ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
