@@ -1,8 +1,13 @@
 {
-   "nome": "PCCONTROLECONSINCO_REGISTROS",
+   "nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
    "tipoPLSQL": "MIGRATION",
    "dependencias":[
       {
+        "nome": "PCTIPOPROCESSOCONSINCO",
+        "tipo": "TABELA",
+        "versao": "4.0.01.000"
+      },
+	  {
         "nome": "PCCONTROLECONSINCO",
         "tipo": "TABELA",
         "versao": "4.0.05.000"
