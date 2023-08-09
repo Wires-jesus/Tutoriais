@@ -2213,6 +2213,171 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
+PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+      MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
+        USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
+      on(
+        tb_regraincentivo_C5.SEQREGRA       = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+      )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_regraincentivo_C5.REGRA        = VIEW_C5_PRECOFIXO_R357.REGRA,
+          tb_regraincentivo_C5.SEQREGRATIPO = VIEW_C5_PRECOFIXO_R357.SEQREGRATIPO,
+          tb_regraincentivo_C5.ATIVO        = VIEW_C5_PRECOFIXO_R357.ATIVO,
+          tb_regraincentivo_C5.TIPOREGRA    = VIEW_C5_PRECOFIXO_R357.TIPOREGRA,
+          tb_regraincentivo_C5.CUMULATIVO   = VIEW_C5_PRECOFIXO_R357.CUMULATIVO          
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_regraincentivo_C5.SEQREGRA,
+          tb_regraincentivo_C5.REGRA,
+          tb_regraincentivo_C5.SEQREGRATIPO,
+          tb_regraincentivo_C5.ATIVO,
+          tb_regraincentivo_C5.TIPOREGRA,
+          tb_regraincentivo_C5.CUMULATIVO          
+        ) 
+        VALUES(
+          VIEW_C5_PRECOFIXO_R357.SEQREGRA,
+          VIEW_C5_PRECOFIXO_R357.REGRA,
+          VIEW_C5_PRECOFIXO_R357.SEQREGRATIPO,
+          VIEW_C5_PRECOFIXO_R357.ATIVO,
+          VIEW_C5_PRECOFIXO_R357.TIPOREGRA,
+          VIEW_C5_PRECOFIXO_R357.CUMULATIVO
+        );
+
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraincentivo', 'carrega_tb_regraincentivo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraincentivo',
+           'carrega_tb_regraincentivo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
+PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+      MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
+        USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
+      on(
+             tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+        AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_PRECOFIXO_R357.DTAHORINICIO
+        AND  tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_PRECOFIXO_R357.DTAHORFIM
+        
+      )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_regraincentivoperiodo_c5.ATIVO           = VIEW_C5_PRECOFIXO_R357.ATIVO
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_regraincentivoperiodo_c5.SEQREGRA,
+          tb_regraincentivoperiodo_c5.DTAHORINICIO,
+          tb_regraincentivoperiodo_c5.DTAHORFIM,
+          tb_regraincentivoperiodo_c5.ATIVO
+        ) 
+        VALUES(
+          VIEW_C5_PRECOFIXO_R357.SEQREGRA,
+          VIEW_C5_PRECOFIXO_R357.DTAHORINICIO,
+          VIEW_C5_PRECOFIXO_R357.DTAHORFIM,
+          VIEW_C5_PRECOFIXO_R357.ATIVO
+        );
+
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraincentivoperiodo', 'carrega_tb_regraincentivoperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraincentivoperiodo',
+           'carrega_tb_regraincentivoperiodo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
+PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+      MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
+        USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
+      on(
+            tb_regraproduto_c5.SEQPRODUTO    = VIEW_C5_PRECOFIXO_R357.SEQPRODUTO        
+        AND tb_regraproduto_c5.QTDEMBALAGEM  = VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM
+        AND tb_regraproduto_c5.SEQREGRA      = VIEW_C5_PRECOFIXO_R357.SEQREGRA        
+      )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_regraproduto_c5.PERCDESCONTO    = VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
+          tb_regraproduto_c5.PRECO           = VIEW_C5_PRECOFIXO_R357.PRECO,
+          tb_regraproduto_c5.ATIVO           = VIEW_C5_PRECOFIXO_R357.ATIVO 
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_regraproduto_c5.SEQREGRA,
+          tb_regraproduto_c5.SEQPRODUTO,
+          tb_regraproduto_c5.QTDEMBALAGEM,
+          tb_regraproduto_c5.PERCDESCONTO,
+          tb_regraproduto_c5.PRECO,          
+          tb_regraproduto_c5.ATIVO          
+        ) 
+        VALUES(
+          VIEW_C5_PRECOFIXO_R357.SEQREGRA,
+          VIEW_C5_PRECOFIXO_R357.SEQPRODUTO,
+          VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM,
+          VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
+          VIEW_C5_PRECOFIXO_R357.PRECO,
+          VIEW_C5_PRECOFIXO_R357.ATIVO
+        );
+
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraproduto', 'carrega_tb_regraproduto OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+    EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraproduto',
+           'carrega_tb_regraproduto ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
 
   PROCEDURE exec_sinc AS
 
