@@ -947,7 +947,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.abregaveta       = b.abregaveta,
                s.alternativa      = b.alternativa,
                s.faturamento      = b.faturamento,
-               s.idref            = b.codCob 
+               s.idref            = b.codCob,
+               s.nroParcelaJuro   = b.nroParcelaJuro
       WHEN NOT MATCHED THEN
         INSERT
             (s.percjuromensal,
@@ -969,7 +970,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.nroformapagto,
              s.nrosegmento,
              s.nroempresa,
-             s.idref
+             s.idref,
+             s.nroParcelaJuro
              )
           VALUES
             (b.percjuromensal,
@@ -991,7 +993,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nroformapagto,
              b.nrosegmento,
              b.nroempresa,
-             b.codCob);
+             b.codCob,
+             b.nroParcelaJuro);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
