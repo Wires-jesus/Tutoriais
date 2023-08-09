@@ -1,3 +1,171 @@
+/* Popular tabela PCTIPOCONTROLECONSINCO */
+
+delete from pctipoprocessoconsinco
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (1, 'tb_pessoa')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (2, 'tb_cliente')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (3, 'tb_segmento')
+
+\
+
+Insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (4, 'tb_empresa')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (5, 'tb_empresasegmento')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (6, 'tb_famgrupo')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (7, 'tb_marca')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (8, 'tb_familia')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (9, 'tb_produto')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (10, 'tb_formapagtoespecie')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (11, 'tb_clientesegmento')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (12, 'tb_formapagto')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (13, 'tb_formapagtoempresa')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (14, 'tb_famsegmento')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (15, 'tb_divisao')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (16, 'tb_categoria')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (17, 'tb_famdivisaocategoria')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (18, 'tb_prodempresa')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (19, 'tb_famembalagem')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (20, 'tb_prodcodigo')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (21, 'tb_prodpreco')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (22, 'tb_tributacao')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (23, 'tb_tributacaouf')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (24, 'tb_enderecoalternativo')
+
+\
+
+insert into pctipoprocessoconsinco (ID, DESCRICAO)
+values (25, 'tb_famdivisao')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (26, 'tb_cargatributaria')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (27, 'tb_condicaopagto')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (28, 'tb_codgeraloper')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (29, 'tb_codgeralopercfop')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (30, 'tb_regraincentivo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (31, 'tb_regraincentperiodo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (32, 'tb_regraproduto')
+
+/* Popular tabela PCCONTROLECONSINCO */
+
+\
+
 delete from pccontroleconsinco
 
 \
@@ -134,3 +302,28 @@ values (26, 26, 'Sincronização de tabela TB_CARGATRIBUTARIA', TRUNC(SYSDATE), 
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (27, 27, 'Sincronização de tabela TB_CONDICAOPAGTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_condicaopagto',  27,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (28, 28, 'Sincronização de tabela TB_CODGERALOPER', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_codgeraloper',  28,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (29, 29, 'Sincronização de tabela TB_CODGERALOPERCFOP', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_codgeralopercfop',  29,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (30, 30, 'Sincronização de tabela TB_REGRAINCENTIVO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regraincentivo',  30,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (31, 31, 'Sincronização de tabela TB_INCENTIVOPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regraincentperiodo',  31,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (32, 32, 'Sincronização de tabela TB_REGRAPRODUTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regraproduto',  32,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
