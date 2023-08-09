@@ -76,7 +76,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
       'S'
       ELSE
       'N'
-    END) ativo
+    END) ativo,
+    nvl(f.PARCELAINICIOJUROS, 0) NROPARCELAJURO
   FROM VW_INT_C5_ESPECIE_FORMAPGTO vef,
       pcfilial e,
       pcfinalizadora   f,
