@@ -2275,13 +2275,14 @@ PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE) A
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
         USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
       on(
-        tb_regraincentivoperiodo_c5.SEQREGRA       = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+             tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+        AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_PRECOFIXO_R357.DTAHORINICIO
+        AND  tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_PRECOFIXO_R357.DTAHORFIM
+        
       )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_PRECOFIXO_R357.DTAHORINICIO,
-          tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_PRECOFIXO_R357.DTAHORFIM,
-          tb_regraincentivoperiodo_c5.ATIVO        = VIEW_C5_PRECOFIXO_R357.ATIVO
+          tb_regraincentivoperiodo_c5.ATIVO           = VIEW_C5_PRECOFIXO_R357.ATIVO
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -2326,15 +2327,15 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
       on(
-        tb_regraproduto_c5.SEQREGRA        = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+            tb_regraproduto_c5.SEQPRODUTO    = VIEW_C5_PRECOFIXO_R357.SEQPRODUTO        
+        AND tb_regraproduto_c5.QTDEMBALAGEM  = VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM
+        AND tb_regraproduto_c5.SEQREGRA      = VIEW_C5_PRECOFIXO_R357.SEQREGRA        
       )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraproduto_c5.SEQPRODUTO    = VIEW_C5_PRECOFIXO_R357.SEQPRODUTO,
-          tb_regraproduto_c5.QTDEMBALAGEM  = VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM,
-          tb_regraproduto_c5.PERCDESCONTO  = VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
-          tb_regraproduto_c5.PRECO         = VIEW_C5_PRECOFIXO_R357.PRECO,
-          tb_regraproduto_c5.ATIVO         = VIEW_C5_PRECOFIXO_R357.ATIVO 
+          tb_regraproduto_c5.PERCDESCONTO    = VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
+          tb_regraproduto_c5.PRECO           = VIEW_C5_PRECOFIXO_R357.PRECO,
+          tb_regraproduto_c5.ATIVO           = VIEW_C5_PRECOFIXO_R357.ATIVO 
           
        WHEN NOT MATCHED THEN
         INSERT(
