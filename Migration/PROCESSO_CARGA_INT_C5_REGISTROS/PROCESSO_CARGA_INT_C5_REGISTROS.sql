@@ -1,5 +1,9 @@
 /* Popular tabela PCTIPOCONTROLECONSINCO */
 
+delete from pccontroleconsinco
+
+\
+
 delete from pctipoprocessoconsinco
 
 \
@@ -163,10 +167,6 @@ insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (32, 'tb_regraproduto')
 
 /* Popular tabela PCCONTROLECONSINCO */
-
-\
-
-delete from pccontroleconsinco
 
 \
 
