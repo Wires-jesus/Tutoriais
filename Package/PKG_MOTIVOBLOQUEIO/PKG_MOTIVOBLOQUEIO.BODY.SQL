@@ -2263,9 +2263,8 @@ END BLOQUEIO5;
           IF (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_VERIFICAMARGEMLIBPEDIDO',
                                                  '99',
                                                  'N') = 'S' AND
-             VNPERCLUCRO <
-             VnMargemMin AND
-             VnMargemMin > 0)
+             VNPERCLUCRO < VnMargemMin AND
+             VnMargemMin <> 0)
              AND VCPEDIDO.Condvenda <> (5) THEN
             BEGIN
               SELECT CODIGO
