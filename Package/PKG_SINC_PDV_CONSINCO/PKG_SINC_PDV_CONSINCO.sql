@@ -79,7 +79,7 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   
   PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE);
   
-  PROCEDURE carrega_tb_regraincentivoperiodo(p_id IN pccontroleconsinco.id%TYPE);
+  PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
   
