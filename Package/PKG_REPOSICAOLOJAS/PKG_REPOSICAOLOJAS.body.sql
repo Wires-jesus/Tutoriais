@@ -84,7 +84,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   -- Função para obter o Fator de Conversão da Embalagem - DDVENDAS-37042
   ------------------------------------------------------------------------------
   FUNCTION F_OBTEM_QTUNIT_EMBALAGEM(pi_nCodAuxiliar           IN PCEMBALAGEM.CODAUXILIAR%TYPE,
-                                    pi_vCodFilial             IN PCEMBALAGEM.CODPROD%TYPE,
+                                    pi_vCodFilial             IN PCEMBALAGEM.CODFILIAL%TYPE,
                                     pi_vUSAQTUNITPCEMBREPLOJA IN VARCHAR2)
   RETURN NUMBER IS
     vnRetQtUnit PCEMBALAGEM.QTUNIT%TYPE;
