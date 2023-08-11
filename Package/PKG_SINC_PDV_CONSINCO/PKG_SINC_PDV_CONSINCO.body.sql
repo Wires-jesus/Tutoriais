@@ -2221,21 +2221,21 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
       MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
         USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
       on(
-        tb_regraincentivo_C5.SEQREGRA       = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
+        tb_regraincentivo_C5.SEQREGRA         = VIEW_C5_PRECOFIXO_R357.SEQREGRA 
       )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraincentivo_C5.REGRA        = VIEW_C5_PRECOFIXO_R357.REGRA,
-          tb_regraincentivo_C5.SEQREGRATIPO = VIEW_C5_PRECOFIXO_R357.SEQREGRATIPO,
-          tb_regraincentivo_C5.ATIVO        = VIEW_C5_PRECOFIXO_R357.ATIVO,
-          tb_regraincentivo_C5.TIPOREGRA    = VIEW_C5_PRECOFIXO_R357.TIPOREGRA,
-          tb_regraincentivo_C5.CUMULATIVO   = VIEW_C5_PRECOFIXO_R357.CUMULATIVO          
+          tb_regraincentivo_C5.REGRA          = VIEW_C5_PRECOFIXO_R357.REGRA,
+          tb_regraincentivo_C5.SEQTIPOCREDITO = VIEW_C5_PRECOFIXO_R357.SEQREGRATIPO,
+          tb_regraincentivo_C5.ATIVO          = VIEW_C5_PRECOFIXO_R357.ATIVO,
+          tb_regraincentivo_C5.TIPOREGRA      = VIEW_C5_PRECOFIXO_R357.TIPOREGRA,
+          tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_PRECOFIXO_R357.CUMULATIVO          
           
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraincentivo_C5.SEQREGRA,
           tb_regraincentivo_C5.REGRA,
-          tb_regraincentivo_C5.SEQREGRATIPO,
+          tb_regraincentivo_C5.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA,
           tb_regraincentivo_C5.CUMULATIVO          
