@@ -25,6 +25,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
         from pccontroleconsinco s
         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.carrega_tb_regraincentivo')
         ) DTPADRAO
-      where NVL(P.DTULTALTER, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+      where NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND P.CODPROD = D.CODPROD
 )
