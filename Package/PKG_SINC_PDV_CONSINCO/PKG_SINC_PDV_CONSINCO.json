@@ -26,7 +26,7 @@
 		 {"nome":"TRIGGER_DTALTERC5","tipo": "MIGRATION","versao": "4.0.03.000"},
 		 {"nome":"VW_INT_C5_PLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.04.000"},
 		 {"nome":"VW_INT_C5_CFOP","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"},
-		 {"nome":"VW_INT_C5_PRECOFIXO_R357","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},
+		 {"nome":"VW_INT_C5_PRECOFIXO_R357","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
          {"nome":"PROCESSO_CARGA_INT_C5_REGISTROS","tipo": "MIGRATION","versao": "4.0.01.000"}	 
         ]}
 
