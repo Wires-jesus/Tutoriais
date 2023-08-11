@@ -93,6 +93,8 @@ BEGIN
   INSERT_DATA('TIPO_INVENT', 'P', 'P-Padrão;C-Checkout', 'Qual o tipo de inventário?', 'INVENTARIO', 'SELECT');
   
   INSERT_DATA('LISTAR_ITENS_INVENTARIO', 'S', NULL, 'Exibir todos os itens do inventário?', 'INVENTARIO', 'BOOLEAN'); 
+  
+  INSERT_DATA('VALIDA_DISTRIBUICAO', 'S', NULL, 'Validar a distribuição do pedido na conferência?', 'EXPEDICAO', 'BOOLEAN');
 END;
 
 
