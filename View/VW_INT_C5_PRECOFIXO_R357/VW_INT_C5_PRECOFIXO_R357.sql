@@ -1,8 +1,8 @@
 CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
 (
   SELECT 
-  P.CODPRECOPROM AS SEQREGRA, -- chave primária da tabela 
-  'PRECO FIXO' AS REGRA,   -- descrição da regra
+  357||P.CODPRECOPROM AS SEQREGRA, -- chave primaria da tabela 
+  'PRECO FIXO' AS REGRA,   -- descricao da regra
   3 AS SEQREGRATIPO, -- enviar 3
   CASE
     WHEN (SELECT L.CODPRECOPROM FROM PCPRECOPROMLOG L 
@@ -10,11 +10,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
     WHEN (SELECT P.CODPRECOPROM FROM PCPRECOPROM P 
             WHERE P.DTFIMVIGENCIA = (SELECT SYSDATE FROM DUAL)) > 0 THEN 'N'  
     ELSE 'S'
-  END AS ATIVO, -- caso a política esteja na tabela PCPRECOPROMLOG ou fora do período de vigência, considerar N, se não, S.
+  END AS ATIVO, -- caso a politica esteja na tabela PCPRECOPROMLOG ou fora do periodo de vigencia, considerar N, se nao, S.
   'G' AS TIPOREGRA, -- G
   'S' AS CUMULATIVO, -- S
-  P.DTINICIOVIGENCIA DTAHORINICIO, -- data de início da vigência
-  P.DTFIMVIGENCIA  DTAHORFIM, -- data de fim da vigência
+  P.DTINICIOVIGENCIA DTAHORINICIO, -- data de inicio da vigencia
+  P.DTFIMVIGENCIA  DTAHORFIM, -- data de fim da vigencia
   D.EMBALAGEM SEQPRODUTO,
   D.QTUNIT QTDEMBALAGEM,
   0 PERCDESCONTO,
