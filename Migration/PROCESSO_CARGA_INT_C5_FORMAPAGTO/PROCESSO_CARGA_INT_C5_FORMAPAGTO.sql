@@ -64,7 +64,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
       ELSE
       'N'
     END) usatef,
-    'S' TIPOCALCULOJUROS,
+    NVL(f.tipojuros, 'S')  TIPOCALCULOJUROS,
     NVL(o.permitecontravale, 'N') emitevaletroco,
     NVL(f.imprimevinculado, 'N') emitecomprovante,
     'S' abregaveta,
