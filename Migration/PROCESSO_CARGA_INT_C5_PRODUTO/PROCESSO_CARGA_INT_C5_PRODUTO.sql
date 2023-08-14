@@ -50,36 +50,38 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
-(SELECT
-       fb.seqfamilia,
-       fb.qtdembalagem,
-       'N' pesoaferido,
-       'S' ativo,
+(
+  --Embalagem preço varejo
+  select
+    e.codprod seqfamilia,
+    NVL(e.qtunit, 1) qtdembalagem,
+    NVL(max(e.unidade), '1') embalagem,
+    NVL(max(e.pesobruto), 0) pesobruto,
+    NVL(max(e.pesoliq), 0) pesoliq,
+    'N' pesoaferido,
+    'S' ativo
+  from VW_INT_C5_EMBPROD e
+  group by 
+    e.codprod, 
+    NVL(e.qtunit, 1)
 
-       (select nvl(emb.unidade, '1') from pcembalagem emb
-        where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) embalagem,
-
-       (select nvl(emb.pesobruto,0) from pcembalagem emb
-        where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1) pesobruto,
-
-       (select nvl(emb.pesoliq, 0) from pcembalagem emb
-        where emb.codprod = fb.seqfamilia and emb.qtunit = fb.qtdembalagem and emb.codauxiliar = fb.codauxreferencia and rownum = 1)  pesoliq
-FROM
-
-     (SELECT
-        EMB.qtdecodigobarras,
-        EMB.seqfamilia,
-        EMB.qtdembalagem,
-        (select s.codauxiliar from pcembalagem s where s.codprod = EMB.seqfamilia and s.qtunit = NVL(EMB.qtdembalagem, 1) and rownum = 1) codauxreferencia
-      FROM
-         (select
-            count(e.codauxiliar) qtdecodigobarras,
-            e.codprod seqfamilia,
-            NVL(e.qtunit, 1) qtdembalagem
-          from VW_INT_C5_EMBPROD e
-          group by e.codprod, NVL(e.qtunit, 1)
-          ) EMB
-     )fb
+  UNION ALL 
+ --Embalagem preço Atacado
+  select
+    e.codprod seqfamilia,
+    NVL(e.qtminimaatacado, 1) qtdembalagem,
+    NVL(max(e.unidade), '1') embalagem,
+    NVL(max(e.pesobruto), 0) pesobruto,
+    NVL(max(e.pesoliq), 0) pesoliq,
+    'N' pesoaferido,
+    'S' ativo
+  from VW_INT_C5_EMBPROD e
+  where
+    e.qtminimaatacado > 1
+    and e.pvendaatac > 0
+  group by 
+    e.codprod, 
+    NVL(e.qtminimaatacado, 1)
 )
 
 \
@@ -148,13 +150,30 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
+  --Linha de preço varejo
 SELECT
-  e.codauxiliar||e.codfilial seqproduto,
-  e.codfilial nroempresa,
-  NVL(e.qtunit, 1) qtdembalagem,
+  codauxiliar||codfilial seqproduto,
+  codfilial nroempresa,
+  NVL(qtunit, 1) qtdembalagem,
   1 nrosegmento,
   'N' promocao,
-  e.pvenda preco,
+  pvenda preco,
   'S' ativo
-FROM VW_INT_C5_EMBPROD e
+FROM VW_INT_C5_EMBPROD 
+
+UNION ALL
+
+--Linha de preço atacado
+SELECT
+  codauxiliar||codfilial seqproduto,
+  codfilial nroempresa,
+  NVL(qtminimaatacado, 1) qtdembalagem,
+  1 nrosegmento,
+  'N' promocao,
+  pvendaatac preco,
+  'S' ativo
+FROM VW_INT_C5_EMBPROD 
+where
+  qtminimaatacado > 1
+  and pvendaatac > 0
 )
