@@ -1,0 +1,64 @@
+CREATE OR REPLACE VIEW VW_INT_C5_INCENTIVO AS 
+( /*Rotina 357*/
+  SELECT 
+  357||P.CODPRECOPROM AS SEQREGRA, -- chave primaria da tabela 
+  'PRECO FIXO' AS REGRA,   -- descricao da regra
+  3 AS SEQTIPOCREDITO, -- enviar 3
+  (CASE
+    WHEN (SELECT L.CODPRECOPROM FROM PCPRECOPROMLOG L 
+            WHERE L.CODPRECOPROM = P.CODPRECOPROM) > 0 THEN 'N'
+    WHEN (SELECT P.CODPRECOPROM FROM PCPRECOPROM P 
+            WHERE P.DTFIMVIGENCIA = (SELECT SYSDATE FROM DUAL)) > 0 THEN 'N'  
+    ELSE 'S'
+  END) AS ATIVO, -- caso a politica esteja na tabela PCPRECOPROMLOG ou fora do periodo de vigencia, considerar N, se nao, S.
+  'G' AS TIPOREGRA,
+  'S' AS CUMULATIVO,
+  P.DTINICIOVIGENCIA DTAHORINICIO, -- data de inicio da vigencia
+  P.DTFIMVIGENCIA  DTAHORFIM -- data de fim da vigencia
+ 
+FROM PCPRECOPROM P,
+     (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
+      where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO'
+      or upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVOPERIODO'
+     ) DATAPADRAO
+WHERE NVL(P.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+UNION ALL
+/*Rotina 561*/
+SELECT 
+     P.CODFILIAL||561||P.CODDESCONTO SEQREGRA,
+     NVL(P.DESCRICAO, 'DESCONTO 561') REGRA,
+     3 AS SEQTIPOCREDITO, -- enviar 3
+     (CASE
+        WHEN (L.CODDESCONTO IS NOT NULL) OR (P.DTFIM < TRUNC(SYSDATE)) THEN
+             'N'
+        ELSE 'S'
+     END) ATIVO,
+     
+     'G' TIPOREGRA,
+     'S' CUMULATIVO,
+     P.DTINICIO DTAHORINICIO,
+     P.DTFIM DTAHORFIM
+FROM PCDESCONTO P,
+     PCDESCONTOLOG L,
+     monitorpdvmiddle.tb_familia f,
+     (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
+      where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO'
+      or upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVOPERIODO'
+     ) DATAPADRAO
+WHERE P.CODPROD = f.SEQFAMILIA
+AND   P.CODDESCONTO = L.CODDESCONTO(+) 
+AND   P.ORIGEMPED IN('T', 'A') 
+AND   P.TIPO = 'C'
+AND   NVL(P.APLICADESCONTO, 'N') = 'S'
+AND   NVL(P.CODFILIAL, '99') <> '99'
+AND   REGEXP_LIKE(P.CODFILIAL, '^[[:digit:]]+$')
+AND   TRUNC(SYSDATE) BETWEEN P.DTINICIO AND P.DTFIM
+AND   ((P.CODPROD IS NOT NULL)  or
+       (P.CODAUXILIAR IS NOT NULL) or
+       (P.CODEPTO IS NOT NULL) or
+       (P.CODSEC IS NOT NULL)  or
+       (P.CODCATEGORIA IS NOT NULL) or
+       (P.SUBCATEGORIA IS NOT NULL) or
+       (P.CODCLI IS NOT NULL))
+AND   NVL(P.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+)
