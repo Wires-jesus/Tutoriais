@@ -17,7 +17,6 @@
 		 {"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"4.0.04.000"},
 		 {"nome":"VW_INT_C5_LEITRANSP","tipo":"OBJETO_PLSQL","versao":"4.0.11.000"},
 		 {"nome":"VW_INT_C5_DIVISAO","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"},
-		 {"nome":"VW_INT_C5_INCENTIVO","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipo":"MIGRATION","versao":"4.0.12.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO","tipo":"MIGRATION","versao":"4.0.05.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_CATEGORIA","tipo":"MIGRATION","versao":"4.0.07.000"},
@@ -29,6 +28,7 @@
 		 {"nome":"VW_INT_C5_PLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.04.000"},
 		 {"nome":"VW_INT_C5_CFOP","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"},
 		 {"nome":"VW_INT_C5_PRECOFIXO_R357","tipo":"OBJETO_PLSQL","versao":"4.0.05.000"},
-         {"nome":"PROCESSO_CARGA_INT_C5_REGISTROS","tipo": "MIGRATION","versao": "4.0.01.000"}	 
+         {"nome":"PROCESSO_CARGA_INT_C5_REGISTROS","tipo": "MIGRATION","versao": "4.0.02.000"},
+		 {"nome":"VW_INT_C5_INCENTIVO","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},	 
         ]}
 
