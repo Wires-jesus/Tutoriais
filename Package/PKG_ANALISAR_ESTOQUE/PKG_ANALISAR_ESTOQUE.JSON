@@ -1,0 +1,15 @@
+{
+	"nome":"PKG_ANALISAR_ESTOQUE",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias":[
+		{
+		  "nome": "PCHISTEST",
+		  "tipo": "TABELA",
+		  "versao": "3.0.02.000"
+		},
+		{
+		  "nome": "PCHISTESTFILA",
+		  "tipo": "TABELA",
+		  "versao": "3.0.02.000"
+		}
+	]}
