@@ -2226,7 +2226,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
        WHEN MATCHED THEN
         UPDATE SET
           tb_regraincentivo_C5.REGRA          = VIEW_C5_INCENTIVO.REGRA,
-          tb_regraincentivo_C5.SEQTIPOCREDITO = VIEW_C5_INCENTIVO.SEQREGRATIPO,
+          tb_regraincentivo_C5.SEQTIPOCREDITO = VIEW_C5_INCENTIVO.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO          = VIEW_C5_INCENTIVO.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA      = VIEW_C5_INCENTIVO.TIPOREGRA,
           tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO          
@@ -2243,7 +2243,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.REGRA,
-          VIEW_C5_INCENTIVO.SEQREGRATIPO,
+          VIEW_C5_INCENTIVO.SEQTIPOCREDITO,
           VIEW_C5_INCENTIVO.ATIVO,
           VIEW_C5_INCENTIVO.TIPOREGRA,
           VIEW_C5_INCENTIVO.CUMULATIVO
