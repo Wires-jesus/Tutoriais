@@ -66,10 +66,11 @@ UNION ALL
 /*Rotina 561*/
 SELECT 
     SEQREGRA,
-    SEQPRODUTO,
+    SEQFAMILIA,
     QTDEMBALAGEM,
     PERCDESCONTO,
-    '0' PRECO,          
-    ATIVO    
+    0 PRECO,          
+    ATIVO,
+    IDREF    
 FROM VW_INT_C5_DESC561FAMILIA
 )
