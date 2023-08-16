@@ -2325,9 +2325,9 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
       END;
   END;
 
-PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
+/*PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-     /* MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
+      MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
       on(
             tb_regraproduto_c5.SEQPRODUTO    = VIEW_C5_PRECOFIXO_R357.SEQPRODUTO        
@@ -2379,8 +2379,8 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-      END;*/
-  END;
+      END;
+  END;*/
 
 PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
