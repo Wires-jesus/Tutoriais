@@ -21,13 +21,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOFIXO_R357 AS
   R.PRECOFIXO  PRECO,
   R.CODPRECOPROM IDREF
   FROM PCPRECOPROM R,
-       monitorpdvmiddle.tb_regrafamilia T,
+       monitorpdvmiddle.tb_familia T,
        (select min(s.ultimaexecucao) ultimaexecucao
         from pccontroleconsinco s
         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
         ) DTPADRAO
       where NVL(R.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND R.CODPROD = T.SEQFAMILIA
+        AND R.CODAUXILIAR IS NULL
+        AND REGEXP_LIKE(R.CODFILIAL, '^[[:digit:]]+$')
+        
 );
 
 
