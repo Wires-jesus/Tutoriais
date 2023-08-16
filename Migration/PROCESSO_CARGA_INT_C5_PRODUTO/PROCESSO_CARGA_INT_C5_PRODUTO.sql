@@ -78,7 +78,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
   from VW_INT_C5_EMBPROD e
   where
     e.qtminimaatacado > 1
-    and e.pvendaatac > 0
   group by 
     e.codprod, 
     NVL(e.qtminimaatacado, 1)
@@ -175,5 +174,4 @@ SELECT
 FROM VW_INT_C5_EMBPROD 
 where
   qtminimaatacado > 1
-  and pvendaatac > 0
 )
