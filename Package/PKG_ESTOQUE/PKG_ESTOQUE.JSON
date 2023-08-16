@@ -1,0 +1,12 @@
+{
+	"nome":"PKG_ESTOQUE",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias":
+	[
+	   {
+		  "nome": "PCEST",
+		  "tipo": "TABELA",
+		  "versao": "3.0.02.000"
+	   }
+	]
+}
