@@ -110,7 +110,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND f.proibidavenda = 'N'
         --AND p.codprod >= 0
         --AND LENGTH(e.codauxiliar) <= 14
-        AND NVL(e.pvenda,0) >= 0
         AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO)
