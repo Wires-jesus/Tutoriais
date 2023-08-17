@@ -260,3 +260,24 @@ BEGIN
     :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
 END; 
 
+\
+                                    
+CREATE OR REPLACE TRIGGER trg_c5_dt_pcofertaprogramadac
+ BEFORE INSERT OR UPDATE
+        ON pcofertaprogramadac
+REFERENCING NEW AS NEW OLD AS OLD
+ FOR EACH ROW
+BEGIN
+    :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
+END; 
+
+\
+                                    
+CREATE OR REPLACE TRIGGER trg_c5_dt_pcofertaprogramadai
+ BEFORE INSERT OR UPDATE
+        ON pcofertaprogramadai
+REFERENCING NEW AS NEW OLD AS OLD
+ FOR EACH ROW
+BEGIN
+    :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
+END; 
