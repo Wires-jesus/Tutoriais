@@ -107,7 +107,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND f.codprod >= 0
         AND NVL(e.enviafrentecaixa,'S') = 'S'
         AND e.dtinativo IS NULL
-        AND f.proibidavenda = 'N'
+        AND NVL(f.proibidavenda, 'N') = 'N'
         --AND p.codprod >= 0
         --AND LENGTH(e.codauxiliar) <= 14
         AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
