@@ -2385,7 +2385,28 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrafamilia D
-    USING (SELECT * FROM VW_INT_C5_REGRAFAMILIA) S 
+    USING (/*Rotina 357*/
+           SELECT 
+              SEQREGRA,
+              SEQFAMILIA,
+              QTDEMBALAGEM,
+              PERCDESCONTO,
+              PRECO,          
+              ATIVO,
+              IDREF  
+           FROM VW_INT_C5_PRECOFIXO_R357 
+           UNION ALL
+           /*Rotina 561*/
+           SELECT 
+              SEQREGRA,
+              SEQFAMILIA,
+              QTDEMBALAGEM,
+              PERCDESCONTO,
+              0 PRECO,          
+              ATIVO,
+              IDREF    
+           FROM VW_INT_C5_DESC561FAMILIA) S 
+  
     ON    ( D.SEQFAMILIA = S.SEQFAMILIA AND D.QTDEMBALAGEM = S.QTDEMBALAGEM AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
