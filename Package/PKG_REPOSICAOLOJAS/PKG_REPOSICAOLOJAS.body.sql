@@ -46,9 +46,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vvRetValorParam := pi_vValorDefault;
-    END;  
+    END;
     RETURN vvRetValorParam;
-  END F_OBTER_PARAM_REPOSICAO_LOJAS;                                       
+  END F_OBTER_PARAM_REPOSICAO_LOJAS;
 
   ------------------------------------------------------------------------------
   -- Procedimento para Obter o Parâmetro da Filial STRING
@@ -89,9 +89,9 @@ IS PRAGMA SERIALLY_REUSABLE;
   RETURN NUMBER IS
     vnRetQtUnit PCEMBALAGEM.QTUNIT%TYPE;
   BEGIN
-  
+
     vnRetQtUnit := 1;
-  
+
     IF (pi_vUSAQTUNITPCEMBREPLOJA = 'S') THEN
 
       BEGIN
@@ -108,12 +108,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF (NVL(vnRetQtUnit,0) = 0) THEN
         vnRetQtUnit := 1;
       END IF;
-      
+
     END IF;
-    
+
     RETURN vnRetQtUnit;
-    
-  END F_OBTEM_QTUNIT_EMBALAGEM;                                          
+
+  END F_OBTEM_QTUNIT_EMBALAGEM;
 
  /*****************************************************************************
   *****************************************************************************
@@ -177,11 +177,14 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- REGRA ESPECÍFICA - Quantidade de dias para analisar o estoque em trânsito
     nQTDEDIASESTOQUETRANSITO NUMBER;
 
-
+    vUFDestino pcfilial.uf%type;
+    vUFOrigem  pcfilial.uf%type;
     -- Tratamento de Erros - 4056.125049.2015
     vvMsgErroTratado    VARCHAR2(200);
     e_Tratado           EXCEPTION;
-    
+    vDESCSTFORAUFTRANSF               PCPARAMFILIAL.VALOR%TYPE;
+          vvErroPesqParam1         VARCHAR2(1);
+      vvMsgErroPesqParam1     VARCHAR2(2000);
    /******************************************************************************
     PROCEDIMENTO: PFORMULA_QT_SUGERIDA
     DESCRICAO...: Concatenar Formula de Cálculo da Quantidade Sugerida
@@ -194,7 +197,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         pio_vFormula := pio_vFormula || CHR(13);
       END IF;
       pio_vFormula := pio_vFormula || pi_vMensagem;
-    END;         
+    END;
 
    /******************************************************************************
     PROCEDIMENTO: F_OBTER_TIPO_ARREDONDAMENTO
@@ -211,7 +214,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          (NVL(pi_vUNIDADEMASTER_O,' ') = 'FA') AND
          (NVL(pi_vEMB_POR_FORNECEDOR_O,'N') <> 'S') THEN
         vvRetorno := 'CONVERSAO PARA FARDO';
-      ELSE 
+      ELSE
         IF (NVL(pi_vTIPO_SUGESTAO,'L') = 'L') THEN
           IF (NVL(pi_vORIGEMEMBALAGEMMASTERFORN,'N') = '2') THEN
             vvRetorno := 'EMBALAGEM MASTER DO PRODUTO (COMPRA) - ROTINA 203';
@@ -224,8 +227,8 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
       -- Retorno
       RETURN vvRetorno;
-    END FFORMULA_QT_SUGERIDA;         
-    
+    END FFORMULA_QT_SUGERIDA;
+
    /******************************************************************************
     PROCEDIMENTO: PCALCULA_SUGESTAO
     DESCRICAO...: Calcula os valores da Sugestão a partir dos Produtos carregados
@@ -407,6 +410,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       TYPE TT_ESTMIN            IS TABLE OF PCEST.ESTMIN%TYPE INDEX BY BINARY_INTEGER;
       TYPE TT_QTPENDENTE        IS TABLE OF PCEST.QTPENDENTE%TYPE INDEX BY BINARY_INTEGER;
       TYPE TT_QTESTDISP         IS TABLE OF PCEST.QTESTGER%TYPE INDEX BY BINARY_INTEGER;
+      Type TT_CUSTOFINSEMST     IS TABLE OF PCEST.CUSTOFINSEMST%TYPE INDEX BY BINARY_INTEGER;
       --
       vtINDICE_PROD_O         TT_INDICE_PROD;
       vtCODPROD_O             TT_CODPROD;
@@ -422,6 +426,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       vtCUSTOREAL_O           TT_CUSTOREAL;
       vtCUSTOCONT_O           TT_CUSTOCONT;
       vtCUSTOFIN_O            TT_CUSTOFIN;
+      vtCUSTOFINSEMST_O       TT_CUSTOFINSEMST;
       vtCUSTOULTENT_O         TT_CUSTOULTENT;
       vtVALORULTENT_O         TT_VALORULTENT;
       vtCUSTOREALSEMST_O      TT_CUSTOREALSEMST;
@@ -444,6 +449,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       N_CUSTOREAL_O           PCEST.CUSTOREAL%TYPE;
       N_CUSTOCONT_O           PCEST.CUSTOCONT%TYPE;
       N_CUSTOFIN_O            PCEST.CUSTOFIN%TYPE;
+      N_CUSTOFINSEMST_O       PCEST.CUSTOFINSEMST%TYPE;
       N_CUSTOULTENT_O         PCEST.CUSTOULTENT%TYPE;
       N_VALORULTENT_O         PCEST.VALORULTENT%TYPE;
       N_CUSTOREALSEMST_O      PCEST.CUSTOREALSEMST%TYPE;
@@ -456,7 +462,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       TYPE TT_INDICE_PROD_F   IS TABLE OF INTEGER INDEX BY BINARY_INTEGER;
       TYPE TT_CODPROD_F       IS TABLE OF PCPRODFILIAL.CODPROD%TYPE INDEX BY BINARY_INTEGER;
       TYPE TT_PERCARREDONDA_F IS TABLE OF PCPRODFILIAL.PERCARREDONDA%TYPE INDEX BY BINARY_INTEGER;
-      TYPE TT_ESTOQUEMIN_F    IS TABLE OF PCPRODFILIAL.ESTOQUEMIN%TYPE INDEX BY BINARY_INTEGER;      
+      TYPE TT_ESTOQUEMIN_F    IS TABLE OF PCPRODFILIAL.ESTOQUEMIN%TYPE INDEX BY BINARY_INTEGER;
       --
       vtINDICE_PROD_F_O        TT_INDICE_PROD_F;
       vtCODPROD_F_O            TT_CODPROD_F;
@@ -570,7 +576,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- REGRA ESPECÍFICA - Utilizar Conversão PCEMBALAGEM
       vUSAQTUNITPCEMBREPLOJA            PCPARAMREPOSICAOLOJAS.VALOR%TYPE;
-      
+
       -- DDMEDICA-4666 - Parâmetro da Reposição de Lojas para respeitar estoque mínimo da origem
       N_ESTOQUEMIN_O                    NUMBER;
       N_ESTOQUEMINSUG_O                 NUMBER;
@@ -578,7 +584,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Tratamento de Erros - 4056.125049.2015
       e_TratadoLocal                    EXCEPTION;
-      
+
       -- Restrições
       V_RESTRICOES                      VARCHAR2(1);
       V_DESCONSIDPRODSEMCUSTOFIN        PCPARAMREPOSICAOLOJAS.VALOR%TYPE;
@@ -587,24 +593,25 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Parâmetro se a Filial de Origem Utiliza Venda por Embalagem - DDMEDICA-5012
       vUTILIZAVENDAPOREMBALAGEM         PCPARAMFILIAL.VALOR%TYPE;
-      
+
       -- Lote Fabricação - DDMEDICA-5077
       V_NUMLOTE                         PCLOTE.NUMLOTE%TYPE;
-      
+
       -- Parâmetro de Arredondamento da Sugestão Fracionada - DDMEDICA-6815
       vARREDONDARSUGESTAOFRACIONADA     PCPARAMREPOSICAOLOJAS.VALOR%TYPE;
-      
+
       -- Array de Lotes - DDMEDICA-5077
       TYPE TRecLotes                    IS RECORD(
            vvSugestaoLote               VARCHAR2(1),
            vvNumLote                    PCLOTE.NUMLOTE%TYPE,
-           vnQtIndeniz                  PCLOTE.QTINDENIZ%TYPE);      
+           vnQtIndeniz                  PCLOTE.QTINDENIZ%TYPE);
       TYPE TTvLotes                     IS TABLE OF TRecLotes INDEX BY BINARY_INTEGER;
       vtLotes                           TTvLotes;
       viIdxLote                         INTEGER;
-      
+
       -- Qtde Avaria em Prefat - DDMEDICA-5077
       vnTotalAvariaPrefat               NUMBER;
+    --  vDESCSTFORAUFTRANSF               PCPARAMFILIAL.VALOR%TYPE;
 
       ----------------------------------------------------------------------------]
       -- PROCEDIMENTO PARA OBTER OS DADOS DA AGENDA
@@ -722,20 +729,20 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   pi_vTipo                      IN VARCHAR2,
                                   pi_vARREDONDARSUGESTAOFRACION IN VARCHAR2) -- DDMEDICA-6815
       RETURN NUMBER IS
-    
+
         vnRetQtCaixas PCEST.QTESTGER%TYPE;
         vnQtdeSobra   PCEST.QTESTGER%TYPE;
-    
+
       BEGIN
-    
+
         -- Se tem Quantidade de Unidades da Caixa
         IF (NVL(pi_nQtUnitCx,0) > 1) THEN
-        
+
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'$ARREDONDAMENTO PELA EMBALAGEM MASTER - ' || pi_vTipo);
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. UNITARIA = ' || NVL(pi_nSugestaoUnitaria,0));
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. EMBALAGEM = ' || NVL(pi_nQtUnitCx,0));
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'% ARREDONDAMENTO EMB. = ' || NVL(pi_nPercArredonda,0));
-    
+
           -- CALCULO DA QUANTIDADE DE VOLUMES PARA A SUGESTAO UNITARIA
           vnRetQtCaixas := TRUNC(NVL(pi_nSugestaoUnitaria,0) / NVL(pi_nQtUnitCx,0));
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. CAIXAS = ' || NVL(vnRetQtCaixas,0));
@@ -753,27 +760,27 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF (NVL(vnRetQtCaixas,0) < 0) THEN
             vnRetQtCaixas := 0;
           END IF;
-    
+
         -- Se FRACIONADO - DDMEDICA-5477
         ELSIF (NVL(pi_nQtUnitCx,0) > 0)  AND
               (NVL(pi_nQtUnitCx,0) <= 1) THEN
-    
+
           vnRetQtCaixas := pi_nSugestaoUnitaria;
-    
+
         -- Se não tem Quantidade de Unidades da Caixa
         ELSE
-    
+
           vnRetQtCaixas := 0;
-    
+
         END IF;
-    
+
         -- DDMEDICA-6815
         IF (pi_vARREDONDARSUGESTAOFRACION = 'S') THEN
-          
+
           -- Se vai ter arredondamento
           IF (vnRetQtCaixas <> ROUND(vnRetQtCaixas,0)) THEN
             vnRetQtCaixas := ROUND(vnRetQtCaixas,0);
-            
+
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'$ARREDONDAMENTO CONF. PARAM. REPOSICAO "ARREDONDARSUGESTAOFRACIONADA"');
             IF (NVL(pi_nQtUnitCx,0) > 1) THEN
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. CAIXAS = ' || NVL(vnRetQtCaixas,0));
@@ -781,12 +788,12 @@ IS PRAGMA SERIALLY_REUSABLE;
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. UNITARIA = ' || NVL(vnRetQtCaixas,0));
             END IF;
           END IF; -- Fim Condição: Se vai ter arredondamento
-          
+
         END IF;
-    
+
         -- Retorno da Função
         RETURN vnRetQtCaixas;
-    
+
       END FOBTEM_QTDE_CAIXAS;
 
       ----------------------------------------------------------------------------
@@ -958,19 +965,19 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   'FIL_UTILIZAVENDAPOREMBALAGEM',
                                   vUTILIZAVENDAPOREMBALAGEM,
                                   vvErroPesqParam,
-                                  vvMsgErroPesqParam);                                  
+                                  vvMsgErroPesqParam);
         IF (vUTILIZAVENDAPOREMBALAGEM IS NULL) THEN
           POBTEM_PARAMFILIAL_STRING('99',
                                     'CON_UTILIZAVENDAPOREMBALAGEM',
                                     vUTILIZAVENDAPOREMBALAGEM,
                                     vvErroPesqParam,
-                                    vvMsgErroPesqParam);                                  
-        END IF;                          
+                                    vvMsgErroPesqParam);
+        END IF;
         IF (NVL(vUTILIZAVENDAPOREMBALAGEM,'N') <> 'S') THEN
           vUSAQTUNITPCEMBREPLOJA := 'N';
         END IF;
       END IF;
-      
+
       V_DESCONSIDPRODSEMCUSTOFIN  := F_OBTER_PARAM_REPOSICAO_LOJAS('99',
                                                                    'DESCONSIDPRODSEMCUSTOFIN',
                                                                    'N');
@@ -980,7 +987,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       V_DESCONSIDPRODSEMTRIBUT    := F_OBTER_PARAM_REPOSICAO_LOJAS('99',
                                                                    'DESCONSIDPRODSEMTRIBUT',
                                                                    'N');
-      
+      -- Desconsiderar ST do preço para transferências fora do estado
+      POBTEM_PARAMFILIAL_STRING(P_CODFILIAL_ORIGEM,'DESCSTFORAUFTRANSF',
+                                vDESCSTFORAUFTRANSF,vvErroPesqParam,
+                                vvMsgErroPesqParam);
+
       -- PESQUISA DADOS DA FILIAL DE ORIGEM
       BEGIN
         SELECT PCFORNEC.PRAZOENTREGA
@@ -993,7 +1004,24 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           N_PRAZOENTREGA_O := 0;
       END;
-
+     BEGIN
+       SELECT UF
+       INTO  vUFDestino
+       FROM PCFILIAL
+       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_DESTINO);
+       EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vUFDestino := NULL;
+     END;
+       BEGIN
+       SELECT UF
+       INTO  vUFORIGEM
+       FROM PCFILIAL
+       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_ORIGEM);
+       EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vUFORIGEM := NULL;
+     END;
       -- Parâmetro de Número de Casas Decimais do Custo
       POBTEM_PARAMFILIAL_NUMBER('99',
                                 'CON_NUMCASASDECCUSTO',
@@ -1033,8 +1061,8 @@ IS PRAGMA SERIALLY_REUSABLE;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           V_RESPEITARESTOQUEMINORIGEM := NULL;
-      END;   
-      
+      END;
+
       -- Bloqueio de Estoque Pendente
       POBTEM_PARAMFILIAL_STRING(NVL(P_CODFILIALRETIRA,P_CODFILIAL_ORIGEM),
                                 'BLOQUEIAVENDAESTPENDENTE',
@@ -1047,12 +1075,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   V_BLOQUEIAVENDAESTPENDENTE, --> Valor do Parâmetro
                                   vvErroPesqParam,
                                   vvMsgErroPesqParam);
-      END IF;    
-      
+      END IF;
+
       -- Parâmetro de Arredondamento da Sugestão Fracionada - DDMEDICA-6815
       vARREDONDARSUGESTAOFRACIONADA := F_OBTER_PARAM_REPOSICAO_LOJAS('99',
                                                                      'ARREDONDARSUGESTAOFRACIONADA',
-                                                                     'N');                                 
+                                                                     'N');
 
       -- CARREGA DADOS DA PCEST NO ARRAY PARA OS PRODUTOS DE ORIGEM
       SELECT CODPROD
@@ -1068,6 +1096,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            , NVL(CUSTOREAL,0)
            , NVL(CUSTOCONT,0)
            , NVL(CUSTOFIN,0)
+           , NVL(CUSTOFINSEMST,0)
            , NVL(CUSTOULTENT,0)
            , NVL(VALORULTENT,0)
            , NVL(CUSTOREALSEMST,0)
@@ -1079,7 +1108,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                GREATEST(GREATEST(NVL(QTESTGER,0),0) - GREATEST(NVL(QTRESERV,0),0) - GREATEST(NVL(QTBLOQUEADA,0),0) - GREATEST(NVL(QTPENDENTE,0),0),0)
              ELSE
                GREATEST(GREATEST(NVL(QTESTGER,0),0) - GREATEST(NVL(QTRESERV,0),0) - GREATEST(NVL(QTBLOQUEADA,0),0),0)
-             END 
+             END
       BULK COLLECT INTO vtCODPROD_O
                       , vtQTESTGER_O
                       , vtQTRESERV_O
@@ -1093,6 +1122,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , vtCUSTOREAL_O
                       , vtCUSTOCONT_O
                       , vtCUSTOFIN_O
+                      , vtCUSTOFINSEMST_O
                       , vtCUSTOULTENT_O
                       , vtVALORULTENT_O
                       , vtCUSTOREALSEMST_O
@@ -1163,7 +1193,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- INICIALIZA TEXTO DA FÓRMULA
         V_FORMULA_QT_SUGERIDA_D       := NULL;
-        V_FORMULA                     := NULL; 
+        V_FORMULA                     := NULL;
         -- INICIALIZA A EMBALAGEM DO FORNECEDOR UTILIZADA NA CONVERSÃO
         N_EMB_UTILIZADA_CONVERSAO_FRN := 0;
 
@@ -1651,6 +1681,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_CUSTOREAL_O         := vtCUSTOREAL_O(I_INDICE_PROD);
             N_CUSTOCONT_O         := vtCUSTOCONT_O(I_INDICE_PROD);
             N_CUSTOFIN_O          := vtCUSTOFIN_O(I_INDICE_PROD);
+            N_CUSTOFINSEMST_O     := vtCUSTOFINSEMST_O(I_INDICE_PROD);
             N_CUSTOULTENT_O       := vtCUSTOULTENT_O(I_INDICE_PROD);
             N_VALORULTENT_O       := vtVALORULTENT_O(I_INDICE_PROD);
             N_CUSTOREALSEMST_O    := vtCUSTOREALSEMST_O(I_INDICE_PROD);
@@ -1660,7 +1691,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_QTPENDENTE_O        := vtQTPENDENTE_O(I_INDICE_PROD);
             -->> Este QTESTDISP estará baixando à medida que vai inserindo na Tabela Temporária a Sugestão de outras Lojas
             -->> Garantindo que se a primeira Loja consumir o Estoque, não terá estoque para a segunda Loja, quando Respeitar o Estoque Minimo da Filial de Origem
-            N_QTESTDISP_O         := vtQTESTDISP_O(I_INDICE_PROD); 
+            N_QTESTDISP_O         := vtQTESTDISP_O(I_INDICE_PROD);
           ELSE
             N_QTESTGER_O          := 0;
             N_QTRESERV_O          := 0;
@@ -1682,6 +1713,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_ESTMIN_O            := 0;
             N_QTPENDENTE_O        := 0;
             N_QTESTDISP_O         := 0;
+            N_CUSTOFINSEMST_O     := 0;
           END IF;
 
           --------------------------------------------------------------------------
@@ -1719,11 +1751,19 @@ IS PRAGMA SERIALLY_REUSABLE;
             IF    (V_TIPOCUSTOTRANSF_APLICAR = 'E') THEN
               N_PRECO_TRANSF_O := NVL(N_CUSTOREP_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
-              N_PRECO_TRANSF_O := NVL(N_CUSTOREAL_O,0);
+                  IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <>  vUfDestino) THEN
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOREALSEMST_O,0);
+                    ELSE
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOREAL_O,0);
+                  END IF;
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'C') THEN
               N_PRECO_TRANSF_O := NVL(N_CUSTOCONT_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
-              N_PRECO_TRANSF_O := NVL(N_CUSTOFIN_O,0);
+                IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <> vUfDestino) THEN
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOFINSEMST_O,0);
+                ELSE
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOFIN_O,0);
+                END IF;
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'U') THEN
               N_PRECO_TRANSF_O := NVL(N_CUSTOULTENT_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'V') THEN
@@ -1886,18 +1926,18 @@ IS PRAGMA SERIALLY_REUSABLE;
           PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'$COMPOSICAO DO ESTOQUE DISPONIVEL');
           ---------------------------------------------------------------------------------
           ---------------------------------------------------------------------------------
-          
+
           -- PEDIDO AVARIA ----------------------------------------------------------------
           IF (NVL(P_PEDIDOAVARIA,'N') = 'S') THEN
-          
+
             -- CALCULANDO ESTOQUE AVARIADO NA FILIAL DE ORIGEM
             V_QTD_EST_ORIG := NVL(N_QTINDENIZ_O,0);
-            
+
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. AVARIA = ' || NVL(N_QTINDENIZ_O,0));
-            
+
             -- SOMA O QUE ESTIVER EM PREFAT
             IF (NVL(V_QTD_EST_ORIG,0) > 0) THEN
-            
+
               SELECT SUM(QT)
                 INTO vnTotalAvariaPrefat
                 FROM PCMOVPREFAT
@@ -1906,23 +1946,23 @@ IS PRAGMA SERIALLY_REUSABLE;
                  AND (PCMOVPREFAT.CODPROD   = N_CODPROD_O)
                  AND (PCMOVPREFAT.NUMPED    = PCPEDC.NUMPED)
                  AND (PCPEDC.PEDIDOAVARIA   = 'S');
-                 
+
               IF (vnTotalAvariaPrefat > 0) THEN
-    
+
                 PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. AVARIA PREFAT = ' || NVL(vnTotalAvariaPrefat,0));
-  
+
                 V_QTD_EST_ORIG := NVL(V_QTD_EST_ORIG,0) - NVL(vnTotalAvariaPrefat,0);
                 IF (V_QTD_EST_ORIG < 0) THEN
                   V_QTD_EST_ORIG := 0;
                 END IF;
-                
+
                 PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. AVARIA = ' || NVL(N_QTINDENIZ_O,0));
-                
-              END IF;   
-              
+
+              END IF;
+
             END IF; -- FIM CONDIÇÃO: SOMA O QUE ESTIVER EM PREFAT
 
-            -- CAMPOS QUE NÃO SERÃO UTILIZADOS NO PEDIDO AVARIA            
+            -- CAMPOS QUE NÃO SERÃO UTILIZADOS NO PEDIDO AVARIA
             V_QTD_EST_DEST      := NULL;
             v_QTBLOQSEMAVARIA_D := NULL;
             N_QTD_TRANSITO_D    := NULL;
@@ -1930,7 +1970,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             V_ESTQDISP          := NULL;
             V_ESTQDISPVALIDAMIN := NULL;
 
-          
+
           -- REPOSIÇÃO NORMAL -------------------------------------------------------------
           ELSE
 
@@ -1938,7 +1978,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             V_QTD_EST_ORIG  := NVL(N_QTESTGER_O,0) -
                                NVL(N_QTRESERV_O,0) -
                                NVL(N_QTBLOQUEADA_O,0);
-  
+
             -- CALCULANDO ESTOQUE DE RETORNO PARA DESTINO (NA PROPRIA EMBALAGEM DO VAREJO)
             V_QTD_EST_DEST  := NVL(PRODUTO.QTESTGER_D,0) -
                                NVL(PRODUTO.QTRESERV_D,0) -
@@ -1946,11 +1986,11 @@ IS PRAGMA SERIALLY_REUSABLE;
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. GERENCIAL = ' || NVL(PRODUTO.QTESTGER_D,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. RESERVADO = ' || NVL(PRODUTO.QTRESERV_D,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. BLOQUEADO = ' || NVL(PRODUTO.QTBLOQUEADA_D,0));
-  
+
             -- CALCULAR O ESTOQUE BLOQUEADO DEDUZIDO DAS AVARIAS NA FILIAL DE DESTINO [Tarefa: 176264]
             v_QTBLOQSEMAVARIA_D := NVL(PRODUTO.QTBLOQUEADA_D,0) -
                                    NVL(PRODUTO.QTINDENIZ_D,0);
-  
+
             -- CALCULA O ESTOQUE EM TRANSITO PARA A FILIAL DE DESTINO - REPOSIÇÃO DE LOJAS
             IF    (P_TIPO_SUGESTAO = 'L') THEN
               -- Aplica Conversão para Produto de Destino na Reposição de Lojas
@@ -1964,7 +2004,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Na Reposição de CD não tem PBM
               N_QTOPERLOG_D    := 0;
             END IF;
-  
+
             -- CALCULANDO ESTOQUE DISP. DO PRODUTO DESTINO PARA USO NOS CÁLCULOS
             -- Inicia com o Estoque Atual no Destino
             V_ESTQDISP := ROUND((NVL(PRODUTO.QTESTGER_D,0) -
@@ -1975,16 +2015,16 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Não deixa Ficar o Estoque Negativo [Tarefa: 187283]
               V_ESTQDISP := 0;
             END IF;*/
-                      
+
             -- Estoque Disponivel para Validar o Estoque Minimo
             V_ESTQDISPVALIDAMIN := NVL(V_ESTQDISP,0);
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. = (<EST. GERENCIAL> - <EST. RESERVADO> - <EST. BLOQUEADO>)');
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. = ' || NVL(V_ESTQDISP,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA VALIDAR EST. MINIMO = <EST. DISP.>');
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA VALIDAR EST. MINIMO = ' || NVL(V_ESTQDISPVALIDAMIN,0));
-            
+
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'$COMPOSICAO DO ESTOQUE TOTAL DISPONIVEL');
-            
+
             -- Incrementa outras mercadorias em Trânsito para o Destino
             IF    (P_TIPO_SUGESTAO = 'L') THEN
               V_ESTQDISP := NVL(V_ESTQDISP,0) +
@@ -2001,21 +2041,21 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   (NVL(v_QTBLOQSEMAVARIA_D,0))     -- [Tarefa: 176264] - Considerar a Qtde. Bloqueada - Avarias no Cálculo. Não precisa converter Embalagem
                                   ,0);
             END IF;
-  
+
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. AVARIADO = ' || NVL(PRODUTO.QTINDENIZ_D,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. BLOQ. SEM AVARIA = ' || NVL(v_QTBLOQSEMAVARIA_D,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. TRANSITO = ' || NVL(N_QTD_TRANSITO_D,0));
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. PEDIDOS COMPRA = ' || NVL(PRODUTO.QTPEDIDA_D,0));
             IF    (P_TIPO_SUGESTAO = 'L') THEN
-              PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. OPER. LOGISTICO = ' || NVL(N_QTOPERLOG_D,0));          
-              PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. SUGESTAO COMPRA = ' || NVL(PRODUTO.QTSUGCOMPRA_D,0));          
+              PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. OPER. LOGISTICO = ' || NVL(N_QTOPERLOG_D,0));
+              PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. SUGESTAO COMPRA = ' || NVL(PRODUTO.QTSUGCOMPRA_D,0));
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. TOT. DISP. = <EST. DISP.> + (<EST. BLOQ. SEM AVARIA> + <EST. TRANSITO> + <QT. PEDIDOS COMPRA> + <QT. OPER. LOGISTICO> + <QT. SUGESTAO COMPRA>)');
             ELSIF (P_TIPO_SUGESTAO = 'C') THEN
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. TOT. DISP. = <EST. DISP.> + (<EST. BLOQ. SEM AVARIA> + <EST. TRANSITO> + <QT. PEDIDOS COMPRA>)');
             END IF;
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. TOT. DISP. = ' || NVL(V_ESTQDISP,0));
 
-          END IF; -- FIM CONDIÇÃO: PEDIDO AVARIA OU REPOSIÇÃO NORMAL  
+          END IF; -- FIM CONDIÇÃO: PEDIDO AVARIA OU REPOSIÇÃO NORMAL
 
           -- ZERANDO VARIÁVEL DE QTDE SUGERIDA FRACIONADA DO PRODUTO DESTINO
           N_SUG_FRACIONADA_D      := 0;
@@ -2030,12 +2070,12 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- CÁLCULO DA TRANSFERÊNCIA DE AVARIA ----------------------------------
           ------------------------------------------------------------------------
           IF    (NVL(P_PEDIDOAVARIA,'N') = 'S') THEN
-          
+
             N_QTD_TRANSFERIR_O := N_QTINDENIZ_O;
-          
+
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. TRANSFERIR = <QT. AVARIA>');
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. TRANSFERIR = ' || NVL(N_QTD_TRANSFERIR_O,0));
-          
+
           ------------------------------------------------------------------------
           -- CÁLCULO DA SUGESTÃO DE REPOSIÇÃO DE LOJAS ---------------------------
           ------------------------------------------------------------------------
@@ -2061,11 +2101,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. TOT. DISP. = ' || NVL(V_ESTQDISP,0));
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'SUG. FRACIONADA = (<EST. MAXIMO> - <EST. TOT. DISP.>)');
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'SUG. FRACIONADA = ' || NVL(N_SUG_FRACIONADA_D,0));
-              
+
             ELSIF (PRODUTO.TIPOSUGESTAO_D = 'E') THEN
-                        
+
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'SEM SUGESTAO DE REPOSICAO POR NAO ATINGIR O ESTOQUE MINIMO');
-              
+
             END IF;
             -- SE IMPORTOU A QUANTIDADE ------------------------------------------
             IF (NVL(P_IMPORTA_QTDE_TRANSF,'N') = 'S') THEN
@@ -2100,9 +2140,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   po_vMsgErroTratado := 'Problemas ao arredondar para caixa.' || CHR(13) || 'Produto ' || N_CODPROD_D || CHR(13) || 'Sugestão: ' || NVL(N_QTIMPORT_D,0) || CHR(13) || 'QTUNITCX: '|| NVL(N_QTUNITCX_D,0) || ' : ' || SQLERRM;
                   RAISE e_TratadoLocal;
               END;
-              
+
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. TRANSFERIR = ' || NVL(N_QTD_TRANSFERIR_O,0));
-              
+
             -- SE NAO IMPORTOU A QUANTIDADE --------------------------------------
             ELSE
 
@@ -2155,7 +2195,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 IF (NVL(N_QTUNITCX_O,0) > 1) THEN
                   -- Pega Percentual de Arredondamento do Produto Origem
                   N_PERCARREDONDA_O      := NVL(N_PERCARREDONDA_F_O,0);
-                  V_EMB_POR_FORNECEDOR_O := 'S';                  
+                  V_EMB_POR_FORNECEDOR_O := 'S';
                 END IF;
               ELSE
                 BEGIN
@@ -2200,7 +2240,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                                                   V_ORIGEMEMBALAGEMMASTERFORNEC),
                                                              'N');                      -- Aqui não é arredondamento da Sugestão Fracionada - DDMEDICA-6815
                 -- Guarda a Embalagem utilizada na Conversão por causa da Regra de Respeitar o Estoque Mínimo
-                N_EMB_UTILIZADA_CONVERSAO_FRN := NVL(N_QTUNITCX_O,0);                                                                                   
+                N_EMB_UTILIZADA_CONVERSAO_FRN := NVL(N_QTUNITCX_O,0);
               EXCEPTION
                 WHEN OTHERS THEN
                   po_vMsgErroTratado := 'Problemas ao arredondar para caixa.' || CHR(13) || 'Produto ' || N_CODPROD_O || CHR(13) || 'Sugestão: ' || NVL(N_QTD_TRANSFERIR_O,0) || CHR(13) || 'QTUNITCX: '|| NVL(N_QTUNITCX_O,0) || ' : ' || SQLERRM;
@@ -2291,7 +2331,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                                                    V_ORIGEMEMBALAGEMMASTERFORNEC),
                                                               vARREDONDARSUGESTAOFRACIONADA); -- DDMEDICA-6815
                 -- Guarda a Embalagem utilizada na Conversão por causa da Regra de Respeitar o Estoque Mínimo
-                N_EMB_UTILIZADA_CONVERSAO_FRN := NVL(N_QTUNITCX_O,0);                                                                                   
+                N_EMB_UTILIZADA_CONVERSAO_FRN := NVL(N_QTUNITCX_O,0);
               EXCEPTION
                 WHEN OTHERS THEN
                   po_vMsgErroTratado := 'Problemas ao arredondar para caixa.' || CHR(13) || 'Produto ' || N_CODPROD_O || CHR(13) || 'Sugestão: ' || NVL(N_SUG_FRACIONADA_D,0) || CHR(13) || 'QTUNITCX: '|| NVL(N_QTUNITCX_O,0) || ' : ' || SQLERRM;
@@ -2305,7 +2345,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- COMO NAO TEM CONVERSAO DE EMBALAGEM DA TRANSFERENCIA DE CD'S, A QUANTIDADE DESTINO RECEBE A QUANTIDADE ORIGEM
               N_QTD_SUGERIDA_D   := NVL(N_QTD_TRANSFERIR_O,0);
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'SUG. FRACIONADA APOS ARRED. EMBALAGEM NA ORIGEM = ' || NVL(N_QTD_TRANSFERIR_O,0));
-              
+
             -- SEM ARREDONDAMENTO PARA A CAIXA DO FORNECEDOR DO PRODUTO DE ORIGEM (REPOSICAO FRACIONADA)
             ELSE
               -- CALCULO DA QUANTIDADE DE SUGESTAO UNITARIA DO PRODUTO ORIGEM SEM CONSIDERAR A QUANTIDADE DA CAIXA PADRAO DO FORNECEDOR
@@ -2435,7 +2475,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             V_QUEBRA3 := NVL(V_QUEBRA_AGENDA_AUTOM,'0');
             V_QUEBRA4 := NVL(V_CONTROLE_QUEBRA_EMB,'C');
           END IF;
-          
+
           -- RESTRIÇÕES
           V_RESTRICOES := 'N';
           IF (V_DESCONSIDPRODSEMCUSTOFIN  = 'S') AND (NVL(N_CUSTOFIN_O,0) = 0)  THEN
@@ -2446,7 +2486,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF;
           IF (V_DESCONSIDPRODSEMTRIBUT    = 'S') AND (NVL(V_CODST,0) = 0)       THEN
             V_RESTRICOES := 'S';
-          END IF;   
+          END IF;
           IF (NVL(P_PEDIDOAVARIA,'N') = 'S') AND (NVL(N_QTINDENIZ_O,0) = 0) THEN
             V_RESTRICOES := 'S';
           END IF;
@@ -2457,16 +2497,16 @@ IS PRAGMA SERIALLY_REUSABLE;
             IF (NVL(PRODUTO.ESTOQUEPORLOTE,'N') = 'S') THEN
               FOR vc_Lotes IN (SELECT NUMLOTE
                                     , QTINDENIZ
-                                 FROM PCLOTE 
+                                 FROM PCLOTE
                                 WHERE (CODFILIAL = PRODUTO.CODFILIAL_O)
                                   AND (CODPROD   = PRODUTO.CODPROD_O)
                                   AND (QTINDENIZ > 0)) LOOP
-                                  
-                viIdxLote := NVL(vtLotes.COUNT,0) + 1;                   
+
+                viIdxLote := NVL(vtLotes.COUNT,0) + 1;
                 vtLotes(viIdxLote).vvSugestaoLote := 'S';
                 vtLotes(viIdxLote).vvNumLote      := vc_Lotes.NUMLOTE;
                 vtLotes(viIdxLote).vnQtIndeniz    := vc_Lotes.QTINDENIZ;
-                
+
                 -- SOMA O QUE ESTIVER EM PREFAT PARA O LOTE
                 SELECT SUM(QT)
                   INTO vnTotalAvariaPrefat
@@ -2483,12 +2523,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vtLotes(viIdxLote).vnQtIndeniz := 0;
                   END IF;
                 END IF;
-                
-              END LOOP; 
+
+              END LOOP;
               IF (NVL(vtLotes.COUNT,0) = 0) THEN
                 V_RESTRICOES := 'S';
-              END IF;                   
-            ELSE 
+              END IF;
+            ELSE
               vtLotes(1).vvSugestaoLote := 'N';
               vtLotes(1).vvNumLote      := 'X';
             END IF;
@@ -2496,7 +2536,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vtLotes(1).vvSugestaoLote := 'N';
             vtLotes(1).vvNumLote      := 'X';
           END IF;
-          
+
           -- ALTERAÇÃO DE VALORES SE PEDIDO AVARIA - DDMEDICA-5077
           IF (P_PEDIDOAVARIA = 'S') THEN
             V_EMB_POR_FORNECEDOR_O := 'N';
@@ -2504,9 +2544,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_QTUNITCX_D           := 1;
           END IF;
 
-          -----------------------------------------------------------------------                        
+          -----------------------------------------------------------------------
           -- INICIO: DDMEDICA-4666 - Respeitar estoque minimo na Filial de Origem
-          -----------------------------------------------------------------------                        
+          -----------------------------------------------------------------------
           IF (NVL(P_PEDIDOAVARIA,'N') <> 'S') THEN
             IF (NVL(V_RESPEITARESTOQUEMINORIGEM,'N') = 'S') THEN
               -- Pega Estoque Mínimo da Rotina 238
@@ -2520,13 +2560,13 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Estoque Disponível
               IF (vtINDICE_PROD_O.EXISTS(N_CODPROD_O)) THEN
                 I_INDICE_PROD := vtINDICE_PROD_O(N_CODPROD_O);
-                N_QTESTDISP_O := vtQTESTDISP_O(I_INDICE_PROD);                 
-              ELSE 
+                N_QTESTDISP_O := vtQTESTDISP_O(I_INDICE_PROD);
+              ELSE
                 N_QTESTDISP_O := 0;
-              END IF;      
+              END IF;
               -- Sobrepõe o Estoque Disponível na Origem do Grid, para abater o que foi utilizado na primeira Loja
               V_QTD_EST_ORIG := N_QTESTDISP_O;
-              --      
+              --
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. FILIAL ORIGEM = ' || NVL(N_QTESTDISP_O,0));
               -- Define qual Estoque mínimo a usar
               IF    (P_TIPO_SUGESTAO = 'L') THEN
@@ -2540,7 +2580,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_QTESTDISP_O := NVL(N_QTESTDISP_O,0) - NVL(N_ESTOQUEMINSUG_O,0);
               IF (NVL(N_QTESTDISP_O,0) < 0) THEN
                 N_QTESTDISP_O := 0;
-              END IF; 
+              END IF;
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA TRANSFERIR = <EST. DISP. FILIAL ORIGEM> - <EST. MIN.>');
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA TRANSFERIR = ' || NVL(N_QTESTDISP_O,0));
               -- Limita a Quantidade a Transferir ao Disponível
@@ -2568,7 +2608,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   N_QTD_SUGERIDA_D := NVL(N_QTD_TRANSFERIR_O,0) * NVL(N_QTUNITCX_D,0);
                 ELSE
                   N_QTD_SUGERIDA_D := NVL(N_QTD_TRANSFERIR_O,0);
-                END IF;                
+                END IF;
               ELSE
                 N_QTCANCESTOQUEMINSUG_O := 0;
                 PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'QT. CANCELADA POR ESTOQUE INSUFICIENTE = ' || NVL(N_QTCANCESTOQUEMINSUG_O,0));
@@ -2577,12 +2617,12 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF (vtINDICE_PROD_O.EXISTS(N_CODPROD_O)) THEN
                 I_INDICE_PROD := vtINDICE_PROD_O(N_CODPROD_O);
                 vtQTESTDISP_O(I_INDICE_PROD) := vtQTESTDISP_O(I_INDICE_PROD) - NVL(N_QTD_TRANSFERIR_O,0);
-              END IF;            
+              END IF;
             ELSE
               N_ESTMIN_O              := NULL;
-              N_ESTOQUEMIN_O          := NULL; 
-              N_ESTOQUEMINSUG_O       := NULL; 
-              N_QTCANCESTOQUEMINSUG_O := NULL;             
+              N_ESTOQUEMIN_O          := NULL;
+              N_ESTOQUEMINSUG_O       := NULL;
+              N_QTCANCESTOQUEMINSUG_O := NULL;
             END IF;
           END IF; -- FIM CONDIÇÃO: SE NÃO FOR PEDIDO AVARIA
           -- FÓRMULA
@@ -2632,11 +2672,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                                     NVL(V_QUEBRA1,' ')                || ' + ' ||
                                     NVL(V_QUEBRA2,' ')                || ' + ' ||
                                     NVL(V_QUEBRA3,' ')                || ' + ' ||
-                                    NVL(V_QUEBRA4,' '),1,100);   
-                                    
+                                    NVL(V_QUEBRA4,' '),1,100);
+
             -- LAÇO DE LOTES
-            FOR viIdxLote IN vtLotes.FIRST..vtLotes.LAST LOOP   
-            
+            FOR viIdxLote IN vtLotes.FIRST..vtLotes.LAST LOOP
+
               -- PEGA O LOTE E A QUANTIDADE A TRANSFERIR - DDMEDICA-5077
               IF (vtLotes(viIdxLote).vvSugestaoLote = 'S') THEN
                 V_QTD_EST_ORIG     := vtLotes(viIdxLote).vnQtIndeniz;
@@ -2839,7 +2879,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PRODUTO.ESTOQUEPORLOTE
                         , NVL(V_NUMLOTE,'X')
                         );
-  
+
               -- EFETIVA TRANSACOES A CADA 1000 ATUALIZACOES
               I_CONTA_COMMIT := NVL(I_CONTA_COMMIT,0) + 1;
               IF (I_CONTA_COMMIT  > 1000) THEN
@@ -2938,6 +2978,9 @@ IS PRAGMA SERIALLY_REUSABLE;
       WHEN OTHERS THEN
         nQTDEDIASESTOQUETRANSITO := 0;
     END;
+    POBTEM_PARAMFILIAL_STRING(P_CODFILIAL_ORIGEM,'DESCSTFORAUFTRANSF',
+                                vDESCSTFORAUFTRANSF,vvErroPesqParam1,
+                                vvMsgErroPesqParam1);
 
    /*****************************************************
     Se Geração da Reposição de forma Automática ou Manual
@@ -3017,12 +3060,18 @@ IS PRAGMA SERIALLY_REUSABLE;
       vSqlEstDestino := vSqlEstDestino ||
       '       , CASE WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''E'') THEN
                        NVL(ED.CUSTOREP,0)
-                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'') THEN
-                       NVL(ED.CUSTOREAL,0)
-                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''C'') THEN
+                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'')
+           AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
+                        NVL(ED.CUSTOREALSEMST,0)
+           WHEN  (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'') THEN
+            NVL(ED.CUSTOREAL,0)
+                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''C'')  THEN
                        NVL(ED.CUSTOCONT,0)
-                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'') THEN
-                       NVL(ED.CUSTOFIN,0)
+                     WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'')
+               AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
+                         NVL(ED.CUSTOFINSEMST,0)
+           WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'') THEN
+            NVL(ED.CUSTOFIN,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''U'') THEN
                        NVL(ED.CUSTOULTENT,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''V'') THEN
@@ -3196,7 +3245,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Limpa Tabela Temporária
       EXECUTE IMMEDIATE 'TRUNCATE TABLE PCMED_TEMP_ESTTRANSITO';
-      
+
       vSqlEstTransito := '
         INSERT INTO PCMED_TEMP_ESTTRANSITO
         (
@@ -3205,7 +3254,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                  , SUM(X.QTTRANSITO) QTTRANSITO
                  , X.CODIGO
               FROM ( ';
-      
+
       -- Prepara SQL com o Filtro de Produto
       IF (TRIM(P_PRODUTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
@@ -3218,7 +3267,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , PCFILIAL
                             , PCPRODUT
                             , PCMARCA
-                            , PCPRODUT TAB_PROD_FILHO  
+                            , PCPRODUT TAB_PROD_FILHO
                         WHERE (   (NVL((SELECT PCPARAMFILIAL.VALOR
                                           FROM PCPARAMFILIAL
                                          WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
@@ -3238,12 +3287,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                           AND PCPEDC.DTCANCEL IS NULL
                           AND PCPRODUT.CODPROD = PCPEDI.CODPROD
                           AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+) ';
-              
+
         IF (NVL(vIGNORARPRODMASTER2312,'N') = 'S') THEN
           vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPROD = PCPRODUT.CODPROD ';
         ELSE
-          vSqlEstTransito := vSqlEstTransito || ' 
+          vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPRODMASTER = PCPRODUT.CODPROD ';
         END IF;
       -- Prepara SQL sem o Filtro de Produto
@@ -3257,7 +3306,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , PCPEDI
                             , PCFILIAL
                             , PCPRODUT
-                            , PCMARCA 
+                            , PCMARCA
                         WHERE (   (NVL((SELECT PCPARAMFILIAL.VALOR
                                           FROM PCPARAMFILIAL
                                          WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
@@ -3282,19 +3331,19 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Filial de Origem = OBRIGATORIO
       vSqlEstTransito := vSqlEstTransito || '
                           AND PCPEDC.CODFILIAL = ' || '''' || P_CODFILIAL_ORIGEM || '''';
-      
+
       -- Se passou o Grupo de Loja do Destino
       IF (TRIM(P_CODGRUPOLOJA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL.CODGRUPOLOJA IN (' || P_CODGRUPOLOJA || ')';
       END IF;
-      
+
       -- Se passou a Filial de Destino
       IF (TRIM(P_CODFILIAL_DESTINO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL.CODIGO IN (' || P_CODFILIAL_DESTINO || ')';
       END IF;
-      
+
       -- Não carrega a Filial de Destino que é iguail à de Origem (Caso Multiseleção)
       vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL.CODIGO <> ' || '''' || P_CODFILIAL_ORIGEM || '''';
@@ -3303,73 +3352,73 @@ IS PRAGMA SERIALLY_REUSABLE;
         vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPROD IN (' || P_PRODUTO || ')';
       END IF;
-      
+
       -- Se passou o Código o Departamento
       IF (TRIM(P_DEPARTAMENTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODEPTO IN (' || P_DEPARTAMENTO || ')';
       END IF;
-      
+
       -- Se passou a Seção
       IF (TRIM(P_SECAO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODSEC IN (' || P_SECAO || ')';
       END IF;
-      
+
       -- Se passou a Categoria
       IF (TRIM(P_CATEGORIA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODCATEGORIA IN (' || P_CATEGORIA || ')';
       END IF;
-      
+
       -- Se passou a Marca
       IF (TRIM(P_SUBCATEGORIA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODSUBCATEGORIA IN (' || P_SUBCATEGORIA || ')';
       END IF;
-      
+
       -- Se passou a Marca
       IF (TRIM(P_MARCA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODMARCA IN (' || P_MARCA || ')';
       END IF;
-      
+
       -- Se passou o Fornecedor
       IF (TRIM(P_FORNECEDOR) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODFORNEC IN (' || P_FORNECEDOR || ')';
       END IF;
-      
+
       -- Se passou a Linha
       IF (TRIM(P_LINHAPRODUTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODLINHAPROD IN (' || P_LINHAPRODUTO || ')';
       END IF;
-      
+
       -- Se passou a Unidade
       IF (TRIM(P_UNIDADE) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.UNIDADE IN (' || P_UNIDADE || ')';
       END IF;
-      
+
       -- Se passou Psicotropico
       IF (TRIM(P_PSICOTROPICO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.PSICOTROPICO IN (' || P_PSICOTROPICO || ')';
       END IF;
-      
+
       -- Se passou Tipo Tribut. Medic.
       IF (TRIM(P_TIPOTRIBUTMEDIC) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.TIPOTRIBUTMEDIC IN (' || P_TIPOTRIBUTMEDIC || ')';
       END IF;
-      
+
       -- Se passou o Comprador da Marca
       IF (TRIM(P_COMPRADOR_MARCA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCMARCA.CODCOMPRADOR IN (' || P_COMPRADOR_MARCA || ')';
       END IF;
-      
+
       -- Condição de Importação
       IF (P_IMPORTA_QTDE_TRANSF = 'S') THEN
         vSqlEstTransito := vSqlEstTransito || '
@@ -3378,22 +3427,22 @@ IS PRAGMA SERIALLY_REUSABLE;
                                        WHERE PCMED_TEMP_IMPORT_ATAC_VAR.CODPROD_D   = PCPRODUT.CODPROD
                                          AND PCMED_TEMP_IMPORT_ATAC_VAR.CODFILIAL_D = PCFILIAL.CODIGO) ';
       END IF;
-      
+
       -- REGRA ESPECÍFICA - Quantidade de dias para analisar o estoque em trânsito
       IF (NVL(nQTDEDIASESTOQUETRANSITO,0) > 0) THEN
         vSqlEstTransito := vSqlEstTransito     || '
                           AND PCPEDC.DATA >= TRUNC(SYSDATE) - ' || NVL(nQTDEDIASESTOQUETRANSITO,0);
       END IF;
-      
+
       -- Finaliza o SQL
       vSqlEstTransito := vSqlEstTransito || '
                           AND NOT EXISTS (SELECT 1
                                             FROM PCPEDIDO
                                            WHERE NUMTRANSVENDA = PCPEDC.NUMTRANSVENDA)
                        UNION ALL ';
-         
-      IF (TRIM(P_PRODUTO) IS NOT NULL) THEN 
-        vSqlEstTransito := vSqlEstTransito || ' 
+
+      IF (TRIM(P_PRODUTO) IS NOT NULL) THEN
+        vSqlEstTransito := vSqlEstTransito || '
                        SELECT PCFILIAL.CODIGO CODFILIAL_ORIGEM
                             , PCEST.CODPROD
                             , NVL(PCEST.QTTRANSITOTV10, 0) QTTRANSITO
@@ -3407,21 +3456,21 @@ IS PRAGMA SERIALLY_REUSABLE;
                         WHERE NVL((SELECT PCPARAMFILIAL.VALOR
                                      FROM PCPARAMFILIAL
                                     WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
-                                      AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''             
-                          AND PCEST.CODFILIAL <> PCFILIAL.CODIGO 
+                                      AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''
+                          AND PCEST.CODFILIAL <> PCFILIAL.CODIGO
                           AND PCEST.CODPROD = PCPRODUT.CODPROD
                           AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)
                           AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
-             
+
         IF (NVL(vIGNORARPRODMASTER2312,'N') = 'S') THEN
           vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPROD = PCPRODUT.CODPROD ';
         ELSE
           vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPRODMASTER = PCPRODUT.CODPROD ';
-        END IF;   
+        END IF;
       ELSE
-        vSqlEstTransito := vSqlEstTransito || ' 
+        vSqlEstTransito := vSqlEstTransito || '
                        SELECT PCFILIAL.CODIGO CODFILIAL_ORIGEM
                             , PCEST.CODPROD
                             , NVL(PCEST.QTTRANSITOTV10, 0) QTTRANSITO
@@ -3435,100 +3484,100 @@ IS PRAGMA SERIALLY_REUSABLE;
                         WHERE NVL((SELECT PCPARAMFILIAL.VALOR
                                      FROM PCPARAMFILIAL
                                     WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
-                                      AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''             
-                          AND PCEST.CODFILIAL <> PCFILIAL.CODIGO 
+                                      AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''
+                          AND PCEST.CODFILIAL <> PCFILIAL.CODIGO
                           AND PCEST.CODPROD = PCPRODUT.CODPROD
                           AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)
                           AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
       END IF;
-        
+
       -- Filial de Origem = OBRIGATORIO
       vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL.CODIGO = ' || '''' || P_CODFILIAL_ORIGEM || '''';
-        
+
       -- Se passou o Grupo de Loja do Destino
       IF (TRIM(P_CODGRUPOLOJA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL_D.CODGRUPOLOJA IN (' || P_CODGRUPOLOJA || ')';
       END IF;
-        
+
       -- Se passou a Filial de Destino
       IF (TRIM(P_CODFILIAL_DESTINO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCFILIAL_D.CODIGO IN (' ||  P_CODFILIAL_DESTINO || ')';
       END IF;
-        
+
       IF (TRIM(P_PRODUTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPROD IN (' || P_PRODUTO || ')';
-      END IF; 
-        
+      END IF;
+
       -- Se passou o Código o Departamento
       IF (TRIM(P_DEPARTAMENTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODEPTO IN (' || P_DEPARTAMENTO || ')';
       END IF;
-        
+
       -- Se passou a Seção
       IF (TRIM(P_SECAO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODSEC IN (' || P_SECAO || ')';
       END IF;
-        
+
       -- Se passou a Categoria
       IF (TRIM(P_CATEGORIA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODCATEGORIA IN (' || P_CATEGORIA || ')';
       END IF;
-        
+
       -- Se passou a Marca
       IF (TRIM(P_SUBCATEGORIA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODSUBCATEGORIA IN (' || P_SUBCATEGORIA || ')';
       END IF;
-        
+
       -- Se passou a Marca
       IF (TRIM(P_MARCA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODMARCA IN (' || P_MARCA || ')';
       END IF;
-        
+
       -- Se passou o Fornecedor
       IF (TRIM(P_FORNECEDOR) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODFORNEC IN (' || P_FORNECEDOR || ')';
       END IF;
-        
+
       -- Se passou a Linha
       IF (TRIM(P_LINHAPRODUTO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.CODLINHAPROD IN (' || P_LINHAPRODUTO || ')';
       END IF;
-        
+
       -- Se passou a Unidade
       IF (TRIM(P_UNIDADE) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.UNIDADE IN (' || P_UNIDADE || ')';
       END IF;
-        
+
       -- Se passou Psicotropico
       IF (TRIM(P_PSICOTROPICO) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.PSICOTROPICO IN (' || P_PSICOTROPICO || ')';
       END IF;
-        
+
       -- Se passou Tipo Tribut. Medic.
       IF (TRIM(P_TIPOTRIBUTMEDIC) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCPRODUT.TIPOTRIBUTMEDIC IN (' || P_TIPOTRIBUTMEDIC || ')';
       END IF;
-        
+
       -- Se passou o Comprador da Marca
       IF (TRIM(P_COMPRADOR_MARCA) IS NOT NULL) THEN
         vSqlEstTransito := vSqlEstTransito || '
                           AND PCMARCA.CODCOMPRADOR IN (' || P_COMPRADOR_MARCA || ')';
       END IF;
-        
+
       -- Condição de Importação
       IF (P_IMPORTA_QTDE_TRANSF = 'S') THEN
         vSqlEstTransito := vSqlEstTransito || '
@@ -3537,8 +3586,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                        WHERE PCMED_TEMP_IMPORT_ATAC_VAR.CODPROD_D   = PCPRODUT.CODPROD
                                          AND PCMED_TEMP_IMPORT_ATAC_VAR.CODFILIAL_D = PCFILIAL_D.CODIGO) ';
       END IF;
-        
-      -- Finaliza o SQL      
+
+      -- Finaliza o SQL
       vSqlEstTransito := vSqlEstTransito || '
                    ) X
             GROUP BY X.CODFILIAL
@@ -4323,7 +4372,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     TYPE TRecFilOrigem             IS RECORD(
          vcAchouFilial             VARCHAR2(1),
          vvCgcFilial               PCFILIAL.CGC%TYPE,
-         vnQtMaxPedido             PCFILIAL.QTMAXPEDIDO%TYPE);
+         vnQtMaxPedido             PCFILIAL.QTMAXPEDIDO%TYPE,
+         vvUfOrigem                PCFILIAL.UF%TYPE);
     vrFilOrigem                    TRecFilOrigem;
 
     -- Dados da Filial de Destino
@@ -4426,7 +4476,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          nVALORULTENT              PCEST.VALORULTENT%TYPE,
          nCUSTOREALSEMST           PCEST.CUSTOREALSEMST%TYPE,
          nVLULTENTCONTSEMST        PCEST.VLULTENTCONTSEMST%TYPE,
-         nCUSTOFORNEC              PCEST.CUSTOFORNEC%TYPE);
+         nCUSTOFORNEC              PCEST.CUSTOFORNEC%TYPE,
+         nCUSTOFINSEMST            PCEST.CUSTOFINSEMST%TYPE);
     vrCustoProduto_O               TRecCustoProdut;
 
     -- Dados do Produto da Tabela de Preços
@@ -4784,17 +4835,17 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Parâmetro se a Filial de Origem Utiliza Venda por Embalagem - DDMEDICA-5012
     vUTILIZAVENDAPOREMBALAGEM          PCPARAMFILIAL.VALOR%TYPE;
-    
+    vDESCSTFORAUFTRANSF                PCPARAMFILIAL.VALOR%TYPE;
     -- Estoque Indenizado - DDMEDICA-5077
     vnQtIndenizLoteDisponivel          PCEST.QTINDENIZ%TYPE;
     vnQtIndenizDisponivel              PCEST.QTINDENIZ%TYPE;
     vnQtIndenizUtilizado               PCEST.QTINDENIZ%TYPE;
     vvInformacaoLoteFab                VARCHAR2(255);
     vnTotalAvariaPrefat                NUMBER;
-    
+
     -- Retorno do Faturamento do Pedido - DDMEDICA-5077
     vvErroFaturarPedido                VARCHAR2(1);
-    vvMsgErroFaturarPedido             VARCHAR2(2000);    
+    vvMsgErroFaturarPedido             VARCHAR2(2000);
 
     -- Verificação dos Radicais de CNPJ - DDMEDICA-5286
     v_REGRADEFINICAOGERARDESPESAS      PCPARAMREPOSICAOLOJAS.VALOR%TYPE;
@@ -5216,19 +5267,19 @@ IS PRAGMA SERIALLY_REUSABLE;
                                        pi_nCodSt      IN NUMBER,
                                        pi_vCgcCliente IN VARCHAR2,
                                        pi_vCgcFilial  IN VARCHAR2)
-    RETURN NUMBER IS                                       
-      vnRetPrecoTransf PCPEDI.PTABELA%TYPE;                                             
+    RETURN NUMBER IS
+      vnRetPrecoTransf PCPEDI.PTABELA%TYPE;
     BEGIN
-    
+
       -- Se Venda
       IF (FUSA_CFOP_VENDA(pi_vCgcCliente,
                           pi_vCgcFilial) = 'S') THEN
         -- Aplica CODICM
         BEGIN
-          SELECT CASE WHEN NVL(AGREGARICMSNOVLTRANSF, 'N') = 'N' THEN 
+          SELECT CASE WHEN NVL(AGREGARICMSNOVLTRANSF, 'N') = 'N' THEN
                    pi_nPTabela
-                 ELSE 
-                   pi_nPTabela / (1 -  ((NVL(PCTRIBUT.CODICM, 0)/100) *     
+                 ELSE
+                   pi_nPTabela / (1 -  ((NVL(PCTRIBUT.CODICM, 0)/100) *
                                         DECODE (NVL(PCTRIBUT.PERCBASERED,0), 0 , 100, PCTRIBUT.PERCBASERED)/100) )
                  END PVENDA
                 INTO vnRetPrecoTransf
@@ -5236,15 +5287,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                WHERE CODST = pi_nCodSt;
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            vnRetPrecoTransf := pi_nPTabela; 
-        END;     
+            vnRetPrecoTransf := pi_nPTabela;
+        END;
       -- Se Transferência
       ELSE
         -- Aplica CODICMTRANSF
         BEGIN
-          SELECT CASE WHEN NVL(AGREGARICMSNOVLTRANSF, 'N') = 'N' THEN 
+          SELECT CASE WHEN NVL(AGREGARICMSNOVLTRANSF, 'N') = 'N' THEN
                    pi_nPTabela
-                 ELSE 
+                 ELSE
                    pi_nPTabela / (1 -  ((NVL(PCTRIBUT.CODICMTRANSF, 0)/100) *
                                         DECODE (NVL(PCTRIBUT.PERCBASEREDTRANFSAID,0), 0 , 100, PCTRIBUT.PERCBASEREDTRANFSAID)/100) )
                  END PVENDA
@@ -5253,14 +5304,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                WHERE CODST = pi_nCodSt;
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            vnRetPrecoTransf := pi_nPTabela; 
-        END;     
+            vnRetPrecoTransf := pi_nPTabela;
+        END;
       END IF;
-      
+
       -- Retorno
       RETURN vnRetPrecoTransf;
-    
-    END FCALCULARPRECOVENDATRANSF;                                   
+
+    END FCALCULARPRECOVENDATRANSF;
 
     ------------------------------------------------------------------------------
     -- Função para Calcular o ST
@@ -5421,7 +5472,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                 0,
                                                 NULL,
                                                 'S',  --HIS.01188.2013 (verifique história)
-                                                '')); --DDVENDAS-37042 - Igual a 316 para não dar diferença de ST (pTransferencia indica que é 1419 ou 1436, não para a 316) 
+                                                '')); --DDVENDAS-37042 - Igual a 316 para não dar diferença de ST (pTransferencia indica que é 1419 ou 1436, não para a 316)
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
             vnBaseST   := 0;
@@ -6294,7 +6345,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              pi_nMatricula             IN NUMBER,
                              po_vErroFaturarPedido    OUT VARCHAR2,
                              po_vMsgErroFaturarPedido OUT VARCHAR2) IS
-      -- Record de Parâmetros                       
+      -- Record de Parâmetros
       TYPE TRecParamFat IS RECORD(
            pvc2emitente      VARCHAR2(255),
            pncaregamento     PCPEDC.NUMCAR%TYPE,
@@ -6307,11 +6358,11 @@ IS PRAGMA SERIALLY_REUSABLE;
            pvc2menssagen     VARCHAR2(2000));
       vrParamFat             TRecParamFat;
       --  Indicador de PréFat
-      vvExistePrefat         VARCHAR2(1);                                      
-    BEGIN       
-    
+      vvExistePrefat         VARCHAR2(1);
+    BEGIN
+
       -- Inicializa Retornos
-      po_vErroFaturarPedido    := 'N';      
+      po_vErroFaturarPedido    := 'N';
       po_vMsgErroFaturarPedido := NULL;
 
       -------------------
@@ -6324,13 +6375,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           SELECT PCEMPR.NOME_GUERRA
             INTO vrParamFat.pvc2emitente
             FROM PCEMPR
-           WHERE (PCEMPR.MATRICULA = pi_nMatricula);            
+           WHERE (PCEMPR.MATRICULA = pi_nMatricula);
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
             vrParamFat.pvc2emitente  := NULL;
             po_vErroFaturarPedido    := 'S';
-            po_vMsgErroFaturarPedido := 'Funcionário não encontrado para a matrícula: ' || pi_nMatricula;              
-        END;        
+            po_vMsgErroFaturarPedido := 'Funcionário não encontrado para a matrícula: ' || pi_nMatricula;
+        END;
         vrParamFat.pncaregamento := -1;
         BEGIN
           SELECT PCPEDC.CODCOB
@@ -6345,15 +6396,15 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrParamFat.pvc2codigofilial  := NULL;
             po_vErroFaturarPedido        := 'S';
             po_vMsgErroFaturarPedido     := 'Pedido não encontrado: ' || pi_nNumPed;
-        END;        
+        END;
         vrParamFat.pcodmotorista    := 0;
-        vrParamFat.pcodveiculo      := 0;        
+        vrParamFat.pcodveiculo      := 0;
         vrParamFat.pnnumnotafiscal  := 0;
         vrParamFat.pnnumselonf      := 0;
 
         -- Se não ocorreram Erros ao preparar parâmetros
         IF (po_vErroFaturarPedido = 'N') THEN
-        
+
           -- Muda a Posição e Carregamento para Faturar
           UPDATE PCPEDC
              SET NUMCAR  = -1
@@ -6366,7 +6417,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
           -- String para executar Bloco de Cálculo de ST Fonte
           vvBlocoExecucaoProcedure := 'BEGIN FATURAMENTO.faturarpedido(TRUNC(SYSDATE),:pvc2emitente,:pncaregamento,:pvncodigocobranca,TRUNC(SYSDATE),TRUNC(SYSDATE),:pcodmotorista,:pcodveiculo,:pvc2codigofilial,:pnnumnotafiscal,:pnnumselonf,:pvc2menssagen); END;';
-  
+
           -- Executa Bloco
           EXECUTE IMMEDIATE vvBlocoExecucaoProcedure
             USING in vrParamFat.pvc2emitente
@@ -6378,7 +6429,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , in vrParamFat.pnnumnotafiscal
                 , in vrParamFat.pnnumselonf
                 , out vrParamFat.pvc2menssagen;
-  
+
           -- Se ocorreram erros no Faturamento
           IF (NVL(vrParamFat.pvc2menssagen,'X') <> 'OK') THEN
             po_vErroFaturarPedido    := 'S';
@@ -6393,10 +6444,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           po_vErroFaturarPedido    := 'S';
           po_vMsgErroFaturarPedido := 'Erro ao executar procedure de faturamento : ' || SUBSTR(DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,2000);
       END;
-      
+
       -- Se erros no Faturamento, exclui o Pedido
       IF (po_vErroFaturarPedido = 'S') THEN
-        
+
         -- Antes de excluir, verifica se gerou PreFat
         BEGIN
           SELECT 'S'
@@ -6408,18 +6459,18 @@ IS PRAGMA SERIALLY_REUSABLE;
           WHEN NO_DATA_FOUND THEN
             vvExistePrefat := 'N';
         END;
-        
+
         -- Somente se não existir Prefat exclui
         IF (vvExistePrefat = 'N') THEN
           DELETE FROM PCPEDI WHERE NUMPED = pi_nNumPed;
           DELETE FROM PCPEDC WHERE NUMPED = pi_nNumPed;
           IF (NVL(SQL%ROWCOUNT,0) > 0) THEN
             po_vMsgErroFaturarPedido := 'Pedido de Avaria "' || pi_nNumPed || '" foi excluído por não conseguir gerar a nota fiscal: ' || po_vMsgErroFaturarPedido;
-          END IF;  
+          END IF;
         END IF;
-        
+
       END IF;
-      
+
       -- EFETIVA TRANSAÇÕES
       COMMIT;
 
@@ -7339,14 +7390,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   'FIL_UTILIZAVENDAPOREMBALAGEM',
                                   vUTILIZAVENDAPOREMBALAGEM,
                                   vvErroPesqParam,
-                                  vvMsgErroPesqParam);                                  
+                                  vvMsgErroPesqParam);
         IF (vUTILIZAVENDAPOREMBALAGEM IS NULL) THEN
           POBTEM_PARAMFILIAL_STRING('99',
                                     'CON_UTILIZAVENDAPOREMBALAGEM',
                                     vUTILIZAVENDAPOREMBALAGEM,
                                     vvErroPesqParam,
-                                    vvMsgErroPesqParam);                                  
-        END IF;                          
+                                    vvMsgErroPesqParam);
+        END IF;
         IF (NVL(vUTILIZAVENDAPOREMBALAGEM,'N') <> 'S') THEN
           vUSAQTUNITPCEMBREPLOJA := 'N';
         END IF;
@@ -7371,7 +7422,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   vvErroPesqParam,
                                   vvMsgErroPesqParam);
       END IF;
-           
+
      /*-----------------------------------------
       Pesquisa de Parâmetros da Filial de Origem
       -----------------------------------------*/
@@ -7381,9 +7432,11 @@ IS PRAGMA SERIALLY_REUSABLE;
         SELECT 'S'
              , PCFILIAL.CGC
              , PCFILIAL.QTMAXPEDIDO
+             , PCFILIAL.UF
           INTO vrFilOrigem.vcAchouFilial
              , vrFilOrigem.vvCgcFilial
              , vrFilOrigem.vnQtMaxPedido
+             , vrFilOrigem.vvUfOrigem
           FROM PCFILIAL
          WHERE (PCFILIAL.CODIGO = vc_Dados_Cab.CODFILIAL_O);
       EXCEPTION
@@ -7391,6 +7444,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrFilOrigem.vcAchouFilial := 'N';
           vrFilOrigem.vvCgcFilial   := NULL;
           vrFilOrigem.vnQtMaxPedido := 0;
+          vrFilOrigem.vvUfOrigem    := null;
       END;
 
       -- Parâmetro de Quantidade Máxima de Itens da NFe na Filial de Origem - TRANSFERENCIA ou PEDIDO OPERADOR LOGISTICO
@@ -7797,22 +7851,22 @@ IS PRAGMA SERIALLY_REUSABLE;
         ----------------------------------
         -- Lote do Produto - DDMEDICA-5077
         ----------------------------------
-  
+
         -- Inicialização do Lote
         vrItemPedido.vNUMLOTE := NULL;
         vvInformacaoLoteFab   := NULL;
-        
+
         -- Se Pedido de Avaria
         IF    (nvl(pi_vPedidoAvaria,'N') = 'S') THEN
-        
+
           -- Atribui Lote se Controlar Estoque por Lote
           IF (NVL(vc_Dados_Ite.ESTOQUEPORLOTE,'N') = 'S') THEN
-          
+
             vrItemPedido.vNUMLOTE := vc_Dados_Ite.NUMLOTE;
             vvInformacaoLoteFab   := ' e Lote Fab. ' || vc_Dados_Ite.NUMLOTE;
-            
+
           END IF;
-          
+
         END IF;
 
        /*---------------------------------------------
@@ -7918,7 +7972,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                ' para o Fornecedor: '     || NVL(vrFornecDestino.nCODFORNEC,0);
           END IF; -- Critica Valor Mínimo do Pedido
         END IF;
-        
+
        /****************************************************************************************************************
         SE PEDIDO DE TRANSFERENCIA OU PEDIDO OPERADOR LOGISTICO, PROCEDE AO CALCULO DO PREÇO, IMPOSTO, COMISSÃO, CMV ...
         ****************************************************************************************************************/
@@ -7985,6 +8039,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      , PCEST.CUSTOREALSEMST
                      , PCEST.VLULTENTCONTSEMST
                      , PCEST.CUSTOFORNEC
+                     , PCEST.CUSTOFINSEMST
                   INTO vrCustoProduto_O.nCUSTOREP
                      , vrCustoProduto_O.nCUSTOREAL
                      , vrCustoProduto_O.nCUSTOCONT
@@ -7994,6 +8049,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      , vrCustoProduto_O.nCUSTOREALSEMST
                      , vrCustoProduto_O.nVLULTENTCONTSEMST
                      , vrCustoProduto_O.nCUSTOFORNEC
+                     , vrCustoProduto_O.nCUSTOFINSEMST
                   FROM PCEST
                  WHERE (PCEST.CODPROD   = vc_Dados_Ite.CODPROD_O)
                    AND (PCEST.CODFILIAL = NVL(vc_Dados_Cab.CODFILIALRETIRA_O,vc_Dados_Cab.CODFILIAL_O)); -->> Na Filial Retira (Se não tiver Na Filial de Origem)
@@ -8008,6 +8064,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrCustoProduto_O.nCUSTOREALSEMST    := 0;
                   vrCustoProduto_O.nVLULTENTCONTSEMST := 0;
                   vrCustoProduto_O.nCUSTOFORNEC       := 0;
+                  vrCustoProduto_O.nCUSTOFINSEMST     := 0;
               END;
 
               -- Pesquisa Dados da Tabela de Preços do Produto
@@ -8067,9 +8124,17 @@ IS PRAGMA SERIALLY_REUSABLE;
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
                   vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREAL,0);
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'C') THEN
-                  vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOCONT,0);
+                  IF (vDESCSTFORAUFTRANSF = 'S') AND (vrFilOrigem.vvUfOrigem   <>  vrFilDestino.vvUfDestino) THEN
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0);
+                  ELSE
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOCONT,0);
+                  END IF;
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
-                  vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFIN,0);
+                     IF vDESCSTFORAUFTRANSF = 'S' AND vrFilOrigem.vvUfOrigem  <>  vrFilDestino.vvUfDestino THEN
+                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0);
+                      ELSE
+                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFIN,0);
+                      END IF;
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'U') THEN
                   vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOULTENT,0);
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'V') THEN
@@ -8088,16 +8153,16 @@ IS PRAGMA SERIALLY_REUSABLE;
 
                 -- Se utilizar Fator de Embalagem não pode arredondar o Preço aqui - DDVENDAS-37042
                 IF (NVL(vnQtUnitEmbalagem,0) > 1) THEN
-                  vbArredondaPreco := FALSE;                                             
+                  vbArredondaPreco := FALSE;
                 ELSE
-                  vbArredondaPreco := TRUE;                                             
+                  vbArredondaPreco := TRUE;
                 END IF;
 
                 -- Define o Arredondamento do PTABELA com base no Parâmetro de Número de Casas Decimais do Preço de Venda
                 IF (vbArredondaPreco) THEN
                   vrItemPedido.nPTABELA := ROUND(vrItemPedido.nPTABELA, NVL(vrParamFilial.nCON_NUMCASASDECVENDA,0));
                 END IF;
-                
+
                 -- Se não conseguiu formar o Preço de Venda a partir da PCEST
                 IF (NVL(vrItemPedido.nPTABELA,0) <= 0) THEN
 
@@ -8136,7 +8201,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     IF (NVL(vrClienteDestino.nPERACRESTRANSF,0) = 0) THEN
                       IF (vbArredondaPreco) THEN
                         vrItemPedido.nPTABELA := ROUND((vrItemPedido.nPTABELA * vrParamFilial.nFIL_INDICECUSTOTRANSF), vrParamFilial.nCON_NUMCASASDECVENDA);
-                      ELSE 
+                      ELSE
                         -- DDVENDAS-37042
                         vrItemPedido.nPTABELA := (vrItemPedido.nPTABELA * vrParamFilial.nFIL_INDICECUSTOTRANSF);
                       END IF;
@@ -8289,18 +8354,18 @@ IS PRAGMA SERIALLY_REUSABLE;
          /*----------------------------------------------------
           Se aceitar o Item, Critica Embalagem - DDVENDAS-38358
           ----------------------------------------------------*/
-          IF (vbAceitaItem) THEN        
+          IF (vbAceitaItem) THEN
             IF (NVL(vUSAQTUNITPCEMBREPLOJA,'N') = 'S') THEN
-  
+
               IF (NVL(vc_Dados_Ite.CODAUXILIAR_O,0) = 0) THEN
                 -- Rejeita Item
                 vbAceitaItem    := FALSE;
                 vMotivoRejeicao := '0025 - EAN não encontrado para o Produto: ' || NVL(vc_Dados_Ite.CODPROD_O,0);
               END IF; -- Critica Embalagem
-            
-            END IF;          
+
+            END IF;
           END IF;
-   
+
          /*---------------------------------------------
           Se aceitar o Item, Calcula Impostos do Produto
           ---------------------------------------------*/
@@ -8585,17 +8650,17 @@ IS PRAGMA SERIALLY_REUSABLE;
               vrItemPedido.vOBSERVACAOSTFONTE := 'Calc. ST Precificação sobre ' || vrItemPedido.nPTABELA || ' (Tipo Custo ' || V_TIPOCUSTOTRANSF_APLICAR || ')';
 
               -- DDVENDAS-37042 - Preço Tabela para Calcular ST conforme PCEMBALAGEM
-              IF (NVL(vnQtUnitEmbalagem,0) > 1) THEN                               
-                vnPrecoComImpostos    := ROUND((vrItemPedido.nPTABELA * vnQtUnitEmbalagem),NVL(vrParamFilial.nCON_NUMCASASDECVENDA,0)); 
-                vnPrecoCusto          := ROUND((vrItemPedido.nPTABELA * vnQtUnitEmbalagem),NVL(vrParamFilial.nCON_NUMCASASDECVENDA,0)); 
-                vnValorIpi            := (vrItemPedido.nVLIPI   * vnQtUnitEmbalagem);              
+              IF (NVL(vnQtUnitEmbalagem,0) > 1) THEN
+                vnPrecoComImpostos    := ROUND((vrItemPedido.nPTABELA * vnQtUnitEmbalagem),NVL(vrParamFilial.nCON_NUMCASASDECVENDA,0));
+                vnPrecoCusto          := ROUND((vrItemPedido.nPTABELA * vnQtUnitEmbalagem),NVL(vrParamFilial.nCON_NUMCASASDECVENDA,0));
+                vnValorIpi            := (vrItemPedido.nVLIPI   * vnQtUnitEmbalagem);
                 vnValorStPrecificacao := (vrTabPreco.nVLST      * vnQtUnitEmbalagem);
                 -- Log Cálculo
-                vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; fatorEmb ' || vnQtUnitEmbalagem;                
+                vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; fatorEmb ' || vnQtUnitEmbalagem;
                 vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; Preço com Fator ' || vnPrecoComImpostos;
               ELSE
-                vnPrecoComImpostos    := vrItemPedido.nPTABELA; 
-                vnPrecoCusto          := vrItemPedido.nPTABELA; 
+                vnPrecoComImpostos    := vrItemPedido.nPTABELA;
+                vnPrecoCusto          := vrItemPedido.nPTABELA;
                 vnValorIpi            := vrItemPedido.nVLIPI;
                 vnValorStPrecificacao := vrTabPreco.nVLST;
               END IF;
@@ -8603,7 +8668,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               --------------------------------------------------------
               -- Procede ao Cálculo do IPI e ST usando Regra do Pacote
               --------------------------------------------------------
-              
+
               -- Primeira vez que vai calcular o ST
               -- SE TRANSFERINDO PELO CUSTO
               IF (NVL(V_TIPOCUSTOTRANSF_APLICAR,' ') IN ('E','R','C','F','U','V','S','T','O','A')) THEN
@@ -8611,7 +8676,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- SE TRANSFERINDO PELO PRECO DE VENDA
               ELSE
                 vvRETIRAIMPOSTO201 := 'S';
-              END IF;  
+              END IF;
 
               -- Calcula o ST
               vbCalculouST := FCALCULAR_ST(V_TIPOCUSTOTRANSF_APLICAR,
@@ -8645,39 +8710,39 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Agrega o ICMS no Preço da Transferência (Módulo Vendas) (antes do cálculo de ST - DDMEDICA-2444)
               -- DDVENDAS-37042 - A 316 aplica após calcular o ST
               IF (NVL(vrParamFilial.vUTILIZACONTROLEMEDICAM,'N') <> 'S') THEN
-              
+
                 -- DDVENDAS-37042 - A 316 aplica o Acréscimo no Preço com ST
                 IF (vbCalculouST) THEN
-      
+
                   -- Inicializa os Preços a partir do Preço sem Imposto
                   vrItemPedido.nPVENDA  := NVL(vnPrecoSemImposto,0);
                   vrItemPedido.nPTABELA := NVL(vnPrecoSemImposto,0);
-                  
+
                   -- Acrescenta o ST e IPI no Preço de Venda e no Preço de Tabela sem Imposto
                   vrItemPedido.nPVENDA  := (NVL(vrItemPedido.nPVENDA,0)  + NVL(vrItemPedido.nST,0) + NVL(vrItemPedido.nVLFECP,0) + NVL(vnValorIpi,0)); -->> DDVENDAS-37042 - Aqui não arredonda para ficar igual à 316
-                  vrItemPedido.nPTABELA := (NVL(vrItemPedido.nPTABELA,0) + NVL(vrItemPedido.nST,0) + NVL(vrItemPedido.nVLFECP,0) + NVL(vnValorIpi,0));                  
-                
+                  vrItemPedido.nPTABELA := (NVL(vrItemPedido.nPTABELA,0) + NVL(vrItemPedido.nST,0) + NVL(vrItemPedido.nVLFECP,0) + NVL(vnValorIpi,0));
+
                 ELSE
 
                   -- Log Cálculo - DDVENDAS-37042
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; semStParaAcrIcms';
-                
+
                 END IF;
-                                      
+
                 -- Log Cálculo - DDVENDAS-37042
                 vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; stAplicarAcrIcms '    || vrItemPedido.nST;
                 vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; precoAplicarAcrIcms ' || vrItemPedido.nPTABELA;
-                
+
                 vrItemPedido.nPTABELA := FCALCULARPRECOVENDATRANSF(vrItemPedido.nPTABELA,
                                                                    vrItemPedido.nCODST,
                                                                    vrFilOrigem.vvCgcFilial,
                                                                    vrClienteDestino.vvCgcClienteDestino);
-                vrItemPedido.nPTABELA := vrItemPedido.nPTABELA; -->> Arredonda conforme Casas Decimais                                                   
+                vrItemPedido.nPTABELA := vrItemPedido.nPTABELA; -->> Arredonda conforme Casas Decimais
                 vrItemPedido.nPVENDA  := vrItemPedido.nPTABELA; -->> Preço de Venda será igual ao novo Preço de Tabela
 
                 -- Log Cálculo - DDVENDAS-37042
                 vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; precoAplicadoAcrIcms ' || vrItemPedido.nPTABELA;
-                
+
                 -- DDVENDAS-37042 - Calcula o ST novamente baseado no Preço com o Acréscimo
                 vbCalculouST := FCALCULAR_ST(V_TIPOCUSTOTRANSF_APLICAR,
                                              vc_Dados_Cab.CODFILIAL_O,
@@ -8769,10 +8834,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrItemPedido.nALIQICMS1     := vrTribut.nALIQICMS1;
                 vrItemPedido.nALIQICMS2     := vrTribut.nALIQICMS2;
                 vrItemPedido.nPERCBASEREDST := vrTribut.nPERCBASEREDST;
-                
+
                 -- DDVENDAS-37042
                 IF (NVL(vnQtUnitEmbalagem,0) > 1) THEN
-                
+
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; pVenda '   || vrItemPedido.nPVENDA;
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; baseIcst ' || vrItemPedido.nBASEICST;
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; nSt '      || vrItemPedido.nST;
@@ -8783,13 +8848,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrItemPedido.nST       := NVL(vrItemPedido.nST,0)            / NVL(vnQtUnitEmbalagem,0);
                   vrItemPedido.nBASEFECP := NVL(vrItemPedido.nBASEFECP,0)      / NVL(vnQtUnitEmbalagem,0);
                   vrItemPedido.nVLFECP   := NVL(vrItemPedido.nVLFECP,0)        / NVL(vnQtUnitEmbalagem,0);
-        
+
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; pVendaSemFator '   || vrItemPedido.nPVENDA;
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; baseIcstSemFator ' || vrItemPedido.nBASEICST;
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; nStSemFator '      || vrItemPedido.nST;
-        
+
                 END IF;
-                
+
                 -- Atualiza Preço do Resultado do Processamento
                 UPDATE PCMED_TEMP_TRANSF_ATAC_VAR
                    SET PRECO_TRANSF_O = NVL(vrItemPedido.nPVENDA,0)
@@ -8806,9 +8871,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                    AND (NVL(PCMED_TEMP_TRANSF_ATAC_VAR.INTEGRADORAESPELHONF,0) = NVL(vc_Dados_Cab.INTEGRADORAESPELHONF,0))
                    AND (PCMED_TEMP_TRANSF_ATAC_VAR.CODPROD_O                   = vc_Dados_Ite.CODPROD_O)
                    AND (PCMED_TEMP_TRANSF_ATAC_VAR.CODPROD_D                   = vc_Dados_Ite.CODPROD_D);
-           
+
               END IF; -- Fim Condição Calculou ST sem Problemas
-              
+
             END IF; -- Fim Condição: Se ST Fonte Farma Hospitalar ou ST da Precificação Pacote
 
           END IF; -- Fim Condição Calcula Impostos do Produto -- IF (vbAceitaItem) THEN
@@ -8837,12 +8902,12 @@ IS PRAGMA SERIALLY_REUSABLE;
             ---------------------------------
             IF ((NVL(vIGNORARCALCULOCOMISSREPLOJA,'N') = 'S') AND (NVL(vrFilDestino.vvTipoFilial,'1') = '2')) OR
                ((NVL(vIGNORARCALCULOCOMISSREPCD,'N')   = 'S') AND (NVL(vrFilDestino.vvTipoFilial,'1') = '1')) THEN
-               
-              -- DDMEDICA-4845 - Ignora Comissão 
+
+              -- DDMEDICA-4845 - Ignora Comissão
               vrItemPedido.nPERCOM := 0;
-              
+
             ELSE
-               
+
               -- Comissão por Produto - Vendedor Interno
               IF    (NVL(vrRca.vTIPOVEND,' ') = 'I') THEN
                 vrItemPedido.nPERCOM := NVL(vrProduto_O.nPCOMINT1,0);
@@ -8855,21 +8920,21 @@ IS PRAGMA SERIALLY_REUSABLE;
               ELSE
                 vrItemPedido.nPERCOM := 0;
               END IF;
-  
+
               -- Comissão Por Cliente
               IF (vrPcConsum.vUSACOMISSAOPORCLIENTE = 'S') THEN
                 IF (vrClienteDestino.nPERCOMCLI IS NOT NULL) THEN
                   vrItemPedido.nPERCOM := NVL(vrClienteDestino.nPERCOMCLI,0);
                 END IF;
               END IF;
-  
+
               -- Comissão por RCA
               IF (vrPcConsum.vUSACOMISSAOPORRCA = 'S') then
                 IF (vrRca.nPERCENT2 IS NOT NULL) THEN
                   vrItemPedido.nPERCOM := NVL(vrRca.nPERCENT2,0);
                 END IF;
               END IF;
-  
+
               -- Comissão por Linha de Produto
               IF (vrPcConsum.vUSACOMISSAOPORLINHAPROD = 'S') THEN
                 BEGIN
@@ -8883,7 +8948,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     NULL; -->> Se não achar a Comissão por Linha de Produto, não altera o Percentual de Comissão
                 END;
               END IF;
-              
+
             END IF; -- Fim Condição não Ignora Comissão
 
             ----------------------------
@@ -8997,20 +9062,20 @@ IS PRAGMA SERIALLY_REUSABLE;
         Se não ocorreram erros no Cálculo da Comissão e Custo
         ----------------------------------------------------*/
         IF (vbAceitaItem) THEN
-        
+
           -----------------------------------------------------
           -- Se Gera Pedido de Estoque Avariado - DDMEDICA-5077
           -----------------------------------------------------
           IF    (nvl(pi_vPedidoAvaria,'N') = 'S') THEN
-          
+
             -- Inicia a Sugestão na sua Totalidade
             vrItemPedido.nQTDETRANSFERIR := NVL(vc_Dados_Ite.QTD_TRANSFERIR_O,0);
-          
+
             -- Atribui Lote se Controlar Estoque por Lote
             IF (NVL(vc_Dados_Ite.ESTOQUEPORLOTE,'N') = 'S') THEN
-                        
+
               vrItemPedido.vNUMLOTE := vc_Dados_Ite.NUMLOTE;
-              
+
               -- Obtém Estoque por Lote Disponível Avariado
               BEGIN
                 SELECT QTINDENIZ
@@ -9023,7 +9088,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 WHEN NO_DATA_FOUND THEN
                   vnQtIndenizLoteDisponivel := 0;
               END;
-              
+
               -- SOMA O QUE ESTIVER EM PREFAT PARA O LOTE
               SELECT SUM(QT)
                 INTO vnTotalAvariaPrefat
@@ -9039,14 +9104,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                 IF (vnQtIndenizLoteDisponivel < 0) THEN
                   vnQtIndenizLoteDisponivel := 0;
                 END IF;
-              END IF;              
-              
+              END IF;
+
               -- Se não tiver estoque suficiente
               IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) > NVL(vnQtIndenizLoteDisponivel,0)) THEN
 
                 -- Altera a Quantidade a Transferir
                 vrItemPedido.nQTDETRANSFERIR := NVL(vnQtIndenizLoteDisponivel,0);
-  
+
                 -- Rejeita Item
                 IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) <= 0) THEN
                   vbAceitaItem := FALSE;
@@ -9069,15 +9134,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtMensagensAux(viSeqMensAux).vnSeqFalta         := vc_Dados_Ite.SEQFALTA;
                   vtMensagensAux(viSeqMensAux).vvMensagem         := SUBSTR(vMotivoRejeicao,1,240);
                   vtMensagensAux(viSeqMensAux).vvNumLote          := NVL(vrItemPedido.vNUMLOTE,'X');
-                END IF;                                       
-  
+                END IF;
+
               END IF;
-              
+
             END IF; -- Fim Condição: Atribuição Lote
-            
+
             -- Se passou pela Validação do Estoque por Lote
             IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) > 0) THEN
-            
+
               -- Obtém Estoque Disponível Avariado
               BEGIN
                 SELECT QTINDENIZ
@@ -9089,7 +9154,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 WHEN NO_DATA_FOUND THEN
                   vnQtIndenizDisponivel := 0;
               END;
-              
+
               -- SOMA O QUE ESTIVER EM PREFAT
               SELECT SUM(QT)
                 INTO vnTotalAvariaPrefat
@@ -9104,27 +9169,27 @@ IS PRAGMA SERIALLY_REUSABLE;
                 IF (vnQtIndenizDisponivel < 0) THEN
                   vnQtIndenizDisponivel := 0;
                 END IF;
-              END IF;                            
-              
+              END IF;
+
               -- Verifica o que já incluiu no Pedido de Outros Lotes
               SELECT SUM(QT)
                 INTO vnQtIndenizUtilizado
                 FROM PCPEDI
                WHERE (NUMPED  = vrPedido.nNUMPED)
                  AND (CODPROD = vc_Dados_Ite.CODPROD_O);
-                 
+
               -- Abate a Quantidade utilizada
               vnQtIndenizDisponivel := NVL(vnQtIndenizDisponivel,0) - NVL(vnQtIndenizUtilizado,0);
               IF (NVL(vnQtIndenizDisponivel,0) < 0) THEN
                 vnQtIndenizDisponivel := 0;
               END IF;
-           
+
               -- Se não tiver estoque suficiente
               IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) > NVL(vnQtIndenizDisponivel,0)) THEN
-  
+
                 -- Altera a Quantidade a Transferir
                 vrItemPedido.nQTDETRANSFERIR         := NVL(vnQtIndenizDisponivel,0);
-  
+
                 -- Rejeita Item
                 IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) <= 0) THEN
                   vbAceitaItem := FALSE;
@@ -9147,15 +9212,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtMensagensAux(viSeqMensAux).vnSeqFalta         := vc_Dados_Ite.SEQFALTA;
                   vtMensagensAux(viSeqMensAux).vvMensagem         := SUBSTR(vMotivoRejeicao,1,240);
                   vtMensagensAux(viSeqMensAux).vvNumLote          := NVL(vrItemPedido.vNUMLOTE,'X');
-                END IF;                                       
-  
+                END IF;
+
               END IF;
-            
+
             END IF; -- Fim Condição: Se passou pela Validação do Estoque por Lote
-            
+
           --------------------------------------------------
           -- SE FOR PEDIDO NORMAL
-          --------------------------------------------------       
+          --------------------------------------------------
           -- Se Gera Pedido sem ter Estoque
           ELSIF (NVL(pi_vGeraPedSemEstoque,'S') = 'S') THEN
 
@@ -9248,31 +9313,31 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
           END IF; -- Fim Condição Parâmetro Verifica Estoque
-            
+
           -- Se ocorreram Cortes no Processo Normal
           IF (NVL(pi_vPedidoAvaria,'N') <> 'S') THEN -- (Pedido de Avaria a Validação ocorreu mais acima)
             IF (NVL(vrItemPedido.nQTDETRANSFERIR,0) <> NVL(vc_Dados_Ite.QTD_TRANSFERIR_O,0)) THEN
-  
+
               -- Se cortou TUDO
               IF (NVL(NVL(vrItemPedido.nQTDETRANSFERIR,0),0) <= 0) THEN
-  
+
                 -- Rejeita Item
                 vbAceitaItem        := FALSE;
                 vMotivoRejeicao     := '0018 - Corte Total do produto ' || vc_Dados_Ite.CODPROD_O || vvInformacaoLoteFab ||
                                        ' na Filial Origem '             || vc_Dados_Cab.CODFILIAL_O || ' para a Filial Destino ' || vc_Dados_Cab.CODFILIAL_D;
-  
+
               -- Se Corte PARCIAL
               ELSE
-  
+
                 -- Rejeita PARTE do Item, mas ACEITA o ITEM
                 vbAceitaItem        := TRUE;
                 vMotivoRejeicao     := '0019 - Corte Parcial de ' || (NVL(vc_Dados_Ite.QTD_TRANSFERIR_O,0) - NVL(vrItemPedido.nQTDETRANSFERIR,0)) ||
                                        ' unidade(s) do produto '  || vc_Dados_Ite.CODPROD_O   || vvInformacaoLoteFab ||
                                        ' na Filial Origem '       || vc_Dados_Cab.CODFILIAL_O || ' para a Filial Destino ' || vc_Dados_Cab.CODFILIAL_D;
-  
+
                 -- Gera novo Sequencial
                 viSeqMensAux := NVL(vtMensagensAux.COUNT,0) + 1;
-  
+
                 -- Adiciona Mensagem ao Array
                 vtMensagensAux(viSeqMensAux).vnCodFilial_O      := vc_Dados_Cab.CODFILIAL_O;
                 vtMensagensAux(viSeqMensAux).vnCodProd_O        := vc_Dados_Ite.CODPROD_O;
@@ -9283,9 +9348,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vtMensagensAux(viSeqMensAux).vnSeqFalta         := vc_Dados_Ite.SEQFALTA;
                 vtMensagensAux(viSeqMensAux).vvMensagem         := SUBSTR(vMotivoRejeicao,1,240);
                 vtMensagensAux(viSeqMensAux).vvNumLote          := NVL(vrItemPedido.vNUMLOTE,'X');
-  
+
               END IF;
-  
+
             END IF; -- Fim Condição ocorreram Cortes
           END IF; -- Fim Condição não é pedido de avaria
 
@@ -10153,7 +10218,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                            vUSAQTUNITPCEMBREPLOJA,
                            vUSAREGRAARREDEMBFRNFTAREP,
                            vtPedidosGerados(viIndicePedGerado).vvCodFilialRetira);
-          END IF;                 
+          END IF;
 
         END LOOP; -- Fim do Laço de Processamento dos Pedidos Gerados
       END IF;
