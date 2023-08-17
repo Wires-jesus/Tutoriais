@@ -1,1 +1,11 @@
-{"nome":"PKG_REPOSICAOLOJAS","tipoPLSQL":"PACKAGE","dependencias":[]}
+{
+	"nome": "PKG_REPOSICAOLOJAS",
+	"tipoPLSQL": "PACKAGE",
+	"dependencias": [
+		{
+			"nome": "PARAMETRO",
+			"tipo": "PARAMETRO",
+			"versao": "2.1.104.000"
+		}
+	]
+}
