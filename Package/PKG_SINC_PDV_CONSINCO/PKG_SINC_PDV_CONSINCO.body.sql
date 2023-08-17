@@ -2408,7 +2408,7 @@ BEGIN
           S.SEQFAMILIA,
           S.QTDEMBALAGEM,
           S.PERCDESCONTO,
-          0,
+          S.PRECO,
           S.ATIVO,
           S.IDREF);
 
