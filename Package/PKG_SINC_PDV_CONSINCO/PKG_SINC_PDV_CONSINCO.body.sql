@@ -2551,6 +2551,160 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_combo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_combo TB_COMBO
+    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO 
+    ON  (TB_COMBO.SEQCOMBO = VIEW_BRINDE_CABECALHO.SEQCOMBO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          TB_COMBO.COMBO     = VIEW_BRINDE_CABECALHO.DESCRICAO,
+          TB_COMBO.DTAINICIO = VIEW_BRINDE_CABECALHO.DTAINICIO,
+          TB_COMBO.DTAFIM    = VIEW_BRINDE_CABECALHO.DTAFIM,
+          TB_COMBO.TIPO      = VIEW_BRINDE_CABECALHO.TIPO,
+          TB_COMBO.ATIVO     = VIEW_BRINDE_CABECALHO.ATIVO
+           
+  WHEN NOT MATCHED THEN
+        INSERT(
+          TB_COMBO.SEQCOMBO,
+          TB_COMBO.COMBO,
+          TB_COMBO.DTAINICIO,
+          TB_COMBO.DTAFIM,
+          TB_COMBO.TIPO,
+          TB_COMBO.ATIVO) 
+        VALUES(
+          VIEW_BRINDE_CABECALHO.SEQCOMBO,
+          VIEW_BRINDE_CABECALHO.DESCRICAO,
+          VIEW_BRINDE_CABECALHO.DTAINICIO,
+          VIEW_BRINDE_CABECALHO.DTAFIM,
+          VIEW_BRINDE_CABECALHO.TIPO,
+          VIEW_BRINDE_CABECALHO.ATIVO);
+
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_combo', 'carrega_tb_combo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_combo',
+           'carrega_tb_combo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_comboempresa(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_comboempresa TB_COMBOEMPRESA
+    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO 
+    ON  (TB_COMBOEMPRESA.SEQCOMBO = VIEW_BRINDE_CABECALHO.SEQCOMBO and  TB_COMBOEMPRESA.NROEMPRESA = VIEW_BRINDE_CABECALHO.NROEMPRESA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          TB_COMBOEMPRESA.ATIVO = VIEW_BRINDE_CABECALHO.ATIVO
+           
+  WHEN NOT MATCHED THEN
+        INSERT(
+          TB_COMBOEMPRESA.SEQCOMBO,
+          TB_COMBOEMPRESA.NROEMPRESA,
+          TB_COMBOEMPRESA.ATIVO) 
+        VALUES(
+          VIEW_BRINDE_CABECALHO.SEQCOMBO,
+          VIEW_BRINDE_CABECALHO.NROEMPRESA,
+          VIEW_BRINDE_CABECALHO.ATIVO);
+
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_comboempresa', 'carrega_tb_comboempresa OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_comboempresa',
+           'carrega_tb_comboempresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_comboitem TB_COMBOITEM
+    USING (SELECT * FROM VW_INT_C5_BRINDE_ITENS) VIEW_BRINDE_ITENS
+    ON  (TB_COMBOITEM.SEQCOMBO = VIEW_BRINDE_ITENS.SEQCOMBO and TB_COMBOITEM.SEQITEM = VIEW_BRINDE_ITENS.SEQITEM)
+
+  WHEN MATCHED THEN
+    UPDATE SET
+      TB_COMBOITEM.SEQPRODUTO = VIEW_BRINDE_ITENS.SEQPRODUTO,
+      TB_COMBOITEM.TIPOITEM = VIEW_BRINDE_ITENS.TIPOITEM,
+      TB_COMBOITEM.ATIVO = VIEW_BRINDE_ITENS.ATIVO,
+      TB_COMBOITEM.QTDE = VIEW_BRINDE_ITENS.QTDE,
+      TB_COMBOITEM.PRECO = VIEW_BRINDE_ITENS.PRECO,
+      TB_COMBOITEM.PERCDESCONTO = VIEW_BRINDE_ITENS.PERCDESCONTO
+      
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_COMBOITEM.SEQCOMBO,
+      TB_COMBOITEM.SEQITEM,
+      TB_COMBOITEM.SEQPRODUTO,
+      TB_COMBOITEM.TIPOITEM,
+      TB_COMBOITEM.ATIVO,
+      TB_COMBOITEM.QTDE,
+      TB_COMBOITEM.PRECO,
+      TB_COMBOITEM.PERCDESCONTO
+    )
+    VALUES(
+      VIEW_BRINDE_ITENS.SEQCOMBO,
+      VIEW_BRINDE_ITENS.SEQITEM,
+      VIEW_BRINDE_ITENS.SEQPRODUTO,
+      VIEW_BRINDE_ITENS.TIPOITEM,
+      VIEW_BRINDE_ITENS.ATIVO,
+      VIEW_BRINDE_ITENS.QTDE,
+      VIEW_BRINDE_ITENS.PRECO,
+      VIEW_BRINDE_ITENS.PERCDESCONTO
+    );
+
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_comboitem', 'carrega_tb_comboitem OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_comboitem',
+           'carrega_tb_comboitem ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
   PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
