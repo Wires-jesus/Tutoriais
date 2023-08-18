@@ -2325,20 +2325,20 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
       END;
   END;
 
-/*PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
-        USING (SELECT * FROM VW_INT_C5_PRECOFIXO_R357) VIEW_C5_PRECOFIXO_R357
+        USING (SELECT * FROM VW_INT_C5_PRODUTO_R2011) vw_int_c5_regraproduto_2011
       on(
-            tb_regraproduto_c5.SEQPRODUTO    = VIEW_C5_PRECOFIXO_R357.SEQPRODUTO        
-        AND tb_regraproduto_c5.QTDEMBALAGEM  = VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM
-        AND tb_regraproduto_c5.SEQREGRA      = VIEW_C5_PRECOFIXO_R357.SEQREGRA        
+            tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto_2011.SEQPRODUTO        
+        AND tb_regraproduto_c5.QTDEMBALAGEM  = vw_int_c5_regraproduto_2011.QTDEMBALAGEM
+        AND tb_regraproduto_c5.SEQREGRA      = vw_int_c5_regraproduto_2011.SEQREGRA        
       )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraproduto_c5.PERCDESCONTO    = VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
-          tb_regraproduto_c5.PRECO           = VIEW_C5_PRECOFIXO_R357.PRECO,
-          tb_regraproduto_c5.ATIVO           = VIEW_C5_PRECOFIXO_R357.ATIVO 
+          tb_regraproduto_c5.PERCDESCONTO    = vw_int_c5_regraproduto_2011.PERCDESCONTO,
+          tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto_2011.PRECO,
+          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO 
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -2350,12 +2350,12 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraproduto_c5.ATIVO          
         ) 
         VALUES(
-          VIEW_C5_PRECOFIXO_R357.SEQREGRA,
-          VIEW_C5_PRECOFIXO_R357.SEQPRODUTO,
-          VIEW_C5_PRECOFIXO_R357.QTDEMBALAGEM,
-          VIEW_C5_PRECOFIXO_R357.PERCDESCONTO,
-          VIEW_C5_PRECOFIXO_R357.PRECO,
-          VIEW_C5_PRECOFIXO_R357.ATIVO
+          vw_int_c5_regraproduto_2011.SEQREGRA,
+          vw_int_c5_regraproduto_2011.SEQPRODUTO,
+          vw_int_c5_regraproduto_2011.QTDEMBALAGEM,
+          vw_int_c5_regraproduto_2011.PERCDESCONTO,
+          vw_int_c5_regraproduto_2011.PRECO,
+          vw_int_c5_regraproduto_2011.ATIVO
         );
 
       INSERT INTO PCDEVLOGCONSINCO
@@ -2380,7 +2380,7 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
         COMMIT;
         RAISE;
       END;
-  END;*/
+  END;
 
 PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN

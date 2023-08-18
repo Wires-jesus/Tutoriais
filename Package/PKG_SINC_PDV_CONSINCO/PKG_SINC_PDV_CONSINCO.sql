@@ -87,7 +87,7 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_regracategoria(p_id IN pccontroleconsinco.id%TYPE);
   
-  --PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
+  PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE exec_sinc;
 
