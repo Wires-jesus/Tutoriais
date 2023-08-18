@@ -1,0 +1,4 @@
+{"nome":"PROCESSO_CARGA_INT_C5_BRINDE","tipoPLSQL":"MIGRATION","dependencias":[
+	{"nome": "PCPROMI","tipo": "TABELA","versao": "4.0.02.000"},
+	{"nome": "PCPROMC","tipo": "TABELA","versao": "4.0.01.000"}
+]}
