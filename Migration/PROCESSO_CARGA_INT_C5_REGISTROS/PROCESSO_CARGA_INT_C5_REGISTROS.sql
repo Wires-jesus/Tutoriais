@@ -181,6 +181,21 @@ values (34, 'tb_regracliente')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (35, 'tb_regracategoria')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (36, 'tb_combo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (37, 'tb_comboempresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (38, 'tb_comboitem')
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -357,3 +372,18 @@ values (34, 34, 'Sincronização de tabela TB_REGRACLIENTE', TRUNC(SYSDATE), 'D'
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (35, 35, 'Sincronização de tabela TB_REGRACATEGORIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regracategoria',  35,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (36, 36, 'Sincronização de tabela TB_COMBO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_combo',  36,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (37, 37, 'Sincronização de tabela TB_COMBOEMPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_comboempresa',  37,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (38, 38, 'Sincronização de tabela TB_COMBOITEM', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_comboitem',  38,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
