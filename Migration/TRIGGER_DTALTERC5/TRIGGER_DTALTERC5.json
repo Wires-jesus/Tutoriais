@@ -1,3 +1,14 @@
 {"nome":"TRIGGER_DTALTERC5",
  "tipoPLSQL":"MIGRATION",
- "dependencias":""}
+ "dependencias":[
+  {
+    "nome": "PCPROMI",
+    "tipo": "TABELA",
+    "versao": "4.0.02.000"
+  },
+  {
+    "nome": "PCPROMC",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  }
+]}
