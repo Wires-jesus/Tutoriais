@@ -9580,6 +9580,7 @@ IS
                                               WHERE NUMTRANSENT IN(SELECT NUMTRANSENT 
                                                                      FROM PCDEVFORNEC 
                                                                     WHERE NUMTRANSVENDA = PCNFENT.NUMTRANSVENDAORIG)
+												AND ROWNUM = 1
                                              ), 'X') <> 'H')) OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'S') OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'A') OR
@@ -9601,6 +9602,7 @@ IS
                                               WHERE NUMTRANSENT IN(SELECT NUMTRANSENT 
                                                                      FROM PCDEVFORNEC 
                                                                     WHERE NUMTRANSVENDA = PCNFENT.NUMTRANSVENDAORIG)
+												AND ROWNUM = 1
                                              ), 'X') <> 'H')) Or
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'S') OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'A') OR
