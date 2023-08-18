@@ -1,0 +1,9 @@
+{
+    "nome":"VIEW_CONTAS_A_PAGAR",
+    "tipoPLSQL":"VIEW",
+    "dependencias":[{
+        "nome": "PCLANC",
+        "tipo": "TABELA",
+        "versao": "3.0.05.000"
+    }]
+}
