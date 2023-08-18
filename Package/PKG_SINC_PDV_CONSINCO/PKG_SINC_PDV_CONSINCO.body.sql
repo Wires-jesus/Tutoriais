@@ -2249,6 +2249,11 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           VIEW_C5_INCENTIVO.CUMULATIVO
         );
 
+   UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
+   WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+   
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -2301,7 +2306,12 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           VIEW_C5_INCENTIVO.ATIVO
         );
 
-      INSERT INTO PCDEVLOGCONSINCO
+    UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
+    WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+    
+    INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraincentperiodo', 'carrega_tb_regraincentperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -2433,6 +2443,11 @@ BEGIN
           S.ATIVO,
           S.IDREF);
 
+  UPDATE MONITORPDVMIDDLE.tb_regrafamilia SET ATIVO = 'N'
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regrafamilia', 'carrega_tb_regrafamilia OK', SYSDATE, CURRENT_TIMESTAMP);
 
@@ -2481,6 +2496,11 @@ BEGIN
           S.ATIVO,
           S.IDREF);
 
+  UPDATE MONITORPDVMIDDLE.tb_regracliente SET ATIVO = 'N'
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracliente', 'carrega_tb_regracliente OK', SYSDATE, CURRENT_TIMESTAMP);
 
@@ -2528,6 +2548,11 @@ BEGIN
           S.PERCDESCONTO,
           S.ATIVO);
 
+  UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracategoria', 'carrega_tb_regracategoria OK', SYSDATE, CURRENT_TIMESTAMP);
 
