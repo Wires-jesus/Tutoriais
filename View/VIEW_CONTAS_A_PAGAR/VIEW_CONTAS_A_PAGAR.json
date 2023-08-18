@@ -1,5 +1,5 @@
 {
-    "nome":"SQL_NFE_RODAPE_ENTRADA",
+    "nome":"VIEW_CONTAS_A_PAGAR",
     "tipoPLSQL":"VIEW",
     "dependencias":[{
         "nome": "PCLANC",
