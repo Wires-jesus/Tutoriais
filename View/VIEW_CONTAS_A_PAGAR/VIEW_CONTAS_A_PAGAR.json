@@ -1,0 +1,9 @@
+{
+    "nome":"SQL_NFE_RODAPE_ENTRADA",
+    "tipoPLSQL":"VIEW",
+    "dependencias":[{
+        "nome": "PCLANC",
+        "tipo": "TABELA",
+        "versao": "3.0.05.000"
+    }]
+}
