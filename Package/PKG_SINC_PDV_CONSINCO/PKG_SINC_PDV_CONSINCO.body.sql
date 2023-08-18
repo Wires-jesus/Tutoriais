@@ -2252,8 +2252,11 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
    UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
    WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
-                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
-   
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
+      OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+                       FROM PCPRECOPROMLOG L
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
+
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -2309,8 +2312,11 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
     UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
     WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
-                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
-    
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
+       OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+                       FROM PCPRECOPROMLOG L
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
+
     INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -2446,7 +2452,10 @@ BEGIN
   UPDATE MONITORPDVMIDDLE.tb_regrafamilia SET ATIVO = 'N'
   WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
-                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
+     OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+                       FROM PCPRECOPROMLOG L
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
   
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regrafamilia', 'carrega_tb_regrafamilia OK', SYSDATE, CURRENT_TIMESTAMP);
