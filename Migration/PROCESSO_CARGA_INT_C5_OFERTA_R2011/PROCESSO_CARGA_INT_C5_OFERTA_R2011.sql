@@ -18,6 +18,7 @@ select codfilial||2011||codoferta as SEQREGRA,
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
  ) DATAPADRAO
   WHERE NVL(A.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
+       AND DTFINAL >= TRUNC(SYSDATE)
        AND a.dtinicial IS NOT NULL
        AND a.dtfinal IS NOT NULL
 )
