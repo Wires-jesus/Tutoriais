@@ -12,7 +12,7 @@
 		 {"nome":"PROCESSO_CARGA_INT_C5_CATEGORIA","tipo":"MIGRATION","versao":"4.0.08.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_TRIBUTACAO","tipo":"MIGRATION","versao":"4.0.09.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_DESC561","tipo":"MIGRATION","versao":"4.0.08.000"},
-		 {"nome":"PROCESSO_CARGA_INT_C5_INCENTIVO","tipo":"MIGRATION","versao":"4.0.04.000"},
+		 {"nome":"PROCESSO_CARGA_INT_C5_INCENTIVO","tipo":"MIGRATION","versao":"4.0.05.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_BRINDE","tipo": "MIGRATION","versao": "4.0.01.000"},
 		 {"nome":"PRC_RECORD_ERROR","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
 		 {"nome":"VW_INT_C5_ENDERECO_ALTERNATIVO","tipo": "OBJETO_PLSQL","versao": "4.0.04.000"},
@@ -20,7 +20,7 @@
 		 {"nome":"VW_INT_C5_PLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.04.000"},
 		 {"nome":"VW_INT_C5_CFOP","tipo":"OBJETO_PLSQL","versao":"4.0.03.000"},
 		 {"nome":"VW_INT_C5_PRECOFIXO_R357","tipo":"OBJETO_PLSQL","versao":"4.0.08.000"},
-     {"nome":"PROCESSO_CARGA_INT_C5_REGISTROS","tipo": "MIGRATION","versao": "4.0.03.000"},
+         {"nome":"PROCESSO_CARGA_INT_C5_REGISTROS","tipo": "MIGRATION","versao": "4.0.03.000"},
 		 {"nome":"PROCESSO_CARGA_INT_C5_OFERTA_R2011","tipo": "MIGRATION","versao": "4.0.01.000"}
 		 ]}
 
