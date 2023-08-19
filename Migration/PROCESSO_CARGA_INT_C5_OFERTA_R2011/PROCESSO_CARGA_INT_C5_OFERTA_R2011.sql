@@ -28,7 +28,7 @@ select codfilial||2011||codoferta as SEQREGRA,
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
 (
 
- SELECT  a.codauxiliar||a.codfilial   as SEQPRODUTO,
+ SELECT distinct a.codauxiliar||a.codfilial   as SEQPRODUTO,
          descoferta                   as regra,
          e.qtunit                     as QTDEMBALAGEM,
          a.codfilial||2011||a.codoferta  SEQREGRA,
