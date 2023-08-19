@@ -18,7 +18,9 @@ select codfilial||2011||codoferta as SEQREGRA,
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
  ) DATAPADRAO
   WHERE NVL(A.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
-        AND DTFINAL >= TRUNC(SYSDATE)
+       AND DTFINAL >= TRUNC(SYSDATE)
+       AND a.dtinicial IS NOT NULL
+       AND a.dtfinal IS NOT NULL
 )
 
 \
@@ -39,7 +41,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
         'G'                            as tiporegra,
         'S'                            as cumulativo,
          3                             as SEQTIPOCREDITO
-  FROM PCOFERTAPROGRAMADAI a, PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c,
+  FROM PCOFERTAPROGRAMADAI a, PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
   (SELECT S.ULTIMAEXECUCAO
         FROM PCCONTROLECONSINCO S
   WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO') DATAPADRAO
@@ -47,4 +49,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
         AND a.codfilial = b.codfilial
         AND a.codoferta = b.codoferta
         AND c.seqproduto = a.codauxiliar||a.codfilial
+        AND d.seqregra = a.codfilial||2011||a.codoferta
+        AND b.dtinicial IS NOT NULL
+        AND b.dtfinal IS NOT NULL
 )
