@@ -1261,6 +1261,19 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR*/
+
+      UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
+      WHERE TB_FAMEMBALAGEM.rowid IN (
+        select 
+          TB_FAMEMBALAGEM.rowid
+        from monitorpdvmiddle.tb_famembalagem tb_famembalagem
+        left join pcembalagem 
+        on (tb_famembalagem.seqfamilia = pcembalagem.codprod  and tb_famembalagem.qtdembalagem = pcembalagem.qtunit)
+        where pcembalagem.qtunit is NULL
+        and tb_famembalagem.ativo = 'S'
+      );
+
       MERGE INTO monitorpdvmiddle.tb_famembalagem s
         USING (SELECT DISTINCT e.seqfamilia,
                       e.qtdembalagem,
@@ -1377,6 +1390,19 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
+
+      UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
+      WHERE tb_prodpreco.rowid IN (
+        select 
+          tb_prodpreco.rowid
+        from monitorpdvmiddle.tb_prodpreco tb_prodpreco
+        left join pcembalagem 
+        on (tb_prodpreco.SEQPRODUTO  = to_number(pcembalagem.CODAUXILIAR || pcembalagem.codfilial) and tb_prodpreco.qtdembalagem = pcembalagem.qtunit)
+        where pcembalagem.qtunit is NULL
+        AND  tb_prodpreco.ativo = 'S'
+      );
+
       MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
         USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
       on(
