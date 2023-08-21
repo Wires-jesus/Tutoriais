@@ -1,1 +1,12 @@
-{"nome":"VW_INT_C5_PLPAG","tipoPLSQL":"VIEW","dependencias":""}
+{"nome":"VW_INT_C5_PLPAG","tipoPLSQL":"VIEW","dependencias":[
+      {
+        "nome": "PCPLPAG",
+        "tipo": "TABELA",
+        "versao": "4.0.01.000"
+      },
+      {
+        "nome": "PCCONTROLECONSINCO",
+        "tipo": "TABELA",
+        "versao": "4.0.05.000"
+      }
+]}
