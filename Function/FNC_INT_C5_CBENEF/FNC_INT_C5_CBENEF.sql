@@ -13,7 +13,8 @@ CREATE OR REPLACE FUNCTION FNC_INT_C5_CBENEF(pUF         CHAR,
      WHERE  v.codigobeneficio = c.codigobeneficio
        AND  v.ufdestino = pUF
        AND  v.sittribut = pSittribut
-       AND  v.codfiscal = pCFOP;
+       AND  v.codfiscal = pCFOP
+       AND  ROWNUM = 1;
     
     RETURN(vCBenef);
 END;
