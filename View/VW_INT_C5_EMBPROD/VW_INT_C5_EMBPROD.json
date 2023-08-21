@@ -1,1 +1,6 @@
-{"nome":"VW_INT_C5_EMBPROD","tipoPLSQL":"VIEW","dependencias":""}
+{"nome":"VW_INT_C5_EMBPROD","tipoPLSQL":"VIEW","dependencias":[
+      {"nome": "PCEMBALAGEM","tipo": "TABELA","versao": "4.0.04.000"},
+      {"nome": "PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
+      {"nome": "PCPRODFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
+      {"nome": "PCCONTROLECONSINCO","tipo": "TABELA","versao": "4.0.05.000"}
+]}
