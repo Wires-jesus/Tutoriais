@@ -60,7 +60,7 @@ BEGIN
   
   INSERT_DATA('INFORMA_SERIE', 'CONFERENCIA', 'CONFERENCIA-Conferência;SEPARACAO-Separação', 'Quando informar a(s) Série(s)?', 'EXPEDICAO', 'SELECT');
   
-  INSERT_DATA('INFORMA_LOTE', 'CONFERENCIA', 'CONFERENCIA-Conferência;SEPARACAO-Separação', 'Visualizar código de fábrica dos itens no RF?', 'EXPEDICAO', 'SELECT');
+  INSERT_DATA('INFORMA_LOTE', 'CONFERENCIA', 'CONFERENCIA-Conferência;SEPARACAO-Separação', 'Quando informar o(s) Lote(s)?', 'EXPEDICAO', 'SELECT');
   
   INSERT_DATA('MOTIVO_DEPURACAO_PESO_VARIAVEL', '', NULL, 'Qual o motivo de Depuração de Peso Variável?', 'EXPEDICAO', 'SELECT');
   
