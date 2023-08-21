@@ -1,5 +1,16 @@
 {
     "nome": "VW_INT_C5_ENDERECO_ALTERNATIVO",
     "tipoPLSQL": "VIEW",
-    "dependencias": ""
+    "dependencias": [
+        {
+            "nome": "PCFILIAL",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        },
+        {
+            "nome": "PCCLIENT",
+            "tipo": "TABELA",
+            "versao": "4.0.03.000"
+        }
+    ]
 }
