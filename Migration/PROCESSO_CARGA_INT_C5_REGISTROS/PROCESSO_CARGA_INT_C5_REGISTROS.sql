@@ -196,6 +196,28 @@ values (37, 'tb_comboempresa')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (38, 'tb_comboitem')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (39, 'tb_parcelamento')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (40, 'tb_parcempresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (41, 'tb_parcperiodo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (42, 'tb_parccategformapagto')
+
+
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -387,3 +409,23 @@ values (37, 37, 'Sincronização de tabela TB_COMBOEMPRESA', TRUNC(SYSDATE), 'D'
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (38, 38, 'Sincronização de tabela TB_COMBOITEM', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_comboitem',  38,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (39, 39, 'Sincronização de tabela TB_PARCELAMENTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parcelamento',  39,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (40, 40, 'Sincronização de tabela TB_PARCEMPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parcempresa',  40,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (41, 41, 'Sincronização de tabela TB_PARCPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parcperiodo',  41,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (42, 42, 'Sincronização de tabela TB_PARCCATEGFORMAPAGTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parccategformapagto',  42,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
