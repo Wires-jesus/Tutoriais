@@ -28,7 +28,7 @@ select codfilial||2011||codoferta as SEQREGRA,
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
 (
 
- SELECT distinct a.codauxiliar||a.codfilial   as SEQPRODUTO,
+  SELECT DISTINCT a.codauxiliar||a.codfilial   as SEQPRODUTO,
          descoferta                   as regra,
          e.qtunit                     as QTDEMBALAGEM,
          a.codfilial||2011||a.codoferta  SEQREGRA,
@@ -38,14 +38,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
           WHEN (b.DTCANCEL IS NOT NULL) OR (b.DTFINAL < TRUNC(SYSDATE))  THEN 'N'
           ELSE 'S'
           END)                         as  ATIVO,
-        'G'                            as tiporegra,
-        'S'                            as cumulativo,
-         3                             as SEQTIPOCREDITO
+         'G'                            as tiporegra,
+         'S'                            as cumulativo,
+          3                             as SEQTIPOCREDITO
   FROM PCOFERTAPROGRAMADAI a, PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
-  pcembalagem e, pcofertaprogramadai_hist oferta_hist,
-  (SELECT S.ULTIMAEXECUCAO
-        FROM PCCONTROLECONSINCO S
-  WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO') DATAPADRAO
+  pcembalagem e, pcofertaprogramadai_hist oferta_hist
   WHERE a.codfilial = b.codfilial
         AND a.codoferta = b.codoferta
         AND c.seqproduto = a.codauxiliar||a.codfilial
@@ -54,4 +51,28 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
         AND b.dtfinal IS NOT NULL
         AND e.codprod = NVL(a.codprod, oferta_hist.codprod)
         AND oferta_hist.codfilial = a.codfilial
+UNION 
+SELECT DISTINCT oferta_hist.codauxiliar||oferta_hist.codfilial as SEQPRODUTO,
+         descoferta                   as regra,
+         e.qtunit                     as QTDEMBALAGEM,
+         oferta_hist.codfilial||2011||oferta_hist.codoferta  SEQREGRA,
+         0 PERCDESCONTO,
+         oferta_hist.vloferta PRECO,
+         'N'                           as  ATIVO,
+        'G'                            as tiporegra,
+        'S'                            as cumulativo,
+         3                             as SEQTIPOCREDITO
+  FROM  PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
+  pcembalagem e, pcofertaprogramadai_hist oferta_hist
+  WHERE  oferta_hist.codfilial = b.codfilial 
+        AND oferta_hist.Codoferta = b.codoferta
+        AND c.seqproduto = oferta_hist.codauxiliar||oferta_hist.codfilial
+        AND d.seqregra = oferta_hist.codfilial||2011||oferta_hist.codoferta
+        AND b.dtinicial IS NOT NULL
+        AND b.dtfinal IS NOT NULL
+        AND e.codprod =  oferta_hist.codprod
+        AND e.codfilial = oferta_hist.codfilial
+        AND oferta_hist.codprod IN ( 
+        select codprod from pcofertaprogramadai_hist
+        where codoferta||codprod not in (select codoferta||codprod from PCOFERTAPROGRAMADAI)) 
 )
