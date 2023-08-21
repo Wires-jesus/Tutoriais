@@ -1,1 +1,3 @@
-{"nome":"VW_INT_C5_CFOP","tipoPLSQL":"VIEW","dependencias":""}
+{"nome":"VW_INT_C5_CFOP","tipoPLSQL":"VIEW","dependencias":[
+  {"nome": "PCCONSOLIDATRIBUTACAO","tipo": "TABELA","versao": "4.0.05.000"}
+]}
