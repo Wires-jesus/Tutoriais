@@ -654,11 +654,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE) AS
-
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_familia s
         USING (
-                 SELECT v.seqfamilia,
+             SELECT v.seqfamilia,
                     NVL(fnc_remove_char_esp(v.familia), '-') familia,
                     v.permitedecimal,
                     v.permitemultiplicacao,
@@ -667,10 +666,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.ativo,
                     NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
-                    v.pesavel
-      FROM VW_INT_C5_FAMILIA v,
-           (SELECT VALOR FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO') PARAM 
-           /*FORA DA VIEW POIS A MESMA É EXECUTADA EM OUTROS PROCESSOS QUE NAO VALIDAM MARCA*/
+                    v.pesavel,
+                    PRODPISCOFINS.SITTRIBUT,
+                    NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
+                    NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS
+             FROM VW_INT_C5_FAMILIA v,
+                  
+                  (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
+                   FROM PCTABPR R, PCTRIBPISCOFINS T 
+                   WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
+                   AND   R.CODTRIBPISCOFINS IS NOT NULL
+                   AND   R.NUMREGIAO = (SELECT VALOR
+                                         FROM PCPARAMFILIAL
+                                         WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                                         AND VALOR <> '99'
+                                         AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                                         AND VALOR IS NOT NULL
+                                         AND ROWNUM = 1)-- somente os dados de 1 região
+                  ) PRODPISCOFINS, --vinculo do produto com os dados de pis e cofins
+                  
+                  (SELECT VALOR 
+                   FROM PCPARAMFILIAL 
+                   WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
+                  ) PARAM --valor padrao caso a marca esteja sem valor 
+             WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
+                
       ) b
 
       ON (s.seqfamilia = B.seqfamilia)
@@ -684,7 +704,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.ativo = B.ativo,
                      S.seqmarca = B.seqmarca,
                      S.seqfamgrupo = B.seqfamgrupo,
-                     s.pesavel = B.pesavel
+                     s.pesavel = B.pesavel,
+                     s.situacaopis = B.sittribut,
+                     s.situacaocofins = B.sittribut,
+                     s.percbasepis = 100,
+                     s.percbasecofins = 100,
+                     s.percpis = B.percpis,
+                     s.perccofins = B.perccofins
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -695,7 +721,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.seqmarca,
                      S.seqfamgrupo,
                      S.seqfamilia,
-                     s.pesavel)
+                     s.pesavel,
+                     s.situacaopis,
+                     s.situacaocofins,
+                     s.percbasepis,
+                     s.percbasecofins,
+                     s.percpis,
+                     s.perccofins)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -706,7 +738,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.seqmarca,
                       B.seqfamgrupo,
                       NVL(B.seqfamilia,0),
-                      B.pesavel);
+                      B.pesavel,
+                      B.sittribut,
+                      B.sittribut,
+                      100,
+                      100,
+                      B.percpis,
+                      B.perccofins);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
