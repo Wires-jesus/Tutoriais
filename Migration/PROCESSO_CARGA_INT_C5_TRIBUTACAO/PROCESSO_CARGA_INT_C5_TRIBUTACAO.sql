@@ -13,7 +13,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             NVL(t.aliqstsaida,0) percisentost,
             'B' tipocalcfcp,
             0 percbasefcpicms,
-            NVL(t.peracrescimofuncep,0) percaliqfcpicms,
+            NVL(C.percaliqfcpicms, t.peracrescimofuncep) percaliqfcpicms,
             c.reducaobasest,
             'T' tiporeducaoicmscalcst,
             0 perctributst,
