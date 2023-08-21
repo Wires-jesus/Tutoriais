@@ -1,1 +1,6 @@
-{"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO","tipoPLSQL":"MIGRATION","dependencias":""}
+{"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO","tipoPLSQL":"MIGRATION","dependencias":[
+    {"nome": "PCFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
+    {"nome": "PCFINALIZADORA","tipo": "TABELA","versao": "4.0.01.000"},
+    {"nome": "PCCOB","tipo": "TABELA","versao": "4.0.02.000"},
+    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"}
+]}
