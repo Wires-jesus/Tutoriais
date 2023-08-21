@@ -1,1 +1,3 @@
-{"nome":"PROCESSO_CARGA_INT_C5_DESC561","tipoPLSQL":"MIGRATION","dependencias":""}
+{"nome":"PROCESSO_CARGA_INT_C5_DESC561","tipoPLSQL":"MIGRATION","dependencias":[
+    {"nome": "PCDESCONTO","tipo": "TABELA","versao": "4.0.01.000"}
+  ]}
