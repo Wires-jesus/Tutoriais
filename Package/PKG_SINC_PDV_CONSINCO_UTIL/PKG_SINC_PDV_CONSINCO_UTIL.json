@@ -2,8 +2,5 @@
 	"nome": "PKG_SINC_PDV_CONSINCO_UTIL",
 	"tipoPLSQL": "PACKAGE",
 	"dependencias": [
-		{
-
-		}
 	]
 }
