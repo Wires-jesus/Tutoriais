@@ -2718,7 +2718,7 @@ END;
 PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
 
-  UPDATE TB_COMBOITEM SET ATIVO = 'N'
+  UPDATE monitorpdvmiddle.TB_COMBOITEM TB_COMBOITEM SET ATIVO = 'N'
   WHERE TB_COMBOITEM.rowid IN (
     SELECT 
       TB_COMBOITEM.rowid
