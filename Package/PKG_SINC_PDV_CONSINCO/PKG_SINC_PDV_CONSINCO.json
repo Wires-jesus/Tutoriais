@@ -13,37 +13,12 @@
 			"versao": "4.0.02.000"
 		},
 		{
-			"nome": "PCPRODUT",
-			"tipo": "TABELA",
-			"versao": "4.0.03.000"
-		},
-		{
-			"nome": "PCCONSOLIDATRIBUTACAO",
-			"tipo": "TABELA",
-			"versao": "4.0.05.000"
-		},
-		{
-			"nome": "PCTRIBUT",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
 			"nome": "PCTRIBPISCOFINS",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
 		},
 		{
 			"nome": "PCTABPR",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCTABTRIB",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCPRODFILIAL",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
 		},
@@ -58,7 +33,7 @@
 			"versao": "4.0.01.000"
 		},
 		{
-			"nome": "PCPLPAG",
+			"nome": "PCFILIAL",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
 		},
@@ -68,99 +43,9 @@
 			"versao": "4.0.04.000"
 		},
 		{
-			"nome": "PCEMPR",
+			"nome": "PCPROMI",
 			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCFILIAL",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCCLIENT",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCMARCA",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCDEPTO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCSECAO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCCATEGORIA",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCSUBCATEGORIA",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCCFO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCNCM",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCTRIBNCMFILIAL",
-			"tipo": "TABELA",
-			"versao": "4.0.03.000"
-		},
-		{
-			"nome": "PCREGIAO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCPRECOPROM",
-			"tipo": "TABELA",
-			"versao": "4.0.03.000"
-		},
-		{
-			"nome": "PCDESCONTO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCOFERTAPROGRAMADAC",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCOFERTAPROGRAMADAI",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCERRORLOGCONSINCO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCTIPOPROCESSOCONSINCO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
-		},
-		{
-			"nome": "PCCONTROLECONSINCO",
-			"tipo": "TABELA",
-			"versao": "4.0.01.000"
+			"versao": "4.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO",
@@ -220,12 +105,12 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.06.000"
+			"versao": "4.0.08.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "4.0.02.000"
+			"versao": "4.0.03.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
