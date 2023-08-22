@@ -72,6 +72,7 @@ SELECT DISTINCT oferta_hist.codauxiliar||oferta_hist.codfilial as SEQPRODUTO,
         AND b.dtfinal IS NOT NULL
         AND e.codprod =  oferta_hist.codprod
         AND e.codfilial = oferta_hist.codfilial
+        AND oferta_hist.dataexclusao is not null
         AND oferta_hist.codprod IN ( 
         select codprod from pcofertaprogramadai_hist
         where codoferta||codprod not in (select codoferta||codprod from PCOFERTAPROGRAMADAI)) 
