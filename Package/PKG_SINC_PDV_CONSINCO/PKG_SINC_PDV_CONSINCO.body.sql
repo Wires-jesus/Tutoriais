@@ -431,28 +431,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_empresasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_empresasegmento s
-        USING (
-        /*SELECT f.codigo nroempresa,
-               1 nrosegmento,
-               (CASE
-                 WHEN f.dtexclusao IS NULL THEN
-                   'S'
-                 ELSE
-                   'N'
-                END) ativo,
-                0 nrocarga
-        FROM pcfilial f,
-             (SELECT LEAST(A.ultimaexecucao, B.ultimaexecucao, C.ultimaexecucao) ULTIMAEXECUCAO
-              FROM (SELECT s.ultimaexecucao FROM pccontroleconsinco s
-              WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') A,
-              (SELECT s.ultimaexecucao
-               FROM pccontroleconsinco s
-               WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_SEGMENTO') B,
-              (SELECT s.ultimaexecucao
-              FROM pccontroleconsinco s
-              WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESASEGMENTO') C) DTPADRAO
-       where NVL(F.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO*/
-       SELECT DISTINCT E.nroempresa, 1 nrosegmento, 'S' ativo, 0 nrocarga FROM VW_INT_C5_EMPRESA E
+        USING (SELECT DISTINCT E.nroempresa, 1 nrosegmento, 'S' ativo, 0 nrocarga FROM VW_INT_C5_EMPRESA E
        ) b
 
       ON (s.nroempresa = b.nroempresa and s.nrosegmento = b.NROSEGMENTO)
@@ -2160,20 +2139,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
-        USING (SELECT DISTINCT E.seqfamilia,
-             e.nrodivisao,
-             E.nrotributacao,
-             E.codorigemtrib,
-             E.ativo
-        --FROM vw_tb_famdivisao E,
-        FROM VW_INT_C5_FAMDIVISAO E/*,
-             MONITORPDVMIDDLE.TB_DIVISAO TBD,
-             MONITORPDVMIDDLE.TB_TRIBUTACAO TBT,
-             MONITORPDVMIDDLE.TB_FAMILIA TBF
-       WHERE E.SEQFAMILIA = TBF.SEQFAMILIA
-         AND E.NRODIVISAO = TBD.NRODIVISAO
-         AND E.NROTRIBUTACAO = TBT.NROTRIBUTACAO*/
-       ) b
+        USING (SELECT DISTINCT 
+                     E.seqfamilia,
+                     E.nrodivisao,
+                     E.nrotributacao,
+                     E.codorigemtrib,
+                     E.ativo
+               FROM VW_INT_C5_FAMDIVISAO E) b
 
       ON (s.seqfamilia = b.seqfamilia AND s.nrodivisao = b.nrodivisao)
       WHEN MATCHED THEN
@@ -2803,7 +2775,193 @@ BEGIN
   END;
 END;
 
-  PROCEDURE exec_sinc AS
+PROCEDURE carrega_tb_parcelamento(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcelamento T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.DESCRICAO = S.DESCRICAO,
+          T.TIPO      = S.TIPO,
+          T.ATIVO     = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.DESCRICAO,
+          T.TIPO,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.DESCRICAO,
+          S.TIPO,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcelamento', 'carrega_tb_parcelamento OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcelamento',
+           'carrega_tb_parcelamento ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_parcempresa(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcempresa T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND T.NROEMPRESA = S.NROEMPRESA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.ATIVO = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.NROEMPRESA,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.NROEMPRESA,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcempresa', 'carrega_tb_parcempresa OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcempresa',
+           'carrega_tb_parcempresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_parcperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcperiodo T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND 
+           T.DTAHORINICIAL = S.DTAHORINICIAL AND 
+           T.DTAHORFINAL = S.DTAHORFINAL)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.ATIVO = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.DTAHORINICIAL,
+          T.DTAHORFINAL,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.DTAHORINICIAL,
+          S.DTAHORFINAL,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcperiodo', 'carrega_tb_parcperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcperiodo',
+           'carrega_tb_parcperiodo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parccategformapagto T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND
+           T.SEQCATEGORIA = S.SEQCATEGORIA AND
+           T.NROFORMAPAGTO = S.NROFORMAPAGTO AND
+           T.NRODIVISAO = S.NRODIVISAO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.NROMAXIMOPARCELA = S.NROMAXIMOPARCELA,
+          T.ATIVO            = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.SEQCATEGORIA,
+          T.NROFORMAPAGTO,
+          T.NRODIVISAO,
+          T.NROMAXIMOPARCELA,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.SEQCATEGORIA,
+          S.NROFORMAPAGTO,
+          S.NRODIVISAO,
+          S.NROMAXIMOPARCELA,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_parccategformapagto', 'carrega_parccategformapagto OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_parccategformapagto',
+           'carrega_parccategformapagto ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
       SELECT id, codprocesso, ultimaexecucao, tipo, objetoreferencia
