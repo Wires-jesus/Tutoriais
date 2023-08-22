@@ -245,7 +245,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
 			"tipo": "MIGRATION",
-			"versao": "4.0.06.000"
+			"versao": "4.0.07.000"
 		}
 	]
 }
