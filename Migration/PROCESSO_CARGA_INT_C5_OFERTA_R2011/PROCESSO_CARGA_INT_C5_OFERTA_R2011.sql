@@ -42,8 +42,13 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
          'S'                            as cumulativo,
           3                             as SEQTIPOCREDITO
   FROM PCOFERTAPROGRAMADAI a, PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
-  pcembalagem e, pcofertaprogramadai_hist oferta_hist
+  pcembalagem e, pcofertaprogramadai_hist oferta_hist,
+  (select min(s.ultimaexecucao) ultimaexecucao
+          from pccontroleconsinco s
+    where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
+  )DTPADRAO
   WHERE a.codfilial = b.codfilial
+        AND NVL(oferta_hist.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND a.codoferta = b.codoferta
         AND c.seqproduto = a.codauxiliar||a.codfilial
         AND d.seqregra = a.codfilial||2011||a.codoferta
@@ -63,17 +68,18 @@ SELECT DISTINCT oferta_hist.codauxiliar||oferta_hist.codfilial as SEQPRODUTO,
         'S'                            as cumulativo,
          3                             as SEQTIPOCREDITO
   FROM  PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
-  pcembalagem e, pcofertaprogramadai_hist oferta_hist
-  WHERE  oferta_hist.codfilial = b.codfilial 
+  pcembalagem e, pcofertaprogramadai_hist oferta_hist,
+  (select min(s.ultimaexecucao) ultimaexecucao
+          from pccontroleconsinco s
+    where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
+  )DTPADRAO
+  WHERE  oferta_hist.codfilial    = b.codfilial 
+        AND NVL(oferta_hist.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND oferta_hist.Codoferta = b.codoferta
-        AND c.seqproduto = oferta_hist.codauxiliar||oferta_hist.codfilial
-        AND d.seqregra = oferta_hist.codfilial||2011||oferta_hist.codoferta
-        AND b.dtinicial IS NOT NULL
-        AND b.dtfinal IS NOT NULL
-        AND e.codprod =  oferta_hist.codprod
-        AND e.codfilial = oferta_hist.codfilial
-        AND oferta_hist.dataexclusao is not null
-        AND oferta_hist.codprod IN ( 
-        select codprod from pcofertaprogramadai_hist
-        where codoferta||codprod not in (select codoferta||codprod from PCOFERTAPROGRAMADAI)) 
+        AND c.seqproduto          = oferta_hist.codauxiliar||oferta_hist.codfilial
+        AND d.seqregra            = oferta_hist.codfilial||2011||oferta_hist.codoferta
+        AND e.codprod             =  oferta_hist.codprod
+        AND e.codfilial           = oferta_hist.codfilial
+        AND dataexclusao is not null 
+         
 )
