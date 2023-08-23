@@ -1,0 +1,11 @@
+{
+  "nome": "PKG_SINC_PDV_CONSINCO_SANG_SUP",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
+      "tipoPLSQL": "PACKAGE",
+      "versao": "4.0.01.000"
+    }
+  ]
+}
