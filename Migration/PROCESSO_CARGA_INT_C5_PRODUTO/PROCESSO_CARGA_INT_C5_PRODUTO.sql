@@ -61,6 +61,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
     'N' pesoaferido,
     'S' ativo
   from VW_INT_C5_EMBPROD e
+  where 
+    qtunit <> qtminimaatacado
   group by 
     e.codprod, 
     NVL(e.qtunit, 1)
@@ -159,6 +161,8 @@ SELECT
   pvenda preco,
   'S' ativo
 FROM VW_INT_C5_EMBPROD 
+where 
+  qtunit <> qtminimaatacado
 
 UNION ALL
 
