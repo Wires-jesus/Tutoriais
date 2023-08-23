@@ -4,7 +4,7 @@
   "dependencias": [
     {
       "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
-      "tipoPLSQL": "PACKAGE",
+      "tipo": "PACKAGE",
       "versao": "4.0.01.000"
     }
   ]
