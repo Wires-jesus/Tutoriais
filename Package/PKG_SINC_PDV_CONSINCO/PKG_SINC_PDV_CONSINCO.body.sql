@@ -1276,8 +1276,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END carrega_tb_prodempresa;
 
-  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) IS
+    bPrimeriaCarga number;
   BEGIN
+    select count(*) into bPrimeriaCarga from MONITORPDVMIDDLE.TB_FAMEMBALAGEM where rownum = 1;
+   
     MERGE INTO monitorpdvmiddle.tb_famembalagem s
       USING (SELECT DISTINCT e.seqfamilia,
                     e.qtdembalagem,
@@ -1319,36 +1322,39 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.nrocarga);
 
     /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR*/
-    UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
-    WHERE TB_FAMEMBALAGEM.rowid IN (
-      select 
-        TB_FAMEMBALAGEM.rowid
-      from monitorpdvmiddle.TB_FAMEMBALAGEM  TB_FAMEMBALAGEM
-      left JOIN
-      (
-        SELECT 
-          PCEMBALAGEM.codprod SEQFAMILIA,  
-          PCEMBALAGEM.QTUNIT QTDEMBALAGEM 
-        FROM PCEMBALAGEM
-        WHERE qtunit > 0
-        
-        UNION 
-        
-        SELECT 
-          PCEMBALAGEM.codprod SEQFAMILIA, 
-          PCEMBALAGEM.QTMINIMAATACADO QTDEMBALAGEM 
-        FROM PCEMBALAGEM
-        WHERE QTMINIMAATACADO > 0
-      ) EMBALAGEM
-      on (TB_FAMEMBALAGEM.SEQFAMILIA  = EMBALAGEM.SEQFAMILIA and TB_FAMEMBALAGEM.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
-      WHERE 
-      EMBALAGEM.QTDEMBALAGEM IS NULL	
-      AND ATIVO = 'S'
-    );
+    --Não executar inativação na primeira carga
+    IF bPrimeriaCarga <> 0 THEN
+      UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
+      WHERE TB_FAMEMBALAGEM.rowid IN (
+        select 
+          TB_FAMEMBALAGEM.rowid
+        from monitorpdvmiddle.TB_FAMEMBALAGEM  TB_FAMEMBALAGEM
+        left JOIN
+        (
+          SELECT 
+            CODPROD SEQFAMILIA,  
+            QTUNIT QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTUNIT > 0
+          
+          UNION 
+          
+          SELECT 
+            CODPROD SEQFAMILIA, 
+            QTMINIMAATACADO QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTMINIMAATACADO > 0
+        ) EMBALAGEM
+        on (TB_FAMEMBALAGEM.SEQFAMILIA  = EMBALAGEM.SEQFAMILIA and TB_FAMEMBALAGEM.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+        WHERE 
+          EMBALAGEM.QTDEMBALAGEM IS NULL	
+          AND ATIVO = 'S'
+      );
+    END IF;
 
-      pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
-      COMMIT;
+    COMMIT;
 
     EXCEPTION
       WHEN OTHERS THEN
@@ -1362,7 +1368,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           COMMIT;
           RAISE;
         END;
-    END carrega_tb_famembalagem;
+  END carrega_tb_famembalagem;
 
   PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
@@ -1420,8 +1426,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     END carrega_tb_prodcodigo;
 
 
-  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) IS
+    bPrimeriaCarga number;
   BEGIN
+    SELECT count(*) INTO bPrimeriaCarga FROM MONITORPDVMIDDLE.tb_prodpreco where rownum = 1;
+
     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
       USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
     on(
@@ -1456,33 +1465,36 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       );
 
     /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
-    UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
-    WHERE tb_prodpreco.rowid IN (
-      select 
-        tb_prodpreco.rowid
-      from monitorpdvmiddle.tb_prodpreco tb_prodpreco
-      left JOIN
-      (
-        SELECT 
-          TO_NUMBER(PCEMBALAGEM.CODAUXILIAR || PCEMBALAGEM.CODFILIAL)  SEQPRODUTO, 
-          PCEMBALAGEM.QTUNIT  QTDEMBALAGEM 
-        FROM PCEMBALAGEM
-        WHERE qtunit > 0
-        
-        UNION 
-        
-        SELECT 
-          TO_NUMBER(PCEMBALAGEM.CODAUXILIAR || PCEMBALAGEM.CODFILIAL)  SEQPRODUTO, 
-          PCEMBALAGEM.QTMINIMAATACADO QTDEMBALAGEM 
-        FROM PCEMBALAGEM
-        WHERE QTMINIMAATACADO > 0
-        
-      ) EMBALAGEM
-      on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
-      WHERE 
-        EMBALAGEM.QTDEMBALAGEM IS NULL	
-        AND ATIVO = 'S'
-    );
+     --Se for a primeira carga, não executar update
+    IF bPrimeriaCarga <> 0 THEN
+      UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
+      WHERE tb_prodpreco.rowid IN (
+        select 
+          tb_prodpreco.rowid
+        from monitorpdvmiddle.tb_prodpreco tb_prodpreco
+        left JOIN
+        (
+          SELECT 
+            TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            QTUNIT QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTUNIT > 0
+          
+          UNION 
+          
+          SELECT 
+            TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            QTMINIMAATACADO QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTMINIMAATACADO > 0
+          
+        ) EMBALAGEM
+        on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+        WHERE 
+          EMBALAGEM.QTDEMBALAGEM IS NULL	
+          AND ATIVO = 'S'
+      );
+    END IF;
 
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
