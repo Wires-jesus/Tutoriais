@@ -1,0 +1,142 @@
+CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO_INUT IS
+PROCEDURE PROCESSAR_INUTILIZACAO_NOTA(P_SEQDOCTO NUMBER DEFAULT 0) IS
+    CURSOR C_INUTILIZACAO IS
+      SELECT I.EXPORTADO,
+             I.CODFILIAL,
+             I.DATA,
+             I.DTHORAPROCESSAMENTO,
+             I.JUSTIFICATIVA,
+             I.NUMNOTAINICIAL,
+             I.NUMNOTAFINAL,
+             I.SERIE,
+             I.ANO,
+             I.CODUSUARIO,
+             I.PROTOCOLOINUTILIZACAO,
+             I.AMBIENTE,
+             I.NUMCAIXA,
+             I.POSICAO,
+             I.SEQDOCTO,
+             I.ESPECIE,
+             I.ROWID AS ROWID_TB_DOCTO
+        FROM VW_INT_C5_INUT I
+       WHERE I.SEQDOCTO = DECODE(P_SEQDOCTO, 0, I.SEQDOCTO, P_SEQDOCTO);
+
+    R_INUTILIZACAO       C_INUTILIZACAO%ROWTYPE;
+    L_XMLTYPE            XMLTYPE;
+    MENSAGEMERRO         VARCHAR2(1000);
+    DADOS_PCFILAMENSAGEM PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM;
+
+    -- RETORNAR_XML_INUTILIZACAO
+    FUNCTION RETORNAR_XML_INUTILIZACAO(P_R_INUTILIZACAO C_INUTILIZACAO%ROWTYPE)
+      RETURN XMLTYPE IS
+    BEGIN
+      SELECT XMLELEMENT("ESQUEMAEXPORTACAO",
+                        XMLELEMENT("COMPLEMENTO",
+                                   XMLELEMENT("PCINUTILIZACAONFCE",
+                                              XMLAGG(XMLELEMENT("PCINUTILIZACAONFCE",
+                                                                XMLFOREST(P_R_INUTILIZACAO.EXPORTADO AS
+                                                                          "EXPORTADO",
+                                                                          P_R_INUTILIZACAO.CODFILIAL AS
+                                                                          "CODFILIAL",
+                                                                          P_R_INUTILIZACAO.DATA AS
+                                                                          "DATA",
+                                                                          P_R_INUTILIZACAO.DTHORAPROCESSAMENTO AS
+                                                                          "DTHORAPROCESSAMENTO",
+                                                                          P_R_INUTILIZACAO.JUSTIFICATIVA AS
+                                                                          "JUSTIFICATIVA",
+                                                                          P_R_INUTILIZACAO.NUMNOTAINICIAL AS
+                                                                          "NUMNOTAINICIAL",
+                                                                          P_R_INUTILIZACAO.NUMNOTAFINAL AS
+                                                                          "NUMNOTAFINAL",
+                                                                          P_R_INUTILIZACAO.SERIE AS
+                                                                          "SERIE",
+                                                                          P_R_INUTILIZACAO.ANO AS
+                                                                          "ANO",
+                                                                          P_R_INUTILIZACAO.CODUSUARIO AS
+                                                                          "CODUSUARIO",
+                                                                          P_R_INUTILIZACAO.PROTOCOLOINUTILIZACAO AS
+                                                                          "PROTOCOLOINUTILIZACAO",
+                                                                          P_R_INUTILIZACAO.AMBIENTE AS
+                                                                          "AMBIENTE",
+                                                                          P_R_INUTILIZACAO.NUMCAIXA AS
+                                                                          "NUMCAIXA",
+                                                                          P_R_INUTILIZACAO.POSICAO AS
+                                                                          "POSICAO")))))) PCINUTILIZACAONFCE
+        INTO L_XMLTYPE
+        FROM DUAL;
+
+      RETURN L_XMLTYPE;
+    END RETORNAR_XML_INUTILIZACAO;
+
+    FUNCTION RETORNAR_PCFILAMENSAGEM(P_R_INUTILIZACAO C_INUTILIZACAO%ROWTYPE)
+      RETURN PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM IS
+      DADOS_PCFILAMENSAGEM PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM;
+      L_XMLTYPE            XMLTYPE;
+      DAODOSCABECALHOXML   VARCHAR2(200) := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
+    BEGIN
+
+      L_XMLTYPE := RETORNAR_XML_INUTILIZACAO(P_R_INUTILIZACAO);
+
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM          := DFSEQ_PCFILAMENSAGEM.NEXTVAL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATATRANSACAO       := SYSDATE;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODFILIAL           := P_R_INUTILIZACAO.CODFILIAL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMCAIXA            := P_R_INUTILIZACAO.NUMCAIXA;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMNOTA             := P_R_INUTILIZACAO.NUMNOTAINICIAL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.SERIE               := P_R_INUTILIZACAO.SERIE;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CHAVESEFAZ          := NULL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.PROTOCOLO           := P_R_INUTILIZACAO.PROTOCOLOINUTILIZACAO;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CONTINGENCIA        := 'N';
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDEXTERNO           := DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM || '-' ||
+                                                                    P_R_INUTILIZACAO.SEQDOCTO || '-' ||
+                                                                    P_R_INUTILIZACAO.NUMCAIXA || '-' ||
+                                                                    P_R_INUTILIZACAO.ESPECIE;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.STATUS              := 0;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.QTPROCESSAMENTO     := NULL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPODOCUMENTO       := 'CE';
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOOPERACAO        := 'VEND';
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.MENSAGEM            := REPLACE(L_XMLTYPE.GETCLOBVAL(),
+                                                                            '<ESQUEMAEXPORTACAO>',
+                                                                            DAODOSCABECALHOXML);
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOMENSAGEM        := 1;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODIGOERRO          := NULL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATAULTIMAALTERACAO := SYSDATE;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.PDVORIGEM           := 'CONSINCO';
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.QTREPROCESSADO      := NULL;
+
+      RETURN DADOS_PCFILAMENSAGEM;
+    END RETORNAR_PCFILAMENSAGEM;
+  BEGIN
+    OPEN C_INUTILIZACAO;
+
+    FETCH C_INUTILIZACAO
+      INTO R_INUTILIZACAO;
+
+    WHILE C_INUTILIZACAO%FOUND LOOP
+      BEGIN
+        DADOS_PCFILAMENSAGEM := RETORNAR_PCFILAMENSAGEM(R_INUTILIZACAO);
+        PKG_SINC_PDV_CONSINCO_UTIL.INSERIR_PCFILAMENSAGEM(DADOS_PCFILAMENSAGEM);
+
+        UPDATE MONITORPDVMIDDLE.TB_DOCTO
+           SET REPLICACAO = 'F'
+         WHERE ROWID = R_INUTILIZACAO.ROWID_TB_DOCTO;
+      EXCEPTION
+        WHEN OTHERS THEN
+          MENSAGEMERRO := 'CONSINCO - ERRO AO PERSISTIR INUTILIZACAO NA TABELA PCFILAMENSAGEM - ERROR: ' ||
+                          SQLCODE || '-' || SQLERRM || '- LINHA: ' ||
+                          DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+
+          UPDATE MONITORPDVMIDDLE.TB_DOCTO
+             SET REPLICACAO = 'E'
+           WHERE ROWID = R_INUTILIZACAO.ROWID_TB_DOCTO;
+
+          PKG_SINC_PDV_CONSINCO_UTIL.INSERIR_PCFILAMENSAGEM_ERRO(DADOS_PCFILAMENSAGEM, MENSAGEMERRO);
+      END;
+
+      FETCH C_INUTILIZACAO
+        INTO R_INUTILIZACAO;
+    END LOOP;
+
+    CLOSE C_INUTILIZACAO;
+  END PROCESSAR_INUTILIZACAO_NOTA;
+
+ END PKG_SINC_PDV_CONSINCO_INUT;
