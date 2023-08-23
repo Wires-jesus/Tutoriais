@@ -2325,6 +2325,8 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
              tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA 
         AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_INCENTIVO.DTAHORINICIO
         AND  tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_INCENTIVO.DTAHORFIM
+        AND  tb_regraincentivoperiodo_c5.IDREF        = VIEW_C5_INCENTIVO.IDREF
+
         
       )
        WHEN MATCHED THEN
@@ -2337,12 +2339,14 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivoperiodo_c5.DTAHORINICIO,
           tb_regraincentivoperiodo_c5.DTAHORFIM,
           tb_regraincentivoperiodo_c5.ATIVO
+          tb_regraincentivoperiodo_c5.IDREF
         ) 
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.DTAHORINICIO,
           VIEW_C5_INCENTIVO.DTAHORFIM,
-          VIEW_C5_INCENTIVO.ATIVO
+          VIEW_C5_INCENTIVO.ATIVO,
+          VIEW_C5_INCENTIVO.IDREF
         );
 
     UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
@@ -2353,6 +2357,15 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
+    UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
+      WHERE NOT EXISTS (SELECT C.CODOFERTA
+                        FROM PCOFERTAPROGRAMADAC C 
+                        WHERE C.DTINICIAL = R.DTAHORINICIO 
+                        AND  c.dtfinal = r.dtahorfim
+                        AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
+                       )
+      AND IDREF = 2011;
+    
     INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
