@@ -2369,7 +2369,7 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivoperiodo_c5.SEQREGRA,
           tb_regraincentivoperiodo_c5.DTAHORINICIO,
           tb_regraincentivoperiodo_c5.DTAHORFIM,
-          tb_regraincentivoperiodo_c5.ATIVO
+          tb_regraincentivoperiodo_c5.ATIVO,
           tb_regraincentivoperiodo_c5.IDREF
         ) 
         VALUES(
