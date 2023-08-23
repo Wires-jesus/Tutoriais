@@ -1,5 +1,5 @@
 {
-  "nome": "PKG_SINC_PDV_CONSINCO",
+  "nome": "PKG_SINC_PDV_CONSINCO_INUT",
   "tipoPLSQL": "PACKAGE",
   "dependencias": [
       {
