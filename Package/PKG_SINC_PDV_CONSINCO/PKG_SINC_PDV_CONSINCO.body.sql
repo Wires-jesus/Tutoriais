@@ -2353,6 +2353,15 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
+    UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
+      WHERE NOT EXISTS (SELECT C.CODOFERTA
+                        FROM PCOFERTAPROGRAMADAC C 
+                        WHERE C.DTINICIAL = R.DTAHORINICIO 
+                        AND  c.dtfinal = r.dtahorfim
+                        AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
+                       )
+      AND IDREF = 2011;
+    
     INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
