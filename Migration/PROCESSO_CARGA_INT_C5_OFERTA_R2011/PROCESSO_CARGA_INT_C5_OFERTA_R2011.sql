@@ -34,7 +34,7 @@ SELECT DISTINCT a.codauxiliar||a.codfilial as SEQPRODUTO,
          e.qtunit                          as QTDEMBALAGEM,
          a.codfilial||2011||a.codoferta    as SEQREGRA,
          0 PERCDESCONTO,
-         a.vloferta PRECO,
+         a.vloferta                        as PRECO,
          (CASE
           WHEN (b.DTCANCEL IS NOT NULL) OR (b.DTFINAL < TRUNC(SYSDATE))  THEN 'N'
           ELSE 'S'
