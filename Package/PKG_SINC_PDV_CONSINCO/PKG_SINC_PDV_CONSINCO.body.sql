@@ -2325,6 +2325,8 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
              tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA 
         AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_INCENTIVO.DTAHORINICIO
         AND  tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_INCENTIVO.DTAHORFIM
+        AND  tb_regraincentivoperiodo_c5.IDREF        = VIEW_C5_INCENTIVO.IDREF
+
         
       )
        WHEN MATCHED THEN
@@ -2337,12 +2339,14 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivoperiodo_c5.DTAHORINICIO,
           tb_regraincentivoperiodo_c5.DTAHORFIM,
           tb_regraincentivoperiodo_c5.ATIVO
+          tb_regraincentivoperiodo_c5.IDREF
         ) 
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.DTAHORINICIO,
           VIEW_C5_INCENTIVO.DTAHORFIM,
-          VIEW_C5_INCENTIVO.ATIVO
+          VIEW_C5_INCENTIVO.ATIVO,
+          VIEW_C5_INCENTIVO.IDREF
         );
 
     UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
