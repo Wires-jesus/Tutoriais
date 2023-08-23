@@ -1278,58 +1278,73 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    MERGE INTO monitorpdvmiddle.tb_famembalagem s
+      USING (SELECT DISTINCT e.seqfamilia,
+                    e.qtdembalagem,
+                    e.embalagem,
+                    e.pesoaferido,
+                    e.ativo,
+                    e.pesobruto,
+                    e.pesoliq pesoliquido,
+                    0 nrocarga
+      FROM VW_INT_C5_FAMEMBALAGEM e) b
+
+    ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
+    WHEN MATCHED THEN
+    UPDATE SET
+      s.embalagem = b.embalagem,
+      s.pesoaferido = b.pesoaferido,
+      s.pesobruto = b.pesobruto,
+      s.pesoliquido = b.pesoliquido,
+      s.ativo = b.ativo,
+      s.nrocarga = b.nrocarga
+
+    WHEN NOT MATCHED THEN
+      INSERT (s.seqfamilia,
+                  s.qtdembalagem,
+                  s.embalagem,
+                  s.pesoaferido,
+                  s.pesobruto,
+                  s.pesoliquido,
+                  s.ativo,
+                  s.nrocarga)
+              VALUES
+                (b.seqfamilia,
+                  b.qtdembalagem,
+                  b.embalagem,
+                  b.pesoaferido,
+                  b.pesobruto,
+                  b.pesoliquido,
+                  b.ativo,
+                  b.nrocarga);
+
     /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR*/
-
-      UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
-      WHERE TB_FAMEMBALAGEM.rowid IN (
-        select 
-          TB_FAMEMBALAGEM.rowid
-        from monitorpdvmiddle.tb_famembalagem tb_famembalagem
-        left join pcembalagem 
-        on (tb_famembalagem.seqfamilia = pcembalagem.codprod  and tb_famembalagem.qtdembalagem = pcembalagem.qtunit)
-        where pcembalagem.qtunit is NULL
-        and tb_famembalagem.ativo = 'S'
-      );
-
-      MERGE INTO monitorpdvmiddle.tb_famembalagem s
-        USING (SELECT DISTINCT e.seqfamilia,
-                      e.qtdembalagem,
-                      e.embalagem,
-                      e.pesoaferido,
-                      e.ativo,
-                      e.pesobruto,
-                      e.pesoliq pesoliquido,
-                      0 nrocarga
-       FROM VW_INT_C5_FAMEMBALAGEM e) b
-
-      ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
-      WHEN MATCHED THEN
-      UPDATE SET
-        s.embalagem = b.embalagem,
-        s.pesoaferido = b.pesoaferido,
-        s.pesobruto = b.pesobruto,
-        s.pesoliquido = b.pesoliquido,
-        s.ativo = b.ativo,
-        s.nrocarga = b.nrocarga
-
-      WHEN NOT MATCHED THEN
-        INSERT (s.seqfamilia,
-                   s.qtdembalagem,
-                   s.embalagem,
-                   s.pesoaferido,
-                   s.pesobruto,
-                   s.pesoliquido,
-                   s.ativo,
-                   s.nrocarga)
-                VALUES
-                  (b.seqfamilia,
-                   b.qtdembalagem,
-                   b.embalagem,
-                   b.pesoaferido,
-                   b.pesobruto,
-                   b.pesoliquido,
-                   b.ativo,
-                   b.nrocarga);
+    UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
+    WHERE TB_FAMEMBALAGEM.rowid IN (
+      select 
+        TB_FAMEMBALAGEM.rowid
+      from monitorpdvmiddle.TB_FAMEMBALAGEM  TB_FAMEMBALAGEM
+      left JOIN
+      (
+        SELECT 
+          PCEMBALAGEM.codprod SEQFAMILIA,  
+          PCEMBALAGEM.QTUNIT QTDEMBALAGEM 
+        FROM PCEMBALAGEM
+        WHERE qtunit > 0
+        
+        UNION 
+        
+        SELECT 
+          PCEMBALAGEM.codprod SEQFAMILIA, 
+          PCEMBALAGEM.QTMINIMAATACADO QTDEMBALAGEM 
+        FROM PCEMBALAGEM
+        WHERE QTMINIMAATACADO > 0
+      ) EMBALAGEM
+      on (TB_FAMEMBALAGEM.SEQFAMILIA  = EMBALAGEM.SEQFAMILIA and TB_FAMEMBALAGEM.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+      WHERE 
+      EMBALAGEM.QTDEMBALAGEM IS NULL	
+      AND ATIVO = 'S'
+    );
 
       pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
@@ -1407,74 +1422,90 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
-
-      UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
-      WHERE tb_prodpreco.rowid IN (
-        select 
-          tb_prodpreco.rowid
-        from monitorpdvmiddle.tb_prodpreco tb_prodpreco
-        left join pcembalagem 
-        on (tb_prodpreco.SEQPRODUTO  = to_number(pcembalagem.CODAUXILIAR || pcembalagem.codfilial) and tb_prodpreco.qtdembalagem = pcembalagem.qtunit)
-        where pcembalagem.qtunit is NULL
-        AND  tb_prodpreco.ativo = 'S'
+    MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
+      USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
+    on(
+      TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto 
+      AND TB_PRODPRECO_C5.qtdembalagem = VIEW_TB_PRODPRECO.qtdembalagem 
+      AND TB_PRODPRECO_C5.nrosegmento  = VIEW_TB_PRODPRECO.nrosegmento 
+      AND TB_PRODPRECO_C5.nroempresa   = VIEW_TB_PRODPRECO.nroempresa
+    )
+      WHEN MATCHED THEN
+      UPDATE SET
+        TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
+        TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
+        TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco
+      WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PRODPRECO_C5.seqproduto,
+        TB_PRODPRECO_C5.qtdembalagem,
+        TB_PRODPRECO_C5.nrosegmento,
+        TB_PRODPRECO_C5.nroempresa,
+        TB_PRODPRECO_C5.ativo,
+        TB_PRODPRECO_C5.promocao,
+        TB_PRODPRECO_C5.preco
+      ) 
+      VALUES(
+        VIEW_TB_PRODPRECO.seqproduto,
+        VIEW_TB_PRODPRECO.qtdembalagem,
+        VIEW_TB_PRODPRECO.nrosegmento,
+        VIEW_TB_PRODPRECO.nroempresa,
+        VIEW_TB_PRODPRECO.ativo,
+        VIEW_TB_PRODPRECO.promocao,
+        VIEW_TB_PRODPRECO.preco
       );
 
-      MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
-        USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
-      on(
-        TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto 
-        AND TB_PRODPRECO_C5.qtdembalagem = VIEW_TB_PRODPRECO.qtdembalagem 
-        AND TB_PRODPRECO_C5.nrosegmento  = VIEW_TB_PRODPRECO.nrosegmento 
-        AND TB_PRODPRECO_C5.nroempresa   = VIEW_TB_PRODPRECO.nroempresa
-      )
-       WHEN MATCHED THEN
-        UPDATE SET
-          TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
-          TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
-          TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco
-       WHEN NOT MATCHED THEN
-        INSERT(
-          TB_PRODPRECO_C5.seqproduto,
-          TB_PRODPRECO_C5.qtdembalagem,
-          TB_PRODPRECO_C5.nrosegmento,
-          TB_PRODPRECO_C5.nroempresa,
-          TB_PRODPRECO_C5.ativo,
-          TB_PRODPRECO_C5.promocao,
-          TB_PRODPRECO_C5.preco
-        ) 
-        VALUES(
-          VIEW_TB_PRODPRECO.seqproduto,
-          VIEW_TB_PRODPRECO.qtdembalagem,
-          VIEW_TB_PRODPRECO.nrosegmento,
-          VIEW_TB_PRODPRECO.nroempresa,
-          VIEW_TB_PRODPRECO.ativo,
-          VIEW_TB_PRODPRECO.promocao,
-          VIEW_TB_PRODPRECO.preco
-        );
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
+    UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
+    WHERE tb_prodpreco.rowid IN (
+      select 
+        tb_prodpreco.rowid
+      from monitorpdvmiddle.tb_prodpreco tb_prodpreco
+      left JOIN
+      (
+        SELECT 
+          TO_NUMBER(PCEMBALAGEM.CODAUXILIAR || PCEMBALAGEM.CODFILIAL)  SEQPRODUTO, 
+          PCEMBALAGEM.QTUNIT  QTDEMBALAGEM 
+        FROM PCEMBALAGEM
+        WHERE qtunit > 0
+        
+        UNION 
+        
+        SELECT 
+          TO_NUMBER(PCEMBALAGEM.CODAUXILIAR || PCEMBALAGEM.CODFILIAL)  SEQPRODUTO, 
+          PCEMBALAGEM.QTMINIMAATACADO QTDEMBALAGEM 
+        FROM PCEMBALAGEM
+        WHERE QTMINIMAATACADO > 0
+        
+      ) EMBALAGEM
+      on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+      WHERE 
+        EMBALAGEM.QTDEMBALAGEM IS NULL	
+        AND ATIVO = 'S'
+    );
 
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  EXCEPTION
+  WHEN OTHERS THEN
+    BEGIN
+      prc_record_error(p_id);
+      ROLLBACK;
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
-        ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
-
-    COMMIT;
-    EXCEPTION
-    WHEN OTHERS THEN
-      BEGIN
-        prc_record_error(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_prodpreco',
-           'carrega_tb_prodpreco ERRO',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-        RAISE;
-      END;
+        ('pkg_sinc_PDV_Consinco',
+          'carrega_tb_prodpreco',
+          'carrega_tb_prodpreco ERRO',
+          SYSDATE,
+          CURRENT_TIMESTAMP);
+      COMMIT;
+      RAISE;
+    END;
   END;
 
   PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE) AS

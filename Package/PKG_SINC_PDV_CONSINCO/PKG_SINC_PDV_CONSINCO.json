@@ -40,7 +40,7 @@
 		{
 			"nome": "PCEMBALAGEM",
 			"tipo": "TABELA",
-			"versao": "4.0.04.000"
+			"versao": "4.0.05.000"
 		},
 		{
 			"nome": "PCPROMI",
@@ -85,7 +85,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.14.000"
+			"versao": "4.0.15.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -95,7 +95,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "4.0.12.000"
+			"versao": "4.0.13.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
