@@ -28,34 +28,33 @@ select codfilial||2011||codoferta as SEQREGRA,
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_R2011 AS
 (
 
-  SELECT DISTINCT a.codauxiliar||a.codfilial   as SEQPRODUTO,
-         descoferta                   as regra,
-         e.qtunit                     as QTDEMBALAGEM,
-         a.codfilial||2011||a.codoferta  SEQREGRA,
+  
+SELECT DISTINCT a.codauxiliar||a.codfilial as SEQPRODUTO,
+         descoferta                        as regra,
+         e.qtunit                          as QTDEMBALAGEM,
+         a.codfilial||2011||a.codoferta    as SEQREGRA,
          0 PERCDESCONTO,
          a.vloferta PRECO,
          (CASE
           WHEN (b.DTCANCEL IS NOT NULL) OR (b.DTFINAL < TRUNC(SYSDATE))  THEN 'N'
           ELSE 'S'
-          END)                         as  ATIVO,
+          END)                          as  ATIVO,
          'G'                            as tiporegra,
          'S'                            as cumulativo,
           3                             as SEQTIPOCREDITO
   FROM PCOFERTAPROGRAMADAI a, PCOFERTAPROGRAMADAC b, monitorpdvmiddle.tb_produto c, monitorpdvmiddle.tb_regraincentivo d,
-  pcembalagem e, pcofertaprogramadai_hist oferta_hist,
+  pcembalagem e,
   (select min(s.ultimaexecucao) ultimaexecucao
           from pccontroleconsinco s
     where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
   )DTPADRAO
   WHERE a.codfilial = b.codfilial
-        AND NVL(oferta_hist.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+        AND NVL(a.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
         AND a.codoferta = b.codoferta
         AND c.seqproduto = a.codauxiliar||a.codfilial
         AND d.seqregra = a.codfilial||2011||a.codoferta
         AND b.dtinicial IS NOT NULL
         AND b.dtfinal IS NOT NULL
-        AND e.codprod = NVL(a.codprod, oferta_hist.codprod)
-        AND oferta_hist.codfilial = a.codfilial
 UNION 
 SELECT DISTINCT oferta_hist.codauxiliar||oferta_hist.codfilial as SEQPRODUTO,
          descoferta                   as regra,
