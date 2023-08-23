@@ -1,1 +1,14 @@
-{"nome":"VW_INT_C5_PARCELDEPTO","tipoPLSQL":"VIEW","dependencias":""}
+{"nome":"VW_INT_C5_PARCELDEPTO","tipoPLSQL":"VIEW","dependencias":
+  [
+    {
+      "nome": "PCPARCELDEPTOFINALIZADORA",
+      "tipo": "TABELA",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCFINALIZADORA",
+      "tipo": "TABELA",
+      "versao": "4.0.01.000"
+    }
+  ]
+}
