@@ -1013,6 +1013,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vUFDestino := NULL;
      END;
+
        BEGIN
        SELECT UF
        INTO  vUFORIGEM
@@ -1022,6 +1023,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vUFORIGEM := NULL;
      END;
+
       -- Parâmetro de Número de Casas Decimais do Custo
       POBTEM_PARAMFILIAL_NUMBER('99',
                                 'CON_NUMCASASDECCUSTO',
@@ -1779,6 +1781,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                        N_CODPROD_O,
                                                        N_CUSTOULTENT_O);
             END IF;
+            
+  
+            
             -- Se não conseguiu formar o Preço da Transferência a partir da PCEST
             IF (NVL(N_PRECO_TRANSF_O,0) <= 0) THEN
               -- Pesquisa Dados da Tabela de Preços do Produto
@@ -1842,7 +1847,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 N_PRECO_TRANSF_D := NVL(N_PRECO_TRANSF_O,0);
               END IF;
             END IF;
-
+            
           /*CALCULANDO O PRECO DO PEDIDO DE COMPRA*/
           ELSIF (V_TIPO_SUG_COMPRA_TRANSF = 'C') THEN
 
@@ -2830,7 +2835,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PRODUTO.UNIDADE_O
                         , V_TRIBUTACAO
                         , V_CODST
-                        , PRODUTO.QTVENDMES_D
+                        , N_PRECO_TRANSF_D -- PRODUTO.QTVENDMES_D
                         , PRODUTO.QTVENDMES1_D
                         , PRODUTO.QTVENDMES2_D
                         , PRODUTO.QTVENDMES3_D
@@ -2981,6 +2986,24 @@ IS PRAGMA SERIALLY_REUSABLE;
     POBTEM_PARAMFILIAL_STRING(P_CODFILIAL_ORIGEM,'DESCSTFORAUFTRANSF',
                                 vDESCSTFORAUFTRANSF,vvErroPesqParam1,
                                 vvMsgErroPesqParam1);
+         BEGIN
+       SELECT UF
+       INTO  vUFDestino
+       FROM PCFILIAL
+       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_DESTINO);
+       EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vUFDestino := NULL;
+     END;
+       BEGIN
+       SELECT UF
+       INTO  vUFORIGEM
+       FROM PCFILIAL
+       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_ORIGEM);
+       EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vUFORIGEM := NULL;
+     END;
 
    /*****************************************************
     Se Geração da Reposição de forma Automática ou Manual
@@ -4727,7 +4750,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Preço sem Imposto
     vnPrecoSemImposto              PCTABPR.PTABELA%TYPE;
-
+    vDESCSTFORAUFTRANSF            pcparamfilial.valor%Type;
     -- MED-1876 - Retorno Package Estoque
     --vvMsgRetornoPkgEstoque         VARCHAR2(2000);
     -- MED-1876 - Log Itens de Pedidos Gerados
@@ -4835,7 +4858,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Parâmetro se a Filial de Origem Utiliza Venda por Embalagem - DDMEDICA-5012
     vUTILIZAVENDAPOREMBALAGEM          PCPARAMFILIAL.VALOR%TYPE;
-    vDESCSTFORAUFTRANSF                PCPARAMFILIAL.VALOR%TYPE;
+   -- vDESCSTFORAUFTRANSF                PCPARAMFILIAL.VALOR%TYPE;
     -- Estoque Indenizado - DDMEDICA-5077
     vnQtIndenizLoteDisponivel          PCEST.QTINDENIZ%TYPE;
     vnQtIndenizDisponivel              PCEST.QTINDENIZ%TYPE;
@@ -4846,7 +4869,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Retorno do Faturamento do Pedido - DDMEDICA-5077
     vvErroFaturarPedido                VARCHAR2(1);
     vvMsgErroFaturarPedido             VARCHAR2(2000);
-
+    vvErroPesqParam1                       VARCHAR2(1);
+    vvMsgErroPesqParam1                VARCHAR2(2000);
     -- Verificação dos Radicais de CNPJ - DDMEDICA-5286
     v_REGRADEFINICAOGERARDESPESAS      PCPARAMREPOSICAOLOJAS.VALOR%TYPE;
 
@@ -5713,6 +5737,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       e_PkgEstoqueReservado      EXCEPTION;
       -- Exceção
       e_AbortaBaixaEstoque       EXCEPTION;
+      
 
      /******************************************************************************
       REGRA ESPECÍFICA - Utilizar Arredondamento da Embalagem do Fornecedor na Falta
@@ -5800,7 +5825,9 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Inicializa o Valor Total Original do Pedido
       vnVlTotalOriginalPedido   := 0;
-
+    POBTEM_PARAMFILIAL_STRING(pi_vCodFilial,'DESCSTFORAUFTRANSF',
+                                vDESCSTFORAUFTRANSF,vvErroPesqParam,
+                                vvMsgErroPesqParam);
       -- Limpa Arrays
       vtPED_NUMPED.DELETE;
       vtPED_CODPROD.DELETE;
@@ -7476,6 +7503,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 vvErroPesqParam,
                                 vvMsgErroPesqParam);
 
+        POBTEM_PARAMFILIAL_STRING(vc_Dados_Cab.CODFILIAL_O,'DESCSTFORAUFTRANSF',
+                                vDESCSTFORAUFTRANSF,vvErroPesqParam,
+                                vvMsgErroPesqParam);
      /*------------------------------------------------
       Pesquisa de Dados do Cliente da Filial de Destino
       ------------------------------------------------*/
@@ -7976,13 +8006,15 @@ IS PRAGMA SERIALLY_REUSABLE;
        /****************************************************************************************************************
         SE PEDIDO DE TRANSFERENCIA OU PEDIDO OPERADOR LOGISTICO, PROCEDE AO CALCULO DO PREÇO, IMPOSTO, COMISSÃO, CMV ...
         ****************************************************************************************************************/
+         /* vvMsgErroTratado := 'PRECO = ' ||vrItemPedido.nPTABELA || ' ; ' ||  vc_Dados_Cab.TIPO_SUG_COMPRA_TRANSF ||';'||vc_Dados_Cab.CODFILIAL_O||';'||vrFilOrigem.vvUfOrigem||'; DEST '||vrFilDestino.vvUfDestino;
+                RAISE e_Tratado;*/
         IF (vc_Dados_Cab.TIPO_SUG_COMPRA_TRANSF IN ('T','L')) THEN
 
          /*-------------------------------------------
           Se aceitar o Item, Pesquisa dados do Produto
           -------------------------------------------*/
           IF (vbAceitaItem) THEN
-
+  
             -- Inicializa Preço de Tabela e Venda e Desconto
             vrItemPedido.nPTABELA    := 0;
             vrItemPedido.nPVENDA     := 0;
@@ -8122,13 +8154,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                 IF    (V_TIPOCUSTOTRANSF_APLICAR = 'E') THEN
                   vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREP,0);
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
-                  vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREAL,0);
-                ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'C') THEN
                   IF (vDESCSTFORAUFTRANSF = 'S') AND (vrFilOrigem.vvUfOrigem   <>  vrFilDestino.vvUfDestino) THEN
                      vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0);
                   ELSE
-                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOCONT,0);
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREAL,0);
                   END IF;
+                ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'C') THEN
+                  
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOCONT,0);
+                
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
                      IF vDESCSTFORAUFTRANSF = 'S' AND vrFilOrigem.vvUfOrigem  <>  vrFilDestino.vvUfDestino THEN
                        vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0);
@@ -8150,6 +8184,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                                 vc_Dados_Ite.CODPROD_O,
                                                                 vrCustoProduto_O.nCUSTOULTENT);
                 END IF;
+                
 
                 -- Se utilizar Fator de Embalagem não pode arredondar o Preço aqui - DDVENDAS-37042
                 IF (NVL(vnQtUnitEmbalagem,0) > 1) THEN
@@ -8192,7 +8227,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
                   -- Guarda no PVENDA1 o Preço Inicial antes de qualquer alteração para auditoria
                   vrItemPedido.nPVENDA1 := vrItemPedido.nPTABELA;
-
+ 
                   ----------------------------------------------------
                   -- REGRA ESPECÍFICA - Aplicar Indice Transferência
                   ----------------------------------------------------
