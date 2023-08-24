@@ -132,6 +132,16 @@
     "versao": "4.0.01.000"
   },
   {
+    "nome": "PCOFERTAPROGRAMADAC_HIST",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCOFERTAPROGRAMADAI_HIST",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
     "nome": "PCPROMC",
     "tipo": "TABELA",
     "versao": "4.0.01.000"
