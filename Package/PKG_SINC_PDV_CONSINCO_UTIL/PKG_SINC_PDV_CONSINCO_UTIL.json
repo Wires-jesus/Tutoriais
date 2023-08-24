@@ -2,5 +2,15 @@
 	"nome": "PKG_SINC_PDV_CONSINCO_UTIL",
 	"tipoPLSQL": "PACKAGE",
 	"dependencias": [
+	    {
+		  "nome":"PCFILAMENSAGEM",
+          "tipo":"TABELA",
+          "versao":"4.0.02.000"
+		},
+		{
+		  "nome":"PCFILAMENSAGEMERRO",
+          "tipo":"TABELA",
+          "versao":"4.0.01.000"		  
+		}
 	]
 }
