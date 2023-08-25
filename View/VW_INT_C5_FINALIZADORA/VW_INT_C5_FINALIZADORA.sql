@@ -1,55 +1,46 @@
-CREATE OR REPLACE VIEW VW_INT_C5_FINALIZADORA AS
+CREATE OR REPLACE VIEW vw_int_c5_finalizadora
+AS
 (
-SELECT  f.CODFINALIZADORA nroformapagto,
-    (CASE
-            WHEN f.especie = 'D'
-                THEN 'D'
-            WHEN f.especie = 'BK'
-                THEN 'B'
-            WHEN f.especie IN ('CHP','CHV')
-                THEN 'C'
-            WHEN f.especie = 'CTD'
-                THEN 'E'
-            WHEN f.especie IN ('CTC','DIG')
-                THEN 'R'
-            WHEN f.especie LIKE ('POS%')
-                THEN 'S'
-            WHEN f.especie = 'CNV'
-                THEN 'V'
-            WHEN f.especie IN ('CRED','CRED')
-                THEN 'I'
-            WHEN f.especie = 'PIX'
-                THEN 'G'
-            ELSE
-                'D'
-         END) ESPECIE ,
-        f.DESCRICAO formapagto,
+    SELECT  
+        f.codfilial,
+        f.codfinalizadora nroformapagto,
+        substr(f.descricao,1,40) formapagto,
         (CASE
-            WHEN f.dtinativacao IS NULL
-                THEN 'S'
-            ELSE
-                'N'
-         END) ativo,
-        f.codcob,
-        COALESCE(c.boleto,'N') boleto,
-        
-        /*GREATEST(NVL(f.dtultalter, d.datapadrao),
-                NVL(f.dtcadastro, d.datapadrao),
-                NVL(c.dtultalter, d.datapadrao),
-                NVL(c.dtcadastro, d.datapadrao)) data*/
-        
-        GREATEST(NVL(f.DTALTERC5, d.datapadrao),
-                 NVL(c.DTALTERC5, d.datapadrao)) data
-  FROM  VW_INT_C5_ESPECIE_FORMAPGTO vef,
+            WHEN f.especie = 'BK'
+            THEN 'B'
+            WHEN f.especie IN ('CHP','CHV')
+            THEN 'C'
+            WHEN f.especie IN ('CTC','DIG')
+            THEN 'R'
+            WHEN f.especie = 'CTD'
+            THEN 'E'
+            WHEN f.especie IN ('CNV','CONV')
+            THEN 'V'
+            WHEN f.especie = 'CRED'
+            THEN 'I'
+            WHEN f.especie = 'D'
+            THEN 'D'
+            WHEN f.especie = 'PIX'
+            THEN 'G'
+            WHEN f.especie LIKE 'POS%'
+            THEN 'S'
+            ELSE 'S'
+        END) especie,
+        NVL(c.boleto,'N') boleto,
+        (CASE
+            WHEN f.dtinativacao IS NULL 
+            THEN 'S'
+            ELSE 'N'
+        END) ativo,
+        NVL(f.codcobintegracao,f.codcob) codcob,
+        NVL(f.codplpagintegracao,f.codplpag)codplpag,
+        GREATEST(NVL(f.dtalterc5,d.datapadrao),
+        NVL(c.dtalterc5,d.datapadrao)) data
+    FROM  vw_int_c5_especie_formapgto vef,
         pcfinalizadora f,
         pccob c,
-        (SELECT MIN(s.ultimaexecucao) datapadrao
-          FROM pccontroleconsinco S
-         where s.id >= 0) D
- WHERE  f.especie = vef.WINTHOR(+)
-   AND  f.CODCOB = c.CODCOB(+)
-   and  f.codfinalizadora >= 0
-   and  f.codfilial >= '0'   )
-
-
-
+        (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s WHERE s.id >= 0) d
+    WHERE  f.especie = vef.winthor(+)
+        AND  NVL(f.codcobintegracao,f.codcob) = c.codcob(+)
+        AND  f.codfinalizadora >= 0
+)
