@@ -2466,7 +2466,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           vw_int_c5_regraproduto_2011.ATIVO
         );
 
-      UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
+      UPDATE MONITORPDVMIDDLE.tb_regraproduto r SET ATIVO = 'N'
       WHERE  EXISTS  (SELECT C.CODOFERTA
                       FROM PCOFERTAPROGRAMADAC C 
                       WHERE C.DTINICIAL = R.DTAHORINICIO 
