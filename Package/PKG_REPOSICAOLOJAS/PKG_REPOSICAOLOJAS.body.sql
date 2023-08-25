@@ -411,6 +411,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       TYPE TT_QTPENDENTE        IS TABLE OF PCEST.QTPENDENTE%TYPE INDEX BY BINARY_INTEGER;
       TYPE TT_QTESTDISP         IS TABLE OF PCEST.QTESTGER%TYPE INDEX BY BINARY_INTEGER;
       Type TT_CUSTOFINSEMST     IS TABLE OF PCEST.CUSTOFINSEMST%TYPE INDEX BY BINARY_INTEGER;
+      TYPE TT_VLICMSBCR         IS TABLE OF PCEST.VLICMSBCR%TYPE INDEX BY BINARY_INTEGER;
       --
       vtINDICE_PROD_O         TT_INDICE_PROD;
       vtCODPROD_O             TT_CODPROD;
@@ -435,6 +436,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       vtESTMIN_O              TT_ESTMIN;
       vtQTPENDENTE_O          TT_QTPENDENTE;
       vtQTESTDISP_O           TT_QTESTDISP;
+      vtVLICMSBCR_O           TT_VLICMSBCR;
       --
       N_CODPROD_O             PCEST.CODPROD%TYPE;
       N_QTESTGER_O            PCEST.QTESTGER%TYPE;
@@ -458,6 +460,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       N_ESTMIN_O              PCEST.ESTMIN%TYPE;
       N_QTPENDENTE_O          PCEST.QTPENDENTE%TYPE;
       N_QTESTDISP_O           PCEST.QTESTGER%TYPE;
+      N_VLICMSBCR_O           PCEST.VLICMSBCR%TYPE;
       -- DADOS DA PCPRODFILIAL
       TYPE TT_INDICE_PROD_F   IS TABLE OF INTEGER INDEX BY BINARY_INTEGER;
       TYPE TT_CODPROD_F       IS TABLE OF PCPRODFILIAL.CODPROD%TYPE INDEX BY BINARY_INTEGER;
@@ -1111,6 +1114,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              ELSE
                GREATEST(GREATEST(NVL(QTESTGER,0),0) - GREATEST(NVL(QTRESERV,0),0) - GREATEST(NVL(QTBLOQUEADA,0),0),0)
              END
+            ,NVL(VLICMSBCR,0)
       BULK COLLECT INTO vtCODPROD_O
                       , vtQTESTGER_O
                       , vtQTRESERV_O
@@ -1133,6 +1137,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , vtESTMIN_O
                       , vtQTPENDENTE_O
                       , vtQTESTDISP_O
+                      , vtVLICMSBCR_O
        FROM PCEST
       WHERE (CODFILIAL = NVL(P_CODFILIALRETIRA,P_CODFILIAL_ORIGEM)) -->> Priorizar Filial Retira
         AND (CODPROD   IN (SELECT CODPROD_O
@@ -1691,6 +1696,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_CUSTOFORNEC_O       := vtCUSTOFORNEC_O(I_INDICE_PROD);
             N_ESTMIN_O            := vtESTMIN_O(I_INDICE_PROD);
             N_QTPENDENTE_O        := vtQTPENDENTE_O(I_INDICE_PROD);
+            N_VLICMSBCR_O         := vtVLICMSBCR_O(I_INDICE_PROD);
             -->> Este QTESTDISP estará baixando à medida que vai inserindo na Tabela Temporária a Sugestão de outras Lojas
             -->> Garantindo que se a primeira Loja consumir o Estoque, não terá estoque para a segunda Loja, quando Respeitar o Estoque Minimo da Filial de Origem
             N_QTESTDISP_O         := vtQTESTDISP_O(I_INDICE_PROD);
@@ -1716,6 +1722,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             N_QTPENDENTE_O        := 0;
             N_QTESTDISP_O         := 0;
             N_CUSTOFINSEMST_O     := 0;
+            N_VLICMSBCR_O         := 0;
           END IF;
 
           --------------------------------------------------------------------------
@@ -1754,7 +1761,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_PRECO_TRANSF_O := NVL(N_CUSTOREP_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
                   IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <>  vUfDestino) THEN
-                   N_PRECO_TRANSF_O := NVL(N_CUSTOREALSEMST_O,0);
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOREALSEMST_O,0) - NVL(N_VLICMSBCR_O,0);
                     ELSE
                    N_PRECO_TRANSF_O := NVL(N_CUSTOREAL_O,0);
                   END IF;
@@ -1762,7 +1769,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_PRECO_TRANSF_O := NVL(N_CUSTOCONT_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
                 IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <> vUfDestino) THEN
-                   N_PRECO_TRANSF_O := NVL(N_CUSTOFINSEMST_O,0);
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOFINSEMST_O,0)- NVL(N_VLICMSBCR_O,0);
                 ELSE
                    N_PRECO_TRANSF_O := NVL(N_CUSTOFIN_O,0);
                 END IF;
@@ -2835,7 +2842,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PRODUTO.UNIDADE_O
                         , V_TRIBUTACAO
                         , V_CODST
-                        , N_PRECO_TRANSF_D -- PRODUTO.QTVENDMES_D
+                        , PRODUTO.QTVENDMES_D
                         , PRODUTO.QTVENDMES1_D
                         , PRODUTO.QTVENDMES2_D
                         , PRODUTO.QTVENDMES3_D
@@ -3085,14 +3092,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                        NVL(ED.CUSTOREP,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'')
            AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
-                        NVL(ED.CUSTOREALSEMST,0)
+                        NVL(ED.CUSTOREALSEMST,0)- NVL(ED.VLICMSBCR,0)
            WHEN  (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'') THEN
             NVL(ED.CUSTOREAL,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''C'')  THEN
                        NVL(ED.CUSTOCONT,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'')
                AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
-                         NVL(ED.CUSTOFINSEMST,0)
+                         NVL(ED.CUSTOFINSEMST,0) - NVL(ED.VLICMSBCR,0)
            WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'') THEN
             NVL(ED.CUSTOFIN,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''U'') THEN
@@ -4500,7 +4507,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          nCUSTOREALSEMST           PCEST.CUSTOREALSEMST%TYPE,
          nVLULTENTCONTSEMST        PCEST.VLULTENTCONTSEMST%TYPE,
          nCUSTOFORNEC              PCEST.CUSTOFORNEC%TYPE,
-         nCUSTOFINSEMST            PCEST.CUSTOFINSEMST%TYPE);
+         nCUSTOFINSEMST            PCEST.CUSTOFINSEMST%TYPE,
+         nVLICMSBCR                PCEST.VLICMSBCR%TYPE);
     vrCustoProduto_O               TRecCustoProdut;
 
     -- Dados do Produto da Tabela de Preços
@@ -8072,6 +8080,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      , PCEST.VLULTENTCONTSEMST
                      , PCEST.CUSTOFORNEC
                      , PCEST.CUSTOFINSEMST
+                     , PCEST.VLICMSBCR
                   INTO vrCustoProduto_O.nCUSTOREP
                      , vrCustoProduto_O.nCUSTOREAL
                      , vrCustoProduto_O.nCUSTOCONT
@@ -8082,6 +8091,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      , vrCustoProduto_O.nVLULTENTCONTSEMST
                      , vrCustoProduto_O.nCUSTOFORNEC
                      , vrCustoProduto_O.nCUSTOFINSEMST
+                     , vrCustoProduto_O.nVLICMSBCR
                   FROM PCEST
                  WHERE (PCEST.CODPROD   = vc_Dados_Ite.CODPROD_O)
                    AND (PCEST.CODFILIAL = NVL(vc_Dados_Cab.CODFILIALRETIRA_O,vc_Dados_Cab.CODFILIAL_O)); -->> Na Filial Retira (Se não tiver Na Filial de Origem)
@@ -8097,6 +8107,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrCustoProduto_O.nVLULTENTCONTSEMST := 0;
                   vrCustoProduto_O.nCUSTOFORNEC       := 0;
                   vrCustoProduto_O.nCUSTOFINSEMST     := 0;
+                  vrCustoProduto_O.nVLICMSBCR         := 0;
               END;
 
               -- Pesquisa Dados da Tabela de Preços do Produto
@@ -8155,7 +8166,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREP,0);
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
                   IF (vDESCSTFORAUFTRANSF = 'S') AND (vrFilOrigem.vvUfOrigem   <>  vrFilDestino.vvUfDestino) THEN
-                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0);
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0) - NVL(vrCustoProduto_O.nVLICMSBCR,0);
                   ELSE
                      vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREAL,0);
                   END IF;
@@ -8165,7 +8176,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
                      IF vDESCSTFORAUFTRANSF = 'S' AND vrFilOrigem.vvUfOrigem  <>  vrFilDestino.vvUfDestino THEN
-                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0);
+                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0) - NVL(vrCustoProduto_O.nVLICMSBCR,0);
                       ELSE
                        vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFIN,0);
                       END IF;
