@@ -11,6 +11,11 @@
             "nome": "PCCLIENT",
             "tipo": "TABELA",
             "versao": "4.0.03.000"
+        },
+        {
+            "nome": "PKG_SINC_PDV_CONSINCO_SPEC",
+            "tipo": "MIGRATION",
+            "versao": "4.0.01.000"
         }
     ]
 }
