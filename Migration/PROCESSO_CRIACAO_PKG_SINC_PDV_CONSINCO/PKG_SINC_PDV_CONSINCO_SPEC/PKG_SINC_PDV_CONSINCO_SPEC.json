@@ -1,0 +1,16 @@
+{
+  "nome": "PKG_SINC_PDV_CONSINCO_SPEC",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCTIPOPROCESSOCONSINCO",
+      "tipo": "TABELA",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCCONTROLECONSINCO",
+      "tipo": "TABELA",
+      "versao": "4.0.05.000"
+    }
+  ]
+}
