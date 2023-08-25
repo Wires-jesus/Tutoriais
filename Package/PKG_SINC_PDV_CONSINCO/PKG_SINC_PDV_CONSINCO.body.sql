@@ -2469,9 +2469,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       UPDATE MONITORPDVMIDDLE.tb_regraproduto r SET ATIVO = 'N'
       WHERE  EXISTS  (SELECT C.CODOFERTA
                       FROM PCOFERTAPROGRAMADAC C 
-                      WHERE C.DTINICIAL = R.DTAHORINICIO 
-                      AND   c.dtfinal = r.dtahorfim
-                      AND   R.SEQREGRA = C.codfilial||2011||C.codoferta
+                      WHERE R.SEQREGRA = C.codfilial||2011||C.codoferta
                       AND   C.DTCANCEL IS NOT NULL
                       )
       AND IDREF = 2011;  
