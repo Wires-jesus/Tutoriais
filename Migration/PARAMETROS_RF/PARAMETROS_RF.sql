@@ -95,6 +95,8 @@ BEGIN
   INSERT_DATA('LISTAR_ITENS_INVENTARIO', 'S', NULL, 'Exibir todos os itens do inventário?', 'INVENTARIO', 'BOOLEAN'); 
   
   INSERT_DATA('VALIDA_DISTRIBUICAO', 'S', NULL, 'Validar a distribuição do pedido na conferência?', 'EXPEDICAO', 'BOOLEAN');
+  
+  INSERT_DATA('EXIBIR_QUANTIDADE_EMBALAGEM', 'N', NULL, 'Mostrar quantidade da embalagem no pedido?', 'EXPEDICAO', 'BOOLEAN');
 END;
 
 
