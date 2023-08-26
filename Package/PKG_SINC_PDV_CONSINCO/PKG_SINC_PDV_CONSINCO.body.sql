@@ -2446,7 +2446,8 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
         UPDATE SET
           tb_regraproduto_c5.PERCDESCONTO    = vw_int_c5_regraproduto_2011.PERCDESCONTO,
           tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto_2011.PRECO,
-          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO 
+          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO,
+          tb_regraproduto_c5.IDREF           = vw_int_c5_regraproduto_2011.IDREF  
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -2455,7 +2456,8 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraproduto_c5.QTDEMBALAGEM,
           tb_regraproduto_c5.PERCDESCONTO,
           tb_regraproduto_c5.PRECO,          
-          tb_regraproduto_c5.ATIVO          
+          tb_regraproduto_c5.ATIVO,
+          tb_regraproduto_c5.IDREF          
         ) 
         VALUES(
           vw_int_c5_regraproduto_2011.SEQREGRA,
@@ -2463,7 +2465,8 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           vw_int_c5_regraproduto_2011.QTDEMBALAGEM,
           vw_int_c5_regraproduto_2011.PERCDESCONTO,
           vw_int_c5_regraproduto_2011.PRECO,
-          vw_int_c5_regraproduto_2011.ATIVO
+          vw_int_c5_regraproduto_2011.ATIVO,
+          vw_int_c5_regraproduto_2011.IDREF
         );
 
       UPDATE MONITORPDVMIDDLE.tb_regraproduto r SET ATIVO = 'N'
