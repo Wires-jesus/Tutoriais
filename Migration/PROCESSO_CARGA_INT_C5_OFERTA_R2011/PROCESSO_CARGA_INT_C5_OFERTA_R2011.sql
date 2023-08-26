@@ -10,7 +10,8 @@ select codfilial||2011||codoferta as SEQREGRA,
        'G'                         as tiporegra,
        'S'                         as cumulativo,
        DTINICIAL                   as dtahorinicio,
-       DTFINAL                     as dtahorfim
+       DTFINAL                     as dtahorfim,
+       '2011'                      as IDREF
   from PCOFERTAPROGRAMADAC A,
   (select min(s.ultimaexecucao) ultimaexecucao
         from pccontroleconsinco s
@@ -39,7 +40,8 @@ SELECT DISTINCT a.codauxiliar||a.codfilial as SEQPRODUTO,
           END)                          as  ATIVO,
          'G'                            as tiporegra,
          'S'                            as cumulativo,
-          3                             as SEQTIPOCREDITO
+          3                             as SEQTIPOCREDITO,
+          '2011'                        as IDREF
   FROM PCOFERTAPROGRAMADAI A,
        PCOFERTAPROGRAMADAC B,
        PCEMBALAGEM E,
@@ -72,7 +74,8 @@ SELECT DISTINCT
        'N'                           as  ATIVO,
        'G'                           as tiporegra,
        'S'                           as cumulativo,
-        3                            as SEQTIPOCREDITO
+        3                            as SEQTIPOCREDITO,
+        '2011'                       as IDREF
   FROM  PCEMBALAGEM E,
         PCOFERTAPROGRAMADAI_HIST OFERTA_HIST,
         monitorpdvmiddle.tb_produto C,
