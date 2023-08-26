@@ -1,5 +1,5 @@
 {
-  "nome": "PKG_SINC_PDV_CONSINCO_SPEC",
+  "nome": "SPEC_PKG_SINC_PDV_CONSINCO",
   "tipoPLSQL": "MIGRATION",
   "dependencias": [
     {
