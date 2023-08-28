@@ -659,7 +659,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    FROM PCTABPR R, PCTRIBPISCOFINS T 
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
-                   AND   R.NUMREGIAO = (SELECT VALOR
+                   AND   R.NUMREGIAO = ( SELECT VALOR
                                          FROM PCPARAMFILIAL
                                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                                          AND VALOR <> '99'
