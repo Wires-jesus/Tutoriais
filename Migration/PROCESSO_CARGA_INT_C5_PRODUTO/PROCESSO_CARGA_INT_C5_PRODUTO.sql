@@ -51,8 +51,18 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 (
+  SELECT
+    SEQFAMILIA,
+    max(QTDEMBALAGEM)QTDEMBALAGEM,
+    max(EMBALAGEM) EMBALAGEM,
+    max(PESOBRUTO) PESOBRUTO,
+    max(PESOLIQ) PESOLIQ,
+    max(PESOAFERIDO) PESOAFERIDO,
+    max(ATIVO) ATIVO
+ FROM
+  (
   --Embalagem preço varejo
-  select
+  select distinct
     e.codprod seqfamilia,
     NVL(e.qtunit, 1) qtdembalagem,
     NVL(max(e.unidade), '1') embalagem,
@@ -61,15 +71,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
     'N' pesoaferido,
     'S' ativo
   from VW_INT_C5_EMBPROD e
-  where 
+  where
     qtunit <> qtminimaatacado
-  group by 
-    e.codprod, 
+  group by
+    e.codprod,
     NVL(e.qtunit, 1)
 
-  UNION ALL 
+  UNION ALL
  --Embalagem preço Atacado
-  select
+  select distinct
     e.codprod seqfamilia,
     NVL(e.qtminimaatacado, 1) qtdembalagem,
     NVL(max(e.unidade), '1') embalagem,
@@ -80,48 +90,66 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
   from VW_INT_C5_EMBPROD e
   where
     e.qtminimaatacado > 1
-  group by 
-    e.codprod, 
-    NVL(e.qtminimaatacado, 1)
+  group by
+    e.codprod,
+    NVL(e.qtminimaatacado, 1))DADOSEMB
+  group by SEQFAMILIA
 )
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
 (
-SELECT
-        e.codauxiliar||e.codfilial seqproduto,
-        e.codprod codproduto,
-        fnc_remove_char_esp(e.descricao) desccompleta,
-        SUBSTR((fnc_remove_char_esp(e.descricao)),1,24) descreduzida,
+ SELECT DISTINCT
+   PROD.SEQPRODUTO,
+   MAX(PROD.CODPRODUTO) CODPRODUTO,
+   MAX(PROD.desccompleta) desccompleta,
+   MAX(PROD.descreduzida) descreduzida,
+   MAX(PROD.produtocomposto) produtocomposto,
+   MAX(PROD.SEQFAMILIA) SEQFAMILIA,
+   MAX(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
+   MAX(PROD.codanp) codanp,
+   MAX(PROD.descanp_prod) descanp_prod,
+   MAX(PROD.ATIVO) ATIVO
+FROM
+  (
+  SELECT  distinct
+        e.codauxiliar seqproduto,
+        MAX(e.codprod) codproduto,
+        max(fnc_remove_char_esp(e.descricao)) desccompleta,
+        max(SUBSTR((fnc_remove_char_esp(e.descricao)),1,24)) descreduzida,
         'N' produtocomposto,
-        e.codprod seqfamilia,
+        MAX(e.codprod) seqfamilia,
         0 QTDDIAVALIDADE,
-        e.anp codanp,
-        e.descanp descanp_prod,
+        max(nvl(e.anp, 0)) codanp,
+        max(e.descanp) descanp_prod,
         'S' ativo
-  FROM  VW_INT_C5_EMBPROD e 
-  )
+  FROM  VW_INT_C5_EMBPROD e
+  GROUP BY e.codauxiliar
+  ) PROD
+  GROUP BY PROD.SEQPRODUTO
+)
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
 (
-SELECT e.codfilial nroempresa,
-       e.codauxiliar||e.codfilial seqproduto,
-       0000000 estqloja,
-       'S' ativo
-  FROM VW_INT_C5_EMBPROD e 
+  SELECT e.codfilial nroempresa,
+         e.codauxiliar seqproduto,
+         0000000 estqloja,
+         'S' ativo
+  FROM VW_INT_C5_EMBPROD e
+
 )
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
 (
-SELECT
+  SELECT
         e.codfilial nroempresa,
         e.codauxiliar codacesso,
-        e.codauxiliar||e.codfilial seqproduto,
+        e.codauxiliar seqproduto,
         COALESCE(e.qtunit, 1) qtdembalagem,
         (CASE
             WHEN length(e.codauxiliar) = 13 AND NVL(E.PRODSEMCODBARRAS, 'N') = 'N'
@@ -134,7 +162,8 @@ SELECT
            'B'
          END) tipo,
         'S' ativo
- FROM  VW_INT_C5_EMBPROD e 
+ FROM  VW_INT_C5_EMBPROD e
+ WHERE length(E.CODAUXILIAR) <= 14
 )
 
 \
@@ -151,31 +180,31 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
-  --Linha de preço varejo
+   --Linha de preço varejo
 SELECT
-  codauxiliar||codfilial seqproduto,
+  codauxiliar seqproduto,
   codfilial nroempresa,
   NVL(qtunit, 1) qtdembalagem,
   1 nrosegmento,
   'N' promocao,
   pvenda preco,
   'S' ativo
-FROM VW_INT_C5_EMBPROD 
-where 
+FROM VW_INT_C5_EMBPROD
+where
   qtunit <> qtminimaatacado
 
 UNION ALL
 
 --Linha de preço atacado
 SELECT
-  codauxiliar||codfilial seqproduto,
+  codauxiliar seqproduto,
   codfilial nroempresa,
   NVL(qtminimaatacado, 1) qtdembalagem,
   1 nrosegmento,
   'N' promocao,
   pvendaatac preco,
   'S' ativo
-FROM VW_INT_C5_EMBPROD 
+FROM VW_INT_C5_EMBPROD
 where
   qtminimaatacado > 1
 )
