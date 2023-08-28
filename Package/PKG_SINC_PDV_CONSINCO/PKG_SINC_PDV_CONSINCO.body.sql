@@ -634,9 +634,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-  MERGE INTO monitorpdvmiddle.tb_familia s
+  MERGE INTO monitorpdvmiddle.tb_familia S
         USING (
-             SELECT v.seqfamilia,
+             SELECT DISTINCT     
+                    v.seqfamilia,
                     NVL(fnc_remove_char_esp(v.familia), '-') familia,
                     v.permitedecimal,
                     v.permitemultiplicacao,
@@ -646,9 +647,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
                     v.pesavel,
-                    PRODPISCOFINS.SITTRIBUT,
+                    PRODPISCOFINS.SITTRIBUT SITUACAOPIS,
+                    PRODPISCOFINS.SITTRIBUT SITUACAOCOFINS,
                     NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
-                    NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS
+                    NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
+                    100 PERCBASEPIS,
+                    100 PERCBASECOFINS
              FROM VW_INT_C5_FAMILIA v,
                   
                   (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
@@ -670,9 +674,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   ) PARAM --valor padrao caso a marca esteja sem valor 
              WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
                 
-      ) b
+      ) B
 
-      ON (s.seqfamilia = B.seqfamilia)
+      ON (S.seqfamilia = B.seqfamilia)
       WHEN MATCHED THEN
               UPDATE SET
                      S.familia = B.familia,
@@ -683,13 +687,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.ativo = B.ativo,
                      S.seqmarca = B.seqmarca,
                      S.seqfamgrupo = B.seqfamgrupo,
-                     s.pesavel = B.pesavel,
-                     s.situacaopis = B.sittribut,
-                     s.situacaocofins = B.sittribut,
-                     s.percbasepis = 100,
-                     s.percbasecofins = 100,
-                     s.percpis = B.percpis,
-                     s.perccofins = B.perccofins
+                     S.pesavel = B.pesavel,
+                     S.situacaopis = B.SITUACAOPIS,
+                     S.situacaocofins = B.SITUACAOCOFINS,
+                     S.percbasepis = PERCBASEPIS,
+                     S.percbasecofins = PERCCOFINS,
+                     S.percpis = B.PERCPIS,
+                     S.perccofins = B.PERCCOFINS
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -700,13 +704,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.seqmarca,
                      S.seqfamgrupo,
                      S.seqfamilia,
-                     s.pesavel,
-                     s.situacaopis,
-                     s.situacaocofins,
-                     s.percbasepis,
-                     s.percbasecofins,
-                     s.percpis,
-                     s.perccofins)
+                     S.pesavel,
+                     S.situacaopis,
+                     S.situacaocofins,
+                     S.percbasepis,
+                     S.percbasecofins,
+                     S.percpis,
+                     S.perccofins)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -718,10 +722,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.seqfamgrupo,
                       NVL(B.seqfamilia,0),
                       B.pesavel,
-                      B.sittribut,
-                      B.sittribut,
-                      100,
-                      100,
+                      B.situacaopis,
+                      B.situacaocofins,
+                      B.percbasepis,
+                      B.percbasecofins,
                       B.percpis,
                       B.perccofins);
 
@@ -1475,7 +1479,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         left JOIN
         (
           SELECT 
-            TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            CODAUXILIAR  SEQPRODUTO, 
             QTUNIT QTDEMBALAGEM 
           FROM VW_INT_C5_EMBPROD
           WHERE QTUNIT > 0
@@ -1483,7 +1488,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           UNION 
           
           SELECT 
-            TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            CODAUXILIAR  SEQPRODUTO, 
             QTMINIMAATACADO QTDEMBALAGEM 
           FROM VW_INT_C5_EMBPROD
           WHERE QTMINIMAATACADO > 0
