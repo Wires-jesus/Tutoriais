@@ -1761,7 +1761,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_PRECO_TRANSF_O := NVL(N_CUSTOREP_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
                   IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <>  vUfDestino) THEN
-                   N_PRECO_TRANSF_O := NVL(N_CUSTOREALSEMST_O,0) - NVL(N_VLICMSBCR_O,0);
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOREALSEMST_O,0) ;
                     ELSE
                    N_PRECO_TRANSF_O := NVL(N_CUSTOREAL_O,0);
                   END IF;
@@ -1769,7 +1769,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_PRECO_TRANSF_O := NVL(N_CUSTOCONT_O,0);
             ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
                 IF (vDESCSTFORAUFTRANSF = 'S') AND (vUfOrigem  <> vUfDestino) THEN
-                   N_PRECO_TRANSF_O := NVL(N_CUSTOFINSEMST_O,0)- NVL(N_VLICMSBCR_O,0);
+                   N_PRECO_TRANSF_O := NVL(N_CUSTOFINSEMST_O,0);
                 ELSE
                    N_PRECO_TRANSF_O := NVL(N_CUSTOFIN_O,0);
                 END IF;
@@ -3092,14 +3092,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                        NVL(ED.CUSTOREP,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'')
            AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
-                        NVL(ED.CUSTOREALSEMST,0)- NVL(ED.VLICMSBCR,0)
+                        NVL(ED.CUSTOREALSEMST,0)
            WHEN  (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''R'') THEN
             NVL(ED.CUSTOREAL,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''C'')  THEN
                        NVL(ED.CUSTOCONT,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'')
                AND  '''||vDESCSTFORAUFTRANSF||''' = ''S'' AND '''||(vUfOrigem|| ''' <>'''|| vUfDestino)||''' THEN
-                         NVL(ED.CUSTOFINSEMST,0) - NVL(ED.VLICMSBCR,0)
+                         NVL(ED.CUSTOFINSEMST,0) 
            WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''F'') THEN
             NVL(ED.CUSTOFIN,0)
                      WHEN (NVL(CL.TIPOCUSTOTRANSF,'' '') = ''U'') THEN
@@ -8166,7 +8166,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREP,0);
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'R') THEN
                   IF (vDESCSTFORAUFTRANSF = 'S') AND (vrFilOrigem.vvUfOrigem   <>  vrFilDestino.vvUfDestino) THEN
-                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0) - NVL(vrCustoProduto_O.nVLICMSBCR,0);
+                     vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREALSEMST,0) ;
                   ELSE
                      vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOREAL,0);
                   END IF;
@@ -8176,7 +8176,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 
                 ELSIF (V_TIPOCUSTOTRANSF_APLICAR = 'F') THEN
                      IF vDESCSTFORAUFTRANSF = 'S' AND vrFilOrigem.vvUfOrigem  <>  vrFilDestino.vvUfDestino THEN
-                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0) - NVL(vrCustoProduto_O.nVLICMSBCR,0);
+                       vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFINSEMST,0) ;
                       ELSE
                        vrItemPedido.nPTABELA := NVL(vrCustoProduto_O.nCUSTOFIN,0);
                       END IF;
