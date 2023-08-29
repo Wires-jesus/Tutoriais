@@ -315,6 +315,7 @@ create or replace package body ATUALIZACAO_DIARIA is
     VDESCRICAOOPCAO                varchar2(90);
     VPARAMETROS                    varchar2(400);
     vPosicaoExec                   varchar2(400);
+    VGERARLOGCLIBLOQ               VARCHAR2(1);
   begin
     vPosicaoExec := 'Início';
     if OPCAO = 23 then
@@ -361,6 +362,11 @@ create or replace package body ATUALIZACAO_DIARIA is
       INTO VBLOQDESBLOQCLIFORNEC
       FROM PCPARAMFILIAL
      WHERE PCPARAMFILIAL.NOME = 'BLOQDESBLOQCLIFORNEC';
+
+    SELECT NVL(PCPARAMFILIAL.VALOR,'S')
+      INTO VGERARLOGCLIBLOQ
+      FROM PCPARAMFILIAL
+     WHERE PCPARAMFILIAL.NOME = 'CON_GERLOGCLIBLOQ';
 
     if VNUMDIASCLIINATIV = 0
     then
@@ -512,7 +518,9 @@ create or replace package body ATUALIZACAO_DIARIA is
     end if;
 
     --Alterado a pedido de Bruno.Martins e Luciano.Morais (3848.142051.2016)
-    --VSQL2 := VSQL2 || ' AND NVL(BLOQUEIO,''N'')=''N'' ';
+    if NVL(VGERARLOGCLIBLOQ, 'S')  = 'N' then
+       VSQL2 := VSQL2 || ' AND NVL(BLOQUEIO,''N'')=''N'' ';
+    end if;
     VSQL2 := VSQL2 || ' AND NVL(BLOQUEIODEFINITIVO,''N'') <> ''S'' ';
     --5577.005065.2017 - parâmetro por Cliente que define se ele pode ser bloqueado por inatividade
     VSQL2 := VSQL2 || ' AND NVL(BLOQUEIOINATIVIDADE,''S'') = ''S'' ';
@@ -591,7 +599,9 @@ create or replace package body ATUALIZACAO_DIARIA is
     end if;
 
     --Alterado a pedido de Bruno.Martins e Luciano.Morais (3848.142051.2016)
-    --VSQL := VSQL || ' AND NVL(BLOQUEIO,''N'')=''N'' ';
+    if NVL(VGERARLOGCLIBLOQ, 'S')  = 'N' then
+       VSQL := VSQL || ' AND NVL(BLOQUEIO,''N'')=''N'' ';
+    end if;
     VSQL := VSQL || ' AND NVL(BLOQUEIODEFINITIVO,''N'') <> ''S'' ';
     --5577.005065.2017 - parâmetro por Cliente que define se ele pode ser bloqueado por inatividade
     VSQL := VSQL || ' AND NVL(BLOQUEIOINATIVIDADE,''S'') = ''S'' ';
