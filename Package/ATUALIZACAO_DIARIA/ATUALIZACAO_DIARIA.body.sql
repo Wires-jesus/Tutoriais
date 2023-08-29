@@ -5225,7 +5225,7 @@ BEGIN
                              , SUM(PCPREST.VALOR) VLRTOTAL
                              , PCPREST.CODFILIAL
                           FROM PCPREST
-                         WHERE PCPREST.DTPAG IS NOT NULL
+                         WHERE PCPREST.DTPAG IS NULL
                            AND PCPREST.CODCOB IN ('TECH', 'SUPP') 
                            AND PCPREST.CODFILIAL IN (PCODFILIAL)
                       GROUP BY PCPREST.CODCOB
