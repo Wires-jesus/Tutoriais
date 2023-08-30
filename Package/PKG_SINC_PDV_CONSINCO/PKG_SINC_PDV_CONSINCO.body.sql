@@ -487,7 +487,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.codanp,
                       P.descanp_prod,
                       P.ativo,
-                      P.codproduto
+                      P.codproduto,
+                      p.idref
         FROM VW_INT_C5_PRODUTO P
        ) b
 
@@ -499,7 +500,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.ativo           = b.ATIVO,
                  s.produtocomposto = b.PRODUTOCOMPOSTO,
                  s.seqfamilia      = b.SEQFAMILIA,
-                 s.codproduto      = b.codproduto
+                 s.codproduto      = b.codproduto,
+                 s.idref           = b.idref
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODUTO,
@@ -508,7 +510,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ATIVO,
              s.PRODUTOCOMPOSTO,
              s.SEQFAMILIA,
-             s.codproduto
+             s.codproduto,
+             s.idref
              )
           VALUES
             (b.SEQPRODUTO,
@@ -517,7 +520,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ATIVO,
              b.PRODUTOCOMPOSTO,
              b.SEQFAMILIA,
-             b.codproduto);
+             b.codproduto,
+             b.idref);
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
@@ -741,7 +745,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
-        ('pkg_sinc_PDV_Consinco', 'c_tb_prodempresa', 'c_tb_prodempresa ERRO', SYSDATE, CURRENT_TIMESTAMP);
+        ('pkg_sinc_PDV_Consinco', 'c_tb_familia', 'c_tb_familia ERRO', SYSDATE, CURRENT_TIMESTAMP);
       COMMIT;
       RAISE;
     END;
@@ -1234,6 +1238,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     MERGE INTO monitorpdvmiddle.tb_prodempresa s
         USING (SELECT DISTINCT
                       Ep.seqproduto,
+                      Ep.idref,
                       Ep.nroempresa,
                       0 estqloja,
                       0 PERCALIQISS,
@@ -1244,19 +1249,22 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       WHEN MATCHED THEN
       UPDATE SET
         estqloja = b.estqloja,
-        ativo    = b.ativo
+        ativo    = b.ativo,
+        idref    = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqproduto,
                 s.nroempresa,
                 s.estqloja,
                 s.PERCALIQISS,
-                s.ativo)
+                s.ativo,
+                s.idref)
                 VALUES
                 (b.seqproduto,
                  b.nroempresa,
                  b.estqloja,
                  b.percaliqiss,
-                 b.ativo);
+                 b.ativo,
+                 b.idref);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
@@ -1447,7 +1455,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
         TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
         TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
-        TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco
+        TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco,
+        TB_PRODPRECO_C5.idref    = VIEW_TB_PRODPRECO.idref
       WHEN NOT MATCHED THEN
       INSERT(
         TB_PRODPRECO_C5.seqproduto,
@@ -1456,7 +1465,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         TB_PRODPRECO_C5.nroempresa,
         TB_PRODPRECO_C5.ativo,
         TB_PRODPRECO_C5.promocao,
-        TB_PRODPRECO_C5.preco
+        TB_PRODPRECO_C5.preco,
+        TB_PRODPRECO_C5.idref
       ) 
       VALUES(
         VIEW_TB_PRODPRECO.seqproduto,
@@ -1465,7 +1475,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         VIEW_TB_PRODPRECO.nroempresa,
         VIEW_TB_PRODPRECO.ativo,
         VIEW_TB_PRODPRECO.promocao,
-        VIEW_TB_PRODPRECO.preco
+        VIEW_TB_PRODPRECO.preco,
+        VIEW_TB_PRODPRECO.idref
       );
 
     /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
@@ -1480,7 +1491,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         (
           SELECT 
             --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
-            CODAUXILIAR  SEQPRODUTO, 
+            --CODAUXILIAR  SEQPRODUTO, 
+            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
             QTUNIT QTDEMBALAGEM 
           FROM VW_INT_C5_EMBPROD
           WHERE QTUNIT > 0
@@ -1489,7 +1501,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           
           SELECT 
             --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
-            CODAUXILIAR  SEQPRODUTO, 
+            --CODAUXILIAR  SEQPRODUTO, 
+            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
             QTMINIMAATACADO QTDEMBALAGEM 
           FROM VW_INT_C5_EMBPROD
           WHERE QTMINIMAATACADO > 0
