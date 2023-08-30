@@ -8318,8 +8318,14 @@ IS
 
 
                 --LAÇO NOS ITENS DA REGRA CONTABIL
-                OPEN CURSOR_ITENS FOR F_ITENS_REGRA_CONTABIL ()
-                    USING PCODREGRA;
+                IF VS_USACONTATRANSITORIA = 'S'
+                THEN
+                    OPEN CURSOR_ITENS FOR F_ITENS_REGRA_CONTABIL (TRUE)
+                        USING PCODREGRA, PCODREGRA, PCODREGRA;
+                ELSE
+                    OPEN CURSOR_ITENS FOR F_ITENS_REGRA_CONTABIL (FALSE)
+                        USING PCODREGRA;
+                END IF;
 
                 LOOP
                     FETCH CURSOR_ITENS INTO ITENSREGRA;
