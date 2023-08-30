@@ -11,11 +11,11 @@ SELECT
      ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', D.CODFILIAL, '1') NRODIVISAO,
      (CASE
             WHEN D.CODSUBCATEGORIA IS NOT NULL THEN
-                 D.CODDEPTO||1||D.CODSEC||2||D.CODCATEGORIA||3||D.CODSUBCATEGORIA||4
+                 D.CODSUBCATEGORIA||4
             WHEN CODCATEGORIA IS NOT NULL THEN
-                 D.CODDEPTO||1||D.CODSEC||2||D.CODCATEGORIA||3
+                 D.CODCATEGORIA||3
             WHEN CODSEC IS NOT NULL THEN
-                 D.CODDEPTO||1||D.CODSEC||2
+                 D.CODSEC||2
             ELSE D.CODDEPTO||1
      END) SEQCATEGORIA,
      
