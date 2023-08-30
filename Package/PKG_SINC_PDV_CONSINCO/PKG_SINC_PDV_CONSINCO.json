@@ -80,12 +80,12 @@
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.03.000"
+			"versao": "4.0.04.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.16.000"
+			"versao": "4.0.17.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -95,7 +95,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "4.0.13.000"
+			"versao": "4.0.15.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -105,7 +105,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "4.0.09.000"
+			"versao": "4.0.10.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "4.0.06.000"
+			"versao": "4.0.07.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
@@ -135,7 +135,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
 			"tipo": "MIGRATION",
-			"versao": "4.0.11.000"
+			"versao": "4.0.12.000"
 		}
 	]
 }
