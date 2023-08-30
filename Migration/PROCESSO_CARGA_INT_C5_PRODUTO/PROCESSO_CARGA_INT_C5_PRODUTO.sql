@@ -53,7 +53,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 (
   SELECT
     SEQFAMILIA,
-    max(QTDEMBALAGEM)QTDEMBALAGEM,
+    QTDEMBALAGEM QTDEMBALAGEM,
     max(EMBALAGEM) EMBALAGEM,
     max(PESOBRUTO) PESOBRUTO,
     max(PESOLIQ) PESOLIQ,
@@ -93,7 +93,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
   group by
     e.codprod,
     NVL(e.qtminimaatacado, 1))DADOSEMB
-  group by SEQFAMILIA
+  group by SEQFAMILIA, QTDEMBALAGEM
 )
 
 \
@@ -101,7 +101,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
 (
  SELECT DISTINCT
-   PROD.SEQPRODUTO,
+   PROD.SEQPRODUTO IDREF,
+   ora_hash(PROD.SEQPRODUTO, 2147483647) SEQPRODUTO,
    MAX(PROD.CODPRODUTO) CODPRODUTO,
    MAX(PROD.desccompleta) desccompleta,
    MAX(PROD.descreduzida) descreduzida,
@@ -135,7 +136,8 @@ FROM
 CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
 (
   SELECT e.codfilial nroempresa,
-         e.codauxiliar seqproduto,
+         e.codauxiliar idref,
+         ora_hash(e.codauxiliar, 2147483647) seqproduto,
          0000000 estqloja,
          'S' ativo
   FROM VW_INT_C5_EMBPROD e
@@ -149,7 +151,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
   SELECT
         e.codfilial nroempresa,
         e.codauxiliar codacesso,
-        e.codauxiliar seqproduto,
+        ora_hash(e.codauxiliar, 2147483647) seqproduto,
         COALESCE(e.qtunit, 1) qtdembalagem,
         (CASE
             WHEN length(e.codauxiliar) = 13 AND NVL(E.PRODSEMCODBARRAS, 'N') = 'N'
@@ -182,7 +184,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
    --Linha de preço varejo
 SELECT
-  codauxiliar seqproduto,
+  codauxiliar idref,
+  ora_hash(codauxiliar, 2147483647) seqproduto,
   codfilial nroempresa,
   NVL(qtunit, 1) qtdembalagem,
   1 nrosegmento,
@@ -197,7 +200,8 @@ UNION ALL
 
 --Linha de preço atacado
 SELECT
-  codauxiliar seqproduto,
+  codauxiliar idref,
+  ora_hash(codauxiliar, 2147483647) seqproduto,
   codfilial nroempresa,
   NVL(qtminimaatacado, 1) qtdembalagem,
   1 nrosegmento,
