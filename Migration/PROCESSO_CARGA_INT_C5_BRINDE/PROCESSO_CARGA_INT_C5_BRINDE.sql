@@ -41,7 +41,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS AS (
     CODIGO SEQCOMBO,
     TO_NUMBER(PCPROMI.CODPROD || CODIGO || PCPROMI.QT || '1') SEQITEM, --Concatenação com 1 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha também
     --TO_NUMBER(PCPROMI.CODPROD || PCPROMC.CODFILIAL) SEQPRODUTO,
-    PCPROMI.CODAUXILIAR SEQPRODUTO,
+    PCPROMI.CODAUXILIAR idref,
+    ora_hash(PCPROMI.Codauxiliar, 2147483647) seqproduto,
     PCPROMI.CODPROD,
     'N' TIPOITEM,
     (
@@ -90,7 +91,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS AS (
     PCPROMC.CODIGO SEQCOMBO,
     TO_NUMBER(PCPROMC.CODPROD || PCPROMC.CODIGO || PCPROMC.QTBRINDE || '0') SEQITEM, --Concatenação com 0 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha tambem
     --TO_NUMBER(PCPROMC.CODPROD || PCPROMC.CODFILIAL) SEQPRODUTO,
-    PCPROMC.CODAUXILIAR SEQPRODUTO,
+    PCPROMC.CODAUXILIAR idref,
+    ora_hash(PCPROMc.Codauxiliar, 2147483647) SEQPRODUTO,
     PCPROMC.CODPROD,
     'P' TIPOITEM,
     (
