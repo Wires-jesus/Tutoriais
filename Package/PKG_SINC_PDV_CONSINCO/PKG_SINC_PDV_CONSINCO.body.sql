@@ -1196,24 +1196,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_famdivisaocategoria s
-        USING (SELECT DISTINCT SD.seqfamilia, SD.seqcategoria, SD.nrodivisao, SD.ativo
-               FROM VW_INT_C5_FAMDIVISAOCATEGORIA sd) b
+        USING (SELECT DISTINCT 
+                      SD.seqfamilia, 
+                      SD.seqcategoria, 
+                      SD.nrodivisao, 
+                      SD.ativo,
+                      SD.idref
+               FROM VW_INT_C5_FAMDIVISAOCATEGORIA SD) b
 
       ON (s.SEQCATEGORIA = b.SEQCATEGORIA AND s.NRODIVISAO = b.NRODIVISAO  AND s.SEQFAMILIA = b.seqfamilia )
       WHEN MATCHED THEN
       UPDATE SET
-        s.ativo = b.ativo
+        s.ativo = b.ativo,
+        s.idref = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqfamilia,
                 s.seqcategoria,
                 s.nrodivisao,
-                s.ativo)
+                s.ativo,
+                s.idref)
                 VALUES
                 (b.seqfamilia,
                  b.seqcategoria,
                  b.nrodivisao,
-                 b.ativo);
-
+                 b.ativo,
+                 b.idref);
   
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
