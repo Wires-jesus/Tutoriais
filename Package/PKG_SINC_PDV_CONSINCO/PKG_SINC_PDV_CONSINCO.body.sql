@@ -2265,8 +2265,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               s.PERCACRESCIMO = b.PERCACRESCIMO,
               s.NROMAXIMOPARCELA = b.NROMAXIMOPARCELA,
               s.NRODIASVENCTO = b.NRODIASVENCTO,
-              s.ATIVO = b.ATIVO
-
+              s.ATIVO = b.ATIVO,
+              s.IDREF = b.IDREF
 
       WHEN NOT MATCHED THEN
         INSERT (s.NROCONDICAOPAGTO,
@@ -2274,7 +2274,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.PERCACRESCIMO,
                 s.NROMAXIMOPARCELA,
                 s.NRODIASVENCTO,
-                s.ATIVO
+                s.ATIVO,
+                s.IDREF
                 )
                 VALUES
                   (b.NROCONDICAOPAGTO,
@@ -2282,7 +2283,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.PERCACRESCIMO,
                    b.NROMAXIMOPARCELA,
                    b.NRODIASVENCTO,
-                   b.ATIVO
+                   b.ATIVO,
+                   b.IDREF
                    );
     
     INSERT INTO PCDEVLOGCONSINCO
