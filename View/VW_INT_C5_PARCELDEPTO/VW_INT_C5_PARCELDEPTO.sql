@@ -11,12 +11,12 @@ SELECT
      ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', D.CODFILIAL, '1') NRODIVISAO,
      (CASE
             WHEN D.CODSUBCATEGORIA IS NOT NULL THEN
-                 D.CODSUBCATEGORIA||4
+                 ora_hash(D.CODSEC||D.CODCATEGORIA||D.CODSUBCATEGORIA||4, 2147483647)
             WHEN CODCATEGORIA IS NOT NULL THEN
-                 D.CODCATEGORIA||3
+                 ora_hash(D.CODCATEGORIA||D.CODCATEGORIA||3, 2147483647)
             WHEN CODSEC IS NOT NULL THEN
-                 D.CODSEC||2
-            ELSE D.CODDEPTO||1
+                 ora_hash(D.CODSEC||2, 2147483647)
+            ELSE ora_hash(D.CODDEPTO||1, 2147483647)
      END) SEQCATEGORIA,
      
      NVL(F.QTMAXPARCELAS, D.QTMAXPARCELA) NROMAXIMOPARCELA,
