@@ -21,5 +21,14 @@ BEGIN
       WHEN OTHERS THEN
         NULL;
     END;      
+    
+    BEGIN
+      vSQL := 'ALTER TABLE '|| vNOMETABELATEMP ||' ADD VLFECPBONIFIC NUMBER(18,6)';
+      EXECUTE IMMEDIATE vSQL;
+    EXCEPTION
+      WHEN OTHERS THEN
+        NULL;
+    END;
+ 
   END LOOP;
 END;
