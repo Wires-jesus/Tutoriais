@@ -80,7 +80,7 @@
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.05.000"
+			"versao": "4.0.06.000"
 		},
 		{
 			"nome": "VW_INT_C5_PLPAG",
@@ -100,7 +100,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "4.0.16.000"
+			"versao": "4.0.17.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
