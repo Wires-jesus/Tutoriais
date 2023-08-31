@@ -2528,7 +2528,7 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
-          D.PRECO           = 0,
+          D.PRECO           = S.PRECO,
           D.ATIVO           = S.ATIVO,
           D.IDREF           = S.IDREF
 
