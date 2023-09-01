@@ -1,104 +1,3 @@
-CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
-
-  g_final_execucao  TIMESTAMP;
-  g_inicio_execucao TIMESTAMP;
-
-  PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP);
-
-  PROCEDURE set_inicio_execucao(p_id IN pccontroleconsinco.id%TYPE);
-
-  FUNCTION get_final_execucao RETURN TIMESTAMP;
-
-  FUNCTION get_inicio_execucao RETURN TIMESTAMP;
-
-  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_usuario(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_grupo(p_id IN pccontroleconsinco.id%TYPE);
-  
-  PROCEDURE carrega_tb_grupousuario(p_id IN pccontroleconsinco.id%TYPE);
-  
-  PROCEDURE carrega_tb_segmento(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_empresa(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_cliente(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_empresasegmento(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_produto(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_famgrupo(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_marca(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_formapagtoespecie(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_clientesegmento(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_formapagto(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_famsegmento(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_divisao(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_categoria(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_prodempresa(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_cargatributaria(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_codgeraloper(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_codgeralopercfop(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_codgeralopercfopuf(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE);
-
-  --PROCEDURE carrega_tb_prodprecoapartir;
-
-  PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_condicaopagto(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE carrega_tb_regracategoria(p_id IN pccontroleconsinco.id%TYPE);
-
-  --PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
-
-  PROCEDURE exec_sinc;
-
-  --PROCEDURE exec_sinc_PRECO;
-
-END PKG_SINC_PDV_CONSINCO;
-/
 CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP) AS
@@ -188,7 +87,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
   END;
 
-  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE) AS 
   BEGIN
 
     UPDATE pccontroleconsinco
@@ -341,7 +240,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.sexo,
                    b.email,
                    b.ativo);
-
+    
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -391,7 +290,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.NROSEGMENTO,
                    b.SEGMENTO);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -445,9 +344,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               s.ativo
              );
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -506,9 +405,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.situacaocomercial,
                    b.ativo);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -532,28 +431,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_empresasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_empresasegmento s
-        USING (
-        /*SELECT f.codigo nroempresa,
-               1 nrosegmento,
-               (CASE
-                 WHEN f.dtexclusao IS NULL THEN
-                   'S'
-                 ELSE
-                   'N'
-                END) ativo,
-                0 nrocarga
-        FROM pcfilial f,
-             (SELECT LEAST(A.ultimaexecucao, B.ultimaexecucao, C.ultimaexecucao) ULTIMAEXECUCAO
-              FROM (SELECT s.ultimaexecucao FROM pccontroleconsinco s
-              WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA') A,
-              (SELECT s.ultimaexecucao
-               FROM pccontroleconsinco s
-               WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_SEGMENTO') B,
-              (SELECT s.ultimaexecucao
-              FROM pccontroleconsinco s
-              WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESASEGMENTO') C) DTPADRAO
-       where NVL(F.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO*/
-       SELECT DISTINCT E.nroempresa, 1 nrosegmento, 'S' ativo, 0 nrocarga FROM VW_INT_C5_EMPRESA E
+        USING (SELECT DISTINCT E.nroempresa, 1 nrosegmento, 'S' ativo, 0 nrocarga FROM VW_INT_C5_EMPRESA E
        ) b
 
       ON (s.nroempresa = b.nroempresa and s.nrosegmento = b.NROSEGMENTO)
@@ -572,9 +450,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrosegmento,
              b.nrocarga);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -609,7 +487,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.codanp,
                       P.descanp_prod,
                       P.ativo,
-                      P.codproduto
+                      P.codproduto,
+                      p.idref
         FROM VW_INT_C5_PRODUTO P
        ) b
 
@@ -621,7 +500,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.ativo           = b.ATIVO,
                  s.produtocomposto = b.PRODUTOCOMPOSTO,
                  s.seqfamilia      = b.SEQFAMILIA,
-                 s.codproduto      = b.codproduto
+                 s.codproduto      = b.codproduto,
+                 s.idref           = b.idref
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODUTO,
@@ -630,7 +510,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ATIVO,
              s.PRODUTOCOMPOSTO,
              s.SEQFAMILIA,
-             s.codproduto
+             s.codproduto,
+             s.idref
              )
           VALUES
             (b.SEQPRODUTO,
@@ -639,7 +520,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ATIVO,
              b.PRODUTOCOMPOSTO,
              b.SEQFAMILIA,
-             b.codproduto);
+             b.codproduto,
+             b.idref);
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
@@ -688,9 +570,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.seqfamgrupo);
 
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -731,7 +613,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
             (b.marca,
              b.ativo,
              b.seqmarca);
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -755,11 +637,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE) AS
-
   BEGIN
-  MERGE INTO monitorpdvmiddle.tb_familia s
+  MERGE INTO monitorpdvmiddle.tb_familia S
         USING (
-                 SELECT v.seqfamilia,
+             SELECT DISTINCT     
+                    v.seqfamilia,
                     NVL(fnc_remove_char_esp(v.familia), '-') familia,
                     v.permitedecimal,
                     v.permitemultiplicacao,
@@ -768,13 +650,37 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.ativo,
                     NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
-                    v.pesavel
-      FROM VW_INT_C5_FAMILIA v,
-           (SELECT VALOR FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO') PARAM
-           /*FORA DA VIEW POIS A MESMA É EXECUTADA EM OUTROS PROCESSOS QUE NAO VALIDAM MARCA*/
-      ) b
+                    v.pesavel,
+                    PRODPISCOFINS.SITTRIBUT SITUACAOPIS,
+                    PRODPISCOFINS.SITTRIBUT SITUACAOCOFINS,
+                    NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
+                    NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
+                    100 PERCBASEPIS,
+                    100 PERCBASECOFINS
+             FROM VW_INT_C5_FAMILIA v,
+                  
+                  (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
+                   FROM PCTABPR R, PCTRIBPISCOFINS T 
+                   WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
+                   AND   R.CODTRIBPISCOFINS IS NOT NULL
+                   AND   R.NUMREGIAO = ( SELECT VALOR
+                                         FROM PCPARAMFILIAL
+                                         WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                                         AND VALOR <> '99'
+                                         AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                                         AND VALOR IS NOT NULL
+                                         AND ROWNUM = 1)-- somente os dados de 1 região
+                  ) PRODPISCOFINS, --vinculo do produto com os dados de pis e cofins
+                  
+                  (SELECT VALOR 
+                   FROM PCPARAMFILIAL 
+                   WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
+                  ) PARAM --valor padrao caso a marca esteja sem valor 
+             WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
+                
+      ) B
 
-      ON (s.seqfamilia = B.seqfamilia)
+      ON (S.seqfamilia = B.seqfamilia)
       WHEN MATCHED THEN
               UPDATE SET
                      S.familia = B.familia,
@@ -785,7 +691,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.ativo = B.ativo,
                      S.seqmarca = B.seqmarca,
                      S.seqfamgrupo = B.seqfamgrupo,
-                     s.pesavel = B.pesavel
+                     S.pesavel = B.pesavel,
+                     S.situacaopis = B.SITUACAOPIS,
+                     S.situacaocofins = B.SITUACAOCOFINS,
+                     S.percbasepis = PERCBASEPIS,
+                     S.percbasecofins = PERCCOFINS,
+                     S.percpis = B.PERCPIS,
+                     S.perccofins = B.PERCCOFINS
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -796,7 +708,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.seqmarca,
                      S.seqfamgrupo,
                      S.seqfamilia,
-                     s.pesavel)
+                     S.pesavel,
+                     S.situacaopis,
+                     S.situacaocofins,
+                     S.percbasepis,
+                     S.percbasecofins,
+                     S.percpis,
+                     S.perccofins)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -807,10 +725,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.seqmarca,
                       B.seqfamgrupo,
                       NVL(B.seqfamilia,0),
-                      B.pesavel);
+                      B.pesavel,
+                      B.situacaopis,
+                      B.situacaocofins,
+                      B.percbasepis,
+                      B.percbasecofins,
+                      B.percpis,
+                      B.perccofins);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+  
   COMMIT;
 
   EXCEPTION
@@ -821,7 +745,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
-        ('pkg_sinc_PDV_Consinco', 'c_tb_prodempresa', 'c_tb_prodempresa ERRO', SYSDATE, CURRENT_TIMESTAMP);
+        ('pkg_sinc_PDV_Consinco', 'c_tb_familia', 'c_tb_familia ERRO', SYSDATE, CURRENT_TIMESTAMP);
       COMMIT;
       RAISE;
     END;
@@ -855,9 +779,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrocarga,
              b.especie);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -900,9 +824,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
             (b.nrosegmento,
              b.ativo,
              b.seqpessoa);
-
+             
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -999,9 +923,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrocarga,
              b.nroformapagto,
              b.codfilial);
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -1096,7 +1020,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nroempresa,
              b.codCob,
              b.nroParcelaJuro);
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1137,7 +1061,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                (b.ativo,
                 b.seqfamilia,
                 b.nrosegmento);
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1246,7 +1170,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.nivelhierarquia,
                  b.idref);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1272,25 +1196,32 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_famdivisaocategoria s
-        USING (SELECT DISTINCT SD.seqfamilia, SD.seqcategoria, SD.nrodivisao, SD.ativo
-               FROM VW_INT_C5_FAMDIVISAOCATEGORIA sd) b
+        USING (SELECT DISTINCT 
+                      SD.seqfamilia, 
+                      SD.seqcategoria, 
+                      SD.nrodivisao, 
+                      SD.ativo,
+                      SD.idref
+               FROM VW_INT_C5_FAMDIVISAOCATEGORIA SD) b
 
       ON (s.SEQCATEGORIA = b.SEQCATEGORIA AND s.NRODIVISAO = b.NRODIVISAO  AND s.SEQFAMILIA = b.seqfamilia )
       WHEN MATCHED THEN
       UPDATE SET
-        s.ativo = b.ativo
+        s.ativo = b.ativo,
+        s.idref = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqfamilia,
                 s.seqcategoria,
                 s.nrodivisao,
-                s.ativo)
+                s.ativo,
+                s.idref)
                 VALUES
                 (b.seqfamilia,
                  b.seqcategoria,
                  b.nrodivisao,
-                 b.ativo);
-
-
+                 b.ativo,
+                 b.idref);
+  
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
   COMMIT;
@@ -1314,6 +1245,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     MERGE INTO monitorpdvmiddle.tb_prodempresa s
         USING (SELECT DISTINCT
                       Ep.seqproduto,
+                      Ep.idref,
                       Ep.nroempresa,
                       0 estqloja,
                       0 PERCALIQISS,
@@ -1324,20 +1256,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       WHEN MATCHED THEN
       UPDATE SET
         estqloja = b.estqloja,
-        ativo    = b.ativo
+        ativo    = b.ativo,
+        idref    = b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqproduto,
                 s.nroempresa,
                 s.estqloja,
                 s.PERCALIQISS,
-                s.ativo)
+                s.ativo,
+                s.idref)
                 VALUES
                 (b.seqproduto,
                  b.nroempresa,
                  b.estqloja,
                  b.percaliqiss,
-                 b.ativo);
-
+                 b.ativo,
+                 b.idref);
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1360,51 +1295,85 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END carrega_tb_prodempresa;
 
-  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) IS
+    bPrimeriaCarga number;
   BEGIN
-      MERGE INTO monitorpdvmiddle.tb_famembalagem s
-        USING (SELECT DISTINCT e.seqfamilia,
-                      e.qtdembalagem,
-                      e.embalagem,
-                      e.pesoaferido,
-                      e.ativo,
-                      e.pesobruto,
-                      e.pesoliq pesoliquido,
-                      0 nrocarga
-       FROM VW_INT_C5_FAMEMBALAGEM e) b
+    select count(*) into bPrimeriaCarga from MONITORPDVMIDDLE.TB_FAMEMBALAGEM where rownum = 1;
+   
+    MERGE INTO monitorpdvmiddle.tb_famembalagem s
+      USING (SELECT DISTINCT e.seqfamilia,
+                    e.qtdembalagem,
+                    e.embalagem,
+                    e.pesoaferido,
+                    e.ativo,
+                    e.pesobruto,
+                    e.pesoliq pesoliquido,
+                    0 nrocarga
+      FROM VW_INT_C5_FAMEMBALAGEM e) b
 
-      ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
-      WHEN MATCHED THEN
-      UPDATE SET
-        s.embalagem = b.embalagem,
-        s.pesoaferido = b.pesoaferido,
-        s.pesobruto = b.pesobruto,
-        s.pesoliquido = b.pesoliquido,
-        s.ativo = b.ativo,
-        s.nrocarga = b.nrocarga
+    ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
+    WHEN MATCHED THEN
+    UPDATE SET
+      s.embalagem = b.embalagem,
+      s.pesoaferido = b.pesoaferido,
+      s.pesobruto = b.pesobruto,
+      s.pesoliquido = b.pesoliquido,
+      s.ativo = b.ativo,
+      s.nrocarga = b.nrocarga
 
-      WHEN NOT MATCHED THEN
-        INSERT (s.seqfamilia,
-                   s.qtdembalagem,
-                   s.embalagem,
-                   s.pesoaferido,
-                   s.pesobruto,
-                   s.pesoliquido,
-                   s.ativo,
-                   s.nrocarga)
-                VALUES
-                  (b.seqfamilia,
-                   b.qtdembalagem,
-                   b.embalagem,
-                   b.pesoaferido,
-                   b.pesobruto,
-                   b.pesoliquido,
-                   b.ativo,
-                   b.nrocarga);
+    WHEN NOT MATCHED THEN
+      INSERT (s.seqfamilia,
+                  s.qtdembalagem,
+                  s.embalagem,
+                  s.pesoaferido,
+                  s.pesobruto,
+                  s.pesoliquido,
+                  s.ativo,
+                  s.nrocarga)
+              VALUES
+                (b.seqfamilia,
+                  b.qtdembalagem,
+                  b.embalagem,
+                  b.pesoaferido,
+                  b.pesobruto,
+                  b.pesoliquido,
+                  b.ativo,
+                  b.nrocarga);
 
-      pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR*/
+    --Não executar inativação na primeira carga
+    IF bPrimeriaCarga <> 0 THEN
+      UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
+      WHERE TB_FAMEMBALAGEM.rowid IN (
+        select 
+          TB_FAMEMBALAGEM.rowid
+        from monitorpdvmiddle.TB_FAMEMBALAGEM  TB_FAMEMBALAGEM
+        left JOIN
+        (
+          SELECT 
+            CODPROD SEQFAMILIA,  
+            QTUNIT QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTUNIT > 0
+          
+          UNION 
+          
+          SELECT 
+            CODPROD SEQFAMILIA, 
+            QTMINIMAATACADO QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTMINIMAATACADO > 0
+        ) EMBALAGEM
+        on (TB_FAMEMBALAGEM.SEQFAMILIA  = EMBALAGEM.SEQFAMILIA and TB_FAMEMBALAGEM.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+        WHERE 
+          EMBALAGEM.QTDEMBALAGEM IS NULL	
+          AND ATIVO = 'S'
+      );
+    END IF;
 
-      COMMIT;
+    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+
+    COMMIT;
 
     EXCEPTION
       WHEN OTHERS THEN
@@ -1418,7 +1387,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           COMMIT;
           RAISE;
         END;
-    END carrega_tb_famembalagem;
+  END carrega_tb_famembalagem;
 
   PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
@@ -1453,7 +1422,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.qtdembalagem,
                    b.tipo,
                    b.ativo);
-
+  
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -1476,63 +1445,105 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     END carrega_tb_prodcodigo;
 
 
-  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
+  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) IS
+    bPrimeriaCarga number;
   BEGIN
-      MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
-        USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
-      on(
-        TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto
-        AND TB_PRODPRECO_C5.qtdembalagem = VIEW_TB_PRODPRECO.qtdembalagem
-        AND TB_PRODPRECO_C5.nrosegmento  = VIEW_TB_PRODPRECO.nrosegmento
-        AND TB_PRODPRECO_C5.nroempresa   = VIEW_TB_PRODPRECO.nroempresa
-      )
-       WHEN MATCHED THEN
-        UPDATE SET
-          TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
-          TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
-          TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco
-       WHEN NOT MATCHED THEN
-        INSERT(
-          TB_PRODPRECO_C5.seqproduto,
-          TB_PRODPRECO_C5.qtdembalagem,
-          TB_PRODPRECO_C5.nrosegmento,
-          TB_PRODPRECO_C5.nroempresa,
-          TB_PRODPRECO_C5.ativo,
-          TB_PRODPRECO_C5.promocao,
-          TB_PRODPRECO_C5.preco
-        )
-        VALUES(
-          VIEW_TB_PRODPRECO.seqproduto,
-          VIEW_TB_PRODPRECO.qtdembalagem,
-          VIEW_TB_PRODPRECO.nrosegmento,
-          VIEW_TB_PRODPRECO.nroempresa,
-          VIEW_TB_PRODPRECO.ativo,
-          VIEW_TB_PRODPRECO.promocao,
-          VIEW_TB_PRODPRECO.preco
-        );
+    SELECT count(*) INTO bPrimeriaCarga FROM MONITORPDVMIDDLE.tb_prodpreco where rownum = 1;
 
+    MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
+      USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
+    on(
+      TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto 
+      AND TB_PRODPRECO_C5.qtdembalagem = VIEW_TB_PRODPRECO.qtdembalagem 
+      AND TB_PRODPRECO_C5.nrosegmento  = VIEW_TB_PRODPRECO.nrosegmento 
+      AND TB_PRODPRECO_C5.nroempresa   = VIEW_TB_PRODPRECO.nroempresa
+    )
+      WHEN MATCHED THEN
+      UPDATE SET
+        TB_PRODPRECO_C5.ativo    = VIEW_TB_PRODPRECO.ativo,
+        TB_PRODPRECO_C5.promocao = VIEW_TB_PRODPRECO.promocao,
+        TB_PRODPRECO_C5.preco    = VIEW_TB_PRODPRECO.preco,
+        TB_PRODPRECO_C5.idref    = VIEW_TB_PRODPRECO.idref
+      WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PRODPRECO_C5.seqproduto,
+        TB_PRODPRECO_C5.qtdembalagem,
+        TB_PRODPRECO_C5.nrosegmento,
+        TB_PRODPRECO_C5.nroempresa,
+        TB_PRODPRECO_C5.ativo,
+        TB_PRODPRECO_C5.promocao,
+        TB_PRODPRECO_C5.preco,
+        TB_PRODPRECO_C5.idref
+      ) 
+      VALUES(
+        VIEW_TB_PRODPRECO.seqproduto,
+        VIEW_TB_PRODPRECO.qtdembalagem,
+        VIEW_TB_PRODPRECO.nrosegmento,
+        VIEW_TB_PRODPRECO.nroempresa,
+        VIEW_TB_PRODPRECO.ativo,
+        VIEW_TB_PRODPRECO.promocao,
+        VIEW_TB_PRODPRECO.preco,
+        VIEW_TB_PRODPRECO.idref
+      );
+
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
+     --Se for a primeira carga, não executar update
+    IF bPrimeriaCarga <> 0 THEN
+      UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
+      WHERE tb_prodpreco.rowid IN (
+        select 
+          tb_prodpreco.rowid
+        from monitorpdvmiddle.tb_prodpreco tb_prodpreco
+        left JOIN
+        (
+          SELECT 
+            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            --CODAUXILIAR  SEQPRODUTO, 
+            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
+            QTUNIT QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTUNIT > 0
+          
+          UNION 
+          
+          SELECT 
+            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
+            --CODAUXILIAR  SEQPRODUTO, 
+            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
+            QTMINIMAATACADO QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD
+          WHERE QTMINIMAATACADO > 0
+          
+        ) EMBALAGEM
+        on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
+        WHERE 
+          EMBALAGEM.QTDEMBALAGEM IS NULL	
+          AND ATIVO = 'S'
+      );
+    END IF;
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  EXCEPTION
+  WHEN OTHERS THEN
+    BEGIN
+      prc_record_error(p_id);
+      ROLLBACK;
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
-        ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
-
-    COMMIT;
-    EXCEPTION
-    WHEN OTHERS THEN
-      BEGIN
-        prc_record_error(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_prodpreco',
-           'carrega_tb_prodpreco ERRO',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-        RAISE;
-      END;
+        ('pkg_sinc_PDV_Consinco',
+          'carrega_tb_prodpreco',
+          'carrega_tb_prodpreco ERRO',
+          SYSDATE,
+          CURRENT_TIMESTAMP);
+      COMMIT;
+      RAISE;
+    END;
   END;
 
   PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE) AS
@@ -1566,7 +1577,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              );
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
   EXCEPTION
     WHEN OTHERS THEN
@@ -1793,9 +1804,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.MOTIVODESONICMS,
                  b.CODBENEFICIODESONICMS,
                  b.CODST);
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     commit;
 
   EXCEPTION
@@ -1822,18 +1833,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         USING (SELECT *
                FROM VW_INT_C5_LEITRANSP
               ) b
-
+         
       ON (s.codnbmsh = b.codncmsh and s.ufdestino = b.ufdestino and s.ex = b.ex)
       WHEN MATCHED THEN
       UPDATE SET
-               s.perctributo           = b.perctributos,
-               s.perctributoimportado  = b.perctributoimportado,
-               s.perctributonacfederal = b.perctributonacfederal,
+               s.perctributo           = b.perctributos, 
+               s.perctributoimportado  = b.perctributoimportado, 
+               s.perctributonacfederal = b.perctributonacfederal, 
                s.perctributoimpfederal = b.perctributoimpfederal,
-               s.perctributoestadual   = b.perctributoestadual,
+               s.perctributoestadual   = b.perctributoestadual, 
                s.perctributomunicipal  = b.perctributomunicipal,
                s.ativo                 = b.ativo
-
+        
       WHEN NOT MATCHED THEN
         INSERT (s.codnbmsh,
                 s.ufdestino,
@@ -1851,12 +1862,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.ex,
                    b.perctributos,
                    b.perctributoimportado,
-                   b.perctributonacfederal,
+                   b.perctributonacfederal, 
                    b.perctributoimpfederal,
                    b.perctributoestadual,
-                   b.perctributomunicipal,
+                   b.perctributomunicipal, 
                    b.ativo);
-
+    
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -1908,12 +1919,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.CONSUMIDORFINAL     = b.CONSUMIDORFINAL,
                s.VENDAPRESENCIAL     = b.VENDAPRESENCIAL,
                s.TIPOTRIBUTACAO      = b.TIPOTRIBUTACAO
-
+                  
       WHEN NOT MATCHED THEN
         INSERT (s.CODGERALOPER,
                 s.DESCRICAO,
                 s.APLICACAO,
-                s.Cfopestado,
+                s.Cfopestado,        
                 s.CFOPFORAESTADO,
                 s.CALCULAICMSST,
                 s.GERAREDUCAOBASEST,
@@ -1930,7 +1941,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  (b.CODGERALOPER,
                   b.DESCRICAO,
                   b.APLICACAO,
-                  b.Cfopestado,
+                  b.Cfopestado,        
                   b.CFOPFORAESTADO,
                   b.CALCULAICMSST,
                   b.GERAREDUCAOBASEST,
@@ -1972,7 +1983,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         RAISE;
       END;
   END;
-
+  
   PROCEDURE carrega_tb_codgeralopercfop(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_codgeralopercfop s
@@ -1983,20 +1994,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.CFOPESTADO     = b.CFOPESTADO,
                s.cfopforaestado = b.cfopforaestado,
                s.ATIVO          = b.ATIVO
-
+ 
       WHEN NOT MATCHED THEN
          INSERT (s.CODGERALOPER,
                  s.NROTRIBUTACAO,
-                 s.CONTRIBICMS,
+                 s.CONTRIBICMS,   
                  s.CFOPESTADO,
-                 s.cfopforaestado,
+                 s.cfopforaestado,     
                  s.ATIVO)
                 VALUES
                   (b.CODGERALOPER,
                    b.NROTRIBUTACAO,
-                   b.CONTRIBICMS,
-                   b.CFOPESTADO,
-                   b.cfopforaestado,
+                   b.CONTRIBICMS,   
+                   b.CFOPESTADO,  
+                   b.cfopforaestado,   
                    b.ATIVO);
 
     INSERT INTO PCDEVLOGCONSINCO
@@ -2028,31 +2039,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         RAISE;
       END;
   END;
-
+  
   PROCEDURE carrega_tb_codgeralopercfopuf(p_id IN pccontroleconsinco.id%TYPE) AS
     BEGIN
-
+      
     DELETE from monitorpdvmiddle.TB_CODGERALOPERCFOPUF;
     MERGE INTO monitorpdvmiddle.TB_CODGERALOPERCFOPUF s
         USING (
                 SELECT*FROM
                   (
                     SELECT CODGERALOPER,
-                           NROTRIBUTACAO,
-                           CONTRIBICMS,
+                           NROTRIBUTACAO,   
+                           CONTRIBICMS,     
                            UFORIGEM,
                            UFDESTINO,
                            CFOPESTADO,
                            ATIVO,
                            NROREGTRIBUTACAO,
                            DTALTERC5,
-                           (SELECT MIN(S.ULTIMAEXECUCAO)
-                                    FROM PCCONTROLECONSINCO S
+                           (SELECT MIN(S.ULTIMAEXECUCAO) 
+                                    FROM PCCONTROLECONSINCO S 
                              WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOPUF') AS ULTIMAEXECAUCAO
-                       FROM VW_INT_C5_CFOP
+                       FROM VW_INT_C5_CFOP                     
                      ) WHERE NVL(DTALTERC5, ULTIMAEXECAUCAO) >= ULTIMAEXECAUCAO
                  ) b
-
+         
       ON (s.CODGERALOPER = b.CODGERALOPER)
       WHEN MATCHED THEN
       UPDATE SET
@@ -2061,11 +2072,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.UFORIGEM      = b.UFORIGEM,
                s.UFDESTINO     = b.UFDESTINO,
                s.CFOPESTADO    = b.CFOPESTADO,
-               s.ATIVO         = b.ATIVO
+               s.ATIVO         = b.ATIVO 
       WHEN NOT MATCHED THEN
         INSERT ( s.CODGERALOPER,
-                 s.NROTRIBUTACAO,
-                 s.CONTRIBICMS,
+                 s.NROTRIBUTACAO,   
+                 s.CONTRIBICMS,     
                  s.UFORIGEM,
                  s.UFDESTINO,
                  s.CFOPESTADO,
@@ -2073,8 +2084,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.NROREGTRIBUTACAO)
                 VALUES
                   (b.CODGERALOPER,
-                   b.NROTRIBUTACAO,
-                   b.CONTRIBICMS,
+                   b.NROTRIBUTACAO,   
+                   b.CONTRIBICMS,     
                    b.UFORIGEM,
                    b.UFDESTINO,
                    b.CFOPESTADO,
@@ -2114,14 +2125,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
-  BEGIN
+  BEGIN 
     UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
 
     MERGE INTO monitorpdvmiddle.tb_enderecoalternativo EnderecoAlternativoC5
     USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) ViewEnderecoAlt
     ON (EnderecoAlternativoC5.seqpessoa = ViewEnderecoAlt.seqpessoa and EnderecoAlternativoC5.seqlogradouro = ViewEnderecoAlt.SEQLOGRADOURO)
     WHEN MATCHED THEN
-      UPDATE SET
+      UPDATE SET 
         EnderecoAlternativoC5.tipo          = ViewEnderecoAlt.tipo,
         EnderecoAlternativoC5.logradouro    = ViewEnderecoAlt.logradouro,
         EnderecoAlternativoC5.nrologradouro = ViewEnderecoAlt.nrologradouro,
@@ -2133,7 +2144,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         EnderecoAlternativoC5.ativo         = ViewEnderecoAlt.ativo,
         EnderecoAlternativoC5.codibge       = ViewEnderecoAlt.codibge
       WHEN NOT MATCHED THEN
-        INSERT
+        INSERT  
         (
 	        EnderecoAlternativoC5.seqpessoa,
 	        EnderecoAlternativoC5.seqlogradouro,
@@ -2163,9 +2174,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           ViewEnderecoAlt.ativo,
           ViewEnderecoAlt.codibge
          );
-
+         
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -2193,24 +2204,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         RAISE;
       END;
   END;
-
+  
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
-        USING (SELECT DISTINCT E.seqfamilia,
-             e.nrodivisao,
-             E.nrotributacao,
-             E.codorigemtrib,
-             E.ativo
-        --FROM vw_tb_famdivisao E,
-        FROM VW_INT_C5_FAMDIVISAO E/*,
-             MONITORPDVMIDDLE.TB_DIVISAO TBD,
-             MONITORPDVMIDDLE.TB_TRIBUTACAO TBT,
-             MONITORPDVMIDDLE.TB_FAMILIA TBF
-       WHERE E.SEQFAMILIA = TBF.SEQFAMILIA
-         AND E.NRODIVISAO = TBD.NRODIVISAO
-         AND E.NROTRIBUTACAO = TBT.NROTRIBUTACAO*/
-       ) b
+        USING (SELECT DISTINCT 
+                     E.seqfamilia,
+                     E.nrodivisao,
+                     E.nrotributacao,
+                     E.codorigemtrib,
+                     E.ativo
+               FROM VW_INT_C5_FAMDIVISAO E) b
 
       ON (s.seqfamilia = b.seqfamilia AND s.nrodivisao = b.nrodivisao)
       WHEN MATCHED THEN
@@ -2231,9 +2235,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.codorigemtrib,
                  b.ativo);
 
-
+    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
-
+    
     COMMIT;
 
   EXCEPTION
@@ -2253,7 +2257,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         RAISE;
       END;
   END carrega_tb_famdivisao;
-
+  
   PROCEDURE carrega_tb_condicaopagto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.TB_CONDICAOPAGTO s
@@ -2268,8 +2272,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               s.PERCACRESCIMO = b.PERCACRESCIMO,
               s.NROMAXIMOPARCELA = b.NROMAXIMOPARCELA,
               s.NRODIASVENCTO = b.NRODIASVENCTO,
-              s.ATIVO = b.ATIVO
-
+              s.ATIVO = b.ATIVO,
+              s.IDREF = b.IDREF
 
       WHEN NOT MATCHED THEN
         INSERT (s.NROCONDICAOPAGTO,
@@ -2277,7 +2281,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.PERCACRESCIMO,
                 s.NROMAXIMOPARCELA,
                 s.NRODIASVENCTO,
-                s.ATIVO
+                s.ATIVO,
+                s.IDREF
                 )
                 VALUES
                   (b.NROCONDICAOPAGTO,
@@ -2285,9 +2290,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.PERCACRESCIMO,
                    b.NROMAXIMOPARCELA,
                    b.NRODIASVENCTO,
-                   b.ATIVO
+                   b.ATIVO,
+                   b.IDREF
                    );
-
+    
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -2320,9 +2326,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
-        USING (SELECT * FROM VW_INT_C5_INCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
-        tb_regraincentivo_C5.SEQREGRA         = VIEW_C5_INCENTIVO.SEQREGRA
+        tb_regraincentivo_C5.SEQREGRA         = VIEW_C5_INCENTIVO.SEQREGRA 
       )
        WHEN MATCHED THEN
         UPDATE SET
@@ -2330,8 +2336,8 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivo_C5.SEQTIPOCREDITO = VIEW_C5_INCENTIVO.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO          = VIEW_C5_INCENTIVO.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA      = VIEW_C5_INCENTIVO.TIPOREGRA,
-          tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO
-
+          tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO          
+          
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraincentivo_C5.SEQREGRA,
@@ -2339,8 +2345,8 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivo_C5.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA,
-          tb_regraincentivo_C5.CUMULATIVO
-        )
+          tb_regraincentivo_C5.CUMULATIVO          
+        ) 
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.REGRA,
@@ -2351,10 +2357,10 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
         );
 
    UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
-   WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO
-                       FROM PCDESCONTOLOG L
+   WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-      OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM
+      OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
@@ -2385,39 +2391,52 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
-        USING (SELECT * FROM VW_INT_C5_INCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
-             tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA
+             tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA 
         AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_INCENTIVO.DTAHORINICIO
         AND  tb_regraincentivoperiodo_c5.DTAHORFIM    = VIEW_C5_INCENTIVO.DTAHORFIM
+        AND  tb_regraincentivoperiodo_c5.IDREF        = VIEW_C5_INCENTIVO.IDREF
 
+        
       )
        WHEN MATCHED THEN
         UPDATE SET
           tb_regraincentivoperiodo_c5.ATIVO           = VIEW_C5_INCENTIVO.ATIVO
-
+          
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraincentivoperiodo_c5.SEQREGRA,
           tb_regraincentivoperiodo_c5.DTAHORINICIO,
           tb_regraincentivoperiodo_c5.DTAHORFIM,
-          tb_regraincentivoperiodo_c5.ATIVO
-        )
+          tb_regraincentivoperiodo_c5.ATIVO,
+          tb_regraincentivoperiodo_c5.IDREF
+        ) 
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.DTAHORINICIO,
           VIEW_C5_INCENTIVO.DTAHORFIM,
-          VIEW_C5_INCENTIVO.ATIVO
+          VIEW_C5_INCENTIVO.ATIVO,
+          VIEW_C5_INCENTIVO.IDREF
         );
 
     UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
-    WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO
-                       FROM PCDESCONTOLOG L
+    WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-       OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM
+       OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
+    UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
+      WHERE NOT EXISTS (SELECT C.CODOFERTA
+                        FROM PCOFERTAPROGRAMADAC C 
+                        WHERE C.DTINICIAL = R.DTAHORINICIO 
+                        AND  c.dtfinal = r.dtahorfim
+                        AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
+                       )
+      AND IDREF = 2011;
+    
     INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
@@ -2447,33 +2466,44 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING (SELECT * FROM VW_INT_C5_PRODUTO_R2011) vw_int_c5_regraproduto_2011
       on(
-            tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto_2011.SEQPRODUTO
+            tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto_2011.SEQPRODUTO        
         AND tb_regraproduto_c5.QTDEMBALAGEM  = vw_int_c5_regraproduto_2011.QTDEMBALAGEM
-        AND tb_regraproduto_c5.SEQREGRA      = vw_int_c5_regraproduto_2011.SEQREGRA
+        AND tb_regraproduto_c5.SEQREGRA      = vw_int_c5_regraproduto_2011.SEQREGRA        
       )
        WHEN MATCHED THEN
         UPDATE SET
           tb_regraproduto_c5.PERCDESCONTO    = vw_int_c5_regraproduto_2011.PERCDESCONTO,
           tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto_2011.PRECO,
-          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO
-
+          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO,
+          tb_regraproduto_c5.IDREF           = vw_int_c5_regraproduto_2011.IDREF  
+          
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraproduto_c5.SEQREGRA,
           tb_regraproduto_c5.SEQPRODUTO,
           tb_regraproduto_c5.QTDEMBALAGEM,
           tb_regraproduto_c5.PERCDESCONTO,
-          tb_regraproduto_c5.PRECO,
-          tb_regraproduto_c5.ATIVO
-        )
+          tb_regraproduto_c5.PRECO,          
+          tb_regraproduto_c5.ATIVO,
+          tb_regraproduto_c5.IDREF          
+        ) 
         VALUES(
           vw_int_c5_regraproduto_2011.SEQREGRA,
           vw_int_c5_regraproduto_2011.SEQPRODUTO,
           vw_int_c5_regraproduto_2011.QTDEMBALAGEM,
           vw_int_c5_regraproduto_2011.PERCDESCONTO,
           vw_int_c5_regraproduto_2011.PRECO,
-          vw_int_c5_regraproduto_2011.ATIVO
+          vw_int_c5_regraproduto_2011.ATIVO,
+          vw_int_c5_regraproduto_2011.IDREF
         );
+
+      UPDATE MONITORPDVMIDDLE.tb_regraproduto r SET ATIVO = 'N'
+      WHERE  EXISTS  (SELECT C.CODOFERTA
+                      FROM PCOFERTAPROGRAMADAC C 
+                      WHERE R.SEQREGRA = C.codfilial||2011||C.codoferta
+                      AND   C.DTCANCEL IS NOT NULL
+                      )
+      AND IDREF = 2011;  
 
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2503,44 +2533,44 @@ PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrafamilia D
     USING (/*Rotina 357*/
-           SELECT
+           SELECT 
               SEQREGRA,
               SEQFAMILIA,
               QTDEMBALAGEM,
               PERCDESCONTO,
-              PRECO,
+              PRECO,          
               ATIVO,
-              IDREF
-           FROM VW_INT_C5_PRECOFIXO_R357
+              IDREF  
+           FROM VW_INT_C5_PRECOFIXO_R357 
            UNION ALL
            /*Rotina 561*/
-           SELECT
+           SELECT 
               SEQREGRA,
               SEQFAMILIA,
               QTDEMBALAGEM,
               PERCDESCONTO,
-              0 PRECO,
+              0 PRECO,          
               ATIVO,
-              IDREF
-           FROM VW_INT_C5_DESC561FAMILIA) S
-
+              IDREF    
+           FROM VW_INT_C5_DESC561FAMILIA) S 
+  
     ON    ( D.SEQFAMILIA = S.SEQFAMILIA AND D.QTDEMBALAGEM = S.QTDEMBALAGEM AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
           D.PRECO           = S.PRECO,
           D.ATIVO           = S.ATIVO,
-          D.IDREF           = S.IDREF
-
+          D.IDREF           = S.IDREF 
+          
   WHEN NOT MATCHED THEN
         INSERT(
           D.SEQREGRA,
           D.SEQFAMILIA,
           D.QTDEMBALAGEM,
           D.PERCDESCONTO,
-          D.PRECO,
+          D.PRECO,          
           D.ATIVO,
-          D.IDREF)
+          D.IDREF) 
         VALUES(
           S.SEQREGRA,
           S.SEQFAMILIA,
@@ -2551,18 +2581,18 @@ BEGIN
           S.IDREF);
 
   UPDATE MONITORPDVMIDDLE.tb_regrafamilia SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO
-                       FROM PCDESCONTOLOG L
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-     OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM
+     OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
-
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regrafamilia', 'carrega_tb_regrafamilia OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2584,21 +2614,21 @@ END;
 PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regracliente D
-    USING (SELECT * FROM VW_INT_C5_DESC561CLIENTE) S
+    USING (SELECT * FROM VW_INT_C5_DESC561CLIENTE) S 
     ON    ( D.SEQPESSOA = S.SEQPESSOA AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
           D.ATIVO           = S.ATIVO,
-          D.IDREF           = S.IDREF
-
+          D.IDREF           = S.IDREF 
+          
   WHEN NOT MATCHED THEN
         INSERT(
           D.SEQREGRA,
           D.SEQPESSOA,
           D.PERCDESCONTO,
           D.ATIVO,
-          D.IDREF)
+          D.IDREF) 
         VALUES(
           S.SEQREGRA,
           S.SEQPESSOA,
@@ -2607,15 +2637,15 @@ BEGIN
           S.IDREF);
 
   UPDATE MONITORPDVMIDDLE.tb_regracliente SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO
-                       FROM PCDESCONTOLOG L
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
-
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracliente', 'carrega_tb_regracliente OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2637,20 +2667,20 @@ END;
 PROCEDURE carrega_tb_regracategoria(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regracategoria D
-    USING (SELECT * FROM VW_INT_C5_DESC561CATEGORIA) S
+    USING (SELECT * FROM VW_INT_C5_DESC561CATEGORIA) S 
     ON    ( D.SEQCATEGORIA = S.SEQCATEGORIA AND D.NRODIVISAO = S.NRODIVISAO AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
           D.ATIVO           = S.ATIVO
-
+           
   WHEN NOT MATCHED THEN
         INSERT(
           D.SEQREGRA,
           D.NRODIVISAO,
           D.SEQCATEGORIA,
           D.PERCDESCONTO,
-          D.ATIVO)
+          D.ATIVO) 
         VALUES(
           S.SEQREGRA,
           S.NRODIVISAO,
@@ -2659,15 +2689,15 @@ BEGIN
           S.ATIVO);
 
   UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO
-                       FROM PCDESCONTOLOG L
+  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
-
+  
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracategoria', 'carrega_tb_regracategoria OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2689,7 +2719,7 @@ END;
 PROCEDURE carrega_tb_combo(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_combo TB_COMBO
-    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO
+    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO 
     ON  (TB_COMBO.SEQCOMBO = VIEW_BRINDE_CABECALHO.SEQCOMBO)
   WHEN MATCHED THEN
        UPDATE SET
@@ -2698,7 +2728,7 @@ BEGIN
           TB_COMBO.DTAFIM    = VIEW_BRINDE_CABECALHO.DTAFIM,
           TB_COMBO.TIPO      = VIEW_BRINDE_CABECALHO.TIPO,
           TB_COMBO.ATIVO     = VIEW_BRINDE_CABECALHO.ATIVO
-
+           
   WHEN NOT MATCHED THEN
         INSERT(
           TB_COMBO.SEQCOMBO,
@@ -2706,7 +2736,7 @@ BEGIN
           TB_COMBO.DTAINICIO,
           TB_COMBO.DTAFIM,
           TB_COMBO.TIPO,
-          TB_COMBO.ATIVO)
+          TB_COMBO.ATIVO) 
         VALUES(
           VIEW_BRINDE_CABECALHO.SEQCOMBO,
           VIEW_BRINDE_CABECALHO.DESCRICAO,
@@ -2719,7 +2749,7 @@ BEGIN
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_combo', 'carrega_tb_combo OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2741,17 +2771,17 @@ END;
 PROCEDURE carrega_tb_comboempresa(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_comboempresa TB_COMBOEMPRESA
-    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO
+    USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO) VIEW_BRINDE_CABECALHO 
     ON  (TB_COMBOEMPRESA.SEQCOMBO = VIEW_BRINDE_CABECALHO.SEQCOMBO and  TB_COMBOEMPRESA.NROEMPRESA = VIEW_BRINDE_CABECALHO.NROEMPRESA)
   WHEN MATCHED THEN
        UPDATE SET
           TB_COMBOEMPRESA.ATIVO = VIEW_BRINDE_CABECALHO.ATIVO
-
+           
   WHEN NOT MATCHED THEN
         INSERT(
           TB_COMBOEMPRESA.SEQCOMBO,
           TB_COMBOEMPRESA.NROEMPRESA,
-          TB_COMBOEMPRESA.ATIVO)
+          TB_COMBOEMPRESA.ATIVO) 
         VALUES(
           VIEW_BRINDE_CABECALHO.SEQCOMBO,
           VIEW_BRINDE_CABECALHO.NROEMPRESA,
@@ -2761,7 +2791,7 @@ BEGIN
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_comboempresa', 'carrega_tb_comboempresa OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2782,6 +2812,20 @@ END;
 
 PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+
+  UPDATE monitorpdvmiddle.TB_COMBOITEM TB_COMBOITEM SET ATIVO = 'N'
+  WHERE TB_COMBOITEM.rowid IN (
+    SELECT 
+      TB_COMBOITEM.rowid
+    FROM monitorpdvmiddle.tb_comboitem TB_COMBOITEM
+    LEFT JOIN PCPROMI
+    ON (pcpromi.CODIGO = TB_COMBOITEM.SEQCOMBO 
+      AND TO_NUMBER(PCPROMI.CODPROD || PCPROMI.CODIGO || PCPROMI.QT ) = TB_COMBOITEM.SEQITEM 
+      AND pcpromi.QT = TB_COMBOITEM.QTDE )
+    WHERE PCPROMI.CODIGO IS null
+    AND TB_COMBOITEM.ATIVO = 'S'
+  );
+
   MERGE INTO monitorpdvmiddle.tb_comboitem TB_COMBOITEM
     USING (SELECT * FROM VW_INT_C5_BRINDE_ITENS) VIEW_BRINDE_ITENS
     ON  (TB_COMBOITEM.SEQCOMBO = VIEW_BRINDE_ITENS.SEQCOMBO and TB_COMBOITEM.SEQITEM = VIEW_BRINDE_ITENS.SEQITEM)
@@ -2794,7 +2838,7 @@ BEGIN
       TB_COMBOITEM.QTDE = VIEW_BRINDE_ITENS.QTDE,
       TB_COMBOITEM.PRECO = VIEW_BRINDE_ITENS.PRECO,
       TB_COMBOITEM.PERCDESCONTO = VIEW_BRINDE_ITENS.PERCDESCONTO
-
+      
   WHEN NOT MATCHED THEN
     INSERT(
       TB_COMBOITEM.SEQCOMBO,
@@ -2821,7 +2865,7 @@ BEGIN
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_comboitem', 'carrega_tb_comboitem OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
-
+  
   EXCEPTION
     WHEN OTHERS THEN
     BEGIN
@@ -2840,114 +2884,193 @@ BEGIN
   END;
 END;
 
-  PROCEDURE carrega_tb_grupo(p_id IN pccontroleconsinco.id%TYPE) AS
-  BEGIN
-    MERGE INTO monitorpdvmiddle.tb_grupo s
-        USING (SELECT *
-               FROM VW_INT_C5_USUARIO c
-              ) b
+PROCEDURE carrega_tb_parcelamento(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcelamento T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.DESCRICAO = S.DESCRICAO,
+          T.TIPO      = S.TIPO,
+          T.ATIVO     = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.DESCRICAO,
+          T.TIPO,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.DESCRICAO,
+          S.TIPO,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcelamento', 'carrega_tb_parcelamento OK', SYSDATE, CURRENT_TIMESTAMP);
 
-      ON (s.SEQGRUPO = b.SEQGRUPO)
-      WHEN MATCHED THEN
-      UPDATE SET
-               s.NOME           = b.NOMEGRUPO,
-               s.PERCDESCMAXIMO = b.PERCDESCMAX,
-               s.ATIVO          = b.ATIVO
-
-      WHEN NOT MATCHED THEN
-        INSERT (s.SEQGRUPO,
-                s.NOME,
-                s.PERCDESCMAXIMO,
-                s.ATIVO)
-                VALUES
-                  (b.SEQGRUPO,
-                   b.NOMEGRUPO,
-                   b.PERCDESCMAX,
-                   b.ATIVO);
-
-    INSERT INTO PCDEVLOGCONSINCO
-      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-    VALUES
-      ('pkg_sinc_PDV_Consinco',
-       'carrega_tb_grupo',
-       'carrega_tb_grupo OK',
-       SYSDATE,
-       CURRENT_TIMESTAMP);
-
-    COMMIT;
-
-
+  COMMIT;
+  
   EXCEPTION
     WHEN OTHERS THEN
-      BEGIN
+    BEGIN
         prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_grupo',
-           'carrega_tb_grupo ERRO',
+           'carrega_tb_parcelamento',
+           'carrega_tb_parcelamento ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-      END;
   END;
+END;
 
-  PROCEDURE carrega_tb_grupousuario(p_id IN pccontroleconsinco.id%TYPE) AS
-  BEGIN
-    MERGE INTO monitorpdvmiddle.tb_grupousuario s
-        USING (SELECT *
-               FROM VW_INT_C5_USUARIO c
-              ) b
+PROCEDURE carrega_tb_parcempresa(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcempresa T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND T.NROEMPRESA = S.NROEMPRESA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.ATIVO = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.NROEMPRESA,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.NROEMPRESA,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcempresa', 'carrega_tb_parcempresa OK', SYSDATE, CURRENT_TIMESTAMP);
 
-      ON (s.SEQGRUPO = b.SEQGRUPO)
-      WHEN MATCHED THEN
-      UPDATE SET
-               s.SEQUSUARIO     = b.SEQUSUARIO,
-               s.ATIVO          = b.ATIVO
-
-      WHEN NOT MATCHED THEN
-        INSERT (s.SEQGRUPO,
-                s.SEQUSUARIO,
-                s.ATIVO)
-                VALUES
-                  (b.SEQGRUPO,
-                   b.SEQUSUARIO,
-                   b.ATIVO);
-
-    INSERT INTO PCDEVLOGCONSINCO
-      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-    VALUES
-      ('pkg_sinc_PDV_Consinco',
-       'carrega_tb_grupousuario',
-       'carrega_tb_grupousuario OK',
-       SYSDATE,
-       CURRENT_TIMESTAMP);
-
-    COMMIT;
-
-
+  COMMIT;
+  
   EXCEPTION
     WHEN OTHERS THEN
-      BEGIN
+    BEGIN
         prc_record_error(p_id);
         ROLLBACK;
         INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_grupousuario',
-           'carrega_tb_grupousuario ERRO',
+           'carrega_tb_parcempresa',
+           'carrega_tb_parcempresa ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-      END;
   END;
+END;
 
-  PROCEDURE exec_sinc AS
+PROCEDURE carrega_tb_parcperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parcperiodo T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND 
+           T.DTAHORINICIAL = S.DTAHORINICIAL AND 
+           T.DTAHORFINAL = S.DTAHORFINAL)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.ATIVO = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.DTAHORINICIAL,
+          T.DTAHORFINAL,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.DTAHORINICIAL,
+          S.DTAHORFINAL,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_parcperiodo', 'carrega_tb_parcperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcperiodo',
+           'carrega_tb_parcperiodo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_parccategformapagto T
+    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+    ON    (T.SEQPARCELA = S.SEQPARCELA AND
+           T.SEQCATEGORIA = S.SEQCATEGORIA AND
+           T.NROFORMAPAGTO = S.NROFORMAPAGTO AND
+           T.NRODIVISAO = S.NRODIVISAO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.NROMAXIMOPARCELA = S.NROMAXIMOPARCELA,
+          T.ATIVO            = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPARCELA,
+          T.SEQCATEGORIA,
+          T.NROFORMAPAGTO,
+          T.NRODIVISAO,
+          T.NROMAXIMOPARCELA,
+          T.ATIVO) 
+        VALUES(
+          S.SEQPARCELA,
+          S.SEQCATEGORIA,
+          S.NROFORMAPAGTO,
+          S.NRODIVISAO,
+          S.NROMAXIMOPARCELA,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_parccategformapagto', 'carrega_parccategformapagto OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_parccategformapagto',
+           'carrega_parccategformapagto ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
       SELECT id, codprocesso, ultimaexecucao, tipo, objetoreferencia
@@ -3154,7 +3277,6 @@ exec_sinc_PRECO*/
         NULL;
     END;
 
-  END;*/
+  END;*/ 
 
-END PKG_SINC_PDV_CONSINCO;
-/
+END PKG_SINC_PDV_CONSINCO;   
