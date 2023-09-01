@@ -19782,10 +19782,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                  , P.PERCDESCFIN
                  , P.OBRIGATORIO
                  , 1
+                 , P.QTOBRIGATORIO				 
               INTO vrPolitica.vnPercDesc
                  , vrPolitica.vnPercDescFin
                  , vrPolitica.vvObrigatorio
                  , vrPolitica.viExiste
+                 , vrPolitica.vnInicioIntervalo				 
               FROM PCMED_PROMOCAOPRODUTO P
              WHERE (P.CODPROD = pi_nCodProd)
                AND (ROWNUM    = 1);
