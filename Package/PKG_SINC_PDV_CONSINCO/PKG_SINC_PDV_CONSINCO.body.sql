@@ -657,8 +657,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
                     100 PERCBASEPIS,
                     100 PERCBASECOFINS
-             FROM VW_INT_C5_FAMILIA v,
+             FROM VW_INT_C5_FAMILIA v, 
                   
+                  /*Para contemplar as alterações do pis/cofins na carga foi necessário
+                    que as triggers da PCTABPR e PCTRIBPISCOFINS passassem a atualizar o
+                    campo DTALTERC5 da PCPRODUT, pois a mesma é a base para alimentar
+                    a TB_REGRAFAMILIA.
+                   */
                   (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
@@ -702,7 +707,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.situacaopis = B.SITUACAOPIS,
                      S.situacaocofins = B.SITUACAOCOFINS,
                      S.percbasepis = PERCBASEPIS,
-                     S.percbasecofins = PERCCOFINS,
+                     S.percbasecofins = PERCBASECOFINS,
                      S.percpis = B.PERCPIS,
                      S.perccofins = B.PERCCOFINS
       WHEN NOT MATCHED THEN
