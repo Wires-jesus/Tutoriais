@@ -3077,6 +3077,113 @@ BEGIN
   END;
 END;
 
+  PROCEDURE carrega_tb_grupo(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_grupo s
+        USING (SELECT *
+               FROM VW_INT_C5_USUARIO c
+              ) b
+
+      ON (s.SEQGRUPO = b.SEQGRUPO)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.NOME           = b.NOMEGRUPO,
+               s.PERCDESCMAXIMO = b.PERCDESCMAX,
+               s.ATIVO          = b.ATIVO
+
+      WHEN NOT MATCHED THEN
+        INSERT (s.SEQGRUPO,
+                s.NOME,
+                s.PERCDESCMAXIMO,
+                s.ATIVO)
+                VALUES
+                  (b.SEQGRUPO,
+                   b.NOMEGRUPO,
+                   b.PERCDESCMAX,
+                   b.ATIVO);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_grupo',
+       'carrega_tb_grupo OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_grupo',
+           'carrega_tb_grupo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
+  PROCEDURE carrega_tb_grupousuario(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_grupousuario s
+        USING (SELECT *
+               FROM VW_INT_C5_USUARIO c
+              ) b
+
+      ON (s.SEQGRUPO = b.SEQGRUPO and s.SEQUSUARIO = b.SEQUSUARIO)
+      WHEN MATCHED THEN
+      UPDATE SET
+               s.ATIVO = b.ATIVO
+
+      WHEN NOT MATCHED THEN
+        INSERT (s.SEQGRUPO,
+                s.SEQUSUARIO,
+                s.ATIVO)
+                VALUES
+                  (b.SEQGRUPO,
+                   b.SEQUSUARIO,
+                   b.ATIVO);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_grupousuario',
+       'carrega_tb_grupousuario OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_grupousuario',
+           'carrega_tb_grupousuario ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
