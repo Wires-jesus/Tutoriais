@@ -660,7 +660,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              FROM VW_INT_C5_FAMILIA v,
                   
                   (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
-                   FROM PCTABPR R, PCTRIBPISCOFINS T 
+                   FROM PCTABPR R, 
+                        PCTRIBPISCOFINS T,
+                        (SELECT S.ULTIMAEXECUCAO
+                         FROM PCCONTROLECONSINCO S
+                         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
+                        ) DATAPADRAO 
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
                    AND   R.NUMREGIAO = ( SELECT VALOR
@@ -670,6 +675,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                          AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                                          AND VALOR IS NOT NULL
                                          AND ROWNUM = 1)-- somente os dados de 1 região
+                   AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
+                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)
                   ) PRODPISCOFINS, --vinculo do produto com os dados de pis e cofins
                   
                   (SELECT VALOR 
@@ -3139,144 +3146,5 @@ PROCEDURE exec_sinc AS
         RAISE;
       END;
   END;
-
-  /*PROCEDURE atualizarProdPreco AS
-    MSG        VARCHAR2(232);
-    vPreco     NUMBER;
-    vnumregiao NUMBER;
-  BEGIN
-
-    FOR DADOS IN (SELECT (SELECT NVL(E.CODAUXILIAR, 0)
-                          FROM PCEMBALAGEM E
-                         WHERE E.CODPROD = A.CODPROD
-                           AND E.CODFILIAL = A.nroempresa
-                           AND E.QTUNIT = A.QTDEMBALAGEM
-                           AND ROWNUM = 1) seqapartirde,
-                       A.*
-                  FROM (SELECT s.*,
-                               (SELECT codproduto
-                                  FROM monitorpdvmiddle.tb_produto a
-                                 WHERE a.seqproduto = s.seqproduto) codprod
-
-                          FROM monitorpdvmiddle.tb_prodpreco s) a
-                 WHERE NVL(A.QTDEMBALAGEM, 0) NOT IN
-                       (SELECT NVL(E.QTMINIMAATACADO, 0)
-                          FROM PCEMBALAGEM E
-                         WHERE E.CODPROD = A.CODPROD
-                           AND E.CODFILIAL = A.nroempresa)) LOOP
-      BEGIN
-        vnumregiao := ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
-                                                               dados.nroempresa,
-                                                               1);
-        vPreco     := coluna_preco(buscaprecos_consinco(DADOS.NROEMPRESA,
-                                                                      vnumregiao,
-                                                                      DADOS.SEQAPARTIRDE,
-                                                                      TRUNC(SYSDATE),
-                                                                      0,
-                                                                      0,
-                                                                      0,
-                                                                      0,
-                                                                      0),
-                                          'PVENDA');
-
-        UPDATE monitorpdvmiddle.tb_prodpreco a
-           SET a.preco = vPreco
-         WHERE SEQPRODUTO = DADOS.SEQPRODUTO
-           AND QTDEMBALAGEM = DADOS.QTDEMBALAGEM
-           AND NROSEGMENTO = 1
-           AND NROEMPRESA = DADOS.NROEMPRESA;
-        COMMIT;
-      EXCEPTION
-        WHEN OTHERS THEN
-          ROLLBACK;
-          NULL;
-          -- MSG := DBMS_UTILITY.format_error_backtrace;
-      END;
-      --dbms_output.put_line(vPrecoAtac || ' - ' || MSG);
-    END LOOP;
-
-  END;*/
-
-/*PROCEDURE atualizarPrecoAtac AS
-
-  MSG        VARCHAR2(232);
-  vPrecoAtac NUMBER;
-  vnumregiao NUMBER;
-BEGIN
-
-  FOR DADOS IN (SELECT (SELECT  NVL(E.CODAUXILIAR, 0)
-                          FROM PCEMBALAGEM E
-                         WHERE E.CODPROD = A.CODPROD
-                           AND E.CODFILIAL = A.nroempresa
-                           AND NVL(E.QTMINIMAATACADO, 0) = A.QTDEMBALAGEM
-                           AND NVL(E.QTUNIT, 0) = 1
-                           AND ROWNUM = 1) seqapartirde,
-                        (SELECT NVL(E.QTMINIMAATACADO, 0)
-                                  FROM PCEMBALAGEM E
-                                 WHERE E.CODPROD = A.CODPROD
-                                   AND E.CODFILIAL = A.nroempresa
-                                   AND NVL(E.QTMINIMAATACADO, 0) = A.QTDEMBALAGEM
-                                   AND NVL(E.QTUNIT, 0) = 1
-                            AND ROWNUM = 1) QTMINIMAATACADO,
-                       A.*
-                  FROM (SELECT s.*,
-                               (SELECT codproduto
-                                  FROM monitorpdvmiddle.tb_produto a
-                                 WHERE a.seqproduto = s.seqproduto) codprod
-
-                          FROM monitorpdvmiddle.tb_prodpreco s) a
-                 WHERE NVL(A.QTDEMBALAGEM, 0) IN
-                       (SELECT NVL(E.QTMINIMAATACADO, 0)
-                          FROM PCEMBALAGEM E
-                         WHERE E.CODPROD = A.CODPROD
-                           AND E.CODFILIAL = A.nroempresa)) LOOP
-    BEGIN
-      vnumregiao := ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
-                                                             dados.nroempresa,
-                                                             1);
-
-      vPrecoAtac := coluna_preco(buscaprecos_atac(dados.nroempresa,
-                                                                vnumregiao,
-                                                                dados.seqapartirde,
-                                                                trunc(SYSDATE)),
-                                        'PVENDAATAC');
-
-      UPDATE monitorpdvmiddle.tb_prodpreco a
-         SET a.preco = vPrecoAtac * DADOS.QTMINIMAATACADO
-       WHERE SEQPRODUTO = DADOS.SEQPRODUTO
-         AND QTDEMBALAGEM = DADOS.QTDEMBALAGEM
-         AND NROSEGMENTO = 1
-         AND NROEMPRESA = DADOS.NROEMPRESA;
-      COMMIT;
-    EXCEPTION
-      WHEN OTHERS THEN
-        ROLLBACK;
-        NULL;
-        -- MSG := DBMS_UTILITY.format_error_backtrace;
-    END;
-    --dbms_output.put_line(vPrecoAtac || ' - ' || MSG);
-  END LOOP;
-
-END;
-exec_sinc_PRECO*/
-  /*PROCEDURE  AS
-    p_final_execucao TIMESTAMP;
-  BEGIN
-    atualizarProdPreco;
-    atualizarPrecoAtac;
-
-    p_final_execucao := SYSDATE;
-    BEGIN
-      UPDATE pccontroleconsinco s
-         SET s.ultimaexecucao = p_final_execucao
-       WHERE ID IN (21, 25)
-         AND s.ativo = 'A';
-      COMMIT;
-    EXCEPTION
-      WHEN OTHERS THEN
-        NULL;
-    END;
-
-  END;*/ 
 
 END PKG_SINC_PDV_CONSINCO;   
