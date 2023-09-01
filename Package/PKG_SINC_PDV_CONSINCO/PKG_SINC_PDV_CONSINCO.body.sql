@@ -3084,7 +3084,7 @@ END;
                FROM VW_INT_C5_USUARIO c
               ) b
 
-      ON (s.SEQGRUPO = b.SEQGRUPO)
+      ON (s.SEQGRUPO = b.CODGRUPO)
       WHEN MATCHED THEN
       UPDATE SET
                s.NOME           = b.NOMEGRUPO,
@@ -3097,7 +3097,7 @@ END;
                 s.PERCDESCMAXIMO,
                 s.ATIVO)
                 VALUES
-                  (b.SEQGRUPO,
+                  (b.CODGRUPO,
                    b.NOMEGRUPO,
                    b.PERCDESCMAX,
                    b.ATIVO);
@@ -3139,7 +3139,7 @@ END;
                FROM VW_INT_C5_USUARIO c
               ) b
 
-      ON (s.SEQGRUPO = b.SEQGRUPO and s.SEQUSUARIO = b.SEQUSUARIO)
+      ON (s.SEQGRUPO = b.CODGRUPO and s.SEQUSUARIO = b.SEQUSUARIO)
       WHEN MATCHED THEN
       UPDATE SET
                s.ATIVO = b.ATIVO
@@ -3149,7 +3149,7 @@ END;
                 s.SEQUSUARIO,
                 s.ATIVO)
                 VALUES
-                  (b.SEQGRUPO,
+                  (b.CODGRUPO,
                    b.SEQUSUARIO,
                    b.ATIVO);
 
