@@ -64,13 +64,13 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_tributacao(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_cargatributaria(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_codgeraloper(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_codgeralopercfop(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_codgeralopercfopuf(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE);
@@ -78,11 +78,11 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   --PROCEDURE carrega_tb_prodprecoapartir;
 
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_condicaopagto(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE);
-
+  
   PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE);
@@ -90,9 +90,23 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_regracategoria(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
 
-  --PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
+  PROCEDURE carrega_tb_combo(p_id IN pccontroleconsinco.id%TYPE);
 
+  PROCEDURE carrega_tb_comboempresa(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_parcelamento(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_parcempresa(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_parcperiodo(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE);
+    
   PROCEDURE exec_sinc;
 
   --PROCEDURE exec_sinc_PRECO;
