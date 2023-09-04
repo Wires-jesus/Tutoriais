@@ -184,31 +184,31 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
    --Linha de preço varejo
 SELECT
-  codauxiliar idref,
-  ora_hash(codauxiliar, 2147483647) seqproduto,
-  codfilial nroempresa,
-  NVL(qtunit, 1) qtdembalagem,
-  1 nrosegmento,
-  'N' promocao,
-  pvenda preco,
-  'S' ativo
+  CODAUXILIAR IDREF,
+  ORA_HASH(CODAUXILIAR, 2147483647) SEQPRODUTO,
+  CODFILIAL NROEMPRESA,
+  NVL(QTUNIT, 1) QTDEMBALAGEM,
+  1 NROSEGMENTO,
+  'N' PROMOCAO,
+  PVENDA PRECO,
+  'S' ATIVO
 FROM VW_INT_C5_EMBPROD
-where
-  qtunit <> qtminimaatacado
+WHERE
+  QTUNIT <> QTMINIMAATACADO
 
 UNION ALL
 
---Linha de preço atacado
+--LINHA DE PREÇO ATACADO
 SELECT
-  codauxiliar idref,
-  ora_hash(codauxiliar, 2147483647) seqproduto,
-  codfilial nroempresa,
-  NVL(qtminimaatacado, 1) qtdembalagem,
-  1 nrosegmento,
-  'N' promocao,
-  pvendaatac preco,
-  'S' ativo
+  CODAUXILIAR IDREF,
+  ORA_HASH(CODAUXILIAR, 2147483647) SEQPRODUTO,
+  CODFILIAL NROEMPRESA,
+  NVL(QTMINIMAATACADO, 1) QTDEMBALAGEM,
+  1 NROSEGMENTO,
+  'N' PROMOCAO,
+  ROUNDABNT((PVENDAATAC / QTUNIT) * QTMINIMAATACADO, 3) PRECO,
+  'S' ATIVO
 FROM VW_INT_C5_EMBPROD
-where
-  qtminimaatacado > 1
+WHERE
+  QTMINIMAATACADO > 1
 )
