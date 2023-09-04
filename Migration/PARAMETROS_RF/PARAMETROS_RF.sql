@@ -97,6 +97,8 @@ BEGIN
   INSERT_DATA('VALIDA_DISTRIBUICAO', 'S', NULL, 'Validar a distribuição do pedido na conferência?', 'EXPEDICAO', 'BOOLEAN');
   
   INSERT_DATA('EXIBIR_QUANTIDADE_EMBALAGEM', 'N', NULL, 'Mostrar quantidade da embalagem no pedido?', 'EXPEDICAO', 'BOOLEAN');
+
+  INSERT_DATA('CARREGAR_QUANTIDADE_SEPARAR', 'N', NULL, 'Carregar a quantidade a separar?', 'EXPEDICAO', 'BOOLEAN');   
 END;
 
 
