@@ -85,6 +85,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   
   PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE);
 
+  PROCEDURE carrega_tb_regraempresa(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_regrasegmento(p_id IN pccontroleconsinco.id%TYPE);
+
   PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE);

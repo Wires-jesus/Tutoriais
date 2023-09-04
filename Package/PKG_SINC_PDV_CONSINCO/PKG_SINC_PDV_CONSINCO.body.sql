@@ -2473,6 +2473,104 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
       END;
   END;
 
+PROCEDURE carrega_tb_regraempresa(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_regraempresa tb_regraempresa_c5
+        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+      on(tb_regraempresa_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA AND
+         tb_regraempresa_c5.NROEMPRESA   = VIEW_C5_INCENTIVO.NROEMPRESA
+        )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_regraempresa_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_regraempresa_c5.SEQREGRA,
+          tb_regraempresa_c5.NROEMPRESA,
+          tb_regraempresa_c5.ATIVO
+        ) 
+        VALUES(
+          VIEW_C5_INCENTIVO.SEQREGRA,
+          VIEW_C5_INCENTIVO.NROEMPRESA,
+          VIEW_C5_INCENTIVO.ATIVO
+        );
+      
+  INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regraempresa', 'carrega_tb_regraempresa OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraempresa',
+           'carrega_tb_regraempresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_regrasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_regrasegmento tb_regrasegmento_c5
+        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        on(tb_regrasegmento_c5.SEQREGRA      = VIEW_C5_INCENTIVO.SEQREGRA AND
+           tb_regrasegmento_c5.NROSEGMENTO   = 1
+          )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_regrasegmento_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_regrasegmento_c5.SEQREGRA,
+          tb_regrasegmento_c5.NROSEGMENTO,
+          tb_regrasegmento_c5.ATIVO
+          
+        ) 
+        VALUES
+        (
+          VIEW_C5_INCENTIVO.SEQREGRA,
+          1,
+          VIEW_C5_INCENTIVO.ATIVO
+        );
+      
+  INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_regrasegmento', 'carrega_tb_regrsegmento OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrasegmento',
+           'carrega_tb_regrasegmento ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
