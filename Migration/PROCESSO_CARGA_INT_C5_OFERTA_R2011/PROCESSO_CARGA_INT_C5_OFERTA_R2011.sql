@@ -1,6 +1,7 @@
 CREATE OR REPLACE VIEW VW_INT_C5_OFERTA_R2011 AS
 (
 select codfilial||2011||codoferta as SEQREGRA,
+       codfilial                   as NROEMPRESA,
        descoferta                  as regra,
        3                           as SEQTIPOCREDITO,
        (CASE
