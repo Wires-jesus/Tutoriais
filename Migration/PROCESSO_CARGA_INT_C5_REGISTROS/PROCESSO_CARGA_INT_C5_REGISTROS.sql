@@ -226,6 +226,20 @@ values (43, 'tb_parcperiodo')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (44, 'tb_parccategformapagto')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (45, 'tb_usuario')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (46, 'tb_grupo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (47, 'tb_grupousuario')
 
 
 /* Popular tabela PCCONTROLECONSINCO */
@@ -449,3 +463,18 @@ values (43, 43, 'Sincronização de tabela TB_PARCPERIODO', TRUNC(SYSDATE), 'D',
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (44, 44, 'Sincronização de tabela TB_PARCCATEGFORMAPAGTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parccategformapagto',  44,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (45, 45, 'Sincronização de tabela TB_USUARIO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_usuario',  45,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (46, 46, 'Sincronização de tabela TB_GRUPO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_grupo',  46,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (47, 47, 'Sincronização de tabela TB_GRUPOUSUARIO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_grupousuario',  47,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
