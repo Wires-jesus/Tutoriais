@@ -3295,8 +3295,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                          FROM PCPEDC
                             , PCPEDI
                             , PCFILIAL
-                            , PCPRODUT
-                            , PCMARCA
+                            , PCPRODUT'; 
+            IF (TRIM(P_MARCA) IS NOT NULL) THEN               
+                vSqlEstTransito := vSqlEstTransito || ', PCMARCA ';
+            END IF;
+            vSqlEstTransito := vSqlEstTransito || '
                             , PCPRODUT TAB_PROD_FILHO
                         WHERE (   (NVL((SELECT PCPARAMFILIAL.VALOR
                                           FROM PCPARAMFILIAL
@@ -3315,9 +3318,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                           AND PCPEDI.NUMPED = PCPEDC.NUMPED
                           AND PCPEDC.SISTEMALEGADO IS NULL
                           AND PCPEDC.DTCANCEL IS NULL
-                          AND PCPRODUT.CODPROD = PCPEDI.CODPROD
-                          AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+) ';
-
+                          AND PCPRODUT.CODPROD = PCPEDI.CODPROD';
+        IF (TRIM(P_MARCA) IS NOT NULL) THEN 
+           vSqlEstTransito := vSqlEstTransito || '               AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+) ';
+        END IF;
         IF (NVL(vIGNORARPRODMASTER2312,'N') = 'S') THEN
           vSqlEstTransito := vSqlEstTransito || '
                           AND TAB_PROD_FILHO.CODPROD = PCPRODUT.CODPROD ';
@@ -3335,8 +3339,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                          FROM PCPEDC
                             , PCPEDI
                             , PCFILIAL
-                            , PCPRODUT
-                            , PCMARCA
+                            , PCPRODUT ';
+            IF (TRIM(P_MARCA) IS NOT NULL) THEN               
+                vSqlEstTransito := vSqlEstTransito || ', PCMARCA ';
+            END IF;
+            vSqlEstTransito := vSqlEstTransito || '                            
                         WHERE (   (NVL((SELECT PCPARAMFILIAL.VALOR
                                           FROM PCPARAMFILIAL
                                          WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
@@ -3354,8 +3361,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                           AND PCPEDI.NUMPED = PCPEDC.NUMPED
                           AND PCPEDC.SISTEMALEGADO IS NULL
                           AND PCPEDC.DTCANCEL IS NULL
-                          AND PCPRODUT.CODPROD = PCPEDI.CODPROD
-                          AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+) ';
+                          AND PCPRODUT.CODPROD = PCPEDI.CODPROD ';
+               IF (TRIM(P_MARCA) IS NOT NULL) THEN 
+                  vSqlEstTransito := vSqlEstTransito || '        AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+) ';
+               END IF;
       END IF;
 
       -- Filial de Origem = OBRIGATORIO
@@ -3479,18 +3488,22 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , PCEST.CODFILIAL CODIGO_DESTINO
                          FROM PCEST
                             , PCFILIAL
-                            , PCPRODUT
-                            , PCMARCA
-                            , PCFILIAL PCFILIAL_D
+                            , PCPRODUT';
+      IF (TRIM(P_MARCA) IS NOT NULL) THEN                            
+         vSqlEstTransito := vSqlEstTransito || '                   , PCMARCA ';
+      END IF;
+      vSqlEstTransito := vSqlEstTransito || '                    , PCFILIAL PCFILIAL_D
                             , PCPRODUT TAB_PROD_FILHO
                         WHERE NVL((SELECT PCPARAMFILIAL.VALOR
                                      FROM PCPARAMFILIAL
                                     WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
                                       AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''
                           AND PCEST.CODFILIAL <> PCFILIAL.CODIGO
-                          AND PCEST.CODPROD = PCPRODUT.CODPROD
-                          AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)
-                          AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
+                          AND PCEST.CODPROD = PCPRODUT.CODPROD ';
+        IF (TRIM(P_MARCA) IS NOT NULL) THEN
+           vSqlEstTransito := vSqlEstTransito || '                AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)';
+        END IF;
+        vSqlEstTransito := vSqlEstTransito || '                  AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
 
         IF (NVL(vIGNORARPRODMASTER2312,'N') = 'S') THEN
           vSqlEstTransito := vSqlEstTransito || '
@@ -3507,18 +3520,22 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , PCEST.CODFILIAL CODIGO_DESTINO
                          FROM PCEST
                             , PCFILIAL
-                            , PCPRODUT
-                            , PCMARCA
-                            , PCFILIAL PCFILIAL_D
+                            , PCPRODUT';
+          IF (TRIM(P_MARCA) IS NOT NULL) THEN
+             vSqlEstTransito := vSqlEstTransito || '               , PCMARCA';
+          END IF;
+          vSqlEstTransito := vSqlEstTransito || '                  , PCFILIAL PCFILIAL_D
                             , PCPRODUT TAB_PROD_FILHO
                         WHERE NVL((SELECT PCPARAMFILIAL.VALOR
                                      FROM PCPARAMFILIAL
                                     WHERE PCPARAMFILIAL.CODFILIAL = PCFILIAL.CODIGO
                                       AND PCPARAMFILIAL.NOME = ''CONSIDERAQTDTRANSITOCOMPRAFILIAL''), ''N'') = ''S''
                           AND PCEST.CODFILIAL <> PCFILIAL.CODIGO
-                          AND PCEST.CODPROD = PCPRODUT.CODPROD
-                          AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)
-                          AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
+                          AND PCEST.CODPROD = PCPRODUT.CODPROD ';
+          IF (TRIM(P_MARCA) IS NOT NULL) THEN
+             vSqlEstTransito := vSqlEstTransito || '             AND PCPRODUT.CODMARCA = PCMARCA.CODMARCA(+)';
+          END IF;
+          vSqlEstTransito := vSqlEstTransito || '            AND PCEST.CODFILIAL = PCFILIAL_D.CODIGO ';
       END IF;
 
       -- Filial de Origem = OBRIGATORIO
