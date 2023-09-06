@@ -100,9 +100,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
 (
- SELECT DISTINCT
-   PROD.SEQPRODUTO IDREF,
-   ora_hash(PROD.SEQPRODUTO, 2147483647) SEQPRODUTO,
+  SELECT DISTINCT
+   PROD.CODAUXILIAR IDREF,
+   P.SEQPRODUTO SEQPRODUTO,
    MAX(PROD.CODPRODUTO) CODPRODUTO,
    MAX(PROD.desccompleta) desccompleta,
    MAX(PROD.descreduzida) descreduzida,
@@ -114,21 +114,23 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
    MAX(PROD.ATIVO) ATIVO
 FROM
   (
-  SELECT  distinct
-        e.codauxiliar seqproduto,
+  SELECT DISTINCT
+        E.CODAUXILIAR,
         MAX(e.codprod) codproduto,
-        max(fnc_remove_char_esp(e.descricao)) desccompleta,
-        max(SUBSTR((fnc_remove_char_esp(e.descricao)),1,24)) descreduzida,
+        MAX(fnc_remove_char_esp(e.descricao)) desccompleta,
+        MAX(SUBSTR((fnc_remove_char_esp(e.descricao)),1,24)) descreduzida,
         'N' produtocomposto,
         MAX(e.codprod) seqfamilia,
         0 QTDDIAVALIDADE,
-        max(nvl(e.anp, 0)) codanp,
-        max(e.descanp) descanp_prod,
-        'S' ativo
-  FROM  VW_INT_C5_EMBPROD e
-  GROUP BY e.codauxiliar
-  ) PROD
-  GROUP BY PROD.SEQPRODUTO
+        MAX(nvl(e.anp, 0)) codanp,
+        MAX(e.descanp) descanp_prod,
+        'S' ATIVO
+  FROM  VW_INT_C5_EMBPROD E
+  GROUP BY E.CODAUXILIAR
+  ) PROD,
+  PCDEPARAEMBALAGENSC5 P
+WHERE PROD.CODAUXILIAR = P.CODAUXILIAR(+)
+GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR
 )
 
 \
@@ -137,10 +139,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
 (
   SELECT e.codfilial nroempresa,
          e.codauxiliar idref,
-         ora_hash(e.codauxiliar, 2147483647) seqproduto,
+         P.SEQPRODUTO SEQPRODUTO,
          0000000 estqloja,
          'S' ativo
-  FROM VW_INT_C5_EMBPROD e
+  FROM VW_INT_C5_EMBPROD e,
+       PCDEPARAEMBALAGENSC5 P
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)        
 
 )
 
@@ -151,7 +155,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
   SELECT
         e.codfilial nroempresa,
         e.codauxiliar codacesso,
-        ora_hash(e.codauxiliar, 2147483647) seqproduto,
+        P.SEQPRODUTO SEQPRODUTO,
         COALESCE(e.qtunit, 1) qtdembalagem,
         (CASE
             WHEN length(e.codauxiliar) = 13 AND NVL(E.PRODSEMCODBARRAS, 'N') = 'N'
@@ -164,8 +168,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
            'B'
          END) tipo,
         'S' ativo
- FROM  VW_INT_C5_EMBPROD e
- WHERE length(E.CODAUXILIAR) <= 14
+ FROM  VW_INT_C5_EMBPROD e,
+       PCDEPARAEMBALAGENSC5 P
+ WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
 )
 
 \
@@ -184,31 +189,33 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
 (
    --Linha de preço varejo
 SELECT
-  CODAUXILIAR IDREF,
-  ORA_HASH(CODAUXILIAR, 2147483647) SEQPRODUTO,
-  CODFILIAL NROEMPRESA,
-  NVL(QTUNIT, 1) QTDEMBALAGEM,
+  E.CODAUXILIAR IDREF,
+  P.SEQPRODUTO SEQPRODUTO,
+  E.CODFILIAL NROEMPRESA,
+  NVL(E.QTUNIT, 1) QTDEMBALAGEM,
   1 NROSEGMENTO,
   'N' PROMOCAO,
-  PVENDA PRECO,
+  E.PVENDA PRECO,
   'S' ATIVO
-FROM VW_INT_C5_EMBPROD
-WHERE
-  QTUNIT <> QTMINIMAATACADO
+FROM VW_INT_C5_EMBPROD E,
+     PCDEPARAEMBALAGENSC5 P
+WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
+AND   E.QTUNIT <> E.QTMINIMAATACADO
 
 UNION ALL
 
 --LINHA DE PREÇO ATACADO
 SELECT
-  CODAUXILIAR IDREF,
-  ORA_HASH(CODAUXILIAR, 2147483647) SEQPRODUTO,
-  CODFILIAL NROEMPRESA,
-  NVL(QTMINIMAATACADO, 1) QTDEMBALAGEM,
+  E.CODAUXILIAR IDREF,
+  P.SEQPRODUTO SEQPRODUTO,
+  E.CODFILIAL NROEMPRESA,
+  NVL(E.QTMINIMAATACADO, 1) QTDEMBALAGEM,
   1 NROSEGMENTO,
   'N' PROMOCAO,
-  ROUNDABNT((PVENDAATAC / QTUNIT) * QTMINIMAATACADO, 3) PRECO,
+  ROUNDABNT((E.PVENDAATAC / E.QTUNIT) * E.QTMINIMAATACADO, 3) PRECO,
   'S' ATIVO
-FROM VW_INT_C5_EMBPROD
-WHERE
-  QTMINIMAATACADO > 1
+FROM VW_INT_C5_EMBPROD E,
+     PCDEPARAEMBALAGENSC5 P
+WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
+AND   E.QTMINIMAATACADO > 1
 )
