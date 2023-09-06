@@ -2,7 +2,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMPRESA AS
 (
 SELECT f.codigo nroempresa,
        NVL(f.codcli,1) seqpessoa,
-       ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,
+       
+       (SELECT R.NRODIVISAO
+        FROM   PCDEPARAREGIAOC5 R
+        WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', 
+                                                               F.CODIGO, 
+                                                              '1') 
+       )NRODIVISAO,
+       
+       --ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,
        1 nrosegmento,
        SUBSTR(COALESCE(f.fantasia, F.RAZAOSOCIAL, ' '), 1, 20) nomereduzido,
        f.codigo nroempresamatriz,
@@ -15,7 +23,7 @@ SELECT f.codigo nroempresa,
             ELSE
           'N'
         END) ativo,
-        (SELECT UF FROM PCREGIAO WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') ) idref
+        (SELECT NUMREGIAO||UF FROM PCREGIAO WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') ) idref
   FROM  pcfilial f,
        (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
         where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA'
