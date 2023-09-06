@@ -60,7 +60,7 @@
 		{
 			"nome": "VW_INT_C5_EMPRESA",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.07.000"
+			"versao": "4.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMBPROD",
@@ -75,17 +75,17 @@
 		{
 			"nome": "VW_INT_C5_DIVISAO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.06.000"
+			"versao": "4.0.07.000"
 		},
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.07.000"
+			"versao": "4.0.09.000"
 		},
 		{
 			"nome": "VW_INT_C5_PLPAG",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.06.000"
+			"versao": "4.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_PRECOFIXO_R357",
@@ -105,17 +105,17 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "4.0.17.000"
+			"versao": "4.0.19.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.13.000"
+			"versao": "4.0.14.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "4.0.14.000"
+			"versao": "4.0.15.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
