@@ -1511,20 +1511,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           SELECT 
             --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
             --CODAUXILIAR  SEQPRODUTO, 
-            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
-            QTUNIT QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD
-          WHERE QTUNIT > 0
+            --ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
+            P.SEQPRODUTO SEQPRODUTO,
+            E.QTUNIT QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD E,
+               PCDEPARAEMBALAGENSC5 P
+          WHERE E.CODAUXILIAR = P.CODAUXILIAR
+          AND   E.QTUNIT > 0
           
           UNION 
           
           SELECT 
             --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
             --CODAUXILIAR  SEQPRODUTO, 
-            ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
-            QTMINIMAATACADO QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD
-          WHERE QTMINIMAATACADO > 0
+            --ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
+            P.SEQPRODUTO SEQPRODUTO,
+            E.QTMINIMAATACADO QTDEMBALAGEM 
+          FROM VW_INT_C5_EMBPROD E,
+               PCDEPARAEMBALAGENSC5 P
+          WHERE E.CODAUXILIAR = P.CODAUXILIAR
+          AND   E.QTMINIMAATACADO > 0
           
         ) EMBALAGEM
         on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
