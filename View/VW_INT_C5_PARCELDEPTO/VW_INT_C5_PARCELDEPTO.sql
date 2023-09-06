@@ -8,7 +8,14 @@ SELECT
      TRUNC(SYSDATE) DTAHORINICIAL,
      TO_DATE('31/DEC/2099') DTAHORFINAL, 
      DF.CODFINALIZADORA NROFORMAPAGTO, 
-     ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', D.CODFILIAL, '1') NRODIVISAO,
+     
+     (SELECT R.NRODIVISAO
+      FROM   PCDEPARAREGIAOC5 R
+      WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', 
+                                                             D.CODFILIAL, 
+                                                             '1') 
+     )NRODIVISAO,
+     
      (CASE
             WHEN D.CODSUBCATEGORIA IS NOT NULL THEN
                  ora_hash(D.CODSEC||D.CODCATEGORIA||D.CODSUBCATEGORIA||4, 2147483647)
