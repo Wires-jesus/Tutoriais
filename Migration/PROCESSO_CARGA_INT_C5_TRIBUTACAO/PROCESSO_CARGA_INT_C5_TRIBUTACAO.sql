@@ -104,20 +104,25 @@ SELECT NROTRIBUTACAO,
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
 (SELECT
-    PRODTRIB."SEQFAMILIA",PRODTRIB."NROTRIBUTACAO",PRODTRIB."NRODIVISAO",PRODTRIB."ATIVO",
+    PRODTRIB.*,
     (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = PRODTRIB.seqfamilia and rownum = 1 )codorigemtrib
  FROM
      (SELECT DISTINCT
         R.CODPROD seqfamilia,
         R.CODST nrotributacao,
-        R.numregiao nrodivisao,
+        --R.numregiao nrodivisao,
+        D.NRODIVISAO,
+        D.NUMREGIAO IDREF,
         'S' ativo
       FROM VW_INT_C5_FAMILIA T,
            PCTABPR R,
-           PCCONSOLIDATRIBUTACAO C
+           PCCONSOLIDATRIBUTACAO C,
+           PCDEPARAREGIAOC5 D
       WHERE T.SEQFAMILIA = R.CODPROD
       AND   R.CODST = C.CODST
       AND   R.NUMREGIAO = C.NUMREGIAO
+      AND   R.NUMREGIAO = D.NUMREGIAO
+      AND   C.NUMREGIAO = D.NUMREGIAO
       AND   R.CODST IS NOT NULL
       AND   R.NUMREGIAO IN (SELECT VALOR
                             FROM PCPARAMFILIAL
