@@ -5,6 +5,11 @@
         "versao": "4.0.01.000"
       },
       {
+        "nome": "PCDEPARAPLPAGC5",
+        "tipo": "TABELA",
+        "versao": "4.0.02.000"
+      },
+      {
         "nome": "PCCONTROLECONSINCO",
         "tipo": "TABELA",
         "versao": "4.0.05.000"
