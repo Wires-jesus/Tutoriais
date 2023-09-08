@@ -5,7 +5,7 @@
     {"nome":"PCDEPTO", "tipo": "TABELA", "versao": "4.0.01.000"},
     {"nome":"PCCATEGORIA", "tipo": "TABELA", "versao": "4.0.01.000"},
     {"nome":"PCSUBCATEGORIA", "tipo": "TABELA", "versao": "4.0.01.000"},
-    {"nome":"PCCONTROLECONSINCO", "tipo": "TABELA", "versao": "4.0.05.000"}
+    {"nome":"PCCONTROLECONSINCO", "tipo": "TABELA", "versao": "4.0.05.000"},
     {"nome":"PCDEPARACATEGORIAC5", "tipo": "TABELA", "versao": "4.0.01.000"}
     ]
 }
