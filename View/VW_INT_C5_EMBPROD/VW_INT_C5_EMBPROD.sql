@@ -64,7 +64,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                     'S'
               END) ativo,
             NVL(p.revenda,'S') revenda,
-            (SELECT CODCEST FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST WHERE PCCESTPRODUTO.CODPROD = p.CODPROD) codcest,
+            (SELECT CODCEST 
+             FROM PCCEST 
+             INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST 
+             WHERE PCCESTPRODUTO.CODPROD = p.CODPROD
+             AND ROWNUM = 1) codcest,
             p.codsec,
             p.codepto,
             p.codcategoria,
@@ -109,7 +113,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND e.dtinativo IS NULL
         AND NVL(f.proibidavenda, 'N') = 'N'
         --AND p.codprod >= 0
-        --AND LENGTH(e.codauxiliar) <= 14
+        AND LENGTH(e.codauxiliar) <= 14
         AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO)
