@@ -130,7 +130,7 @@ SELECT
 
  FROM VW_INT_C5_CATEGORIA,
       VW_INT_C5_FAMILIA,
-      (SELECT
+      (SELECT DISTINCT
          /*(SELECT r.nrodivisao
           FROM pcdepararegiaoc5 r
           WHERE r.numregiao = regparaovarejo.valor
