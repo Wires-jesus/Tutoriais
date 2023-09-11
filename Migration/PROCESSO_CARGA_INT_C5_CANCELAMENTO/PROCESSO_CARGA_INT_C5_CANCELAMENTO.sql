@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW VW_INT_C5_TIPOCANCEL AS
+CREATE OR REPLACE VIEW VW_INT_C5_TIPOCANCEL AS(
 SELECT DISTINCT c.seqdocto,       
        c.nrocheckout,       
        c.nroempresa,       
@@ -12,11 +12,11 @@ SELECT DISTINCT c.seqdocto,
        AND a.nrocheckout = c.nrocheckout   
        AND a.nroempresa = c.nroempresa   
        AND a.seqdocto = c.seqdocto   
-       AND (i.status = 'C' OR c.status = 'C');
+       AND (i.status = 'C' OR c.status = 'C'))
 
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_CUSTOS AS
+CREATE OR REPLACE VIEW VW_INT_C5_CUSTOS AS(
 SELECT  e.codfilial,
         e.codprod,
         e.codauxiliar,
@@ -35,11 +35,11 @@ SELECT  e.codfilial,
         pcembalagem e
  WHERE  e.codprod = p.codprod
    AND  e.codprod = s.codprod
-   AND  e.codfilial = s.codfilial
+   AND  e.codfilial = s.codfilial)
 
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_PLANOP AS
+CREATE OR REPLACE VIEW VW_INT_C5_PLANOP AS(
 SELECT  p.codplpag,
         g.nroformapagto,
         g.seqitem,
@@ -67,11 +67,11 @@ SELECT  p.codplpag,
    AND  g.nrocheckout = a.nrocheckout
    AND  a.especie = 'NF'
    AND  p.codplpag = NVL(fnc_int_c5_codplpag(g.nroformapagto,g.nroempresa),1)
-   AND  p.codplpag > 0
+   AND  p.codplpag > 0)
   
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCCANCECF AS
+CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCCANCECF AS(
 SELECT  A.ROWID ROWID_TB_DOCTO,
         'N' EXPORTADO,
         A.SEQDOCTO,
@@ -220,12 +220,12 @@ WHERE   A.SEQDOCTO = C.SEQDOCTO
   AND   FNC_INT_C5_FINALIZADORA_CAB(A.SEQDOCTO,A.NROCHECKOUT,A.NROEMPRESA) > 0
   AND   C.SEQDOCTO = ITEM.SEQDOCTO
   AND   C.NROEMPRESA = ITEM.NROEMPRESA
-  AND   C.NROCHECKOUT = ITEM.NROCHECKOUT
+  AND   C.NROCHECKOUT = ITEM.NROCHECKOUT)
 
 
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_PCPEDICANCECF AS
+CREATE OR REPLACE VIEW VW_INT_C5_PCPEDICANCECF AS(
 SELECT  D.ROWID ROWID_TB_DOCTO,
         I.SEQDOCTO,
         'N' EXPORTADO,
@@ -323,4 +323,4 @@ SELECT  D.ROWID ROWID_TB_DOCTO,
          AND
          (C.STATUS = DECODE(ITEM.TIPOCANCEL,'P','V',I.STATUS)))
           OR
-        (C.STATUS = 'C'))
+        (C.STATUS = 'C')))
