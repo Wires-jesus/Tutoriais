@@ -1307,10 +1307,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END carrega_tb_prodempresa;
 
-  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) IS
-    bPrimeriaCarga number;
+  PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
+--    bPrimeriaCarga number;
   BEGIN
-    select count(*) into bPrimeriaCarga from MONITORPDVMIDDLE.TB_FAMEMBALAGEM where rownum = 1;
+  -- select count(*) into bPrimeriaCarga from MONITORPDVMIDDLE.TB_FAMEMBALAGEM where rownum = 1;
    
     MERGE INTO monitorpdvmiddle.tb_famembalagem s
       USING (SELECT DISTINCT e.seqfamilia,
@@ -1352,7 +1352,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.ativo,
                   b.nrocarga);
 
-    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR*/
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR
     --Não executar inativação na primeira carga
     IF bPrimeriaCarga <> 0 THEN
       UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
@@ -1382,7 +1382,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           AND ATIVO = 'S'
       );
     END IF;
-
+*/
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1457,10 +1457,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     END carrega_tb_prodcodigo;
 
 
-  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) IS
-    bPrimeriaCarga number;
+  PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
+    --bPrimeriaCarga number;
   BEGIN
-    SELECT count(*) INTO bPrimeriaCarga FROM MONITORPDVMIDDLE.tb_prodpreco where rownum = 1;
+    --SELECT count(*) INTO bPrimeriaCarga FROM MONITORPDVMIDDLE.tb_prodpreco where rownum = 1;
 
     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
       USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
@@ -1498,7 +1498,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         VIEW_TB_PRODPRECO.idref
       );
 
-    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR*/
+    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR
      --Se for a primeira carga, não executar update
     IF bPrimeriaCarga <> 0 THEN
       UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
@@ -1539,7 +1539,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           AND ATIVO = 'S'
       );
     END IF;
-
+*/
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -2929,6 +2929,7 @@ END;
 PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
 
+/*
   UPDATE monitorpdvmiddle.TB_COMBOITEM TB_COMBOITEM SET ATIVO = 'N'
   WHERE TB_COMBOITEM.rowid IN (
     SELECT 
@@ -2941,7 +2942,7 @@ BEGIN
     WHERE PCPROMI.CODIGO IS null
     AND TB_COMBOITEM.ATIVO = 'S'
   );
-
+*/
   MERGE INTO monitorpdvmiddle.tb_comboitem TB_COMBOITEM
     USING (SELECT * FROM VW_INT_C5_BRINDE_ITENS) VIEW_BRINDE_ITENS
     ON  (TB_COMBOITEM.SEQCOMBO = VIEW_BRINDE_ITENS.SEQCOMBO and TB_COMBOITEM.SEQITEM = VIEW_BRINDE_ITENS.SEQITEM)
