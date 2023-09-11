@@ -1,0 +1,22 @@
+{
+  "nome": "PKG_SINC_PDV_CONSINCO_CANCEL",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.02.000"
+    },
+    {
+      "nome": "VW_INT_C5_PCPEDCCANCECF",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "VW_INT_C5_PCPEDICANCECF",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    }
+  
+  ]
+}
