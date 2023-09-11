@@ -1,6 +1,7 @@
 {"nome":"VW_INT_C5_PCPEDICANCECF","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome": "PCFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
-    {"nome": "PCFINALIZADORA","tipo": "TABELA","versao": "4.0.01.000"},
-    {"nome": "PCCOB","tipo": "TABELA","versao": "4.0.02.000"},
-    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"}
+    {"nome": "PCEST","tipo": "TABELA","versao": "4.0.01.000"},
+    {"nome": "PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
+    {"nome": "PCEMBALAGEM","tipo": "TABELA","versao": "4.0.06.000"},
+    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
+    {"nome": "PCCONSOLIDATRIBUTACAO","tipo": "TABELA","versao": "4.0.05.000"}
 ]}

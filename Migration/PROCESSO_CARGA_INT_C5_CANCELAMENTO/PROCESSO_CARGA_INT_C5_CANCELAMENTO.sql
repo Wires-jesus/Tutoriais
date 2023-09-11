@@ -1,3 +1,230 @@
+CREATE OR REPLACE VIEW VW_INT_C5_TIPOCANCEL AS
+SELECT DISTINCT c.seqdocto,       
+       c.nrocheckout,       
+       c.nroempresa,       
+       CASE WHEN i.status = 'C' AND c.status = 'V' THEN 'P'           
+         ELSE 'T'       
+       END Tipocancel 
+ FROM  monitorpdvmiddle.tb_doctoitem i, monitorpdvmiddle.tb_doctocupom c, monitorpdvmiddle.tb_docto a 
+ WHERE i.nrocheckout = a.nrocheckout   
+       AND i.nroempresa = a.nroempresa   
+       AND i.seqdocto = a.seqdocto   
+       AND a.nrocheckout = c.nrocheckout   
+       AND a.nroempresa = c.nroempresa   
+       AND a.seqdocto = c.seqdocto   
+       AND (i.status = 'C' OR c.status = 'C');
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_CUSTOS AS
+SELECT  e.codfilial,
+        e.codprod,
+        e.codauxiliar,
+        NVL(s.custoultent,0) vlcustoultent,
+        NVL(s.custocont,0) vlcustocont,
+        NVL(s.custoreal,0) vlcustoreal,
+        NVL(s.custofin,0) vlcustofin,
+        NVL(s.qtultent,0) qtultent,
+        NVL(s.custorep,0) vlcustorep,
+        NVL(s.valorultent,0) valorultent,
+        NVL(s.vlbaseefet,0) vlbaseefet,
+        NVL(s.vlicmsbcr,0) vlicmsbcr,
+        NVL(s.vlicmsefet,0) vlicmsefet
+  FROM  pcest    s,
+        pcprodut p,
+        pcembalagem e
+ WHERE  e.codprod = p.codprod
+   AND  e.codprod = s.codprod
+   AND  e.codfilial = s.codfilial
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PLANOP AS
+SELECT  p.codplpag,
+        g.nroformapagto,
+        g.seqitem,
+        g.seqdocto,
+        g.nroempresa,
+        g.nrocheckout,
+        NVL(p.numdias,0) numdias,
+        NVL(p.prazo1,0) prazo1,
+        NVL(p.prazo2,0) prazo2,
+        NVL(p.prazo3,0) prazo3,
+        NVL(p.prazo4,0) prazo4,
+        NVL(p.prazo5,0) prazo5,
+        NVL(p.prazo6,0) prazo6,
+        NVL(p.prazo7,0) prazo7,
+        NVL(p.prazo8,0) prazo8,
+        NVL(p.prazo9,0) prazo9,
+        NVL(p.prazo10,0) prazo10,
+        NVL(p.prazo11,0) prazo11,
+        NVL(p.prazo12,0) prazo12
+  FROM  pcplpag p,
+        monitorpdvmiddle.tb_doctopagto g,
+        monitorpdvmiddle.tb_docto a
+ WHERE  g.seqdocto = a.seqdocto
+   AND  g.nroempresa = a.nroempresa
+   AND  g.nrocheckout = a.nrocheckout
+   AND  a.especie = 'NF'
+   AND  p.codplpag = NVL(fnc_int_c5_codplpag(g.nroformapagto,g.nroempresa),1)
+   AND  p.codplpag > 0
+  
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCCANCECF AS
+SELECT  A.ROWID ROWID_TB_DOCTO,
+        'N' EXPORTADO,
+        A.SEQDOCTO,
+        0 NUMPEDECF,
+        C.SEQPESSOA CODCLI,
+        A.SEQUSUARIO CODFUNCCX,
+        A.NROCHECKOUT NUMCAIXA,
+        'NOTAFISCAL' NUMSERIEEQUIP,
+        TO_CHAR(A.DTAHOREMISSAO,'YYYY-MM-DD') DTCANCELECF,
+        A.SEQUSUARIO CODFUNCCANCELECF,
+        TO_CHAR(A.DTAHOREMISSAO,'YYYY-MM-DD') DATA,
+        FNC_INT_C5_CODUSUR(A.SEQUSUARIO) CODUSUR,
+        A.NROEMPRESA CODFILIAL,
+        0 CODPRACA, 
+        0 CODSUPERVISOR, 
+        NVL(
+        (SELECT FNC_INT_C5_CODPLPAG(G.NROFORMAPAGTO,G.NROEMPRESA)
+           FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO G
+          WHERE G.NROEMPRESA = A.NROEMPRESA
+            AND G.NROCHECKOUT = A.NROCHECKOUT
+            AND G.SEQDOCTO = A.SEQDOCTO
+            AND ROWNUM = 1),1) CODPLPAG,
+        (CASE
+            WHEN ((A.SEQDOCTO = E.SEQDOCTO)
+                  AND
+                  (A.NROEMPRESA = E.NROEMPRESA)
+                  AND
+                  (A.NROCHECKOUT = E.NROCHECKOUT))
+                THEN C.NRONOTAFISCAL
+            ELSE
+                0
+         END) NUMCUPOM,
+        'X' SERIEECF,
+        NVL(FNC_INT_C5_ESPECIE_COBRANCA(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA),'D') CODCOB,
+        1 CONDVENDA,
+        100 PERCVENDA,
+        A.SEQUSUARIO CODEMITENTE,
+        (SELECT I.NUMDIAS
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZOMEDIO,
+        (SELECT I.PRAZO1
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO1,
+        (SELECT I.PRAZO2
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO2,
+        (SELECT I.PRAZO3
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO3,
+        (SELECT I.PRAZO4
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO4,
+        (SELECT I.PRAZO5
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO5,
+        (SELECT I.PRAZO6
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO6,
+        (SELECT I.PRAZO7
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO7,
+        (SELECT I.PRAZO8
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO8,
+        (SELECT I.PRAZO9
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO9,
+        (SELECT I.PRAZO10
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO10,
+        (SELECT I.PRAZO11
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO11,
+        (SELECT I.PRAZO12
+           FROM VW_INT_C5_PLANOP I
+          WHERE I.SEQDOCTO = A.SEQDOCTO) PRAZO12,
+        NULL DTENTREGA,
+        0 VLATEND, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
+        0 VLTABELA, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
+        0 VLTOTAL, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
+        0 VLOUTRASDESP,
+        0 VLDESCONTO, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
+        NULL VLCUSTOCONT,
+        NULL VLCUSTOREP,
+        NULL VLCUSTOFIN,
+        NULL VLCUSTOREAL,
+        'VV' TIPOVENDA,
+        NULL TOTPESO,
+        NULL TOTVOLUME,
+        NULL NUMITENS,
+        NULL OPERACAO,
+        NULL HORA,
+        NULL MINUTO,
+        NULL NUMVIASMAPASEP,
+        0 NUMPED,
+        NULL NUMCAR,
+        NULL DTFAT,
+        NULL HORAFAT,
+        NULL MINUTOFAT,
+        NULL POSICAORETORNO,
+        NULL DTCANCEL,
+        NULL CODFUNCCANCEL,
+        NULL DTEXPORTACAO,
+        NULL NUMTRANSVENDA,
+        'N' POSICAOPEDIDO,
+        'N' IMPORTADO,
+        NULL NUMECF,
+        'T' TIPOCANCEL,
+        0 NUMCCF,
+        NULL OBSERVACAO,
+        NULL CARTAOCRM,
+        NULL EXPORTACRM,
+        NULL CUPOMFECHADO,
+        NULL MOTIVOCANCELAMENTO,
+        NULL NUMFECHAMENTOMOVCX,
+        NULL DTMOVIMENTOCX,
+        NULL VLACRESRODAPE,
+        NULL NOTADUPLIQUESVC,
+        NULL MD5PAF,
+        NULL DOCEMISSAO,
+        NULL AMBIENTENFCE,
+        NULL DTEXPORTACAOSERVINT,
+        NULL DTIMPORTACAOSERVPRINC,
+        NULL EXPORTADOSERVINT,
+        NULL IMPORTADOSERVPRINC,
+        NULL ROTINALANC,
+        NULL ASSINATURA
+  FROM  MONITORPDVMIDDLE.TB_DOCTO A,
+        MONITORPDVMIDDLE.TB_DOCTOCUPOM C,
+        MONITORPDVMIDDLE.TB_DOCTONFE E,
+        MONITORPDVMIDDLE.TB_DOCTONFEXML X,
+        VW_INT_C5_TIPOCANCEL ITEM
+WHERE   A.SEQDOCTO = C.SEQDOCTO
+  AND   A.NROEMPRESA = C.NROEMPRESA
+  AND   A.NROCHECKOUT = C.NROCHECKOUT
+  AND   A.ESPECIE = 'NF'
+  AND   A.REPLICACAO = 'P'
+  AND   C.STATUS = 'C'
+  AND   A.SEQDOCTO = E.SEQDOCTO(+)
+  AND   A.NROEMPRESA = E.NROEMPRESA(+)
+  AND   A.NROCHECKOUT = E.NROCHECKOUT(+)
+  AND   E.SEQDOCTO = X.SEQDOCTO
+  AND   E.NROEMPRESA = X.NROEMPRESA
+  AND   E.NROCHECKOUT = X.NROCHECKOUT
+  AND   NVL(FNC_INT_C5_VLTOTAL(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA), 0) > 0
+  AND   FNC_INT_C5_FINALIZADORA_CAB(A.SEQDOCTO,A.NROCHECKOUT,A.NROEMPRESA) > 0
+  AND   C.SEQDOCTO = ITEM.SEQDOCTO
+  AND   C.NROEMPRESA = ITEM.NROEMPRESA
+  AND   C.NROCHECKOUT = ITEM.NROCHECKOUT
+
+
+\
+
 CREATE OR REPLACE VIEW VW_INT_C5_PCPEDICANCECF AS
 SELECT  D.ROWID ROWID_TB_DOCTO,
         I.SEQDOCTO,
@@ -63,7 +290,7 @@ SELECT  D.ROWID ROWID_TB_DOCTO,
         0 VLIPI,
         0 VLOUTRASDESP,
         0 QTFALTA,
-    0 TOTPESO,
+        0 TOTPESO,
         I.QUANTIDADE QT,
         '2099' ROTINALANC,
         NULL TOTALIZADOR
@@ -96,4 +323,4 @@ SELECT  D.ROWID ROWID_TB_DOCTO,
          AND
          (C.STATUS = DECODE(ITEM.TIPOCANCEL,'P','V',I.STATUS)))
           OR
-          (C.STATUS = 'C'))
+        (C.STATUS = 'C'))
