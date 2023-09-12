@@ -1,0 +1,155 @@
+{
+  "nome": "PROCESSO_INICIALIZACAO_DTALTERC5",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+  {
+    "nome": "PCTRIBUT",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCTRIBPISCOFINS",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCTABPR",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCTABTRIB",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPRODUT",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPRODFILIAL",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCFINALIZADORA",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCCOB",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPLPAG",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCEMBALAGEM",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCEMPR",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCFILIAL",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCCLIENT",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCMARCA",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCDEPTO",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCSECAO",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCCATEGORIA",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCSUBCATEGORIA",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCCFO",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCNCM",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCTRIBNCMFILIAL",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCREGIAO",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCDESCONTO",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPRECOPROM",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCOFERTAPROGRAMADAC",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCOFERTAPROGRAMADAI",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCOFERTAPROGRAMADAC_HIST",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCOFERTAPROGRAMADAI_HIST",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPROMC",
+    "tipo": "TABELA",
+    "versao": "4.0.01.000"
+  },
+  {
+    "nome": "PCPROMI",
+    "tipo": "TABELA",
+    "versao": "4.0.02.000"
+  }]
+}
