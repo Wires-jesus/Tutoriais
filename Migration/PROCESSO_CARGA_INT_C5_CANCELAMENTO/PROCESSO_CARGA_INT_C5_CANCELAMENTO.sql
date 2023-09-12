@@ -323,4 +323,4 @@ SELECT  D.ROWID ROWID_TB_DOCTO,
          AND
          (C.STATUS = DECODE(ITEM.TIPOCANCEL,'P','V',I.STATUS)))
           OR
-        (C.STATUS = 'C')))
+        (C.STATUS = 'C'))) 
