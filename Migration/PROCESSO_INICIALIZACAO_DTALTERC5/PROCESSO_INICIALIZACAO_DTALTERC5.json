@@ -151,5 +151,12 @@
     "nome": "PCPROMI",
     "tipo": "TABELA",
     "versao": "4.0.02.000"
-  }]
+  },
+  {
+    "nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
+    "tipo": "MIGRATION",
+    "versao": "4.0.06.000"
+  }
+  
+]
 }
