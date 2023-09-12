@@ -12,8 +12,14 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 percacrescst,
             NVL(t.aliqstsaida,0) percisentost,
             'B' tipocalcfcp,
-            100 percbasefcpicms,
             NVL(C.percaliqfcpicms, t.peracrescimofuncep) percaliqfcpicms,
+
+            (case 
+               when NVL(C.percaliqfcpicms, t.peracrescimofuncep) > 0 THEN
+                    100
+               else  0
+            end) percbasefcpicms,
+            
             c.reducaobasest,
             'T' tiporeducaoicmscalcst,
             0 perctributst,
@@ -22,7 +28,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 situacaocofins,
             0 percpis,
             0 perccofins,
-            100 percbasefcpst,
+            0 percbasefcpst,
             0 percaliqfcpst,
             c.calcicmsdeson,
             c.percdesoneracao percaliqicmsdeson,
