@@ -1,5 +1,5 @@
 CREATE OR REPLACE VIEW VW_INT_C5_TIPOCANCEL AS(
-SELECT DISTINCT c.seqdocto,       
+SELECT DISTINCT c.seqdocto,        
        c.nrocheckout,       
        c.nroempresa,       
        CASE WHEN i.status = 'C' AND c.status = 'V' THEN 'P'           
