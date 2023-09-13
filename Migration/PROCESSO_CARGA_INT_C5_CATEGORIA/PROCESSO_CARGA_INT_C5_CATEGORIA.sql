@@ -132,7 +132,6 @@ SELECT
       monitorpdvmiddle.tb_familia F,
       (SELECT DISTINCT
          regparaovarejo.valor NUMREGIAO,
-
          CODPROD,
          CODEPTO,
          CODSEC,
