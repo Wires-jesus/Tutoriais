@@ -3191,7 +3191,7 @@ END;
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_grupo s
         USING (SELECT *
-               FROM VW_INT_C5_USUARIO c
+               FROM VW_INT_C5_USUARIO_GRUPO c
               ) b
 
       ON (s.SEQGRUPO = b.CODGRUPO)

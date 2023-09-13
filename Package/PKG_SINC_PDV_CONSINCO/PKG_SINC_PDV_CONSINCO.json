@@ -146,7 +146,13 @@
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
 			"tipo": "MIGRATION",
 			"versao": "4.0.15.000"
+		},
+		{
+			"nome": "VW_INT_C5_USUARIO_GRUPO",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
 		}
+    
 	]
 	
 }
