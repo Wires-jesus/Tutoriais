@@ -9,7 +9,7 @@
     },
     {
       "nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
-      "tipo": "OBJETO_PLSQL",
+      "tipo": "MIGRATION",
       "versao": "4.0.02.000"
     }
   ]
