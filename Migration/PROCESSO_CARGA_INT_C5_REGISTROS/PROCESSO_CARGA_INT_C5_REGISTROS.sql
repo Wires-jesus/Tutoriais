@@ -241,6 +241,11 @@ values (46, 'tb_grupo')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (47, 'tb_grupousuario')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (48, 'tb_prodprecoapartir')
+
 
 /* Popular tabela PCCONTROLECONSINCO */
 
@@ -478,3 +483,8 @@ values (46, 46, 'Sincronização de tabela TB_GRUPO', TRUNC(SYSDATE), 'D', 'pkg_
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (47, 47, 'Sincronização de tabela TB_GRUPOUSUARIO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_grupousuario',  47,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (48, 48, 'Sincronização de tabela TB_PRODPRECOAPARTIR', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_prodprecoapartir',  48,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
