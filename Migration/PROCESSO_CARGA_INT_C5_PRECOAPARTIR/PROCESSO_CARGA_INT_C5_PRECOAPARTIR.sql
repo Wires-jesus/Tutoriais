@@ -51,6 +51,8 @@ SELECT DISTINCT
                  AND   M.NROEMPRESA = A.CODFILIAL
                  AND   M.PRECO = A.VLOFERTAATAC
                  AND   M.QTDE  = E.QTMINIMAATACADO
+                 AND   M.DTAINICIO = B.DTINICIAL
+                 AND   M.DTAFIM  = B.DTFINAL
                  AND   M.ATIVO = 'S')
 UNION ALL
 SELECT DISTINCT
@@ -85,6 +87,8 @@ SELECT DISTINCT
                  AND   M.NROEMPRESA = E.CODFILIAL
                  AND   M.PRECO = E.POFERTAATAC
                  AND   M.QTDE  = E.QTMINIMAATACADO
+                 AND   M.DTAINICIO = E.DTOFERTAATACINI
+                 AND   M.DTAFIM  = E.DTOFERTAATACFIM
                  AND   M.ATIVO = 'S')
 
 )
