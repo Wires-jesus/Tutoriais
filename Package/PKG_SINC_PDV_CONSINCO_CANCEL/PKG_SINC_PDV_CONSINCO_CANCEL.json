@@ -1,0 +1,16 @@
+{
+  "nome": "PKG_SINC_PDV_CONSINCO_CANCEL",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.02.000"
+    },
+    {
+      "nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
+      "tipo": "MIGRATION",
+      "versao": "4.0.02.000"
+    }
+  ]
+}
