@@ -1,0 +1,17 @@
+{"nome":"VW_INT_C5_USUARIO_GRUPO","tipoPLSQL":"VIEW","dependencias":[
+      {
+        "nome": "PCEMPR",
+        "tipo": "TABELA",
+        "versao": "4.0.02.000"
+      },
+      {
+        "nome": "FNC_INT_C5_PWD",
+        "tipo": "OBJETO_PLSQL",
+        "versao": "4.0.01.000"
+      },
+      {
+        "nome": "PCCONTROLECONSINCO",
+        "tipo": "TABELA",
+        "versao": "4.0.05.000"
+      }
+]}
