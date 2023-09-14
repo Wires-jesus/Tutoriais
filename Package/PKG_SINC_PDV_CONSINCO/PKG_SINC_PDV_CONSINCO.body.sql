@@ -65,6 +65,33 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN g_inicio_execucao;
   END;
 
+  FUNCTION obter_seqapartirde RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    BEGIN
+      VSQL := 'CREATE SEQUENCE DFSEQ_INT_C5_PRODPRECOAPARTIR
+                               minvalue 1
+                               maxvalue 999999999999999999999999999
+                               start with 1
+                               increment by 1
+                               cache 20';
+                               
+       EXECUTE IMMEDIATE VSQL;
+    EXCEPTION 
+       WHEN OTHERS THEN
+       BEGIN
+         VSQL := '';
+       END;
+    END;
+    
+    VSQL := '';
+    VSQL := 'SELECT DFSEQ_INT_C5_PRODPRECOAPARTIR.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;
+
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
                             pCALLSTACK   CLOB) IS
@@ -2830,6 +2857,87 @@ BEGIN
         COMMIT;
         RAISE;
   END;
+END;
+
+PROCEDURE carrega_tb_prodprecoapartir(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  UPDATE monitorpdvmiddle.tb_prodprecoapartir R SET R.IDREF = '0', R.ATIVO = 'N'
+  WHERE TRUNC(SYSDATE) BETWEEN R.DTAINICIO AND R.DTAFIM
+  AND R.ATIVO = 'S';
+  
+  MERGE INTO monitorpdvmiddle.tb_prodprecoapartir tb_prodprecoapartir_c5
+        USING (SELECT * FROM VW_INT_C5_PRODPRECOAPARTIR) vw_int_c5_prodprecoapartir
+  ON   (
+            tb_prodprecoapartir_c5.NROEMPRESA    = vw_int_c5_prodprecoapartir.NROEMPRESA        
+        AND tb_prodprecoapartir_c5.SEQAPARTIRDE  = vw_int_c5_prodprecoapartir.Seqapartirde
+       )
+       WHEN MATCHED THEN
+        UPDATE SET
+          tb_prodprecoapartir_c5.NROSEGMENTO     = vw_int_c5_prodprecoapartir.NROSEGMENTO,
+          tb_prodprecoapartir_c5.SEQFAMILIA      = vw_int_c5_prodprecoapartir.SEQFAMILIA,
+          tb_prodprecoapartir_c5.SEQPRODUTO      = vw_int_c5_prodprecoapartir.SEQPRODUTO,
+          tb_prodprecoapartir_c5.QTDE            = vw_int_c5_prodprecoapartir.QTDE,
+          tb_prodprecoapartir_c5.PERCDESCONTO    = vw_int_c5_prodprecoapartir.PERCDESCONTO,
+          tb_prodprecoapartir_c5.PRECO           = vw_int_c5_prodprecoapartir.PRECO,
+          tb_prodprecoapartir_c5.DTAINICIO       = vw_int_c5_prodprecoapartir.DTAINICIO,
+          tb_prodprecoapartir_c5.DTAFIM          = vw_int_c5_prodprecoapartir.DTAFIM,
+          tb_prodprecoapartir_c5.ATIVO           = vw_int_c5_prodprecoapartir.ATIVO,
+          tb_prodprecoapartir_c5.IDREF           = DECODE(vw_int_c5_prodprecoapartir.ATIVO, 'N', 
+                                                          'INATIVADO',
+                                                          vw_int_c5_prodprecoapartir.IDREF) 
+          
+       WHEN NOT MATCHED THEN
+        INSERT(
+          tb_prodprecoapartir_c5.NROEMPRESA,
+          tb_prodprecoapartir_c5.SEQAPARTIRDE,
+          tb_prodprecoapartir_c5.NROSEGMENTO,
+          tb_prodprecoapartir_c5.SEQFAMILIA,
+          tb_prodprecoapartir_c5.SEQPRODUTO,
+          tb_prodprecoapartir_c5.QTDE,
+          tb_prodprecoapartir_c5.PRECO,          
+          tb_prodprecoapartir_c5.PERCDESCONTO,
+          tb_prodprecoapartir_c5.DTAINICIO,
+          tb_prodprecoapartir_c5.DTAFIM,
+          tb_prodprecoapartir_c5.ATIVO,
+          tb_prodprecoapartir_c5.IDREF          
+        ) 
+        VALUES(
+          vw_int_c5_prodprecoapartir.NROEMPRESA,
+          (PKG_SINC_PDV_CONSINCO.obter_seqapartirde), 
+          vw_int_c5_prodprecoapartir.NROSEGMENTO,
+          vw_int_c5_prodprecoapartir.SEQFAMILIA,
+          vw_int_c5_prodprecoapartir.SEQPRODUTO,
+          vw_int_c5_prodprecoapartir.QTDE,
+          vw_int_c5_prodprecoapartir.PRECO,          
+          vw_int_c5_prodprecoapartir.PERCDESCONTO,
+          vw_int_c5_prodprecoapartir.DTAINICIO,
+          vw_int_c5_prodprecoapartir.DTAFIM,
+          vw_int_c5_prodprecoapartir.ATIVO,
+          vw_int_c5_prodprecoapartir.IDREF          
+        );
+
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodprecoapartir', 'carrega_tb_prodprecoapartir OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_prodprecoapartir',
+           'carrega_tb_prodprecoapartir ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+     END;
 END;
 
 PROCEDURE carrega_tb_combo(p_id IN pccontroleconsinco.id%TYPE) AS
