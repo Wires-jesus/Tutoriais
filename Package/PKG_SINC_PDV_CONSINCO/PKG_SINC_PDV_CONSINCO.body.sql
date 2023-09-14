@@ -65,9 +65,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN g_inicio_execucao;
   END;
 
-  FUNCTION obter_seqapartirde RETURN NUMBER IS
-   vSeq NUMBER := 0;
-   VSQL VARCHAR2(2000);
+  PROCEDURE criar_sequence_proprecoapartir IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    VSQL VARCHAR2(2000);
   BEGIN
     BEGIN
       VSQL := 'CREATE SEQUENCE DFSEQ_INT_C5_PRODPRECOAPARTIR
@@ -78,13 +78,19 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                cache 20';
                                
        EXECUTE IMMEDIATE VSQL;
+       COMMIT;
     EXCEPTION 
        WHEN OTHERS THEN
        BEGIN
          VSQL := '';
        END;
     END;
-    
+  END;
+
+  FUNCTION obter_seqapartirde RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
     VSQL := '';
     VSQL := 'SELECT DFSEQ_INT_C5_PRODPRECOAPARTIR.NEXTVAL FROM DUAL';
     
@@ -3086,7 +3092,7 @@ BEGIN
       VIEW_BRINDE_ITENS.QTDE,
       VIEW_BRINDE_ITENS.PRECO,
       VIEW_BRINDE_ITENS.PERCDESCONTO,
-      TB_COMBOITEM.IDREF
+      VIEW_BRINDE_ITENS.IDREF
     );
 
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -3419,15 +3425,15 @@ END;
         TB_PROMSURPRESA.SEQPROMSURPRESA,
         TB_PROMSURPRESA.DESCRICAO,
         TB_PROMSURPRESA.TIPOSURPRESA,
-        TB_PROMSURPRESA.ATIVO,
-        TB_PROMSURPRESA.IDREF
+        TB_PROMSURPRESA.ATIVO
+        --TB_PROMSURPRESA.IDREF
       )
       VALUES(
         VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA,
         VW_INT_C5_BRINDE_CABECALHO_AUT.DESCRICAO,
         VW_INT_C5_BRINDE_CABECALHO_AUT.TIPOSURPRESA,
-        VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO,
-        VW_INT_C5_BRINDE_CABECALHO_AUT.IDREF
+        VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO
+       -- VW_INT_C5_BRINDE_CABECALHO_AUT.IDREF
       );
 
     INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -3620,6 +3626,7 @@ PROCEDURE exec_sinc AS
     EXECUTE IMMEDIATE ('BEGIN delete from PCERRORLOGCONSINCO; end;');
     EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
 
+    criar_sequence_proprecoapartir;
     OPEN c_processo;
 
     LOOP
