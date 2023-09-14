@@ -38,7 +38,7 @@ SELECT CATEG.NRODIVISAO,
               WHERE NVl (dtalterc5, datapadrao.ultimaexecucao) >= datapadrao.ultimaexecucao
              ------------------
              UNION ALL
-             SELECT b.codsec || 2 seqcategoria,
+             SELECT b.codsec||'0'|| 2 seqcategoria,
                     a.codepto || 1 seqcategoriapai,
                     2 nivelhierarquia,
                     SUBSTR (UPPER (b.descricao), 0, 25) categoria,
@@ -54,7 +54,7 @@ SELECT CATEG.NRODIVISAO,
                 AND NVL(b.dtalterc5, datapadrao.ultimaexecucao) >= datapadrao.ultimaexecucao
              ------------------
              UNION ALL
-             SELECT b.codsec || c.codcategoria || 3 seqcategoria,
+             SELECT b.codsec||'0'|| c.codcategoria||'0'|| 3 seqcategoria,
                     b.codsec || 2 seqcategoriapai,
                     3 nivelhierarquia,
                     SUBSTR (UPPER (c.categoria), 0, 25) categoria,
@@ -72,7 +72,7 @@ SELECT CATEG.NRODIVISAO,
                 AND NVL(c.dtalterc5, datapadrao.ultimaexecucao) >= datapadrao.ultimaexecucao
              -----------------------
              UNION ALL
-             SELECT b.codsec || c.codcategoria || d.codsubcategoria || 4 seqcategoria,
+             SELECT b.codsec ||'0'|| c.codcategoria||'0'|| d.codsubcategoria||'0'|| 4 seqcategoria,
                     c.codcategoria || 3 seqcategoriapai,
                     4 nivelhierarquia,
                     SUBSTR (UPPER (d.subcategoria), 0, 25) categoria,
@@ -139,11 +139,11 @@ SELECT
          CODSUBCATEGORIA,
          (CASE
             WHEN CODSUBCATEGORIA IS NOT NULL THEN
-                 CODSEC||CODCATEGORIA||CODSUBCATEGORIA||4
+                 CODSEC||'0'||CODCATEGORIA||'0'||CODSUBCATEGORIA||'0'||4
             WHEN CODCATEGORIA IS NOT NULL THEN
-                 CODSEC||CODCATEGORIA||3
+                 CODSEC||'0'||CODCATEGORIA||'0'||3
             WHEN CODSEC IS NOT NULL THEN
-                 CODSEC||2
+                 CODSEC||'0'||2
             ELSE
                  CODEPTO||1
          END) SEQCATEGORIA
