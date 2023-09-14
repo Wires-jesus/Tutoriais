@@ -1,5 +1,5 @@
 {
-  "nome": "PKG_SINC_PDV_CONSINCO_CANCEL",
+  "nome": "PKG_INT_C5_CANCELAMENTO",
   "tipoPLSQL": "PACKAGE",
   "dependencias": [
     {
