@@ -348,6 +348,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FINALIZ_VENDA AS
 
 \
 
+
+
 CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS 
 ( SELECT  a.nroempresa codfilial,
         a.sequsuario codfunccx,
@@ -392,7 +394,7 @@ SELECT  e.codauxiliar,
 
 \
 
-CREATE OR REPLACE FUNCTION 8 (pSeqDocto    IN NUMBER,
+CREATE OR REPLACE FUNCTION FNC_INT_C5_ESPECIE_COB_VENDAS (pSeqDocto    IN NUMBER,
                                       pNumeroCaixa IN NUMBER,
                                       pCodigoFilial IN NUMBER)
     RETURN VARCHAR2
