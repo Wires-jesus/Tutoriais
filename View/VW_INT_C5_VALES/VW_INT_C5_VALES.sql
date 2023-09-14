@@ -1,60 +1,61 @@
 CREATE OR REPLACE VIEW VW_INT_C5_VALES AS
 (
-SELECT  FERRAMENTAS.F_BUSCARPARAMETRO_NUM('CODBANCOINTEGRACAOPDV',A.NROEMPRESA,0) CODBANCO,
-        TO_CHAR(A.DTAHORINCLUSAO,'YYYY-MM-DD') DTLANC,
-        A.NROCHECKOUT NUMCAIXA,
-        TO_CHAR(A.DTAHORINCLUSAO,'YYYY-MM-DD') DTMOVIMENTOCX,
-        A.SEQTURNO NUMFECHAMENTOMOVCX,
-        A.ESPECIE,
+SELECT  ferramentas.f_buscarparametro_num('CODBANCOINTEGRACAOPDV',a.nroempresa,0) codbanco,
+        TO_CHAR(a.dtahorinclusao,'YYYY-MM-DD') dtlanc,
+        a.nrocheckout numcaixa,
+        TO_CHAR(a.dtahorinclusao,'YYYY-MM-DD') dtmovimentocx,
+        a.seqturno numfechamentomovcx,
+        a.especie,
+        'NOTAFISCAL' numserieequip,
         (CASE
-            WHEN B.VALOR < 0
-                THEN B.VALOR * -1
+            WHEN b.valor < 0
+                THEN b.valor * -1
             ELSE
-                B.VALOR
-          END) VALOR,
+                b.valor
+          END) valor,
         NVL((CASE
-                 WHEN B.MOEDA = 'DINHEIRO'
+                 WHEN b.moeda = 'DINHEIRO'
                       THEN 'D'
                  ELSE
-                     B.MOEDA
-              END),'D') CODCOB,
-        A.SEQDOCTO,
-        A.SEQDOCTO || '-' || A.NROCHECKOUT || '-' || A.ESPECIE IDEXTERNO,
-        0 NUMVALE,
+                     b.moeda
+              END),'D') codcob,
+        a.seqdocto,
+        a.seqdocto || '-' || a.nrocheckout || '-' || a.especie idexterno,
+        0 numvale,
         (CASE
-             WHEN A.ESPECIE = 'SG'
+             WHEN a.especie = 'SG'
                THEN       'SANGRIA ROTINA: CONSINCO - NUMCAIXA: '
-                          || A.NROCHECKOUT
-                          || ' - NUMSERIEEQUIP: NOTAFISCAL - CODOPERADORCX: '
-                          || A.SEQUSUARIO
+                          || a.nrocheckout
+                          || ' - NUMSERIEEQUIP: NotaFiscal - CODOPERADORCX: '
+                          || a.sequsuario
                           || ' - CODFISCALCX: '
-                          || A.SEQUSUARIO
-             WHEN A.ESPECIE = 'SP'
+                          || a.sequsuario
+             WHEN a.especie = 'SP'
                THEN
                           'SUPRIMENTO ROTINA: CONSINCO - NUMCAIXA: '
-                          || A.NROCHECKOUT
-                          || ' - NUMSERIEEQUIP: NOTAFISCAL - CODOPERADORCX: '
-                          || A.SEQUSUARIO
+                          || a.nrocheckout
+                          || ' - NUMSERIEEQUIP: NotaFiscal - CODOPERADORCX: '
+                          || a.sequsuario
                           || ' - CODFISCALCX: '
-                          || A.SEQUSUARIO
-          END) HISTORICO,
-        A.SEQUSUARIO CODFUNC,
+                          || a.sequsuario
+          END) historico,
+        a.sequsuario codfunc,
         (CASE
-            WHEN A.ESPECIE = 'SG'
+            WHEN a.especie = 'SG'
                 THEN 'A'
-            WHEN A.ESPECIE = 'SP'
+            WHEN a.especie = 'SP'
                 THEN 'U'
             ELSE
               NULL
-          END) TIPO,
-        A.NROEMPRESA CODFILIAL,
-        A.ROWID ROWID_TB_DOCTO
-  FROM  MONITORPDVMIDDLE.TB_DOCTO A,
-        MONITORPDVMIDDLE.TB_DOCTOPAGTO B
- WHERE  A.NROEMPRESA = B.NROEMPRESA
-   AND  A.SEQDOCTO = B.SEQDOCTO
-   AND  A.NROCHECKOUT = B.NROCHECKOUT
-   AND  A.SEQDOCTO = B.SEQDOCTO
-   AND  A.ESPECIE IN ('SG','SP')
-   AND  A.REPLICACAO = 'P'
+          END) tipo,
+        a.nroempresa codfilial,
+        a.ROWID rowid_tb_docto
+  FROM  monitorpdvmiddle.tb_docto a,
+        monitorpdvmiddle.tb_doctopagto b
+ WHERE  a.nroempresa = b.nroempresa
+   AND  a.seqdocto = b.seqdocto
+   AND  a.nrocheckout = b.nrocheckout
+   AND  a.seqdocto = b.seqdocto
+   AND  a.especie IN ('SG','SP')
+   AND  a.replicacao = 'P'
 )
