@@ -11,6 +11,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   FUNCTION get_inicio_execucao RETURN TIMESTAMP;
 
+  FUNCTION obter_seqapartirde RETURN NUMBER;
+
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
