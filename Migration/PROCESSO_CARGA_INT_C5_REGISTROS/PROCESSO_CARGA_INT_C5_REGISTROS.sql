@@ -1,3 +1,4 @@
+
 /* Popular tabela PCTIPOCONTROLECONSINCO */
 
 delete from pccontroleconsinco
@@ -246,6 +247,28 @@ values (47, 'tb_grupousuario')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (48, 'tb_prodprecoapartir')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (49, 'tb_promsurpresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (50, 'tb_promsurpresaempresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (51, 'tb_promsurpresaperiodo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (52, 'tb_promsurpresaitem')
+
+
+
 
 /* Popular tabela PCCONTROLECONSINCO */
 
@@ -488,3 +511,23 @@ values (47, 47, 'Sincronização de tabela TB_GRUPOUSUARIO', TRUNC(SYSDATE), 'D'
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (48, 48, 'Sincronização de tabela TB_PRODPRECOAPARTIR', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_prodprecoapartir',  48,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (49, 49, 'Sincronização de tabela TB_PROMSURPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresa',  49,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (50, 50, 'Sincronização de tabela TB_PROMSURPRESAEMPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresaempresa',  50,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (51, 51, 'Sincronização de tabela TB_PROMSURPRESAPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresaperiodo',  51,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (52, 52, 'Sincronização de tabela TB_PROMSURPRESAITEM', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresaitem',  52,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
