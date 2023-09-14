@@ -39,7 +39,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          p.codncmsh,
          p.aceitavendafracao permitedecimal,
          p.permitemultiplicacao,
-         nvl(p.codcest, 0) codcest,
+         --nvl(p.codcest, 0) codcest,
          'S' ativo,
          p.codmarca seqmarca,
          1 seqfamgrupo,
