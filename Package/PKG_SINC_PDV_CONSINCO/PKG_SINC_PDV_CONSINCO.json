@@ -65,7 +65,7 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.08.000"
+			"versao": "4.0.09.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -80,7 +80,7 @@
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.12.000"
+			"versao": "4.0.13.000"
 		},
 		{
 			"nome": "VW_INT_C5_PLPAG",
@@ -95,7 +95,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.21.000"
+			"versao": "4.0.23.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -105,17 +105,17 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "4.0.26.000"
+			"versao": "4.0.28.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.17.000"
+			"versao": "4.0.18.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "4.0.17.000"
+			"versao": "4.0.18.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
@@ -151,6 +151,11 @@
 			"nome": "PROCESSO_CARGA_INT_C5_PRECOAPARTIR",
 			"tipo": "MIGRATION",
 			"versao": "4.0.04.000"
+		},
+		{
+			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
+			"tipo": "MIGRATION",
+			"versao": "4.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",

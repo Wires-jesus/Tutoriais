@@ -64,29 +64,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   BEGIN
     RETURN g_inicio_execucao;
   END;
-
-  PROCEDURE criar_sequence_proprecoapartir IS
-    PRAGMA AUTONOMOUS_TRANSACTION;
-    VSQL VARCHAR2(2000);
-  BEGIN
-    BEGIN
-      VSQL := 'CREATE SEQUENCE DFSEQ_INT_C5_PRODPRECOAPARTIR
-                               minvalue 1
-                               maxvalue 999999999999999999999999999
-                               start with 1
-                               increment by 1
-                               cache 20';
-                               
-       EXECUTE IMMEDIATE VSQL;
-       COMMIT;
-    EXCEPTION 
-       WHEN OTHERS THEN
-       BEGIN
-         VSQL := '';
-       END;
-    END;
-  END;
-
+  
   FUNCTION obter_seqapartirde RETURN NUMBER IS
    vSeq NUMBER := 0;
    VSQL VARCHAR2(2000);
@@ -678,7 +656,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.permitedecimal,
                     v.permitemultiplicacao,
                     v.codncmsh,
-                    v.codcest,
+                    --v.codcest,
+                    (SELECT nvl(CODCEST, 0) codcest
+                     FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
+                     WHERE PCCESTPRODUTO.CODPROD = v.seqfamilia
+                     AND ROWNUM = 1
+                    ) codcest,
+
                     v.ativo,
                     NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
@@ -3625,7 +3609,6 @@ PROCEDURE exec_sinc AS
     EXECUTE IMMEDIATE ('BEGIN delete from PCERRORLOGCONSINCO; end;');
     EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
 
-    criar_sequence_proprecoapartir;
     OPEN c_processo;
 
     LOOP
