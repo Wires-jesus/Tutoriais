@@ -4,8 +4,9 @@ PROCEDURE PROCESSAR_SANGRIA_SUPRIMENTO(P_SEQDOCTO NUMBER DEFAULT 0) IS
     CURSOR C_SANGRIA_SUPRIMENTO(PNESPECIE VARCHAR2) IS
       SELECT '0' NUMPEDECF,
              A.CODBANCO,
-             A.DTLANC,
+             A.DTLANC ,
              A.NUMCAIXA,
+             A.NUMSERIEEQUIP,
              A.NUMVALE,
              A.TIPO,
              A.HISTORICO,
@@ -21,10 +22,14 @@ PROCEDURE PROCESSAR_SANGRIA_SUPRIMENTO(P_SEQDOCTO NUMBER DEFAULT 0) IS
              A.ESPECIE,
              A.CODFILIAL,
              A.ROWID_TB_DOCTO,
-             CASE WHEN TIPO = 'A' THEN 'SANG' ELSE 'SUP' END TIPOOPERACAO
+             (CASE 
+                  WHEN TIPO = 'A' 
+                       THEN 'SANG' 
+                  ELSE 'SUP' 
+              END) TIPOOPERACAO
         FROM VW_INT_C5_VALES A
        WHERE A.TIPO IN ('A', 'U')
-         AND A.SEQDOCTO = DECODE(P_SEQDOCTO, 0, A.SEQDOCTO, P_SEQDOCTO);  
+         AND A.SEQDOCTO = DECODE(P_SEQDOCTO,0,A.SEQDOCTO,P_SEQDOCTO);  
 
     R_SANGRIA_SUPRIMENTO C_SANGRIA_SUPRIMENTO%ROWTYPE;
     MENSAGEMERRO         VARCHAR2(1000);
@@ -34,65 +39,50 @@ PROCEDURE PROCESSAR_SANGRIA_SUPRIMENTO(P_SEQDOCTO NUMBER DEFAULT 0) IS
       RETURN XMLTYPE IS
       L_XMLTYPEESQUEMA XMLTYPE;
     BEGIN
-      SELECT XMLELEMENT("ESQUEMAEXPORTACAO",
-                        XMLELEMENT("COMPLEMENTO",
+      SELECT XMLELEMENT("EsquemaExportacao",
+                        XMLELEMENT("Complemento",
                                    XMLELEMENT("PCVALECXECF",
                                               XMLAGG(XMLELEMENT("PCVALECXECF",
-                                                                XMLFOREST(P_R_SANGRIA_SUPRIMENTO.NUMPEDECF AS
-                                                                          "NUMPEDECF",
-                                                                          P_R_SANGRIA_SUPRIMENTO.CODBANCO AS
-                                                                          "CODBANCO",
-                                                                          P_R_SANGRIA_SUPRIMENTO.DTLANC AS
-                                                                          "DTLANC",
-                                                                          P_R_SANGRIA_SUPRIMENTO.CODFILIAL AS
-                                                                          "CODFILIAL",
-                                                                          P_R_SANGRIA_SUPRIMENTO.NUMCAIXA AS
-                                                                          "NUMCAIXA",
-                                                                          P_R_SANGRIA_SUPRIMENTO.NUMVALE AS
-                                                                          "NUMVALE",
-                                                                          P_R_SANGRIA_SUPRIMENTO.TIPO AS
-                                                                          "TIPO",
-                                                                          P_R_SANGRIA_SUPRIMENTO.HISTORICO AS
-                                                                          "HISTORICO",
-                                                                          P_R_SANGRIA_SUPRIMENTO.CODFUNC AS
-                                                                          "CODFUNC",
-                                                                          P_R_SANGRIA_SUPRIMENTO.CODUSURAUTORI AS
-                                                                          "CODUSURAUTORI",
-                                                                          P_R_SANGRIA_SUPRIMENTO.DTMOVIMENTOCX AS
-                                                                          "DTMOVIMENTOCX",
-                                                                          P_R_SANGRIA_SUPRIMENTO.NUMFECHAMENTOMOVCX AS
-                                                                          "NUMFECHAMENTOMOVCX",
-                                                                          P_R_SANGRIA_SUPRIMENTO.VALOR AS
-                                                                          "VALOR",
-                                                                          P_R_SANGRIA_SUPRIMENTO.CODCOB AS
-                                                                          "CODCOB",
-                                                                          P_R_SANGRIA_SUPRIMENTO.NUMMALOTE AS
-                                                                          "NUMMALOTE",
-                                                                          P_R_SANGRIA_SUPRIMENTO.NUMLACRE AS
-                                                                          "NUMLACRE",
-                                                                          P_R_SANGRIA_SUPRIMENTO.IDEXTERNO AS
-                                                                          "IDEXTERNO")))))) PCVALECXECF
+                                                                XMLFOREST(P_R_SANGRIA_SUPRIMENTO.NUMPEDECF AS "Numpedecf",
+                                                                          P_R_SANGRIA_SUPRIMENTO.CODBANCO AS "Codbanco",
+                                                                          P_R_SANGRIA_SUPRIMENTO.DTLANC AS "Dtlanc",
+                                                                          P_R_SANGRIA_SUPRIMENTO.CODFILIAL AS "Codfilial",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMCAIXA AS "Numcaixa",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMSERIEEQUIP AS "Numserieequip",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMVALE AS "Numvale",
+                                                                          P_R_SANGRIA_SUPRIMENTO.TIPO AS "Tipo",
+                                                                          P_R_SANGRIA_SUPRIMENTO.HISTORICO AS "Historico",
+                                                                          P_R_SANGRIA_SUPRIMENTO.CODFUNC AS "Codfunc",
+                                                                          P_R_SANGRIA_SUPRIMENTO.CODUSURAUTORI AS "Codusurautori",
+                                                                          P_R_SANGRIA_SUPRIMENTO.DTMOVIMENTOCX AS "Dtmovimentocx",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMFECHAMENTOMOVCX AS "Numfechamentomovcx",
+                                                                          P_R_SANGRIA_SUPRIMENTO.VALOR AS "Valor",
+                                                                          P_R_SANGRIA_SUPRIMENTO.CODCOB AS "Codcob",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMMALOTE AS "Nummalote",
+                                                                          P_R_SANGRIA_SUPRIMENTO.NUMLACRE AS "Numlacre",
+                                                                          P_R_SANGRIA_SUPRIMENTO.IDEXTERNO AS "Idexterno")))))) PCVALECXECF
         INTO L_XMLTYPEESQUEMA
         FROM DUAL;
 
       RETURN L_XMLTYPEESQUEMA;
     END RETORNAR_XML_SANGRIA;
 
-    FUNCTION RETORNAR_PCFILAMENSAGEM(P_R_SANGRIA C_SANGRIA_SUPRIMENTO%ROWTYPE) RETURN PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM IS
+    FUNCTION RETORNAR_PCFILAMENSAGEM(P_R_SANGRIA C_SANGRIA_SUPRIMENTO%ROWTYPE) 
+             RETURN PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM IS
       DADOS_PCFILAMENSAGEM PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM;
       L_XMLTYPE            XMLTYPE;
       VSANGRIA             C_SANGRIA_SUPRIMENTO%ROWTYPE;
       DAODOSCABECALHOXML   VARCHAR2(200) := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
     BEGIN
-      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM := DFSEQ_PCFILAMENSAGEM.NEXTVAL;
-      VSANGRIA                                          := P_R_SANGRIA;
-      VSANGRIA.NUMVALE                                  := DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM ||
-                                                           P_R_SANGRIA.NUMVALE;
+      
+      VSANGRIA                                                   := P_R_SANGRIA;
+      VSANGRIA.NUMVALE                                           := DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM||P_R_SANGRIA.NUMVALE;
 
       -- RECEBE XML DA SANGRIA
-      L_XMLTYPE := RETORNAR_XML_SANGRIA(VSANGRIA);
-
-      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATATRANSACAO       := P_R_SANGRIA.DTLANC;
+      L_XMLTYPE := RETORNAR_XML_SANGRIA(VSANGRIA);        
+     
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM          := DFSEQ_PCFILAMENSAGEM.NEXTVAL;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATATRANSACAO       := SYSDATE;-- P_R_SANGRIA.DTLANC;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODFILIAL           := P_R_SANGRIA.CODFILIAL;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMCAIXA            := P_R_SANGRIA.NUMCAIXA;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMNOTA             := NULL;
@@ -116,6 +106,7 @@ PROCEDURE PROCESSAR_SANGRIA_SUPRIMENTO(P_SEQDOCTO NUMBER DEFAULT 0) IS
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATAULTIMAALTERACAO := SYSDATE;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.PDVORIGEM           := 'CONSINCO';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.QTREPROCESSADO      := NULL;
+      
 
       RETURN DADOS_PCFILAMENSAGEM;
     END RETORNAR_PCFILAMENSAGEM;
@@ -156,3 +147,4 @@ PROCEDURE PROCESSAR_SANGRIA_SUPRIMENTO(P_SEQDOCTO NUMBER DEFAULT 0) IS
   END PROCESSAR_SANGRIA_SUPRIMENTO;
 
 END PKG_SINC_PDV_CONSINCO_SANG_SUP;
+/
