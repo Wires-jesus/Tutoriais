@@ -1,0 +1,18 @@
+{
+  "nome": "PKG_INT_C5_MOVCX",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "VW_INT_C5_ABERTURACX",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    }
+  ]
+
+	
+}
