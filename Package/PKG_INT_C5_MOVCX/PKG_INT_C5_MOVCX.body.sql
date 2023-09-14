@@ -1,4 +1,4 @@
-CREATE OR REPLACE Package Body PKG_INT_C5_MOVCX Is
+﻿CREATE OR REPLACE Package Body PKG_INT_C5_MOVCX Is
 
   Procedure processar_movimento_caixa(p_seqdocto Number Default 0) Is
     Cursor c_logaberturacx Is
