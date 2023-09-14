@@ -1,3 +1,4 @@
+
 /* Popular tabela PCTIPOCONTROLECONSINCO */
 
 delete from pccontroleconsinco
