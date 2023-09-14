@@ -1,4 +1,4 @@
-ï»¿CREATE OR REPLACE Package Body PKG_INT_C5_MOVCX Is
+CREATE OR REPLACE Package Body PKG_INT_C5_MOVCX Is
 
   Procedure processar_movimento_caixa(p_seqdocto Number Default 0) Is
     Cursor c_logaberturacx Is
@@ -91,7 +91,7 @@
                                                       Null As Horafechamento, --xsi:nil=true/>
                                                       Null As Minutofechamento, --xsi:nil=true/>
                                                       a.seqdocto As
-                                                      Nummovimentopdv -->149</Nummovimentopdv> NÃO TEM CONTADOR DE MOVIEMNTO
+                                                      Nummovimentopdv -->149</Nummovimentopdv> Nï¿½O TEM CONTADOR DE MOVIEMNTO
                                                       ))))
           Into l_xmlfechamentomovcx
           From vw_int_c5_aberturacx a
@@ -212,7 +212,7 @@
       Return dados_pcfilamensagem;
     End retornar_pcfilamensagem;
   Begin
-    ------------- INÍCIO LOOP C_LOGABERTURACX ---------------
+    ------------- INICIO LOOP C_LOGABERTURACX ---------------
     Execute Immediate 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
     Open c_logaberturacx;
