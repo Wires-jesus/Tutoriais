@@ -11,8 +11,6 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   FUNCTION get_inicio_execucao RETURN TIMESTAMP;
 
-  FUNCTION obter_seqapartirde RETURN NUMBER;
-
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
@@ -77,7 +75,7 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE);
 
-  --PROCEDURE carrega_tb_prodprecoapartir;
+  PROCEDURE carrega_tb_prodprecoapartir(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE);
   
@@ -112,6 +110,14 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_parcperiodo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_promsurpresa(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_promsurpresaempresa(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_promsurpresaperiodo(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_promsurpresaitem(p_id IN pccontroleconsinco.id%TYPE);
     
   PROCEDURE exec_sinc;
 

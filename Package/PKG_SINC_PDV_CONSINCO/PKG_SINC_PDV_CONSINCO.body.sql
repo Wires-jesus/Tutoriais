@@ -2952,6 +2952,7 @@ BEGIN
           TB_COMBO.DTAFIM    = VIEW_BRINDE_CABECALHO.DTAFIM,
           TB_COMBO.TIPO      = VIEW_BRINDE_CABECALHO.TIPO,
           TB_COMBO.ATIVO     = VIEW_BRINDE_CABECALHO.ATIVO
+
            
   WHEN NOT MATCHED THEN
         INSERT(
@@ -3073,7 +3074,8 @@ BEGIN
       TB_COMBOITEM.ATIVO,
       TB_COMBOITEM.QTDE,
       TB_COMBOITEM.PRECO,
-      TB_COMBOITEM.PERCDESCONTO
+      TB_COMBOITEM.PERCDESCONTO,
+      TB_COMBOITEM.IDREF
     )
     VALUES(
       VIEW_BRINDE_ITENS.SEQCOMBO,
@@ -3083,7 +3085,8 @@ BEGIN
       VIEW_BRINDE_ITENS.ATIVO,
       VIEW_BRINDE_ITENS.QTDE,
       VIEW_BRINDE_ITENS.PRECO,
-      VIEW_BRINDE_ITENS.PERCDESCONTO
+      VIEW_BRINDE_ITENS.PERCDESCONTO,
+      TB_COMBOITEM.IDREF
     );
 
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -3381,9 +3384,7 @@ END;
        CURRENT_TIMESTAMP);
 
     COMMIT;
-
-
-  EXCEPTION
+    EXCEPTION
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -3401,6 +3402,206 @@ END;
       END;
   END;
 
+  PROCEDURE carrega_tb_promsurpresa(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_promsurpresa TB_PROMSURPRESA
+      USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO_AUT) VW_INT_C5_BRINDE_CABECALHO_AUT
+      ON  (TB_PROMSURPRESA.SEQPROMSURPRESA = VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA)
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        TB_PROMSURPRESA.DESCRICAO     = VW_INT_C5_BRINDE_CABECALHO_AUT.DESCRICAO,
+        TB_PROMSURPRESA.TIPOSURPRESA  = VW_INT_C5_BRINDE_CABECALHO_AUT.TIPOSURPRESA,
+        TB_PROMSURPRESA.ATIVO         = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO 
+      
+    WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PROMSURPRESA.SEQPROMSURPRESA,
+        TB_PROMSURPRESA.DESCRICAO,
+        TB_PROMSURPRESA.TIPOSURPRESA,
+        TB_PROMSURPRESA.ATIVO,
+        TB_PROMSURPRESA.IDREF
+      )
+      VALUES(
+        VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.DESCRICAO,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.TIPOSURPRESA,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.IDREF
+      );
+
+    INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_promsurpresa', 'carrega_tb_promsurpresa OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+  
+    EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresa',
+           'carrega_tb_promsurpresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+    END;      
+  END;
+
+  PROCEDURE carrega_tb_promsurpresaempresa(p_id IN pccontroleconsinco.id%TYPE)AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_promsurpresaempresa TB_PROMSURPRESAEMPRESA
+      USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO_AUT) VW_INT_C5_BRINDE_CABECALHO_AUT
+      ON  (TB_PROMSURPRESAEMPRESA.SEQPROMSURPRESA = VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA
+           AND TB_PROMSURPRESAEMPRESA.NROEMPRESA = VW_INT_C5_BRINDE_CABECALHO_AUT.NROEMPRESA)
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        TB_PROMSURPRESAEMPRESA.ATIVO = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO  
+      
+    WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PROMSURPRESAEMPRESA.SEQPROMSURPRESA,
+        TB_PROMSURPRESAEMPRESA.NROEMPRESA,
+        TB_PROMSURPRESAEMPRESA.ATIVO
+      )
+      VALUES(
+        VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.NROEMPRESA,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO
+      );
+
+    INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_promsurpresaempresa', 'carrega_tb_promsurpresaempresa OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+  
+    EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresaempresa',
+           'carrega_tb_promsurpresaempresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+    END;    
+  END;
+
+  PROCEDURE carrega_tb_promsurpresaperiodo(p_id IN pccontroleconsinco.id%TYPE)AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_promsurpresaperiodo TB_PROMSURPRESAEMPRESAPERIODO
+      USING (SELECT * FROM VW_INT_C5_BRINDE_CABECALHO_AUT) VW_INT_C5_BRINDE_CABECALHO_AUT
+      ON  (TB_PROMSURPRESAEMPRESAPERIODO.SEQPROMSURPRESA = VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA)
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        TB_PROMSURPRESAEMPRESAPERIODO.DTAHORINICIO = VW_INT_C5_BRINDE_CABECALHO_AUT.DTAHORINICIO,
+        TB_PROMSURPRESAEMPRESAPERIODO.DTAHORFIM    = VW_INT_C5_BRINDE_CABECALHO_AUT.DTAHORFIM,
+        TB_PROMSURPRESAEMPRESAPERIODO.ATIVO        = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO  
+      
+    WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PROMSURPRESAEMPRESAPERIODO.SEQPROMSURPRESA,
+        TB_PROMSURPRESAEMPRESAPERIODO.DTAHORINICIO,
+        TB_PROMSURPRESAEMPRESAPERIODO.DTAHORFIM,
+        TB_PROMSURPRESAEMPRESAPERIODO.ATIVO
+      )
+      VALUES(
+        VW_INT_C5_BRINDE_CABECALHO_AUT.SEQPROMSURPRESA,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.DTAHORINICIO,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.DTAHORFIM,
+        VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO
+      );
+
+    INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_promsurpresaperiodo', 'carrega_tb_promsurpresaperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+  
+    EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresaperiodo',
+           'carrega_tb_promsurpresaperiodo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+    END;   
+  END;
+
+  PROCEDURE carrega_tb_promsurpresaitem(p_id IN pccontroleconsinco.id%TYPE)AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_promsurpresaitem TB_PROMSURPRESAITEM
+      USING (SELECT * FROM VW_INT_C5_BRINDE_ITENS_AUT) VW_INT_C5_BRINDE_ITENS_AUT
+      ON  (TB_PROMSURPRESAITEM.SEQPROMSURPRESA = VW_INT_C5_BRINDE_ITENS_AUT.SEQPROMSURPRESA
+           AND TB_PROMSURPRESAITEM.SEQITEM = VW_INT_C5_BRINDE_ITENS_AUT.SEQITEM)
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        TB_PROMSURPRESAITEM.QTDE       = VW_INT_C5_BRINDE_ITENS_AUT.QTDE,
+        TB_PROMSURPRESAITEM.SEQPRODUTO = VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO,
+        TB_PROMSURPRESAITEM.TIPOITEM   = VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
+        TB_PROMSURPRESAITEM.ATIVO      = VW_INT_C5_BRINDE_ITENS_AUT.ATIVO  
+      
+    WHEN NOT MATCHED THEN
+      INSERT(
+        TB_PROMSURPRESAITEM.SEQPROMSURPRESA,
+        TB_PROMSURPRESAITEM.SEQITEM,
+        TB_PROMSURPRESAITEM.QTDE,
+        TB_PROMSURPRESAITEM.SEQPRODUTO,
+        TB_PROMSURPRESAITEM.TIPOITEM,
+        TB_PROMSURPRESAITEM.ATIVO
+      )
+      VALUES(
+        VW_INT_C5_BRINDE_ITENS_AUT.SEQPROMSURPRESA,
+        VW_INT_C5_BRINDE_ITENS_AUT.SEQITEM,
+        VW_INT_C5_BRINDE_ITENS_AUT.QTDE,
+        VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO,
+        VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
+        VW_INT_C5_BRINDE_ITENS_AUT.ATIVO
+      );
+
+    INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_promsurpresaitem', 'carrega_tb_promsurpresaitem OK', SYSDATE, CURRENT_TIMESTAMP);
+
+    COMMIT;
+  
+    EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+      prc_record_error(p_id);
+      ROLLBACK;
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco',
+          'carrega_tb_promsurpresaitem',
+          'carrega_tb_promsurpresaitem ERRO',
+          SYSDATE,
+          CURRENT_TIMESTAMP);
+      COMMIT;
+      RAISE;
+    END;   
+  END;
 
 PROCEDURE exec_sinc AS
 
