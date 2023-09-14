@@ -30,38 +30,24 @@ PROCEDURE PROCESSAR_INUTILIZACAO_NOTA(P_SEQDOCTO NUMBER DEFAULT 0) IS
     FUNCTION RETORNAR_XML_INUTILIZACAO(P_R_INUTILIZACAO C_INUTILIZACAO%ROWTYPE)
       RETURN XMLTYPE IS
     BEGIN
-      SELECT XMLELEMENT("ESQUEMAEXPORTACAO",
-                        XMLELEMENT("COMPLEMENTO",
+      SELECT XMLELEMENT("EsquemaExportacao",
+                        XMLELEMENT("Complemento",
                                    XMLELEMENT("PCINUTILIZACAONFCE",
                                               XMLAGG(XMLELEMENT("PCINUTILIZACAONFCE",
-                                                                XMLFOREST(P_R_INUTILIZACAO.EXPORTADO AS
-                                                                          "EXPORTADO",
-                                                                          P_R_INUTILIZACAO.CODFILIAL AS
-                                                                          "CODFILIAL",
-                                                                          P_R_INUTILIZACAO.DATA AS
-                                                                          "DATA",
-                                                                          P_R_INUTILIZACAO.DTHORAPROCESSAMENTO AS
-                                                                          "DTHORAPROCESSAMENTO",
-                                                                          P_R_INUTILIZACAO.JUSTIFICATIVA AS
-                                                                          "JUSTIFICATIVA",
-                                                                          P_R_INUTILIZACAO.NUMNOTAINICIAL AS
-                                                                          "NUMNOTAINICIAL",
-                                                                          P_R_INUTILIZACAO.NUMNOTAFINAL AS
-                                                                          "NUMNOTAFINAL",
-                                                                          P_R_INUTILIZACAO.SERIE AS
-                                                                          "SERIE",
-                                                                          P_R_INUTILIZACAO.ANO AS
-                                                                          "ANO",
-                                                                          P_R_INUTILIZACAO.CODUSUARIO AS
-                                                                          "CODUSUARIO",
-                                                                          P_R_INUTILIZACAO.PROTOCOLOINUTILIZACAO AS
-                                                                          "PROTOCOLOINUTILIZACAO",
-                                                                          P_R_INUTILIZACAO.AMBIENTE AS
-                                                                          "AMBIENTE",
-                                                                          P_R_INUTILIZACAO.NUMCAIXA AS
-                                                                          "NUMCAIXA",
-                                                                          P_R_INUTILIZACAO.POSICAO AS
-                                                                          "POSICAO")))))) PCINUTILIZACAONFCE
+                                                                XMLFOREST(P_R_INUTILIZACAO.EXPORTADO AS "Exportado",
+                                                                          P_R_INUTILIZACAO.CODFILIAL AS "Codfilial",
+                                                                          P_R_INUTILIZACAO.DATA AS "Data",
+                                                                          P_R_INUTILIZACAO.DTHORAPROCESSAMENTO AS "Dthoraprocessamento",
+                                                                          P_R_INUTILIZACAO.JUSTIFICATIVA AS "Justificativa",
+                                                                          P_R_INUTILIZACAO.NUMNOTAINICIAL AS "Numnotainicial",
+                                                                          P_R_INUTILIZACAO.NUMNOTAFINAL AS "Numnotafinal",
+                                                                          P_R_INUTILIZACAO.SERIE AS "Serie",
+                                                                          P_R_INUTILIZACAO.ANO AS "Ano",
+                                                                          P_R_INUTILIZACAO.CODUSUARIO AS "Codusurio",
+                                                                          P_R_INUTILIZACAO.PROTOCOLOINUTILIZACAO AS "Protocoloinutilizacao",
+                                                                          P_R_INUTILIZACAO.AMBIENTE AS "Ambiente",
+                                                                          P_R_INUTILIZACAO.NUMCAIXA AS "Numcaixa",
+                                                                          P_R_INUTILIZACAO.POSICAO AS "Posicao")))))) PCINUTILIZACAONFCE
         INTO L_XMLTYPE
         FROM DUAL;
 
@@ -95,7 +81,7 @@ PROCEDURE PROCESSAR_INUTILIZACAO_NOTA(P_SEQDOCTO NUMBER DEFAULT 0) IS
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPODOCUMENTO       := 'CE';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOOPERACAO        := 'VEND';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.MENSAGEM            := REPLACE(L_XMLTYPE.GETCLOBVAL(),
-                                                                            '<ESQUEMAEXPORTACAO>',
+                                                                            '<EsquemaExportacao>',
                                                                             DAODOSCABECALHOXML);
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOMENSAGEM        := 1;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODIGOERRO          := NULL;
