@@ -667,6 +667,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     NVL(v.seqmarca, PARAM.VALOR) seqmarca,
                     v.seqfamgrupo,
                     v.pesavel,
+                    v.indescala,
+                    v.cnpjfabricante,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOPIS,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOCOFINS,
                     NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
@@ -725,7 +727,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.percbasepis = PERCBASEPIS,
                      S.percbasecofins = PERCBASECOFINS,
                      S.percpis = B.PERCPIS,
-                     S.perccofins = B.PERCCOFINS
+                     S.perccofins = B.PERCCOFINS,
+                     S.indescala = B.indescala,
+                     S.cnpjfabricante = B.cnpjfabricante
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -742,7 +746,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.percbasepis,
                      S.percbasecofins,
                      S.percpis,
-                     S.perccofins)
+                     S.perccofins,
+                     S.indescala,
+                     S.cnpjfabricante)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -759,7 +765,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.percbasepis,
                       B.percbasecofins,
                       B.percpis,
-                      B.perccofins);
+                      B.perccofins,
+                      B.indescala,
+                      B.cnpjfabricante);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
