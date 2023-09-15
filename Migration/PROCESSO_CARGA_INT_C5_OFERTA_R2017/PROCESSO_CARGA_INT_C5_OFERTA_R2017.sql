@@ -19,7 +19,6 @@ SELECT   0  SEQREGRA,
          0 PERCDESCONTO,
          E.POFERTA PRECO,
          '2017' IDREF
-       
 FROM PCEMBALAGEM E,
      PCDEPARAEMBALAGENSC5 P,
      monitorpdvmiddle.tb_produto C,
