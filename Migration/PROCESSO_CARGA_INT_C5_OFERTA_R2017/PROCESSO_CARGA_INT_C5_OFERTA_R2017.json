@@ -1,0 +1,6 @@
+{
+    "nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+ }
