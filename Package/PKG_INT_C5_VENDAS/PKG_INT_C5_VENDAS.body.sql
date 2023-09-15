@@ -24,7 +24,7 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao  := p_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao;
         dados_pcfilamensagem.rowpcfilamensagem.pdvorigem            := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
-
+        dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
         ----
         INSERT INTO
             pcfilamensagem s
@@ -62,8 +62,9 @@ IS
         rowpcfilamensagemerro.dataultimaalteracao   := p_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao;
         rowpcfilamensagemerro.pdvorigem             := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         rowpcfilamensagemerro.qtreprocessado        := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
+		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
-
+        
         ----
         INSERT INTO
             pcfilamensagemerro s
