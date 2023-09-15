@@ -43,7 +43,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          'S' ativo,
          p.codmarca seqmarca,
          1 seqfamgrupo,
-         p.pesovariavel PESAVEL
+         p.pesovariavel PESAVEL,
+         p.indescalarelevante indescala,
+         p.cnpjfabricante,
+         p.codauxiliartrib
   FROM VW_INT_C5_EMBPROD p 
   )
 
