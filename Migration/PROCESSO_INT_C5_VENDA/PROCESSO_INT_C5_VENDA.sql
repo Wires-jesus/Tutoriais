@@ -472,7 +472,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PLANOP_VENDA AS
 \
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_tipovenda_pag_venda(pNroFormaPagto NUMBER,
-                                                    pCodFilial     VARCHAR2)
+                                                          pCodFilial     VARCHAR2,
+                                                          pNumcheckout   NUMBER)
     RETURN CHAR
 IS
     vTipoVenda CHAR(2);
@@ -483,11 +484,13 @@ BEGIN
             --VW_INT_C5_FINALIZADORA a,
             monitorpdvmiddle.tb_doctopagto p
             --monitorpdvmiddle.tb_docto d
-     WHERE  p.nroformapagto = a.nroempresa
+     WHERE  p.nroformapagto = a.nroformapagto
        AND  p.nroempresa = a.nroempresa
+        AND p.nrocheckout = a.nrocheckout 
        AND  a.nroformapagto = pNroFormaPagto
        AND  a.nroempresa = pCodFilial
        AND  ROWNUM = 1;
+  
     RETURN(vTipoVenda);
 END;
 
@@ -908,8 +911,8 @@ END;
 
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCECF AS 
-  (SELECT  a.seqdocto,
+CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
+(SELECT  a.seqdocto,
         e.chavenf chavenfe,
         e.protocoloenvio,
         c.seriedocto serie,
@@ -933,7 +936,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCECF AS
             AND g.seqdocto = a.seqdocto
             AND g.seqitem = 1),1) codplpag,
 
-        (SELECT fnc_int_c5_tipovenda_pag_venda(g.nroformapagto,g.nroempresa)
+        (SELECT fnc_int_c5_tipovenda_pag_venda(g.nroformapagto,g.nroempresa,g.nrocheckout)
            FROM monitorpdvmiddle.tb_doctopagto g
           WHERE g.nroempresa = a.nroempresa
             AND g.nrocheckout = a.nrocheckout
@@ -1159,10 +1162,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDCECF AS
    AND  fnc_int_c5_finalizadora_cab(a.seqdocto,a.nrocheckout,a.nroempresa) > 0
 )
 
+
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_PCPEDIECF AS 
-  (SELECT  i.SEQDOCTO,
+CREATE OR REPLACE VIEW vw_int_c5_pcpediecf 
+AS
+(SELECT  i.SEQDOCTO,
         'N' exportado,
         0 numpedecf,
         i.nrocheckout numcheckout,
@@ -1218,8 +1223,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDIECF AS
         NULL dtexportacao,
         p.descanp descanp,
         p.desccompleta descricaopaf,
-       'N' emoferta,
-       'N' enviaraliqreducaopiscofins,
+        'N' emoferta,
+        'N' enviaraliqreducaopiscofins,
         h.excluiricmsbasepiscofins,
         v.fabricante,
         NULL idcancel,
@@ -1249,7 +1254,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDIECF AS
         0 peracrescimofuncep,
         (SELECT percbasered
            FROM pctribut
-          WHERE codst = a.codst ) percbasered,
+          WHERE codst = a.codst) percbasered,
         0 percbaseredst,
         0 percdesccofins,
         0 percdescpis,
@@ -1257,12 +1262,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDIECF AS
         0 percmexiva,
         0 perciss,
         (select percaliquota
-                         from monitorpdvmiddle.tb_doctotributacaoitem
-                        where nroempresa = i.nroempresa
-                          and nrocheckout = i.nrocheckout
-                          and seqdocto = i.seqdocto
-                          and seqitem = i.seqitem
-                          and seqtipotributacao = 1) percicm,
+           from monitorpdvmiddle.tb_doctotributacaoitem
+          where nroempresa = i.nroempresa
+            and nrocheckout = i.nrocheckout
+            and seqdocto = i.seqdocto
+            and seqitem = i.seqitem
+            and seqtipotributacao = 1) percicm,
         0 percicmsefet,
         v.comissao percom,
         0 percredbaseefet,
@@ -1448,6 +1453,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPEDIECF AS
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  i.codacesso = h.codauxiliar(+)
+   and  i.nroempresa = h.codfilial
    AND  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',d.nroempresa,1)
    AND  c.status = 'V'
    AND  i.status = 'V')
