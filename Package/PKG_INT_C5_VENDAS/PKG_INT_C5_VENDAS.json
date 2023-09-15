@@ -1,0 +1,10 @@
+{
+	"nome":"PKG_INT_C5_VENDAS",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias":[{
+					  "nome": "PROCESSO_INT_C5_VENDA",
+					  "tipo": "MIGRATION",
+					  "versao": "4.0.02.000"
+					}
+				   ]
+}
