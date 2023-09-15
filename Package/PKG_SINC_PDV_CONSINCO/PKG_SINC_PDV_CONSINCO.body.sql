@@ -669,7 +669,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.pesavel,
                     v.indescala,
                     v.cnpjfabricante,
-                    v.codauxiliartrib,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOPIS,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOCOFINS,
                     NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
