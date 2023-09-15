@@ -206,8 +206,8 @@ IS
             l_xmlitens := retornar_xml_canc_itens(p_r_canc_cabecalho);
 
             SELECT XMLELEMENT(
-                       "ESQUEMAEXPORTACAO",
-                       XMLELEMENT ("COMPLEMENTO", l_xmlitens, l_xmlcabecalho))
+                       "EsquemaExportacao",
+                       XMLELEMENT ("Complemento", l_xmlitens, l_xmlcabecalho))
                        esquemaexportacao
               INTO l_xmlesquema
               FROM DUAL;
@@ -258,6 +258,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'consinco';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
+			dados_pcfilamensagem.rowpcfilamensagem.seqdocto         := p_r_canc_cabecalho.seqdocto;
 
             RETURN dados_pcfilamensagem;
         END retornar_pcfilamensagem_canc;
@@ -373,7 +374,7 @@ IS
             r_canc_cabecalho.vltabela       := r_canc_cabecalho.vltotal;
         END;
     BEGIN
-        --INÍCIO LOOP C_CANC_CABECALHO
+        --IN CIO LOOP C_CANC_CABECALHO
         EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
         OPEN c_canc_cabecalho;
@@ -385,7 +386,7 @@ IS
             BEGIN
                 gerar_venda_caso_nao_exista (r_canc_cabecalho);
 
-                -- REGRAS DO CABEÇALHO DO CANCELAMENTO
+                -- REGRAS DO CABE ALHO DO CANCELAMENTO
                 adicionarregrascabecalhonf (r_canc_cabecalho);
 
                 -- INSERE OS DADOS DA PCFILAMENSAGEM
@@ -404,7 +405,7 @@ IS
                 WHEN e_venda_nao_existe
                 THEN
                     mensagemerro :=
-                           ' A VENDA NÃO EXISTE PARA O CANCELAMENTO - ERROR: '
+                           ' A VENDA N O EXISTE PARA O CANCELAMENTO - ERROR: '
                         || SQLCODE
                         || '-'
                         || SQLERRM
@@ -445,4 +446,4 @@ IS
         COMMIT;
     -- FIM LOOP C_CANC_CABECALHO
     END processar_cancelamento;
-END pkg_int_c5_cancelamento;
+END PKG_INT_C5_CANCELAMENTO;
