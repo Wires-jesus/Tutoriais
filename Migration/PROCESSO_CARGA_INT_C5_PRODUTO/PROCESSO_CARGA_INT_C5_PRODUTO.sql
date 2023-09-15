@@ -45,7 +45,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          1 seqfamgrupo,
          p.pesovariavel PESAVEL,
          p.indescalarelevante indescala,
-         p.cnpjfabricante
+         p.cnpjfabricante,
+         p.codauxiliartrib
   FROM VW_INT_C5_EMBPROD p 
   )
 
