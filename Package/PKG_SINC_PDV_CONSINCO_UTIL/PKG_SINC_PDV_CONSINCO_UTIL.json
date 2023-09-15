@@ -11,6 +11,12 @@
 		  "nome":"PCFILAMENSAGEMERRO",
           "tipo":"TABELA",
           "versao":"4.0.01.000"		  
+		},
+   	    {
+		  "nome":"PCFILAMENSAGEMHISTORICO",
+          "tipo":"TABELA",
+          "versao":"4.0.01.000"
 		}
+
 	]
 }
