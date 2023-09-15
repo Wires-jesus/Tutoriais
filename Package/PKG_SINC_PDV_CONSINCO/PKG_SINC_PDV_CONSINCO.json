@@ -161,6 +161,11 @@
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "VW_INT_C5_ABERTURACX",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.02.000"
 		}
     
 	]
