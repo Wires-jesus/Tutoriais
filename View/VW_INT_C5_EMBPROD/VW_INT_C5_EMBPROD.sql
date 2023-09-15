@@ -83,7 +83,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
               END) foralinha,
             f.indescalarelevante,
             f.cnpjfabricante,
-            e.dtalterc5
+            e.dtalterc5,
+            p.codauxiliartrib
        FROM pcembalagem e,
             pcprodut p,
             pcprodfilial f,
