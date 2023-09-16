@@ -44,7 +44,7 @@ FROM
                  where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
                 )DTPADRAO
            WHERE PCNCM.CODNCMEX IS NOT NULL
-           AND   LENGTH(CODEX) <= 2
+           AND   PCNCM.CODEX IS NULL
            AND   PCREGIAO.NUMREGIAO IN (SELECT DISTINCT(VALOR)
                                         FROM PCPARAMFILIAL
                                         WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
@@ -97,7 +97,7 @@ FROM
 
       AND   N.CODNCMEX IS NOT NULL
       AND   P.CODNCMEX IS NOT NULL
-      AND   LENGTH(CODEX) <= 2
+      AND   N.CODEX IS NULL
       AND   T.CODST IS NOT NULL
       AND   P.codncmex = N.CODNCM||'.'||N.CODEX
       AND   NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
