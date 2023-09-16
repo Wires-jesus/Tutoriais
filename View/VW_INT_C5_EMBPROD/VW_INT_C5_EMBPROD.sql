@@ -84,7 +84,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             f.indescalarelevante,
             f.cnpjfabricante,
             e.dtalterc5,
-            p.codauxiliartrib
+            p.codauxiliartrib,
+            0 CODCEST --PROVISORIO
        FROM pcembalagem e,
             pcprodut p,
             pcprodfilial f,
