@@ -36,18 +36,23 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
   SELECT DISTINCT
          p.codprod seqfamilia,
          NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
-         p.codncmsh,
-         p.aceitavendafracao permitedecimal,
-         p.permitemultiplicacao,
-         --nvl(p.codcest, 0) codcest,
+         MAX(p.codncmsh) codncmsh,
+         MAX(p.aceitavendafracao) permitedecimal,
+         MAX(p.permitemultiplicacao) permitemultiplicacao,
+         (SELECT nvl(CODCEST, 0) codcest
+          FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
+          WHERE PCCESTPRODUTO.CODPROD = p.codprod
+          AND ROWNUM = 1
+         ) codcest,
          'S' ativo,
-         p.codmarca seqmarca,
+         MAX(p.codmarca) seqmarca,
          1 seqfamgrupo,
-         p.pesovariavel PESAVEL,
-         p.indescalarelevante indescala,
-         p.cnpjfabricante
-  FROM VW_INT_C5_EMBPROD p 
-  )
+         MAX(p.pesovariavel) PESAVEL,
+         MIN(NVL(p.indescalarelevante, 'S')) indescala,
+         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante
+  FROM VW_INT_C5_EMBPROD p
+  GROUP BY p.codprod, p.descricao
+)
 
 \
 
