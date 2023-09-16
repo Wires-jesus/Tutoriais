@@ -3129,6 +3129,9 @@ END;
 
 PROCEDURE carrega_tb_parcelamento(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+  UPDATE monitorpdvmiddle.tb_parcelamento P SET P.ATIVO = 'N'
+  WHERE P.ATIVO = 'S';
+  
   MERGE INTO monitorpdvmiddle.tb_parcelamento T
     USING (SELECT DISTINCT SEQPARCELA, DESCRICAO, TIPO, ATIVO FROM VW_INT_C5_PARCELDEPTO) S 
     ON    (T.SEQPARCELA = S.SEQPARCELA)
@@ -3175,6 +3178,9 @@ END;
 
 PROCEDURE carrega_tb_parcempresa(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+  UPDATE monitorpdvmiddle.tb_parcempresa P SET P.ATIVO = 'N'
+  WHERE P.ATIVO = 'S';
+  
   MERGE INTO monitorpdvmiddle.tb_parcempresa T
     USING (SELECT DISTINCT SEQPARCELA, NROEMPRESA, ATIVO FROM VW_INT_C5_PARCELDEPTO) S 
     ON    (T.SEQPARCELA = S.SEQPARCELA AND T.NROEMPRESA = S.NROEMPRESA)
@@ -3217,6 +3223,9 @@ END;
 
 PROCEDURE carrega_tb_parcperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+  UPDATE monitorpdvmiddle.tb_parcperiodo P SET P.ATIVO = 'N'
+  WHERE P.ATIVO = 'S';
+  
   MERGE INTO monitorpdvmiddle.tb_parcperiodo T
     USING (SELECT DISTINCT SEQPARCELA, DTAHORINICIAL, DTAHORFINAL, ATIVO FROM VW_INT_C5_PARCELDEPTO) S 
     ON    (T.SEQPARCELA = S.SEQPARCELA AND 
@@ -3263,6 +3272,9 @@ END;
 
 PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+  UPDATE monitorpdvmiddle.tb_parccategformapagto P SET P.ATIVO = 'N'
+  WHERE P.ATIVO = 'S';
+  
   MERGE INTO monitorpdvmiddle.tb_parccategformapagto T
     USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
     ON    (T.SEQPARCELA = S.SEQPARCELA AND
