@@ -1,30 +1,3 @@
-CREATE OR REPLACE VIEW VW_INT_C5_ABERTURACX AS 
-  (SELECT  a.nrocheckout numcaixa,
-        a.sequsuario codfunccxatual,
-        TO_CHAR(a.dtamovimento, 'YYYY-MM-DD') dtabertura,
-        a.seqturno,
-        a.nroempresa,
-        a.seqdocto,
-        a.especie,
-        a.ROWID rowid_tb_docto
-  FROM  monitorpdvmiddle.tb_docto a
- WHERE  a.replicacao = 'P'
-   AND  a.especie IN ('AC','CX','FC','FM'))
-   
-\
-
-CREATE OR REPLACE VIEW VW_INT_C5_VCBENEF AS 
-  (SELECT CODIGOBENEFICIO,
-       UFDESTINO,
-       CODFISCAL,
-       SITTRIBUT
-  FROM PCCODIGOBENEFICIOFISCALVINCULO I
- WHERE I.CODFISCAL > 0
-   AND I.SITTRIBUT IS NOT NULL
-) 
-
-\
-
 CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS 
  ( SELECT t.codst,
        t.mensagem,
@@ -468,6 +441,24 @@ END;
 
 \
 
+CREATE OR REPLACE FUNCTION FNC_INT_C5_VLTOTAL (pSeqDocto number,
+                                                   pNumeroCaixa NUMBER,
+                                                   pCodigoFilial VARCHAR2)
+    RETURN NUMBER
+IS
+    vTotal NUMBER;
+
+BEGIN
+    SELECT  SUM(p.valor)
+      INTO  vTotal
+      FROM  monitorpdvmiddle.tb_doctopagto p
+     WHERE  p.seqdocto = pSeqDocto
+       AND  p.nroempresa = pCodigoFilial
+       AND  p.nrocheckout = pNumeroCaixa;
+    RETURN(vTotal);
+END;
+
+\
 CREATE OR REPLACE VIEW VW_INT_C5_PLANOP_VENDA AS
 (SELECT  p.codplpag,
         g.nroformapagto,
