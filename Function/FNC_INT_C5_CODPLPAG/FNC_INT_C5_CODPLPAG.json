@@ -1,1 +1,8 @@
-{"nome":"FNC_INT_C5_CODPLPAG","tipoPLSQL":"FUNCTION","dependencias":""}
+{"nome":"FNC_INT_C5_CODPLPAG","tipoPLSQL":"FUNCTION","dependencias":[
+    {
+      "nome": "VW_INT_C5_FINALIZADORA",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.03.000"
+    }
+  ]
+}
