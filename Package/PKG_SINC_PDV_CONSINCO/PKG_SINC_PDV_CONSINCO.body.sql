@@ -144,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
                s.NOME       = b.NOME,
                s.APELIDO    = b.APELIDO,
-               s.SENHA      = b.SENHA,
+               s.SENHA      = null, --b.SENHA,
                s.SEQPESSOA  = b.SEQPESSOA,
                s.NIVEL      = b.NIVEL,
                s.DTAEXPIRAR = b.DTAEXPIRAR,
@@ -165,7 +165,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   (b.sequsuario,
                    b.NOME,
                    b.APELIDO,
-                   b.SENHA,
+                   null, --b.SENHA,
                    b.SEQPESSOA,
                    b.NIVEL,
                    b.DTAEXPIRAR,
