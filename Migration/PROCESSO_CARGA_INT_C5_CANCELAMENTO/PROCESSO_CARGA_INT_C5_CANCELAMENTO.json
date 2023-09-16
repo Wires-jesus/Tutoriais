@@ -3,5 +3,6 @@
     {"nome": "PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
     {"nome": "PCEMBALAGEM","tipo": "TABELA","versao": "4.0.06.000"},
     {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
-    {"nome": "PCCONSOLIDATRIBUTACAO","tipo": "TABELA","versao": "4.0.05.000"}
+    {"nome": "PCCONSOLIDATRIBUTACAO","tipo": "TABELA","versao": "4.0.05.000"},
+	{"nome": "FNC_INT_C5_ESPECIE_COBRANCA","tipo": "OBJETO_PLSQL","versao": "4.0.02.000"}
 ]}
