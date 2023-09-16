@@ -1,5 +1,10 @@
 {
     "nome": "PROCESSO_INT_C5_VENDA",
     "tipoPLSQL": "MIGRATION",
-	"dependencias":[]
+	"dependencias":[{
+						"nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
+						"tipo": "MIGRATION",
+						"versao": "4.0.02.000"
+				    }
+				   ]
 }
