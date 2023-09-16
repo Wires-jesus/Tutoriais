@@ -6,7 +6,6 @@ SELECT DISTINCT
       TBPERDESC.PERDESC PERCDESCMAX,
       'S' ATIVO
 FROM
-PCEMPR R,
     (SELECT valor, 'OPERADOR DE CAIXA' NOMEGRUPO
       FROM pcparamfilial
       WHERE nome = 'CON_CODSETOROPERCX'
@@ -23,6 +22,4 @@ PCEMPR R,
       WHERE nome = 'CON_PERMAXDESCITEMCF'
       AND codfilial = '99'
     ) TBPERDESC
-
-WHERE r.codsetor = (GRUPO.valor)
 )
