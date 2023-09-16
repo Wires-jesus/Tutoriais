@@ -3315,6 +3315,23 @@ END;
 
   PROCEDURE carrega_tb_grupo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    UPDATE monitorpdvmiddle.TB_GRUPO TB_GRUPO SET TB_GRUPO.ATIVO = 'N'
+    WHERE TB_GRUPO.ATIVO = 'S'
+        AND NOT EXISTS (SELECT VALOR
+                        FROM
+                        (SELECT valor, 'OPERADOR DE CAIXA' NOMEGRUPO
+                        FROM pcparamfilial
+                        WHERE nome = 'CON_CODSETOROPERCX'
+                        AND codfilial = '99'
+                        UNION ALL
+                        SELECT valor, 'FISCAL DE CAIXA' NOMEGRUPO
+                        FROM pcparamfilial
+                        WHERE nome = 'CON_CODSETORFISCALCX'
+                        AND codfilial = '99'
+                        ) GRUPO
+                        WHERE GRUPO.VALOR = TB_GRUPO.SEQGRUPO
+        );
+          
     MERGE INTO monitorpdvmiddle.tb_grupo s
         USING (SELECT *
                FROM VW_INT_C5_USUARIO_GRUPO c
@@ -3370,6 +3387,15 @@ END;
 
   PROCEDURE carrega_tb_grupousuario(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    UPDATE monitorpdvmiddle.tb_grupousuario tb_grupousuario SET tb_grupousuario.ATIVO = 'N'
+    WHERE tb_grupousuario.ativo = 'S'
+      AND NOT EXISTS
+          (SELECT R.CODSETOR
+          FROM PCEMPR R
+          WHERE R.MATRICULA = tb_grupousuario.sequsuario
+          AND R.CODSETOR = tb_grupousuario.seqgrupo
+          );
+        
     MERGE INTO monitorpdvmiddle.tb_grupousuario s
         USING (SELECT *
                FROM VW_INT_C5_USUARIO c
