@@ -6,7 +6,7 @@ SELECT r.codfilial,
        1 seqpessoa,
        SUBSTR(r.nome, 1, 40) nome,
        SUBSTR(NVL(r.nome_guerra, r.nome), 1, 30) apelido,
-       fnc_int_c5_pwd(r.matricula) senha,
+       null senha,  --fnc_int_c5_pwd(r.matricula) senha,
        (CASE
             WHEN r.codsetor = TBFISCAL.fiscal THEN 0
             ELSE 1
