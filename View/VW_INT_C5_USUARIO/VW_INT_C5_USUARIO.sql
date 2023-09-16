@@ -44,9 +44,11 @@ FROM pcempr r,
        
      pcusuari i,
      
-     (SELECT s.ultimaexecucao 
-      FROM pccontroleconsinco s 
-      WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO') DTPADRAO
+    (SELECT min(s.ultimaexecucao) ultimaexecucao
+     FROM pccontroleconsinco s
+     WHERE  (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO')
+         or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_GRUPOUSUARIO')
+    ) DTPADRAO
       
    WHERE r.codusur = i.codusur
      AND i.codsupervisor IS NOT NULL
