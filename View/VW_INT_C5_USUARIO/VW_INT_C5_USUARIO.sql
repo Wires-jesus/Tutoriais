@@ -5,7 +5,7 @@ SELECT r.codfilial,
        r.matricula sequsuario,
        1 seqpessoa,
        SUBSTR(r.nome, 1, 40) nome,
-       SUBSTR(r.nome_guerra, 1, 30) apelido,
+       SUBSTR(NVL(r.nome_guerra, r.nome), 1, 30) apelido,
        fnc_int_c5_pwd(r.matricula) senha,
        (CASE
             WHEN r.codsetor = TBFISCAL.fiscal THEN 0
@@ -41,15 +41,15 @@ FROM pcempr r,
      FROM pcparamfilial
      WHERE nome = 'CON_PERMAXDESCITEMCF'
        AND codfilial = '99') TBPERDESC,
-       
+
      pcusuari i,
-     
+
     (SELECT min(s.ultimaexecucao) ultimaexecucao
      FROM pccontroleconsinco s
      WHERE  (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO')
          or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_GRUPOUSUARIO')
     ) DTPADRAO
-      
+
    WHERE r.codusur = i.codusur
      AND i.codsupervisor IS NOT NULL
      AND i.dtexclusao IS NULL
@@ -57,4 +57,4 @@ FROM pcempr r,
      AND r.matricula > 0
      AND r.codsetor IN (TBFISCAL.fiscal, TBOPER.oper)
      AND NVL(r.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
-)                                                                                                                                                                                                                                                   
+);
