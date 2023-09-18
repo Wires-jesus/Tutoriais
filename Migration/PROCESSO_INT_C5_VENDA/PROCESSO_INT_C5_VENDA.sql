@@ -388,6 +388,28 @@ BEGIN
     RETURN(vEspecie);
 END;
 
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_cab_total_acresc(pSeqDocto NUMBER,
+                                                       pNroCheckout NUMBER,
+                                                       pNroEmpresa NUMBER)
+    RETURN NUMBER
+IS
+    vTotalAcresc NUMBER;
+BEGIN
+   SELECT   SUM(z.vlracrescimo)
+      INTO  vTotalAcresc
+      FROM  monitorpdvmiddle.tb_doctopagto z,
+            monitorpdvmiddle.tb_docto a
+     WHERE  z.nroempresa = a.nroempresa
+       AND  z.nrocheckout = a.nrocheckout
+       AND  z.seqdocto = a.seqdocto
+       AND  a.especie = 'NF'
+       AND  z.nroempresa = pNroEmpresa
+       AND  z.nrocheckout = pNroCheckout
+       AND  z.seqdocto = pSeqDocto;
+   RETURN(vTotalAcresc);
+END;
 
 \
 
