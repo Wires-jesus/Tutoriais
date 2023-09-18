@@ -52,7 +52,7 @@ SELECT CATEG.NRODIVISAO,
                       WHERE UPPER (s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CATEGORIA') datapadrao
               WHERE a.codepto = b.codepto
                 AND NVL(b.dtalterc5, datapadrao.ultimaexecucao) >= datapadrao.ultimaexecucao
-             ------------------
+             -----------------
              UNION ALL
              SELECT b.codsec||'0'|| c.codcategoria||'0'|| 3 seqcategoria,
                     b.codsec || 2 seqcategoriapai,
