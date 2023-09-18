@@ -155,7 +155,12 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017",
 			"tipo": "MIGRATION",
-			"versao": "4.0.03.000"
+			"versao": "4.0.04.000"
+		},
+		{
+			"nome": "MANUNTECAO_PCDEPARAPLPAGC5",
+			"tipo": "MIGRATION",
+			"versao": "4.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
