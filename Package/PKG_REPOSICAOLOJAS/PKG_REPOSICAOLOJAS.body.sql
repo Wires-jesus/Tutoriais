@@ -169,7 +169,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vSqlHistorico       VARCHAR2(32000);
     vdDataInicialVenda  DATE;
     vdDataFinalVenda    DATE;
-
+	VSQL                varchar2(2000);
     -- REGRA ESPECÍFICA - Ignorar Produto Master (HIS.00011.2018)
     vIGNORARPRODMASTER2312 PCREGRASEXCECAOMED.VALOR%TYPE;
     -- REGRA ESPECÍFICA - Ignorar Qtde. Pedida (HIS.00005.2018)
@@ -1007,15 +1007,17 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           N_PRAZOENTREGA_O := 0;
       END;
-     BEGIN
-       SELECT UF
-       INTO  vUFDestino
-       FROM PCFILIAL
-       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_DESTINO);
-       EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vUFDestino := NULL;
-     END;
+	  BEGIN
+		vSQL := 'SELECT UF
+			 FROM PCFILIAL
+			 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
+			 AND ROWNUM = 1';
+		EXECUTE IMMEDIATE vSQL INTO vUFDestino;
+		EXCEPTION
+			WHEN NO_DATA_FOUND THEN
+				vUFDestino := NULL;
+					 
+	  END;
 
        BEGIN
        SELECT UF
@@ -2993,15 +2995,17 @@ IS PRAGMA SERIALLY_REUSABLE;
     POBTEM_PARAMFILIAL_STRING(P_CODFILIAL_ORIGEM,'DESCSTFORAUFTRANSF',
                                 vDESCSTFORAUFTRANSF,vvErroPesqParam1,
                                 vvMsgErroPesqParam1);
-         BEGIN
-       SELECT UF
-       INTO  vUFDestino
-       FROM PCFILIAL
-       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_DESTINO);
-       EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vUFDestino := NULL;
-     END;
+		BEGIN
+			 vSQL := 'SELECT UF
+			 FROM PCFILIAL
+			 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
+			 AND ROWNUM = 1';
+        EXECUTE IMMEDIATE vSQL INTO vUFDestino;
+         EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vUFDestino := NULL;
+                 
+       END;
        BEGIN
        SELECT UF
        INTO  vUFORIGEM
