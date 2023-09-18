@@ -2367,7 +2367,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-      UPDATE TB_REGRAINCENTIVO SET ATIVO = 'N'
+      UPDATE monitorpdvmiddle.TB_REGRAINCENTIVO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
       AND   IDREF = '2017';
       
@@ -2436,7 +2436,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
 
 PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-      UPDATE TB_REGRAINCENTIVOPERIODO SET ATIVO = 'N'
+      UPDATE monitorpdvmiddle.TB_REGRAINCENTIVOPERIODO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
       AND   IDREF = '2017';
       
@@ -2611,7 +2611,7 @@ END;
 
 PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-      UPDATE TB_REGRAPRODUTO SET ATIVO = 'N'
+      UPDATE monitorpdvmiddle.TB_REGRAPRODUTO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
       AND   IDREF = '2017';
       
