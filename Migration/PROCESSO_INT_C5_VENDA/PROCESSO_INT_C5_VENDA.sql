@@ -138,7 +138,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
                  THEN 'N'
             ELSE
                     'S'
-         END) ativo
+         END) ativo,
+		p.volume volume_prod
   FROM  pcembalagem e,
         pcprodut p,
         pcprodfilial f,
@@ -481,6 +482,7 @@ BEGIN
 END;
 
 \
+
 CREATE OR REPLACE VIEW VW_INT_C5_PLANOP_VENDA AS
 (SELECT  p.codplpag,
         g.nroformapagto,
@@ -511,6 +513,27 @@ CREATE OR REPLACE VIEW VW_INT_C5_PLANOP_VENDA AS
    AND  a.especie = 'NF'
    AND  p.codplpag = NVL(fnc_int_c5_codplpag_venda(g.nroformapagto,g.nroempresa),1)
    AND  p.codplpag > 0)
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_cab_total_vol(pSeqDocto NUMBER,
+                                                    pNroCheckout NUMBER,
+                                                    pNroEmpresa NUMBER)
+    RETURN NUMBER
+IS
+    vTotalVol NUMBER;
+BEGIN
+SELECT  SUM(NVL(a.volume_prod,0))
+  INTO  vTotalVol
+  FROM  monitorpdvmiddle.tb_doctoitem i,
+        VW_INT_C5_PCPRODUT a
+ WHERE  i.nroempresa = a.codfilial
+   AND  i.codacesso = a.codauxiliar
+   AND  i.seqdocto = pSeqDocto
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout;
+ RETURN(vTotalVol);
+END;
 
 \
 
