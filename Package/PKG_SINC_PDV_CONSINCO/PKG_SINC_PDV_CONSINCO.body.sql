@@ -144,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
                s.NOME       = b.NOME,
                s.APELIDO    = b.APELIDO,
-               s.SENHA      = null,  --b.SENHA,
+               s.SENHA      = b.SENHA,
                s.SEQPESSOA  = b.SEQPESSOA,
                s.NIVEL      = b.NIVEL,
                s.DTAEXPIRAR = b.DTAEXPIRAR,
@@ -165,7 +165,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   (b.sequsuario,
                    b.NOME,
                    b.APELIDO,
-                   null, --b.SENHA,
+                   b.SENHA,
                    b.SEQPESSOA,
                    b.NIVEL,
                    b.DTAEXPIRAR,
@@ -2367,6 +2367,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+      UPDATE TB_REGRAINCENTIVO SET ATIVO = 'N'
+      WHERE ATIVO = 'S'
+      AND   IDREF = '2017';
+      
       MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
         USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
@@ -2432,6 +2436,10 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
 
 PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+      UPDATE TB_REGRAINCENTIVOPERIODO SET ATIVO = 'N'
+      WHERE ATIVO = 'S'
+      AND   IDREF = '2017';
+      
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
         USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
@@ -2603,6 +2611,10 @@ END;
 
 PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+      UPDATE TB_REGRAPRODUTO SET ATIVO = 'N'
+      WHERE ATIVO = 'S'
+      AND   IDREF = '2017';
+      
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING (--SELECT * FROM VW_INT_C5_PRODUTO_R2011
                SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF  
@@ -2651,7 +2663,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
                       )
       AND IDREF = 2011; 
 
-      UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
+      /*UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
       WHERE ATIVO = 'S' 
       AND   NOT EXISTS  (SELECT E.CODAUXILIAR
                          FROM PCEMBALAGEM E,
@@ -2661,7 +2673,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
                          AND   R.QTDEMBALAGEM = E.QTUNIT
                          AND   R.SEQREGRA = E.CODFILIAL||P.SEQPRODUTO
                     )
-      AND IDREF = 2017; 
+      AND IDREF = 2017; */
 
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
