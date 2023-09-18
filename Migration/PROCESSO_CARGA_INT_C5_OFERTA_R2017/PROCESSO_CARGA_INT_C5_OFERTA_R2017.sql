@@ -21,17 +21,17 @@ SELECT   E.CODFILIAL||P.SEQPRODUTO  SEQREGRA,
          '2017' IDREF
 FROM PCEMBALAGEM E,
      PCDEPARAEMBALAGENSC5 P,
-     monitorpdvmiddle.tb_produto C,
-     (select min(s.ultimaexecucao) ultimaexecucao
+     monitorpdvmiddle.tb_produto C
+     /*(select min(s.ultimaexecucao) ultimaexecucao
         from pccontroleconsinco s
         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA') 
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO') 
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO') 
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
-     ) DATAPADRAO
-WHERE NVL(E.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
-AND E.CODAUXILIAR = P.CODAUXILIAR 
+     ) DATAPADRAO*/
+WHERE E.CODAUXILIAR = P.CODAUXILIAR
+--NVL(E.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
 AND C.SEQPRODUTO = P.SEQPRODUTO
 AND E.CODPROD = C.SEQFAMILIA 
 AND E.DTOFERTAFIM >= TRUNC(SYSDATE)
