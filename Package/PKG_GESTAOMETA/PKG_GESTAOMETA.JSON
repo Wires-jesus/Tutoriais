@@ -1,1 +1,41 @@
-{"nome":"PKG_GESTAOMETA","tipoPLSQL":"PACKAGE","dependencias":[{"nome": "PCGMMETACONSOLIDADA","tipo": "TABELA","versao": "3.0.01.000"}]}
+{
+  "nome":"PKG_GESTAOMETA",
+  "tipoPLSQL":"PACKAGE",
+  "dependencias":[
+    {
+      "nome": "PCGMMETACONSOLIDADA",
+      "tipo": "TABELA",
+      "versao": "3.0.01.000"
+    },
+    {
+      "nome": "VIEW_VENDAS_RESUMO_FATURAMENTO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.02.000"
+    },
+    {
+      "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "VIEW_DEVOL_RESUMO_FATURAVULSA",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCGMPARAMETRO_PARAMETROS",
+      "tipo": "MIGRATION",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCGMINDICADOR_CALC_REALIZADO_E_PREVISTO",
+      "tipo": "MIGRATION",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCGMMETAGLOBALTEMP_CRIA_POR_FILIAL",
+      "tipo": "MIGRATION",
+      "versao": "4.0.01.000"
+    }
+  ]
+}
