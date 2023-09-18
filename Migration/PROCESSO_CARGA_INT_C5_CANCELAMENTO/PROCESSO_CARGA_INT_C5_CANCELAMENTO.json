@@ -4,5 +4,10 @@
     {"nome": "PCEMBALAGEM","tipo": "TABELA","versao": "4.0.06.000"},
     {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
     {"nome": "PCCONSOLIDATRIBUTACAO","tipo": "TABELA","versao": "4.0.05.000"},
-	{"nome": "FNC_INT_C5_ESPECIE_COBRANCA","tipo": "OBJETO_PLSQL","versao": "4.0.02.000"}
+	{"nome": "FNC_INT_C5_ESPECIE_COBRANCA","tipo": "OBJETO_PLSQL","versao": "4.0.02.000"},
+	{"nome": "FNC_INT_C5_CODPLPAG","tipo": "OBJETO_PLSQL","versao": "4.0.02.000"},
+	{"nome": "FNC_INT_C5_CODUSUR","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
+	{"nome": "FNC_INT_C5_VLTOTAL","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
+	{"nome": "FNC_INT_C5_FINALIZADORA_CAB","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
+	{"nome": "FNC_INT_C5_TIPO_CANCEL_ITEM","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"}
 ]}
