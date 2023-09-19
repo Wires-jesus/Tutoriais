@@ -1,30 +1,41 @@
 CREATE OR REPLACE VIEW VW_INT_C5_OFERTA_R2011 AS
 (
-select codfilial||2011||codoferta as SEQREGRA,
-       codfilial                   as NROEMPRESA,
-       descoferta                  as regra,
-       3                           as SEQTIPOCREDITO,
-       (CASE
-          WHEN (DTCANCEL IS NOT NULL) OR (DTFINAL < TRUNC(SYSDATE))  THEN 'N'
-          ELSE 'S'
-          END)                     as ativo,
-       'G'                         as tiporegra,
-       'S'                         as cumulativo,
-       DTINICIAL                   as dtahorinicio,
-       DTFINAL                     as dtahorfim,
-       '2011'                      as IDREF
-  from PCOFERTAPROGRAMADAC A,
-  (select min(s.ultimaexecucao) ultimaexecucao
-        from pccontroleconsinco s
-        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA') 
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO') 
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
+SELECT
+      CODFILIAL||2011||CODOFERTA  AS SEQREGRA,
+      CODFILIAL                   AS NROEMPRESA,
+      DESCOFERTA                  AS REGRA,
+      3                           AS SEQTIPOCREDITO,
+      (CASE
+         WHEN (DTCANCEL IS NOT NULL) OR (DTFINAL < TRUNC(SYSDATE))  THEN 'N'
+         ELSE 'S'
+         END)                     AS ATIVO,
+      'G'                         AS TIPOREGRA,
+      'S'                         AS CUMULATIVO,
+      (CASE
+         WHEN HORAINICIAL IS NOT NULL THEN
+            HORAINICIAL
+         ELSE
+            DTINICIAL
+      END)                        AS DTAHORINICIO,
+      (CASE 
+         WHEN HORAFINAL IS NOT NULL THEN
+            HORAFINAL
+          ELSE
+            DTFINAL
+      END)                         AS DTAHORFIM,
+       '2011'                      AS IDREF
+  FROM PCOFERTAPROGRAMADAC A,
+  (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
+        FROM PCCONTROLECONSINCO S
+        WHERE (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
+           OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA') 
+           OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO') 
+           OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
  ) DATAPADRAO
   WHERE NVL(A.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
        AND DTFINAL >= TRUNC(SYSDATE)
-       AND a.dtinicial IS NOT NULL
-       AND a.dtfinal IS NOT NULL
+       AND A.DTINICIAL IS NOT NULL
+       AND A.DTFINAL IS NOT NULL
 )
 
 \
