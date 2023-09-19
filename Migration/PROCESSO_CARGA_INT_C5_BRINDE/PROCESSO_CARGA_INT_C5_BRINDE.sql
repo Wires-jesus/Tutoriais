@@ -307,6 +307,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS_AUT AS(
     AND (NVL(PCPROMC.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao
         OR NVL(EMBALAGEMCABECALHO.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
     AND PCPROMC.TIPODESCONTOBRINDE = 'B'
-);
+)
 
 
