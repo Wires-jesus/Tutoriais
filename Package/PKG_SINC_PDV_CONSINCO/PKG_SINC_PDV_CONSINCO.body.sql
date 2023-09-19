@@ -2479,10 +2479,21 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
     UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
-      WHERE NOT EXISTS (SELECT C.CODOFERTA
+      WHERE NOT EXISTS (
+                        SELECT C.CODOFERTA
                         FROM PCOFERTAPROGRAMADAC C 
-                        WHERE C.DTINICIAL = R.DTAHORINICIO 
-                        AND  c.dtfinal = r.dtahorfim
+                        WHERE (CASE
+                                WHEN C.HORAINICIAL IS NOT NULL THEN
+                                  C.HORAINICIAL
+                                ELSE
+                                  C.DTINICIAL
+                              END) = R.DTAHORINICIO 
+                        AND (CASE 
+                            WHEN HORAFINAL IS NOT NULL THEN
+                                C.HORAFINAL
+                              ELSE
+                                C.DTFINAL
+                          END) = r.dtahorfim
                         AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
                        )
       AND IDREF = 2011;
@@ -3622,10 +3633,11 @@ END;
 
     WHEN MATCHED THEN
       UPDATE SET
-        TB_PROMSURPRESAITEM.QTDE       = VW_INT_C5_BRINDE_ITENS_AUT.QTDE,
-        TB_PROMSURPRESAITEM.SEQPRODUTO = VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO,
-        TB_PROMSURPRESAITEM.TIPOITEM   = VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
-        TB_PROMSURPRESAITEM.ATIVO      = VW_INT_C5_BRINDE_ITENS_AUT.ATIVO  
+        TB_PROMSURPRESAITEM.QTDE         = VW_INT_C5_BRINDE_ITENS_AUT.QTDE,
+        TB_PROMSURPRESAITEM.SEQPRODUTO   = VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO,
+        TB_PROMSURPRESAITEM.TIPOITEM     = VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
+        TB_PROMSURPRESAITEM.QTDEMBALAGEM = VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM,
+        TB_PROMSURPRESAITEM.ATIVO        = VW_INT_C5_BRINDE_ITENS_AUT.ATIVO  
       
     WHEN NOT MATCHED THEN
       INSERT(
@@ -3634,6 +3646,7 @@ END;
         TB_PROMSURPRESAITEM.QTDE,
         TB_PROMSURPRESAITEM.SEQPRODUTO,
         TB_PROMSURPRESAITEM.TIPOITEM,
+        TB_PROMSURPRESAITEM.QTDEMBALAGEM,
         TB_PROMSURPRESAITEM.ATIVO
       )
       VALUES(
@@ -3642,6 +3655,7 @@ END;
         VW_INT_C5_BRINDE_ITENS_AUT.QTDE,
         VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO,
         VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
+        VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM,
         VW_INT_C5_BRINDE_ITENS_AUT.ATIVO
       );
 
