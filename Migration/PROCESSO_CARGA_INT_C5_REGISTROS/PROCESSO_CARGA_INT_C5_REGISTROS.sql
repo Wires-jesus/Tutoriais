@@ -267,6 +267,20 @@ values (51, 'tb_promsurpresaperiodo')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (52, 'tb_promsurpresaitem')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (53, 'tb_cadobs')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (54, 'tb_cadobssped')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (55, 'tb_cadobsspedfamilia')
 
 
 
@@ -531,3 +545,18 @@ values (51, 51, 'Sincronização de tabela TB_PROMSURPRESAPERIODO', TRUNC(SYSDAT
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (52, 52, 'Sincronização de tabela TB_PROMSURPRESAITEM', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresaitem',  52,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (53, 53, 'Sincronização de tabela TB_CADOBS', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobs',  53,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (54, 54, 'Sincronização de tabela TB_CADOBSSPED', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobssped',  54,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (55, 55, 'Sincronização de tabela TB_CADOBSSPEDFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobsspedfamilia',  55,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
