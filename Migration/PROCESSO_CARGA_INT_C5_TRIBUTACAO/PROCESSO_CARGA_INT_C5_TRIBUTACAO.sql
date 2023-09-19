@@ -34,6 +34,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             c.percdesoneracao percaliqicmsdeson,
             c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
+            c.codobservacaoc5 codobservacao,
             t.codst,
             t.mensagem || ' - TRIBUTACAO' tributacao,
             t.mensagem || ' - TRIBUTACAO' descaplicacao,
@@ -86,6 +87,7 @@ SELECT  NROTRIBUTACAO,
         PERCALIQICMSDESON,
         MOTIVODESONICMS,
         CODBENEFICIODESONICMS,
+        CODOBSERVACAO,
         CODST
   FROM VW_INT_C5_TRIB_UF
  WHERE DATA >= (SELECT S.ULTIMAEXECUCAO  FROM PCCONTROLECONSINCO S WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_TRIBUTACAOUF'))
