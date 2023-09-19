@@ -3682,6 +3682,159 @@ END;
     END;   
   END;
 
+PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  UPDATE monitorpdvmiddle.tb_cadobs SET ATIVO = 'N'
+  WHERE ATIVO = 'S';
+  
+  MERGE INTO monitorpdvmiddle.tb_cadobs T
+    USING (SELECT * FROM VW_INT_C5_CADOBS) S 
+    ON    (T.CODOBSERVACAO = S.CODOBSERVACAO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.INFORMADOTRIBUF   = S.INFORMADOTRIBUF,
+          T.GERACBENEFFAMTRIB = S.GERACBENEFFAMTRIB,
+          T.ATIVO             = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.CODOBSERVACAO,
+          T.INFORMADOTRIBUF,
+          T.GERACBENEFFAMTRIB,
+          T.ATIVO) 
+        VALUES(
+          S.CODOBSERVACAO,
+          S.INFORMADOTRIBUF,
+          S.GERACBENEFFAMTRIB,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cadobs', 'carrega_tb_cadobs OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cadobs',
+           'carrega_tb_cadobs ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  UPDATE monitorpdvmiddle.tb_cadobssped SET ATIVO = 'N'
+  WHERE ATIVO = 'S';
+  
+  MERGE INTO monitorpdvmiddle.tb_cadobssped T
+    USING (SELECT * FROM VW_INT_C5_CADOBSSPED) S 
+    ON    (T.SEQOBSSPED = S.SEQOBSSPED)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.CODOBSERVACAO    = S.CODOBSERVACAO,
+          T.CODAJUSTEEFD     = S.CODAJUSTEEFD,
+          T.USACODAJUSTENFE  = S.USACODAJUSTENFE,
+          T.ATIVO            = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQOBSSPED,
+          T.CODOBSERVACAO,
+          T.CODAJUSTEEFD,
+          T.USACODAJUSTENFE,
+          T.ATIVO) 
+        VALUES(
+          S.SEQOBSSPED,
+          S.CODOBSERVACAO,
+          S.CODAJUSTEEFD,
+          S.USACODAJUSTENFE,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cadobssped', 'carrega_tb_cadobssped OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cadobssped',
+           'carrega_tb_cadobssped ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  UPDATE monitorpdvmiddle.tb_cadobsspedfamilia SET ATIVO = 'N'
+  WHERE ATIVO = 'S';
+  
+  MERGE INTO monitorpdvmiddle.tb_cadobsspedfamilia T
+    USING (SELECT * FROM VW_INT_C5_CADOBSSPEDFAMILIA) S 
+    ON    (T.SEQFAMILIA = S.SEQFAMILIA AND
+           T.SEQOBSSPED = S.SEQOBSSPED AND
+           T.UF         = S.UF)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.CODAJUSTEEFD    = S.CODAJUSTEEFD,
+          T.ATIVO            = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQFAMILIA,
+          T.SEQOBSSPED,
+          T.UF,
+          T.CODAJUSTEEFD,
+          T.ATIVO) 
+        VALUES(
+          S.SEQFAMILIA,
+          S.SEQOBSSPED,
+          S.UF,
+          S.CODAJUSTEEFD,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cadobsspedfamilia', 'carrega_tb_cadobsspedfamilia OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cadobsspedfamilia',
+           'carrega_tb_cadobsspedfamilia ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
