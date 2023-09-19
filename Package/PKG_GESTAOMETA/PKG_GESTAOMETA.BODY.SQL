@@ -20,6 +20,30 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     RETURN vvTable;
   END;
   
+  PROCEDURE P_CarregarParametros is
+  BEGIN
+    BEGIN
+      SELECT PCGMPARAMETRO.* BULK COLLECT
+        INTO TB_PCGMPARAMETRO
+        FROM PCGMPARAMETRO;
+    EXCEPTION
+      WHEN OTHERS THEN
+        TB_PCGMPARAMETRO := NULL;
+    END;
+  END;
+  
+  FUNCTION F_ObterParametro(PSChave STRING) RETURN VARCHAR2 IS
+    VSVALOR VARCHAR2(10);
+  BEGIN
+    FOR i IN TB_PCGMPARAMETRO.FIRST .. TB_PCGMPARAMETRO.LAST LOOP
+      IF TB_PCGMPARAMETRO(I).CHAVE = PSCHAVE THEN
+        VSVALOR := TB_PCGMPARAMETRO(I).VALOR;
+        EXIT;
+      END IF;
+    END LOOP;
+    RETURN VSVALOR;
+  END;
+  
   PROCEDURE P_InserirMetaTemp(PSINSERIR       IN VARCHAR2,
                               PSCODFILIAL     IN VARCHAR2,
                               PT_PCGMMETATEMP IN PCGMMETAGLOBALTEMP%ROWTYPE DEFAULT NULL,
@@ -63,6 +87,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     TYPE TT_VLFECP                 IS TABLE OF NUMBER(16, 6) INDEX BY BINARY_INTEGER;
     TYPE TT_VLIPIBONIFIC           IS TABLE OF NUMBER(16, 6) INDEX BY BINARY_INTEGER;
     TYPE TT_VLSTBONIFIC            IS TABLE OF NUMBER(16, 6) INDEX BY BINARY_INTEGER;
+    TYPE TT_VLFECPBONIFIC          IS TABLE OF NUMBER(16, 6) INDEX BY BINARY_INTEGER;
+    TYPE TT_VLSTCOMISSAO           IS TABLE OF NUMBER(16,6) INDEX BY BINARY_INTEGER;
+    TYPE TT_VLIPICOMISSAO          IS TABLE OF NUMBER(16,6) INDEX BY BINARY_INTEGER;
+    TYPE TT_VLFECPCOMISSAO         IS TABLE OF NUMBER(16,6) INDEX BY BINARY_INTEGER;
     TYPE TT_CODGERENTEREGIONAL     IS TABLE OF NUMBER(8) INDEX BY BINARY_INTEGER;
     TYPE TT_CODGERENTENACIONAL     IS TABLE OF NUMBER(8) INDEX BY BINARY_INTEGER;
     TYPE TT_PESOLIQUIDO            IS TABLE OF NUMBER(18,6) INDEX BY BINARY_INTEGER;
@@ -107,6 +135,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     vtVLFECP                       TT_VLFECP                 ;
     vtVLIPIBONIFIC                 TT_VLIPIBONIFIC           ;
     vtVLSTBONIFIC                  TT_VLSTBONIFIC            ;
+    vtVLFECPBONIFIC                TT_VLFECPBONIFIC          ;
+    vtVLSTCOMISSAO                 TT_VLSTCOMISSAO           ;
+    vtVLIPICOMISSAO                TT_VLIPICOMISSAO          ;
+    vtVLFECPCOMISSAO               TT_VLFECPCOMISSAO         ;
     vtCODGERENTEREGIONAL           TT_CODGERENTEREGIONAL     ;
     vtCODGERENTENACIONAL           TT_CODGERENTENACIONAL     ;
     vtPESOLIQUIDO                  TT_PESOLIQUIDO            ;
@@ -151,8 +183,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         , NUMTRANSENT
                         , VLST
                         , VLIPI
+                        , VLFECP
                         , VLIPIBONIFIC
                         , VLSTBONIFIC
+                        , VLFECPBONIFIC
+                        , VLSTCOMISSAO
+                        , VLIPICOMISSAO
+                        , VLFECPCOMISSAO
                         , CODGERENTEREGIONAL
                         , CODGERENTENACIONAL
                         , PESOLIQUIDO
@@ -193,8 +230,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         , :NUMTRANSENT
                         , :VLST
                         , :VLIPI
+                        , :VLFECP
                         , :VLIPIBONIFIC
                         , :VLSTBONIFIC
+                        , :VLFECPBONIFIC
+                        , :VLSTCOMISSAO
+                        , :VLIPICOMISSAO
+                        , :VLFECPCOMISSAO
                         , :CODGERENTEREGIONAL
                         , :CODGERENTENACIONAL
                         , :PESOLIQUIDO
@@ -238,8 +280,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         ROWPCGMMETATEMP.NUMTRANSENT            := PT_PCGMMETATEMP.NUMTRANSENT;
         ROWPCGMMETATEMP.VLST                   := PT_PCGMMETATEMP.VLST;
         ROWPCGMMETATEMP.VLIPI                  := PT_PCGMMETATEMP.VLIPI;
+        ROWPCGMMETATEMP.VLFECP                 := PT_PCGMMETATEMP.VLFECP;
         ROWPCGMMETATEMP.VLIPIBONIFIC           := PT_PCGMMETATEMP.VLIPIBONIFIC;
         ROWPCGMMETATEMP.VLSTBONIFIC            := PT_PCGMMETATEMP.VLSTBONIFIC;
+        ROWPCGMMETATEMP.VLFECPBONIFIC          := PT_PCGMMETATEMP.VLFECPBONIFIC;
+        ROWPCGMMETATEMP.VLSTCOMISSAO           := PT_PCGMMETATEMP.VLSTCOMISSAO;
+        ROWPCGMMETATEMP.VLIPICOMISSAO          := PT_PCGMMETATEMP.VLIPICOMISSAO;
+        ROWPCGMMETATEMP.VLFECPCOMISSAO         := PT_PCGMMETATEMP.VLFECPCOMISSAO;
         ROWPCGMMETATEMP.CODGERENTEREGIONAL     := PT_PCGMMETATEMP.CODGERENTEREGIONAL;
         ROWPCGMMETATEMP.CODGERENTENACIONAL     := PT_PCGMMETATEMP.CODGERENTENACIONAL;
         ROWPCGMMETATEMP.PESOLIQUIDO            := PT_PCGMMETATEMP.PESOLIQUIDO;
@@ -282,8 +329,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         , ROWPCGMMETATEMP.NUMTRANSENT
                         , ROWPCGMMETATEMP.VLST
                         , ROWPCGMMETATEMP.VLIPI
+                        , ROWPCGMMETATEMP.VLFECP
                         , ROWPCGMMETATEMP.VLIPIBONIFIC
                         , ROWPCGMMETATEMP.VLSTBONIFIC
+                        , ROWPCGMMETATEMP.VLFECPBONIFIC
+                        , ROWPCGMMETATEMP.VLSTCOMISSAO
+                        , ROWPCGMMETATEMP.VLIPICOMISSAO
+                        , ROWPCGMMETATEMP.VLFECPCOMISSAO
                         , ROWPCGMMETATEMP.CODGERENTEREGIONAL
                         , ROWPCGMMETATEMP.CODGERENTENACIONAL
                         , ROWPCGMMETATEMP.PESOLIQUIDO
@@ -327,8 +379,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
           vtNUMTRANSENT(i)            := PB_PCGMMETATEMP(i).NUMTRANSENT;
           vtVLST(i)                   := PB_PCGMMETATEMP(i).VLST;
           vtVLIPI(i)                  := PB_PCGMMETATEMP(i).VLIPI;
+          vtVLFECP(i)                 := PB_PCGMMETATEMP(i).VLFECP;
           vtVLIPIBONIFIC(i)           := PB_PCGMMETATEMP(i).VLIPIBONIFIC;
           vtVLSTBONIFIC(i)            := PB_PCGMMETATEMP(i).VLSTBONIFIC;
+          vtVLFECPBONIFIC(i)          := PB_PCGMMETATEMP(i).VLFECPBONIFIC;
+          vtVLSTCOMISSAO(i)           := PB_PCGMMETATEMP(i).VLSTCOMISSAO;
+          vtVLIPICOMISSAO(i)          := PB_PCGMMETATEMP(i).VLIPICOMISSAO;
+          vtVLFECPCOMISSAO(i)         := PB_PCGMMETATEMP(i).VLFECPCOMISSAO;
           vtCODGERENTEREGIONAL(i)     := PB_PCGMMETATEMP(i).CODGERENTEREGIONAL;
           vtCODGERENTENACIONAL(i)     := PB_PCGMMETATEMP(i).CODGERENTENACIONAL;
           vtPESOLIQUIDO(i)            := PB_PCGMMETATEMP(i).PESOLIQUIDO;
@@ -373,8 +430,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                           , vtNUMTRANSENT(i)
                           , vtVLST(i)
                           , vtVLIPI(i)
+                          , vtVLFECP(i)
                           , vtVLIPIBONIFIC(i)
                           , vtVLSTBONIFIC(i)
+                          , vtVLFECPBONIFIC(i)
+                          , vtVLSTCOMISSAO(i)
+                          , vtVLIPICOMISSAO(i)
+                          , vtVLFECPCOMISSAO(i)
                           , vtCODGERENTEREGIONAL(i)
                           , vtCODGERENTENACIONAL(i)
                           , vtPESOLIQUIDO(i)
@@ -506,18 +568,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     DADOSVENDA            TB_PCGMINDICADOR;
     CONTADADOSADD         NUMBER;
     VSSQL                 VARCHAR2(5000);
+    VSIMPOSTO             VARCHAR2(1000) := '';
   BEGIN
     BEGIN
+      ---------------------
+      IF F_ObterParametro('ABATER_VALOR_ST_COMISSAO') = 'S' THEN
+         VSIMPOSTO := '- NVL(VLSTCOMISSAO, 0) ';
+      END IF;
+
+      IF F_ObterParametro('ABATER_VALOR_IPI_COMISSAO') = 'S' THEN
+         VSIMPOSTO := VSIMPOSTO || ' - NVL(VLIPICOMISSAO, 0) ';
+      END IF;
+      
+      IF F_ObterParametro('ABATER_VALOR_FECP_COMISSAO') = 'S' THEN
+         VSIMPOSTO := VSIMPOSTO || ' - NVL(VLFECPCOMISSAO, 0)';
+      END IF;
+      ---------------------
+
       VSSQL := 'SELECT 0,''0'', 0, NVL(PERCOM, 0) PERCOMMOV,
-                     NVL(ROUND(SUM(NVL(VLLIQUIDO, 0) - NVL(VLST, 0) - NVL(VLIPI, 0) - NVL(VLFECP, 0)),2),0) VLFATPORPERCOM,
+                     NVL(ROUND(SUM(NVL(VLLIQUIDO, 0) '||VSIMPOSTO||'),2),0) VLFATPORPERCOM,
                       0,0,0,0,0,0
                  FROM (SELECT   MOV.*
-                         FROM ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || ' MOV ' ||
-               PSBLOCOSQLCALCREALIZADO || '
---                        AND VLLIQUIDO IS NOT NULL
+                         FROM ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || ' MOV ' 
+                         || PSBLOCOSQLCALCREALIZADO || '                          
                           AND MOV.CODPROD IS NOT NULL
-                          AND MOV.CODFILIAL IN(' ||
-               PSCODFILIAL || ')
+                          AND MOV.CODFILIAL IN(' || PSCODFILIAL || ')
                           AND DATA >= ''' || PDDATAINI || '''
                           AND DATA <= ''' || PDDATAFIM || '''
                           ) MOV
@@ -548,8 +623,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
 
       FOR I IN 1 .. DADOSVENDA.COUNT LOOP
         ROWPCGMMETACOMBCOMPLE.PERCOMMOV      := DADOSVENDA(I).PERCOMMOV;
-        ROWPCGMMETACOMBCOMPLE.VLFATPORPERCOM := DADOSVENDA(I)
-                                               .VLFATPORPERCOM;
+        ROWPCGMMETACOMBCOMPLE.VLFATPORPERCOM := DADOSVENDA(I).VLFATPORPERCOM;
         INSERT INTO PCGMMETACOMBCOMPLE VALUES ROWPCGMMETACOMBCOMPLE;
       END LOOP;
 
@@ -559,12 +633,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         VSSQL := '' || DBMS_UTILITY.FORMAT_ERROR_STACK;
     END;
 
-  END;
+  END P_GravarPCGMMETACOMBCOMPLE;
 
   PROCEDURE P_DeletarPCGMMETATEMP(PS_CODFILIAL IN VARCHAR2) IS
     PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
-    execute immediate 'TRUNCATE table PCGMMETAGLOBALTEMP_' || REPLACE(PS_CODFILIAL,CHR(39),'');
+    execute immediate 'TRUNCATE table '|| DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL); --PCGMMETAGLOBALTEMP_' || REPLACE(PS_CODFILIAL,CHR(39),'');
     COMMIT;
   END;
 
@@ -579,18 +653,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
    NULL;
   END;*/
 
-  FUNCTION F_ObterParametro(PSChave STRING) RETURN VARCHAR2 IS
-    VSVALOR VARCHAR2(10);
-  BEGIN
-    FOR i IN TB_PCGMPARAMETRO.FIRST .. TB_PCGMPARAMETRO.LAST LOOP
-      IF TB_PCGMPARAMETRO(I).CHAVE = PSCHAVE THEN
-        VSVALOR := TB_PCGMPARAMETRO(I).VALOR;
-        EXIT;
-      END IF;
-    END LOOP;
-    RETURN VSVALOR;
-  END;
-
   FUNCTION F_RetornarSQLVendasDevol(PN_CODIGOINDICADOR    IN NUMBER,
                                     PS_CODFILIAL          IN VARCHAR2,
                                     PS_BLOCOSQLCONSVENDAS IN VARCHAR2,
@@ -604,19 +666,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                     PN_CODUSUR IN NUMBER)
     RETURN VARCHAR2 IS
     VSSQL VARCHAR2(32000) := '';
-    VSIMPOSTO1 VARCHAR2(300) := '';
-    VSIMPOSTO2 VARCHAR2(300) := '';
+    VSIMPOSTO1 VARCHAR2(3000) := '';
+    VSIMPOSTO2 VARCHAR2(3000) := '';
 
   BEGIN
-
-    IF F_ObterParametro('ABATER_VALOR_ST') = 'S' THEN
-       VSIMPOSTO1 := VSIMPOSTO1 || '-(CASE WHEN VLST > 0 THEN VLST ELSE 0 END ) + (CASE WHEN VLSTBONIFIC > 0 THEN VLSTBONIFIC ELSE 0 END )';
+    -- Calculo Tabela Temporaria
+    IF F_ObterParametro('ABATER_VALOR_ST_META') = 'S' THEN
+       VSIMPOSTO1 := VSIMPOSTO1 || '-(CASE WHEN VLST > 0 THEN VLST ELSE 0 END ) + (CASE WHEN VLSTBONIFIC > 0 THEN VLSTBONIFIC ELSE 0 END )';       
        VSIMPOSTO2 := VSIMPOSTO2 || '-(CASE WHEN VLST > 0 THEN VLST ELSE 0 END )';
     END IF;
 
-    IF F_ObterParametro('ABATER_VALOR_IPI') = 'S' THEN
+    IF F_ObterParametro('ABATER_VALOR_IPI_META') = 'S' THEN
        VSIMPOSTO1 := VSIMPOSTO1 || '-(CASE WHEN VLIPI > 0 THEN VLIPI ELSE 0 END ) + (CASE WHEN VLIPIBONIFIC > 0 THEN VLIPIBONIFIC ELSE 0 END )';
        VSIMPOSTO2 := VSIMPOSTO2 || '-(CASE WHEN VLIPI > 0 THEN VLIPI ELSE 0 END )';
+    END IF;
+    
+    IF F_ObterParametro('ABATER_VALOR_FECP_META') = 'S' THEN
+       VSIMPOSTO1 := VSIMPOSTO1 || '-(CASE WHEN VLFECP > 0 THEN VLFECP ELSE 0 END ) + (CASE WHEN VLFECPBONIFIC > 0 THEN VLFECPBONIFIC ELSE 0 END )';
+       VSIMPOSTO2 := VSIMPOSTO2 || '-(CASE WHEN VLFECP > 0 THEN VLFECP ELSE 0 END )';
     END IF;
 
 
@@ -636,8 +703,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                                        '''||PD_DATAFIM||''')))), 0)'; */
     ELSE
 
-      VSSQL := ' SELECT DISTINCT REALIZADO.NUMTRANSVENDA,
-         0 CODCOMBINACAO ,
+      VSSQL := ' SELECT DISTINCT 
+        REALIZADO.NUMTRANSVENDA,
+        0 CODCOMBINACAO ,
         0 CODENTIDADE   ,
         0 CODMETA     ,
         0 CODTIPOMETA  ,
@@ -661,6 +729,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         NVL(REALIZADO.PERCOM, 0) PERCOM,
         REALIZADO.TIPOMOV ,
         REALIZADO.NUMSEQ,';
+        
         VSSQL := VSSQL || '(((REALIZADO.VLLIQUIDO  ' || VSIMPOSTO1 || ') -
                                      ((REALIZADO.VLCUSTOFIN  ' ||VSIMPOSTO2|| ')  + VLCUSTOFINBONIF) +
                                      (REALIZADO.VLCMVDEVOL + VLCMVDEVOLBONIF +
@@ -675,6 +744,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         REALIZADO.VLFECP,
         REALIZADO.VLSTBONIFIC,
         REALIZADO.VLIPIBONIFIC,
+        REALIZADO.VLFECPBONIFIC,
+        (NVL(REALIZADO.VLST,0) + NVL(REALIZADO.VLSTBONIFIC,0)) VLSTCOMISSAO,
+        (NVL(REALIZADO.VLIPI,0) + NVL(REALIZADO.VLIPIBONIFIC,0))VLIPICOMISSAO,
+        (NVL(REALIZADO.VLFECP,0) + NVL(REALIZADO.VLFECPBONIFIC,0)) VLFECPCOMISSAO,
         REALIZADO.CODGERENTEREGIONAL,
         REALIZADO.CODGERENTENACIONAL,
         REALIZADO.PESOLIQUIDO,
@@ -682,10 +755,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         REALIZADO.VLDESCONTO,
         REALIZADO.VLTABELA,
         REALIZADO.VLDEVOLUCAO,
-        REALIZADO.CODPRACA
-         '; --|| PS_REGRAINDICADOR;
+        REALIZADO.CODPRACA'; --|| PS_REGRAINDICADOR;
     END IF;
 
+    -- VIEW_VENDAS_RESUMO_FATURAMENTO
     VSSQL := VSSQL || ' FROM
                         ((SELECT VENDAS.VLVENDA  VLLIQUIDO,
                         VENDAS.VLBONIFIC VLBONIFIC,
@@ -713,7 +786,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         VENDAS.ICMSRETIDOBONIFIC VLSTBONIFIC,
                         VENDAS.VLIPI,
                         VENDAS.VLIPIBONIFIC VLIPIBONIFIC,
-                        0 VLFECP,
+                        VENDAS.VLFECP,
+                        VENDAS.VLFECPBONIFIC,
                         VENDAS.VLCUSTOFIN,
                         0 VLCMVDEVOL,
                         0 VLDEVCMVAVULSAI,
@@ -745,11 +819,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                          END IF;
                          VSSQL := VSSQL || ' AND CODFILIAL IN(' || PS_CODFILIAL || ')
                                              AND NUMTRANSVENDA IN
-                                            ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))) VENDAS';
+                                            ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
 
+    VSSQL := VSSQL || ') VENDAS ';
+    
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
+    
     VSSQL := VSSQL || '
-
                     AND SAID.NUMTRANSVENDA = MOV.NUMTRANSVENDA
                     AND MOV.CODPROD = PROD.CODPROD
                     AND MOV.NUMTRANSVENDA = VENDAS.NUMTRANSVENDA
@@ -762,9 +838,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                     AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
                     AND SAID.NUMTRANSVENDA IN( SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
 
-    VSSQL := VSSQL || '  UNION ALL
-
-                  (SELECT DEVOL.VLDEVOLUCAO * -1 VLLIQUIDO,
+    VSSQL := VSSQL || '  UNION ALL ';
+    
+    -- VIEW_DEVOL_RESUMO_FATURAMENTO
+    VSSQL := VSSQL || '(SELECT DEVOL.VLDEVOLUCAO * -1 VLLIQUIDO,
                         DEVOL.VLDEVOLBONIFIC * -1 VLBONIFIC,
                         PCNFENT.CODFILIAL,
                         (NVL(MOV.QT, 0) * NVL(PROD.VOLUME, 0)) * -1 VOLUMELIQUIDO,
@@ -786,11 +863,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         DEVOL.NUMSEQ,
                         DEVOL.DTENT DATA,
                         0 VLVENDA,
-                        DEVOL.VLST * -1 VLST,
-                        DEVOL.ICMSRETIDO_BONIF * -1 VLSTBONIFIC,
-                        DEVOL.VLIPI * -1 VLIPI,
-                        DEVOL.VLIPI_BONIF * -1 VLIPIBONIFIC,
-                        0 VLFECP,
+                        (DEVOL.VLST * -1) VLST,
+                        (DEVOL.ICMSRETIDO_BONIF * -1) VLSTBONIFIC,
+                        (DEVOL.VLIPI * -1) VLIPI,
+                        (DEVOL.VLIPI_BONIF * -1) VLIPIBONIFIC,
+                        (DEVOL.VLFECP * -1) VLFECP,
+                        (DEVOL.VLFECPBONIFIC * -1) VLFECPBONIFIC,
                         0 VLCUSTOFIN,
                         VLCMVDEVOL,
                         0 VLDEVCMVAVULSAI,
@@ -814,16 +892,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         FROM VIEW_DEVOL_RESUMO_FATURAMENTO
                        WHERE DTENT >= ''' || PD_DATAINI || '''
                          AND DTENT <= ''' || PD_DATAFIM || '''';
-                         IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
-                             VSSQL := VSSQL || ' AND CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
-                         ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
-                            VSSQL := VSSQL || ' AND CODUSURMOV = ''' || PN_CODUSUR || '''';
-                         ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
-                            VSSQL := VSSQL || ' AND CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
-                         END IF;
-                         VSSQL := VSSQL || ' AND CODFILIAL IN(' || PS_CODFILIAL || ')
-                                             AND NUMTRANSVENDA IN
-                             ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE)))) DEVOL';
+                         
+    IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
+         VSSQL := VSSQL || ' AND CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
+    ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
+        VSSQL := VSSQL || ' AND CODUSURMOV = ''' || PN_CODUSUR || '''';
+    ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
+        VSSQL := VSSQL || ' AND CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
+    END IF;
+    
+    VSSQL := VSSQL || ' AND CODFILIAL IN(' || PS_CODFILIAL || ')
+                         AND NUMTRANSVENDA IN
+         ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE)))';
+         
+    VSSQL := VSSQL ||') DEVOL';
 
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
 
@@ -871,11 +953,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                     AND DEVOL.CONDVENDA NOT IN (4, 8, 10, 13, 20, 98, 99)
                     AND SAID.NUMTRANSVENDA IN(SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE))';
 
-    VSSQL := VSSQL || '  AND PCNFENT.DTCANCEL IS NULL
+    VSSQL := VSSQL || ' AND PCNFENT.DTCANCEL IS NULL ';
 
-       UNION ALL
-
-                SELECT NVL(VLTOTAL,0) * -1 VLLIQUIDO,
+    VSSQL := VSSQL || ' UNION ALL ';
+    
+    -- VIEW_DEVOL_RESUMO_FATURAVULSA
+    VSSQL := VSSQL || ' SELECT NVL(VLTOTAL,0) * -1 VLLIQUIDO,
                             0 VLBONIFIC,
                             ' || CASE WHEN INSTR(PS_CODFILIAL, ''',''') > 0 THEN '''99''' ELSE PS_CODFILIAL END || ' CODFILIAL,
                             (NVL(MOV.QT, 0) * NVL(PROD.VOLUME, 0)) * -1 VOLUMELIQUIDO,
@@ -897,11 +980,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                             AVULSA.NUMSEQ,
                             DTENT DATA,
                             0 VLVENDA,
-                            AVULSA.VLST * -1 VLST,
+                            (AVULSA.VLST * -1) VLST,
                             0 VLSTBONIFIC,
-                            AVULSA.VLIPI * -1 VLIPI,
+                            (AVULSA.VLIPI * -1) VLIPI,
                             0 VLIPIBONIFIC,
-                            0 VLFECP,
+                            (AVULSA.VLFECP * -1) VLFECP,
+                            0 VLFECPBONIFIC,
                             0 VLCUSTOFIN,
                             0 VLCMVDEVOL,
                             VLDEVCMVAVULSAI,
@@ -919,41 +1003,38 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                       FROM VIEW_DEVOL_RESUMO_FATURAVULSA AVULSA,
                       PCMOV MOV,
                       PCPRODUT PROD';
+                      
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
-    VSSQL := VSSQL || ' AND AVULSA.DTENT >= ''' || PD_DATAINI || '''
-                             AND AVULSA.DTENT <= ''' ||
-             PD_DATAFIM || '''
-                             AND AVULSA.CODFILIAL IN(' ||
-             PS_CODFILIAL || ')';
+    
+    VSSQL := VSSQL || ' AND AVULSA.DTENT >= ''' || PD_DATAINI || ''' 
+                        AND AVULSA.DTENT <= ''' || PD_DATAFIM || ''' 
+                        AND AVULSA.CODFILIAL IN(' || PS_CODFILIAL || ')';
+    
     IF (NVL(PN_CODUSUR, 0) <> 0) THEN
-      VSSQL := VSSQL || ' AND  AVULSA.CODUSURMOV =  ' || PN_CODUSUR;
+      VSSQL := VSSQL || ' AND  AVULSA.CODUSURMOV =  ' || PN_CODUSUR;    
     ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
       VSSQL := VSSQL || ' AND AVULSA.CODSUPERVMOV =  ' || PN_CODSUPERVISOR;
-
     ELSIF (NVL(PN_CODGERENTE, 0) <> 0) THEN
       VSSQL := VSSQL || ' AND AVULSA.CODGERENTELOCAL  =  ' || PN_CODGERENTE;
-
     ELSIF (NVL(PN_CODGERENTEREGIONAL, 0) <> 0) THEN
       VSSQL := VSSQL || ' AND AVULSA.CODGERENTEREGIONAL  =  ' || PN_CODGERENTEREGIONAL;
-
     ELSIF (NVL(PN_CODGERENTENACIONAL, 0) <> 0) THEN
       VSSQL := VSSQL || ' AND AVULSA.CODGERENTENACIONAL  =  ' || PN_CODGERENTENACIONAL;
-
     END IF;
 
-
-    VSSQL := VSSQL ||
-             '   AND MOV.NUMTRANSENT = AVULSA.NUMTRANSENT
+    VSSQL := VSSQL ||'  AND MOV.NUMTRANSENT = AVULSA.NUMTRANSENT
                         AND MOV.CODPROD = AVULSA.CODPROD
                         AND MOV.NUMSEQ = AVULSA.NUMSEQ
                         AND PROD.CODPROD = MOV.CODPROD
-                        AND PROD.CODPROD = AVULSA.CODPROD )) REALIZADO';
+                        AND PROD.CODPROD = AVULSA.CODPROD )';
+                        
+    VSSQL := VSSQL ||' ) REALIZADO';
 
-    IF /*PNCODIGOINDICADOR = 21 THEN
+    /*IF PNCODIGOINDICADOR = 21 THEN
                   VSSQL := VSSQL || ')';
                   VSSQL := VSSQL || 'GROUP BY PCNFSAID.NUMCAR';
                 ELSIF */
-     PS_AGRUPARPOR IS NOT NULL THEN
+    IF PS_AGRUPARPOR IS NOT NULL THEN
       VSSQL := VSSQL || PS_AGRUPARPOR;
     END IF;
 /*
@@ -975,6 +1056,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
         UTL_File.Fclose(arquivo_saida);
     END;
 */
+    --Dbms_Output.Put_Line(VSSQL);
     RETURN VSSQL;
   END;
 
@@ -1105,33 +1187,35 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                 FROM (SELECT DISTINCT NUMTRANSVENDA
                         FROM VIEW_VENDAS_RESUMO_FATURAMENTO VENDAS
                        WHERE 1=1';
+  
     IF NVL(PSFILIAL, '99') <> '99' THEN
       VSSQL := VSSQL || '     AND VENDAS.CODFILIAL IN(' || PSFILIAL || ')';
     END IF;
-    VSSQL := VSSQL || '    AND VENDAS.DTSAIDA >= ''' || PDDATAINI || '''
-                         AND VENDAS.DTSAIDA <= ''' || PDDATAFIM || '''';
+    
+    VSSQL := VSSQL || '    AND VENDAS.DTSAIDA >= ''' || PDDATAINI || ''' AND VENDAS.DTSAIDA <= ''' || PDDATAFIM || '''';
+    
     IF P_CODRCA IS NOT NULL THEN
       VSSQL := VSSQL || '     AND VENDAS.CODUSURMOV = ' || P_CODRCA;
     ELSIF P_CODSUPERVISOR IS NOT NULL THEN
-      VSSQL := VSSQL || '     AND VENDAS.CODSUPERVMOV = ' ||
-               P_CODSUPERVISOR;
-
+      VSSQL := VSSQL || '     AND VENDAS.CODSUPERVMOV = ' || P_CODSUPERVISOR;
     END IF;
 
     VSSQL := VSSQL || '            UNION ALL
                       SELECT DISTINCT NUMTRANSVENDA
                         FROM VIEW_DEVOL_RESUMO_FATURAMENTO DEVOL
                        WHERE 1=1';
+                       
     IF NVL(PSFILIAL, '99') <> '99' THEN
       VSSQL := VSSQL || '    AND DEVOL.CODFILIAL IN(' || PSFILIAL || ')';
     END IF;
+    
     VSSQL := VSSQL || '    AND DEVOL.DTENT >= ''' || PDDATAINI || '''
                          AND DEVOL.DTENT <= ''' || PDDATAFIM || '''';
+                         
     IF P_CODRCA IS NOT NULL THEN
       VSSQL := VSSQL || '     AND DEVOL.CODUSURMOV = ' || P_CODRCA;
     ELSIF P_CODSUPERVISOR IS NOT NULL THEN
       VSSQL := VSSQL || '     AND DEVOL.CODSUPERVMOV = ' || P_CODSUPERVISOR;
-
     END IF;
 
     VSSQL := VSSQL || '        )';
@@ -1157,28 +1241,29 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     BEGIN
       EXECUTE IMMEDIATE VSSQL BULK COLLECT
         INTO LISTANUMTRANSVENDA;
+        
       PREENCHERTRANSACAOTEMP('');
 
       VSSQL := '   SELECT DISTINCT NUMTRANSENT
                         FROM VIEW_DEVOL_RESUMO_FATURAVULSA AVULSA
                        WHERE 1=1';
+
       IF NVL(PSFILIAL, '99') <> '99' THEN
         VSSQL := VSSQL || '    AND AVULSA.CODFILIAL IN(' || PSFILIAL || ')';
       END IF;
+      
       VSSQL := VSSQL || '    AND AVULSA.DTENT >= ''' || PDDATAINI || '''
-                           AND AVULSA.DTENT <= ''' ||
-               PDDATAFIM || '''';
+                           AND AVULSA.DTENT <= ''' || PDDATAFIM || '''';
+                           
       IF P_CODRCA IS NOT NULL THEN
         VSSQL := VSSQL || '     AND AVULSA.CODUSURMOV = ' || P_CODRCA;
       ELSIF P_CODSUPERVISOR IS NOT NULL THEN
-        VSSQL := VSSQL || '     AND AVULSA.CODSUPERVISOR = ' ||
-                 P_CODSUPERVISOR;
-
-
+        VSSQL := VSSQL || '     AND AVULSA.CODSUPERVISOR = ' || P_CODSUPERVISOR;
       END IF;
 
       EXECUTE IMMEDIATE VSSQL BULK COLLECT
         INTO LISTANUMTRANSVENDA;
+        
       PREENCHERTRANSACAOTEMP('DA');
     EXCEPTION
       WHEN OTHERS THEN
@@ -1205,8 +1290,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                                                   10000,
                                                                   1) CODENTIDADE
                                              FROM PCGMCOMBITEM
-                                            WHERE PCGMCOMBITEM.CODIGO =
-                                                  PCGMMETACOMB.CODCOMBINACAO
+                                            WHERE PCGMCOMBITEM.CODIGO = PCGMMETACOMB.CODCOMBINACAO
                                             GROUP BY PCGMCOMBITEM.CODIGO),
                                            ',',
                                            ';') CODENTIDADE,
@@ -1567,56 +1651,56 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     RETURN VSBLOCOSQL;
   END;
 
-FUNCTION F_RetornarSQLEntidadeIN(PNCODMETA         IN NUMBER,
-                                 PNCODTIPOMETA     IN NUMBER,
-                                 PNCODINDICADOR    IN NUMBER,
-                                 PNCODENTIDADEMETA IN NUMBER DEFAULT 0,
-                                 PDDATAINI         IN DATE,
-                                 PDDATAFIM         IN DATE,
-                                 PSCODFILIAL       IN VARCHAR2) RETURN VARCHAR2 IS
-  --DADOS_SAIDA             TR_DADOSMETATEMP;
-  VDDATAINI               DATE;
-  VDDATAFIM               DATE;
-  VSBLOCOSQLCALCREALIZADO VARCHAR2(32000);
-  VSBLOCOSQL              VARCHAR2(15000) := '';
-  
-BEGIN
+  FUNCTION F_RetornarSQLEntidadeIN(PNCODMETA         IN NUMBER,
+                                   PNCODTIPOMETA     IN NUMBER,
+                                   PNCODINDICADOR    IN NUMBER,
+                                   PNCODENTIDADEMETA IN NUMBER DEFAULT 0,
+                                   PDDATAINI         IN DATE,
+                                   PDDATAFIM         IN DATE,
+                                   PSCODFILIAL       IN VARCHAR2) RETURN VARCHAR2 IS
+    --DADOS_SAIDA             TR_DADOSMETATEMP;
+    VDDATAINI               DATE;
+    VDDATAFIM               DATE;
+    VSBLOCOSQLCALCREALIZADO VARCHAR2(32000);
+    VSBLOCOSQL              VARCHAR2(15000) := '';
+    
+  BEGIN
 
-  EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT = ''DD/MM/RRRR''';
-  VDDATAINI := TO_DATE(PDDATAINI, 'DD/MM/RRRR');
-  VDDATAFIM := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
+    EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT = ''DD/MM/RRRR''';
+    VDDATAINI := TO_DATE(PDDATAINI, 'DD/MM/RRRR');
+    VDDATAFIM := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
 
-  P_GravarEntidadeMetaTemp(PNCODMETA,
-                           PNCODTIPOMETA,
-                           PNCODINDICADOR,
-                           VDDATAINI,
-                           VDDATAFIM,
-                           PSCODFILIAL);
+    P_GravarEntidadeMetaTemp(PNCODMETA,
+                             PNCODTIPOMETA,
+                             PNCODINDICADOR,
+                             VDDATAINI,
+                             VDDATAFIM,
+                             PSCODFILIAL);
 
-  FOR DADOS in (SELECT DISTINCT PCGMCOMBITEM.FILTRO TIPOENTIDADE
-                  FROM PCGMMETACOMB, PCGMCOMBITEM
-                 WHERE PCGMMETACOMB.CODCOMBINACAO = PCGMCOMBITEM.CODIGO
-                   AND PCGMMETACOMB.CODMETA = PNCODMETA
-                   AND PCGMMETACOMB.CODTIPOMETA = PNCODTIPOMETA
-                   AND PCGMMETACOMB.CODINDICADOR = PNCODINDICADOR
-                   AND PCGMMETACOMB.CODTIPOMETA <> 1 -- TIPO DE META GERAL
-                   AND PCGMMETACOMB.DATA >= VDDATAINI
-                   AND PCGMMETACOMB.DATA <= VDDATAFIM) loop
+    FOR DADOS in (SELECT DISTINCT PCGMCOMBITEM.FILTRO TIPOENTIDADE
+                    FROM PCGMMETACOMB, PCGMCOMBITEM
+                   WHERE PCGMMETACOMB.CODCOMBINACAO = PCGMCOMBITEM.CODIGO
+                     AND PCGMMETACOMB.CODMETA = PNCODMETA
+                     AND PCGMMETACOMB.CODTIPOMETA = PNCODTIPOMETA
+                     AND PCGMMETACOMB.CODINDICADOR = PNCODINDICADOR
+                     AND PCGMMETACOMB.CODTIPOMETA <> 1 -- TIPO DE META GERAL
+                     AND PCGMMETACOMB.DATA >= VDDATAINI
+                     AND PCGMMETACOMB.DATA <= VDDATAFIM) loop
 
-    VSBLOCOSQL := VSBLOCOSQL || F_RetornarEntidadeDinamico(PNCODENTIDADEMETA,
-                                             DADOS.TIPOENTIDADE,
-                                             PSCODFILIAL);
-  end loop;
+      VSBLOCOSQL := VSBLOCOSQL || F_RetornarEntidadeDinamico(PNCODENTIDADEMETA,
+                                               DADOS.TIPOENTIDADE,
+                                               PSCODFILIAL);
+    end loop;
 
-  IF VSBLOCOSQL NOT LIKE '%WHERE 1=1%' THEN
-    VSBLOCOSQL := ' WHERE 1=1 ' || VSBLOCOSQL;
-  END IF;
+    IF VSBLOCOSQL NOT LIKE '%WHERE 1=1%' THEN
+      VSBLOCOSQL := ' WHERE 1=1 ' || VSBLOCOSQL;
+    END IF;
 
-  VSBLOCOSQLCALCREALIZADO := VSBLOCOSQL;
-  --  DBMS_OUTPUT.put_line('VSBLOCOSQL : ' || VSBLOCOSQL);
+    VSBLOCOSQLCALCREALIZADO := VSBLOCOSQL;
+    --  DBMS_OUTPUT.put_line('VSBLOCOSQL : ' || VSBLOCOSQL);
 
-  RETURN VSBLOCOSQLCALCREALIZADO;
-END;
+    RETURN VSBLOCOSQLCALCREALIZADO;
+  END;
 
   FUNCTION F_RetornarSQLEntidadeIN(PNPARAMMETA       IN NUMBER,
                                    PNCODTIPOMETA     IN NUMBER,
@@ -1816,20 +1900,6 @@ END;
     RETURN VNQTCLIATIVOS;
   END F_QTCLIATIVOS;
 
-  PROCEDURE P_CarregarParametros is
-  BEGIN
-    BEGIN
-      SELECT PCGMPARAMETRO.* BULK COLLECT
-        INTO TB_PCGMPARAMETRO
-        FROM PCGMPARAMETRO;
-    EXCEPTION
-      WHEN OTHERS THEN
-        TB_PCGMPARAMETRO := NULL;
-    END;
-  END;
-
-
-
   FUNCTION F_RetornarFaixaPremio(PNCODMETA      IN NUMBER,
                                  PNCODTIPOMETA  IN NUMBER,
                                  PNCODINDICADOR IN NUMBER,
@@ -1940,8 +2010,8 @@ END;
     RETURN VT_DETALHEAPURACAOMETA;
   END;
 
---copia da procedure
-PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
+  --copia da procedure
+  PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                         PSFILTROSQL OUT VARCHAR2,
                                         PSCODSUPERVISOR OUT NUMBER,
                                         PSCODGERENTEREGIONAL OUT NUMBER,
@@ -2331,11 +2401,9 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
     VDDATAINI := TO_DATE(PDDATAINI, 'DD/MM/RRRR');
     VDDATAFIM := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
 
-
     VSCODFILIAL := PSCODFILIAL;
 
-    SELECT PCGMINDICADOR.REGRACALCREALIZADO --BULK COLLECT
-    --  INTO TABPCGMINDICADOR
+    SELECT PCGMINDICADOR.REGRACALCREALIZADO --BULK COLLECT --  INTO TABPCGMINDICADOR
       INTO VSREGRAINDICADOR
       FROM PCGMINDICADOR
      WHERE PCGMINDICADOR.CODIGO = PNCODINDICADOR;
@@ -2350,18 +2418,6 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
       MSG := 'OK';
       --VSREGRAINDICADOR := TABPCGMINDICADOR(INDX).REGRACALCREALIZADO;
-
-      VSSQL := F_RetornarSQLVendasDevol(PN_CODIGOINDICADOR    => PNCODINDICADOR, --TABPCGMINDICADOR(INDX).CODIGO,
-                                        PS_CODFILIAL          => VSCODFILIAL,
-                                        PS_BLOCOSQLCONSVENDAS => NULL,
-                                        PD_DATAINI            => VDDATAINI,
-                                        PD_DATAFIM            => VDDATAFIM,
-                                        PS_AGRUPARPOR         => NULL,
-                                        PN_CODSUPERVISOR       => VSCODSUPERVISOR,
-                                        PN_CODGERENTEREGIONAL => VSCODGERENTEREGIONAL,
-                                        PN_CODGERENTENACIONAL => VSCODGERENTENACIONAL,
-                                        PN_CODGERENTE          => VSCODGERENTE,
-                                        PN_CODUSUR             => VSCODUSUR);
 
       /*        DADOS_SAIDA.PERCOMMOV := NULL;
       DADOS_SAIDA.VLFATPORPERCOM := NULL;
@@ -2395,18 +2451,28 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
           --   INTO VNVALORINDICADOR;
 
           ------------------------------------------------------------------------
-
-          
           EXECUTE IMMEDIATE 'SELECT NVL(SUM(CODPROD), 0) ' ||
                             '  FROM ' || DEF_PCGMMETAGLOBALTEMP(VSCODFILIAL) ||
                             ' WHERE VLLIQUIDO IS NOT NULL 
                                 AND DATA >= ''' || VDDATAINI || '''
                                 AND DATA <= ''' || VDDATAFIM || ''''
              INTO VNCONTCLI;
+             
 
           IF (VNCONTCLI = 0) THEN
-            EXECUTE IMMEDIATE VSSQL BULK COLLECT
-              INTO VT_PCGMMETATEMP;
+            VSSQL := F_RetornarSQLVendasDevol(PN_CODIGOINDICADOR    => PNCODINDICADOR, --TABPCGMINDICADOR(INDX).CODIGO,
+                                        PS_CODFILIAL          => VSCODFILIAL,
+                                        PS_BLOCOSQLCONSVENDAS => NULL,
+                                        PD_DATAINI            => VDDATAINI,
+                                        PD_DATAFIM            => VDDATAFIM,
+                                        PS_AGRUPARPOR         => NULL,
+                                        PN_CODSUPERVISOR       => VSCODSUPERVISOR,
+                                        PN_CODGERENTEREGIONAL => VSCODGERENTEREGIONAL,
+                                        PN_CODGERENTENACIONAL => VSCODGERENTENACIONAL,
+                                        PN_CODGERENTE          => VSCODGERENTE,
+                                        PN_CODUSUR             => VSCODUSUR);
+          
+            EXECUTE IMMEDIATE VSSQL BULK COLLECT INTO VT_PCGMMETATEMP;
 
             FOR INDX IN 1 .. VT_PCGMMETATEMP.COUNT LOOP
               VT_PCGMMETATEMP(INDX).CODMETA := PNCODMETA;
@@ -2418,38 +2484,52 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                 VT_PCGMMETATEMP(INDX).PERCOM := F_EncontrarPercom(VT_PCGMMETATEMP(INDX));
               END IF;
 
-              IF (NVL(F_ObterParametro('ABATER_VALOR_ST'), 'N') = 'N') THEN
+              -----Grava na tabela temporaria-----
+              IF (NVL(F_ObterParametro('ABATER_VALOR_ST_META'), 'N') = 'N') THEN
                 VT_PCGMMETATEMP(INDX).VLST := 0;
                 VT_PCGMMETATEMP(INDX).VLSTBONIFIC := 0;
               END IF;
 
-              IF (NVL(F_ObterParametro('ABATER_VALOR_IPI'), 'N') = 'N') THEN
+              IF (NVL(F_ObterParametro('ABATER_VALOR_IPI_META'), 'N') = 'N') THEN
                 VT_PCGMMETATEMP(INDX).VLIPI := 0;
                 VT_PCGMMETATEMP(INDX).VLIPIBONIFIC := 0;
               END IF;
 
-              IF (NVL(F_ObterParametro('ABATER_VALOR_FECP'), 'N') = 'N') THEN
+              IF (NVL(F_ObterParametro('ABATER_VALOR_FECP_META'), 'N') = 'N') THEN
                 VT_PCGMMETATEMP(INDX).VLFECP := 0;
+                VT_PCGMMETATEMP(INDX).VLFECPBONIFIC := 0;
+              END IF;
+              
+              IF (NVL(F_ObterParametro('ABATER_VALOR_ST_COMISSAO'),'N') = 'N') THEN
+                VT_PCGMMETATEMP(INDX).VLSTCOMISSAO := 0;
               END IF;
 
+              IF (NVL(F_ObterParametro('ABATER_VALOR_IPI_COMISSAO'),'N') = 'N') THEN
+                VT_PCGMMETATEMP(INDX).VLIPICOMISSAO := 0;
+              END IF;
+              
+              IF (NVL(F_ObterParametro('ABATER_VALOR_FECP_COMISSAO'),'N') = 'N') THEN
+                 VT_PCGMMETATEMP(INDX).VLFECPCOMISSAO := 0;
+              END IF;
+              -----------
             END LOOP;
 
             P_InserirMetaTemp('N', VSCODFILIAL, NULL, VT_PCGMMETATEMP);
           END IF;
 
           VSSQL := 'SELECT ' || VSREGRAINDICADOR ||
-                   ' FROM (SELECT  MOV.*
-                             FROM ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || ' MOV ' || PSBLOCOSQLCALCREALIZADO ||
-                   '          AND MOV.CODPROD IS NOT NULL
-                              AND MOV.CODFILIAL IN(' ||
-                   VSCODFILIAL || ')
-                              AND DATA >= ''' || VDDATAINI || '''
-                              AND DATA <= ''' || VDDATAFIM || '''';
+                   ' FROM (SELECT  MOV.* FROM ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || ' MOV ' 
+                   || PSBLOCOSQLCALCREALIZADO || '          
+                   AND MOV.CODPROD IS NOT NULL AND MOV.CODFILIAL IN(' || VSCODFILIAL || ')
+                   AND DATA >= ''' || VDDATAINI || '''
+                   AND DATA <= ''' || VDDATAFIM || ''' ';
+          
           IF PNCODINDICADOR IN (5,22) THEN
             VSSQL := VSSQL || ' AND TIPOMOV = ''V''';
           END IF;
 
           VSSQL := VSSQL || '  ) MOV';
+          
           IF PNCODINDICADOR in (22) THEN
              EXECUTE IMMEDIATE VSSQL INTO VNVALORINDICADOR USING VDDATAINI, VDDATAFIM;
           ELSE
@@ -2466,10 +2546,11 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
     EXCEPTION
       WHEN OTHERS THEN
-        MSG := VSREGRAINDICADOR || ' --- CODENTIDADEMETA: ' ||
-               VNCODENTIDADEMETA || ' - PSBLOCOSQLCALCREALIZADO' ||
-               PSBLOCOSQLCALCREALIZADO || ' - ' ||
-               DBMS_UTILITY.FORMAT_ERROR_STACK;
+        MSG := 'Error na F_RetornarRealizado:'|| chr(13) || 
+               '--- VSREGRAINDICADOR: '|| VSREGRAINDICADOR || chr(13) || 
+               '--- CODENTIDADEMETA: ' || VNCODENTIDADEMETA || chr(13) || 
+               '--- PSBLOCOSQLCALCREALIZADO:' || PSBLOCOSQLCALCREALIZADO || chr(13) ||
+               '--- FORMAT_ERROR_STACK: ' || DBMS_UTILITY.FORMAT_ERROR_STACK;               
         DBMS_OUTPUT.put_line(MSG);
         VNVALORINDICADOR := 0;
     END;
@@ -2478,6 +2559,11 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
     RETURN VNVALORINDICADOR;
   END F_RetornarRealizado;
 
+  /*
+  =================================
+  APURACAOMETA
+  =================================
+  */
   FUNCTION APURACAOMETA(PNCODMETA      IN NUMBER,
                         PNCODTIPOMETA  IN NUMBER DEFAULT 0,
                         PNCODINDICADOR IN NUMBER DEFAULT 0,
@@ -2488,7 +2574,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
     VSBLOCOSQLCALCREALIZADO VARCHAR2(5000);
     VSSQL                   VARCHAR2(15000);
-    VNVALORREALIZADO        NUMBER;
+    VNVALORREALIZADOMETA    NUMBER;
     VDDATAINI               DATE;
     VDDATAFIM               DATE;
     VT_FAIXAPREMIO          TR_PCGMMETACOMB;
@@ -2497,14 +2583,16 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
     VSCODFILIAL             VARCHAR2(2000);
     VNCONTADOR              NUMBER;
     VT_RETORNO              TR_RETORNO;
-    VNVLFATURADORPORIND     NUMBER;
+    VNVLFATURADORPORINDMETA NUMBER;
+    VNVLFATURADORPORINDCOMISSAO NUMBER;
     VSFILTROCOLABORADOR     VARCHAR2(50);
-    VSCODSUPERVISOR          NUMBER;
-    VSCODGERENTEREGIONAL     NUMBER;
-    VSCODGERENTENACIONAL     NUMBER;
+    VSCODSUPERVISOR         NUMBER;
+    VSCODGERENTEREGIONAL    NUMBER;
+    VSCODGERENTENACIONAL    NUMBER;
     VSCODGERENTE            NUMBER;
     VSCODUSUR               NUMBER;
     e_TabTempNotFound       EXCEPTION;
+    VSIMPOSTO               VARCHAR2(1000) := '';
 
     PROCEDURE ATUALIZASUBTOTAL(PN_CODMETA      IN NUMBER,
                                PN_CODTIPOMETA  IN NUMBER,
@@ -2554,6 +2642,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                AND PCGMMETACOMB.CODMETA = PN_CODMETA) LOOP
 
         VT_PARAMETROCAB.TIPOENTIDADE := DADOSMETACOMB.TIPOENTIDADE;
+        
         VSBLOCOSQLCALCREALIZADO := F_RetornarSQLEntidadeIN(PNCODMETA         => DADOSMETACOMB.CODMETA,
                                                            PNCODTIPOMETA     => DADOSMETACOMB.CODTIPOMETA,
                                                            PNCODINDICADOR    => DADOSMETACOMB.CODINDICADOR,
@@ -2579,25 +2668,31 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
         VSSQL := 'SELECT ' || VSREGRAINDICADOR || '
                         FROM (SELECT MOV.*
-                                FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' MOV ' || CASE WHEN VSBLOCOSQLCALCREALIZADO IS NULL THEN ' WHERE 1=1 ' ELSE VSBLOCOSQLCALCREALIZADO END || ' AND CODPROD IS NOT NULL
-                                 AND MOV.CODFILIAL IN(' || VSCODFILIAL || ')
-                                 AND DATA >= ''' || VDDATAINI || '''
-                                 AND DATA <= ''' || VDDATAFIM || '''';
+                                FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' MOV ' || 
+                                CASE WHEN VSBLOCOSQLCALCREALIZADO IS NULL 
+                                  THEN ' WHERE 1=1 ' 
+                                  ELSE VSBLOCOSQLCALCREALIZADO 
+                                END || ' AND CODPROD IS NOT NULL
+                                AND MOV.CODFILIAL IN(' || VSCODFILIAL || ')
+                                AND DATA >= ''' || VDDATAINI || '''
+                                AND DATA <= ''' || VDDATAFIM || '''';
+                                 
         IF DADOSMETACOMB.CODINDICADOR IN (5,22) THEN
           VSSQL := VSSQL || ' AND TIPOMOV = ''V''';
         END IF;
+        
         VSSQL := VSSQL || '  ) MOV';
+        
         BEGIN
-
           IF DADOSMETACOMB.CODINDICADOR in (22) THEN
-             EXECUTE IMMEDIATE VSSQL INTO VNVALORREALIZADO USING VDDATAINI, VDDATAFIM;
+             EXECUTE IMMEDIATE VSSQL INTO VNVALORREALIZADOMETA USING VDDATAINI, VDDATAFIM;
           ELSE
-             EXECUTE IMMEDIATE VSSQL INTO VNVALORREALIZADO;
+             EXECUTE IMMEDIATE VSSQL INTO VNVALORREALIZADOMETA;
           END IF;
 
         EXCEPTION
           WHEN OTHERS THEN
-            VNVALORREALIZADO := 0;
+            VNVALORREALIZADOMETA := 0;
         END;
 
         SELECT COUNT(1)
@@ -2616,7 +2711,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
           VT_PARAMETROCAB.CODINDICADOR  := DADOSMETACOMB.CODINDICADOR;
           VT_PARAMETROCAB.DATA          := VDDATAINI;
           VT_PARAMETROCAB.DATAFIM       := VDDATAFIM;
-          VT_PARAMETROCAB.SUBTOTAL      := VNVALORREALIZADO;
+          VT_PARAMETROCAB.SUBTOTAL      := VNVALORREALIZADOMETA;
           VT_PARAMETROCAB.PERIODICIDADE := VSPERIODICIDADE;
 
           IF DADOSMETACOMB.TIPOENTIDADE = 'GER' AND
@@ -2657,7 +2752,8 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
         P_AtualizarPCGMMETACOMB(PT_PARAMETRO => VT_PARAMETROCAB);
       END LOOP;
     END;
-	PROCEDURE P_ZerarValorPCGMMETACOMB(PNCODMETA IN NUMBER) IS
+    
+	  PROCEDURE P_ZerarValorPCGMMETACOMB(PNCODMETA IN NUMBER) IS
       PRAGMA AUTONOMOUS_TRANSACTION;
       P_CODMETA VARCHAR2(10);
     BEGIN
@@ -2665,6 +2761,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
       EXECUTE IMMEDIATE 'UPDATE PCGMMETACOMB SET REALIZADO = 0, VLFATURADO = 0,PERCATINGIDO = 0, Percpesoindnivelating = 0 WHERE CODMETA = '|| P_CODMETA;
       COMMIT;
     END;
+    
   BEGIN
     EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT = ''DD/MM/RRRR''';
     
@@ -2676,8 +2773,6 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
      WHERE 1 = 1
        AND PCGMMETA.CODPARAMMETA = PCGMPARAMMETA.CODIGO
        AND PCGMMETA.CODIGO = PNCODMETA;
-
-    --P_LOG(PNCODMETA||' ; '||VSCODFILIAL||';'||PNCODTIPOMETA||' ; '||PNCODINDICADOR||' ; '||PDDATAINI||' ; '||PDDATAFIM);
        
     BEGIN
       P_DeletarPCGMMETATEMP(VSCODFILIAL);
@@ -2687,6 +2782,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
     END;
     
     P_CarregarParametros;
+    
     VDDATAINI            := TO_DATE(PDDATAINI, 'DD/MM/RRRR');
     VDDATAFIM            := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
     VNLISTANUMTRANSVENDA := 0;
@@ -2735,14 +2831,11 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                      PCGMPERIODO,
                                      PCGMFILTROTIPOMETA
                                WHERE 1 = 1
-                                 AND PCGMMETA.CODPARAMMETA =
-                                     PCGMPARAMMETA.CODIGO
+                                 AND PCGMMETA.CODPARAMMETA = PCGMPARAMMETA.CODIGO
                                  AND PCGMMETA.CODIGO = PCGMMETACOMB.CODMETA
-                                 AND PCGMFILTROTIPOMETA.CODIGO =
-                                     PCGMMETACOMB.CODTIPOMETA
+                                 AND PCGMFILTROTIPOMETA.CODIGO = PCGMMETACOMB.CODTIPOMETA
                                  AND PCGMMETACOMB.CODMETA = PCGMMETA.CODIGO
-                                 AND PCGMPERIODO.CODIGO =
-                                     PCGMPARAMMETA.CODPERIODO
+                                 AND PCGMPERIODO.CODIGO = PCGMPARAMMETA.CODPERIODO
                                  AND PCGMMETACOMB.CODMETA = PNCODMETA
                                     --   AND NVL(PCGMMETACOMB.CODTIPOMETA, PCGMPARAMCOMB.CODTIPOMETA) = DECODE(PNCODTIPOMETA, 0, PCGMMETACOMB.CODTIPOMETA, PNCODTIPOMETA)
                                     --  AND NVL(PCGMMETACOMB.CODINDICADOR, PCGMPARAMCOMB.CODINDICADOR) = DECODE(PNCODINDICADOR, 0, PCGMMETACOMB.CODINDICADOR, PNCODINDICADOR)
@@ -2759,14 +2852,13 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
 
       -- TRATA AS FILIAIS CASO SEJA INFORMADO "99" NA PARAMETRIZAÇÃO DA META
       VSCODFILIAL := Chr(39) || DADOSCOMB.CODFILIAL || Chr(39);
+      
       IF NVL(DADOSCOMB.CODFILIAL, '99') = '99' THEN
         FOR FILIAL IN (SELECT * FROM PCFILIAL WHERE CODIGO <> '99') LOOP
           IF VNCONTADOR = 0 THEN
-            VSCODFILIAL := '''99''' || ',' || Chr(39) || FILIAL.CODIGO ||
-                           Chr(39);
+            VSCODFILIAL := '''99''' || ',' || Chr(39) || FILIAL.CODIGO || Chr(39);
           ELSE
-            VSCODFILIAL := VSCODFILIAL || ',' || Chr(39) || FILIAL.CODIGO ||
-                           Chr(39);
+            VSCODFILIAL := VSCODFILIAL || ',' || Chr(39) || FILIAL.CODIGO || Chr(39);
           END IF;
 
           VNCONTADOR := VNCONTADOR + 1;
@@ -2796,17 +2888,22 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
         END;
       END IF;
 
-      -------------------------
-
       VDDATAINI := CASE WHEN(DADOSCOMB.PERIODICIDADE = 'D') /*AND (DADOS_SAIDA.TIPOENTIDADE <> 'GERAL')*/
-       THEN DADOSCOMB.DATA ELSE VDDATAINI END;
+                    THEN DADOSCOMB.DATA 
+                    ELSE VDDATAINI 
+                  END;  
       VDDATAFIM := CASE WHEN(DADOSCOMB.PERIODICIDADE = 'D') /*AND (DADOS_SAIDA.TIPOENTIDADE <> 'GERAL') */
-       THEN DADOSCOMB.DATA ELSE VDDATAFIM END;
+                    THEN DADOSCOMB.DATA 
+                    ELSE VDDATAFIM 
+                  END;
 
       DADOS_SAIDA.TIPOENTIDADE  := NVL(DADOSCOMB.TIPOENTIDADE, 'GERAL');
       DADOS_SAIDA.CODCOMBINACAO := DADOSCOMB.CODCOMBINACAO;
-      DADOS_SAIDA.CODENTIDADE   := CASE WHEN DADOS_SAIDA.TIPOENTIDADE = 'GERAL' THEN '0' ELSE DADOSCOMB.CODENTIDADE END;
-
+      DADOS_SAIDA.CODENTIDADE   := CASE WHEN DADOS_SAIDA.TIPOENTIDADE = 'GERAL' 
+                                    THEN '0' 
+                                    ELSE DADOSCOMB.CODENTIDADE 
+                                  END;
+      
       VT_RETORNO                    := F_EncontrarNomeEntidade(DADOSCOMB.CODCOMBINACAO,
                                                                DADOSCOMB.CODENTIDADE,
                                                                DADOS_SAIDA.TIPOENTIDADE);
@@ -2814,19 +2911,17 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
       VSBLOCOSQLCALCREALIZADO       := VT_RETORNO.PSBLOCOSQLCALCREALIZADO;
       VT_PARAMETRO.NOMECOMBENTIDADE := DADOS_SAIDA.NOMEENTIDADE;
 
+      -- ==>> EXIT ==>
       IF (NVL(VNLISTANUMTRANSVENDA, 0) = 0) OR (VNLISTANUMTRANSVENDA = -1) THEN
-	    P_ZerarValorPCGMMETACOMB(PNCODMETA);
-        DBMS_OUTPUT.put_line('TRANSAÇÃO NÃO ENCONTRADA. CODENTIDADE ' ||
-                             DADOSCOMB.CODENTIDADE || ' LINHA ' ||
-                             $$PLSQL_LINE);
+	      P_ZerarValorPCGMMETACOMB(PNCODMETA);
+        DBMS_OUTPUT.put_line('TRANSAÇÃO NÃO ENCONTRADA. CODENTIDADE ' || DADOSCOMB.CODENTIDADE || ' LINHA ' || $$PLSQL_LINE);
         EXIT;
       END IF;
 
       IF DADOSCOMB.DTFECHAMENTO IS NULL THEN
         BEGIN
-
--------- MUDAR DEPOIS
-        P_RetornarFiltroColaborador(PNCODMETA,
+          -------- MUDAR DEPOIS
+          P_RetornarFiltroColaborador(PNCODMETA,
                                       VSFILTROCOLABORADOR,
                                       VSCODSUPERVISOR,
                                       VSCODGERENTEREGIONAL,
@@ -2834,10 +2929,10 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                       VSCODGERENTE,
                                       VSCODUSUR);
 
-         VSBLOCOSQLCALCREALIZADO := NVL(VSBLOCOSQLCALCREALIZADO, ' WHERE 1=1 ') || VSFILTROCOLABORADOR;
+          VSBLOCOSQLCALCREALIZADO := NVL(VSBLOCOSQLCALCREALIZADO, ' WHERE 1=1 ') || VSFILTROCOLABORADOR;
 
           -- ENCONTRANDO O VALOR VENDIDO PELO CODUSUR, CODSUPERVISOR OU CODGERENTE DE UMA DETERMINADO TIPO DE META (FORNECEDOR X PRODUTO)
-          VNVALORREALIZADO := F_RetornarRealizado(VSCODFILIAL,
+          VNVALORREALIZADOMETA := F_RetornarRealizado(VSCODFILIAL,
                                                   PNCODMETA,
                                                   DADOSCOMB.CODTIPOMETA,
                                                   DADOSCOMB.CODINDICADOR,
@@ -2851,23 +2946,36 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                                   VSCODUSUR);
         EXCEPTION
           WHEN OTHERS THEN
-            VNVALORREALIZADO := 0;
+            VNVALORREALIZADOMETA := 0;
         END;
+        
+        ---------------------
+        IF F_ObterParametro('ABATER_VALOR_ST_META') = 'S' THEN
+          VSIMPOSTO := '- NVL(VLST, 0) ';
+        END IF;
 
-        VSSQL := 'SELECT NVL(ROUND(SUM(NVL(VLLIQUIDO, 0) - NVL(VLST, 0) - NVL(VLIPI, 0) - NVL(VLFECP, 0)),2),0) VLFATPORPERCOM
+        IF F_ObterParametro('ABATER_VALOR_IPI_META') = 'S' THEN
+          VSIMPOSTO := VSIMPOSTO || ' - NVL(VLIPI, 0) ';
+        END IF;
+          
+        IF F_ObterParametro('ABATER_VALOR_FECP_META') = 'S' THEN
+          VSIMPOSTO := VSIMPOSTO || ' - NVL(VLFECP, 0)';
+        END IF;
+        ---------------------
+
+        VSSQL := 'SELECT NVL(ROUND(SUM(NVL(VLLIQUIDO, 0) '||VSIMPOSTO||'),2),0) VLFATPORPERCOM
                       FROM (SELECT   MOV.*
-                              FROM ' || DEF_PCGMMETAGLOBALTEMP(VSCODFILIAL) || ' MOV ' ||
-                 VSBLOCOSQLCALCREALIZADO ||
-                 ' AND MOV.CODPROD IS NOT NULL
-                               AND MOV.CODFILIAL IN(' ||
-                 VSCODFILIAL || ')
-                               AND DATA >= ''' || VDDATAINI || '''
-                               AND DATA <= ''' || VDDATAFIM || '''
-                               ) MOV';
-        EXECUTE IMMEDIATE VSSQL
-          INTO VNVLFATURADORPORIND;
+                              FROM ' || DEF_PCGMMETAGLOBALTEMP(VSCODFILIAL) || ' MOV ' 
+                              || VSBLOCOSQLCALCREALIZADO || ' 
+                              AND MOV.CODPROD IS NOT NULL
+                              AND MOV.CODFILIAL IN(' || VSCODFILIAL || ')
+                              AND DATA >= ''' || VDDATAINI || '''
+                              AND DATA <= ''' || VDDATAFIM || '''
+                      ) MOV';
+                      
+        EXECUTE IMMEDIATE VSSQL INTO VNVLFATURADORPORINDMETA;
 
-        IF VNVLFATURADORPORIND <> 0 THEN
+        IF VNVLFATURADORPORINDMETA <> 0 THEN
           P_GRAVARPCGMMETACOMBCOMPLE(VDDATAINI,
                                      VDDATAFIM,
                                      DADOSCOMB.CODCOMBINACAO,
@@ -2876,28 +2984,32 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                      VSCODFILIAL);
         END IF;
 
-        IF VNVALORREALIZADO <> 0 THEN
+        VNVLFATURADORPORINDCOMISSAO := VNVLFATURADORPORINDMETA;
+        IF VNVALORREALIZADOMETA <> 0 THEN
           SELECT SUM(S.VLFATPORPERCOM)
-            INTO VNVLFATURADORPORIND
+            INTO VNVLFATURADORPORINDCOMISSAO
             FROM PCGMMETACOMBCOMPLE S
            WHERE CODMETA = DADOSCOMB.CODMETA
              AND CODCOMBINACAO = DADOSCOMB.CODCOMBINACAO
              AND DATA = DADOSCOMB.DATA;
         END IF;
 
-        DADOS_SAIDA.VLFATURADO  := VNVLFATURADORPORIND;
+        DADOS_SAIDA.VLFATURADO  := VNVLFATURADORPORINDMETA;
         VT_PARAMETRO.VLFATURADO := DADOS_SAIDA.VLFATURADO;
 
       ELSE
-        VNVALORREALIZADO := DADOSCOMB.REALIZADO;
+        VNVALORREALIZADOMETA := DADOSCOMB.REALIZADO;
       END IF;
 
       DADOS_SAIDA.CODMETA      := DADOSCOMB.CODMETA;
       DADOS_SAIDA.CODTIPOMETA  := DADOSCOMB.CODTIPOMETA;
       DADOS_SAIDA.CODINDICADOR := DADOSCOMB.CODINDICADOR;
       DADOS_SAIDA.DATA         := DADOSCOMB.DATA;
-      DADOS_SAIDA.PREVISTO     := CASE WHEN DADOSCOMB.ITEMNOVOADD = 'S' THEN VNVALORREALIZADO ELSE DADOSCOMB.PREVISTO END;
-      DADOS_SAIDA.REALIZADO    := VNVALORREALIZADO;
+      DADOS_SAIDA.PREVISTO     := CASE WHEN DADOSCOMB.ITEMNOVOADD = 'S' 
+                                    THEN VNVALORREALIZADOMETA 
+                                    ELSE DADOSCOMB.PREVISTO 
+                                  END;
+      DADOS_SAIDA.REALIZADO    := VNVALORREALIZADOMETA;
       DADOS_SAIDA.DTFECHAMENTO := DADOSCOMB.DTFECHAMENTO;
       DADOS_SAIDA.CODFILIAL    := DADOSCOMB.CODFILIAL;
 
@@ -2968,6 +3080,11 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
       --P_LOG(PNCODMETA||' ; '||VSCODFILIAL||';'||'SEM TABELA TEMPORARIA');
   END APURACAOMETA;
 
+  /*
+  =================================
+  APURACAOPREMIO
+  =================================
+  */
   FUNCTION APURACAOPREMIO(PNCODMETA       IN NUMBER,
                           PSCODENTIDADE   IN VARCHAR2 DEFAULT '',
                           PSTIPOBONUS     IN VARCHAR2,
@@ -2992,7 +3109,8 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
     VNCONTACOMB        NUMBER;
     VNPERCOMPORIND     NUMBER := 0;
     VT_RETORNO         TR_RETORNO;
-	PROCEDURE P_ZerarValorPCGMMETACOMBCOMPLE(PNCODMETA IN NUMBER,
+    
+    PROCEDURE P_ZerarValorPCGMMETACOMBCOMPLE(PNCODMETA IN NUMBER,
                                            PNCOMBINACAO IN NUMBER) IS
       PRAGMA AUTONOMOUS_TRANSACTION;
       P_CODMETA VARCHAR2(10);
@@ -3015,8 +3133,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                                                         10000,
                                                                         1) CODENTIDADE
                                                    FROM PCGMCOMBITEM
-                                                  WHERE PCGMCOMBITEM.CODIGO =
-                                                        PCGMMETACOMB.CODCOMBINACAO
+                                                  WHERE PCGMCOMBITEM.CODIGO = PCGMMETACOMB.CODCOMBINACAO
                                                   GROUP BY PCGMCOMBITEM.CODIGO),
                                                  ',',
                                                  ';') CODENTIDADE,
@@ -3024,8 +3141,7 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                                                         10000,
                                                                         1) TIPOENTIDADE
                                                    FROM PCGMCOMBITEM
-                                                  WHERE PCGMCOMBITEM.CODIGO =
-                                                        PCGMMETACOMB.CODCOMBINACAO
+                                                  WHERE PCGMCOMBITEM.CODIGO = PCGMMETACOMB.CODCOMBINACAO
                                                   GROUP BY PCGMCOMBITEM.CODIGO),
                                                  ',',
                                                  ';') TIPOENTIDADE,
@@ -3040,9 +3156,9 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                          ITEMNOVOADD,
                                          NVL(PERCATINGIDO, 0) PERCATINGIDO,
                                          VLFATURADO,
-                     NVL(PCGMMETACOMB.PERCPESOINDNIVELATING, 0) PERCPESOINDNIVELATING
+                                         NVL(PCGMMETACOMB.PERCPESOINDNIVELATING, 0) PERCPESOINDNIVELATING
                                     FROM PCGMMETACOMB
-                                   WHERE PCGMMETACOMB.CODMETA = PNCODMETA
+                                    WHERE PCGMMETACOMB.CODMETA = PNCODMETA
                                      AND PCGMMETACOMB.DATA >= VDDATAINI
                                      AND PCGMMETACOMB.DATA <= VDDATAFIM
                                      AND (PCGMMETACOMB.CODTIPOMETA,
@@ -3055,24 +3171,17 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                                  PCGMPREMIONIVEL,
                                                  PCGMPREMIOCOMB,
                                                  PCGMPARAMCOMB
-                                           WHERE PCGMPARAMMETA.CODIGO =
-                                                 PCGMPREMIO.CODPARAMMETA
-                                             AND PCGMPARAMMETA.CODPERFIL =
-                                                 PCGMPERFIL.CODIGO
-                                             AND PCGMPREMIO.CODIGO =
-                                                 PCGMPREMIOCOMB.CODPREMIO
-                                             AND PCGMPREMIOCOMB.CODIGO =
-                                                 PCGMPREMIONIVEL.CODIGO
-                                             AND PCGMPREMIOCOMB.CODPARAMCOMB =
-                                                 PCGMPARAMCOMB.CODIGO
+                                           WHERE PCGMPARAMMETA.CODIGO = PCGMPREMIO.CODPARAMMETA
+                                             AND PCGMPARAMMETA.CODPERFIL = PCGMPERFIL.CODIGO
+                                             AND PCGMPREMIO.CODIGO = PCGMPREMIOCOMB.CODPREMIO
+                                             AND PCGMPREMIOCOMB.CODIGO = PCGMPREMIONIVEL.CODIGO
+                                             AND PCGMPREMIOCOMB.CODPARAMCOMB = PCGMPARAMCOMB.CODIGO
                                              AND PCGMPREMIO.DATAEXCLUSAO IS NULL
                                              AND PCGMPARAMMETA.CODIGO =
                                                  (SELECT PCGMMETA.CODPARAMMETA
                                                     FROM PCGMMETA
-                                                   WHERE CODIGO =
-                                                         PCGMMETACOMB.CODMETA)))
-                           WHERE TRIM(NVL(CODENTIDADE, '0')) =
-                                 TRIM(DECODE(PSCODENTIDADE,
+                                                   WHERE CODIGO = PCGMMETACOMB.CODMETA)))
+                            WHERE TRIM(NVL(CODENTIDADE, '0')) = TRIM(DECODE(PSCODENTIDADE,
                                              '-1',
                                              NVL(CODENTIDADE, '0'),
                                              PSCODENTIDADE))) LOOP
@@ -3119,18 +3228,18 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
         DADOS_SAIDA.NIVELATINGIDO         := VT_REMUNERACAOVARIAVEL.NIVELATINGIDO;
         DADOS_SAIDA.PESOINDICADOR         := VT_REMUNERACAOVARIAVEL.PESOINDICADOR; --/ VNCONTINDICADOR;
         --DADOS_SAIDA.PERCPESOINDNIVELATING := NVL(VT_REMUNERACAOVARIAVEL.PERCPESOINDNIVELATING, 0);
-    DADOS_SAIDA.PERCPESOINDNIVELATING := NVL(DADOSMETACOMB.PERCPESOINDNIVELATING, 0);
+        DADOS_SAIDA.PERCPESOINDNIVELATING := NVL(DADOSMETACOMB.PERCPESOINDNIVELATING, 0);
         DADOS_SAIDA.FAIXAINI              := VT_REMUNERACAOVARIAVEL.FAIXAINI;
         DADOS_SAIDA.FAIXAFIM              := VT_REMUNERACAOVARIAVEL.FAIXAFIM;
 
         VNVLCOMISSAOPORIND := 0;
         VNVLFATURADO       := 0;
         VNPERCOMPORIND     := 0;
+        
         FOR CALCCOMISSAO IN (SELECT *
                                FROM PCGMMETACOMBCOMPLE
                               WHERE DATA = VDDATAINI
-                                AND CODCOMBINACAO =
-                                    DADOSMETACOMB.CODCOMBINACAO
+                                AND CODCOMBINACAO = DADOSMETACOMB.CODCOMBINACAO
                                 AND CODMETA = DADOSMETACOMB.CODMETA
                               ORDER BY PERCOMMOV) LOOP
 
@@ -3138,8 +3247,10 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
                                 ((NVL(CALCCOMISSAO.VLFATPORPERCOM, 0) *
                                 ((NVL(CALCCOMISSAO.PERCOMMOV, 0) *
                                 NVL(DADOS_SAIDA.PERCPESOINDNIVELATING, 0)) / 100)) / 100);
+                                
           VNVLFATURADO       := VNVLFATURADO +
                                 NVL(CALCCOMISSAO.VLFATPORPERCOM, 0);
+                                
           VNPERCOMPORIND     := NVL(VNPERCOMPORIND, 0) +
                                 ((NVL(CALCCOMISSAO.PERCOMMOV, 0) *
                                  NVL(DADOS_SAIDA.PERCPESOINDNIVELATING, 0)) / 100);
@@ -3182,14 +3293,14 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
           VT_PARAMETRO.TIPOCHAMADA           := 'PREMIO';
           VT_PARAMETRO.SUBTOTAL              := NULL;
           P_AtualizarPCGMMETACOMB(PT_PARAMETRO => VT_PARAMETRO);
-
         END IF;
 
-        IF --NVL(DADOS_SAIDA.PERCPESOINDNIVELATING, 0) <> 0 THEN
+        --IF NVL(DADOS_SAIDA.PERCPESOINDNIVELATING, 0) <> 0 THEN
          --(NOT  ((DADOSMETACOMB.PREVISTO = 0) AND (DADOSMETACOMB.REALIZADO = 0))) then
-     (NOT ((DADOSMETACOMB.PREVISTO IS NULL) AND (DADOSMETACOMB.REALIZADO IS NULL))) then
+        IF (NOT ((DADOSMETACOMB.PREVISTO IS NULL) AND (DADOSMETACOMB.REALIZADO IS NULL))) then
           PIPE ROW(DADOS_SAIDA);
         END IF;
+        
       ELSIF PSTIPOBONUS = 'C' THEN
         VNVLDEVOLUCAO := 0;
         FOR DADOSVENDA IN (SELECT *
@@ -3230,18 +3341,17 @@ PROCEDURE P_RetornarFiltroColaborador(PNCODMETA IN NUMBER,
           DADOS_SAIDA.PERCPESOINDNIVELATING := NVL(PNSOMAPESONIVEL, 0);
     
           IF DADOSMETACOMB.REALIZADO > 0 THEN
-			DADOS_SAIDA.PERCOMCALCPESO        := DADOS_SAIDA.PERCOMCADASTRADO *
+            DADOS_SAIDA.PERCOMCALCPESO        := DADOS_SAIDA.PERCOMCADASTRADO *
                                                (PNSOMAPESONIVEL / 100);
-			DADOS_SAIDA.VLCOMISSAO            := DADOS_SAIDA.VLFATURADO *
+            DADOS_SAIDA.VLCOMISSAO            := DADOS_SAIDA.VLFATURADO *
                                                (DADOS_SAIDA.PERCOMCALCPESO / 100);
           ELSE
             DADOS_SAIDA.PERCOMCALCPESO        := 0;
             DADOS_SAIDA.VLCOMISSAO            := 0;
             P_ZERARVALORPCGMMETACOMBCOMPLE(DADOSMETACOMB.CODMETA,DADOSMETACOMB.CODCOMBINACAO);
           END IF;											   
-          IF (NVL(DADOS_SAIDA.VLFATURADO, 0) <> 0) --OR
-          --(NOT((DADOSMETACOMB.PREVISTO = 0) AND (DADOSMETACOMB.REALIZADO = 0)))/* and (DADOSVENDA.VLFATPORPERCOM > 0) */
-           THEN
+          
+          IF (NVL(DADOS_SAIDA.VLFATURADO, 0) <> 0) THEN --OR --(NOT((DADOSMETACOMB.PREVISTO = 0) AND (DADOSMETACOMB.REALIZADO = 0)))/* and (DADOSVENDA.VLFATPORPERCOM > 0) */
             PIPE ROW(DADOS_SAIDA);
           END IF;
         END LOOP;
