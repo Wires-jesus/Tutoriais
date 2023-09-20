@@ -1783,6 +1783,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.PERCALIQICMSDESON     = b.PERCALIQICMSDESON,
              s.MOTIVODESONICMS       = b.MOTIVODESONICMS,
              s.CODBENEFICIODESONICMS = b.CODBENEFICIODESONICMS,
+             s.codobservacao         = b.codobservacao,
              s.IDREF                 = b.CODST
       WHEN NOT MATCHED THEN
         INSERT (s.nrotributacao,
@@ -1814,6 +1815,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.PERCALIQICMSDESON,
                 s.MOTIVODESONICMS,
                 s.CODBENEFICIODESONICMS,
+                s.codobservacao,
                 s.IDREF)
             VALUES
                 (b.nrotributacao,
@@ -1845,6 +1847,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.PERCALIQICMSDESON,
                  b.MOTIVODESONICMS,
                  b.CODBENEFICIODESONICMS,
+                 b.codobservacao,
                  b.CODST);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
