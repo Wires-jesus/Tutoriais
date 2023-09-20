@@ -26,7 +26,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(e.unidade,p.unidade) unidade,
             NVL(NVL(e.pesobruto,p.pesobruto),0) pesobruto,
             NVL(NVL(e.pesoliq,p.pesoliq),0) pesoliq,
-            NVL(p.pesovariavel, 'N') pesovariavel,
+
+            CASE WHEN p.pesovariavel NOT IN ('S', 'N') THEN
+                  'N'
+             ELSE NVL(p.pesovariavel, 'N')
+            END pesovariavel,
 
             CASE WHEN p.aceitavendafracao NOT IN ('S', 'N') THEN
                   'N'
@@ -40,7 +44,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(e.prodsemcodbarras,'N') prodsemcodbarras,
             p.codfornec codfornec_prod,
             p.volume volume_prod,
-            p.codmarca, 
+            p.codmarca,
             NVL(p.tipomerc,'L') tipomerc,
             p.nbm codncmsh,
             LENGTH(p.nbm) tamanho_codncmsh,
@@ -62,9 +66,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                     'S'
               END) ativo,
             NVL(p.revenda,'S') revenda,
-            /*(SELECT CODCEST 
-             FROM PCCEST 
-             INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST 
+            /*(SELECT CODCEST
+             FROM PCCEST
+             INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
              WHERE PCCESTPRODUTO.CODPROD = p.CODPROD
              AND ROWNUM = 1) codcest,*/
             p.codsec,
@@ -87,6 +91,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
        FROM pcembalagem e,
             pcprodut p,
             pcprodfilial f,
+            VW_INT_C5_OBTER_FILIAIS_C5 c5,
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
              where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
@@ -103,6 +108,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
       WHERE p.codprod = e.codprod
         AND e.codprod = f.codprod
         AND e.codfilial = f.codfilial
+        and e.codfilial = c5.codfilial
         AND NVL(P.REVENDA,'S') = 'S'
         AND NVL(P.TIPOMERC, 'L') = 'L'
         AND P.DTEXCLUSAO IS NULL
