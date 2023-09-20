@@ -5,7 +5,7 @@ SELECT   E.CODFILIAL||P.SEQPRODUTO  SEQREGRA,
          E.CODFILIAL NROEMPRESA,
          3 SEQTIPOCREDITO,
          (CASE
-          WHEN DTOFERTAFIM < TRUNC(SYSDATE)  THEN 
+          WHEN DTOFERTAFIM < TRUNC(SYSDATE)  THEN
                'N'
           ELSE 'S'
          END)  ATIVO,
@@ -21,21 +21,24 @@ SELECT   E.CODFILIAL||P.SEQPRODUTO  SEQREGRA,
          '2017' IDREF
 FROM PCEMBALAGEM E,
      PCDEPARAEMBALAGENSC5 P,
-     monitorpdvmiddle.tb_produto C
+     monitorpdvmiddle.tb_produto C,
+     VW_INT_C5_OBTER_FILIAIS_C5 C5
      /*(select min(s.ultimaexecucao) ultimaexecucao
         from pccontroleconsinco s
         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA') 
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO') 
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO') 
+           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA')
+           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO')
+           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
            or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
      ) DATAPADRAO*/
 WHERE E.CODAUXILIAR = P.CODAUXILIAR
 --NVL(E.DTALTERC5, DATAPADRAO.ULTIMAEXECUCAO) >= DATAPADRAO.ULTIMAEXECUCAO
 AND C.SEQPRODUTO = P.SEQPRODUTO
-AND E.CODPROD = C.SEQFAMILIA 
+AND E.CODFILIAL = C5.CODFILIAL
+AND E.CODPROD = C.SEQFAMILIA
 AND E.DTOFERTAFIM >= TRUNC(SYSDATE)
 AND NVL(E.POFERTA, 0) > 0
 AND E.DTOFERTAINI IS NOT NULL
 AND E.DTOFERTAFIM IS NOT NULL
 )
+
