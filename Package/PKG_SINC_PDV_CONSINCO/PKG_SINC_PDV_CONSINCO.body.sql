@@ -3684,7 +3684,7 @@ END;
 
 PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  /*UPDATE monitorpdvmiddle.tb_cadobs SET ATIVO = 'N'
+  UPDATE monitorpdvmiddle.tb_cadobs SET ATIVO = 'N'
   WHERE ATIVO = 'S';
   
   MERGE INTO monitorpdvmiddle.tb_cadobs T
@@ -3728,12 +3728,12 @@ BEGIN
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-  END;*/
+  END;
 END;
 
 PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
- /* UPDATE monitorpdvmiddle.tb_cadobssped SET ATIVO = 'N'
+  UPDATE monitorpdvmiddle.tb_cadobssped SET ATIVO = 'N'
   WHERE ATIVO = 'S';
   
   MERGE INTO monitorpdvmiddle.tb_cadobssped T
@@ -3780,12 +3780,12 @@ BEGIN
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-  END;*/
+  END;
 END;
 
 PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  /*UPDATE monitorpdvmiddle.tb_cadobsspedfamilia SET ATIVO = 'N'
+  UPDATE monitorpdvmiddle.tb_cadobsspedfamilia SET ATIVO = 'N'
   WHERE ATIVO = 'S';
   
   MERGE INTO monitorpdvmiddle.tb_cadobsspedfamilia T
@@ -3832,7 +3832,7 @@ BEGIN
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-  END;*/
+  END;
 END;
 
 PROCEDURE exec_sinc AS
