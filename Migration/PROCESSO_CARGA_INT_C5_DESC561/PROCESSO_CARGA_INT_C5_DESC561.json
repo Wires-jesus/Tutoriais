@@ -1,3 +1,8 @@
 {"nome":"PROCESSO_CARGA_INT_C5_DESC561","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome": "PCDESCONTO","tipo": "TABELA","versao": "4.0.01.000"}
+    {"nome": "PCDESCONTO","tipo": "TABELA","versao": "4.0.01.000"},
+    {
+      "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.01.000"
+    }
   ]}
