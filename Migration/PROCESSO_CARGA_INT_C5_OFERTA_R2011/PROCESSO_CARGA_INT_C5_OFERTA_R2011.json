@@ -1,6 +1,31 @@
-{"nome":"PROCESSO_CARGA_INT_C5_OFERTA_R2011","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome":"PCOFERTAPROGRAMADAC", "tipo": "TABELA", "versao": "4.0.01.000"},
-    {"nome":"PCOFERTAPROGRAMADAI", "tipo": "TABELA", "versao": "4.0.01.000"},
-    {"nome":"PCCONTROLECONSINCO", "tipo": "TABELA", "versao": "4.0.05.000"},
-    {"nome": "PCOFERTAPROGRAMADAI_HIST","tipo": "TABELA", "versao": "4.0.01.000"}
-]}
+{
+    "nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias": [
+        {
+            "nome": "PCOFERTAPROGRAMADAC",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        },
+        {
+            "nome": "PCOFERTAPROGRAMADAI",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        },
+        {
+            "nome": "PCCONTROLECONSINCO",
+            "tipo": "TABELA",
+            "versao": "4.0.05.000"
+        },
+        {
+            "nome": "PCOFERTAPROGRAMADAI_HIST",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        },
+        {
+            "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "4.0.01.000"
+        }
+    ]
+}
