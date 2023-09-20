@@ -7,10 +7,15 @@
       "tipo": "OBJETO_PLSQL",
       "versao": "4.0.02.000"
     },
-    {
-      "nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
-      "tipo": "MIGRATION",
-      "versao": "4.0.02.000"
-    }
+	{
+	  "nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
+	  "tipo": "MIGRATION",
+	  "versao": "4.0.05.000"
+	},
+	{
+	  "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
+	  "tipo": "MIGRATION",
+	  "versao": "4.0.01.000"
+	}	
   ]
 }
