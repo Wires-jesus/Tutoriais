@@ -38,7 +38,7 @@ from    (SELECT 'D' especie, 'DINHEIRO' descricao, 'D' winthor FROM DUAL
 
 CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
 (
-  SELECT 
+  SELECT
     f.codfilial nroempresa,
     1 nrosegmento,
     f.codfinalizadora nroformapagto,
@@ -87,7 +87,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
         SELECT s.ultimaexecucao
         FROM pccontroleconsinco s
         WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-      ) D
+      ) D,
+      VW_INT_C5_OBTER_FILIAIS_C5 c5
     WHERE f.especie = vef.winthor(+)
     AND   F.CODFILIAL = E.codigo
     AND   f.codcob = o.codcob(+)
@@ -96,9 +97,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
     and   f.codfinalizadora is not null
     AND   E.codigo >= '0'
     AND   E.codigo < '99'
+    and   e.codigo = c5.codfilial
     AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
     AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(p.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
-) 
+)
+
