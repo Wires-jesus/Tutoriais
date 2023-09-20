@@ -26,11 +26,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(e.unidade,p.unidade) unidade,
             NVL(NVL(e.pesobruto,p.pesobruto),0) pesobruto,
             NVL(NVL(e.pesoliq,p.pesoliq),0) pesoliq,
-
-            CASE WHEN p.pesovariavel NOT IN ('S', 'N') THEN
-                  'N'
-             ELSE NVL(p.pesovariavel, 'N')
-            END pesovariavel,
+            NVL(p.pesovariavel, 'N') pesovariavel,
 
             CASE WHEN p.aceitavendafracao NOT IN ('S', 'N') THEN
                   'N'
