@@ -2,5 +2,10 @@
     {"nome": "PCFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
     {"nome": "PCFINALIZADORA","tipo": "TABELA","versao": "4.0.01.000"},
     {"nome": "PCCOB","tipo": "TABELA","versao": "4.0.02.000"},
-    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"}
+    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
+    {
+        "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+        "tipo": "OBJETO_PLSQL",
+        "versao": "4.0.01.000"
+    }
 ]}
