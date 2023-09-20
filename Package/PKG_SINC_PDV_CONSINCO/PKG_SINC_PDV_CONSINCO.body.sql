@@ -3796,7 +3796,7 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           T.CODAJUSTEEFD    = S.CODAJUSTEEFD,
-          T.ATIVO            = S.ATIVO
+          T.ATIVO           = S.ATIVO
           
   WHEN NOT MATCHED THEN
         INSERT(
