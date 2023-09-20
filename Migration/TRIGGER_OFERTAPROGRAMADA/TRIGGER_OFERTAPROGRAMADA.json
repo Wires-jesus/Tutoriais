@@ -1,0 +1,5 @@
+{
+  "nome": "TRIGGER_OFERTAPROGRAMADA",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": ""
+}
