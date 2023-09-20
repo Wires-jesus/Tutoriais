@@ -320,7 +320,7 @@ IS
                    AND nroempresa = p_r_canc_cabecalho.codfilial
                    AND s.status = 'C';
 
-                COMMIT;
+                --COMMIT;
 
                 /*
                     PROCESSAR_VENDA(P_R_CANC_CABECALHO.SEQDOCTO,
@@ -337,13 +337,13 @@ IS
 
                 verificar_se_venda_existe;
 
-                IF (vcontavenda = 0)
+                /*IF (vcontavenda = 0)
                 THEN
                     RAISE e_venda_nao_existe;
-                END IF;
+                END IF;*/
             END IF;
 
-            COMMIT;
+            --COMMIT;
         END;
 
         PROCEDURE adicionarregrascabecalhonf (
@@ -400,9 +400,9 @@ IS
                    SET replicacao = 'F'
                  WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;
 
-                COMMIT;
+                --COMMIT;
             EXCEPTION
-                WHEN e_venda_nao_existe
+               /* WHEN e_venda_nao_existe
                 THEN
                     mensagemerro :=
                            ' A VENDA N O EXISTE PARA O CANCELAMENTO - ERROR: '
@@ -416,9 +416,9 @@ IS
                        SET replicacao = 'E'
                      WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;
 
-                    COMMIT;
+                    --COMMIT;
 
-                    pkg_sinc_pdv_consinco_util.inserir_pcfilamensagem_erro(dados_pcfilamensagem,mensagemerro);
+                    pkg_sinc_pdv_consinco_util.inserir_pcfilamensagem_erro(dados_pcfilamensagem,mensagemerro);*/
                 WHEN OTHERS
                 THEN
                     mensagemerro :=
@@ -433,7 +433,7 @@ IS
                        SET replicacao = 'E'
                      WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;
 
-                    COMMIT;
+                    --COMMIT;
 
                     pkg_sinc_pdv_consinco_util.inserir_pcfilamensagem_erro(dados_pcfilamensagem,mensagemerro);
             END;
@@ -443,7 +443,7 @@ IS
 
         CLOSE c_canc_cabecalho;
 
-        COMMIT;
+        --COMMIT;
     -- FIM LOOP C_CANC_CABECALHO
     END processar_cancelamento;
 END PKG_INT_C5_CANCELAMENTO;
