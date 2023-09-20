@@ -654,7 +654,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.seqfamilia,
                     NVL(fnc_remove_char_esp(v.familia), '-') familia,
                     v.permitedecimal,
-                    v.permitemultiplicacao,
+                    'N' as permitemultiplicacao,
                     v.codncmsh,
                     --v.codcest,
                     (SELECT nvl(CODCEST, 0) codcest
