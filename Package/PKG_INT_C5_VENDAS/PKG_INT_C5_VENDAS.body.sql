@@ -87,7 +87,24 @@ IS
               FROM vw_int_c5_pcpedcecf c
              WHERE c.seqdocto  = DECODE(p_seqdocto,0,c.seqdocto,p_seqdocto)
                AND c.NUMCAIXA  = DECODE(p_nrocheckout,0,c.NUMCAIXA ,p_nrocheckout)
-               AND c.codfilial = DECODE(p_nroempresa,0,c.codfilial,p_nroempresa);
+               AND c.codfilial = DECODE(p_nroempresa,0,c.codfilial,p_nroempresa)
+			   AND NOT EXISTS (SELECT 1
+                                 FROM PCFILAMENSAGEM M
+								WHERE M.SEQDOCTO = c.seqdocto
+								  AND M.NUMCAIXA = c.numcaixa
+								  AND M.CODFILIAL = c.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMHISTORICO MH
+								WHERE MH.SEQDOCTO = c.seqdocto
+								  AND MH.NUMCAIXA = c.numcaixa
+								  AND MH.CODFILIAL = c.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMERRO ME
+								WHERE ME.SEQDOCTO = c.seqdocto
+								  AND ME.NUMCAIXA = c.numcaixa
+								  AND ME.CODFILIAL = c.codfilial);
 
         r_pedido             c_pedido%ROWTYPE;
         l_xmltype            XMLTYPE;
@@ -864,9 +881,9 @@ IS
                 inserir_pcfilamensagem(dados_pcfilamensagem);
 
                 --ATUALIZA O REGISTRO na tabela consinco
-                UPDATE monitorpdvmiddle.tb_docto
+                /*UPDATE monitorpdvmiddle.tb_docto
                    SET replicacao = 'F'
-                 WHERE ROWID = r_pedido.rowid_tb_docto;
+                 WHERE ROWID = r_pedido.rowid_tb_docto;*/
 
                 --COMMIT;
             EXCEPTION
@@ -880,9 +897,9 @@ IS
                         || '- LINHA: '
                         || DBMS_UTILITY.format_error_backtrace;
 
-                    UPDATE monitorpdvmiddle.tb_docto
+                    /*UPDATE monitorpdvmiddle.tb_docto
                        SET replicacao = 'E'
-                     WHERE ROWID = r_pedido.rowid_tb_docto;
+                     WHERE ROWID = r_pedido.rowid_tb_docto;*/
 
                     inserir_pcfilamensagem_erro (dados_pcfilamensagem,
                                                  mensagemerro);
