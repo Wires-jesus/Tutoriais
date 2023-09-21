@@ -1,12 +1,33 @@
 CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_CANCELAMENTO
 IS
-    PROCEDURE processar_cancelamento(p_seqdocto NUMBER DEFAULT 0)
+    PROCEDURE processar_cancelamento(p_seqdocto NUMBER DEFAULT 0,
+	                                 p_nrocheckout NUMBER DEFAULT 0,
+                                     p_nroempresa  NUMBER DEFAULT 0)
     IS
         CURSOR c_canc_cabecalho
         IS
             SELECT *
               FROM vw_int_c5_pcpedccancecf a
-             WHERE a.seqdocto = DECODE(p_seqdocto,0,a.seqdocto,p_seqdocto);
+             WHERE a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
+			   AND a.NUMCAIXA = DECODE(p_nrocheckout, 0, a.numcaixa, p_nrocheckout)
+			   AND a.CODFILIAL = DECODE(p_nroempresa, 0, a.codfilial, p_nroempresa)
+			   AND NOT EXISTS (SELECT 1
+                                 FROM PCFILAMENSAGEM M
+								WHERE M.SEQDOCTO = a.seqdocto
+								  AND M.NUMCAIXA = a.numcaixa
+								  AND M.CODFILIAL = a.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMHISTORICO MH
+								WHERE MH.SEQDOCTO = a.seqdocto
+								  AND MH.NUMCAIXA = a.numcaixa
+								  AND MH.CODFILIAL = a.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMERRO ME
+								WHERE ME.SEQDOCTO = a.seqdocto
+								  AND ME.NUMCAIXA = a.numcaixa
+								  AND ME.CODFILIAL = a.codfilial);
 
         r_canc_cabecalho       c_canc_cabecalho%ROWTYPE;
         l_xmltype              XMLTYPE;
