@@ -2087,8 +2087,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   
   PROCEDURE carrega_tb_codgeralopercfopuf(p_id IN pccontroleconsinco.id%TYPE) AS
     BEGIN
-      
-    DELETE from monitorpdvmiddle.TB_CODGERALOPERCFOPUF;
+
     MERGE INTO monitorpdvmiddle.TB_CODGERALOPERCFOPUF s
         USING (
                 SELECT*FROM
