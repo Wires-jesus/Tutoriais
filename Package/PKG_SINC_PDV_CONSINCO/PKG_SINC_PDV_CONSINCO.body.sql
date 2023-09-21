@@ -1642,7 +1642,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_tributacaouf(p_id IN pccontroleconsinco.id%TYPE) AS
 
-    CURSOR c_tb_tributacaouf IS
+    /*CURSOR c_tb_tributacaouf IS
       SELECT DISTINCT E.*
         FROM VW_INT_C5_TRIB_UF_CONSOLIDADA E;
 
@@ -1747,10 +1747,37 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          AND tipotributacao = r_tb_tributacaouf.tipotributacao
          AND nrotributacao = r_tb_tributacaouf.nrotributacao
          AND nroregtributacao = r_tb_tributacaouf.nroregtributacao;
-    END;
+    END;*/
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_tributacaouf s
-        USING (SELECT DISTINCT E.*
+        USING (SELECT DISTINCT 
+                  e.nrotributacao,
+                e.uforigem,
+                e.ufdestino,
+                e.tipotributacao,
+                e.nroregtributacao,
+                e.percaliquota,
+                e.situacaotributacao,
+                e.percisento,
+                e.perctributado,
+                e.percoutro,
+                e.percacrescst,
+                e.percisentost,
+                e.tipocalcfcp,
+                e.percbasefcpicms,
+                e.percaliqfcpicms,
+                e.reducaobasest,
+                e.tiporeducaoicmscalcst,
+                e.perctributst,
+                e.ativo,
+                e.percbasefcpst,
+                e.percaliqfcpst,
+                e.CALCICMSDESON,
+                e.PERCALIQICMSDESON,
+                e.MOTIVODESONICMS,
+                e.CODBENEFICIODESONICMS,
+                e.codobservacao,
+                e.IDREF
                FROM VW_INT_C5_TRIB_UF_CONSOLIDADA E) b
       ON (s.uforigem = b.uforigem
          AND s.ufdestino = b.ufdestino
@@ -1773,10 +1800,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.tiporeducaoicmscalcst = b.tiporeducaoicmscalcst,
              s.perctributst          = b.perctributst,
              s.ativo                 = b.ativo,
-             --s.situacaopis           = b.situacaopis,
-             --s.situacaocofins        = b.situacaocofins,
-             --s.percpis               = b.percpis,
-             --s.perccofins            = b.perccofins,
              s.percbasefcpst         = b.percbasefcpst,
              s.percaliqfcpst         = b.percaliqfcpst,
              s.CALCICMSDESON         = b.CALCICMSDESON,
@@ -1784,7 +1807,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.MOTIVODESONICMS       = b.MOTIVODESONICMS,
              s.CODBENEFICIODESONICMS = b.CODBENEFICIODESONICMS,
              s.codobservacao         = b.codobservacao,
-             s.IDREF                 = b.CODST
+             s.IDREF                 = b.IDREF
       WHEN NOT MATCHED THEN
         INSERT (s.nrotributacao,
                 s.uforigem,
@@ -1805,10 +1828,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.tiporeducaoicmscalcst,
                 s.perctributst,
                 s.ativo,
-                --s.situacaopis,
-                --s.situacaocofins,
-                --s.percpis,
-                --s.perccofins,
                 s.percbasefcpst,
                 s.percaliqfcpst,
                 s.CALCICMSDESON,
@@ -1837,10 +1856,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.tiporeducaoicmscalcst,
                  b.perctributst,
                  b.ativo,
-                 --b.situacaopis,
-                 --b.situacaocofins,
-                 --b.percpis,
-                 --b.perccofins,
                  b.percbasefcpst,
                  b.percaliqfcpst,
                  b.CALCICMSDESON,
@@ -1848,7 +1863,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.MOTIVODESONICMS,
                  b.CODBENEFICIODESONICMS,
                  b.codobservacao,
-                 b.CODST);
+                 b.IDREF);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
     
