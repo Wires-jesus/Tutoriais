@@ -1,4 +1,5 @@
-CREATE OR REPLACE VIEW VW_INT_C5_FAT_INUT AS(
+CREATE OR REPLACE VIEW VW_INT_C5_FAT_INUT AS
+(
 SELECT a.nroempresa codfilial,
        b.dtamovimento datatransacao,
        b.nrocheckout
@@ -7,7 +8,8 @@ SELECT a.nroempresa codfilial,
  WHERE  a.nroempresa = b.nroempresa
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
-   AND  b.replicacao = 'F')
+   AND  b.replicacao = 'F'
+   )
 
 \
 
@@ -17,27 +19,49 @@ SELECT a.nroempresa codfilial,
        a.dtamovimento datatransacao,
        a.ESPECIE status,
        a.NROCHECKOUT,
-       a.seqdocto,
-       'INTERMEDIARIO' usuario,
-       'INTERMEDIARIO' senha,
-       ferramentas.F_BUSCARPARAMETRO_ALFA('IPFTPFATURAMENTO', a.nroempresa, 1) endereco
+       a.seqdocto
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctopagto b
  WHERE  a.nroempresa = b.nroempresa
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
    AND  a.especie IN ('SG','SP')
-   AND  a.replicacao = 'F')
-
+  -- AND  a.replicacao = 'F'
+)
 
 \
 
-create or replace view VW_INT_C5_FAT_VENDAS as
-(select  c.nroempresa codfilial, m.dtahoremissao datatransacao, c.status, m.NROCHECKOUT , c.seqdocto,
-        'INTERMEDIARIO' usuario,'INTERMEDIARIO' senha, ferramentas.F_BUSCARPARAMETRO_ALFA('IPFTPFATURAMENTO',m.nroempresa,1) endereco
+create or replace view vw_int_c5_fat_vendas as
+(
+select  c.nroempresa codfilial,
+		 m.dtahoremissao datatransacao,
+		 c.status,
+		 m.NROCHECKOUT,
+		 c.seqdocto
   from monitorpdvmiddle.tb_docto      m,
-       monitorpdvmiddle.tb_doctocupom c
+       monitorpdvmiddle.tb_doctocupom c, 
+       monitorpdvmiddle.tb_doctonfe    e
  where m.seqdocto = c.seqdocto
    and m.nroempresa =  c.nroempresa
    and m.NROCHECKOUT = c.NROCHECKOUT
-   and m.replicacao = 'F')
+   AND e.nroempresa = c.nroempresa
+   and e.nrocheckout = c.nrocheckout
+   and e.seqdocto = c.seqdocto
+   and e.protocoloenvio is not null 
+   AND M.ESPECIE IN ('NF', 'CF')
+)
+ 
+ \
+ 
+CREATE OR REPLACE VIEW VW_PDV_MONITOR AS
+(
+SELECT NUMCAIXA,
+       DTINICIO,
+       CODFILIAL,
+       DESCRICAO,
+       TIPOIMPRESSORA,
+       NUMSERIEEQUIP,
+       NUMREGIAO,
+       NUMCAIXAFISCAL
+       FROM pccaixa
+)
