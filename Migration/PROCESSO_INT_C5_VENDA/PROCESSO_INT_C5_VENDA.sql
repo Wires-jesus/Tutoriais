@@ -947,6 +947,7 @@ SELECT  (CASE
    AND  i.seqproduto = v.seqproduto
    AND  i.codacesso = v.codauxiliar
    AND  t.seqtipotributacao = 15
+   AND  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',i.nroempresa,1)
    AND  i.status = 'V'
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
