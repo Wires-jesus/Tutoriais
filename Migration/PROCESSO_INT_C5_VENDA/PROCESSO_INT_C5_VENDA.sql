@@ -1215,7 +1215,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
  WHERE  c.nroempresa = a.nroempresa
    AND  c.nrocheckout = a.nrocheckout
    AND  c.seqdocto = a.seqdocto
-   AND  a.especie = 'NF'
+   AND  a.especie IN ('NF', 'CF')
    AND  c.nroempresa = e.nroempresa
    AND  c.nrocheckout = e.nrocheckout
    AND  c.seqdocto = e.seqdocto
