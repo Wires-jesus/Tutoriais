@@ -3784,6 +3784,7 @@ BEGIN
           T.CODOBSERVACAO    = S.CODOBSERVACAO,
           T.CODAJUSTEEFD     = S.CODAJUSTEEFD,
           T.USACODAJUSTENFE  = S.USACODAJUSTENFE,
+          T.REGISTRO         = S.REGISTRO,
           T.ATIVO            = S.ATIVO
           
   WHEN NOT MATCHED THEN
@@ -3792,12 +3793,14 @@ BEGIN
           T.CODOBSERVACAO,
           T.CODAJUSTEEFD,
           T.USACODAJUSTENFE,
+          T.REGISTRO,
           T.ATIVO) 
         VALUES(
           S.SEQOBSSPED,
           S.CODOBSERVACAO,
           S.CODAJUSTEEFD,
           S.USACODAJUSTENFE,
+          T.REGISTRO,
           S.ATIVO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
