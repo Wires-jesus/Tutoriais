@@ -3447,6 +3447,29 @@ END;
           WHERE R.MATRICULA = tb_grupousuario.sequsuario
           AND R.CODSETOR = tb_grupousuario.seqgrupo
           );
+
+
+    UPDATE monitorpdvmiddle.TB_USUARIO TB_USU SET TB_USU.ATIVO = 'N'
+        WHERE TB_USU.ATIVO = 'S'
+         AND EXISTS (SELECT VALOR
+                            FROM
+                            (SELECT valor, 'OPERADOR DE CAIXA' NOMEGRUPO
+                            FROM pcparamfilial
+                            WHERE nome = 'CON_CODSETOROPERCX'
+                            AND codfilial = '99'
+                            UNION ALL
+                            SELECT valor, 'FISCAL DE CAIXA' NOMEGRUPO
+                            FROM pcparamfilial
+                            WHERE nome = 'CON_CODSETORFISCALCX'
+                            AND codfilial = '99'
+                            ) GRUPO,
+                            monitorpdvmiddle.tb_grupousuario tb_grupousuario 
+                            WHERE tb_grupousuario.ATIVO = 'N'
+                              AND tb_grupousuario.SEQGRUPO <> GRUPO.VALOR
+                              AND tb_grupousuario.SEQUSUARIO = TB_USU.SEQUSUARIO
+                         
+                     );
+
         
     MERGE INTO monitorpdvmiddle.tb_grupousuario s
         USING (SELECT *
