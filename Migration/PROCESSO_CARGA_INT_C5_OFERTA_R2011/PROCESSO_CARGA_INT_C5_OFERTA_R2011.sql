@@ -15,13 +15,13 @@ SELECT
          WHEN HORAINICIAL IS NOT NULL THEN
             HORAINICIAL
          ELSE
-            DTINICIAL
+           TO_DATE(DTINICIAL || ' 00:00:01','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN') 
       END)                        AS DTAHORINICIO,
       (CASE
          WHEN HORAFINAL IS NOT NULL THEN
             HORAFINAL
           ELSE
-            DTFINAL
+            TO_DATE(DTFINAL || ' 23:59:59','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN') 
       END)                         AS DTAHORFIM,
        '2011'                      AS IDREF
   FROM PCOFERTAPROGRAMADAC A,
@@ -36,7 +36,7 @@ SELECT
        AND DTFINAL >= TRUNC(SYSDATE)
        AND A.DTINICIAL IS NOT NULL
        AND A.DTFINAL IS NOT NULL
-       AND A.CODFILIAL = C5.CODFILIAL
+       AND A.CODFILIAL = C5.CODFILIAL;
 )
 
 
