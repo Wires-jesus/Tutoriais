@@ -3800,7 +3800,7 @@ BEGIN
           S.CODOBSERVACAO,
           S.CODAJUSTEEFD,
           S.USACODAJUSTENFE,
-          T.REGISTRO,
+          S.REGISTRO,
           S.ATIVO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
