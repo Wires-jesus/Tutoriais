@@ -664,7 +664,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     ) codcest,
 
                     v.ativo,
-                    NVL(v.seqmarca, PARAM.VALOR) seqmarca,
+                    v.seqmarca,
                     v.seqfamgrupo,
                     v.pesavel,
                     v.indescala,
@@ -700,12 +700,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                          AND ROWNUM = 1)-- somente os dados de 1 região
                    AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
                          NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)
-                  ) PRODPISCOFINS, --vinculo do produto com os dados de pis e cofins
-                  
-                  (SELECT VALOR 
-                   FROM PCPARAMFILIAL 
-                   WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
-                  ) PARAM --valor padrao caso a marca esteja sem valor 
+                  ) PRODPISCOFINS --vinculo do produto com os dados de pis e cofins
              WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
                 
       ) B
