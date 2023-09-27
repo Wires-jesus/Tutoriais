@@ -17567,13 +17567,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESC_HYPER
                   WHERE (PCCONFIGSISTMARCAOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
                     AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE) - 7
-                    AND NOT EXITS(SELECT 1
-                                    FROM PCCONFIGSISTCONDOPERLOG
-                                   WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                                     AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
-                                     AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
-                                     AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
-                                     AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
+                    AND NOT EXISTS(SELECT 1
+                                     FROM PCCONFIGSISTCONDOPERLOG
+                                    WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
+                                      AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
+                                      AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
+                                      AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
+                                      AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
                     AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA   = VIEW_MED_PROMOCAO_DESC_HYPER.CODMARCA)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_DESC_HYPER.CODPROMOCAOMED)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_FILIAL.CODPROMOCAOMED)
@@ -17640,13 +17640,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESCONTO_OL
                   WHERE (PCCONFIGSISTMARCAOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
                     AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE) - 7
-                    AND NOT EXITS(SELECT 1
-                                    FROM PCCONFIGSISTCONDOPERLOG
-                                   WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                                     AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
-                                     AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
-                                     AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
-                                     AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
+                    AND NOT EXISTS(SELECT 1
+                                     FROM PCCONFIGSISTCONDOPERLOG
+                                    WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
+                                      AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
+                                      AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
+                                      AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
+                                      AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
                     AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA   = VIEW_MED_PROMOCAO_DESCONTO_OL.CODMARCA)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_DESCONTO_OL.CODPROMOCAOMED)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_FILIAL.CODPROMOCAOMED)
