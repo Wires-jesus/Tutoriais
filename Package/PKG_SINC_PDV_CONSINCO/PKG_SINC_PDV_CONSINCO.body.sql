@@ -3436,17 +3436,27 @@ END;
   BEGIN
     UPDATE monitorpdvmiddle.tb_grupousuario tb_grupousuario SET tb_grupousuario.ATIVO = 'N'
     WHERE tb_grupousuario.ativo = 'S'
-      AND NOT EXISTS
+      AND tb_grupousuario.seqgrupo NOT IN
           (SELECT R.CODSETOR
-          FROM PCEMPR R
-          WHERE R.MATRICULA = tb_grupousuario.sequsuario
-          AND R.CODSETOR = tb_grupousuario.seqgrupo
-          );
+           FROM PCEMPR R
+           WHERE R.MATRICULA = tb_grupousuario.sequsuario
+             AND R.CODSETOR IN ( (SELECT valor OPER
+                                FROM pcparamfilial
+                                WHERE nome = 'CON_CODSETOROPERCX'
+                                  AND codfilial = '99') 
+                                union all
+                               (SELECT valor FISCAL
+                                FROM pcparamfilial
+                                WHERE nome = 'CON_CODSETORFISCALCX'
+                                  AND codfilial = '99')
+                               )
+
+           );
 
 
     UPDATE monitorpdvmiddle.TB_USUARIO TB_USU SET TB_USU.ATIVO = 'N'
         WHERE TB_USU.ATIVO = 'S'
-         AND EXISTS (SELECT VALOR
+         AND NOT EXISTS (SELECT VALOR
                             FROM
                             (SELECT valor, 'OPERADOR DE CAIXA' NOMEGRUPO
                             FROM pcparamfilial
@@ -3458,14 +3468,13 @@ END;
                             WHERE nome = 'CON_CODSETORFISCALCX'
                             AND codfilial = '99'
                             ) GRUPO,
-                            monitorpdvmiddle.tb_grupousuario tb_grupousuario 
-                            WHERE tb_grupousuario.ATIVO = 'N'
-                              AND tb_grupousuario.SEQGRUPO <> GRUPO.VALOR
+                            monitorpdvmiddle.tb_grupousuario tb_grupousuario
+                            WHERE tb_grupousuario.ATIVO = 'S'
+                              AND tb_grupousuario.SEQGRUPO = GRUPO.VALOR
                               AND tb_grupousuario.SEQUSUARIO = TB_USU.SEQUSUARIO
-                         
+
                      );
 
-        
     MERGE INTO monitorpdvmiddle.tb_grupousuario s
         USING (SELECT *
                FROM VW_INT_C5_USUARIO c
@@ -3484,6 +3493,27 @@ END;
                   (b.CODGRUPO,
                    b.SEQUSUARIO,
                    b.ATIVO);
+
+    UPDATE monitorpdvmiddle.TB_USUARIO TB_USU SET TB_USU.ATIVO = 'S'
+        WHERE TB_USU.ATIVO = 'N'
+         AND EXISTS (SELECT VALOR
+                            FROM
+                            (SELECT valor, 'OPERADOR DE CAIXA' NOMEGRUPO
+                            FROM pcparamfilial
+                            WHERE nome = 'CON_CODSETOROPERCX'
+                            AND codfilial = '99'
+                            UNION ALL
+                            SELECT valor, 'FISCAL DE CAIXA' NOMEGRUPO
+                            FROM pcparamfilial
+                            WHERE nome = 'CON_CODSETORFISCALCX'
+                            AND codfilial = '99'
+                            ) GRUPO,
+                            monitorpdvmiddle.tb_grupousuario tb_grupousuario
+                            WHERE tb_grupousuario.ATIVO = 'S'
+                              AND tb_grupousuario.SEQGRUPO = GRUPO.VALOR
+                              AND tb_grupousuario.SEQUSUARIO = TB_USU.SEQUSUARIO
+
+                     );
 
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
