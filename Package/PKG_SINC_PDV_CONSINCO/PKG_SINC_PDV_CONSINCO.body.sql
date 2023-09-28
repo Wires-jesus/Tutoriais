@@ -2495,17 +2495,18 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                         SELECT C.CODOFERTA
                         FROM PCOFERTAPROGRAMADAC C 
                         WHERE (CASE
-                                WHEN C.HORAINICIAL IS NOT NULL THEN
-                                  C.HORAINICIAL
+                                  WHEN C.HORAINICIAL IS NOT NULL THEN
+                                     TO_CHAR(C.HORAINICIAL, 'DD-MM-YYYY HH24:MI:SS')
+                                  ELSE
+                                    TO_CHAR(C.DTINICIAL, 'DD-MM-YYYY') || ' 00:00:01'
+                                END) =  TO_CHAR(R.DTAHORINICIO, 'DD-MM-YYYY HH24:MI:SS')
+                          AND 
+                          (CASE 
+                              WHEN HORAFINAL IS NOT NULL THEN
+                                  TO_CHAR(C.HORAFINAL, 'DD-MM-YYYY HH24:MI:SS')
                                 ELSE
-                                  TO_DATE(C.DTINICIAL || ' 00:00:01','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN')
-                              END) = R.DTAHORINICIO 
-                        AND (CASE 
-                            WHEN HORAFINAL IS NOT NULL THEN
-                                C.HORAFINAL
-                              ELSE
-                                TO_DATE(C.DTFINAL || ' 23:59:59','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN')
-                          END) = r.dtahorfim
+                                  TO_CHAR(C.DTFINAL, 'DD-MM-YYYY') || ' 23:59:59' 
+                            END) =  TO_CHAR(R.DTAHORFIM, 'DD-MM-YYYY HH24:MI:SS')
                         AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
                        )
       AND IDREF = 2011;
