@@ -2498,13 +2498,13 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                                 WHEN C.HORAINICIAL IS NOT NULL THEN
                                   C.HORAINICIAL
                                 ELSE
-                                  C.DTINICIAL
+                                  TO_DATE(C.DTINICIAL || ' 00:00:01','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN')
                               END) = R.DTAHORINICIO 
                         AND (CASE 
                             WHEN HORAFINAL IS NOT NULL THEN
                                 C.HORAFINAL
                               ELSE
-                                C.DTFINAL
+                                TO_DATE(C.DTFINAL || ' 23:59:59','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN')
                           END) = r.dtahorfim
                         AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
                        )
