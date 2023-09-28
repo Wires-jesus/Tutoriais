@@ -369,25 +369,129 @@ SELECT  e.codauxiliar,
 \
 
 CREATE OR REPLACE FUNCTION FNC_INT_C5_ESPECIE_COB_VENDAS (pSeqDocto    IN NUMBER,
-                                      pNumeroCaixa IN NUMBER,
-                                      pCodigoFilial IN NUMBER)
+                                                          pNumeroCaixa IN NUMBER,
+                                                          pCodigoFilial IN NUMBER,
+                                                          pSeqItem IN NUMBER)
     RETURN VARCHAR2
 IS
-    vEspecie VARCHAR2(4);
+    vCodCob   VARCHAR2(4);
+    vCodCobF  VARCHAR2(4);
+    vEspecie  VARCHAR2(1);
 BEGIN
-    SELECT  a.CODCOB
-      INTO  vEspecie
+  begin
+    SELECT  f.especie, a.codcob
+      INTO  vEspecie, vCodCobF
       FROM  monitorpdvmiddle.tb_doctopagto p,
             monitorpdvmiddle.tb_formapagto f,
             VW_INT_C5_FINALIZ_VENDA a
      WHERE  p.nroformapagto = f.nroformapagto
        AND  f.nroformapagto = a.NROFORMAPAGTO
-       AND  p.seqitem = 1
+       AND  p.seqitem = pSeqItem
        AND  p.seqdocto = pSeqDocto
        AND  p.nroempresa = pCodigoFilial
        AND  p.nrocheckout = pNumeroCaixa;
-    RETURN(vEspecie);
+  end;
+
+  if vEspecie in ('R','E') then
+    
+    begin
+      SELECT  a.CODCOB
+        INTO  vCodCob
+        FROM  monitorpdvmiddle.tb_doctopagto p,
+              monitorpdvmiddle.tb_formapagto f,
+            VW_INT_C5_COBRANCA_WINTHOR a
+     WHERE  p.nroformapagto = f.nroformapagto
+       AND  f.ESPECIE = a.ESPECIE
+         AND  p.seqitem = pSeqItem
+         AND  p.seqdocto = pSeqDocto
+         AND  p.nroempresa = pCodigoFilial
+         AND  p.codbandeiratef = a.codbandeira(+)
+         AND  p.nrocheckout = pNumeroCaixa;
+    EXCEPTION
+      WHEN TOO_MANY_ROWS THEN
+      SELECT  a.CODCOB
+        INTO  vCodCob
+        FROM  monitorpdvmiddle.tb_doctopagto p,
+              monitorpdvmiddle.tb_formapagto f,
+              VW_INT_C5_COBRANCA_WINTHOR a
+       WHERE  p.nroformapagto = f.nroformapagto
+         AND  f.ESPECIE = a.ESPECIE
+         AND  p.seqitem = pSeqItem
+         AND  p.seqdocto = pSeqDocto
+         AND  p.nroempresa = pCodigoFilial
+         AND  p.codbandeiratef = a.codbandeira(+)
+         AND  p.nrocheckout = pNumeroCaixa
+         AND  ROWNUM = 1;
+      
+      WHEN OTHERS THEN
+         vCodCob := 'D';
+    end;
+  
+  elsif vEspecie = 'S' then
+    begin
+      SELECT  a.CODCOB
+        INTO  vCodCob
+        FROM  monitorpdvmiddle.tb_doctopagto p,
+              monitorpdvmiddle.tb_formapagto f,
+            VW_INT_C5_COBRANCA_WINTHOR a
+     WHERE  p.nroformapagto = f.nroformapagto
+       AND  f.ESPECIE = a.ESPECIE
+         AND  p.seqitem = pSeqItem
+         AND  p.seqdocto = pSeqDocto
+         AND  p.nroempresa = pCodigoFilial
+         AND  p.nrocheckout = pNumeroCaixa
+         AND  ROWNUM = 1;
+     EXCEPTION
+       WHEN OTHERS THEN
+         vCodCob := 'D';
+     end;
+     
+  elsif vEspecie = 'G' then
+   begin
+      SELECT  a.CODCOB
+        INTO  vCodCob
+        FROM  monitorpdvmiddle.tb_doctopagto p,
+              monitorpdvmiddle.tb_formapagto f,
+              VW_INT_C5_COBRANCA_WINTHOR a
+       WHERE  p.nroformapagto = f.nroformapagto
+         AND  f.ESPECIE = a.ESPECIE
+         AND  p.seqitem = pSeqItem
+         AND  p.seqdocto = pSeqDocto
+         AND  p.nroempresa = pCodigoFilial
+         AND  p.idcarteira = a.idcarteira(+)
+         AND  p.nrocheckout = pNumeroCaixa
+         AND  ROWNUM = 1;
+    EXCEPTION
+      WHEN OTHERS THEN
+        vCodCob := 'D';
+    end;
+  
+/*  elsif vEspecie in ('X', 'N', 'I') THEN --Não implementado no piloto. deverá ser definida regra posteriormente
+     vCodCob := 'D';*/
+     
+  else
+    begin
+    SELECT  a.CODCOB
+      INTO  vCodCob
+      FROM  monitorpdvmiddle.tb_doctopagto p,
+            monitorpdvmiddle.tb_formapagto f,
+            VW_INT_C5_FINALIZ_VENDA a
+     WHERE  p.nroformapagto = f.nroformapagto
+       AND  f.nroformapagto = a.NROFORMAPAGTO
+       AND  p.seqitem = pSeqItem
+       AND  p.seqdocto = pSeqDocto
+       AND  p.nroempresa = pCodigoFilial
+       AND  p.nrocheckout = pNumeroCaixa;
+    exception
+      when others then
+        vCodCob := 'D'; 
+    end;
+        
+  end if;
+
+  RETURN(NVL(vCodCobF ,vCodCob));
 END;
+
 
 \
 
@@ -994,7 +1098,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         a.sequsuario codemitente,
         a.nroempresa codfilial,
         a.sequsuario codfunccx,
-        NVL(FNC_INT_C5_ESPECIE_COB_VENDAS(a.seqdocto, a.nrocheckout, a.nroempresa),'D') codcob,
+        NVL(FNC_INT_C5_ESPECIE_COB_VENDAS(a.seqdocto, a.nrocheckout, a.nroempresa, 1),'D') codcob,
         NVL(
         (SELECT fnc_int_c5_codplpag_venda(g.nroformapagto,g.nroempresa)
            FROM monitorpdvmiddle.tb_doctopagto g
@@ -1549,7 +1653,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
             WHEN p.valor < 0
                 THEN 'TR'
             ELSE
-                f.codcob
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         p.nroempresa codfilial,
@@ -1569,7 +1673,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
             WHEN p.valor < 0
                 THEN 'TR'
             ELSE
-                f.codcob
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcoborig,
        0 vltxboleto,
        p.nroempresa codfilialnf,
