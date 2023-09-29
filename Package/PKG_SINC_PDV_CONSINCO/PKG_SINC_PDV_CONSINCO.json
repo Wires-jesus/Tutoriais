@@ -50,7 +50,7 @@
 		{
 			"nome": "VW_INT_C5_USUARIO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.07.000"
+			"versao": "4.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_CLIPESSOA",
@@ -177,6 +177,5 @@
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.02.000"
 		}
-
 	]
 }
