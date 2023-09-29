@@ -97,7 +97,7 @@ IS
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = c.seqdocto
-								  AND MH.NUMCAIXA = c.numcaixa
+								  AND MH.NUMCAIXA = TO_CHAR(c.numcaixa)
 								  AND MH.CODFILIAL = c.codfilial
 								UNION ALL
 							   SELECT 1
