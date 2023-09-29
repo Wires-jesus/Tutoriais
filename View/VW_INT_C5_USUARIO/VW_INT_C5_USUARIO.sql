@@ -19,8 +19,7 @@ SELECT r.codfilial,
         END) percdescmaximo,
        SUBSTR(r.email, 80) email,
        (CASE
-            WHEN r.dt_exclusao IS NULL
-                 AND NVL(r.situacao, 'A') = 'A' THEN 'S'
+            WHEN r.dt_exclusao IS NULL AND NVL(r.situacao, 'A') = 'A' THEN 'S'
             ELSE 'N'
         END) ativo,
        r.codsetor CODGRUPO,
@@ -52,9 +51,8 @@ FROM pcempr r,
 
    WHERE r.codusur = i.codusur
      AND i.codsupervisor IS NOT NULL
-     AND i.dtexclusao IS NULL
      AND r.codusur > 0
      AND r.matricula > 0
      AND r.codsetor IN (TBFISCAL.fiscal, TBOPER.oper)
      AND NVL(r.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
-)
+);
