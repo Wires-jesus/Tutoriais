@@ -20,7 +20,7 @@ IS
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = a.seqdocto
-								  AND MH.NUMCAIXA = a.numcaixa
+								  AND MH.NUMCAIXA = TO_CHAR(a.numcaixa)
 								  AND MH.CODFILIAL = a.codfilial
 								UNION ALL
 							   SELECT 1
