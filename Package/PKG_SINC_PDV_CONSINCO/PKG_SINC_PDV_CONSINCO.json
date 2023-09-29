@@ -49,7 +49,7 @@
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO",
-			"tipo": "OBJETO_PLSQL",
+            "tipo": "OBJETO_PLSQL",
 			"versao": "4.0.08.000"
 		},
 		{
