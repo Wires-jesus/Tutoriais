@@ -55,4 +55,4 @@ FROM pcempr r,
      AND r.matricula > 0
      AND r.codsetor IN (TBFISCAL.fiscal, TBOPER.oper)
      AND NVL(r.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
-);
+)
