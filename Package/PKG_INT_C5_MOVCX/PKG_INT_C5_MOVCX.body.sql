@@ -16,7 +16,24 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
              a.rowid_tb_docto
         FROM vw_int_c5_aberturacx a
        WHERE a.especie = 'AC'
-         AND a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto);
+         AND a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
+		 AND NOT EXISTS (SELECT 1
+                                 FROM PCFILAMENSAGEM M
+								WHERE M.SEQDOCTO = a.seqdocto
+								  AND M.NUMCAIXA = a.numcaixa
+								  AND M.CODFILIAL = a.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMHISTORICO MH
+								WHERE MH.SEQDOCTO = a.seqdocto
+								  AND MH.NUMCAIXA = TO_CHAR(a.numcaixa)
+								  AND MH.CODFILIAL = a.codfilial
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMERRO ME
+								WHERE ME.SEQDOCTO = a.seqdocto
+								  AND ME.NUMCAIXA = a.numcaixa
+								  AND ME.CODFILIAL = a.codfilial);
 
     r_logaberturacx      c_logaberturacx%ROWTYPE;
     l_xmltype            XMLTYPE;
@@ -209,18 +226,18 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
         PKG_SINC_PDV_CONSINCO_UTIL.inserir_pcfilamensagem(dados_pcfilamensagem);
 
         --ATUALIZA O REGISTRO na tabela consinco
-        UPDATE monitorpdvmiddle.tb_docto
+       /* UPDATE monitorpdvmiddle.tb_docto
            SET replicacao = 'F'
-         WHERE Rowid = r_logaberturacx.rowid_tb_docto;
+         WHERE Rowid = r_logaberturacx.rowid_tb_docto; */
       EXCEPTION
         WHEN OTHERS THEN
           mensagemerro := 'Consinco - erro ao persistir Abertura/Fechamento de caixa na tabela PCFILAMENSAGEM - ERROR: ' ||
                           SQLCODE || '-' || SQLERRM || '- LINHA: ' ||
                           DBMS_UTILITY.format_error_backtrace;
 
-          UPDATE monitorpdvmiddle.tb_docto
+        /*  UPDATE monitorpdvmiddle.tb_docto
              SET replicacao = 'E'
-           WHERE ROWID = r_logaberturacx.rowid_tb_docto;
+           WHERE ROWID = r_logaberturacx.rowid_tb_docto;  */
 
           PKG_SINC_PDV_CONSINCO_UTIL.inserir_pcfilamensagem_erro(dados_pcfilamensagem, mensagemerro);
           --ROLLBACK;
