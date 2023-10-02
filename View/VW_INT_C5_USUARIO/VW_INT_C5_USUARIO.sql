@@ -42,9 +42,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_USUARIO AS
         OR CODSETOR IN (SELECT
                           CODGRUPO
                         FROM VW_INT_C5_USUARIO_GRUPO V
-                        LEFT JOIN TB_GRUPO G
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPO G
                         ON (G.SEQGRUPO = V.CODGRUPO AND G.ATIVO = 'S')
-                        LEFT JOIN TB_GRUPOUSUARIO GU
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPOUSUARIO GU
                         ON (GU.SEQGRUPO = V.CODGRUPO AND GU.ATIVO = 'S')
                         WHERE G.SEQGRUPO IS NULL OR GU.SEQGRUPO IS NULL)
       )
