@@ -16,18 +16,21 @@ IS
 								WHERE M.SEQDOCTO = a.seqdocto
 								  AND M.NUMCAIXA = a.numcaixa
 								  AND M.CODFILIAL = a.codfilial
+								  AND M.TIPOOPERACAO IN ('CANP','CANT')
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = a.seqdocto
 								  AND MH.NUMCAIXA = TO_CHAR(a.numcaixa)
 								  AND MH.CODFILIAL = a.codfilial
+								  AND MH.TIPOOPERACAO IN ('CANP','CANT')
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMERRO ME
 								WHERE ME.SEQDOCTO = a.seqdocto
 								  AND ME.NUMCAIXA = a.numcaixa
-								  AND ME.CODFILIAL = a.codfilial);
+								  AND ME.CODFILIAL = a.codfilial
+								  AND ME.TIPOOPERACAO IN ('CANP','CANT'));
 
         r_canc_cabecalho       c_canc_cabecalho%ROWTYPE;
         l_xmltype              XMLTYPE;
