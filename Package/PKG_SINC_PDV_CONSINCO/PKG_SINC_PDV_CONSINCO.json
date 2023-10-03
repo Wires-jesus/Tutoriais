@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "4.0.11.000"
+			"versao": "4.0.12.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -110,7 +110,7 @@
 		{	
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.36.000"
+			"versao": "4.0.37.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",

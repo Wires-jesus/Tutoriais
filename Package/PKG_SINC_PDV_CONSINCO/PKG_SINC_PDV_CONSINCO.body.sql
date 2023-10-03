@@ -1246,6 +1246,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
 
   PROCEDURE carrega_tb_famdivisaocategoria(p_id IN pccontroleconsinco.id%TYPE) AS
+    vRegProcessados number;
   BEGIN
   MERGE INTO monitorpdvmiddle.tb_famdivisaocategoria s
         USING (SELECT  
@@ -1273,11 +1274,40 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.nrodivisao,
                  b.ativo,
                  b.idref);
+
+  vRegProcessados := SQL%ROWCOUNT;
   
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
   COMMIT;
+  
+  IF (vRegProcessados > 0) THEN
+    UPDATE MONITORPDVMIDDLE.tb_famdivisaocategoria D SET
+           ATIVO = 'N'
+    WHERE ATIVO = 'S'
+    AND   D.SEQCATEGORIA||D.SEQFAMILIA||NRODIVISAO = 
+                                         (SELECT
+                                              TAB_FAMCATEGORIA.SEQCATEGORIA||TAB_FAMCATEGORIA.SEQFAMILIA||TAB_FAMCATEGORIA.NRODIVISAO FAMCATEGORIA
+                                          FROM(
+                                               SELECT
+                                                  ROW_NUMBER() OVER(partition by F.SEQFAMILIA,
+                                                         F.NRODIVISAO
+                                                  ORDER BY  F.NROCARGA DESC
+                                                  ) SEQUENCIA,
+                                                  F.SEQFAMILIA,
+                                                  F.SEQCATEGORIA,
+                                                  F.NRODIVISAO
 
+                                                FROM MONITORPDVMIDDLE.tb_famdivisaocategoria F
+                                                WHERE F.ATIVO = 'S'
+                                               ) TAB_FAMCATEGORIA
+                                          WHERE TAB_FAMCATEGORIA.SEQUENCIA > 1
+                                          AND   TAB_FAMCATEGORIA.SEQFAMILIA = D.SEQFAMILIA
+                                          AND   TAB_FAMCATEGORIA.NRODIVISAO = D.NRODIVISAO);
+  END IF;                         
+  
+  COMMIT;
+  
   EXCEPTION
   WHEN OTHERS THEN
     BEGIN
