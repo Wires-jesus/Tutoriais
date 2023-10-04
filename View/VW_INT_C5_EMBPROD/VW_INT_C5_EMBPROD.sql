@@ -55,7 +55,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             p.anp anp,
             p.descanp descanp,
             p.codprodprinc,
-            p.codauxiliartrib,
             (CASE
                 WHEN e.dtinativo IS NOT NULL
                     THEN 'N'
