@@ -49,7 +49,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          1 seqfamgrupo,
          MAX(p.pesovariavel) PESAVEL,
          MIN(NVL(p.indescalarelevante, 'S')) indescala,
-         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante
+         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
+         MAX(p.codauxiliartrib) eantrib,
+         MAX(P.codprodprinc) seqfamiliaprinc
   FROM VW_INT_C5_EMBPROD p
   GROUP BY p.codprod, p.descricao
 )
