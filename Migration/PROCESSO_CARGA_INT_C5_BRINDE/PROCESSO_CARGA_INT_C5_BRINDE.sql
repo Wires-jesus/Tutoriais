@@ -49,10 +49,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS AS
 --ITENS REFERENTES A CAMPANHA DE BRINDE
   SELECT
     CODIGO SEQCOMBO,
-    TO_NUMBER(PCPROMI.CODPROD || CODIGO || PCPROMI.QT || '1') SEQITEM, --Concatenação com 1 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha também
+    PCPROMI.CODPROD || '0' SEQITEM, 
     PCPROMI.CODAUXILIAR idref,
     PCDEPARAEMBALAGENSC5.SEQPRODUTO,
-    PCPROMI.CODPROD,
     'N' TIPOITEM,
     (
      CASE
@@ -105,10 +104,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS AS
 -- ITEM REFERENTE AO BRINDE
   SELECT
     PCPROMC.CODIGO SEQCOMBO,
-    TO_NUMBER(PCPROMC.CODPROD || PCPROMC.CODIGO || PCPROMC.QTBRINDE || '0') SEQITEM, --Concatenação com 0 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha tambem
+    PCPROMC.CODPROD || '1' SEQITEM,
     PCPROMC.CODAUXILIAR idref,
     PCDEPARAEMBALAGENSC5.SEQPRODUTO,
-    PCPROMC.CODPROD,
     'P' TIPOITEM,
     (
      CASE
@@ -212,7 +210,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS_AUT AS(
 --ITENS REFERENTES A CAMPANHA DE BRINDE
   SELECT
     CODIGO SEQPROMSURPRESA,
-    TO_NUMBER(PCPROMI.CODPROD || CODIGO || PCPROMI.QT || '1') SEQITEM, --Concatenação com 1 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha também
+    PCPROMI.CODPROD || '1' SEQITEM, --Concatenação com 1 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha também
     PCPROMI.CODAUXILIAR idref,
     PCDEPARAEMBALAGENSC5.SEQPRODUTO,
     PCPROMI.CODPROD,
@@ -274,7 +272,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS_AUT AS(
 -- ITEM REFERENTE AO BRINDE
   SELECT
     PCPROMC.CODIGO SEQPROMSURPRESA,
-    TO_NUMBER(PCPROMC.CODPROD || PCPROMC.CODIGO || PCPROMC.QTBRINDE || '0') SEQITEM, --Concatenação com 0 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha tambem
+    PCPROMC.CODPROD || '0' SEQITEM, --Concatenação com 0 para evitar erro de PK, já que o produto brinde pode fazer parte da campanha tambem
     PCPROMC.CODAUXILIAR idref,
     PCDEPARAEMBALAGENSC5.SEQPRODUTO,
     PCPROMC.CODPROD,
