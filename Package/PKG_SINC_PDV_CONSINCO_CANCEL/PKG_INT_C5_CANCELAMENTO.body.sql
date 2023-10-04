@@ -213,7 +213,10 @@ IS
                                    v.percicm AS "Percicm",
                                    v.rotinalanc AS "Rotinalanc"))))
               INTO l_xmltypeitens
-              FROM vw_int_c5_pcpedicancecf v;
+              FROM vw_int_c5_pcpedicancecf v
+			  WHERE v.SEQDOCTO = p_r_canc_cabecalho.seqdocto
+                AND v.CODFILIAL = p_r_canc_cabecalho.codfilial
+                AND v.NUMCAIXA = p_r_canc_cabecalho.numcaixa;
 
             RETURN l_xmltypeitens;
         END retornar_xml_canc_itens;
@@ -373,9 +376,9 @@ IS
         PROCEDURE adicionarregrascabecalhonf (
             r_canc_cabecalho   IN OUT c_canc_cabecalho%ROWTYPE)
         IS
-            vnumpedecf   pcpedcecf.numpedecf%TYPE;
+            --vnumpedecf   pcpedcecf.numpedecf%TYPE;
         BEGIN
-            BEGIN
+            /*BEGIN
                 SELECT numpedecf
                   INTO vnumpedecf
                   FROM pcpedcecf
@@ -388,9 +391,9 @@ IS
             EXCEPTION
                 WHEN OTHERS
                     THEN vnumpedecf := 0;
-            END;
+            END;*/
 
-            r_canc_cabecalho.numpedecf      := NVL(vnumpedecf,defseq_numpedecf.NEXTVAL);
+            --r_canc_cabecalho.numpedecf      := NVL(vnumpedecf,defseq_numpedecf.NEXTVAL);
             r_canc_cabecalho.codpraca       := NVL(fnc_int_c5_praca_cli(r_canc_cabecalho.codcli),0);
             r_canc_cabecalho.codsupervisor  := NVL(fnc_int_c5_codsuperv(r_canc_cabecalho.codemitente),1);
             r_canc_cabecalho.vltotal        := fnc_int_c5_cab_total(r_canc_cabecalho.seqdocto,r_canc_cabecalho.numcaixa,r_canc_cabecalho.codfilial);
@@ -420,9 +423,9 @@ IS
                     dados_pcfilamensagem);
 
                 --ATUALIZA O REGISTRO NA TABELA CONSINCO
-                UPDATE monitorpdvmiddle.tb_docto
+                /*UPDATE monitorpdvmiddle.tb_docto
                    SET replicacao = 'F'
-                 WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;
+                 WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;*/
 
                 --COMMIT;
             EXCEPTION
@@ -453,9 +456,9 @@ IS
                         || '- LINHA: '
                         || DBMS_UTILITY.format_error_backtrace;
 
-                    UPDATE monitorpdvmiddle.tb_docto
+                   /* UPDATE monitorpdvmiddle.tb_docto
                        SET replicacao = 'E'
-                     WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;
+                     WHERE ROWID = r_canc_cabecalho.rowid_tb_docto;*/
 
                     --COMMIT;
 
