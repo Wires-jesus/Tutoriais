@@ -710,7 +710,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.SITTRIBUT, 
                           T.PERCPIS, 
                           T.PERCCOFINS, 
-                          EXCLUIRICMSBASEPISCOFINS 
+                          T.EXCLUIRICMSBASEPISCOFINS 
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
                         (SELECT S.ULTIMAEXECUCAO
