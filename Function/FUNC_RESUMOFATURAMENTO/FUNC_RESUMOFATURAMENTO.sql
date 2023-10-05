@@ -536,10 +536,10 @@ IS
         v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
 
         DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':P_DATAINI', P_DATAFIM);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':P_DATAFIM', P_DATAFIM);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':P_DATAINI', P_DATAFIM);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':P_DATAFIM', P_DATAFIM);      
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI6', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM6', P_DATAFIM);      
 
         v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
 
