@@ -85,7 +85,7 @@
 		{
 			"nome": "VW_INT_C5_PLPAG",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.09.000"	
+			"versao": "4.0.09.000"
 		},
 		{
 			"nome": "VW_INT_C5_PRECOFIXO_R357",
@@ -107,7 +107,7 @@
 			"tipo": "MIGRATION",
 			"versao": "4.0.34.000"
 		},
-		{	
+		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
 			"versao": "4.0.37.000"
@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "4.0.14.000"
+			"versao": "4.0.15.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
