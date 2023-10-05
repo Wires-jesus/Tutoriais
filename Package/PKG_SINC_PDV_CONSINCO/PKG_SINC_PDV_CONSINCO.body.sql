@@ -690,12 +690,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.pesavel,
                     v.indescala,
                     v.cnpjfabricante,
+                    v.eantrib,
+                    v.seqfamiliaprinc,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOPIS,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOCOFINS,
                     NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
                     NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
                     100 PERCBASEPIS,
-                    100 PERCBASECOFINS
+                    100 PERCBASECOFINS,
+                    EXCLUIRICMSBASEPISCOFINS gerareducaobasepiscofins
              FROM VW_INT_C5_FAMILIA v, 
                   
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
@@ -703,7 +706,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     campo DTALTERC5 da PCPRODUT, pois a mesma é a base para alimentar
                     a TB_REGRAFAMILIA.
                    */
-                  (SELECT R.CODPROD, T.SITTRIBUT, T.PERCPIS, T.PERCCOFINS 
+                  (SELECT R.CODPROD, 
+                          T.SITTRIBUT, 
+                          T.PERCPIS, 
+                          T.PERCCOFINS, 
+                          T.EXCLUIRICMSBASEPISCOFINS 
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
                         (SELECT S.ULTIMAEXECUCAO
@@ -745,7 +752,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.percpis = B.PERCPIS,
                      S.perccofins = B.PERCCOFINS,
                      S.indescala = B.indescala,
-                     S.cnpjfabricante = B.cnpjfabricante
+                     S.cnpjfabricante = B.cnpjfabricante,
+                     S.eantrib = B.eantrib,
+                     S.seqfamiliaprinc = B.seqfamiliaprinc,
+                     S.gerareducaobasepiscofins = B.gerareducaobasepiscofins
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -764,7 +774,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.percpis,
                      S.perccofins,
                      S.indescala,
-                     S.cnpjfabricante)
+                     S.cnpjfabricante,
+                     S.eantrib,
+                     S.seqfamiliaprinc,
+                     S.gerareducaobasepiscofins)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -783,7 +796,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.percpis,
                       B.perccofins,
                       B.indescala,
-                      B.cnpjfabricante);
+                      B.cnpjfabricante,
+                      B.eantrib,
+                      B.seqfamiliaprinc,
+                      B.gerareducaobasepiscofins);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
