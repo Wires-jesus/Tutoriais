@@ -310,7 +310,8 @@ IS
                                        rowvw_pcpediecf.vlpis AS  "Vlpis" ,
                                        rowvw_pcpediecf.vlsubtotitem AS  "Vlsubtotitem" ,
                                        rowvw_pcpediecf.vlricmssimplesnac AS  "Vlricmssimplesnac" ,
-                                       rowvw_pcpediecf.vpart AS  "Vpart" ))))
+                                       rowvw_pcpediecf.vpart AS  "Vpart"
+									   ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
                  WHERE rowvw_pcpediecf.seqdocto = p_pedido.seqdocto
@@ -490,7 +491,9 @@ IS
                                    p_pedido.vlatend AS "Vlatend",
                                    p_pedido.vltabela AS "Vltabela",
                                    p_pedido.vlsubtotal AS "Vlsubtotal",
-                                   p_pedido.vltotalcomtroco AS "Vltotalcomtroco" )))
+                                   p_pedido.vltotalcomtroco AS "Vltotalcomtroco" ,
+								   0 AS "Multiplospedidos",
+								   0 AS "Idprevenda" )))
                   INTO l_xmlcabecalho
                   FROM DUAL;
 
