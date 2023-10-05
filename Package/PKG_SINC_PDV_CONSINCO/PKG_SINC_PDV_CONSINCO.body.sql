@@ -1394,9 +1394,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END carrega_tb_prodempresa;
 
   PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
---    bPrimeriaCarga number;
   BEGIN
-  -- select count(*) into bPrimeriaCarga from MONITORPDVMIDDLE.TB_FAMEMBALAGEM where rownum = 1;
    
     MERGE INTO monitorpdvmiddle.tb_famembalagem s
       USING (SELECT DISTINCT e.seqfamilia,
@@ -1438,37 +1436,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.ativo,
                   b.nrocarga);
 
-    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO WINTHOR
-    --Não executar inativação na primeira carga
-    IF bPrimeriaCarga <> 0 THEN
-      UPDATE monitorpdvmiddle.tb_famembalagem SET ATIVO = 'N'
-      WHERE TB_FAMEMBALAGEM.rowid IN (
-        select 
-          TB_FAMEMBALAGEM.rowid
-        from monitorpdvmiddle.TB_FAMEMBALAGEM  TB_FAMEMBALAGEM
-        left JOIN
-        (
-          SELECT 
-            CODPROD SEQFAMILIA,  
-            QTUNIT QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD
-          WHERE QTUNIT > 0
-          
-          UNION 
-          
-          SELECT 
-            CODPROD SEQFAMILIA, 
-            QTMINIMAATACADO QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD
-          WHERE QTMINIMAATACADO > 0
-        ) EMBALAGEM
-        on (TB_FAMEMBALAGEM.SEQFAMILIA  = EMBALAGEM.SEQFAMILIA and TB_FAMEMBALAGEM.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
-        WHERE 
-          EMBALAGEM.QTDEMBALAGEM IS NULL	
-          AND ATIVO = 'S'
-      );
-    END IF;
-*/
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
@@ -1544,11 +1511,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
 
   PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
-    --bPrimeriaCarga number;
   BEGIN
-    --SELECT count(*) INTO bPrimeriaCarga FROM MONITORPDVMIDDLE.tb_prodpreco where rownum = 1;
-
-    MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
+     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
       USING (SELECT * FROM VW_INT_C5_PRODPRECO) VIEW_TB_PRODPRECO
     on(
       TB_PRODPRECO_C5.seqproduto       = VIEW_TB_PRODPRECO.seqproduto 
@@ -1584,48 +1548,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         VIEW_TB_PRODPRECO.idref
       );
 
-    /*INATIVANDO REGISTROS COM QTDEMBALAGEM DIFERENTES DO QTUNIT DO WINTHOR
-     --Se for a primeira carga, não executar update
-    IF bPrimeriaCarga <> 0 THEN
-      UPDATE monitorpdvmiddle.tb_prodpreco SET ATIVO = 'N'
-      WHERE tb_prodpreco.rowid IN (
-        select 
-          tb_prodpreco.rowid
-        from monitorpdvmiddle.tb_prodpreco tb_prodpreco
-        left JOIN
-        (
-          SELECT 
-            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
-            --CODAUXILIAR  SEQPRODUTO, 
-            --ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
-            P.SEQPRODUTO SEQPRODUTO,
-            E.QTUNIT QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD E,
-               PCDEPARAEMBALAGENSC5 P
-          WHERE E.CODAUXILIAR = P.CODAUXILIAR
-          AND   E.QTUNIT > 0
-          
-          UNION 
-          
-          SELECT 
-            --TO_NUMBER(CODAUXILIAR || CODFILIAL)  SEQPRODUTO, 
-            --CODAUXILIAR  SEQPRODUTO, 
-            --ora_hash(codauxiliar, 2147483647) SEQPRODUTO,
-            P.SEQPRODUTO SEQPRODUTO,
-            E.QTMINIMAATACADO QTDEMBALAGEM 
-          FROM VW_INT_C5_EMBPROD E,
-               PCDEPARAEMBALAGENSC5 P
-          WHERE E.CODAUXILIAR = P.CODAUXILIAR
-          AND   E.QTMINIMAATACADO > 0
-          
-        ) EMBALAGEM
-        on (tb_prodpreco.SEQPRODUTO  = EMBALAGEM.SEQPRODUTO and tb_prodpreco.qtdembalagem = EMBALAGEM.QTDEMBALAGEM)
-        WHERE 
-          EMBALAGEM.QTDEMBALAGEM IS NULL	
-          AND ATIVO = 'S'
-      );
-    END IF;
-*/
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
@@ -3179,7 +3101,8 @@ BEGIN
       TB_COMBOITEM.ATIVO = VIEW_BRINDE_ITENS.ATIVO,
       TB_COMBOITEM.QTDE = VIEW_BRINDE_ITENS.QTDE,
       TB_COMBOITEM.PRECO = VIEW_BRINDE_ITENS.PRECO,
-      TB_COMBOITEM.PERCDESCONTO = VIEW_BRINDE_ITENS.PERCDESCONTO
+      TB_COMBOITEM.PERCDESCONTO = VIEW_BRINDE_ITENS.PERCDESCONTO,
+      TB_COMBOITEM.SEQFAMILIA = VIEW_BRINDE_ITENS.SEQFAMILIA
             
   WHEN NOT MATCHED THEN
     INSERT(
@@ -3191,6 +3114,7 @@ BEGIN
       TB_COMBOITEM.QTDE,
       TB_COMBOITEM.PRECO,
       TB_COMBOITEM.PERCDESCONTO,
+      TB_COMBOITEM.SEQFAMILIA,
       TB_COMBOITEM.IDREF
     )
     VALUES(
@@ -3202,6 +3126,7 @@ BEGIN
       VIEW_BRINDE_ITENS.QTDE,
       VIEW_BRINDE_ITENS.PRECO,
       VIEW_BRINDE_ITENS.PERCDESCONTO,
+      VIEW_BRINDE_ITENS.SEQFAMILIA,
       VIEW_BRINDE_ITENS.IDREF
     );
 
@@ -3728,6 +3653,7 @@ END;
         TB_PROMSURPRESAITEM.TIPOITEM     = VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
         TB_PROMSURPRESAITEM.QTDEMBALAGEM = VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM,
         TB_PROMSURPRESAITEM.ATIVO        = VW_INT_C5_BRINDE_ITENS_AUT.ATIVO,
+        TB_PROMSURPRESAITEM.SEQFAMILIA   = VW_INT_C5_BRINDE_ITENS_AUT.SEQFAMILIA,
         TB_PROMSURPRESAITEM.IDREF        = VW_INT_C5_BRINDE_ITENS_AUT.IDREF
       
     WHEN NOT MATCHED THEN
@@ -3739,6 +3665,7 @@ END;
         TB_PROMSURPRESAITEM.TIPOITEM,
         TB_PROMSURPRESAITEM.QTDEMBALAGEM,
         TB_PROMSURPRESAITEM.ATIVO,
+        TB_PROMSURPRESAITEM.SEQFAMILIA,
         TB_PROMSURPRESAITEM.IDREF
       )
       VALUES(
@@ -3749,6 +3676,7 @@ END;
         VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM,
         VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM,
         VW_INT_C5_BRINDE_ITENS_AUT.ATIVO,
+        VW_INT_C5_BRINDE_ITENS_AUT.SEQFAMILIA,
         VW_INT_C5_BRINDE_ITENS_AUT.IDREF
       );
 
