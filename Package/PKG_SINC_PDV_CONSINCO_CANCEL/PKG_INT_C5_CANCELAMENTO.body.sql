@@ -134,7 +134,9 @@ IS
                                    p_r_canc_cabecalho.exportadoservint AS "Exportadoservint",
                                    p_r_canc_cabecalho.importadoservprinc AS "Importadoservprinc",
                                    p_r_canc_cabecalho.rotinalanc AS "Rotinalanc",
-                                   p_r_canc_cabecalho.assinatura AS "Assinatura"))))
+                                   p_r_canc_cabecalho.assinatura AS "Assinatura",
+								   0 AS "Idprevenda",
+								   0 AS "Multiplospedidos" ))))
               INTO l_xmltypecabecalho
               FROM DUAL;
 
