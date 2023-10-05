@@ -21,19 +21,19 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
                                  FROM PCFILAMENSAGEM M
 								WHERE M.SEQDOCTO = a.seqdocto
 								  AND M.NUMCAIXA = a.numcaixa
-								  AND M.CODFILIAL = a.codfilial
+								  AND M.CODFILIAL = a.nroempresa
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = a.seqdocto
 								  AND MH.NUMCAIXA = TO_CHAR(a.numcaixa)
-								  AND MH.CODFILIAL = a.codfilial
+								  AND MH.CODFILIAL = a.nroempresa
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMERRO ME
 								WHERE ME.SEQDOCTO = a.seqdocto
 								  AND ME.NUMCAIXA = a.numcaixa
-								  AND ME.CODFILIAL = a.codfilial);
+								  AND ME.CODFILIAL = a.nroempresa);
 
     r_logaberturacx      c_logaberturacx%ROWTYPE;
     l_xmltype            XMLTYPE;
