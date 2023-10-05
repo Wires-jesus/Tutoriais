@@ -3705,11 +3705,13 @@ END;
     WHERE ROWID IN (
       SELECT 
         T.rowid
-      FROM monitorpdvmiddle.tb_promsurpresaitem T
-      LEFT JOIN VW_INT_C5_BRINDE_ITENS_AUT V
-      ON (T.SEQPROMSURPRESA = V.SEQPROMSURPRESA AND T.SEQITEM = V.SEQITEM)
+      FROM 
+        monitorpdvmiddle.tb_promsurpresaitem T,
+        VW_INT_C5_BRINDE_ITENS_AUT V           
       WHERE
-        V.IDREF IS NULL 
+        T.SEQPROMSURPRESA = V.SEQPROMSURPRESA(+) 
+        AND T.SEQITEM = V.SEQITEM(+)
+        AND V.IDREF IS NULL 
         AND T.SEQPROMSURPRESA IN (SELECT SEQPROMSURPRESA FROM VW_INT_C5_BRINDE_ITENS_AUT)
         AND T.ATIVO = 'S'
     );
