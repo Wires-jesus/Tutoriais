@@ -698,7 +698,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
                     100 PERCBASEPIS,
                     100 PERCBASECOFINS,
-                    NVL(EXCLUIRICMSBASEPISCOFINS, 'N') gerareducaobasepiscofins
+                     NVL(EXCLUIRICMSBASEPISCOFINS, 'N') gerareducaobasepiscofins
              FROM VW_INT_C5_FAMILIA v, 
                   
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
@@ -710,9 +710,21 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.SITTRIBUT, 
                           T.PERCPIS, 
                           T.PERCCOFINS, 
-                          T.EXCLUIRICMSBASEPISCOFINS 
+                          (CASE 
+                             WHEN (PARAM.EXCLUIRICMSBASEPISCOFINS = 'S') AND (T.EXCLUIRICMSBASEPISCOFINS = 'S') THEN
+                                  T.EXCLUIRICMSBASEPISCOFINS 
+                             ELSE  'N'
+                          END) EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
+                        (SELECT NVL(VALOR, 'N') EXCLUIRICMSBASEPISCOFINS
+                         FROM PCPARAMFILIAL
+                         WHERE NOME LIKE '%EXCLUIRICMSBASEPISCOFINS%'
+                         AND VALOR <> '99'
+                         AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                         AND VALOR IS NOT NULL
+                        )PARAM,
+                        
                         (SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
                          WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
