@@ -697,8 +697,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOCOFINS,
                     NVL(PRODPISCOFINS.PERCPIS, 0)PERCPIS,
                     NVL(PRODPISCOFINS.PERCCOFINS, 0)PERCCOFINS,
-                    100 PERCBASEPIS,
-                    100 PERCBASECOFINS
+                    (CASE  
+                      WHEN NVL(PRODPISCOFINS.EXCLUIRICMSBASEPISCOFINS, 'N') = 'S' THEN
+                           0
+                      ELSE 100 
+                    END)  PERCBASEPIS,
+
+                    (CASE  
+                      WHEN NVL(PRODPISCOFINS.EXCLUIRICMSBASEPISCOFINS, 'N') = 'S' THEN
+                           0
+                      ELSE 100 
+                    END)  PERCBASECOFINS
+
              FROM VW_INT_C5_FAMILIA v, 
                   
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
