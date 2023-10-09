@@ -1,0 +1,11 @@
+{
+    "nome": "FNC_INT_C5_CUSTO",
+    "tipoPLSQL": "FUNCTION",
+	"dependencias": [
+        {
+            "nome": "VW_INT_C5_CUSTOS",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "4.0.01.000"
+        }
+    ]
+}
