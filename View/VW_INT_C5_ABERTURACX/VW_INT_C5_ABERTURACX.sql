@@ -10,6 +10,43 @@ SELECT a.nrocheckout numcaixa,
         0 numnota,
         0 valor,
         1 codcli,
+		(CASE WHEN a.Especie IN ('FC','FM') THEN
+            (SELECT to_char(b.dtahorinclusao,'hh24') HORAABERTURA 
+              FROM monitorpdvmiddle.tb_docto b
+             where b.nroempresa = a.nroempresa
+               and b.nrocheckout = a.nrocheckout
+               and b.dtamovimento = a.dtamovimento
+               and b.seqturno = a.seqturno
+               and b.especie = 'AC')
+          ELSE
+             NULL
+          END) HORAABERTURA,
+        (CASE WHEN a.Especie IN ('FC','FM') THEN
+            (SELECT to_char(b.dtahorinclusao,'mi') MINUTOABERTURA 
+              FROM monitorpdvmiddle.tb_docto b
+             where b.nroempresa = a.nroempresa
+               and b.nrocheckout = a.nrocheckout
+               and b.dtamovimento = a.dtamovimento
+               and b.seqturno = a.seqturno
+               and b.especie = 'AC')
+          ELSE
+             NULL
+          END) MINUTOABERTURA,
+        (CASE WHEN a.Especie IN ('FC','FM') THEN
+             trunc(a.dtahorinclusao)
+          ELSE
+             NULL
+          END) DTFECHAMENTO,
+        (CASE WHEN a.Especie IN ('FC','FM') THEN
+            to_char(a.dtahorinclusao,'hh24') 
+          ELSE
+             NULL
+          END) HORAFECHAMENTO,
+        (CASE WHEN a.Especie IN ('FC','FM') THEN
+             to_char(a.dtahorinclusao,'mi')
+          ELSE
+             NULL
+          END) MINUTOFECHAMENTO,
         a.ROWID rowid_tb_docto
   FROM  monitorpdvmiddle.tb_docto a
  WHERE  a.replicacao = 'P'
