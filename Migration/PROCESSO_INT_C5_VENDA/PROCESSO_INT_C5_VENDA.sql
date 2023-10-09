@@ -1493,7 +1493,7 @@ AS
               (i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade))
          END) pvenda,*/
         --i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade) pvenda,
-        i.quantidade qt,
+        (i.quantidade * NVL(i.QTDEMBALAGEM,1)) qt,
         NULL qtfalta,
         NULL qtminatacvenda,
         0 qtsaidavasilhame,
