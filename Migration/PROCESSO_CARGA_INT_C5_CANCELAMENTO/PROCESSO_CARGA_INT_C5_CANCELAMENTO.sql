@@ -16,29 +16,6 @@ SELECT DISTINCT c.seqdocto,
 
 \
 
-CREATE OR REPLACE VIEW VW_INT_C5_CUSTOS AS(
-SELECT  e.codfilial,
-        e.codprod,
-        e.codauxiliar,
-        NVL(s.custoultent,0) vlcustoultent,
-        NVL(s.custocont,0) vlcustocont,
-        NVL(s.custoreal,0) vlcustoreal,
-        NVL(s.custofin,0) vlcustofin,
-        NVL(s.qtultent,0) qtultent,
-        NVL(s.custorep,0) vlcustorep,
-        NVL(s.valorultent,0) valorultent,
-        NVL(s.vlbaseefet,0) vlbaseefet,
-        NVL(s.vlicmsbcr,0) vlicmsbcr,
-        NVL(s.vlicmsefet,0) vlicmsefet
-  FROM  pcest    s,
-        pcprodut p,
-        pcembalagem e
- WHERE  e.codprod = p.codprod
-   AND  e.codprod = s.codprod
-   AND  e.codfilial = s.codfilial)
-
-\
-
 CREATE OR REPLACE VIEW VW_INT_C5_PLANOP AS(
 SELECT  p.codplpag,
         g.nroformapagto,
@@ -76,7 +53,7 @@ SELECT  A.ROWID ROWID_TB_DOCTO,
         'N' EXPORTADO,
         A.SEQDOCTO,
         FNC_INT_C5_NUMPEDECF(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA) NUMPEDECF,
-        C.SEQPESSOA CODCLI,
+        NVL(C.SEQPESSOA,1) CODCLI,
         A.SEQUSUARIO CODFUNCCX,
         A.NROCHECKOUT NUMCAIXA,
         'NOTAFISCAL' NUMSERIEEQUIP,
@@ -154,17 +131,17 @@ SELECT  A.ROWID ROWID_TB_DOCTO,
         0 VLTOTAL, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
         0 VLOUTRASDESP,
         0 VLDESCONTO, -- REGRA ESTÁ DENTRO DO PKG_RECEBER_VENDAS_CONSINCO
-        NULL VLCUSTOCONT,
-        NULL VLCUSTOREP,
-        NULL VLCUSTOFIN,
-        NULL VLCUSTOREAL,
+        fnc_int_c5_tot_custo(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA, 'T') VLCUSTOCONT,
+        fnc_int_c5_tot_custo(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA, 'C') VLCUSTOREP,
+        fnc_int_c5_tot_custo(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA, 'F') VLCUSTOFIN,
+        fnc_int_c5_tot_custo(A.SEQDOCTO, A.NROCHECKOUT, A.NROEMPRESA, 'R') VLCUSTOREAL,
         'VV' TIPOVENDA,
-        NULL TOTPESO,
-        NULL TOTVOLUME,
-        NULL NUMITENS,
+        0 TOTPESO,
+        0 TOTVOLUME,
+        0 NUMITENS,
         NULL OPERACAO,
-        NULL HORA,
-        NULL MINUTO,
+        to_char(sysdate,'hh24') HORA,
+        to_char(sysdate,'mi') MINUTO,
         NULL NUMVIASMAPASEP,
         0 NUMPED,
         NULL NUMCAR,
@@ -174,7 +151,7 @@ SELECT  A.ROWID ROWID_TB_DOCTO,
         NULL POSICAORETORNO,
         NULL DTCANCEL,
         NULL CODFUNCCANCEL,
-        NULL DTEXPORTACAO,
+        SYSDATE DTEXPORTACAO,
         NULL NUMTRANSVENDA,
         'N' POSICAOPEDIDO,
         'N' IMPORTADO,
@@ -187,17 +164,17 @@ SELECT  A.ROWID ROWID_TB_DOCTO,
         'S' CUPOMFECHADO,
         NULL MOTIVOCANCELAMENTO,
         NULL NUMFECHAMENTOMOVCX,
-        NULL DTMOVIMENTOCX,
+        A.DTAMOVIMENTO  DTMOVIMENTOCX,
         NULL VLACRESRODAPE,
         NULL NOTADUPLIQUESVC,
         NULL MD5PAF,
-        NULL DOCEMISSAO,
-        NULL AMBIENTENFCE,
+        'CE' DOCEMISSAO,
+        E.AMBIENTE AMBIENTENFCE,
         NULL DTEXPORTACAOSERVINT,
         NULL DTIMPORTACAOSERVPRINC,
         NULL EXPORTADOSERVINT,
         NULL IMPORTADOSERVPRINC,
-        NULL ROTINALANC,
+        'C5-' || A.versaoaplicacao ROTINALANC,
         NULL ASSINATURA
   FROM  MONITORPDVMIDDLE.TB_DOCTO A,
         MONITORPDVMIDDLE.TB_DOCTOCUPOM C,
@@ -280,13 +257,22 @@ SELECT  D.ROWID ROWID_TB_DOCTO,
         0 ST,
         FNC_INT_C5_TIPO_CANCEL_ITEM(I.SEQDOCTO,I.NROCHECKOUT,I.NROEMPRESA,I.SEQITEM) TIPOCANCEL,
         NULL VLACRESCRODAPE,
-        (SELECT VLCUSTOFIN
+        (SELECT NVL(VLCUSTOFIN,0)
            FROM VW_INT_C5_CUSTOS
           WHERE CODFILIAL = I.NROEMPRESA
             AND CODAUXILIAR = I.CODACESSO) VLCUSTOFIN,
-        0 VLCUSTOREAL,
-        0 VLCUSTOREP,
-        0 VLCUSTOCONT,
+        (SELECT NVL(VLCUSTOREAL,0)
+           FROM VW_INT_C5_CUSTOS
+          WHERE CODFILIAL = I.NROEMPRESA
+            AND CODAUXILIAR = I.CODACESSO) VLCUSTOREAL,
+        (SELECT NVL(VLCUSTOREP,0)
+           FROM VW_INT_C5_CUSTOS
+          WHERE CODFILIAL = I.NROEMPRESA
+            AND CODAUXILIAR = I.CODACESSO) VLCUSTOREP,
+        (SELECT NVL(VLCUSTOCONT,0)
+           FROM VW_INT_C5_CUSTOS
+          WHERE CODFILIAL = I.NROEMPRESA
+            AND CODAUXILIAR = I.CODACESSO) VLCUSTOCONT,
         I.VLRDESCONTO VLDESCFIN,
         0 VLDESCRODAPE,
         0 VLIPI,

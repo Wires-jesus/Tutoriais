@@ -10,5 +10,6 @@
 	{"nome": "FNC_INT_C5_VLTOTAL","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
 	{"nome": "FNC_INT_C5_FINALIZADORA_CAB","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
 	{"nome": "FNC_INT_C5_TIPO_CANCEL_ITEM","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
-	{"nome": "FNC_INT_C5_NUMPEDECF","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"}
+	{"nome": "FNC_INT_C5_NUMPEDECF","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
+	{"nome": "FNC_INT_C5_TOT_CUSTO","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"}
 ]}
