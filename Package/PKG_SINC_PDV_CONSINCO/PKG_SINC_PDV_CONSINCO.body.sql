@@ -3307,17 +3307,22 @@ BEGIN
   END;
 END;
 
-PROCEDURE carrega_tb_parccategformapagto(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_parcfamformapagto(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  UPDATE monitorpdvmiddle.tb_parccategformapagto P SET P.ATIVO = 'N'
+  UPDATE monitorpdvmiddle.tb_parcfamformapagto P SET P.ATIVO = 'N'
   WHERE P.ATIVO = 'S';
   
-  MERGE INTO monitorpdvmiddle.tb_parccategformapagto T
-    USING (SELECT * FROM VW_INT_C5_PARCELDEPTO) S 
+  MERGE INTO monitorpdvmiddle.tb_parcfamformapagto T
+    USING (SELECT  
+               SEQPARCELA,
+               SEQFAMILIA,
+               NROFORMAPAGTO,
+               NROMAXIMOPARCELA,
+               ATIVO
+           FROM VW_INT_C5_PARCELDEPTO) S 
     ON    (T.SEQPARCELA = S.SEQPARCELA AND
-           T.SEQCATEGORIA = S.SEQCATEGORIA AND
-           T.NROFORMAPAGTO = S.NROFORMAPAGTO AND
-           T.NRODIVISAO = S.NRODIVISAO)
+           T.SEQFAMILIA = S.SEQFAMILIA AND
+           T.NROFORMAPAGTO = S.NROFORMAPAGTO)
   WHEN MATCHED THEN
        UPDATE SET
           T.NROMAXIMOPARCELA = S.NROMAXIMOPARCELA,
@@ -3326,21 +3331,19 @@ BEGIN
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQPARCELA,
-          T.SEQCATEGORIA,
+          T.SEQFAMILIA,
           T.NROFORMAPAGTO,
-          T.NRODIVISAO,
           T.NROMAXIMOPARCELA,
           T.ATIVO) 
         VALUES(
           S.SEQPARCELA,
-          S.SEQCATEGORIA,
+          S.SEQFAMILIA,
           S.NROFORMAPAGTO,
-          S.NRODIVISAO,
           S.NROMAXIMOPARCELA,
           S.ATIVO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_parccategformapagto', 'carrega_parccategformapagto OK', SYSDATE, CURRENT_TIMESTAMP);
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_parcfamformapagto', 'carrega_parcfamformapagto OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
   
@@ -3353,8 +3356,8 @@ BEGIN
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_parccategformapagto',
-           'carrega_parccategformapagto ERRO',
+           'carrega_parcfamformapagto',
+           'carrega_parcfamformapagto ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
