@@ -70,7 +70,7 @@
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.15.000"
+			"versao": "4.0.16.000"
 		},
 		{
 			"nome": "VW_INT_C5_DIVISAO",
