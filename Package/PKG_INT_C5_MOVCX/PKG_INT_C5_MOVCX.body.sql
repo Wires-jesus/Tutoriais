@@ -94,11 +94,11 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
                                                       a.codfunccxatual AS "Codfunccx",
                                                       a.dtabertura AS "Dtmovimentocx",
                                                       a.dtabertura AS "Dtabertura", 
-                                                      NULL AS "Horaabertura",
-                                                      NULL AS "Minutoabertura",
-                                                      NULL AS "Dtfechamento",
-                                                      NULL AS "Horafechamento",
-                                                      NULL AS "Minutofechamento",
+                                                      a.HORAABERTURA AS "Horaabertura",
+                                                      a.MINUTOABERTURA AS "Minutoabertura",
+                                                      a.DTFECHAMENTO AS "Dtfechamento",
+                                                      a.HORAFECHAMENTO AS "Horafechamento",
+                                                      a.MINUTOFECHAMENTO AS "Minutofechamento",
                                                       a.seqdocto AS "Nummovimentopdv"))))
           INTO l_xmlfechamentomovcx
           FROM vw_int_c5_aberturacx a
