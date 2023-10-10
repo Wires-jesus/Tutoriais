@@ -8,15 +8,6 @@ SELECT
      TRUNC(SYSDATE) DTAHORINICIAL,
      TRUNC(SYSDATE) + 2000 DTAHORFINAL,
      DF.CODFINALIZADORA NROFORMAPAGTO,
-
-     (SELECT R.NRODIVISAO
-      FROM   PCDEPARAREGIAOC5 R
-      WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
-                                                             D.CODFILIAL,
-                                                             '1')
-     )NRODIVISAO,
-
-     ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', D.CODFILIAL, '1') NUMREGIAO,
      PROD.CODPROD SEQFAMILIA,
      D.CODDEPTO,
      D.CODSEC,
