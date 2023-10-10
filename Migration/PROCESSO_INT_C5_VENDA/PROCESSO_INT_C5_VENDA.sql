@@ -322,8 +322,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_FINALIZ_VENDA AS
 
 \
 
-
-
 CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS 
 ( SELECT  a.nroempresa codfilial,
         a.sequsuario codfunccx,
@@ -429,22 +427,8 @@ BEGIN
   
   elsif vEspecie = 'S' then
     begin
-      SELECT  a.CODCOB
-        INTO  vCodCob
-        FROM  monitorpdvmiddle.tb_doctopagto p,
-              monitorpdvmiddle.tb_formapagto f,
-            VW_INT_C5_COBRANCA_WINTHOR a
-     WHERE  p.nroformapagto = f.nroformapagto
-       AND  f.ESPECIE = a.ESPECIE
-         AND  p.seqitem = pSeqItem
-         AND  p.seqdocto = pSeqDocto
-         AND  p.nroempresa = pCodigoFilial
-         AND  p.nrocheckout = pNumeroCaixa
-         AND  ROWNUM = 1;
-     EXCEPTION
-       WHEN OTHERS THEN
-         vCodCob := 'D';
-     end;
+         vCodCob := 'CAR';
+    end;
      
   elsif vEspecie = 'G' then
    begin
