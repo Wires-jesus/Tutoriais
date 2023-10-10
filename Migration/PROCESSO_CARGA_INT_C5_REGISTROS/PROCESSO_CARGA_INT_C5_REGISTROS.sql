@@ -225,7 +225,7 @@ values (43, 'tb_parcperiodo')
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (44, 'tb_parccategformapagto')
+values (44, 'tb_parcfamformapagto')
 
 \
 
@@ -504,7 +504,7 @@ values (43, 43, 'Sincronização de tabela TB_PARCPERIODO', TRUNC(SYSDATE), 'D',
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (44, 44, 'Sincronização de tabela TB_PARCCATEGFORMAPAGTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parccategformapagto',  44,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (44, 44, 'Sincronização de tabela TB_PARCFAMFORMAPAGTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_parcfamformapagto',  44,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
 \
 
