@@ -3313,7 +3313,7 @@ BEGIN
   WHERE P.ATIVO = 'S';
   
   MERGE INTO monitorpdvmiddle.tb_parcfamformapagto T
-    USING (SELECT  
+    USING (SELECT DISTINCT 
                SEQPARCELA,
                SEQFAMILIA,
                NROFORMAPAGTO,
