@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "4.0.14.000"
+			"versao": "4.0.15.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -70,7 +70,7 @@
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.16.000"
+			"versao": "4.0.17.000"
 		},
 		{
 			"nome": "VW_INT_C5_DIVISAO",
