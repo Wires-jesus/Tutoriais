@@ -6758,7 +6758,9 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnSTCLIENTEGNRE               PCORCAVENDAI.STCLIENTEGNRE%TYPE, -- DDMEDICA-7697
          vnBASEICST                    PCORCAVENDAI.BASEICST%TYPE,      -- DDMEDICA-7697
          vnST                          PCORCAVENDAI.ST%TYPE,            -- DDMEDICA-7697
-         vnPTABELACONTRATO             PCORCAVENDAI.PTABELA%TYPE        -- DDVENDAS-32472
+         vnPTABELACONTRATO             PCORCAVENDAI.PTABELA%TYPE,        -- DDVENDAS-32472
+		 vnNUMVERBAREBCMV              PCORCAVENDAI.NUMVERBAREBCMV%TYPE
+		 
          );
     vrDadosOrcaI                       TRecDadosOrcaI;
 
@@ -6879,7 +6881,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnTipoConversaoPedLicit       PCPEDI.TIPOCONVERSAOPEDLICIT%TYPE,
          vvUnidadeConversaoPedLicit    PCPEDI.UNIDADECONVERSAOPEDLICIT%TYPE,
          vnFatorConversaoPedLicit      PCPEDI.FATORCONVERSAOPEDLICIT%TYPE,
-         vvDescricaoProdutoDanfe       PCPEDI.PRODDESCRICAODANFE%TYPE         
+         vvDescricaoProdutoDanfe       PCPEDI.PRODDESCRICAODANFE%TYPE,         
+		 vnNumverbarebcmv              pcpedi.numverbarebcmv%TYPE  
          );
     TYPE TTvIncluiItens                IS TABLE OF TRecIncluiItens INDEX BY BINARY_INTEGER;
     vtIncluiItens                      TTvIncluiItens;
@@ -7304,7 +7307,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vUNIDADECONVERSAOPEDLICIT PCPEDI.UNIDADECONVERSAOPEDLICIT%TYPE,
          nFATORCONVERSAOPEDLICIT   PCPEDI.FATORCONVERSAOPEDLICIT%TYPE,
          vPRODDESCRICAODANFE       PCPEDI.PRODDESCRICAODANFE%TYPE,
-         vPRODDESCRICAOCONTRATO    PCPEDI.PRODDESCRICAOCONTRATO%TYPE
+         vPRODDESCRICAOCONTRATO    PCPEDI.PRODDESCRICAOCONTRATO%TYPE,
+		 nNUMVERBAREBCMV           PCPEDI.NUMVERBAREBCMV%TYPE
          );
     vrItemPedido                   TRecItemPedido;
     vrLimpaItemPedido              TRecItemPedido;
@@ -9614,6 +9618,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    , PCPEDI.PERCCUSTFORNEC
                                    , PCPEDI.STCLIENTEGNRE -- DDMEDICA-7697
                                    , PCPEDI.BASEICST      -- DDMEDICA-7697
+								   , PCPEDI.NUMVERBAREBCMV
                                 FROM PCPEDI
                                WHERE (PCPEDI.NUMPED = pi_nNumPed)) LOOP
 
@@ -9840,6 +9845,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtIncluiItens(viIdxNew).vnPercCustFornec           := vc_ItensPed.PERCCUSTFORNEC;
               vtIncluiItens(viIdxNew).vnStClienteGnre            := vc_ItensPed.STCLIENTEGNRE; -- DDMEDICA-7697
               vtIncluiItens(viIdxNew).vnBaseIcst                 := vc_ItensPed.BASEICST;      -- DDMEDICA-7697
+			  vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vc_ItensPed.NUMVERBAREBCMV;
 
               -- NÃO PODE SENÃO PODE RETIRAR OS DESCONTOS FLEXÍVEIS
              /*
@@ -9979,6 +9985,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    , PCPEDI.VLREDPVENDASIMPLESNA
                                    , PCPEDI.VLREDCMVSIMPLESNAC
                                    , PCPEDI.CODFILIALRETIRA
+								   , PCPEDI.NUMVERBAREBCMV
                                 FROM PCPEDI
                                    , PCPROMOCAOMED
                                WHERE (PCPROMOCAOMED.CODPROMOCAOMED = PCPEDI.CODPROMOCAOMED)
@@ -10091,6 +10098,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vtIncluiItens(viIdxNew).vnVrRedCmvSimplesNac       := vc_ItensPed.VLREDCMVSIMPLESNAC;
                 vtIncluiItens(viIdxNew).vnCodSt                    := NULL; -->> Aqui como pode ser outro código de produto (Brinde) melhor deixar o Sistema pesquisar a Tributação
                 vtIncluiItens(viIdxNew).vvCodFilialRetira          := vc_ItensPed.CODFILIALRETIRA;
+                vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vc_ItensPed.Numverbarebcmv;				
 
               END IF; -- Fim Condição Se calculou  Bonificação em Mercadoria
 
@@ -10323,7 +10331,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         + NVL(PCORCAVENDAI.VLDESCREDUCAOCOFINS,0) )
                     ELSE
                       0
-                    END PTABELACONTRATO
+                    END PTABELACONTRATO,
+					PCORCAVENDAI.NUMVERBAREBCMV
                FROM PCORCAVENDAI
                    ,PCORCAVENDAC
                    ,PCPRODUT
@@ -10373,7 +10382,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vtIncluiItens(viIdxNew).vnBaseIcst                 := vrDadosOrcaI.vnBASEICST;        -- DDMEDICA-7697
             vtIncluiItens(viIdxNew).vnSt                       := vrDadosOrcaI.vnST;              -- DDMEDICA-7697            
             vtIncluiItens(viIdxNew).vnPtabelaContrato          := vrDadosOrcaI.vnPTABELACONTRATO; -- DDVENDAS-32472           
-
+			vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vrDadosOrcaI.vnNUMVERBAREBCMV;
             -- Controle de Rejeição
             vvRegistroValido := 'S';
             --vvMsgRejeicao    := NULL;
@@ -11240,6 +11249,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrItemPedido.nNUMVERBACAMPANHA       := vtIncluiItens(viNumSeq).vnNumVerbaCampanha;
             vrItemPedido.nVLVERBACMV             := vtIncluiItens(viNumSeq).vnVlVerbaCmv;
             vrItemPedido.nPERCCUSTFORNEC         := vtIncluiItens(viNumSeq).vnPercCustFornec;
+			vrItemPedido.nNUMVERBAREBCMV         := vtIncluiItens(viNumSeq).vnNumverbarebcmv;
 
             -- EAN do Produto - DDMEDICA-7318
             vrItemPedido.nCODAUXILIAR            := vtIncluiItens(viNumSeq).vnCodAuxiliar;
@@ -14195,7 +14205,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 P_INSERE_LOG(viLacoValidar, 'numverbacampanha: '     || vrItemPedido.nNUMVERBACAMPANHA);
                 --                                         
               ELSE
-                IF (vbUsaVerbaPromocao) THEN
+                IF (vbUsaVerbaPromocao) AND nvl(vrItemPedido.nNUMVERBAREBCMV,0) = 0  THEN
                   P_INSERE_LOG(viLacoValidar, 'Removendo OLD VLVERBACMV: ' || vrItemPedido.nVLVERBACMV);
                   vrItemPedido.nVLVERBACMV := NULL;
                 END IF;
