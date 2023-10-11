@@ -7685,52 +7685,18 @@ IS
                                                                                               AND PCPRODUT.DTEXCLUSAO IS NULL))
                                    OR ((psDESBLOQPRODFAMILIA = 'N') AND (PCEST.CODPROD = pnCODPROD))))
               LOOP
-                vnQTDE := 0;
-
-                BEGIN
-                  SELECT SUM(I.QTBLOQUEADA)
-                    INTO QTBONUS_ABERTO
-                    FROM PCBONUSC C, PCMOV I
-                   WHERE C.NUMBONUS = I.NUMBONUS
-                     AND I.CODFILIAL = C.CODFILIAL
-                     AND I.CODPROD = ESTOQUE.CODPROD
-                     AND I.CODFILIAL = ESTOQUE.CODFILIAL
-                     AND NVL(I.ESTOQUEDESBLOQUEADO, 'N') = 'N'
-                     AND C.DTFECHAMENTO IS NULL
-                     AND C.DTCANCEL IS NULL
-                     AND NVL(C.LIBERAESTENTMERC, 'N') = 'N'
-                     AND I.CODOPER LIKE 'E%'
-                     AND trunc(C.DATABONUS) > trunc(SYSDATE - 90)
-                     AND NVL(C.UTILIZOUPREENT, 'N') = 'N'
-                 GROUP BY I.CODPROD, I.CODFILIAL;
-                EXCEPTION
-                  WHEN NO_DATA_FOUND THEN
-                    QTBONUS_ABERTO := 0;
-                END;
-
-                -- Garante qtde indenizada do WMS
-                SELECT DECODE(vsUSAWMS, 'S',DECODE(pnQTENTRADABONUS, 0, GREATEST(ESTOQUE.SALDO_WMSAVARIADO, ESTOQUE.SALDO_ESTINDENIZ)  + QTBONUS_ABERTO + ESTOQUE.SALDO_ESTBLOQUEAR
-                                           ,GREATEST((ESTOQUE.SALDO_ESTBLOQUEAR + QTBONUS_ABERTO), GREATEST(ESTOQUE.SALDO_WMSAVARIADO, ESTOQUE.SALDO_ESTINDENIZ)))
-                                           ,DECODE(pnQTENTRADABONUS, 0, ESTOQUE.SALDO_ESTINDENIZ + QTBONUS_ABERTO
-                                           ,GREATEST(ESTOQUE.SALDO_ESTBLOQUEAR, 0, ESTOQUE.SALDO_ESTINDENIZ + QTBONUS_ABERTO)))
-                  INTO vnQTDE
-                  FROM DUAL;
-                -- Garante qtde indenizada do lote
-                IF vsUSAWMS = 'N' THEN
-                  vnQTDE := GREATEST(vnQTDE, ESTOQUE.SALDO_LOTEAVARIADO, 0);
-                END IF;
+                vnQTDE := pnQTDE;             
 
                 --------------------------------------
                 -- Atualizar pendente na PCEST */
-                P_INTERNO.CALCULA_ESTOQUE             := 'N';
+                P_INTERNO.CALCULA_ESTOQUE             := 'S';
                 P_INTERNO.vtESTOQUE                   := NULL;
                 P_INTERNO.TIPO_OPERACAO               := 'B';
                 P_INTERNO.vtESTOQUE.CODFILIAL         := ESTOQUE.CODFILIAL;
                 P_INTERNO.vtESTOQUE.CODPROD           := ESTOQUE.CODPROD;
                 P_INTERNO.vtESTOQUE.CODDEVOL          := pnCODDEVOL;
                 P_INTERNO.vtESTOQUE.MOTIVOBLOQESTOQUE := 'LIBERANDO APÓS PRECIFICAR';
-                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0));
-                P_INTERNO.vtESTOQUE.QTINDENIZ         := ESTOQUE.SALDO_ESTINDENIZ;
+                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0));               
                 PRIV_ATUALIZAR_ESTOQUE;
                 -- Validar se conseguiu atualizar o estoque
                 IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
@@ -7856,9 +7822,9 @@ IS
 			  
               QTDEVOLVWSM := 0;
 			  
-              IF (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_USAWMS', psCODFILIAL), 'N') = 'S') THEN
+              /*IF (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_USAWMS', psCODFILIAL), 'N') = 'S') THEN
                 QTDEVOLVWSM := NVL(WMS_QTFALTAAVARAIASEMDEVPEND(pnCODPROD, psCODFILIAL, 'B'), 0); 
-              END IF;
+              END IF;*/
               
               P_INTERNO.VTESTOQUE.QTBLOQUEADA := (P_INTERNO.VTESTOQUE.QTBLOQUEADA - QTDEVOLVWSM) - QTBONUS_ABERTO;
 			  
