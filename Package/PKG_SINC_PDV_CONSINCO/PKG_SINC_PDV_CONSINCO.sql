@@ -105,6 +105,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_comboitem(p_id IN pccontroleconsinco.id%TYPE);
 
+  PROCEDURE carrega_tb_combogrupo(p_id IN pccontroleconsinco.id%TYPE);
+
   PROCEDURE carrega_tb_parcelamento(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_parcempresa(p_id IN pccontroleconsinco.id%TYPE);
