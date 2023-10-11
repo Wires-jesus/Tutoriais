@@ -45,11 +45,11 @@ FROM
              PCREGIAO.UF,
              PCREGIAO.CODFILIAL
            FROM PCNCM,
-                PCREGIAO,
+                PCREGIAO/*,
                 (select min(s.ultimaexecucao) ultimaexecucao
                  from pccontroleconsinco s
                  where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
-                )DTPADRAO
+                )DTPADRAO*/
            WHERE PCNCM.CODNCMEX IS NOT NULL
            AND   PCNCM.CODEX IS NULL
            AND   PCREGIAO.NUMREGIAO IN (SELECT DISTINCT(VALOR)
@@ -58,7 +58,7 @@ FROM
                                         AND VALOR <> '99'
                                         AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                                         AND VALOR IS NOT NULL)
-           AND   NVL(PCNCM.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+           --AND   NVL(PCNCM.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
      )NCMFILIAL,
 
     (SELECT
@@ -68,15 +68,15 @@ FROM
        PCTRIBNCMFILIAL.percentfisicaimportado,
        PCTRIBNCMFILIAL.percfisicaestnac,
        PCTRIBNCMFILIAL.percfisicamunicnac
-     FROM PCTRIBNCMFILIAL, PCFILIAL,
+     FROM PCTRIBNCMFILIAL, PCFILIAL/*,
           (select min(s.ultimaexecucao) ultimaexecucao
            from pccontroleconsinco s
            where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
-           )DTPADRAO
+           )DTPADRAO*/
      WHERE PCTRIBNCMFILIAL.CODFILIAL = PCFILIAL.CODIGO
      AND   PCTRIBNCMFILIAL.CODFILIAL <> '99'
      AND   REGEXP_LIKE(PCTRIBNCMFILIAL.CODFILIAL, '^[[:digit:]]+$')
-     AND   NVL(PCTRIBNCMFILIAL.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+     --AND   NVL(PCTRIBNCMFILIAL.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
      )TRIBNCMFILIAL,
 
      (SELECT DISTINCT
@@ -87,11 +87,11 @@ FROM
            PCTABPR R,
            PCNCM N,
            PCPRODUT P,
-           PCREGIAO G,
+           PCREGIAO G/*,
           (select min(s.ultimaexecucao) ultimaexecucao
            from pccontroleconsinco s
            where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
-          )DTPADRAO
+          )DTPADRAO*/
       WHERE R.CODST = T.CODST
       AND   P.CODPROD = R.CODPROD
       AND   G.NUMREGIAO = R.NUMREGIAO
@@ -107,7 +107,7 @@ FROM
       AND   N.CODEX IS NULL
       AND   T.CODST IS NOT NULL
       AND   P.codncmex = N.CODNCM||'.'||N.CODEX
-      AND   NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+      --AND   NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
       GROUP BY P.codncmex, G.UF
      ) PRODTRIB
 
