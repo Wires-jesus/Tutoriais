@@ -1,7 +1,7 @@
-CREATE OR REPLACE FUNCTION "FUNC_RESUMOFATURAMENTO" (P_CODFILIAL IN VARCHAR2
+CREATE OR REPLACE FUNCTION FUNC_RESUMOFATURAMENTO(P_CODFILIAL IN VARCHAR2
                                                 , P_DATAINI IN DATE
                                                 , P_DATAFIM IN DATE
-                                                , P_TIPOPESQUISA IN INTEGER
+                                                , P_TIPOPESQUISA IN VARCHAR2
                                                 , /* Valores para o Tipo de pesquisa
                                                   1 Supervisor
                                                   2 Plano de pagamento
@@ -44,54 +44,54 @@ CREATE OR REPLACE FUNCTION "FUNC_RESUMOFATURAMENTO" (P_CODFILIAL IN VARCHAR2
                                                   39 Atividade principal
 
                                                   */
-                                                  P_TIPOVENDA10 IN INTEGER DEFAULT 0
-                                                , P_BONIFICACAO IN INTEGER DEFAULT 0
-                                                , P_DEVOLUCAO IN INTEGER DEFAULT 1
-                                                , P_DESCST IN INTEGER DEFAULT 0
-                                                , P_DESCIPI IN INTEGER DEFAULT 0
-                                                , P_META IN INTEGER DEFAULT 0
-                                                , P_LUCRO_LIQ IN INTEGER DEFAULT 0
+                                                  P_TIPOVENDA10 IN VARCHAR2 DEFAULT 0
+                                                , P_BONIFICACAO IN VARCHAR2 DEFAULT 0
+                                                , P_DEVOLUCAO IN VARCHAR2 DEFAULT 1
+                                                , P_DESCST IN VARCHAR2 DEFAULT 0
+                                                , P_DESCIPI IN VARCHAR2 DEFAULT 0
+                                                , P_META IN VARCHAR2 DEFAULT 0
+                                                , P_LUCRO_LIQ IN VARCHAR2 DEFAULT 0
                                                 , P_CONDVENDA IN VARCHAR2 DEFAULT NULL
-                                                , P_CONSIDTIPOFJ IN INTEGER DEFAULT 1
-                                                , P_CONSIDCONSUMIDORFINAL IN INTEGER DEFAULT 1
-                                                , P_CONSIDISENTO IN INTEGER DEFAULT 1
-                                                , P_CONSIDISENTA IN INTEGER DEFAULT 1
-                                                , P_SUPERVMOV IN INTEGER DEFAULT 0
-                                                , P_PRAZOADICIONAL IN INTEGER DEFAULT 1
+                                                , P_CONSIDTIPOFJ IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDCONSUMIDORFINAL IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDISENTO IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDISENTA IN VARCHAR2 DEFAULT 1
+                                                , P_SUPERVMOV IN VARCHAR2 DEFAULT 0
+                                                , P_PRAZOADICIONAL IN VARCHAR2 DEFAULT 1
                                                 , P_ORIGEMPED IN VARCHAR2 DEFAULT NULL
-                                                , P_CODSUPERVISOR IN INTEGER DEFAULT NULL
-                                                , P_CODRCA IN INTEGER DEFAULT NULL
-                                                , P_CODCLI IN INTEGER DEFAULT NULL
-                                                , P_NUMNOTA IN INTEGER DEFAULT NULL
-                                                , P_PLANOPAG IN INTEGER DEFAULT NULL
-                                                , P_CODPROD IN INTEGER DEFAULT NULL
+                                                , P_CODSUPERVISOR IN varchar2 DEFAULT NULL
+                                                , P_CODRCA IN varchar2 DEFAULT NULL
+                                                , P_CODCLI IN VARCHAR2 DEFAULT NULL
+                                                , P_NUMNOTA IN VARCHAR2 DEFAULT NULL
+                                                , P_PLANOPAG IN VARCHAR2 DEFAULT NULL
+                                                , P_CODPROD IN VARCHAR2 DEFAULT NULL
                                                 , P_UF IN VARCHAR2 DEFAULT NULL
-                                                , P_CODEPTO IN INTEGER DEFAULT NULL
+                                                , P_CODEPTO IN VARCHAR2 DEFAULT NULL
                                                 , P_CLASSE IN VARCHAR2 DEFAULT NULL
-                                                , P_CODEMITENTE IN INTEGER DEFAULT NULL
-                                                , P_CODFORNEC IN INTEGER DEFAULT NULL
+                                                , P_CODEMITENTE IN VARCHAR2 DEFAULT NULL
+                                                , P_CODFORNEC IN VARCHAR2 DEFAULT NULL
                                                 , P_CODCOB IN VARCHAR2 DEFAULT NULL
-                                                , P_CODRAMO IN INTEGER DEFAULT NULL
-                                                , P_CODSEC IN INTEGER DEFAULT NULL
-                                                , P_CONSIDERARDEVOLTV8 IN INTEGER DEFAULT 0
-                                                , P_CODGERENTE IN INTEGER DEFAULT NULL
-                                                , P_DESCVLREPASSE IN INTEGER DEFAULT 0
-                                                , P_DESCVLTABELA IN INTEGER DEFAULT 0
-                                                , P_CONSIDERANOTASAPROVADAS IN INTEGER DEFAULT 0
-                                                , P_DESCONSIDERARCLIVINCFORNEC IN INTEGER DEFAULT 0
-                                                , P_CODCATEGORIA IN INTEGER DEFAULT NULL
-                                                , P_CODSUBCATEGORIA IN INTEGER DEFAULT NULL
-                                                , P_CONSIDERACOBRANCATITULOS IN INTEGER DEFAULT 0
-                                                , P_NUMTRANSVENDA IN NUMBER DEFAULT 0
-                                                , P_CODFORNECPRINC IN NUMBER DEFAULT 0
-                                                , P_CODMARCA IN NUMBER DEFAULT 0
-                                                , P_CODLINHAPROD IN NUMBER DEFAULT 0
+                                                , P_CODRAMO IN VARCHAR2 DEFAULT NULL
+                                                , P_CODSEC IN VARCHAR2 DEFAULT NULL
+                                                , P_CONSIDERARDEVOLTV8 IN VARCHAR2 DEFAULT 0
+                                                , P_CODGERENTE IN VARCHAR2 DEFAULT NULL
+                                                , P_DESCVLREPASSE IN VARCHAR2 DEFAULT 0
+                                                , P_DESCVLTABELA IN VARCHAR2 DEFAULT 0
+                                                , P_CONSIDERANOTASAPROVADAS IN VARCHAR2 DEFAULT 0
+                                                , P_DESCONSIDERARCLIVINCFORNEC IN VARCHAR2 DEFAULT 0
+                                                , P_CODCATEGORIA IN VARCHAR2 DEFAULT NULL
+                                                , P_CODSUBCATEGORIA IN VARCHAR2 DEFAULT NULL
+                                                , P_CONSIDERACOBRANCATITULOS IN VARCHAR2 DEFAULT 0
+                                                , P_NUMTRANSVENDA IN VARCHAR2 DEFAULT 0
+                                                , P_CODFORNECPRINC IN VARCHAR2 DEFAULT 0
+                                                , P_CODMARCA IN VARCHAR2 DEFAULT 0
+                                                , P_CODLINHAPROD IN VARCHAR2 DEFAULT 0
                                                 , P_FILTROCODGERENTE IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODSUPERVISOR IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODUSUR IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODFORNEC IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODFORNECPRINC IN VARCHAR2 DEFAULT NULL
-                                                , P_CODRAMOPRINC IN INTEGER DEFAULT NULL
+                                                , P_CODRAMOPRINC IN varchar2 DEFAULT NULL
                                                 , P_CONSIDERA_APLIC_VERBA IN VARCHAR2 DEFAULT 'N')
  RETURN TABELA_FATURAMENTO
 IS
@@ -14568,21 +14568,21 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL := V_SQL || ' GROUP BY DEVOL.CONDVENDA ';
    END IF;
 
-	V_SQL := V_SQL || ') TOTAL,(SELECT DISTINCT PCNFSAID.CONDVENDA FROM PCNFSAID WHERE 1 = 1 ';
-	
-	IF P_CODFILIAL IS NOT NULL
-	THEN
-		V_SQL := V_SQL || ' AND PCNFSAID.CODFILIAL IN (' || P_CODFILIAL || ') ';
-	END IF;
-	
-	IF P_DATAINI IS NOT NULL
+  V_SQL := V_SQL || ') TOTAL,(SELECT DISTINCT PCNFSAID.CONDVENDA FROM PCNFSAID WHERE 1 = 1 ';
+  
+  IF P_CODFILIAL IS NOT NULL
+  THEN
+    V_SQL := V_SQL || ' AND PCNFSAID.CODFILIAL IN (' || P_CODFILIAL || ') ';
+  END IF;
+  
+  IF P_DATAINI IS NOT NULL
     THEN
-		V_SQL := V_SQL || ' AND PCNFSAID.DTSAIDA BETWEEN :DATAINI AND :DATAFIM ';
-	END IF;
+    V_SQL := V_SQL || ' AND PCNFSAID.DTSAIDA BETWEEN :DATAINI AND :DATAFIM ';
+  END IF;
    
     V_SQL := V_SQL || ') TIPOVENDA 
-				 WHERE TOTAL.CONDVENDA = TIPOVENDA.CONDVENDA(+)
-				 GROUP BY TIPOVENDA.CONDVENDA ORDER BY VLVENDA DESC ';
+         WHERE TOTAL.CONDVENDA = TIPOVENDA.CONDVENDA(+)
+         GROUP BY TIPOVENDA.CONDVENDA ORDER BY VLVENDA DESC ';
   WHEN P_TIPOPESQUISA = 12
   THEN
    -- Consulta por emitente
@@ -24944,7 +24944,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     THEN
      V_SQL := V_SQL || ' AND VENDAS.CODSUPERVISOR = ' || P_CODSUPERVISOR;
     ELSE
-     V_SQL := V_SQL || ' AND VENDAS.CODSUPERVMOV = ' || P_CODSUPERVISOR;
+     V_SQL := V_SQL || ' AND VENDAS.CODSUPERVMOV = ' ||' 1 ';-- P_CODSUPERVISOR;
     END IF;
    END IF;
 
@@ -27421,7 +27421,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
  --Gravar do Debug - Fim
 
 
-   EXECUTE IMMEDIATE TO_CHAR(V_SQL3)
+   EXECUTE IMMEDIATE (V_SQL3)
     INTO VLVENDATOT
     USING P_DATAINI
         , P_DATAFIM;
@@ -27934,8 +27934,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                                      SUM(PCNFSAID.PRAZOMEDIO * PCPREST.VALOR) / SUM(PCPREST.VALOR)) PRAZOMEDIO ';
        END IF;
       
-    	V_SQL := V_SQL || '  ,PCNFSAID.NUMTRANSVENDA ';
-	   
+      V_SQL := V_SQL || '  ,PCNFSAID.NUMTRANSVENDA ';
+     
         V_SQL := V_SQL ||'    FROM PCNFSAID, PCPEDC, PCUSUARI, PCPLPAG, PCCLIENT, PCPREST, PCCOB
                        WHERE PCPREST.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
                          AND PCPREST.CODCOB = PCCOB.CODCOB ';
@@ -28221,10 +28221,10 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     END IF;
 
     V_SQL := V_SQL || ' 0 VLVENDA, -1 VALORTOTALNOTA, 0 VLBONIFIC, 0 PRAZOMEDIO ';
-	
-	IF P_CONSIDERACOBRANCATITULOS = 1 THEN
-		V_SQL := V_SQL || ' , 0 AS NUMTRANSVENDA ';
-	END IF;
+  
+  IF P_CONSIDERACOBRANCATITULOS = 1 THEN
+    V_SQL := V_SQL || ' , 0 AS NUMTRANSVENDA ';
+  END IF;
 
     V_SQL := V_SQL || ' FROM ( '||V_SQL_VIEW_DEVOL||' ) DEVOL, PCCOB WHERE DEVOL.CODCOB = PCCOB.CODCOB ';
 
@@ -28389,15 +28389,15 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
          0 VLDEVOLUCAO, 0 VLDEVOLBONIFIC,
          0 VLCMVDEVOL, 0 DEVOLTAB, :VLVENDA VLVENDA, -1 VALORTOTALNOTA,
          0 VLBONIFIC, 0 PRAZOMEDIO ';
-		 
-	IF P_CONSIDERACOBRANCATITULOS = 1 THEN
-		V_SQL := V_SQL || ', 0 AS NUMTRANSVENDA ';
-	END IF;	 
-	
-	V_SQL := V_SQL || 'FROM DUAL ORDER BY VLVENDA DESC ';
+     
+  IF P_CONSIDERACOBRANCATITULOS = 1 THEN
+    V_SQL := V_SQL || ', 0 AS NUMTRANSVENDA ';
+  END IF;  
+  
+  V_SQL := V_SQL || 'FROM DUAL ORDER BY VLVENDA DESC ';
    END IF;
-	
-   IF P_CONSIDERACOBRANCATITULOS = 1 THEN	
+  
+   IF P_CONSIDERACOBRANCATITULOS = 1 THEN 
       V_SQL := V_SQL || ') TOTAL, PCNFSAID NOTA WHERE NOTA.NUMTRANSVENDA = TOTAL.NUMTRANSVENDA GROUP BY TOTAL.CODAUXILIAR, TOTAL.DESCRICAO ';
    ELSE
       V_SQL := V_SQL || ') TOTAL GROUP BY TOTAL.CODAUXILIAR, TOTAL.DESCRICAO ';
