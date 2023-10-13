@@ -1,5 +1,11 @@
 {
 	"nome" : "T_USER_VIEWS_COLLECTION",
 	"tipoPLSQL" : "TYPE",
-	"dependencias" : ""
+	"dependencias" : [
+	    {
+	      "nome": "T_USER_VIEWS",
+	      "tipo": "OBJETO_PLSQL",
+	      "versao": "2.1.01.000"
+	    }
+  	]
 }
