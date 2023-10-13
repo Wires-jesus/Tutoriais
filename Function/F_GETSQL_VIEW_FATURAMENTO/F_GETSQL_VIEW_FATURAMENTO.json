@@ -1,0 +1,11 @@
+{
+	"nome" : "F_GETSQL_VIEW_FATURAMENTO",
+	"tipoPLSQL" : "FUNCTION",
+	"dependencias" : [
+	    {
+	      "nome": "F_USER_VIEWS_PTF",
+	      "tipo": "OBJETO_PLSQL",
+	      "versao": "4.0.01.000"
+	    }
+  	]
+}
