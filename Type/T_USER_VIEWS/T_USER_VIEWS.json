@@ -1,5 +1,11 @@
 {
 	"nome" : "T_USER_VIEWS",
 	"tipoPLSQL" : "TYPE",
-	"dependencias" : ""
+	"dependencias" : [
+	    {
+	      "nome": "F_LONG_TO_CLOB",
+	      "tipo": "OBJETO_PLSQL",
+	      "versao": "2.1.01.000"
+	    }
+  	]
 }
