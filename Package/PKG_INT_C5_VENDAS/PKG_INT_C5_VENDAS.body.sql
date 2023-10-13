@@ -93,18 +93,21 @@ IS
 								WHERE M.SEQDOCTO = c.seqdocto
 								  AND M.NUMCAIXA = c.numcaixa
 								  AND M.CODFILIAL = c.codfilial
+								  AND M.TIPOOPERACAO  = 'VEND'
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = c.seqdocto
 								  AND MH.NUMCAIXA = TO_CHAR(c.numcaixa)
 								  AND MH.CODFILIAL = c.codfilial
+								  AND MH.TIPOOPERACAO  = 'VEND'
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMERRO ME
 								WHERE ME.SEQDOCTO = c.seqdocto
 								  AND ME.NUMCAIXA = c.numcaixa
-								  AND ME.CODFILIAL = c.codfilial);
+								  AND ME.CODFILIAL = c.codfilial
+								  AND ME.TIPOOPERACAO  = 'VEND');
 
         r_pedido             c_pedido%ROWTYPE;
         l_xmltype            XMLTYPE;
