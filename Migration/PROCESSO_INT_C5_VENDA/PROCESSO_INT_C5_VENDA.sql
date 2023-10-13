@@ -1310,7 +1310,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
    AND  e.nroempresa = x.nroempresa
    AND  e.nrocheckout = x.nrocheckout
    AND  e.seqdocto = x.seqdocto
-   AND  c.status = 'V'
+   AND  c.status IN ('V', 'C')
    AND  a.replicacao = 'P'
    AND  e.protocoloenvio IS NOT NULL
    AND  NVL(fnc_int_c5_vltotal(a.seqdocto, a.nrocheckout, a.nroempresa), 0) > 0
@@ -1610,7 +1610,7 @@ AS
    AND  i.codacesso = h.codauxiliar(+)
    and  i.nroempresa = h.codfilial(+)
    AND  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',d.nroempresa,1)
-   AND  c.status = 'V'
+   AND  c.status in ('V', 'C')
    AND  i.status = 'V')
    
 \
