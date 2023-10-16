@@ -69,3 +69,26 @@ SELECT P.NUMCAIXA,
   AND P.CODFILIAL = C5.CODFILIAL
   AND P.DTFIM IS NULL
 )
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_FAT_CANCELAMENTO AS
+(
+select  c.nroempresa codfilial,
+		 m.dtahoremissao datatransacao,
+		 c.status,
+		 m.NROCHECKOUT,
+		 c.seqdocto
+  from monitorpdvmiddle.tb_docto      m,
+       monitorpdvmiddle.tb_doctocupom c, 
+       monitorpdvmiddle.tb_doctonfe    e
+ where m.seqdocto = c.seqdocto
+   and m.nroempresa =  c.nroempresa
+   and m.NROCHECKOUT = c.NROCHECKOUT
+   AND e.nroempresa = c.nroempresa
+   and e.nrocheckout = c.nrocheckout
+   and e.seqdocto = c.seqdocto
+   and e.protocoloenvio is not null
+   and e.protocolocancelamento is not null
+   AND M.ESPECIE IN ('NF', 'CF')
+)
