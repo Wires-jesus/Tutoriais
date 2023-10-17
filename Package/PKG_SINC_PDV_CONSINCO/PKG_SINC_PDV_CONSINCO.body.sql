@@ -973,7 +973,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           AND   F.CODFILIAL = E.codigo
           AND   f.codcob = c.codcob(+)
           AND   E.codigo >= '0'
-          AND   E.codigo < '99'
+          --AND   E.codigo < '99'
           AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
                 NVL(c.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
                 NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao))b
