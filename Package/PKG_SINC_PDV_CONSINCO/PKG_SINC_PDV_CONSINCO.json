@@ -110,7 +110,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.39.000"
+			"versao": "4.0.40.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "4.0.19.000"
+			"versao": "4.0.20.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
