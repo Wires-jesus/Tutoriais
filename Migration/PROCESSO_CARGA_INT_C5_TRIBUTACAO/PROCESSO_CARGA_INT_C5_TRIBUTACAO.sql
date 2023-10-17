@@ -33,7 +33,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 percaliqfcpst,
             c.calcicmsdeson,
             c.percdesoneracao percaliqicmsdeson,
-            0 percaliqicmsdeson,
             c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
             t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) codobservacao,
