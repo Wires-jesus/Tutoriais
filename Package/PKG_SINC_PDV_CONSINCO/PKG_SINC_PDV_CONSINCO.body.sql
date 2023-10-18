@@ -1028,7 +1028,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
+      MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
         USING (SELECT distinct * FROM VW_INT_C5_FORMAPAGTOEMPRESA) b
 
       ON (s.nroformapagto = b.nroformapagto  AND s.nrosegmento = b.nrosegmento  AND s.nroempresa = b.nroempresa)
@@ -1052,6 +1052,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.alternativa      = b.alternativa,
                s.faturamento      = b.faturamento,
                s.idref            = b.codCob,
+               s.ativo            = b.ativo,
                s.nroParcelaJuro   = b.nroParcelaJuro
       WHEN NOT MATCHED THEN
         INSERT
@@ -1075,6 +1076,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.nrosegmento,
              s.nroempresa,
              s.idref,
+             s.ativo,
              s.nroParcelaJuro
              )
           VALUES
@@ -1098,6 +1100,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrosegmento,
              b.nroempresa,
              b.codCob,
+             b.ativo,
              b.nroParcelaJuro);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
