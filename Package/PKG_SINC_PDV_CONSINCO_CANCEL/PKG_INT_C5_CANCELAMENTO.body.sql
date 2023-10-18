@@ -292,114 +292,42 @@ IS
             RETURN dados_pcfilamensagem;
         END retornar_pcfilamensagem_canc;
 
-        PROCEDURE gerar_venda_caso_nao_exista (
-            p_r_canc_cabecalho    c_canc_cabecalho%ROWTYPE)
-        IS
-            vcontavenda   NUMBER;
-            vTentativas   NUMBER;
-            vReplicacao   VARCHAR2(1);
-            PROCEDURE verificar_se_venda_existe
-            IS
-            BEGIN
-                SELECT SUM (contavenda)
-                  INTO vcontavenda
-                  FROM (SELECT DISTINCT contavenda
-                          FROM (SELECT COUNT (1) contavenda
-                                  FROM pcfilamensagem s
-                                 WHERE 0 = 0
-                                   AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
-                                   AND codfilial = p_r_canc_cabecalho.codfilial
-                                   AND numcaixa = p_r_canc_cabecalho.numcaixa
-                                   AND s.tipooperacao = 'VEND'
-                                UNION ALL
-                                SELECT COUNT (1) contavenda
-                                  FROM pcfilamensagemerro s
-                                 WHERE 0 = 0
-                                   AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
-                                   AND codfilial = p_r_canc_cabecalho.codfilial
-                                   AND numcaixa = p_r_canc_cabecalho.numcaixa
-                                   AND s.tipooperacao = 'VEND'
-                                UNION ALL
-                                SELECT COUNT (1) contavenda
-                                  FROM pcfilamensagemhistorico s
-                                 WHERE 0 = 0
-                                   AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
-                                   AND codfilial = p_r_canc_cabecalho.codfilial
-                                   AND numcaixa = TO_CHAR(p_r_canc_cabecalho.numcaixa)
-                                   AND s.tipooperacao = 'VEND'));
-            END;
-        BEGIN
-            verificar_se_venda_existe;
+        FUNCTION verificar_se_venda_existe(p_r_canc_cabecalho c_canc_cabecalho%ROWTYPE)
+          RETURN BOOLEAN IS
+          vcontavenda NUMBER;
         
-            IF (vcontavenda = 0)
-            THEN
-               vTentativas := 0;
-               WHILE (vcontavenda = 0) and vTentativas < 3
-               LOOP
-                 BEGIN
-                   SELECT replicacao
-                   INTO vReplicacao
-                   FROM monitorpdvmiddle.tb_docto
-                   WHERE ROWID = p_r_canc_cabecalho.rowid_tb_docto;
-                 END;  
-                  
-                 IF vReplicacao = 'F' THEN
-                    
-                   UPDATE monitorpdvmiddle.tb_docto s
-                   SET replicacao = 'P'
-                   WHERE ROWID = p_r_canc_cabecalho.rowid_tb_docto;
-                   
-                 END IF;
-                 
-                 BEGIN
-                   PKG_INT_C5_VENDAS.PROCESSAR_VENDA(P_R_CANC_CABECALHO.SEQDOCTO,
-                                                     P_R_CANC_CABECALHO.NUMCAIXA,
-                                                     P_R_CANC_CABECALHO.CODFILIAL);
-                                                     
-                   
-                 END;
-                                   
-                 vTentativas := vTentativas + 1;
-                 verificar_se_venda_existe;
-               END LOOP;
-                --ATUALIZA O REGISTRO NA TABELA CONSINCO
-
-/*                UPDATE monitorpdvmiddle.tb_docto s
-                   SET replicacao = 'P'
-                 WHERE ROWID = p_r_canc_cabecalho.rowid_tb_docto;
-
-
-                UPDATE monitorpdvmiddle.tb_doctocupom s
-                   SET status = 'V'
-                 WHERE seqdocto = p_r_canc_cabecalho.seqdocto
-                   AND nrocheckout = p_r_canc_cabecalho.numcaixa
-                   AND nroempresa = p_r_canc_cabecalho.codfilial
-                   AND s.status = 'C';
-
-                --COMMIT;
-
-                \*
-                    PKG_INT_C5_VENDAS.PROCESSAR_VENDA(P_R_CANC_CABECALHO.SEQDOCTO,
-                                    P_R_CANC_CABECALHO.NUMCAIXA,
-                                    P_R_CANC_CABECALHO.CODFILIAL);
-                *\
-
-                UPDATE monitorpdvmiddle.tb_doctocupom s
-                   SET status = 'C'
-                 WHERE seqdocto = p_r_canc_cabecalho.seqdocto
-                   AND nrocheckout = p_r_canc_cabecalho.numcaixa
-                   AND nroempresa = p_r_canc_cabecalho.codfilial
-                   AND s.status = 'V';*/
-
-                --verificar_se_venda_existe;
-
-                /*IF (vcontavenda = 0)
-                THEN
-                    RAISE e_venda_nao_existe;
-                END IF;*/
-            END IF;
-
-            --COMMIT;
+        BEGIN
+        
+          BEGIN
+            SELECT SUM(contavenda)
+              INTO vcontavenda
+              FROM (SELECT DISTINCT contavenda
+                      FROM (SELECT COUNT(1) contavenda
+                              FROM pcfilamensagem s
+                             WHERE 0 = 0
+                               AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
+                               AND codfilial = p_r_canc_cabecalho.codfilial
+                               AND numcaixa = p_r_canc_cabecalho.numcaixa
+                               AND s.tipooperacao = 'VEND'
+                            UNION ALL
+                            SELECT COUNT(1) contavenda
+                              FROM pcfilamensagemerro s
+                             WHERE 0 = 0
+                               AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
+                               AND codfilial = p_r_canc_cabecalho.codfilial
+                               AND numcaixa = p_r_canc_cabecalho.numcaixa
+                               AND s.tipooperacao = 'VEND'
+                            UNION ALL
+                            SELECT COUNT(1) contavenda
+                              FROM pcfilamensagemhistorico s
+                             WHERE 0 = 0
+                               AND s.Seqdocto = p_r_canc_cabecalho.seqdocto
+                               AND codfilial = p_r_canc_cabecalho.codfilial
+                               AND numcaixa =
+                                   TO_CHAR(p_r_canc_cabecalho.numcaixa)
+                               AND s.tipooperacao = 'VEND'));
+          END;
+          RETURN(vcontavenda > 0);
         END;
 
         PROCEDURE adicionarregrascabecalhonf (
@@ -440,8 +368,10 @@ IS
 
         WHILE c_canc_cabecalho%FOUND
         LOOP
+		
+		  IF (verificar_se_venda_existe(r_canc_cabecalho)) THEN
             BEGIN
-                gerar_venda_caso_nao_exista (r_canc_cabecalho);
+                --gerar_venda_caso_nao_exista (r_canc_cabecalho);
 
                 -- REGRAS DO CABE ALHO DO CANCELAMENTO
                 adicionarregrascabecalhonf (r_canc_cabecalho);
@@ -493,7 +423,10 @@ IS
                     --COMMIT;
 
                     pkg_sinc_pdv_consinco_util.inserir_pcfilamensagem_erro(dados_pcfilamensagem,mensagemerro);
-            END;
+            END;		  
+		  END IF;
+		  
+
 
             FETCH c_canc_cabecalho   INTO r_canc_cabecalho;
         END LOOP;
