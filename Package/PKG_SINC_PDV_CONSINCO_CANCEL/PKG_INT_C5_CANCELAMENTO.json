@@ -16,6 +16,21 @@
 	  "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
 	  "tipo": "MIGRATION",
 	  "versao": "4.0.01.000"
+	},
+	{
+	  "nome": "PCFILAMENSAGEM",
+	  "tipo": "TABELA",
+	  "versao": "4.0.03.000"
+	},
+	{
+	  "nome": "PCFILAMENSAGEMHISTORICO",
+	  "tipo": "TABELA",
+	  "versao": "4.0.02.000"
+	},
+	{
+	  "nome": "PCFILAMENSAGEMERRO",
+	  "tipo": "TABELA",
+	  "versao": "4.0.02.000"
 	}	
   ]
 }
