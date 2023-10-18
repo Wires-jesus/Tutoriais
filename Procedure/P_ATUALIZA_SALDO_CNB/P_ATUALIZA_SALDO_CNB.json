@@ -1,0 +1,1 @@
+{"nome":"P_ATUALIZA_SALDO_CNB","tipoPLSQL":"PROCEDURE","dependencias":[{"nome":"PCFILASALDOCNB","tipo":"TABELA","versao":"3.0.01.000"},{"nome":"PCSALDOPARCEIROS","tipo":"TABELA","versao":"3.0.01.000"}]}
