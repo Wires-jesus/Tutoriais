@@ -1028,7 +1028,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
+      MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
         USING (SELECT distinct * FROM VW_INT_C5_FORMAPAGTOEMPRESA) b
 
       ON (s.nroformapagto = b.nroformapagto  AND s.nrosegmento = b.nrosegmento  AND s.nroempresa = b.nroempresa)
