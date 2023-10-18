@@ -40,7 +40,7 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
-        PRAGMA AUTONOMOUS_TRANSACTION;
+        --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
@@ -71,7 +71,7 @@ IS
         VALUES
             rowpcfilamensagemerro;
 
-        COMMIT;
+        --COMMIT;
     ----
     END inserir_pcfilamensagem_erro;
     --
@@ -885,6 +885,9 @@ IS
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
                 inserir_pcfilamensagem(dados_pcfilamensagem);
+				if r_pedido.status = 'C'  then
+                  PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
+                end if;
 
                 --ATUALIZA O REGISTRO na tabela consinco
                 /*UPDATE monitorpdvmiddle.tb_docto
