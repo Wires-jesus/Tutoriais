@@ -1295,7 +1295,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         null horacontingencia,
         null fretedespacho,
         null fichasimportadas,
-        e.chavenf chavenfce
+        e.chavenf chavenfce,
+		c.status
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_doctonfe    e,
