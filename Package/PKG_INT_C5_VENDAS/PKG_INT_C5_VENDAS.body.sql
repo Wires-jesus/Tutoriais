@@ -761,7 +761,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.tipomensagem     := 1;
             dados_pcfilamensagem.rowpcfilamensagem.codigoerro       := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
-            dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'consinco';
+            dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
 
             RETURN dados_pcfilamensagem;
