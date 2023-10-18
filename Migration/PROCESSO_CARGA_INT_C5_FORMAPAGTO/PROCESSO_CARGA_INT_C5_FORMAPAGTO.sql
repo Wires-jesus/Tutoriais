@@ -83,6 +83,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
      nvl(f.PARCELAINICIOJUROS, 0) NROPARCELAJURO
    FROM
       VW_INT_C5_ESPECIE_FORMAPGTO vef,
+      MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
       pcfilial e,
       pcfinalizadora   f,
       pccob            o,
@@ -100,6 +101,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    and   f.codfinalizadora is not null
    AND   E.codigo >= '0'
    AND   E.codigo < '99'
+   AND   E.CODIGO = TBEMP.NROEMPRESA
+   AND   F.CODFILIAL = TBEMP.NROEMPRESA
    AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
@@ -150,6 +153,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    FROM PCFINALIZADORA F,
         PCFILIAL E,
         VW_INT_C5_ESPECIE_FORMAPGTO vef,
+        MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
         pccob            o,
         pcplpag          p,
         (
@@ -164,6 +168,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
    AND   E.codigo >= '0'
+   AND   E.CODIGO = TBEMP.NROEMPRESA
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
