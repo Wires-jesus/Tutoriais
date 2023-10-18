@@ -54,11 +54,9 @@ BEGIN
                          S.CODFILIAL,
                          S.CODPLANOCONTA,
                          MAX(S.CODIGO) CODIGO,
-                         S.CODCONTA_PC,
-                         S.ROTINA,
+                         S.CODCONTA_PC,                         
                          S.TIPOPARCEIRO,
-                         S.CODPARCEIRO
-                         
+                         S.CODPARCEIRO                         
                     FROM PCFILASALDOCNB S
 		    	   WHERE NVL(TIPOPARCEIRO, '0') <> '0'
                    GROUP BY S.MES,
@@ -66,13 +64,12 @@ BEGIN
                             S.CODREDUZIDO_PC,
                             S.CODFILIAL,
                             S.CODPLANOCONTA,
-                            S.CODCONTA_PC,
-                            S.ROTINA,
+                            S.CODCONTA_PC,                            
                             S.TIPOPARCEIRO,
                             S.CODPARCEIRO
                             ORDER BY S.ANO, S.MES, S.CODREDUZIDO_PC, S.CODPARCEIRO) LOOP
 
-      V_ROTINA := DADOS.ROTINA;
+      V_ROTINA := 'COD. REDUZIDO_PC:' || DADOS.CODREDUZIDO_PC || ' COD. FILIAL:' || DADOS.CODFILIAL;
       V_PASSO  := '--PASSO 6';
       IF DADOS.CODCONTA_PC IS NULL THEN
         V_PASSO := '--PASSO 7';
