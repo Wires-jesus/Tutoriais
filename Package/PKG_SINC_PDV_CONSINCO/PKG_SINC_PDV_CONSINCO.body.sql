@@ -403,7 +403,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_cliente s
         USING (SELECT C.*
-               FROM VW_INT_C5_CLIPESSOA C
+               FROM VW_INT_C5_CLIPESSOA C,
+                 MONITORPDVMIDDLE.TB_PESSOA T
+               WHERE T.SEQPESSOA = C.SEQPESSOA    
                ) b
 
       ON (s.seqpessoa = b.seqpessoa)
@@ -887,7 +889,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         USING (SELECT c.seqpessoa,
                       c.nrosegmento,
                       c.ativo
-               FROM VW_INT_C5_CLIPESSOA C) b
+               FROM VW_INT_C5_CLIPESSOA C,
+                 MONITORPDVMIDDLE.TB_PESSOA T
+               WHERE T.SEQPESSOA = C.SEQPESSOA
+               ) b
 
       ON (s.seqpessoa = b.seqpessoa and s.nrosegmento = b.nrosegmento)
       WHEN MATCHED THEN
