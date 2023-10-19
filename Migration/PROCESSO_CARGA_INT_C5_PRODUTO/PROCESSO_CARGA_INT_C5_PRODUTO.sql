@@ -47,7 +47,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          'S' ativo,
          MAX(p.codmarca) seqmarca,
          1 seqfamgrupo,
-         MAX(p.pesovariavel) PESAVEL,
+         --MAX(p.pesovariavel) PESAVEL,
+         (CASE
+            WHEN  MIN(p.tipoembalagem) = 'P' THEN
+                  'S'
+            ELSE  'N'
+         END)PESAVEL,
          MIN(NVL(p.indescalarelevante, 'S')) indescala,
          MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
          MAX(p.codauxiliartrib) eantrib,
