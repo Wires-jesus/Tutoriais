@@ -1,60 +1,51 @@
 CREATE OR REPLACE VIEW VW_INT_C5_USUARIO AS
 (
-SELECT r.codfilial,
-       r.codusur,
-       r.matricula sequsuario,
-       1 seqpessoa,
-       SUBSTR(r.nome, 1, 40) nome,
-       SUBSTR(NVL(r.nome_guerra, r.nome), 1, 30) apelido,
-       null senha,  --fnc_int_c5_pwd(r.matricula) senha,
-       (CASE
-            WHEN r.codsetor = TBFISCAL.fiscal THEN 0
+  SELECT R.CODFILIAL,
+        R.CODUSUR,
+        R.MATRICULA SEQUSUARIO,
+        1 SEQPESSOA,
+        SUBSTR(R.NOME, 1, 40) NOME,
+        SUBSTR(NVL(R.NOME_GUERRA, R.NOME), 1, 30) APELIDO,
+        NULL SENHA,  --FNC_INT_C5_PWD(R.MATRICULA) SENHA,
+        (CASE
+            WHEN R.CODSETOR = G.CODGRUPO THEN 0
             ELSE 1
-        END) nivel,
-       r.dtexpirasenha dtaexpirar,
-       (CASE
-            WHEN NVL(r.perdescmaxitem, 0) > 0 THEN r.perdescmaxitem
-            WHEN TO_NUMBER(TBPERDESC.PERDESC) > 0 THEN TBPERDESC.PERDESC
+        END) NIVEL,
+        R.DTEXPIRASENHA DTAEXPIRAR,
+        (CASE
+            WHEN NVL(R.PERDESCMAXITEM, 0) > 0 THEN R.PERDESCMAXITEM
+            WHEN TO_NUMBER(G.PERCDESCMAX) > 0 THEN G.PERCDESCMAX
             ELSE 0
-        END) percdescmaximo,
-       SUBSTR(r.email, 80) email,
-       (CASE
-            WHEN r.dt_exclusao IS NULL
-                 AND NVL(r.situacao, 'A') = 'A' THEN 'S'
+        END) PERCDESCMAXIMO,
+        SUBSTR(R.EMAIL, 80) EMAIL,
+        (CASE
+            WHEN R.DT_EXCLUSAO IS NULL AND NVL(R.SITUACAO, 'A') = 'A' THEN 'S'
             ELSE 'N'
-        END) ativo,
-       r.codsetor CODGRUPO,
-       r.FUNCAO NOMEGRUPO,
-       TBPERDESC.PERDESC PERCDESCMAX
-FROM pcempr r,
-    (SELECT valor OPER
-     FROM pcparamfilial
-     WHERE nome = 'CON_CODSETOROPERCX'
-       AND codfilial = '99') TBOPER,
-
-    (SELECT valor FISCAL
-     FROM pcparamfilial
-     WHERE nome = 'CON_CODSETORFISCALCX'
-       AND codfilial = '99') TBFISCAL,
-
-    (SELECT NVL(TO_NUMBER(valor), 0) PERDESC
-     FROM pcparamfilial
-     WHERE nome = 'CON_PERMAXDESCITEMCF'
-       AND codfilial = '99') TBPERDESC,
-
-     pcusuari i,
-
-    (SELECT min(s.ultimaexecucao) ultimaexecucao
-     FROM pccontroleconsinco s
-     WHERE  (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO')
-         or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_GRUPOUSUARIO')
+        END) ATIVO,
+        R.CODSETOR CODGRUPO,
+        R.FUNCAO NOMEGRUPO,
+        G.PERCDESCMAX
+  FROM PCEMPR R
+  INNER JOIN VW_INT_C5_USUARIO_GRUPO G
+  ON (R.CODSETOR = G.CODGRUPO),
+    PCUSUARI I,
+    (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
+    FROM PCCONTROLECONSINCO S
+    WHERE  (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO')
+        OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_GRUPOUSUARIO')
     ) DTPADRAO
-
-   WHERE r.codusur = i.codusur
-     AND i.codsupervisor IS NOT NULL
-     AND i.dtexclusao IS NULL
-     AND r.codusur > 0
-     AND r.matricula > 0
-     AND r.codsetor IN (TBFISCAL.fiscal, TBOPER.oper)
-     AND NVL(r.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+    WHERE R.CODUSUR = I.CODUSUR
+      AND I.CODSUPERVISOR IS NOT NULL
+      AND R.CODUSUR > 0
+      AND R.MATRICULA > 0
+      AND (NVL(R.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+        OR CODSETOR IN (SELECT
+                          CODGRUPO
+                        FROM VW_INT_C5_USUARIO_GRUPO V
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPO G
+                        ON (G.SEQGRUPO = V.CODGRUPO AND G.ATIVO = 'S')
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPOUSUARIO GU
+                        ON (GU.SEQGRUPO = V.CODGRUPO AND GU.ATIVO = 'S')
+                        WHERE G.SEQGRUPO IS NULL OR GU.SEQGRUPO IS NULL)
+      )
 )

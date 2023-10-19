@@ -15,13 +15,13 @@ SELECT
          WHEN HORAINICIAL IS NOT NULL THEN
             HORAINICIAL
          ELSE
-            DTINICIAL
+           TO_DATE(DTINICIAL || ' 00:00:01','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN') 
       END)                        AS DTAHORINICIO,
       (CASE
          WHEN HORAFINAL IS NOT NULL THEN
             HORAFINAL
           ELSE
-            DTFINAL
+            TO_DATE(DTFINAL || ' 23:59:59','DD-MM-YY HH24:MI:SS','NLS_DATE_LANGUAGE = AMERICAN') 
       END)                         AS DTAHORFIM,
        '2011'                      AS IDREF
   FROM PCOFERTAPROGRAMADAC A,
@@ -108,7 +108,7 @@ SELECT DISTINCT
         PCDEPARAEMBALAGENSC5 P,
         monitorpdvmiddle.tb_produto C,
         monitorpdvmiddle.tb_regraincentivo D,
-
+        VW_INT_C5_OBTER_FILIAIS_C5 C5,
         (select min(s.ultimaexecucao) ultimaexecucao
          from pccontroleconsinco s
          where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
@@ -120,6 +120,7 @@ SELECT DISTINCT
   --AND    C.SEQPRODUTO = E.CODAUXILIAR
   --AND    C.SEQPRODUTO = ora_hash(OFERTA_HIST.codauxiliar, 2147483647)
   AND    E.CODAUXILIAR = P.CODAUXILIAR
+  AND    E.CODFILIAL =  C5.CODFILIAL
   AND    OFERTA_HIST.CODAUXILIAR = P.CODAUXILIAR
   AND    C.SEQPRODUTO = P.SEQPRODUTO
   AND    D.SEQREGRA = OFERTA_HIST.CODFILIAL||2011||OFERTA_HIST.CODOFERTA

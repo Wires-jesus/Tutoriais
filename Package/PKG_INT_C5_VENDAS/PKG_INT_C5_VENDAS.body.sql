@@ -40,7 +40,7 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
-        PRAGMA AUTONOMOUS_TRANSACTION;
+        --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
@@ -71,7 +71,7 @@ IS
         VALUES
             rowpcfilamensagemerro;
 
-        COMMIT;
+        --COMMIT;
     ----
     END inserir_pcfilamensagem_erro;
     --
@@ -87,7 +87,27 @@ IS
               FROM vw_int_c5_pcpedcecf c
              WHERE c.seqdocto  = DECODE(p_seqdocto,0,c.seqdocto,p_seqdocto)
                AND c.NUMCAIXA  = DECODE(p_nrocheckout,0,c.NUMCAIXA ,p_nrocheckout)
-               AND c.codfilial = DECODE(p_nroempresa,0,c.codfilial,p_nroempresa);
+               AND c.codfilial = DECODE(p_nroempresa,0,c.codfilial,p_nroempresa)
+			   AND NOT EXISTS (SELECT 1
+                                 FROM PCFILAMENSAGEM M
+								WHERE M.SEQDOCTO = c.seqdocto
+								  AND M.NUMCAIXA = c.numcaixa
+								  AND M.CODFILIAL = c.codfilial
+								  AND M.TIPOOPERACAO  = 'VEND'
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMHISTORICO MH
+								WHERE MH.SEQDOCTO = c.seqdocto
+								  AND MH.NUMCAIXA = TO_CHAR(c.numcaixa)
+								  AND MH.CODFILIAL = c.codfilial
+								  AND MH.TIPOOPERACAO  = 'VEND'
+								UNION ALL
+							   SELECT 1
+								 FROM PCFILAMENSAGEMERRO ME
+								WHERE ME.SEQDOCTO = c.seqdocto
+								  AND ME.NUMCAIXA = c.numcaixa
+								  AND ME.CODFILIAL = c.codfilial
+								  AND ME.TIPOOPERACAO  = 'VEND');
 
         r_pedido             c_pedido%ROWTYPE;
         l_xmltype            XMLTYPE;
@@ -293,7 +313,8 @@ IS
                                        rowvw_pcpediecf.vlpis AS  "Vlpis" ,
                                        rowvw_pcpediecf.vlsubtotitem AS  "Vlsubtotitem" ,
                                        rowvw_pcpediecf.vlricmssimplesnac AS  "Vlricmssimplesnac" ,
-                                       rowvw_pcpediecf.vpart AS  "Vpart" ))))
+                                       rowvw_pcpediecf.vpart AS  "Vpart"
+									   ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
                  WHERE rowvw_pcpediecf.seqdocto = p_pedido.seqdocto
@@ -473,7 +494,9 @@ IS
                                    p_pedido.vlatend AS "Vlatend",
                                    p_pedido.vltabela AS "Vltabela",
                                    p_pedido.vlsubtotal AS "Vlsubtotal",
-                                   p_pedido.vltotalcomtroco AS "Vltotalcomtroco" )))
+                                   p_pedido.vltotalcomtroco AS "Vltotalcomtroco" ,
+								   0 AS "Multiplospedidos",
+								   0 AS "Idprevenda" )))
                   INTO l_xmlcabecalho
                   FROM DUAL;
 
@@ -738,7 +761,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.tipomensagem     := 1;
             dados_pcfilamensagem.rowpcfilamensagem.codigoerro       := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
-            dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'consinco';
+            dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
 
             RETURN dados_pcfilamensagem;
@@ -862,11 +885,14 @@ IS
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
                 inserir_pcfilamensagem(dados_pcfilamensagem);
+				if r_pedido.status = 'C'  then
+                  PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
+                end if;
 
                 --ATUALIZA O REGISTRO na tabela consinco
-                UPDATE monitorpdvmiddle.tb_docto
+                /*UPDATE monitorpdvmiddle.tb_docto
                    SET replicacao = 'F'
-                 WHERE ROWID = r_pedido.rowid_tb_docto;
+                 WHERE ROWID = r_pedido.rowid_tb_docto;*/
 
                 --COMMIT;
             EXCEPTION
@@ -880,9 +906,9 @@ IS
                         || '- LINHA: '
                         || DBMS_UTILITY.format_error_backtrace;
 
-                    UPDATE monitorpdvmiddle.tb_docto
+                    /*UPDATE monitorpdvmiddle.tb_docto
                        SET replicacao = 'E'
-                     WHERE ROWID = r_pedido.rowid_tb_docto;
+                     WHERE ROWID = r_pedido.rowid_tb_docto;*/
 
                     inserir_pcfilamensagem_erro (dados_pcfilamensagem,
                                                  mensagemerro);

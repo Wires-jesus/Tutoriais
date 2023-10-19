@@ -813,7 +813,8 @@ begin
         
         --INSERT INTO SQL_GERADO (TEXTO_SQL) VALUES (V_SQLETRI);
         
-        execute immediate V_SQLETRI
+         IF PVALORBASECALC = 'S' THEN
+           execute immediate V_SQLETRI
            into V_ENTRADATRIBUTADA
           using PUTILIZAVALORCONTABIL,
                 PVALORBASECALC,
@@ -824,7 +825,12 @@ begin
                 PVALORIPI, 
                 PEXERCICIO, 
                 V_MES, 
-                PCODFILIAL;                 
+                PCODFILIAL;
+          ELSE
+           execute immediate V_SQLETRI
+           into V_ENTRADATRIBUTADA
+           using PEXERCICIO, V_MES, PCODFILIAL;          
+          END IF;                
   END IF;
 -------------------------------------------------------------------------------------------------
 -- PROCESSO 7 : FIM

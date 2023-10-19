@@ -2,5 +2,5 @@
     {"nome": "VW_INT_C5_PRECOFIXO_R357","tipo": "OBJETO_PLSQL","versao": "4.0.11.000"},
     {"nome": "PROCESSO_CARGA_INT_C5_DESC561","tipo": "MIGRATION","versao": "4.0.18.000"},
     {"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017","tipo": "MIGRATION","versao": "4.0.04.000"},
-    {"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011","tipo": "MIGRATION","versao": "4.0.16.000"}
+    {"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011","tipo": "MIGRATION","versao": "4.0.19.000"}
 ]}

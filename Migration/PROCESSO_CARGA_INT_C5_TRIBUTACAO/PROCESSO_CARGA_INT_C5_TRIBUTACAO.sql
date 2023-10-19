@@ -1,5 +1,6 @@
 CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
-(SELECT     t.codst nrotributacao,
+(SELECT     distinct
+            t.codst nrotributacao,
             c.UFORIGEM uforigem,
             c.UFDESTINO ufdestino,
             'SN' tipotributacao,
@@ -14,12 +15,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             'B' tipocalcfcp,
             NVL(C.percaliqfcpicms, t.peracrescimofuncep) percaliqfcpicms,
 
-            (case 
+            (case
                when NVL(C.percaliqfcpicms, t.peracrescimofuncep) > 0 THEN
                     100
                else  0
             end) percbasefcpicms,
-            
+
             c.reducaobasest,
             'T' tiporeducaoicmscalcst,
             0 perctributst,
@@ -34,7 +35,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             c.percdesoneracao percaliqicmsdeson,
             c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
-            c.codobservacaoc5 codobservacao,
+            t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) codobservacao,
             t.codst,
             t.mensagem || ' - TRIBUTACAO' tributacao,
             t.mensagem || ' - TRIBUTACAO' descaplicacao,
@@ -50,15 +51,15 @@ FROM pctribut t,
      (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
 
 WHERE t.codst = c.codst
-     -- AND NVL(t.sittributecf, t.sittribut) IN ('00', '20', '40', '41', '60', '61', '90')
-      AND t.codecf IS NOT NULL
-      AND t.codst is not null)
+AND t.codecf IS NOT NULL
+AND t.codst is not null)
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF_CONSOLIDADA AS
 (
-SELECT  NROTRIBUTACAO,
+SELECT  distinct
+        NROTRIBUTACAO,
         UFORIGEM,
         UFDESTINO,
         'SN' TIPOTRIBUTACAO,
@@ -77,20 +78,23 @@ SELECT  NROTRIBUTACAO,
         TIPOREDUCAOICMSCALCST,
         PERCTRIBUTST,
         ATIVO,
-        SITUACAOPIS,
-        SITUACAOCOFINS,
-        PERCPIS,
-        PERCCOFINS,
         PERCBASEFCPST,
         PERCALIQFCPST,
         CALCICMSDESON,
         PERCALIQICMSDESON,
         MOTIVODESONICMS,
-        CODBENEFICIODESONICMS,
+        NULL CODBENEFICIODESONICMS,
         CODOBSERVACAO,
-        CODST
+        CODBENEFICIODESONICMS IDREF--(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = UFORIGEM) IDREF
   FROM VW_INT_C5_TRIB_UF
- WHERE DATA >= (SELECT S.ULTIMAEXECUCAO  FROM PCCONTROLECONSINCO S WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_TRIBUTACAOUF'))
+ WHERE DATA >= (SELECT MIN(S.ULTIMAEXECUCAO)  ULTIMAEXECUCAO
+                FROM PCCONTROLECONSINCO S 
+                WHERE (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_TRIBUTACAOUF')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBS')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPED')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPEDFAMILIA')
+               )
+)
 
 \
 
@@ -159,7 +163,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPER AS
          O.dtalterc5                     dtalterc5,
         'N'                              consumidorfinal,
         'N'                              vendapresencial,
-        'P'                              tipotributacao
+        'P'                              tipotributacao,
+        'S'                              gerareducaobasepiscofins
  FROM  PCCFO O,
        
        (select min(s.ultimaexecucao) ultimaexecucao
@@ -200,10 +205,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_CADOBS AS
      T.CODOBSERVACAO,
      'N' INFORMADOTRIBUF,
      'S' GERACBENEFFAMTRIB,
-     T.DATA,
      'S' ATIVO
- FROM VW_INT_C5_TRIB_UF T
- WHERE T.CODBENEFICIODESONICMS IS NOT NULL
+ FROM Vw_Int_C5_Trib_Uf_Consolidada T
+ WHERE T.IDREF IS NOT NULL
 )
 
 \
@@ -211,50 +215,54 @@ CREATE OR REPLACE VIEW VW_INT_C5_CADOBS AS
 CREATE OR REPLACE VIEW VW_INT_C5_CADOBSSPED AS
 (
 SELECT DISTINCT
-  SUBSTR(T.CODBENEFICIODESONICMS, 2, LENGTH(T.CODBENEFICIODESONICMS)) SEQOBSSPED,
+  T.CODOBSERVACAO||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = T.UFORIGEM) SEQOBSSPED,
   T.CODOBSERVACAO,
-  T.CODBENEFICIODESONICMS CODAJUSTEEFD, 
+  T.IDREF CODAJUSTEEFD,
   'S' USACODAJUSTENFE,
-  'S' ATIVO 
-FROM VW_INT_C5_TRIB_UF T
-WHERE T.CODBENEFICIODESONICMS IS NOT NULL
+  'A' REGISTRO,
+  'S' ATIVO
+FROM Vw_Int_C5_Trib_Uf_Consolidada T
+WHERE T.IDREF IS NOT NULL
 )
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_CADOBSSPEDFAMILIA AS
 (
-SELECT DISTINCT
-  P.CODPROD SEQFAMILIA,
-  TABEXCECAO.CODEXCECAO,
-  TABEXCECAO.SEQOBSSPED,
-  E.CODCADASTROPRINC,
-  E.CODCADASTROEXCECAO CODAJUSTEEFD,
-  TABEXCECAO.UFORIGEM UF,
-  E.TIPO1,
-  E.VALOR1,
-  'S' ATIVO
-FROM 
-  (
-    SELECT
-      MIN(F.CODEXCECAO) CODEXCECAO,
-      SUBSTR(T.CODBENEFICIODESONICMS, 2, LENGTH(T.CODBENEFICIODESONICMS)) SEQOBSSPED,
-      T.UFORIGEM 
-
-    FROM VW_INT_C5_TRIB_UF T,
-         PCEXCECAOCADASTROSFISCAIS F
-    WHERE T.CODBENEFICIODESONICMS IS NOT NULL
-    AND   T.CODBENEFICIODESONICMS = F.CODCADASTROPRINC
-    AND   F.ROTINA = 'PCSIS4008'
-    GROUP BY T.CODBENEFICIODESONICMS, T.UFORIGEM
-  )TABEXCECAO,  
-  PCEXCECAOCADASTROSFISCAIS E,
-  PCTABPR R,
-  PCPRODUT P,
-  PCFILIAL 
-WHERE R.CODPROD = P.CODPROD
-AND   E.CODEXCECAO = TABEXCECAO.CODEXCECAO
-AND   ((E.TIPO1 = 'FT' AND E.VALOR1 = R.CODST) OR
-       (E.TIPO1 = 'CM' AND E.VALOR1 = P.NBM)  
-      )
+SELECT
+  *
+FROM (  
+     SELECT 
+        ROW_NUMBER() OVER(partition by FAM.SEQFAMILIA,  S.SEQOBSSPED  order BY  E.CODEXCECAO) sequencia,
+        FAM.SEQFAMILIA,
+        E.CODEXCECAO,
+        S.SEQOBSSPED,
+        E.CODCADASTROPRINC,
+        E.CODCADASTROEXCECAO CODAJUSTEEFD,
+        T.UFORIGEM UF,
+        E.TIPO1,
+        E.VALOR1,
+        'S' ATIVO,
+        E.TIPO1||E.VALOR1 IDREF
+     FROM MONITORPDVMIDDLE.TB_CADOBSSPED S,
+          MONITORPDVMIDDLE.TB_FAMILIA FAM,
+          MONITORPDVMIDDLE.tb_famdivisao D,
+          PCEXCECAOCADASTROSFISCAIS E,
+          pcdepararegiaoc5 R,
+          VW_INT_C5_TRIB_UF_CONSOLIDADA T
+     WHERE S.CODAJUSTEEFD = E.CODCADASTROPRINC
+     AND   D.seqfamilia = FAM.SEQFAMILIA
+     AND   T.NROTRIBUTACAO = D.nrotributacao
+     AND   T.IDREF = E.CODCADASTROPRINC
+     AND   T.CODOBSERVACAO = S.CODOBSERVACAO
+     AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     AND   R.nrodivisao = D.nrodivisao
+     AND   R.NUMREGIAO = (SELECT MIN(VALOR)
+                          FROM PCPARAMFILIAL
+                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
+                          AND VALOR <> '99'
+                          AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
+                          AND VALOR IS NOT NULL)
+    )EXCECAO
+WHERE EXCECAO.SEQUENCIA = 1
 )

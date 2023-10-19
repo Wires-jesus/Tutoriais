@@ -1,7 +1,7 @@
-CREATE OR REPLACE FUNCTION "FUNC_RESUMOFATURAMENTO" (P_CODFILIAL IN VARCHAR2
+CREATE OR REPLACE FUNCTION FUNC_RESUMOFATURAMENTO(P_CODFILIAL IN VARCHAR2
                                                 , P_DATAINI IN DATE
                                                 , P_DATAFIM IN DATE
-                                                , P_TIPOPESQUISA IN INTEGER
+                                                , P_TIPOPESQUISA IN VARCHAR2
                                                 , /* Valores para o Tipo de pesquisa
                                                   1 Supervisor
                                                   2 Plano de pagamento
@@ -44,54 +44,54 @@ CREATE OR REPLACE FUNCTION "FUNC_RESUMOFATURAMENTO" (P_CODFILIAL IN VARCHAR2
                                                   39 Atividade principal
 
                                                   */
-                                                  P_TIPOVENDA10 IN INTEGER DEFAULT 0
-                                                , P_BONIFICACAO IN INTEGER DEFAULT 0
-                                                , P_DEVOLUCAO IN INTEGER DEFAULT 1
-                                                , P_DESCST IN INTEGER DEFAULT 0
-                                                , P_DESCIPI IN INTEGER DEFAULT 0
-                                                , P_META IN INTEGER DEFAULT 0
-                                                , P_LUCRO_LIQ IN INTEGER DEFAULT 0
+                                                  P_TIPOVENDA10 IN VARCHAR2 DEFAULT 0
+                                                , P_BONIFICACAO IN VARCHAR2 DEFAULT 0
+                                                , P_DEVOLUCAO IN VARCHAR2 DEFAULT 1
+                                                , P_DESCST IN VARCHAR2 DEFAULT 0
+                                                , P_DESCIPI IN VARCHAR2 DEFAULT 0
+                                                , P_META IN VARCHAR2 DEFAULT 0
+                                                , P_LUCRO_LIQ IN VARCHAR2 DEFAULT 0
                                                 , P_CONDVENDA IN VARCHAR2 DEFAULT NULL
-                                                , P_CONSIDTIPOFJ IN INTEGER DEFAULT 1
-                                                , P_CONSIDCONSUMIDORFINAL IN INTEGER DEFAULT 1
-                                                , P_CONSIDISENTO IN INTEGER DEFAULT 1
-                                                , P_CONSIDISENTA IN INTEGER DEFAULT 1
-                                                , P_SUPERVMOV IN INTEGER DEFAULT 0
-                                                , P_PRAZOADICIONAL IN INTEGER DEFAULT 1
+                                                , P_CONSIDTIPOFJ IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDCONSUMIDORFINAL IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDISENTO IN VARCHAR2 DEFAULT 1
+                                                , P_CONSIDISENTA IN VARCHAR2 DEFAULT 1
+                                                , P_SUPERVMOV IN VARCHAR2 DEFAULT 0
+                                                , P_PRAZOADICIONAL IN VARCHAR2 DEFAULT 1
                                                 , P_ORIGEMPED IN VARCHAR2 DEFAULT NULL
-                                                , P_CODSUPERVISOR IN INTEGER DEFAULT NULL
-                                                , P_CODRCA IN INTEGER DEFAULT NULL
-                                                , P_CODCLI IN INTEGER DEFAULT NULL
-                                                , P_NUMNOTA IN INTEGER DEFAULT NULL
-                                                , P_PLANOPAG IN INTEGER DEFAULT NULL
-                                                , P_CODPROD IN INTEGER DEFAULT NULL
+                                                , P_CODSUPERVISOR IN varchar2 DEFAULT NULL
+                                                , P_CODRCA IN varchar2 DEFAULT NULL
+                                                , P_CODCLI IN VARCHAR2 DEFAULT NULL
+                                                , P_NUMNOTA IN VARCHAR2 DEFAULT NULL
+                                                , P_PLANOPAG IN VARCHAR2 DEFAULT NULL
+                                                , P_CODPROD IN VARCHAR2 DEFAULT NULL
                                                 , P_UF IN VARCHAR2 DEFAULT NULL
-                                                , P_CODEPTO IN INTEGER DEFAULT NULL
+                                                , P_CODEPTO IN VARCHAR2 DEFAULT NULL
                                                 , P_CLASSE IN VARCHAR2 DEFAULT NULL
-                                                , P_CODEMITENTE IN INTEGER DEFAULT NULL
-                                                , P_CODFORNEC IN INTEGER DEFAULT NULL
+                                                , P_CODEMITENTE IN VARCHAR2 DEFAULT NULL
+                                                , P_CODFORNEC IN VARCHAR2 DEFAULT NULL
                                                 , P_CODCOB IN VARCHAR2 DEFAULT NULL
-                                                , P_CODRAMO IN INTEGER DEFAULT NULL
-                                                , P_CODSEC IN INTEGER DEFAULT NULL
-                                                , P_CONSIDERARDEVOLTV8 IN INTEGER DEFAULT 0
-                                                , P_CODGERENTE IN INTEGER DEFAULT NULL
-                                                , P_DESCVLREPASSE IN INTEGER DEFAULT 0
-                                                , P_DESCVLTABELA IN INTEGER DEFAULT 0
-                                                , P_CONSIDERANOTASAPROVADAS IN INTEGER DEFAULT 0
-                                                , P_DESCONSIDERARCLIVINCFORNEC IN INTEGER DEFAULT 0
-                                                , P_CODCATEGORIA IN INTEGER DEFAULT NULL
-                                                , P_CODSUBCATEGORIA IN INTEGER DEFAULT NULL
-                                                , P_CONSIDERACOBRANCATITULOS IN INTEGER DEFAULT 0
-                                                , P_NUMTRANSVENDA IN NUMBER DEFAULT 0
-                                                , P_CODFORNECPRINC IN NUMBER DEFAULT 0
-                                                , P_CODMARCA IN NUMBER DEFAULT 0
-                                                , P_CODLINHAPROD IN NUMBER DEFAULT 0
+                                                , P_CODRAMO IN VARCHAR2 DEFAULT NULL
+                                                , P_CODSEC IN VARCHAR2 DEFAULT NULL
+                                                , P_CONSIDERARDEVOLTV8 IN VARCHAR2 DEFAULT 0
+                                                , P_CODGERENTE IN VARCHAR2 DEFAULT NULL
+                                                , P_DESCVLREPASSE IN VARCHAR2 DEFAULT 0
+                                                , P_DESCVLTABELA IN VARCHAR2 DEFAULT 0
+                                                , P_CONSIDERANOTASAPROVADAS IN VARCHAR2 DEFAULT 0
+                                                , P_DESCONSIDERARCLIVINCFORNEC IN VARCHAR2 DEFAULT 0
+                                                , P_CODCATEGORIA IN VARCHAR2 DEFAULT NULL
+                                                , P_CODSUBCATEGORIA IN VARCHAR2 DEFAULT NULL
+                                                , P_CONSIDERACOBRANCATITULOS IN VARCHAR2 DEFAULT 0
+                                                , P_NUMTRANSVENDA IN VARCHAR2 DEFAULT 0
+                                                , P_CODFORNECPRINC IN VARCHAR2 DEFAULT 0
+                                                , P_CODMARCA IN VARCHAR2 DEFAULT 0
+                                                , P_CODLINHAPROD IN VARCHAR2 DEFAULT 0
                                                 , P_FILTROCODGERENTE IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODSUPERVISOR IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODUSUR IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODFORNEC IN VARCHAR2 DEFAULT NULL
                                                 , P_FILTROCODFORNECPRINC IN VARCHAR2 DEFAULT NULL
-                                                , P_CODRAMOPRINC IN INTEGER DEFAULT NULL
+                                                , P_CODRAMOPRINC IN varchar2 DEFAULT NULL
                                                 , P_CONSIDERA_APLIC_VERBA IN VARCHAR2 DEFAULT 'N')
  RETURN TABELA_FATURAMENTO
 IS
@@ -324,8 +324,16 @@ IS
  V_SQL_CONDVENDA CLOB := '';--VARCHAR2(1000) := '';
  V_SQL_CODFISCAL CLOB := '';--VARCHAR2(1000) := '';
 
- L_CURSOR SYS_REFCURSOR;
+ -- L_CURSOR SYS_REFCURSOR;
  L_CURSOR_CLIENT SYS_REFCURSOR;
+
+ /* Usados para uso do DBMS_SQL
+  * Documentação : 
+  * https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_SQL.html 
+  */
+ v_cursor_dbmsql NUMBER;
+ v_result_dbmsql NUMBER;
+
  REG VALOR;
  CLI CLIENTES;
  PERC_VENDA NUMBER(15, 4);
@@ -399,62 +407,431 @@ IS
   PROCEDURE OPEN_CURSOR_FOR_V_SQL IS
     VLISTA_PARAMETROS VARCHAR2(1000);
   BEGIN
+   
     VLISTA_PARAMETROS := GET_LISTA_PARAMETOS(V_SQL);
-
+  
     CASE VLISTA_PARAMETROS
-      WHEN 'DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI2,DATAFIM2'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM, P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM;
-      WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAFIM,P_DATAFIM,P_DATAFIM,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI3,DATAFIM3,DATAINI6,DATAFIM6'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,VLVENDA,VLVENDA'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,VALOR_VENDA,VALOR_VENDA;
-      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,VLVENDA,VLVENDA'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,VALOR_VENDA,VALOR_VENDA;
-      WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
---      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3'
-  --      THEN OPEN L_CURSOR FOR to_char(V_SQL) USING P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAFIM,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAFIM,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAFIM3,DATAFIM3,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAFIM,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;
-      WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAFIM,P_DATAFIM,P_DATAFIM,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM,P_DATAINI,P_DATAFIM;        
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM, P_DATAINI,P_DATAFIM, P_DATAINI, P_DATAFIM;
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI,DATAFIM'
-        THEN OPEN L_CURSOR FOR TO_CHAR(V_SQL) USING P_DATAINI,P_DATAFIM, P_DATAINI,P_DATAFIM, P_DATAINI, P_DATAINI, P_DATAINI,P_DATAFIM;         
+      WHEN 'DATAINI,DATAFIM' THEN
+      
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+        
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+       
+      WHEN 'DATAINI2,DATAFIM2' THEN
+      
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+        
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+      
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN 
+        
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+        
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+      
+      WHEN 'DATAINI3,DATAFIM3' THEN 
+      
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+        
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+      
+      WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN
+        
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+        
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);      
+        
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+      
+      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);    
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);    
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);     
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI3,DATAFIM3,DATAINI6,DATAFIM6' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI6', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM6', P_DATAFIM);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,VLVENDA,VLVENDA' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,VLVENDA,VLVENDA' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+          
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);  
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);    
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+          
+      WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
+
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+          
+      WHEN 'DATAFIM,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAFIM3,DATAFIM3,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4' THEN 
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI4', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM4', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4' THEN 
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI4', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM4', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI,DATAFIM' THEN 
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI,DATAFIM' THEN 
+        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+
+        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
+
+        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+
       ELSE
         RAISE_APPLICATION_ERROR(-20000,'ERRO AO ABRIR O CURSOR, LISTA DE PARAMETROS: ''' || VLISTA_PARAMETROS || '''');
     END CASE;
+
+    ---------------------- DEFININDO OS CAMPOS NO DBMS_SQL PARA O V_SQL ----------------------- 
+    -------------------------------------------------------------------------------------------
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 1, REG.CODIGO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 2, REG.CODIGO2 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 3, REG.CONDVENDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 4, REG.CODFILIAL, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 5, REG.NUMREGIAO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 6, REG.CODUSUR );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 7, REG.NOMEUSUR, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 8, REG.UF, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 9, REG.DTSAIDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 10, REG.DESCRICAO, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 11, REG.EMBALAGEM, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 12, REG.NUMNOTA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 13, REG.DTCANCEL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 14, REG.CODEPTO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 15, REG.CODSEC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 16, REG.CODSUBCATEGORIA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 17, REG.CODCATEGORIA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 18, REG.NUMORIGINAL, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 19, REG.CODAUXILIAR, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 20, REG.PESOLIQ );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 21, REG.NUMPR );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 22, REG.PERCVENDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 23, REG.PERCLUCRO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 24, REG.PERCMETA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 25, REG.VLVENDAPF );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 26, REG.VLVENDAPJ );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 27, REG.PERCVENDAPF );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 28, REG.PERCVENDAPJ );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 29, REG.PERCPARTTOTAL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 30, REG.VLPESOTRANSP );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 31, REG.VLDEVOLUCAO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 32, REG.VLDEVOLAVULSAI );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 33, REG.VLDEVCMVAVULSAI );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 34, REG.VLDEVOLBONIFIC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 35, REG.VLCMVDEVOL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 36, REG.DEVOLTAB );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 37, REG.CONTADOR );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 38, REG.QTCLIPOS );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 39, REG.QTMIXPRODUTO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 40, REG.QTCLIENTE );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 41, REG.NUMDIAS );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 42, REG.VLVENDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 43, REG.VALORTOTALNOTA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 44, REG.QTVENDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 45, REG.VLATEND );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 46, REG.VLCUSTOFIN );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 47, REG.CUSTOFINEST );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 48, REG.VLCUSTOREAL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 49, REG.VLESTDISP );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 50, REG.CUSTOMEDFIN );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 51, REG.CUSTOMEDREAL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 52, REG.VLTABELA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 53, REG.PESOBRUTO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 54, REG.VLBONIFIC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 55, REG.VLOUTRASDESP );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 56, REG.VLMEDBONIFIC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 57, REG.QTBONIFIC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 58, REG.PERCDESC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 59, REG.VALORDESC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 60, REG.VLLIQUIDO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 61, REG.VLMETA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 62, REG.VLFLEX );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 63, REG.VLLUCRO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 64, REG.PRAZOMEDIO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 65, REG.PRAZOADICIONAL );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 66, REG.VLMEDIOKG );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 67, REG.CODCLIPRINC );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 68, REG.CLIENTEPRINC, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 69, REG.QTDEVOLUCAO );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 70, REG.NUMTRANSVENDA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 71, REG.ESPECIE, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 72, REG.MOTIVODEVOL, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 73, REG.OBS, 400 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 74, REG.SERIE, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 75, REG.CNPJ, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 76, REG.INSC, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 77, REG.CIDADE, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 78, REG.DESCSECAO, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 79, REG.DESCDEPTO, 200 );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 80, REG.VLREPASSE );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 81, REG.VLCMVDEVOLBONIF );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 82, REG.VLCMVANTESAPLVERBA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 83, REG.VLLUCROANTESAPLVERBA );
+    DBMS_SQL.DEFINE_COLUMN( v_cursor_dbmsql, 84, REG.PERCLUCROANTESAPLVERBA );
+    
+    ---------------------- DEFININDO OS CAMPOS NO DBMS_SQL PARA O V_SQL ----------------------- 
+    -------------------------------------------------------------------------------------------
+
   END;
 
 --Habilitar debug
@@ -14191,21 +14568,21 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL := V_SQL || ' GROUP BY DEVOL.CONDVENDA ';
    END IF;
 
-	V_SQL := V_SQL || ') TOTAL,(SELECT DISTINCT PCNFSAID.CONDVENDA FROM PCNFSAID WHERE 1 = 1 ';
-	
-	IF P_CODFILIAL IS NOT NULL
-	THEN
-		V_SQL := V_SQL || ' AND PCNFSAID.CODFILIAL IN (' || P_CODFILIAL || ') ';
-	END IF;
-	
-	IF P_DATAINI IS NOT NULL
+  V_SQL := V_SQL || ') TOTAL,(SELECT DISTINCT PCNFSAID.CONDVENDA FROM PCNFSAID WHERE 1 = 1 ';
+  
+  IF P_CODFILIAL IS NOT NULL
+  THEN
+    V_SQL := V_SQL || ' AND PCNFSAID.CODFILIAL IN (' || P_CODFILIAL || ') ';
+  END IF;
+  
+  IF P_DATAINI IS NOT NULL
     THEN
-		V_SQL := V_SQL || ' AND PCNFSAID.DTSAIDA BETWEEN :DATAINI AND :DATAFIM ';
-	END IF;
+    V_SQL := V_SQL || ' AND PCNFSAID.DTSAIDA BETWEEN :DATAINI AND :DATAFIM ';
+  END IF;
    
     V_SQL := V_SQL || ') TIPOVENDA 
-				 WHERE TOTAL.CONDVENDA = TIPOVENDA.CONDVENDA(+)
-				 GROUP BY TIPOVENDA.CONDVENDA ORDER BY VLVENDA DESC ';
+         WHERE TOTAL.CONDVENDA = TIPOVENDA.CONDVENDA(+)
+         GROUP BY TIPOVENDA.CONDVENDA ORDER BY VLVENDA DESC ';
   WHEN P_TIPOPESQUISA = 12
   THEN
    -- Consulta por emitente
@@ -24567,7 +24944,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     THEN
      V_SQL := V_SQL || ' AND VENDAS.CODSUPERVISOR = ' || P_CODSUPERVISOR;
     ELSE
-     V_SQL := V_SQL || ' AND VENDAS.CODSUPERVMOV = ' || P_CODSUPERVISOR;
+     V_SQL := V_SQL || ' AND VENDAS.CODSUPERVMOV = ' ||' 1 ';-- P_CODSUPERVISOR;
     END IF;
    END IF;
 
@@ -26854,7 +27231,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL2 := V_SQL2 || ' AND PCNFSAID.CONDVENDA IN (' || P_CONDVENDA || ') ';
    END IF;
 
-   EXECUTE IMMEDIATE TO_CHAR(V_SQL2)
+   EXECUTE IMMEDIATE (V_SQL2)
     INTO VLTITULO
     USING P_DATAINI
         , P_DATAFIM;
@@ -27044,7 +27421,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
  --Gravar do Debug - Fim
 
 
-   EXECUTE IMMEDIATE TO_CHAR(V_SQL3)
+   EXECUTE IMMEDIATE (V_SQL3)
     INTO VLVENDATOT
     USING P_DATAINI
         , P_DATAFIM;
@@ -27557,8 +27934,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                                      SUM(PCNFSAID.PRAZOMEDIO * PCPREST.VALOR) / SUM(PCPREST.VALOR)) PRAZOMEDIO ';
        END IF;
       
-    	V_SQL := V_SQL || '  ,PCNFSAID.NUMTRANSVENDA ';
-	   
+      V_SQL := V_SQL || '  ,PCNFSAID.NUMTRANSVENDA ';
+     
         V_SQL := V_SQL ||'    FROM PCNFSAID, PCPEDC, PCUSUARI, PCPLPAG, PCCLIENT, PCPREST, PCCOB
                        WHERE PCPREST.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
                          AND PCPREST.CODCOB = PCCOB.CODCOB ';
@@ -27844,10 +28221,10 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     END IF;
 
     V_SQL := V_SQL || ' 0 VLVENDA, -1 VALORTOTALNOTA, 0 VLBONIFIC, 0 PRAZOMEDIO ';
-	
-	IF P_CONSIDERACOBRANCATITULOS = 1 THEN
-		V_SQL := V_SQL || ' , 0 AS NUMTRANSVENDA ';
-	END IF;
+  
+  IF P_CONSIDERACOBRANCATITULOS = 1 THEN
+    V_SQL := V_SQL || ' , 0 AS NUMTRANSVENDA ';
+  END IF;
 
     V_SQL := V_SQL || ' FROM ( '||V_SQL_VIEW_DEVOL||' ) DEVOL, PCCOB WHERE DEVOL.CODCOB = PCCOB.CODCOB ';
 
@@ -28012,15 +28389,15 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
          0 VLDEVOLUCAO, 0 VLDEVOLBONIFIC,
          0 VLCMVDEVOL, 0 DEVOLTAB, :VLVENDA VLVENDA, -1 VALORTOTALNOTA,
          0 VLBONIFIC, 0 PRAZOMEDIO ';
-		 
-	IF P_CONSIDERACOBRANCATITULOS = 1 THEN
-		V_SQL := V_SQL || ', 0 AS NUMTRANSVENDA ';
-	END IF;	 
-	
-	V_SQL := V_SQL || 'FROM DUAL ORDER BY VLVENDA DESC ';
+     
+  IF P_CONSIDERACOBRANCATITULOS = 1 THEN
+    V_SQL := V_SQL || ', 0 AS NUMTRANSVENDA ';
+  END IF;  
+  
+  V_SQL := V_SQL || 'FROM DUAL ORDER BY VLVENDA DESC ';
    END IF;
-	
-   IF P_CONSIDERACOBRANCATITULOS = 1 THEN	
+  
+   IF P_CONSIDERACOBRANCATITULOS = 1 THEN 
       V_SQL := V_SQL || ') TOTAL, PCNFSAID NOTA WHERE NOTA.NUMTRANSVENDA = TOTAL.NUMTRANSVENDA GROUP BY TOTAL.CODAUXILIAR, TOTAL.DESCRICAO ';
    ELSE
       V_SQL := V_SQL || ') TOTAL GROUP BY TOTAL.CODAUXILIAR, TOTAL.DESCRICAO ';
@@ -29600,7 +29977,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL2 := V_SQL2 || ' AND PCNFSAID.CONDVENDA IN (' || P_CONDVENDA || ') ';
    END IF;
 
-   EXECUTE IMMEDIATE TO_CHAR(V_SQL2)
+   EXECUTE IMMEDIATE (V_SQL2)
     INTO VLTITULO
     USING P_DATAINI
         , P_DATAFIM;
@@ -29780,7 +30157,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL3 := V_SQL3 || ' AND NVL(VENDAS.CONDVENDA, 0) IN (' || P_CONDVENDA || ') ';
    END IF;
 
-   EXECUTE IMMEDIATE TO_CHAR(V_SQL3)
+   EXECUTE IMMEDIATE (V_SQL3)
     INTO VLVENDATOT
     USING P_DATAINI
         , P_DATAFIM;
@@ -41625,20 +42002,106 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                      AVULSA.CODLINHAPROD = ' || P_CODLINHAPROD;
     END IF;
 
-  EXECUTE IMMEDIATE TO_CHAR(V_SQL2)
+  EXECUTE IMMEDIATE (V_SQL2)
    INTO VLDEVOLAVULSA
    USING P_DATAINI
        , P_DATAFIM;
  END IF;
 
 BEGIN
+  
   OPEN_CURSOR_FOR_V_SQL;
-
+  
   LOOP
-    FETCH L_CURSOR
-      INTO REG;
-
-    EXIT WHEN L_CURSOR%NOTFOUND;
+    EXIT WHEN DBMS_SQL.FETCH_ROWS(v_cursor_dbmsql) = 0;
+    
+    -- Fetch
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 1, REG.CODIGO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 2, REG.CODIGO2 );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 3, REG.CONDVENDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 4, REG.CODFILIAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 5, REG.NUMREGIAO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 6, REG.CODUSUR );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 7, REG.NOMEUSUR );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 8, REG.UF );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 9, REG.DTSAIDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 10, REG.DESCRICAO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 11, REG.EMBALAGEM );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 12, REG.NUMNOTA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 13, REG.DTCANCEL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 14, REG.CODEPTO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 15, REG.CODSEC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 16, REG.CODSUBCATEGORIA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 17, REG.CODCATEGORIA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 18, REG.NUMORIGINAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 19, REG.CODAUXILIAR );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 20, REG.PESOLIQ );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 21, REG.NUMPR );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 22, REG.PERCVENDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 23, REG.PERCLUCRO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 24, REG.PERCMETA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 25, REG.VLVENDAPF );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 26, REG.VLVENDAPJ );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 27, REG.PERCVENDAPF );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 28, REG.PERCVENDAPJ );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 29, REG.PERCPARTTOTAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 30, REG.VLPESOTRANSP );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 31, REG.VLDEVOLUCAO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 32, REG.VLDEVOLAVULSAI );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 33, REG.VLDEVCMVAVULSAI );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 34, REG.VLDEVOLBONIFIC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 35, REG.VLCMVDEVOL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 36, REG.DEVOLTAB );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 37, REG.CONTADOR );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 38, REG.QTCLIPOS );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 39, REG.QTMIXPRODUTO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 40, REG.QTCLIENTE );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 41, REG.NUMDIAS );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 42, REG.VLVENDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 43, REG.VALORTOTALNOTA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 44, REG.QTVENDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 45, REG.VLATEND );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 46, REG.VLCUSTOFIN );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 47, REG.CUSTOFINEST );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 48, REG.VLCUSTOREAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 49, REG.VLESTDISP );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 50, REG.CUSTOMEDFIN );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 51, REG.CUSTOMEDREAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 52, REG.VLTABELA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 53, REG.PESOBRUTO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 54, REG.VLBONIFIC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 55, REG.VLOUTRASDESP );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 56, REG.VLMEDBONIFIC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 57, REG.QTBONIFIC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 58, REG.PERCDESC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 59, REG.VALORDESC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 60, REG.VLLIQUIDO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 61, REG.VLMETA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 62, REG.VLFLEX );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 63, REG.VLLUCRO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 64, REG.PRAZOMEDIO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 65, REG.PRAZOADICIONAL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 66, REG.VLMEDIOKG );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 67, REG.CODCLIPRINC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 68, REG.CLIENTEPRINC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 69, REG.QTDEVOLUCAO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 70, REG.NUMTRANSVENDA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 71, REG.ESPECIE );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 72, REG.MOTIVODEVOL );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 73, REG.OBS );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 74, REG.SERIE );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 75, REG.CNPJ );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 76, REG.INSC );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 77, REG.CIDADE );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 78, REG.DESCSECAO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 79, REG.DESCDEPTO );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 80, REG.VLREPASSE );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 81, REG.VLCMVDEVOLBONIF );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 82, REG.VLCMVANTESAPLVERBA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 83, REG.VLLUCROANTESAPLVERBA );
+    DBMS_SQL.COLUMN_VALUE( v_cursor_dbmsql, 84, REG.PERCLUCROANTESAPLVERBA );
+    
+    -- Inputando na tabela virtual de saída
 
     VRETORNO.EXTEND;
     VN_POSICAO_EM_ALTERACAO := VRETORNO.COUNT;
@@ -42112,7 +42575,8 @@ EXCEPTION
                             ' Erro. Pesquisa - ' + TO_CHAR(P_TIPOPESQUISA));
 END;
 
-CLOSE L_CURSOR;
+  DBMS_SQL.CLOSE_CURSOR(v_cursor_dbmsql);
 
-RETURN VRETORNO;
+  RETURN VRETORNO;
+
 END;

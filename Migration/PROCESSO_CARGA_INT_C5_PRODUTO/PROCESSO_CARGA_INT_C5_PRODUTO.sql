@@ -49,7 +49,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          1 seqfamgrupo,
          MAX(p.pesovariavel) PESAVEL,
          MIN(NVL(p.indescalarelevante, 'S')) indescala,
-         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante
+         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
+         MAX(p.codauxiliartrib) eantrib,
+         MAX(P.codprodprinc) seqfamiliaprinc
   FROM VW_INT_C5_EMBPROD p
   GROUP BY p.codprod, p.descricao
 )
@@ -151,7 +153,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
          'S' ativo
   FROM VW_INT_C5_EMBPROD e,
        PCDEPARAEMBALAGENSC5 P
-  WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)        
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
 
 )
 
@@ -177,7 +179,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
         'S' ativo
  FROM  VW_INT_C5_EMBPROD e,
        PCDEPARAEMBALAGENSC5 P
- WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
+ WHERE E.CODAUXILIAR = P.CODAUXILIAR
 )
 
 \
@@ -206,7 +208,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
     'S' ATIVO
   FROM VW_INT_C5_EMBPROD E,
        PCDEPARAEMBALAGENSC5 P
-  WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
   AND   E.QTUNIT <> E.QTMINIMAATACADO
 
   UNION ALL
@@ -223,7 +225,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO AS
     'S' ATIVO
   FROM VW_INT_C5_EMBPROD E,
        PCDEPARAEMBALAGENSC5 P
-  WHERE E.CODAUXILIAR = P.CODAUXILIAR(+)         
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
   AND   E.QTMINIMAATACADO > 1
 
 )

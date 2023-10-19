@@ -27,9 +27,14 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(NVL(e.pesobruto,p.pesobruto),0) pesobruto,
             NVL(NVL(e.pesoliq,p.pesoliq),0) pesoliq,
 
-            CASE WHEN p.pesovariavel NOT IN ('S', 'N') THEN
+            /*CASE WHEN p.pesovariavel NOT IN ('S', 'N') THEN
                   'N'
              ELSE NVL(p.pesovariavel, 'N')
+            END pesovariavel,*/
+
+            CASE WHEN e.tipoembalagem = 'P' THEN
+                  'S'
+             ELSE 'N'
             END pesovariavel,
 
             CASE WHEN p.aceitavendafracao NOT IN ('S', 'N') THEN
@@ -44,7 +49,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             NVL(e.prodsemcodbarras,'N') prodsemcodbarras,
             p.codfornec codfornec_prod,
             p.volume volume_prod,
-            p.codmarca,
+            NVL(M.codmarca, PCPARAMFILIAL.MARCAPADRAO) CODMARCA,
             NVL(p.tipomerc,'L') tipomerc,
             p.nbm codncmsh,
             LENGTH(p.nbm) tamanho_codncmsh,
@@ -89,9 +94,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             p.codauxiliartrib,
             0 CODCEST --PROVISORIO
        FROM pcembalagem e,
-            pcprodut p,
+            pcprodut p
+            LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'),    
             pcprodfilial f,
             VW_INT_C5_OBTER_FILIAIS_C5 c5,
+            (select VALOR MARCAPADRAO FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO' AND CODFILIAL = 99) PCPARAMFILIAL,
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
              where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
@@ -122,5 +129,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND LENGTH(e.codauxiliar) <= 14
         AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO)
+                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO
 
+)
