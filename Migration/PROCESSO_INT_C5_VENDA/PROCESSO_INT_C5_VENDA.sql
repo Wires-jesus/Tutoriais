@@ -403,6 +403,7 @@ BEGIN
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
          AND  p.nroempresa = pCodigoFilial
+		 AND  P.CODREDETEF = A.CODOPERADORACARTO
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa;
     EXCEPTION
@@ -417,6 +418,7 @@ BEGIN
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
          AND  p.nroempresa = pCodigoFilial
+		 AND  P.CODREDETEF = A.CODOPERADORACARTO
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
          AND  ROWNUM = 1;
