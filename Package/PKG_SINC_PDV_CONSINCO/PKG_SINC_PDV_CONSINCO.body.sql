@@ -165,7 +165,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
                s.NOME       = b.NOME,
                s.APELIDO    = b.APELIDO,
-               s.SENHA      = b.SENHA,
+               --s.SENHA      = b.SENHA,
                s.SEQPESSOA  = b.SEQPESSOA,
                s.NIVEL      = b.NIVEL,
                s.DTAEXPIRAR = b.DTAEXPIRAR,
@@ -176,7 +176,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         INSERT (s.sequsuario,
                 s.NOME,
                 s.APELIDO,
-                s.SENHA,
+                --s.SENHA,
                 s.SEQPESSOA,
                 s.NIVEL,
                 s.DTAEXPIRAR,
@@ -186,7 +186,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   (b.sequsuario,
                    b.NOME,
                    b.APELIDO,
-                   b.SENHA,
+                   --b.SENHA,
                    b.SEQPESSOA,
                    b.NIVEL,
                    b.DTAEXPIRAR,
@@ -890,7 +890,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       c.nrosegmento,
                       c.ativo
                FROM VW_INT_C5_CLIPESSOA C,
-                 MONITORPDVMIDDLE.TB_PESSOA T
+                MONITORPDVMIDDLE.TB_PESSOA T
                WHERE T.SEQPESSOA = C.SEQPESSOA
                ) b
 
