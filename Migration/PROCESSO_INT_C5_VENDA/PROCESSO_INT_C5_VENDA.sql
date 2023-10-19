@@ -1727,7 +1727,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL serialpos,
        NULL idrespfiscal,
        NULL bandeiracartao,
-       NVL(v.codcobsefaz,'99') codcobsefaz,
+       NVL((SELECT CODCOBSEFAZ FROM PCCOB WHERE CODCOB = FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'99') codcobsefaz,
        NULL md5paf,
        3 tipodoc,
        NULL dtcxmot,
