@@ -1007,17 +1007,22 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           N_PRAZOENTREGA_O := 0;
       END;
-	  BEGIN
-		vSQL := 'SELECT UF
-			 FROM PCFILIAL
-			 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
-			 AND ROWNUM = 1';
-		EXECUTE IMMEDIATE vSQL INTO vUFDestino;
-		EXCEPTION
-			WHEN NO_DATA_FOUND THEN
-				vUFDestino := NULL;
-					 
-	  END;
+	  
+	  IF (P_CODFILIAL_DESTINO IS NOT NULL) THEN
+		  BEGIN
+			vSQL := 'SELECT UF
+				 FROM PCFILIAL
+				 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
+				 AND ROWNUM = 1';
+			EXECUTE IMMEDIATE vSQL INTO vUFDestino;
+			EXCEPTION
+				WHEN NO_DATA_FOUND THEN
+					vUFDestino := NULL;
+						 
+		  END;
+      ELSE
+		vUFDestino := NULL;
+	  END IF;
 
        BEGIN
        SELECT UF
@@ -2995,26 +3000,34 @@ IS PRAGMA SERIALLY_REUSABLE;
     POBTEM_PARAMFILIAL_STRING(P_CODFILIAL_ORIGEM,'DESCSTFORAUFTRANSF',
                                 vDESCSTFORAUFTRANSF,vvErroPesqParam1,
                                 vvMsgErroPesqParam1);
-		BEGIN
-			 vSQL := 'SELECT UF
-			 FROM PCFILIAL
-			 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
-			 AND ROWNUM = 1';
-        EXECUTE IMMEDIATE vSQL INTO vUFDestino;
-         EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            vUFDestino := NULL;
-                 
-       END;
+	
+	  
+	  IF (P_CODFILIAL_DESTINO IS NOT NULL) THEN
+		  BEGIN
+			vSQL := 'SELECT UF
+				 FROM PCFILIAL
+				 WHERE (PCFILIAL.CODIGO in ('||P_CODFILIAL_DESTINO||'))
+				 AND ROWNUM = 1';
+			EXECUTE IMMEDIATE vSQL INTO vUFDestino;
+			EXCEPTION
+				WHEN NO_DATA_FOUND THEN
+					vUFDestino := NULL;
+						 
+		  END;
+      ELSE
+		vUFDestino := NULL;
+	  END IF;
+	  
+	  
        BEGIN
-       SELECT UF
-       INTO  vUFORIGEM
-       FROM PCFILIAL
-       WHERE (PCFILIAL.CODIGO = P_CODFILIAL_ORIGEM);
+		   SELECT UF
+		   INTO  vUFORIGEM
+		   FROM PCFILIAL
+		   WHERE (PCFILIAL.CODIGO = P_CODFILIAL_ORIGEM);
        EXCEPTION
         WHEN NO_DATA_FOUND THEN
           vUFORIGEM := NULL;
-     END;
+	   END;
 
    /*****************************************************
     Se Geração da Reposição de forma Automática ou Manual
