@@ -3788,8 +3788,11 @@ END;
 
 PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  UPDATE monitorpdvmiddle.tb_cadobs SET ATIVO = 'N'
-  WHERE ATIVO = 'S';
+  UPDATE monitorpdvmiddle.tb_cadobs S SET S.ATIVO = 'N'
+  WHERE S.ATIVO = 'S'
+  AND EXISTS (SELECT C.CODOBSERVACAO 
+              FROM VW_INT_C5_CADOBS C
+              WHERE C.CODOBSERVACAO = S.CODOBSERVACAO);
   
   MERGE INTO monitorpdvmiddle.tb_cadobs T
     USING (SELECT * FROM VW_INT_C5_CADOBS) S 
@@ -3837,8 +3840,11 @@ END;
 
 PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  UPDATE monitorpdvmiddle.tb_cadobssped SET ATIVO = 'N'
-  WHERE ATIVO = 'S';
+  UPDATE monitorpdvmiddle.tb_cadobssped S SET S.ATIVO = 'N'
+  WHERE S.ATIVO = 'S'
+  AND EXISTS (SELECT C.SEQOBSSPED 
+              FROM VW_INT_C5_CADOBSSPED C
+              WHERE C.SEQOBSSPED = S.SEQOBSSPED);
   
   MERGE INTO monitorpdvmiddle.tb_cadobssped T
     USING (SELECT * FROM VW_INT_C5_CADOBSSPED) S 
@@ -3892,8 +3898,13 @@ END;
 
 PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  UPDATE monitorpdvmiddle.tb_cadobsspedfamilia SET ATIVO = 'N'
-  WHERE ATIVO = 'S';
+  UPDATE monitorpdvmiddle.tb_cadobsspedfamilia S SET S.ATIVO = 'N'
+  WHERE S.ATIVO = 'S'
+  AND EXISTS (SELECT C.SEQOBSSPED 
+              FROM VW_INT_C5_CADOBSSPEDFAMILIA C
+              WHERE C.SEQFAMILIA = S.SEQFAMILIA
+              AND   C.SEQOBSSPED = S.SEQOBSSPED
+              AND   C.UF         = S.UF);
   
   MERGE INTO monitorpdvmiddle.tb_cadobsspedfamilia T
     USING (SELECT * FROM VW_INT_C5_CADOBSSPEDFAMILIA) S 
