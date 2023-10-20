@@ -8,7 +8,6 @@ SELECT a.nroempresa codfilial,
  WHERE  a.nroempresa = b.nroempresa
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
-   AND  b.replicacao = 'F'
    )
 
 \
