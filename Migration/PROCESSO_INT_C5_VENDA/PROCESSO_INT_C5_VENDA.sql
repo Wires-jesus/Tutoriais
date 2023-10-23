@@ -81,10 +81,20 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
         NVL(c.nomecliente,'CONSUMIDOR FINAL') cliente,
         c.cnpjcpf cgcent,
         c.idestrangeiro identificacao_estrangeiro,
-        'N' exportado
+        'N' exportado,
+        F.TELENT,
+        F.MUNICENT,
+        F.ESTENT,
+        F.CEPENT,
+        F.IEENT, 
+        F.CODCIDADE, 
+        F.NUMEROENT,
+        F.Bairroent,
+        F.ENDERENT
   FROM  monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
-        monitorpdvmiddle.tb_doctonfe e
+        monitorpdvmiddle.tb_doctonfe e,
+        PCCLIENT F
  WHERE  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  d.seqdocto = c.seqdocto
@@ -93,7 +103,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
    AND  d.seqdocto = e.seqdocto
    AND  d.especie = 'NF'
    AND  c.seqpessoa IS NULL
-   AND  c.cnpjcpf IS NOT NULL)
+   AND  c.cnpjcpf IS NOT NULL
+   AND  NVL(C.SEQPESSOA,1) = F.CODCLI(+))
 
 \
 
