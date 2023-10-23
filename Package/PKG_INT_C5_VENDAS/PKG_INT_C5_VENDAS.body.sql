@@ -666,7 +666,16 @@ IS
                                        a.cliente AS "Cliente",
                                        a.cgcent AS "Cgcent",
                                        a.identificacao_estrangeiro AS "Identificacao_estrangeiro",
-                                       a.exportado AS "Exportado" ))))
+                                       a.exportado AS "Exportado",
+                                       a.TELENT AS "Telent",
+                                       a.bairroent AS "Bairroent",
+                                       a.CEPENT AS "Cepent",
+                                       a.CODCIDADE AS "Codcidade",
+                                       a.Enderent AS "Enderent",
+                                       a.ESTENT AS "Estent",
+                                       a.IEENT AS "Ieent",
+                                       a.MUNICENT AS "Municent",
+                                       a.NUMEROENT AS "Numeroent" ))))
                   INTO l_xmltypeconsumidorfinal
                   FROM vw_int_c5_pcvendaconsumecf a
                  WHERE a.seqdocto = p_seqdocto;
