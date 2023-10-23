@@ -11888,6 +11888,9 @@ IS
                                 REPLACE (VS_CONTA,
                                          'CODCONTACONTABIL',
                                          ITEM.CODCONTACONTABIL);
+                            if 'CONTACONTABIL' = ITENSREGRA.CODREDUZIDO_PC then
+                                VS_CONTA := ITEM.CODCONTACONTABIL;                               
+                            end if;                            
                         END IF;
 
 
