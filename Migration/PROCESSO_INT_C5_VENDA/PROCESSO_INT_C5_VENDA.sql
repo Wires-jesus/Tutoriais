@@ -128,7 +128,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
         f.indescalarelevante,
         f.fabricante,
         f.cnpjfabricante,
-        f.origmerctrib,
+        NVL(f.origmerctrib, 0) origmerctrib,
         p.anp,
         p.descanp,
         --(SELECT CODCEST FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST WHERE PCCESTPRODUTO.CODPROD = p.CODPROD) codcest,
@@ -1351,13 +1351,19 @@ AS
         0 aliqreducaopis,
         p.codanp anp,
         0 basebcr,
-        (select vlrbase
-          from monitorpdvmiddle.tb_doctotributacaoitem
-         where nroempresa = i.nroempresa
-           and nrocheckout = i.nrocheckout
-           and seqdocto = i.seqdocto
-           and seqitem = i.seqitem
-           and seqtipotributacao = 1) baseicms,
+        (select 
+              --vlrbase
+              (CASE 
+                 WHEN doctribitem.percbasecalculo < 100 THEN
+                     ( i.vlrunitario * (doctribitem.percbasecalculo/100))
+                 ELSE i.vlrunitario
+              END) vlrbase
+          from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
+         where doctribitem.nroempresa = i.nroempresa
+           and doctribitem.nrocheckout = i.nrocheckout
+           and doctribitem.seqdocto = i.seqdocto
+           and doctribitem.seqitem = i.seqitem
+           and doctribitem.seqtipotributacao = 1) baseicms,
         0 baseicmsbcr,
         0 baseicst,
         NULL baseipiecf,
