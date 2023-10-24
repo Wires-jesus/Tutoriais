@@ -1357,7 +1357,7 @@ AS
                  WHEN doctribitem.percbasecalculo < 100 THEN
                      ( i.vlrunitario * (doctribitem.percbasecalculo/100))
                  ELSE i.vlrunitario
-              END) VLRBASE
+              END) vlrbase
           from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
          where doctribitem.nroempresa = i.nroempresa
            and doctribitem.nrocheckout = i.nrocheckout
