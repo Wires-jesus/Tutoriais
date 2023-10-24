@@ -1355,9 +1355,20 @@ AS
               --vlrbase
               (CASE 
                  WHEN doctribitem.percbasecalculo < 100 THEN
-                     ( i.vlrunitario * (doctribitem.percbasecalculo/100))
+                   CASE
+                     WHEN i.VLRACRESCIMO > 0 THEN
+                          (i.vlrunitario + (i.vlracrescimo/ i.quantidade)) * (doctribitem.percbasecalculo/100)
+                     WHEN i.VLRDESCONTO > 0 THEN
+                          (i.vlrunitario - (i.vlrdesconto/ i.quantidade)) * (doctribitem.percbasecalculo/100)
+                     ELSE i.vlrunitario  * (doctribitem.percbasecalculo/100)
+                   END
+                 WHEN i.VLRACRESCIMO > 0 THEN
+                      (i.vlrunitario + (i.vlracrescimo/ i.quantidade))
+                 WHEN i.VLRDESCONTO > 0 THEN
+                      (i.vlrunitario - (i.vlrdesconto/ i.quantidade)) 
                  ELSE i.vlrunitario
-              END) vlrbase
+               END) vlrbase
+                            
           from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
          where doctribitem.nroempresa = i.nroempresa
            and doctribitem.nrocheckout = i.nrocheckout
