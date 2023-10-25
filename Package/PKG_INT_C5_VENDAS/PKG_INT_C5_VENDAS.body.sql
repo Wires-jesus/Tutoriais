@@ -56,7 +56,7 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
-		VCONT NUMBER
+		VCONT NUMBER;
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
