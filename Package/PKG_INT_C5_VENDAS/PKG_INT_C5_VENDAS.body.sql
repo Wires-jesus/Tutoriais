@@ -3,6 +3,7 @@ IS
     PROCEDURE inserir_pcfilamensagem (p_pcfilamensagem tr_dados_pcfilamensagem)
     IS
         dados_pcfilamensagem   tr_dados_pcfilamensagem;
+		VCONT NUMBER;
     BEGIN
         dados_pcfilamensagem.rowpcfilamensagem.idmensagem           := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         dados_pcfilamensagem.rowpcfilamensagem.datatransacao        := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
@@ -26,10 +27,25 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
         dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
         ----
-        INSERT INTO
+		
+		BEGIN
+		  SELECT COUNT(1)
+		    INTO VCONT
+		   FROM PCFILAMENSAGEM
+		  WHERE SEQDOCTO = dados_pcfilamensagem.rowpcfilamensagem.seqdocto
+		    AND NUMCAIXA = dados_pcfilamensagem.rowpcfilamensagem.numcaixa
+		    AND CODFILIAL = dados_pcfilamensagem.rowpcfilamensagem.codfilial
+			AND TIPOOPERACAO = dados_pcfilamensagem.rowpcfilamensagem.tipooperacao;
+		END;
+		
+		IF VCONT = 0 THEN
+		  INSERT INTO
             pcfilamensagem s
-        VALUES
-            dados_pcfilamensagem.rowpcfilamensagem;
+		  VALUES
+			dados_pcfilamensagem.rowpcfilamensagem;
+		
+		END IF;
+
     ----
     END inserir_pcfilamensagem;
 
@@ -40,6 +56,7 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
+		VCONT NUMBER
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
@@ -65,12 +82,23 @@ IS
 		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
         
+		BEGIN
+		  SELECT COUNT(1)
+		    INTO VCONT
+		    FROM PCFILAMENSAGEMERRO
+		   WHERE SEQDOCTO = rowpcfilamensagemerro.seqdocto
+		    AND NUMCAIXA = rowpcfilamensagemerro.numcaixa
+		    AND CODFILIAL = rowpcfilamensagemerro.codfilial
+			AND TIPOOPERACAO = rowpcfilamensagemerro.tipooperacao;
+		END;
         ----
-        INSERT INTO
+		IF VCONT = 0 THEN
+		  INSERT INTO
             pcfilamensagemerro s
-        VALUES
+          VALUES
             rowpcfilamensagemerro;
-
+		END IF;
+		
         --COMMIT;
     ----
     END inserir_pcfilamensagem_erro;
