@@ -36,8 +36,8 @@ CREATE OR REPLACE TYPE BODY T_USER_VIEWS AS
     DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 09, view_type);
     DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 10, superview_name);
 
-    DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 11, editioning_view);
-    DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 12, read_only);
+    --DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 11, editioning_view);
+    --DBMS_SQL.COLUMN_VALUE(dbms_sql_cursor, 12, read_only);
 
     RETURN;
 
@@ -64,8 +64,8 @@ CREATE OR REPLACE TYPE BODY T_USER_VIEWS AS
     DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 09, view_type, 30);
     DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 10, superview_name, 30);
 
-    DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 11, editioning_view, 1);
-    DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 12, read_only, 1);
+    --DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 11, editioning_view, 1);
+    --DBMS_SQL.DEFINE_COLUMN(dbms_sql_cursor, 12, read_only, 1);
 
   END DEFINE_COLUMNS;
 
