@@ -16,8 +16,8 @@ CREATE OR REPLACE TYPE T_USER_VIEWS AS OBJECT (
   view_type_owner  varchar2(30),
   view_type        varchar2(30),
   superview_name   varchar2(30),
-  editioning_view  varchar2(1),
-  read_only        varchar2(1),
+  --editioning_view  varchar2(1),
+  --read_only        varchar2(1),
 
   CONSTRUCTOR FUNCTION T_USER_VIEWS
   RETURN SELF AS RESULT,
