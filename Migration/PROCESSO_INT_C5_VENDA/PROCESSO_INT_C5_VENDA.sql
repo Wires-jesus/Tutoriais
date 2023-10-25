@@ -70,41 +70,95 @@ CREATE OR REPLACE VIEW VW_INT_C5_PIX AS
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS 
-  (SELECT  d.seqdocto,
-        TO_CHAR(d.dtamovimento, 'YYYY-MM-DD') DATA,
-        0 numpedecf,
-        d.sequsuario codfunccheckout,
-        d.nrocheckout numcaixa,
-        d.nroempresa codfilial,
-        'NOTAFISCAL' numserieequip,
-        c.nronotafiscal numcupom,
-        NVL(c.nomecliente,'CONSUMIDOR FINAL') cliente,
-        c.cnpjcpf cgcent,
-        c.idestrangeiro identificacao_estrangeiro,
-        'N' exportado,
-        F.TELENT,
-        F.MUNICENT,
-        F.ESTENT,
-        F.CEPENT,
-        F.IEENT, 
-        F.CODCIDADE, 
-        F.NUMEROENT,
-        F.Bairroent,
-        F.ENDERENT
-  FROM  monitorpdvmiddle.tb_docto d,
-        monitorpdvmiddle.tb_doctocupom c,
-        monitorpdvmiddle.tb_doctonfe e,
-        PCCLIENT F
- WHERE  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.nroempresa = e.nroempresa
-   AND  d.nrocheckout = e.nrocheckout
-   AND  d.seqdocto = e.seqdocto
-   AND  d.especie = 'NF'
-   AND  c.seqpessoa IS NULL
-   AND  c.cnpjcpf IS NOT NULL
-   AND  NVL(C.SEQPESSOA,1) = F.CODCLI(+))
+  (SELECT d.seqdocto,
+       TO_CHAR(d.dtamovimento, 'YYYY-MM-DD') DATA,
+       0 numpedecf,
+       d.sequsuario codfunccheckout,
+       d.nrocheckout numcaixa,
+       d.nroempresa codfilial,
+       'NOTAFISCAL' numserieequip,
+       c.nronotafiscal numcupom,
+       NVL(c.nomecliente, 'CONSUMIDOR FINAL') cliente,
+       c.cnpjcpf cgcent,
+       c.idestrangeiro identificacao_estrangeiro,
+       'N' exportado,
+       NVL(F.TELENT,
+           (SELECT CLI.TELENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) TELENT,
+       NVL(F.MUNICENT,
+           (SELECT CLI.MUNICENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) MUNICENT,
+       NVL(F.ESTENT,
+           (SELECT CLI.ESTENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) ESTENT,
+       NVL(F.CEPENT,
+           (SELECT CLI.CEPENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) CEPENT,
+       NVL(F.IEENT,
+           (SELECT CLI.IEENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) IEENT,
+       NVL(F.CODCIDADE,
+           (SELECT CLI.CODCIDADE
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) CODCIDADE,
+       NVL(F.NUMEROENT,
+           (SELECT CLI.NUMEROENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) NUMEROENT,
+       NVL(F.BAIRROENT,
+           (SELECT CLI.BAIRROENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) BAIRROENT,
+       NVL(F.ENDERENT,
+           (SELECT CLI.ENDERENT
+              FROM PCCLIENT CLI
+             WHERE CLI.CODCLI =
+                   (SELECT PCFILIAL.CODCLI
+                      FROM PCFILIAL
+                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) ENDERENT
+  FROM monitorpdvmiddle.tb_docto      d,
+       monitorpdvmiddle.tb_doctocupom c,
+       monitorpdvmiddle.tb_doctonfe   e,
+       PCCLIENT                       F
+ WHERE d.nroempresa = c.nroempresa
+   AND d.nrocheckout = c.nrocheckout
+   AND d.seqdocto = c.seqdocto
+   AND d.nroempresa = e.nroempresa
+   AND d.nrocheckout = e.nrocheckout
+   AND d.seqdocto = e.seqdocto
+   AND d.especie = 'NF'
+   AND c.seqpessoa IS NULL
+   AND c.cnpjcpf IS NOT NULL
+   AND NVL(C.SEQPESSOA, 1) = F.CODCLI(+))
 
 \
 
