@@ -21,7 +21,16 @@ RETURN T_USER_VIEWS_COLLECTION PIPELINED AS
 
 BEGIN
   query :=
-     'select * ' ||
+     'select VIEW_NAME, ' ||
+             'TEXT_LENGTH, ' || 
+             'TEXT, ' ||
+             'TYPE_TEXT_LENGTH, ' ||
+             'TYPE_TEXT, ' ||
+             'OID_TEXT_LENGTH, ' || 
+             'OID_TEXT, ' || 
+             'VIEW_TYPE_OWNER, ' ||
+             'VIEW_TYPE, ' || 
+             'SUPERVIEW_NAME ' ||
      'from   user_views uv ' ||
      'where  uv.view_name like :view_name_like';
 
