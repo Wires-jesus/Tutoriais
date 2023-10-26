@@ -5715,7 +5715,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                      vc_Produto.CODPROD,
                                                      NULL, --pi_nCodSt
                                                      vnPrecoFabrica,
-                                                     vnPrecoLiquido,
+                                                     (case when ((vnPrecoPromocional > 0) and (vvTipoFv = 'PE')) then vnPrecoPromocional else vnPrecoLiquido end),
                                                      NULL, --pi_vTipoAplicRepasseFilial
                                                      'N',  --pi_vCriticaObrigatorio
                                                      vnIntegradora,
