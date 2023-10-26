@@ -4,7 +4,9 @@ IS
     IS
         dados_pcfilamensagem   tr_dados_pcfilamensagem;
 		VCONT NUMBER;
+		vTERMINAL VARCHAR2(100) ;
     BEGIN
+	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
         dados_pcfilamensagem.rowpcfilamensagem.idmensagem           := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         dados_pcfilamensagem.rowpcfilamensagem.datatransacao        := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         dados_pcfilamensagem.rowpcfilamensagem.codfilial            := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -26,6 +28,7 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.pdvorigem            := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
         dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
+		dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
         ----
 		
 		BEGIN
@@ -57,8 +60,10 @@ IS
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
 		VCONT NUMBER;
+		vTERMINAL VARCHAR2(100) ;
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
+	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -81,6 +86,7 @@ IS
         rowpcfilamensagemerro.qtreprocessado        := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
 		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
+		rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
         
 		BEGIN
 		  SELECT COUNT(1)
