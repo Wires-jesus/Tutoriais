@@ -10,7 +10,7 @@
       {
         "nome": "PKG_SINC_PDV_CONSINCO_UTIL",
         "tipo": "OBJETO_PLSQL",
-        "versao": "4.0.06.000"
+        "versao": "4.0.07.000"
       },
 	  {
 		"nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
@@ -20,17 +20,17 @@
 	  {
 	    "nome": "PCFILAMENSAGEM",
 	    "tipo": "TABELA",
-	    "versao": "4.0.03.000"
+	    "versao": "4.0.04.000"
 	  },
 	  {
 	    "nome": "PCFILAMENSAGEMHISTORICO",
 	    "tipo": "TABELA",
-	    "versao": "4.0.02.000"
+	    "versao": "4.0.04.000"
    	  },
 	  {
 	    "nome": "PCFILAMENSAGEMERRO",
 	    "tipo": "TABELA",
-	    "versao": "4.0.02.000"
+	    "versao": "4.0.04.000"
 	  }
   ]
 }
