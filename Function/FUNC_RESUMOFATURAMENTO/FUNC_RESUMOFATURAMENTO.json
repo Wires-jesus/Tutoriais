@@ -5,12 +5,12 @@
       {
         "nome": "T_USER_VIEWS_COLLECTION",
         "tipo": "OBJETO_PLSQL",
-        "versao": "4.0.02.000"
+        "versao": "4.0.04.000"
       },
       {
          "nome":"F_GETSQL_VIEW_FATURAMENTO",
          "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.01.000"
+         "versao":"4.0.05.000"
       },
       {
          "nome":"RET_TABLE_VIEW_DEVOLUCAO",
