@@ -1,0 +1,1 @@
+{"nome":"PKG_CREDITOCLIENTE","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"T_PC_CREDITOCLIENTE","tipo":"OBJETO_PLSQL","versao":"2.1.01.000"},{"nome":"PCCRECLI","tipo":"TABELA","versao":"2.1.01.000"},{"nome":"T_PC_CONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"2.1.06.000"}]}
