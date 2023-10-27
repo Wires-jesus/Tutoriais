@@ -1405,30 +1405,32 @@ AS
         0 aliqreducaopis,
         p.codanp anp,
         0 basebcr,
-        (select 
+        NVL((select 
               --vlrbase
               (CASE 
                  WHEN doctribitem.percbasecalculo < 100 THEN
                    CASE
                      WHEN i.VLRACRESCIMO > 0 THEN
-                          (i.vlrunitario + (i.vlracrescimo/ i.quantidade)) * (doctribitem.percbasecalculo/100)
+                         nvl( ((i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1), 0)
                      WHEN i.VLRDESCONTO > 0 THEN
-                          (i.vlrunitario - (i.vlrdesconto/ i.quantidade)) * (doctribitem.percbasecalculo/100)
-                     ELSE i.vlrunitario  * (doctribitem.percbasecalculo/100)
+                          nvl(((i.VLRUNITARIO - (i.vlrdesconto/ i.quantidade)) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
+                     ELSE nvl((i.VLRUNITARIO  * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1), 0) 
                    END
                  WHEN i.VLRACRESCIMO > 0 THEN
-                      (i.vlrunitario + (i.vlracrescimo/ i.quantidade))
+                     nvl( (i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1), 0) 
                  WHEN i.VLRDESCONTO > 0 THEN
-                      (i.vlrunitario - (i.vlrdesconto/ i.quantidade)) 
-                 ELSE i.vlrunitario
+                     nvl( (i.VLRUNITARIO - (i.vlrdesconto/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1),0)  
+                 ELSE nvl((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)), 0)
                END) vlrbase
                             
-          from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
-         where doctribitem.nroempresa = i.nroempresa
-           and doctribitem.nrocheckout = i.nrocheckout
-           and doctribitem.seqdocto = i.seqdocto
-           and doctribitem.seqitem = i.seqitem
-           and doctribitem.seqtipotributacao = 1) baseicms,
+             from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
+             where doctribitem.nroempresa = i.nroempresa
+             and doctribitem.nrocheckout = i.nrocheckout
+             and doctribitem.seqdocto = i.seqdocto
+             and doctribitem.seqitem = i.seqitem
+             and doctribitem.seqtipotributacao = 1
+           --and doctribitem.seqtipotributacao in(1,2,3,4)
+           ), 0) baseicms,
         0 baseicmsbcr,
         0 baseicst,
         NULL baseipiecf,
@@ -1446,7 +1448,14 @@ AS
         0 codcontrolevasilhame,
         d.nroempresa codfilial,
         NULL codfilialretira,
-        NULL codecf,
+        --NULL codecf,
+        (select percaliquota
+           from monitorpdvmiddle.tb_doctotributacaoitem
+          where nroempresa = i.nroempresa
+            and nrocheckout = i.nrocheckout
+            and seqdocto = i.seqdocto
+            and seqitem = i.seqitem
+            and seqtipotributacao = 1) codecf,
         i.cfop codfiscal,
         v.codfornec,
         d.sequsuario codfunccx,
@@ -1541,19 +1550,21 @@ AS
         NVL(p.percglp,0) pglp,
         NVL(p.percgni,0) pgni,
         NVL(p.percgnn,0) pgnn,
-        i.vlrunitario poriginal,
+        --i.vlrunitario poriginal,
+        (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) poriginal,
         NULL possuicomplemento,
         NULL posicaoretorno,
         0 pvendavasilhame,
         'L' posicao,
-        i.vlrunitario ptabela,
+        --i.vlrunitario ptabela,
+        (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) ptabela,
         (CASE
             WHEN i.VLRACRESCIMO > 0
-                 THEN i.vlrunitario + (i.vlracrescimo/ i.quantidade)
+                 THEN ((i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1))
             WHEN i.VLRDESCONTO > 0
-                 THEN i.vlrunitario - (i.vlrdesconto/ i.quantidade)
+                 THEN ((i.VLRUNITARIO - (i.vlrdesconto / i.quantidade)) / NVL(i.QTDEMBALAGEM, 1))
             ELSE
-              i.VLRUNITARIO
+              (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
          END) pvenda,
        /*(CASE
             WHEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) < 0
@@ -1647,7 +1658,14 @@ AS
         0 vldescrodape,
         0 vldescsociotorcedor,
         0 vlfrete,
-        fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
+       --fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
+       (select vlrtributo 
+           from monitorpdvmiddle.tb_doctotributacaoitem
+          where nroempresa = i.nroempresa
+            and nrocheckout = i.nrocheckout
+            and seqdocto = i.seqdocto
+            and seqitem = i.seqitem
+            and seqtipotributacao = 15) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
         0 vlitemtributosestadual,
@@ -1659,7 +1677,8 @@ AS
         0 vloutrasdesp,
         NULL vlmexiva,
         ((NVL(h.percpis,0)/100) * i.vlrtotal) vlpis,
-        (i.quantidade * (i.vlrunitario - (NVL(i.vlrdesconto,0) / i.quantidade))) vlsubtotitem,
+        --(i.quantidade * (i.vlrunitario - (NVL(i.vlrdesconto,0) / i.quantidade))) vlsubtotitem,
+        i.vlrtotal vlsubtotitem,
         0 vlricmssimplesnac,
         NULL vpart,
         0 perctributos,
