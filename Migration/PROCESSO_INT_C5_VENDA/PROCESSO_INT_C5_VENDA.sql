@@ -190,7 +190,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
            FROM  pccest s,
                  pccestproduto sp
           WHERE  s.codigo = sp.codseqcest
-            AND  sp.codprod = p.codprod) codcest,
+            AND  sp.codprod = p.codprod
+			AND ROWNUM = 1) codcest,
         NVL(p.tipomerc,'L') tipomerc,
         p.nbm,
         NVL(NVL(e.pcomrep1,p.pcomrep1),0) comissao,
