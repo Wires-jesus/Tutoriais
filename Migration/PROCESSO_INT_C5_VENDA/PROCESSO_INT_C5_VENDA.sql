@@ -1406,7 +1406,6 @@ AS
         p.codanp anp,
         0 basebcr,
         NVL((select 
-              --vlrbase
               (CASE 
                  WHEN doctribitem.percbasecalculo < 100 THEN
                    CASE
