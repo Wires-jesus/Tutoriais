@@ -116,22 +116,26 @@ SELECT NROTRIBUTACAO,
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
 (SELECT
-    PRODTRIB.*,
-    (select nvl(origmerctrib,0) origmerctrib from pcprodfilial where codprod = PRODTRIB.seqfamilia and rownum = 1 )codorigemtrib
+    PRODTRIB."SEQFAMILIA",PRODTRIB."NROTRIBUTACAO",PRODTRIB."NRODIVISAO",PRODTRIB."IDREF",PRODTRIB."ATIVO", PRODTRIB."CODORIGEMTRIB"
  FROM
      (SELECT DISTINCT
         R.CODPROD seqfamilia,
         R.CODST nrotributacao,
-        --R.numregiao nrodivisao,
+        MIN(NVL(F.origmerctrib, 0)) codorigemtrib,
         D.NRODIVISAO,
         D.NUMREGIAO IDREF,
         'S' ativo
-      FROM VW_INT_C5_FAMILIA T,
+      FROM MONITORPDVMIDDLE.TB_FAMILIA T,
+           PCPRODFILIAL F,
+           VW_INT_C5_OBTER_FILIAIS_C5 c5,
            PCTABPR R,
            PCCONSOLIDATRIBUTACAO C,
            PCDEPARAREGIAOC5 D
       WHERE T.SEQFAMILIA = R.CODPROD
       AND   R.CODST = C.CODST
+      AND   F.CODPROD = T.SEQFAMILIA
+      AND   F.CODPROD = R.CODPROD
+      AND   F.CODFILIAL = C5.CODFILIAL
       AND   R.NUMREGIAO = C.NUMREGIAO
       AND   R.NUMREGIAO = D.NUMREGIAO
       AND   C.NUMREGIAO = D.NUMREGIAO
@@ -142,6 +146,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
                             AND VALOR <> '99'
                             AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                             AND VALOR IS NOT NULL)
+      GROUP BY R.CODPROD, R.CODST, D.NRODIVISAO, D.NUMREGIAO                              
       )PRODTRIB
  )
 
