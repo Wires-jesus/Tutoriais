@@ -2270,7 +2270,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
-        USING (SELECT DISTINCT 
+        USING (SELECT  
                      E.seqfamilia,
                      E.nrodivisao,
                      E.nrotributacao,
