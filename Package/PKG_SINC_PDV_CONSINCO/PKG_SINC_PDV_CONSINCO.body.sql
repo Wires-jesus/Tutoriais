@@ -1,5 +1,8 @@
 CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
-
+  
+  E_FK_VIOLATION EXCEPTION;
+  PRAGMA EXCEPTION_INIT(E_FK_VIOLATION, -2291);
+  
   PROCEDURE set_final_execucao(p_final_execucao IN TIMESTAMP) AS
   BEGIN
     g_final_execucao := p_final_execucao;
@@ -561,6 +564,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+		ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_produto',
+           'carrega_tb_produto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -914,6 +931,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_clientesegmento',
+           'carrega_tb_clientesegmento ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -1113,6 +1144,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_formapagtoempresa',
+           'carrega_tb_formapagtoempresa ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -1395,6 +1440,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'c_tb_prodempresa',
+           'c_tb_prodempresa ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -1460,6 +1519,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
     EXCEPTION
+	  WHEN E_FK_VIOLATION THEN
+	    BEGIN
+	      PRC_RECORD_ALERTA(p_id);
+          ROLLBACK;
+          INSERT INTO PCDEVLOGCONSINCO
+            (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+          VALUES
+            ('pkg_sinc_PDV_Consinco', 'carrega_tb_famembalagem', 'carrega_tb_famembalagem ALERTA', SYSDATE, CURRENT_TIMESTAMP);
+          COMMIT;
+	    END;
       WHEN OTHERS THEN
         BEGIN
           prc_record_error(p_id);
@@ -1515,6 +1584,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       COMMIT;
 
     EXCEPTION
+	  WHEN E_FK_VIOLATION THEN
+	    BEGIN
+	      PRC_RECORD_ALERTA(p_id);
+          ROLLBACK;
+          INSERT INTO PCDEVLOGCONSINCO
+            (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+          VALUES
+            ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo ALERTA', SYSDATE, CURRENT_TIMESTAMP);
+          COMMIT;
+	    END;
       WHEN OTHERS THEN
         BEGIN
           prc_record_error(p_id);
@@ -1574,6 +1653,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   COMMIT;
   EXCEPTION
+   WHEN E_FK_VIOLATION THEN
+	BEGIN
+	  PRC_RECORD_ALERTA(p_id);
+      ROLLBACK;
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco',
+          'carrega_tb_prodpreco',
+          'carrega_tb_prodpreco ALERTA',
+          SYSDATE,
+          CURRENT_TIMESTAMP);
+      COMMIT;
+	END;
   WHEN OTHERS THEN
     BEGIN
       prc_record_error(p_id);
@@ -2270,7 +2363,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
-        USING (SELECT  
+        USING (SELECT DISTINCT 
                      E.seqfamilia,
                      E.nrodivisao,
                      E.nrotributacao,
@@ -2303,6 +2396,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     COMMIT;
 
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_famdivisao',
+           'carrega_tb_famdivisao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -2526,6 +2633,20 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 
     COMMIT;
     EXCEPTION
+	WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraincentperiodo',
+           'carrega_tb_regraincentperiodo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -2574,6 +2695,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+		ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraempresa',
+           'carrega_tb_regraempresa ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -2624,6 +2759,20 @@ BEGIN
   COMMIT;
 
   EXCEPTION
+     WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrasegmento',
+           'carrega_tb_regrasegmento ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -2714,6 +2863,20 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
 
     COMMIT;
     EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraproduto',
+           'carrega_tb_regraproduto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;	
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
@@ -2796,6 +2959,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrafamilia',
+           'carrega_tb_regrafamilia ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;	
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -2849,6 +3026,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regracliente',
+           'carrega_tb_regracliente ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;	
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -2901,6 +3092,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regracategoria',
+           'carrega_tb_regracategoria ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;  
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3077,6 +3282,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_comboempresa',
+           'carrega_tb_comboempresa ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3160,6 +3379,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_comboitem',
+           'carrega_tb_comboitem ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3216,6 +3449,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_combogrupo',
+           'carrega_tb_combogrupo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3310,6 +3557,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcempresa',
+           'carrega_tb_parcempresa ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3359,6 +3620,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_parcperiodo',
+           'carrega_tb_parcperiodo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3417,6 +3692,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_parcfamformapagto',
+           'carrega_parcfamformapagto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3640,6 +3929,20 @@ END;
     COMMIT;
   
     EXCEPTION
+	WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresaempresa',
+           'carrega_tb_promsurpresaempresa ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3689,6 +3992,20 @@ END;
     COMMIT;
   
     EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresaperiodo',
+           'carrega_tb_promsurpresaperiodo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3769,6 +4086,20 @@ END;
     COMMIT;
   
     EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+      ROLLBACK;
+      INSERT INTO PCDEVLOGCONSINCO
+        (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+      VALUES
+        ('pkg_sinc_PDV_Consinco',
+          'carrega_tb_promsurpresaitem',
+          'carrega_tb_promsurpresaitem ALERTA',
+          SYSDATE,
+          CURRENT_TIMESTAMP);
+      COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
       prc_record_error(p_id);
@@ -3879,6 +4210,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cadobssped',
+           'carrega_tb_cadobssped ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
@@ -3936,6 +4281,20 @@ BEGIN
   COMMIT;
   
   EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cadobsspedfamilia',
+           'carrega_tb_cadobsspedfamilia ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
     BEGIN
         prc_record_error(p_id);
