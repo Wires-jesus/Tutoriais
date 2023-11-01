@@ -4324,7 +4324,20 @@ PROCEDURE exec_sinc AS
 
     text_to_run VARCHAR2(200);
     countReg    NUMBER := 0;
-
+	
+  FUNCTION EXISTE_ALERTA(p_id IN pccontroleconsinco.id%TYPE) RETURN BOOLEAN IS
+	vCONT NUMBER;
+  BEGIN
+    SELECT COUNT(1)
+	INTO vCONT
+	FROM PCERRORLOGCONSINCO
+	WHERE id_processo = p_id
+	AND tipo_erro = 'A';
+	
+	RETURN (vCONT > 0); 
+  END;
+  
+  
   BEGIN
     EXECUTE IMMEDIATE ('BEGIN delete from PCERRORLOGCONSINCO; end;');
     EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
@@ -4355,8 +4368,12 @@ PROCEDURE exec_sinc AS
          'EXECUTE IMMEDIATE OK: ' || text_to_run,
          SYSDATE,
          CURRENT_TIMESTAMP);
-
-      pkg_sinc_PDV_Consinco.atualiza_sinc_processo(r_processo.id);
+		 
+		 
+      IF NOT EXISTE_ALERTA(r_processo.id) THEN
+	       pkg_sinc_PDV_Consinco.atualiza_sinc_processo(r_processo.id);
+	    END IF;
+      
 
       EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''N'' where id = '|| r_processo.id ||'; end;');
 
