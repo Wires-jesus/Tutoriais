@@ -14,13 +14,15 @@ BEGIN
                                 ,  callstack
                                 ,  created_on
                                 ,  created_by
-                                ,  id_processo)
+                                ,  id_processo
+								,  tipo_erro)
         VALUES (l_code
               , l_mesg
               , sys.DBMS_UTILITY.format_error_backtrace
               , sys.DBMS_UTILITY.format_call_stack
               , SYSDATE
               , USER
-              , vIdProcesso);
+              , vIdProcesso
+			  , 'E');
    COMMIT;
 END;
