@@ -94,6 +94,7 @@ SELECT  distinct
                 or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPED')
                 or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPEDFAMILIA')
                )
+ AND LENGTH(SITUACAOTRIBUTACAO) <= 3 --Não considerar CST de Simples Nacional que pode estar com 4 digitos             
 )
 
 \
