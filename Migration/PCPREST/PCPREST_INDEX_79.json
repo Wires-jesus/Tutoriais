@@ -1,0 +1,11 @@
+{
+   "nome": "PCPREST_INDEX_79",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+      {
+        "nome": "PCPREST",
+        "tipo": "TABELA",
+        "versao": "2.1.11.000"
+      }
+    ]
+}
