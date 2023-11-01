@@ -30,7 +30,7 @@
 		{
 			"nome": "PCCOB",
 			"tipo": "TABELA",
-			"versao": "4.0.01.000"
+			"versao": "4.0.02.000"
 		},
 		{
 			"nome": "PCFILIAL",
@@ -40,7 +40,7 @@
 		{
 			"nome": "PCEMBALAGEM",
 			"tipo": "TABELA",
-			"versao": "4.0.05.000"
+			"versao": "4.0.06.000"
 		},
 		{
 			"nome": "PCPROMI",
@@ -130,7 +130,7 @@
 		{
 			"nome": "PRC_RECORD_ERROR",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.02.000"
+			"versao": "4.0.03.000"
 		},
 		{
 			"nome": "VW_INT_C5_ENDERECO_ALTERNATIVO",
@@ -176,6 +176,176 @@
 			"nome": "VW_INT_C5_ABERTURACX",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.02.000"
-		}
+		},
+		{
+			"nome": "PRC_RECORD_ALERTA",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
+		},
+		{
+		    "nome": "TRIGGER_INATIVACOESREGISTROSC5",
+		    "tipo": "MIGRATION",
+		    "versao": "4.0.01.000"
+		},
+		{
+			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCPRODUT",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCCONSOLIDATRIBUTACAO",
+			"tipo": "TABELA",
+			"versao": "4.0.08.000"
+		},
+		{
+			"nome": "FNC_INT_C5_CBENEF",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "PCTRIBUT",
+			"tipo": "TABELA",
+			"versao": "4.0.04.000"
+		},
+		{
+			"nome": "PCTABTRIB",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCPRODFILIAL",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCPLPAG",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "PCEMPR",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "PCCLIENT",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCMARCA",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCDEPTO",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCSECAO",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCCATEGORIA",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCSUBCATEGORIA",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCCFO",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCNCM",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCTRIBNCMFILIAL",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCREGIAO",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCPRECOPROM",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCDESCONTO",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "PCOFERTAPROGRAMADAC",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCOFERTAPROGRAMADAI",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCOFERTAPROGRAMADAC_HIST",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCOFERTAPROGRAMADAI_HIST",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCERRORLOGCONSINCO",
+			"tipo": "TABELA",
+			"versao": "4.0.03.000"
+		},
+		{
+			"nome": "PCTIPOPROCESSOCONSINCO",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCCONTROLECONSINCO",
+			"tipo": "TABELA",
+			"versao": "4.0.05.000"
+		},
+		{
+			"nome": "PCDEPARAEMBALAGENSC5",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCDEPARAPLPAGC5",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "PCDEPARAREGIAOC5",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCDEPARACATEGORIAC5",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		}		
 	]
 }
