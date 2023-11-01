@@ -1,0 +1,11 @@
+{
+	"nome":"PRC_RECORD_ALERTA",
+	"tipoPLSQL":"PROCEDURE",
+	"dependencias":[
+					{
+						"nome": "PCERRORLOGCONSINCO",
+						"tipo": "TABELA",
+						"versao": "4.0.03.000"
+					}
+				   ]
+}
