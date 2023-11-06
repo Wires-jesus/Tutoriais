@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "4.0.15.000"
+			"versao": "4.0.16.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -341,6 +341,11 @@
 			"nome": "PCDEPARAREGIAOC5",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCEXCECAOCADASTROSFISCAIS",
+			"tipo": "TABELA",
+			"versao": "4.0.02.000"
 		},
 		{
 			"nome": "PCDEPARACATEGORIAC5",
