@@ -1,0 +1,11 @@
+{
+	"nome":"FNC_INT_C5_PRESTS_TEF",
+	"tipoPLSQL":"FUNCTION",
+	"dependencias":[
+					{
+						"nome": "TB_PREST_DESD",
+						"tipo": "OBJETO_PLSQL",
+						"versao": "4.0.01.000"
+					}
+				   ]
+}
