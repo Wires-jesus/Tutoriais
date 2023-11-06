@@ -60,7 +60,7 @@ BEGIN
     
       LOOP
         --vListTemp := PREST_DESD(0, 0, 0, 0, 0, 0, TRUNC(SYSDATE));
-        vListTemp := PREST_DESD(vList.seqdocto,
+        vListTemp := T_PREST_DESD(vList.seqdocto,
                                 vList.nrocheckout,
                                 vList.nroempresa,
                                 vList.seqitem,
