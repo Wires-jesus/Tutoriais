@@ -1,0 +1,11 @@
+{
+	"nome":"TB_PREST_DESD",
+	"tipoPLSQL":"TYPE",
+	"dependencias":[
+	                {
+						 "nome": "T_PREST_DESD",
+						 "tipo": "OBJETO_PLSQL",
+						 "versao": "4.0.01.000"
+					}
+				   ]
+}
