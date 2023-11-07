@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_IDENTIFICACAO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_IDENTIFICACAO",
+   "tipo": "MIGRATION",
+   "versao": "4.0.01.000"
+  }
+ ]
+}
