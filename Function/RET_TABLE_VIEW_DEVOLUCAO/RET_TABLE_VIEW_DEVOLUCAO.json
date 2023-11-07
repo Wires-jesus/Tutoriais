@@ -1,0 +1,16 @@
+{
+ "nome":"RET_TABLE_VIEW_DEVOLUCAO",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_VIEW_DEVOLUCAO",
+   "tipo": "OBJETO_PLSQL",
+   "versao": "4.0.01.000"
+  },
+  {
+   "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+   "tipo": "OBJETO_PLSQL",
+   "versao": "4.0.03.000"
+  }
+ ]
+}
