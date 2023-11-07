@@ -10,6 +10,11 @@
 						"nome": "FNC_INT_C5_CODUSUR",
 						"tipo": "OBJETO_PLSQL",
 						"versao": "4.0.01.000"
-					}
+					},
+					{
+					    "nome": "FNC_INT_C5_PRESTS_TEF",
+					    "tipo": "OBJETO_PLSQL",
+					    "versao": "4.0.01.000"
+					} 
 				   ]
 }

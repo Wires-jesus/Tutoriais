@@ -1157,14 +1157,14 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
           WHERE g.nroempresa = a.nroempresa
             AND g.nrocheckout = a.nrocheckout
             AND g.seqdocto = a.seqdocto
-            AND g.seqitem = 1),1) codplpag,
+            AND ROWNUM = 1),1) codplpag,
 
         (SELECT fnc_int_c5_tipovenda_pag_venda(g.nroformapagto,g.nroempresa,g.nrocheckout)
            FROM monitorpdvmiddle.tb_doctopagto g
           WHERE g.nroempresa = a.nroempresa
             AND g.nrocheckout = a.nrocheckout
             AND g.seqdocto = a.seqdocto
-            AND g.seqitem = 1) tipovenda,
+            AND ROWNUM = 1) tipovenda,
         NVL(fnc_int_c5_praca_cli(c.seqpessoa),1) codpraca,
         NVL(fnc_int_c5_codsuperv(a.sequsuario),1) codsupervisor,
         NVL(fnc_int_c5_codusur(a.sequsuario),1) codusur,
@@ -1285,55 +1285,55 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         (SELECT i.numdias
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazomedio,
+            AND ROWNUM = 1) prazomedio,
         (SELECT i.prazo1
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo1,
+            AND ROWNUM = 1) prazo1,
         (SELECT i.prazo2
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo2,
+            AND ROWNUM = 1) prazo2,
         (SELECT i.prazo3
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo3,
+            AND ROWNUM = 1) prazo3,
         (SELECT i.prazo4
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo4,
+            AND ROWNUM = 1) prazo4,
         (SELECT i.prazo5
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo5,
+            AND ROWNUM = 1) prazo5,
         (SELECT i.prazo6
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo6,
+            AND ROWNUM = 1) prazo6,
         (SELECT i.prazo7
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo7,
+            AND ROWNUM = 1) prazo7,
         (SELECT i.prazo8
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo8,
+            AND ROWNUM = 1) prazo8,
         (SELECT i.prazo9
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo9,
+            AND ROWNUM = 1) prazo9,
         (SELECT i.prazo10
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo10,
+            AND ROWNUM = 1) prazo10,
         (SELECT i.prazo11
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo11,
+            AND ROWNUM = 1) prazo11,
         (SELECT i.prazo12
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
-            AND i.seqitem = 1) prazo12,
+            AND ROWNUM = 1) prazo12,
         0 vlcustofin,
         0 vlcustoreal,
         0 vlcustocont,
@@ -1409,19 +1409,9 @@ AS
         NVL((select 
               (CASE 
                  WHEN doctribitem.percbasecalculo < 100 THEN
-                   CASE
-                     WHEN i.VLRACRESCIMO > 0 THEN
-                         nvl( ((i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1), 0)
-                     WHEN i.VLRDESCONTO > 0 THEN
-                          nvl(((i.VLRUNITARIO - (i.vlrdesconto/ i.quantidade)) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-                     ELSE nvl((i.VLRUNITARIO  * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1), 0) 
-                   END
-                 WHEN i.VLRACRESCIMO > 0 THEN
-                     nvl( (i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1), 0) 
-                 WHEN i.VLRDESCONTO > 0 THEN
-                     nvl( (i.VLRUNITARIO - (i.vlrdesconto/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1),0)  
-                 ELSE nvl((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)), 0)
-               END) vlrbase
+                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ i.quantidade),0) + NVL((i.vlracrescimo/ i.quantidade),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
+                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ i.quantidade),0) + NVL((i.vlracrescimo/ i.quantidade),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
+               END) vlrbase             
                             
              from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
              where doctribitem.nroempresa = i.nroempresa
@@ -1429,8 +1419,7 @@ AS
              and doctribitem.seqdocto = i.seqdocto
              and doctribitem.seqitem = i.seqitem
              and doctribitem.seqtipotributacao = 1
-           --and doctribitem.seqtipotributacao in(1,2,3,4)
-           ), 0) baseicms,
+             ), 0) baseicms,
         0 baseicmsbcr,
         0 baseicst,
         NULL baseipiecf,
@@ -1558,14 +1547,7 @@ AS
         'L' posicao,
         --i.vlrunitario ptabela,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) ptabela,
-        (CASE
-            WHEN i.VLRACRESCIMO > 0
-                 THEN ((i.VLRUNITARIO + (i.vlracrescimo/ i.quantidade)) / NVL(i.QTDEMBALAGEM, 1))
-            WHEN i.VLRDESCONTO > 0
-                 THEN ((i.VLRUNITARIO - (i.vlrdesconto / i.quantidade)) / NVL(i.QTDEMBALAGEM, 1))
-            ELSE
-              (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
-         END) pvenda,
+        ((i.vlrunitario - (NVL(i.vlrdesconto,0)/i.quantidade) + (NVL(i.vlracrescimo,0)/i.quantidade) )/NVL(i.QTDEMBALAGEM, 1)) pvenda,
        /*(CASE
             WHEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) < 0
                  THEN (i.vlrunitario + (NVL(i.vlracrescimo,0)/ i.quantidade))
@@ -1723,10 +1705,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 ( SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
-         p.seqitem prestecf,
         (CASE
             WHEN f.especie IN ('E','R','S')
-                THEN p.seqitem
+                THEN r.parcela
             ELSE
                 NULL
          END) presttef,
@@ -1735,7 +1716,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         c.nronotafiscal duplic,
         NVL(c.seqpessoa,1) codcli,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvenc,
+        TO_CHAR(NVL(r.dtvenc, p.dtavencimento),'YYYY-MM-DD') dtvenc,
         NVL(
         (CASE
             WHEN p.valor < 0
@@ -1747,7 +1728,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         p.nroempresa codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvencorig,
+        TO_CHAR(NVL(r.DTVENC,p.dtavencimento),'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
         NULL numbanco,
@@ -1755,7 +1736,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         NULL numcheque,
         NVL(fnc_int_c5_codsuperv(d.sequsuario),1) codsupervisor,
         p.cmc7 codbarra,
-        p.valor valororig,
+        NVL(r.valor, p.valor) valororig,
         NVL(
         (CASE
             WHEN p.valor < 0
@@ -1856,12 +1837,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 THEN 'S'
             ELSE 'N'
          END) carteiradigital,
-        p.valor
+        NVL(r.valor, p.valor) valor
   FROM  monitorpdvmiddle.tb_doctopagto p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
-        vw_int_c5_cobranca_winthor v
+        vw_int_c5_cobranca_winthor v,
+		TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto)) r
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
@@ -1873,4 +1855,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    --AND f.codcob = v.especie(+)
    AND  d.especie = 'NF'
    --AND c.status = 'V'
+   AND p.Seqdocto = r.seqdocto(+)
+   AND p.seqitem = r.seqitem(+)
+   AND p.nroempresa = r.nroempresa(+)
+   AND p.nrocheckout = r.nrocheckout(+)
 )
