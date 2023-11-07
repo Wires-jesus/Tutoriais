@@ -1,6 +1,6 @@
 {
  "nome":"RET_TABLE_VIEW_DEVOLUCAO",
- "tipoPLSQL":"TYPE",
+ "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
    "nome": "TABELA_VIEW_DEVOLUCAO",
