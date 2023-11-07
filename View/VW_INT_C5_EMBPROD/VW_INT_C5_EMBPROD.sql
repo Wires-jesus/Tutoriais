@@ -22,7 +22,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             LEAST(NVL(e.qtunit, 1), 999999.999) qtunit,
             NVL(e.prazoval,0) prazoval,
             --NVL(e.qtminimaatacado,0) qtminimaatacado,
-            LEAST(NVL(e.qtminimaatacado, 1), 999999.999) qtminimaatacado,
+            LEAST(NVL(e.qtminimaatacado, 0), 999999.999) qtminimaatacado,
             NVL(e.pvendaatac,0) pvendaatac,
             NVL(e.enviabalanca, 'N') enviabalanca,
             NVL(e.unidade,p.unidade) unidade,
