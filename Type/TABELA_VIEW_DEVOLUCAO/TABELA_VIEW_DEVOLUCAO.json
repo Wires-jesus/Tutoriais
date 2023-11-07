@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_VIEW_DEVOLUCAO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_VIEW_DEVOLUCAO",
+   "tipo": "MIGRATION",
+   "versao": "4.0.03.000"
+  }
+ ]
+}
