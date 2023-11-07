@@ -1,0 +1,5 @@
+{
+ "nome":"VIEW_VENDAS_RESUMO_FATURAMENTO",
+ "tipoPLSQL":"VIEW",
+ "dependencias": ""
+}
