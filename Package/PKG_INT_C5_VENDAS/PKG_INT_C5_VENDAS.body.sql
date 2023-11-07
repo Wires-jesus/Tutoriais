@@ -553,7 +553,7 @@ IS
                                        p.numgiftcard AS "Numgiftcard",
                                        p.exportado AS "Exportado",
                                        p_numpedecf AS "Numpedecf",
-                                       p.prestecf AS "Prestecf",
+                                       ROWNUM AS "Prestecf",
                                        p.presttef AS "Presttef",
                                        p.codfunccheckout AS "Codfunccheckout",
                                        p.numcheckout AS "Numcheckout",
