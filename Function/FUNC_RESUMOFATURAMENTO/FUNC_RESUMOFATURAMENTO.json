@@ -10,32 +10,17 @@
       {
          "nome":"F_GETSQL_VIEW_FATURAMENTO",
          "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.05.000"
+         "versao":"4.0.06.000"
       },
       {
          "nome":"RET_TABLE_VIEW_DEVOLUCAO",
-         "tipo":"OBJETO_PLSQL",
-         "versao":"1.3.01.000"
-      },
-      {
-         "nome":"VIEW_DEVOL_RESUMO_FATURAVULSA",
-         "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.01.000"
-      },
-      {
-         "nome":"VIEW_DEVOL_RESUMO_FATURAMENTO",
          "tipo":"OBJETO_PLSQL",
          "versao":"4.0.01.000"
       },
       {
          "nome":"RET_TABLE_VIEW_DEVOLAVULSA",
          "tipo":"OBJETO_PLSQL",
-         "versao":"1.3.01.000"
-      },
-      {
-         "nome":"VIEW_VENDAS_RESUMO_FATURAMENTO",
-         "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.02.000"
+         "versao":"4.0.01.000"
       }
    ]
 
