@@ -147,6 +147,11 @@
     "versao": "4.0.01.000"
   },
   {
+    "nome": "PCEXCECAOCADASTROSFISCAIS",
+    "tipo": "TABELA",
+    "versao": "4.0.02.000"
+  },
+  {
     "nome": "PCPROMI",
     "tipo": "TABELA",
     "versao": "4.0.02.000"
