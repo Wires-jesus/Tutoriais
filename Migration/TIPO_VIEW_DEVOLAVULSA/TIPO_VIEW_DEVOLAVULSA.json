@@ -1,5 +1,5 @@
 {
  "nome":"TIPO_VIEW_DEVOLAVULSA",
- "tipoPLSQL":"TYPE",
+ "tipoPLSQL":"MIGRATION",
  "dependencias":""
 }
