@@ -1706,8 +1706,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         NULL numgiftcard,
         'N' exportado,
         (CASE
-            WHEN f.especie IN ('E','R','S')
-                THEN r.parcela
+            WHEN (f.especie IN ('E','R','S')) or (NVL(p.qtdparcelatef,0) > 0)
+                THEN NVL(r.parcela, p.nroparcela)
             ELSE
                 NULL
          END) presttef,
