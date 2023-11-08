@@ -749,6 +749,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                         ) DATAPADRAO 
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
+                   AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
                    AND   R.NUMREGIAO = ( SELECT VALOR
                                          FROM PCPARAMFILIAL
                                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
@@ -758,6 +759,30 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                          AND ROWNUM = 1)-- somente os dados de 1 região
                    AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
                          NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)
+
+                   UNION ALL
+
+                   SELECT R.CODPROD, 
+                          T.SITTRIBUT, 
+                          T.PERCPIS, 
+                          T.PERCCOFINS, 
+                          T.EXCLUIRICMSBASEPISCOFINS
+                   FROM PCTABTRIB R, 
+                        PCTRIBPISCOFINS T,
+                                                
+                        (SELECT S.ULTIMAEXECUCAO
+                         FROM PCCONTROLECONSINCO S
+                         WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
+                        ) DATAPADRAO 
+                   WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
+                   AND   R.CODTRIBPISCOFINS IS NOT NULL
+                   AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
+                   AND   R.UFDESTINO = (SELECT F.UF
+                                        FROM PCFILIAL F
+                                        WHERE F.UF IS NOT NULL
+                                        AND   ROWNUM = 1)
+                   AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
+                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)      
                   ) PRODPISCOFINS --vinculo do produto com os dados de pis e cofins
              WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
                 
