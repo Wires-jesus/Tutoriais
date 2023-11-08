@@ -1,0 +1,11 @@
+{
+ "nome":"CTE_IDENTIFICACAO",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CTE_IDENTIFICACAO",
+   "tipoPLSQL":"TYPE",
+   "versao": "2.1.03.000"
+  }
+ ]
+}
