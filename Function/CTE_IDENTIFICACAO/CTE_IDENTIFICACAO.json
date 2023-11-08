@@ -4,7 +4,7 @@
  "dependencias": [
   {
    "nome": "TABELA_CTE_IDENTIFICACAO",
-   "tipoPLSQL":"OBJETO_PLSQL",
+   "tipo":"OBJETO_PLSQL",
    "versao": "4.0.01.000"
   }
  ]
