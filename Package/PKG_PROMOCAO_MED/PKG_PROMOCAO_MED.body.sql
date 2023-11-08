@@ -6759,8 +6759,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnBASEICST                    PCORCAVENDAI.BASEICST%TYPE,      -- DDMEDICA-7697
          vnST                          PCORCAVENDAI.ST%TYPE,            -- DDMEDICA-7697
          vnPTABELACONTRATO             PCORCAVENDAI.PTABELA%TYPE,        -- DDVENDAS-32472
-		 vnNUMVERBAREBCMV              PCORCAVENDAI.NUMVERBAREBCMV%TYPE
-		 
+         vnNUMVERBAREBCMV              PCORCAVENDAI.NUMVERBAREBCMV%TYPE,
+         vnNUMITEMPED                  PCORCAVENDAI.NUMITEMPED%TYPE		 
          );
     vrDadosOrcaI                       TRecDadosOrcaI;
 
@@ -6882,7 +6882,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvUnidadeConversaoPedLicit    PCPEDI.UNIDADECONVERSAOPEDLICIT%TYPE,
          vnFatorConversaoPedLicit      PCPEDI.FATORCONVERSAOPEDLICIT%TYPE,
          vvDescricaoProdutoDanfe       PCPEDI.PRODDESCRICAODANFE%TYPE,         
-		 vnNumverbarebcmv              pcpedi.numverbarebcmv%TYPE  
+         vnNumverbarebcmv              pcpedi.numverbarebcmv%TYPE,
+         vnNumItemPed                  pcpedi.NUMITEMPED%TYPE
          );
     TYPE TTvIncluiItens                IS TABLE OF TRecIncluiItens INDEX BY BINARY_INTEGER;
     vtIncluiItens                      TTvIncluiItens;
@@ -7308,7 +7309,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          nFATORCONVERSAOPEDLICIT   PCPEDI.FATORCONVERSAOPEDLICIT%TYPE,
          vPRODDESCRICAODANFE       PCPEDI.PRODDESCRICAODANFE%TYPE,
          vPRODDESCRICAOCONTRATO    PCPEDI.PRODDESCRICAOCONTRATO%TYPE,
-		 nNUMVERBAREBCMV           PCPEDI.NUMVERBAREBCMV%TYPE
+         nNUMVERBAREBCMV           PCPEDI.NUMVERBAREBCMV%TYPE,
+         nNUMITEMPED               PCPEDI.NUMITEMPED%TYPE
          );
     vrItemPedido                   TRecItemPedido;
     vrLimpaItemPedido              TRecItemPedido;
@@ -10332,7 +10334,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                     ELSE
                       0
                     END PTABELACONTRATO,
-					PCORCAVENDAI.NUMVERBAREBCMV
+                    PCORCAVENDAI.NUMVERBAREBCMV,
+                    PCORCAVENDAI.NUMITEMPED
                FROM PCORCAVENDAI
                    ,PCORCAVENDAC
                    ,PCPRODUT
@@ -10382,7 +10385,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             vtIncluiItens(viIdxNew).vnBaseIcst                 := vrDadosOrcaI.vnBASEICST;        -- DDMEDICA-7697
             vtIncluiItens(viIdxNew).vnSt                       := vrDadosOrcaI.vnST;              -- DDMEDICA-7697            
             vtIncluiItens(viIdxNew).vnPtabelaContrato          := vrDadosOrcaI.vnPTABELACONTRATO; -- DDVENDAS-32472           
-			vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vrDadosOrcaI.vnNUMVERBAREBCMV;
+            vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vrDadosOrcaI.vnNUMVERBAREBCMV;
+            vtIncluiItens(viIdxNew).vnNumItemPed               := vrDadosOrcaI.vnNUMITEMPED;
+			
             -- Controle de Rejeição
             vvRegistroValido := 'S';
             --vvMsgRejeicao    := NULL;
@@ -11269,6 +11274,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrItemPedido.nFATORCONVERSAOPEDLICIT   := vtIncluiItens(viNumSeq).vnFatorConversaoPedLicit;
             vrItemPedido.vPRODDESCRICAODANFE       := vtIncluiItens(viNumSeq).vvDescricaoProdutoDanfe;
             vrItemPedido.vPRODDESCRICAOCONTRATO    := vtIncluiItens(viNumSeq).vvDescricaoProdutoDanfe;
+            vrItemPedido.nNUMITEMPED               := vtIncluiItens(viNumSeq).vnNUMITEMPED;
             
             IF (pi_nTipoChamada IN (3,18)) THEN
               -- Log do Item
@@ -14839,6 +14845,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , FATORCONVERSAOPEDLICIT
                               , PRODDESCRICAODANFE
                               , PRODDESCRICAOCONTRATO
+                              , NUMITEMPED
                               )
                         VALUES( pi_nNumPed                            -- NUMPED
                               , vrItemPedido.nCODPROD                 -- CODPROD
@@ -14985,6 +14992,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrItemPedido.nFATORCONVERSAOPEDLICIT
                               , vrItemPedido.vPRODDESCRICAODANFE
                               , vrItemPedido.vPRODDESCRICAOCONTRATO
+                              , vrItemPedido.nNUMITEMPED							  
                               );
 
                     -- Insere Origem Preço
