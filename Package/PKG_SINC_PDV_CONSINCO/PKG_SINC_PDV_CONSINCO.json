@@ -200,7 +200,7 @@
 		{
 			"nome": "PCCONSOLIDATRIBUTACAO",
 			"tipo": "TABELA",
-			"versao": "4.0.08.000"
+			"versao": "4.0.09.000"
 		},
 		{
 			"nome": "FNC_INT_C5_CBENEF",
