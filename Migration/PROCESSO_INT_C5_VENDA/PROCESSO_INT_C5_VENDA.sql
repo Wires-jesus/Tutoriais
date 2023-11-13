@@ -929,9 +929,9 @@ CREATE OR REPLACE FUNCTION fnc_int_c5_cab_total(pSeqDocto NUMBER,
 IS
     vTotal NUMBER;
 BEGIN
-   SELECT   SUM(z.valor)
+   SELECT   SUM(z.vlrtotal)
       INTO  vTotal
-      FROM  monitorpdvmiddle.tb_doctopagto z,
+      FROM  monitorpdvmiddle.tb_doctoitem z,
             monitorpdvmiddle.tb_docto a
      WHERE  z.nroempresa = a.nroempresa
        AND  z.nrocheckout = a.nrocheckout
@@ -953,7 +953,7 @@ IS
   vTotalPTabela NUMBER;
 BEGIN
 
-SELECT  SUM(i.VLRUNITARIO)
+SELECT  SUM(i.VLRUNITARIO*i.quantidade)
   INTO   vTotalPTabela
   FROM  monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -1409,8 +1409,8 @@ AS
         NVL((select 
               (CASE 
                  WHEN doctribitem.percbasecalculo < 100 THEN
-                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ i.quantidade),0) + NVL((i.vlracrescimo/ i.quantidade),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ i.quantidade),0) + NVL((i.vlracrescimo/ i.quantidade),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
+                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
+                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
                END) vlrbase             
                             
              from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
@@ -1516,22 +1516,8 @@ AS
                   THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) * -1
              ELSE
                ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
-          END) perdesc,*/
-        (CASE
-            WHEN i.seqdocto IN (SELECT seqdocto
-                                  FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
-                                 WHERE z.NROEMPRESA = i.NROEMPRESA
-                                   AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO = 7)
-                THEN 0
-           ELSE
-              (CASE
-                  WHEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) < 0
-                       THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) * -1
-                  ELSE
-                       ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
-               END)
-          END) perdesc,
+          END) perdesc,*/  
+		((((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) - ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))) / (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)))*100)perdesc,
         0 perdesccusto,
         0 perdescisentoicms,
         'N' piscofinsdeduzido,
@@ -1547,7 +1533,7 @@ AS
         'L' posicao,
         --i.vlrunitario ptabela,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) ptabela,
-        ((i.vlrunitario - (NVL(i.vlrdesconto,0)/i.quantidade) + (NVL(i.vlracrescimo,0)/i.quantidade) )/NVL(i.QTDEMBALAGEM, 1)) pvenda,
+        ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) pvenda,
        /*(CASE
             WHEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) < 0
                  THEN (i.vlrunitario + (NVL(i.vlracrescimo,0)/ i.quantidade))
