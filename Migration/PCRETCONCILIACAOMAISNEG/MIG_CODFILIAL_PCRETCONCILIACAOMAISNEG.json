@@ -1,0 +1,12 @@
+{
+	"nome":"MIG_CODFLIAL_PCRETCONCILIACAOMAISNEG",
+	"tipoPLSQL":"MIGRATION",
+	
+	"dependencias": [
+		{
+			"nome":"PCRETCONCILIACAOMAISNEG",
+			"tipo":"TABELA",
+			"versao":"4.0.01.000"
+		}
+	]
+}
