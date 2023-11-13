@@ -7,9 +7,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 nroregtributacao,
             c.percaliquota,
             (case
-              when Length(NVL(t.sittributecf, t.sittributpf)) = 2 then
-                   '0' || NVL (t.sittributecf, t.sittributpf) 
-              else NVL (t.sittributecf, t.sittributpf)
+              when (Length(NVL(t.sittributecf, t.sittributpf))) = 2 then
+                   '0' || NVL(t.sittributecf, t.sittributpf) 
+              else NVL(t.sittributecf, t.sittributpf)
             end)  situacaotributacao,
             c.percisento,
             c.perctributado,
