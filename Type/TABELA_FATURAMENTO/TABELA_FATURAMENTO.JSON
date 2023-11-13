@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_FATURAMENTO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_FATURAMENTO",
+   "tipo": "MIGRATION",
+   "versao": "4.0.02.000"
+  }
+ ]
+}
