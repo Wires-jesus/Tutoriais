@@ -1,17 +1,17 @@
 alter table PCRETCONCILIACAOMAISNEG
-add bkp_codfilial number(2);
+add bkp_codfilial number(2)
 /
 update PCRETCONCILIACAOMAISNEG
-set bkp_codfilial = codfilial;
+set bkp_codfilial = codfilial
 /
 alter table PCRETCONCILIACAOMAISNEG
-drop column codfilial;
+drop column codfilial
 /
 alter table PCRETCONCILIACAOMAISNEG
-add codfilial varchar(2);
+add codfilial varchar(2)
 /
 update PCRETCONCILIACAOMAISNEG
-set codfilial = bkp_codfilial;
+set codfilial = bkp_codfilial
 /
 alter table PCRETCONCILIACAOMAISNEG
-drop column bkp_codfilial;
+drop column bkp_codfilial
