@@ -1687,6 +1687,49 @@ AS
    
 \
 
+CREATE OR REPLACE VIEW vw_int_c5_agrup_dinheiro AS
+(
+	SELECT P.NROEMPRESA,
+		   P.NROCHECKOUT,
+		   P.SEQDOCTO,
+		   P.nroformapagto,
+		   SUM(P.VLRTOTAL) AS VALOR,
+		   MAX(P.DTABASECOBRANCA) AS DTABASECOBRANCA,
+		   MAX(P.DTAVENCIMENTO) AS DTAVENCIMENTO,
+		   MIN(SEQITEM) SEQITEM
+	  FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P
+	 WHERE P.NROFORMAPAGTO IN
+		   (SELECT fp.nroformapagto
+			  FROM monitorpdvmiddle.tb_formapagto fp
+			 where fp.formapagto = 'DINHEIRO')
+	   AND P.VLRTOTAL > 0
+	 GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto
+)
+
+\
+
+CREATE OR REPLACE VIEW vw_int_c5_agrup_troco AS
+(
+SELECT P.NROEMPRESA,
+       P.NROCHECKOUT,
+       P.SEQDOCTO,
+       SUM(P.VLRTOTAL) AS VALOR,
+       MAX(P.DTABASECOBRANCA) AS DTABASECOBRANCA,
+       MAX(P.DTAVENCIMENTO) AS DTAVENCIMENTO,
+       MIN(SEQITEM) SEQITEM,
+	   P.nroformapagto
+  FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P
+ WHERE P.NROFORMAPAGTO IN
+       (SELECT fp.nroformapagto
+          FROM monitorpdvmiddle.tb_formapagto fp
+         where fp.especie = 'D'
+         and fp.formapagto LIKE '%DINHEIRO%')
+   AND P.VLRTOTAL < 0
+ GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto
+ )
+
+\
+
 CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 ( SELECT  d.seqdocto,
         NULL numgiftcard,
@@ -1829,7 +1872,131 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
         vw_int_c5_cobranca_winthor v,
-		TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto)) r
+    TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto)) r
+ WHERE  p.seqdocto = d.seqdocto
+   AND p.nroformapagto not in (SELECT fp.nroformapagto
+          FROM monitorpdvmiddle.tb_formapagto fp
+         where fp.especie = 'D'
+         and fp.formapagto LIKE '%DINHEIRO%')
+   AND  p.nroempresa = d.nroempresa
+   AND  p.nrocheckout = d.nrocheckout
+   AND  d.seqdocto = c.seqdocto
+   AND  d.nroempresa = c.nroempresa
+   AND  d.nrocheckout = c.nrocheckout
+   AND  p.nroformapagto = f.nroformapagto
+   AND  f.codcob = v.codcob(+)
+   --AND f.codcob = v.especie(+)
+   AND  d.especie IN ('NF', 'CF')
+   --AND c.status = 'V'
+   AND p.Seqdocto = r.seqdocto(+)
+   AND p.seqitem = r.seqitem(+)
+   AND p.nroempresa = r.nroempresa(+)
+   AND p.nrocheckout = r.nrocheckout(+)
+   UNION ALL
+   SELECT  d.seqdocto,
+        NULL numgiftcard,
+        'N' exportado,
+        NULL presttef,
+        d.sequsuario codfunccheckout,
+        d.nrocheckout numcheckout,
+        'NOTAFISCAL' numserieequip,
+        c.nronotafiscal duplic,
+        NVL(c.seqpessoa,1) codcli,
+        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvenc,
+        NVL(
+        (CASE
+            WHEN p.valor < 0
+                THEN 'TR'
+            ELSE
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
+          END),'D') codcob,
+        TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
+        p.nroempresa codfilial,
+        'A' status,
+        fnc_int_c5_codusur(d.sequsuario) codusur,
+        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvencorig,
+        'N' operacao,
+        f.boleto,
+        NULL numbanco,
+        NULL numagencia,
+        NULL numcheque,
+        NVL(fnc_int_c5_codsuperv(d.sequsuario),1) codsupervisor,
+        NULL codbarra,
+        p.valor valororig,
+        NVL(
+        (CASE
+            WHEN p.valor < 0
+                THEN 'TR'
+            ELSE
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
+          END),'D') codcoborig,
+       0 vltxboleto,
+       p.nroempresa codfilialnf,
+       NULL numcontacorrente,
+       0 numcar,
+       NULL numtransvenda,
+       NULL numped,
+       NULL importado,
+       NULL dtexportacao,
+       c.seriedocto numcaixafiscal,
+       NULL nsutef,
+       NULL numecf,
+       'N' parcelamentotef,
+       NULL prestef,
+       NULL codadmcartao,
+       NULL tipooperacaotef,
+       NULL codbandeiratef,
+       NULL dtbaixa,
+       NULL codautorizacaotef,
+       NULL numccf,
+       NULL linhadig,
+       NULL vlmexiva,
+       NULL assinatura,
+       NULL numgnf,
+       NULL numseriesat,
+       NULL cnpjcredenccartao,
+       NULL numcartaocrm,
+       NULL nsuhost,
+       0 valorcontravale,
+       NULL compensacaobco,
+       NULL cgccpfch,
+       NULL dvagencia,
+       NULL dvconta,
+       NULL dvcheque,
+       0 numfechamentomovcx,
+       TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtmovimentocx,
+       NULL codautoricredtef,
+       NULL dtemissaoorig,
+       NULL codigocontravale,
+       NULL retornocrm1via,
+       NULL retornocrm2via,
+       NULL numprotocolochq,
+       p.valor  valorcomtroco,
+       0 idpagamento,
+       NULL serialpos,
+       NULL idrespfiscal,
+       NULL bandeiracartao,
+       NVL((SELECT CODCOBSEFAZ FROM PCCOB WHERE CODCOB = FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'99') codcobsefaz,
+       NULL md5paf,
+       3 tipodoc,
+       NULL dtcxmot,
+       NULL tipocorban,
+       NULL autorizacaopagamentopontos,
+       NULL autorizacaoacumulopontos,
+       NULL somatxboleto,
+       NULL Prest,
+       0 codusur2,
+       NULL processadortranspagdigital,
+       NULL numtranspagdigital,
+	   NULL nsupagdigital,
+	   NULL nomecarteiradigital,
+	   NULL carteiradigital,
+	   p.valor valor
+  FROM  vw_int_c5_agrup_dinheiro p,
+        monitorpdvmiddle.tb_docto d,
+        monitorpdvmiddle.tb_doctocupom c,
+        vw_int_c5_finaliz_venda f,
+        vw_int_c5_cobranca_winthor v
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
@@ -1839,10 +2006,120 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  f.codcob = v.codcob(+)
    --AND f.codcob = v.especie(+)
-   AND  d.especie = 'NF'
+   AND  d.especie IN ('NF', 'CF')
    --AND c.status = 'V'
-   AND p.Seqdocto = r.seqdocto(+)
-   AND p.seqitem = r.seqitem(+)
-   AND p.nroempresa = r.nroempresa(+)
-   AND p.nrocheckout = r.nrocheckout(+)
+   UNION ALL
+      SELECT  d.seqdocto,
+        NULL numgiftcard,
+        'N' exportado,
+        NULL presttef,
+        d.sequsuario codfunccheckout,
+        d.nrocheckout numcheckout,
+        'NOTAFISCAL' numserieequip,
+        c.nronotafiscal duplic,
+        NVL(c.seqpessoa,1) codcli,
+        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvenc,
+        NVL(
+        (CASE
+            WHEN p.valor < 0
+                THEN 'TR'
+            ELSE
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
+          END),'D') codcob,
+        TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
+        p.nroempresa codfilial,
+        'A' status,
+        fnc_int_c5_codusur(d.sequsuario) codusur,
+        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvencorig,
+        'N' operacao,
+        f.boleto,
+        NULL numbanco,
+        NULL numagencia,
+        NULL numcheque,
+        NVL(fnc_int_c5_codsuperv(d.sequsuario),1) codsupervisor,
+        NULL codbarra,
+        p.valor valororig,
+        NVL(
+        (CASE
+            WHEN p.valor < 0
+                THEN 'TR'
+            ELSE
+                NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
+          END),'D') codcoborig,
+       0 vltxboleto,
+       p.nroempresa codfilialnf,
+       NULL numcontacorrente,
+       0 numcar,
+       NULL numtransvenda,
+       NULL numped,
+       NULL importado,
+       NULL dtexportacao,
+       c.seriedocto numcaixafiscal,
+       NULL nsutef,
+       NULL numecf,
+       'N' parcelamentotef,
+       NULL prestef,
+       NULL codadmcartao,
+       NULL tipooperacaotef,
+       NULL codbandeiratef,
+       NULL dtbaixa,
+       NULL codautorizacaotef,
+       NULL numccf,
+       NULL linhadig,
+       NULL vlmexiva,
+       NULL assinatura,
+       NULL numgnf,
+       NULL numseriesat,
+       NULL cnpjcredenccartao,
+       NULL numcartaocrm,
+       NULL nsuhost,
+       0 valorcontravale,
+       NULL compensacaobco,
+       NULL cgccpfch,
+       NULL dvagencia,
+       NULL dvconta,
+       NULL dvcheque,
+       0 numfechamentomovcx,
+       TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtmovimentocx,
+       NULL codautoricredtef,
+       NULL dtemissaoorig,
+       NULL codigocontravale,
+       NULL retornocrm1via,
+       NULL retornocrm2via,
+       NULL numprotocolochq,
+       p.valor  valorcomtroco,
+       0 idpagamento,
+       NULL serialpos,
+       NULL idrespfiscal,
+       NULL bandeiracartao,
+       NVL((SELECT CODCOBSEFAZ FROM PCCOB WHERE CODCOB = FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'99') codcobsefaz,
+       NULL md5paf,
+       3 tipodoc,
+       NULL dtcxmot,
+       NULL tipocorban,
+       NULL autorizacaopagamentopontos,
+       NULL autorizacaoacumulopontos,
+       NULL somatxboleto,
+       NULL Prest,
+       0 codusur2,
+       NULL processadortranspagdigital,
+       NULL numtranspagdigital,
+	   NULL nsupagdigital,
+	   NULL nomecarteiradigital,
+	   NULL carteiradigital,
+	   p.valor valor
+  FROM  vw_int_c5_agrup_troco p,
+        monitorpdvmiddle.tb_docto d,
+        monitorpdvmiddle.tb_doctocupom c,
+        vw_int_c5_finaliz_venda f,
+        vw_int_c5_cobranca_winthor v
+ WHERE  p.seqdocto = d.seqdocto
+   AND  p.nroempresa = d.nroempresa
+   AND  p.nrocheckout = d.nrocheckout
+   AND  d.seqdocto = c.seqdocto
+   AND  d.nroempresa = c.nroempresa
+   AND  d.nrocheckout = c.nrocheckout
+   AND  p.nroformapagto = f.nroformapagto
+   AND  f.codcob = v.codcob(+)
+   AND  d.especie IN ('NF', 'CF')
 )
