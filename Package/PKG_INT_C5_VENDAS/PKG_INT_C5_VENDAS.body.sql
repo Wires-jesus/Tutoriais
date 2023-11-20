@@ -908,7 +908,6 @@ IS
                                p_r_pedido.numcaixa,
                                p_r_pedido.codfilial);*/
             p_r_pedido.vlatend          := p_r_pedido.vltotal;
-            p_r_pedido.vltabela         := p_r_pedido.vltotal;
             p_r_pedido.vlsubtotal       := ROUND(p_r_pedido.vltotal,2);
             p_r_pedido.vltotalcomtroco  := p_r_pedido.vltotal;
         END;
