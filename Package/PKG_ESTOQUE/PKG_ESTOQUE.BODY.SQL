@@ -13070,7 +13070,8 @@ END IF;
     -- Lista de produtos
     END LOOP;
 
-    -- Validando se tem registros
+    PRIV_ATUALIZAR_CUSTO (pnNUMTRANSACAO,'S');
+	-- Validando se tem registros
     IF vnCONTADORREGISTROS > 0 THEN
       IF (psECANCELAMENTO = 'S') THEN
         UPDATE PCNFSAID
@@ -13297,7 +13298,8 @@ END IF;
     -- Lista de produtos
     END LOOP;
 
-    -- Validando se tem registros
+    PRIV_ATUALIZAR_CUSTO (pnNUMTRANSACAO,'E');
+	-- Validando se tem registros
   IF vnCONTADORREGISTROS > 0 THEN
        IF (psECANCELAMENTO = 'S') THEN
          UPDATE PCNFENT
@@ -18612,11 +18614,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                          AND (NVL(pnCODPROD, 0) = 0 OR PCMOV.CODPROD = pnCODPROD)
                          AND ((psECANCELAMENTO = 'S' AND DECODE(NVL(PCMOV.QTCONT, 0),0,NVL(PCMOV.QT, 0),NVL(PCMOV.QTCONT, 0)) < 0 ) OR
                              (psECANCELAMENTO = 'N' AND DECODE(NVL(PCMOV.QTCONT, 0),0,NVL(PCMOV.QT, 0),NVL(PCMOV.QTCONT, 0)) > 0))
-                         AND SUBSTR(CODOPER,1,1) IN ('S','R')
-                         AND NOT EXISTS (SELECT NF.NUMTRANSVENDA
-                                           FROM PCNFSAID NF
-                                          WHERE NVL(NF.TRANSFDEP, 'N') = 'S'
-                                            AND NF.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)
+                         AND SUBSTR(CODOPER,1,1) IN ('S','R')                     
                          AND NOT(PCMOV.CODOPER IN ('SA') AND PCMOVCOMPLE.NUMINVENT IS NOT NULL AND PCMOV.STATUS = 'B')
                     ORDER BY PCMOV.CODPROD, PCMOV.NUMSEQ)
     LOOP
