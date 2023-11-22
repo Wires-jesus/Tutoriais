@@ -1,55 +1,67 @@
-CREATE OR REPLACE VIEW VW_INT_C5_CLIPESSOA AS
+CREATE OR REPLACE VIEW VW_INT_C5_USUARIO AS
 (
-SELECT c.codcli seqpessoa,
-       SUBSTR(UPPER(COALESCE(c.cliente,c.fantasia, ' ')),1,50) nomerazao,
-       SUBSTR(UPPER(COALESCE(c.fantasia,c.cliente, ' ')), 1, 50) nomefantasia,
-       NVL(c.tipofj,'J') fisicajuridica,
-       REPLACE(REPLACE(REPLACE(c.cgcent,'.',''),'/',''),'-','') cnpjcpf,
-       (CASE
-            WHEN NVL(c.tipofj,'J') = 'J'
-                THEN c.ieent
-            ELSE
-                c.rg
-        END) inscrestadualrg,
-       c.dtnasc dtanascimento,
-       NVL(c.contribuinte,'N') contribuinteicms,
-       CAST(c.orgaorg AS VARCHAR2 (6)) orgexp,
-       c.sexo,
-       CAST(NVL(c.emailnfe,c.email) AS VARCHAR2 (80)) email,
-       (CASE
-            WHEN c.dtexclusao IS NULL
-                THEN 'S'
-            ELSE 'N'
-         END) ativo,
-       NULL nroregtributacao,
-       LEAST(NVL(c.limcred,0),999) vlrlimiteglobal,
-       LEAST(c.qtdiasvenclimcred,999) prazomaximo,
-       c.dtbloq dtahorultrestricao,
-       c.obs observacao,
-       (CASE
-            WHEN NVL(c.limcred,0) > 0
-                 AND
-                 NVL(c.bloqueio,'N') = 'N'
-                THEN 'L'
-            ELSE
-                'B'
-         END) situacaocredito,
+    SELECT R.CODFILIAL,
+        R.CODUSUR,
+        R.MATRICULA SEQUSUARIO,
+        T.SEQPESSOA,
+        SUBSTR(R.NOME, 1, 40) NOME,
+        SUBSTR(NVL(R.NOME_GUERRA, R.NOME), 1, 30) APELIDO,
+        --NULL SENHA,  --FNC_INT_C5_PWD(R.MATRICULA) SENHA,
         (CASE
-            WHEN NVL(c.bloqueio,'N') = 'S'
-                THEN 'B'
-            ELSE
-                'L'
-         END) situacaocomercial,
-         1 nrosegmento,
-       c.dtultalter,
-       c.dtcadastro,
-       2 codperfildestino
-  FROM pcclient c,
-       (SELECT LEAST(A.ultimaexecucao, B.ultimaexecucao, C.ultimaexecucao) ULTIMAEXECUCAO
-         FROM (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PESSOA') A,
-       (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CLIENTE') B,
-       (SELECT s.ultimaexecucao FROM pccontroleconsinco s WHERE UPPER(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CLIENTESEGMENTO') C) DTPADRAO
- WHERE c.cgcent IS NOT NULL
-   
-  AND NVL(C.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO) >=DTPADRAO.ULTIMAEXECUCAO
-   )
+            WHEN R.CODSETOR = G.CODGRUPO THEN 0
+            ELSE 1
+        END) NIVEL,
+        R.DTEXPIRASENHA DTAEXPIRAR,
+        (CASE
+            WHEN NVL(R.PERDESCMAXITEM, 0) > 0 THEN R.PERDESCMAXITEM
+            WHEN TO_NUMBER(G.PERCDESCMAX) > 0 THEN G.PERCDESCMAX
+            ELSE 0
+        END) PERCDESCMAXIMO,
+        SUBSTR(R.EMAIL, 80) EMAIL,
+        (CASE
+            WHEN R.DT_EXCLUSAO IS NULL AND NVL(R.SITUACAO, 'A') = 'A' THEN 'S'
+            ELSE 'N'
+        END) ATIVO,
+        R.CODSETOR CODGRUPO,
+        R.FUNCAO NOMEGRUPO,
+        G.PERCDESCMAX
+    FROM PCEMPR R
+  
+    INNER JOIN VW_INT_C5_USUARIO_GRUPO G
+    ON (R.CODSETOR = G.CODGRUPO)
+  
+    LEFT JOIN (
+        SELECT DISTINCT * FROM (
+	        SELECT 
+	 		    MIN(SEQPESSOA) OVER(PARTITION BY CNPJCPF ORDER BY ATIVO DESC) SEQPESSOA,
+	 		    CNPJCPF,
+	 		    ATIVO,
+	 		    MAX(DTAHORALTERACAO) OVER(PARTITION BY CNPJCPF ORDER BY ATIVO) DTAHORALTERACAO
+		    FROM MONITORPDVMIDDLE.TB_PESSOA 
+	    )
+	    WHERE ATIVO = 'S'
+    ) T 
+    ON (FERRAMENTAS.SONUMEROS(R.CPF) = FERRAMENTAS.SONUMEROS(T.CNPJCPF)),
+
+    PCUSUARI I,
+    (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
+    FROM PCCONTROLECONSINCO S
+    WHERE  (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_USUARIO')
+        OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_GRUPOUSUARIO')
+    ) DTPADRAO
+    WHERE R.CODUSUR = I.CODUSUR
+      AND I.CODSUPERVISOR IS NOT NULL
+      AND R.CODUSUR > 0
+      AND R.MATRICULA > 0
+      AND (NVL(R.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+        OR CODSETOR IN (SELECT
+                          CODGRUPO
+                        FROM VW_INT_C5_USUARIO_GRUPO V
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPO G
+                        ON (G.SEQGRUPO = V.CODGRUPO AND G.ATIVO = 'S')
+                        LEFT JOIN MONITORPDVMIDDLE.TB_GRUPOUSUARIO GU
+                        ON (GU.SEQGRUPO = V.CODGRUPO AND GU.ATIVO = 'S')
+                        WHERE G.SEQGRUPO IS NULL OR GU.SEQGRUPO IS NULL)
+        OR T.DTAHORALTERACAO >= DTPADRAO.ULTIMAEXECUCAO
+     )
+)     
