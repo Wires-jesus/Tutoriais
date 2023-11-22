@@ -4149,7 +4149,7 @@ PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   UPDATE monitorpdvmiddle.tb_cadobs S SET S.ATIVO = 'N'
   WHERE S.ATIVO = 'S'
-  AND NOT EXISTS (SELECT C.CODOBSERVACAO 
+  AND EXISTS (SELECT C.CODOBSERVACAO 
               FROM VW_INT_C5_CADOBS C
               WHERE C.CODOBSERVACAO = S.CODOBSERVACAO);
   
@@ -4201,7 +4201,7 @@ PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   UPDATE monitorpdvmiddle.tb_cadobssped S SET S.ATIVO = 'N'
   WHERE S.ATIVO = 'S'
-  AND NOT EXISTS (SELECT C.SEQOBSSPED 
+  AND EXISTS (SELECT C.SEQOBSSPED 
               FROM VW_INT_C5_CADOBSSPED C
               WHERE C.SEQOBSSPED = S.SEQOBSSPED);
   
@@ -4273,7 +4273,7 @@ PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   UPDATE monitorpdvmiddle.tb_cadobsspedfamilia S SET S.ATIVO = 'N'
   WHERE S.ATIVO = 'S'
-  AND NOT EXISTS (SELECT C.SEQOBSSPED 
+  AND EXISTS (SELECT C.SEQOBSSPED 
               FROM VW_INT_C5_CADOBSSPEDFAMILIA C
               WHERE C.SEQFAMILIA = S.SEQFAMILIA
               AND   C.SEQOBSSPED = S.SEQOBSSPED
