@@ -1525,6 +1525,25 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   -- Procedure
   END PRC_EXECUTAR_LISTA;
 
+ PROCEDURE VALIDA_DTPRIMERIAMOVIMENTACAO(PCODFILIAL IN VARCHAR2)
+  IS
+    vsVALORPARAMETRO  VARCHAR2(1000);
+  BEGIN
+    BEGIN
+      IF PARAMFILIAL.OBTERCOMODATE('DATAPRIMERIAMOVIMENTACAO', PCODFILIAL) IS NULL THEN
+        UPDATE PCPARAMFILIAL SET
+          PCPARAMFILIAL.VALOR = (SELECT TO_CHAR(MIN(DTMOV), 'DD/MM/YYYY')
+                                 FROM PCMOV
+                                WHERE CODFILIAL = PCODFILIAL)
+         WHERE PCPARAMFILIAL.NOME = 'DATAPRIMERIAMOVIMENTACAO'
+           AND PCPARAMFILIAL.CODFILIAL = PCODFILIAL;
+      END IF;
+    EXCEPTION
+      WHEN OTHERS THEN
+        vsVALORPARAMETRO := '';
+    END;
+  END;
+
   /************************************************************************************************************
   ---------------------------------- Historico ----------------------------------------------------------------
       Data        Responsavel    Comentarios
