@@ -17506,7 +17506,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    , PCGRUPOSCAMPANHAI
                                WHERE (PCDESCONTO.CODPROMOCAOMED = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
                                  AND (PCDESCONTO.TIPOFV = ''OL'')
-                                 AND (PCDESCONTO.DTFIM >= TRUNC(SYSDATE)-7)
+                                 AND (PCDESCONTO.DTFIM >= TRUNC(SYSDATE))
                                  AND (PCPRODUT.DTEXCLUSAO IS NULL)
                                  AND (PCPRODUT.CODMARCA IN (SELECT PCCONFIGSISTMARCAOPERLOG.CODMARCA
                                                               FROM PCCONFIGSISTMARCAOPERLOG
@@ -17566,14 +17566,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_FILIAL
                       , VIEW_MED_PROMOCAO_DESC_HYPER
                   WHERE (PCCONFIGSISTMARCAOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                    AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE) - 7
-                    AND NOT EXISTS(SELECT 1
-                                     FROM PCCONFIGSISTCONDOPERLOG
-                                    WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                                      AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
-                                      AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
-                                      AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
-                                      AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
+                    AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE)
                     AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA   = VIEW_MED_PROMOCAO_DESC_HYPER.CODMARCA)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_DESC_HYPER.CODPROMOCAOMED)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_FILIAL.CODPROMOCAOMED)
@@ -17639,14 +17632,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_FILIAL
                       , VIEW_MED_PROMOCAO_DESCONTO_OL
                   WHERE (PCCONFIGSISTMARCAOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                    AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE) - 7
-                    AND NOT EXISTS(SELECT 1
-                                     FROM PCCONFIGSISTCONDOPERLOG
-                                    WHERE (PCCONFIGSISTCONDOPERLOG.CODSISTEMA = ' || '''' || pi_vCodSistema || '''' || ')
-                                      AND (PCCONFIGSISTCONDOPERLOG.CODFILIAL  = ' || '''' || pi_vCodFilial || '''' || ')
-                                      AND (PCCONFIGSISTCONDOPERLOG.TIPOREGISTRO = ''1'')
-                                      AND (PCCONFIGSISTCONDOPERLOG.CODIGOPRINCIPAL = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
-                                      AND (PCCONFIGSISTCONDOPERLOG.DTEXPORTACAO > VIEW_MED_PROMOCAO.DATAFINAL))					
+                    AND  VIEW_MED_PROMOCAO.DATAFINAL >= TRUNC(SYSDATE)
                     AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA   = VIEW_MED_PROMOCAO_DESCONTO_OL.CODMARCA)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_DESCONTO_OL.CODPROMOCAOMED)
                     AND (VIEW_MED_PROMOCAO.CODPROMOCAOMED    = VIEW_MED_PROMOCAO_FILIAL.CODPROMOCAOMED)
@@ -18547,7 +18533,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- até que porventura seja ativada e passe a mandar novamente
           UPDATE PCCONFIGSISTCONDOPERLOG
              SET NOVAOPERACAO = 'E'
-               , OBSEXPORTACAO = TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000') || SUBSTR(OBSEXPORTACAO,10,1000)
+               , OBSEXPORTACAO = TRIM(TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000')) || SUBSTR(OBSEXPORTACAO,10,1000)
            WHERE (CODSISTEMA          = pi_vCodSistema)
              AND (CODFILIAL           = pi_vCodFilial)
              AND (ARQUIVO             = vc_PromocaoAlterada.ARQUIVO)
@@ -18566,7 +18552,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                TO_CHAR(SYSDATE,'YYYYMMDD') || -- Data Final HOJE 
                                'N'                         || -- Inativa
                                SUBSTR(CONTEUDO,295,4000) 
-             , OBSEXPORTACAO = TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000') || SUBSTR(OBSEXPORTACAO,10,1000)
+             , OBSEXPORTACAO = TRIM(TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000')) || SUBSTR(OBSEXPORTACAO,10,1000)
          WHERE (CODSISTEMA          = pi_vCodSistema)
            AND (CODFILIAL           = pi_vCodFilial)
            AND (ARQUIVO             = vc_PromocaoAlterada.ARQUIVO)
@@ -18578,7 +18564,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Depois muda os registros para excluídos (detalhes)
     UPDATE PCCONFIGSISTCONDOPERLOG
        SET NOVAOPERACAO = 'E'
-         , OBSEXPORTACAO = TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000') || SUBSTR(OBSEXPORTACAO,10,1000)
+         , OBSEXPORTACAO = TRIM(TO_CHAR(TO_NUMBER(SUBSTR(OBSEXPORTACAO,1,9) + viSequencia),'000000000')) || SUBSTR(OBSEXPORTACAO,10,1000)
      WHERE (CODSISTEMA   = pi_vCodSistema)
        AND (CODFILIAL    = pi_vCodFilial)
        AND (CONTEUDO     IS NOT NULL) 
