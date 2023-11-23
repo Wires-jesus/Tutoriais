@@ -2397,7 +2397,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      E.nrotributacao,
                      E.codorigemtrib,
                      E.ativo
-               FROM VW_INT_C5_FAMDIVISAO E) b
+               FROM VW_INT_C5_FAMDIVISAO E,
+                    PCPRODFILIAL F,
+                    VW_INT_C5_OBTER_FILIAIS_C5 c5
+               WHERE E.SEQFAMILIA = F.CODPROD
+               AND   C5.CODFILIAL = F.CODFILIAL) b
 
       ON (s.seqfamilia = b.seqfamilia AND s.nrodivisao = b.nrodivisao)
       WHEN MATCHED THEN
@@ -4272,12 +4276,15 @@ END;
 PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   UPDATE monitorpdvmiddle.tb_cadobsspedfamilia S SET S.ATIVO = 'N'
+  WHERE S.ATIVO = 'S';
+
+  /*UPDATE monitorpdvmiddle.tb_cadobsspedfamilia S SET S.ATIVO = 'N'
   WHERE S.ATIVO = 'S'
   AND EXISTS (SELECT C.SEQOBSSPED 
               FROM VW_INT_C5_CADOBSSPEDFAMILIA C
               WHERE C.SEQFAMILIA = S.SEQFAMILIA
               AND   C.SEQOBSSPED = S.SEQOBSSPED
-              AND   C.UF         = S.UF);
+              AND   C.UF         = S.UF);*/
   
   MERGE INTO monitorpdvmiddle.tb_cadobsspedfamilia T
     USING (SELECT * FROM VW_INT_C5_CADOBSSPEDFAMILIA) S 
