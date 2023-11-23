@@ -1786,7 +1786,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
             WHEN f.especie = 'G'
                 THEN NULL
             ELSE
-                p.nsutef
+                REGEXP_REPLACE(p.nsutef,'[^0-9]', '') 
          END) nsutef,
        NULL numecf,
        (CASE
@@ -1803,7 +1803,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
             WHEN f.especie = 'G'
                 THEN NULL
             ELSE
-                REGEXP_REPLACE(p.codautorizacaotef,'[^0-9]', '')
+                SUBSTR(REGEXP_REPLACE(p.codautorizacaotef,'[^0-9]', ''), 1, 20)
          END) codautorizacaotef,
        NULL numccf,
        NULL linhadig,
@@ -1817,7 +1817,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
             WHEN f.especie = 'G'
                 THEN NULL
             ELSE
-                p.nsuhosttef
+               REGEXP_REPLACE(p.nsuhosttef,'[^0-9]', '')
          END) nsuhost,
        0 valorcontravale,
        NULL compensacaobco,
@@ -2123,3 +2123,42 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF')
 )
+
+\
+
+DECLARE
+VCONTDET NUMBER;
+VEXEC VARCHAR2(4000);
+BEGIN
+  VCONTDET := 0;
+  BEGIN
+    SELECT COUNT(1)
+    INTO VCONTDET
+    FROM ALL_TAB_COLUMNS C
+    WHERE C.TABLE_NAME = 'PCFILAMENSAGEMERRO'
+    AND C.COLUMN_NAME = 'DETALHE'
+    AND C.DATA_TYPE = 'VARCHAR2'
+    AND C.DATA_LENGTH = '4000';
+  END;
+
+ IF VCONTDET > 0 THEN
+   vExec := 'ALTER TABLE PCFILAMENSAGEMERRO DROP COLUMN DETALHE';
+   EXECUTE IMMEDIATE VEXEC;
+
+  VCONTDET := -1;
+  BEGIN
+    SELECT COUNT(1)
+    INTO VCONTDET
+    FROM ALL_TAB_COLUMNS C
+    WHERE C.TABLE_NAME = 'PCFILAMENSAGEMERRO'
+    AND C.COLUMN_NAME = 'DETALHE'
+    AND C.DATA_TYPE = 'VARCHAR2'
+    AND C.DATA_LENGTH = '4000';
+  END; 
+  
+  IF  VCONTDET = 0 THEN
+   vExec := 'ALTER TABLE PCFILAMENSAGEMERRO ADD DETALHE CLOB';
+   EXECUTE IMMEDIATE VEXEC;
+  END IF;  
+ END IF;
+END;
