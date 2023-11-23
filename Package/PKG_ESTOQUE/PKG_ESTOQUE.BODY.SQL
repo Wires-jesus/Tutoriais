@@ -7689,7 +7689,11 @@ IS
 
                 --------------------------------------
                 -- Atualizar pendente na PCEST */
-                P_INTERNO.CALCULA_ESTOQUE             := 'S';
+                IF LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)) > 0 THEN 
+                  P_INTERNO.CALCULA_ESTOQUE             := 'S';
+				ELSE
+				  P_INTERNO.CALCULA_ESTOQUE             := 'N';
+				END IF;
                 P_INTERNO.vtESTOQUE                   := NULL;
                 P_INTERNO.TIPO_OPERACAO               := 'B';
                 P_INTERNO.vtESTOQUE.CODFILIAL         := ESTOQUE.CODFILIAL;
