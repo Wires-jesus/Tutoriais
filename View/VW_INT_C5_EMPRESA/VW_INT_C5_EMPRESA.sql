@@ -3,12 +3,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMPRESA AS
 SELECT f.codigo nroempresa,
        NVL(f.codcli,1) seqpessoa,
 
-       (SELECT R.NRODIVISAO
-        FROM   PCDEPARAREGIAOC5 R
-        WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
-                                                               F.CODIGO,
-                                                              '1')
-       )NRODIVISAO,
+       (CASE
+         WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
+              (SELECT R.NRODIVISAO
+               FROM   PCDEPARAREGIAOC5 R
+               WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
+                                                                       F.CODIGO,
+                                                                       '1')
+              )
+         ELSE 0     
+       END) NRODIVISAO,
 
        --ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,
        1 nrosegmento,
