@@ -360,13 +360,13 @@ begin
                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                         V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
-                        V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                        V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   ELSE
                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                         V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') ) ';
                      ELSE
-                        V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                        V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   END IF;
                   V_CONDICAOCFOPSAITRIB := V_CONDICAOCFOPSAITRIB || V_AUX;
@@ -486,13 +486,13 @@ begin
                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
-                        V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                        V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   ELSE
                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') ) ';
                      ELSE
-                        V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                        V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   END IF;
 
@@ -667,16 +667,16 @@ begin
                         END IF;
                       ELSE
                         IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
-                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' AND (CODFISCAL <> ' ||  DADOS.CODFISCAL || ' AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) ))';
+                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' AND (CODFISCAL <> ' ||  DADOS.CODFISCAL || ' AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) ))';
                         ELSE
-                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' OR ('|| V_CODFISCALIN ||' (' ||  DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' OR ('|| V_CODFISCALIN ||' (' ||  DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                         END IF;
                       END IF;
                    ELSE
                       IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                       ELSE
-                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                       END IF;
                    END IF;
     
@@ -761,16 +761,16 @@ begin
                     END IF;
                   ELSE
                     IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
-                      V_AUX := ' AND (CODFISCAL <> ' ||  DADOS.CODFISCAL || ' AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) ))';
+                      V_AUX := ' AND (CODFISCAL <> ' ||  DADOS.CODFISCAL || ' AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) ))';
                     ELSE
-                      V_AUX := ' OR ('|| V_CODFISCALIN ||' (' ||  DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                      V_AUX := ' OR ('|| V_CODFISCALIN ||' (' ||  DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                     END IF;
                   END IF;
                ELSE
                   IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                      V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                   ELSE
-                     V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (substr(LPAD(SITTRIBUT,3,''0''),2,2) IN (' || DADOS.CSTICMS || ' ) )) ';
+                     V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                   END IF;
                END IF;
                V_CONDICAOCFOPSAITRIB := V_CONDICAOCFOPSAITRIB || V_AUX;
@@ -1141,6 +1141,6 @@ begin
    end;
 end;
 ----------------------------------------------------------------------
--- 11/07/2023 - Última alteração -
+-- 11/07/2023 - Última alteração - 
 -- Implementado alteração no processo de geração do valor de devolução a ser deduzido.
 ----------------------------------------------------------------------
