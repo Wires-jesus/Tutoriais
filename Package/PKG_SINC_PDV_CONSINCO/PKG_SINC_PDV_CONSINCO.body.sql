@@ -3157,9 +3157,13 @@ END;
 
 PROCEDURE carrega_tb_prodprecoapartir(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
-  UPDATE monitorpdvmiddle.tb_prodprecoapartir R SET R.IDREF = '0', R.ATIVO = 'N'
+  UPDATE monitorpdvmiddle.tb_prodprecoapartir R SET  R.ATIVO = 'N'
   WHERE TRUNC(SYSDATE) BETWEEN R.DTAINICIO AND R.DTAFIM
   AND R.ATIVO = 'S';
+  
+  /*UPDATE monitorpdvmiddle.tb_prodprecoapartir R SET R.IDREF = '0', R.ATIVO = 'N'
+  WHERE TRUNC(SYSDATE) BETWEEN R.DTAINICIO AND R.DTAFIM
+  AND R.ATIVO = 'S';*/
   
   MERGE INTO monitorpdvmiddle.tb_prodprecoapartir tb_prodprecoapartir_c5
         USING (SELECT * FROM VW_INT_C5_PRODPRECOAPARTIR) vw_int_c5_prodprecoapartir
@@ -3178,9 +3182,11 @@ BEGIN
           tb_prodprecoapartir_c5.DTAINICIO       = vw_int_c5_prodprecoapartir.DTAINICIO,
           tb_prodprecoapartir_c5.DTAFIM          = vw_int_c5_prodprecoapartir.DTAFIM,
           tb_prodprecoapartir_c5.ATIVO           = vw_int_c5_prodprecoapartir.ATIVO,
-          tb_prodprecoapartir_c5.IDREF           = DECODE(vw_int_c5_prodprecoapartir.ATIVO, 'N', 
+          tb_prodprecoapartir_c5.IDREF           = vw_int_c5_prodprecoapartir.IDREF
+         /* tb_prodprecoapartir_c5.IDREF           = DECODE(vw_int_c5_prodprecoapartir.ATIVO, 'N', 
                                                           'INATIVADO',
-                                                          vw_int_c5_prodprecoapartir.IDREF) 
+                                                          vw_int_c5_prodprecoapartir.IDREF) */
+          
           
        WHEN NOT MATCHED THEN
         INSERT(
