@@ -1,0 +1,11 @@
+{
+	"nome" : "MIG_T_USER_VIEWS",
+	"tipoPLSQL" : "MIGRATION",
+	"dependencias" : [
+	    {
+	      "nome": "F_LONG_TO_CLOB",
+	      "tipo": "OBJETO_PLSQL",
+	      "versao": "2.1.01.000"
+	    }
+  	]
+}
