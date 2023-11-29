@@ -200,7 +200,14 @@ IS
  VRETORNO TABELA_FATURAMENTO := TABELA_FATURAMENTO();
 
  VN_POSICAO_EM_ALTERACAO NUMBER(12) := 0;
-
+ 
+ vc_stmt     DBMS_SQL.VARCHAR2A;  -- TABLE OF VARCHAR2(32767)
+ n_split     NUMBER;              -- numero de cortes para o array caso necessário
+ n_max_size  NUMBER := 32767;     -- numero máximo do string para split
+ n_iteration NUMBER;              -- iteracoes da matriz
+ n_c         NUMBER;              -- cursor ID
+ n_res       NUMBER;              -- resultado do cursor (registros retornados)
+ n_size      NUMBER;              --tamanho do CLOB
 
  TYPE CLIENTES IS RECORD(TOTCLIENTESATIVOS NUMBER(10));
 
@@ -407,84 +414,94 @@ IS
 
   PROCEDURE OPEN_CURSOR_FOR_V_SQL IS
     VLISTA_PARAMETROS VARCHAR2(1000);
+	
+	vc_stmt_2   DBMS_SQL.VARCHAR2A;  -- TABLE OF VARCHAR2(32767)
+    n_split     NUMBER;              -- numero de cortes para o array caso necessário
+    n_max_size  NUMBER := 32767;     -- numero máximo do string para split
+    n_iteration NUMBER;              -- iteracoes da matriz    
+    n_size      NUMBER;              --tamanho do CLOB
+    n_pos       NUMBER;              
+    n_pos_atual NUMBER;
+	
   BEGIN
    
     VLISTA_PARAMETROS := GET_LISTA_PARAMETOS(V_SQL);
+	
+	-- Inicializa numeros
+    n_split := 0;
+    n_iteration := 0;
+    vc_stmt_2.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL); -- V_SQL = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
+    IF n_size > n_max_size THEN
+       BEGIN
+          FOR i in 1..n_split
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt_2(i) := DBMS_LOB.SUBSTR( V_SQL, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
+             n_iteration := n_iteration + 1;
+          END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt_2(n_iteration) := DBMS_LOB.SUBSTR( V_SQL, n_max_size, 1 + n_pos_atual );
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt_2(1) := V_SQL;
+       END;
+    END IF;
+       
+    v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;   
+
+    --DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);
+    DBMS_SQL.parse(v_cursor_dbmsql, vc_stmt_2, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
   
     CASE VLISTA_PARAMETROS
-      WHEN 'DATAINI,DATAFIM' THEN
-      
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+      WHEN 'DATAINI,DATAFIM' THEN      
         
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
-        
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);        
        
-      WHEN 'DATAINI2,DATAFIM2' THEN
-      
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
+      WHEN 'DATAINI2,DATAFIM2' THEN          
         
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);       
+              
+      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN         
         
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-      
-      WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN 
-        
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-        
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
+                      
+      WHEN 'DATAINI3,DATAFIM3' THEN       
         
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-      
-      WHEN 'DATAINI3,DATAFIM3' THEN 
-      
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-        
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
-        
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-      
+                      
       WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN
-        
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-        
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+                
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);      
-        
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-      
+              
       WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
-
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);    
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
@@ -492,25 +509,15 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3' THEN 
-
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);    
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
@@ -518,63 +525,38 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3' THEN 
-
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);     
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI3,DATAFIM3,DATAINI6,DATAFIM6' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI6', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM6', P_DATAFIM);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,VLVENDA,VLVENDA' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,VLVENDA,VLVENDA' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':VLVENDA', VALOR_VENDA);      
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
+    
       WHEN 'DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
@@ -582,13 +564,8 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
@@ -596,13 +573,8 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);      
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
@@ -611,14 +583,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
 
       WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
@@ -627,14 +594,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
           
       WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
@@ -643,14 +605,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);  
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);    
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
           
       WHEN 'DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI3,DATAFIM3' THEN 
 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
@@ -661,13 +618,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
           
       WHEN 'DATAFIM,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM,DATAINI,DATAFIM' THEN 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
 
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
@@ -676,13 +629,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
+      
       WHEN 'DATAFIM3,DATAFIM3,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4' THEN 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
@@ -691,13 +640,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI4', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM4', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
+        
       WHEN 'DATAFIM3,DATAFIM3,DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI4,DATAFIM4' THEN 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
-
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
+        
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAFIM);
@@ -708,13 +653,9 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI4', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM4', P_DATAFIM);
-
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
+       
       WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI,DATAFIM' THEN 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
 
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
@@ -722,12 +663,8 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       WHEN 'DATAINI,DATAFIM,DATAINI2,DATAFIM2,DATAINI3,DATAFIM3,DATAINI,DATAFIM' THEN 
-        v_cursor_dbmsql := DBMS_SQL.OPEN_CURSOR;
 
-        DBMS_SQL.PARSE(v_cursor_dbmsql, V_SQL , DBMS_SQL.NATIVE);     
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
@@ -737,11 +674,11 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
 
-        v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
-
       ELSE
         RAISE_APPLICATION_ERROR(-20000,'ERRO AO ABRIR O CURSOR, LISTA DE PARAMETROS: ''' || VLISTA_PARAMETROS || '''');
     END CASE;
+	
+	v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
 
     ---------------------- DEFININDO OS CAMPOS NO DBMS_SQL PARA O V_SQL ----------------------- 
     -------------------------------------------------------------------------------------------
@@ -46262,7 +46199,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM(' || V_SQLTITULOS || ')'
+       V_SQL2 := ' SELECT SUM(' || V_SQLTITULOS || ') INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46285,7 +46222,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46310,7 +46247,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46333,7 +46270,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46352,7 +46289,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.VLIPI, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.VLIPI, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'') ';
@@ -46375,7 +46312,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46400,7 +46337,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46423,7 +46360,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46445,7 +46382,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46468,7 +46405,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46493,7 +46430,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46518,7 +46455,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46539,7 +46476,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46552,7 +46489,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        END IF;
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0)) - '
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0) - '
               ||         '(SELECT SUM(NVL(ROUND(DECODE(PCNFSAID.CONDVENDA,'
               ||                                     ' 7,'
               ||                                     ' DECODE(NVL(PCMOV.TIPOITEM, ''C''),'
@@ -46562,7 +46499,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46587,7 +46524,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46610,7 +46547,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -46695,10 +46632,44 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL2 := V_SQL2 || ' AND PCNFSAID.CONDVENDA IN (' || P_CONDVENDA || ') ';
    END IF;
    
-   EXECUTE IMMEDIATE (V_SQL2)
+   /*EXECUTE IMMEDIATE (V_SQL2)
     INTO VLTITULO
     USING P_DATAINI
-        , P_DATAFIM;
+        , P_DATAFIM;*/
+		
+	-- Inicializa numeros
+    n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL2;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLTITULO);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);	
 
    -- Verificando total de venda
    V_SQL3 := ' SELECT ';
@@ -46711,19 +46682,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     ELSIF P_DESCIPI = 1
@@ -46732,19 +46703,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     END IF;
@@ -46756,19 +46727,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     ELSIF P_DESCIPI = 1
@@ -46777,19 +46748,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     END IF;
@@ -46938,10 +46909,74 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
  --Gravar do Debug - Fim
 
 
-   EXECUTE IMMEDIATE (V_SQL3)
+   /*EXECUTE IMMEDIATE (V_SQL3)
     INTO VLVENDATOT
     USING P_DATAINI
-        , P_DATAFIM;
+        , P_DATAFIM;*/
+		
+	n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL3;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI2', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM2', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL3;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI2', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM2', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);	
 
 
    VLVENDATOT := NVL(VLVENDATOT,0);
@@ -51382,7 +51417,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM(' || V_SQLTITULOS || ')'
+       V_SQL2 := ' SELECT SUM(' || V_SQLTITULOS || ') INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51405,7 +51440,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51430,7 +51465,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51453,7 +51488,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51472,7 +51507,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.VLIPI, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.VLIPI, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'') ';
@@ -51495,7 +51530,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51520,7 +51555,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51543,7 +51578,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51565,7 +51600,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51588,7 +51623,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51613,7 +51648,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51638,7 +51673,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51659,7 +51694,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0))'
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51672,7 +51707,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        END IF;
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0)) - '
+       V_SQL2 := ' SELECT SUM('|| V_SQLTITULOS ||' - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0) - '
               ||         '(SELECT SUM(NVL(ROUND(DECODE(PCNFSAID.CONDVENDA,'
               ||                                     ' 7,'
               ||                                     ' DECODE(NVL(PCMOV.TIPOITEM, ''C''),'
@@ -51682,7 +51717,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51707,7 +51742,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                            ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
               ||                                     ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
               ||         ' FROM PCMOV'
-              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA))'
+              ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51730,7 +51765,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
               ||                                     ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
               ||         ' FROM PCMOV, PCMOVCOMPLE'
               ||         ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))'
+              ||         ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) INTO :VLTOTAL'
               || ' FROM PCNFSAID'
               || ' WHERE PCNFSAID.DTCANCEL IS NULL'
               || ' AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
@@ -51811,10 +51846,43 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL2 := V_SQL2 || ' AND PCNFSAID.CONDVENDA IN (' || P_CONDVENDA || ') ';
    END IF;
         
-   EXECUTE IMMEDIATE (V_SQL2)
+   /*EXECUTE IMMEDIATE (V_SQL2)
     INTO VLTITULO
     USING P_DATAINI
-        , P_DATAFIM;
+        , P_DATAFIM;*/
+	
+    n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL2;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLTITULO);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);	
 
    -- Verificando total de venda
    V_SQL3 := ' SELECT ';
@@ -51827,19 +51895,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     ELSIF P_DESCIPI = 1
@@ -51848,19 +51916,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     END IF;
@@ -51872,19 +51940,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     ELSIF P_DESCIPI = 1
@@ -51893,19 +51961,19 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      ELSIF P_DESCVLREPASSE = 1
      THEN
       IF P_DESCFECP = 0
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE) VLVENDA INTO :VLTOTAL';
       ELSIF P_DESCFECP = 1
       THEN
-       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA';
+       V_SQL3 := V_SQL3 || ' SUM(VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP) VLVENDA INTO :VLTOTAL';
       END IF;
      END IF;
     END IF;
@@ -52044,10 +52112,43 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL3 := V_SQL3 || ' AND NVL(VENDAS.CONDVENDA, 0) IN (' || P_CONDVENDA || ') ';
    END IF;
 
-   EXECUTE IMMEDIATE (V_SQL3)
+   /*EXECUTE IMMEDIATE (V_SQL3)
     INTO VLVENDATOT
     USING P_DATAINI
-        , P_DATAFIM;
+        , P_DATAFIM;*/
+	
+    n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL3;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);	
 
    V_SQL :=
     ' SELECT NULL CODIGO, NULL CODIGO2, NULL CONDVENDA, NULL CODFILIAL, NULL NUMREGIAO, NULL CODUSUR, NULL NOMEUSUR, NULL UF,
@@ -71881,7 +71982,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
 
  IF P_TIPOPESQUISA = 21
  THEN
-  V_SQL2 := ' SELECT SUM(AVULSA.VLTOTAL) FROM ('||V_SQL_VIEW_DEVOLAVULSA||') AVULSA WHERE AVULSA.DTENT BETWEEN :DATA1 AND :DATA2 ';
+  V_SQL2 := ' SELECT SUM(AVULSA.VLTOTAL) INTO :VLTOTAL FROM ('||V_SQL_VIEW_DEVOLAVULSA||') AVULSA WHERE AVULSA.DTENT BETWEEN :DATA1 AND :DATA2 ';
 
   IF P_CODFILIAL IS NOT NULL
   THEN
@@ -71991,10 +72092,44 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                      AVULSA.CODLINHAPROD = ' || P_CODLINHAPROD;
     END IF;
 
-  EXECUTE IMMEDIATE (V_SQL2)
+  /*EXECUTE IMMEDIATE (V_SQL2)
    INTO VLDEVOLAVULSA
    USING P_DATAINI
-       , P_DATAFIM;
+       , P_DATAFIM;*/
+	
+    n_split := 0;
+    n_iteration := 0;
+    vc_stmt.delete;
+    -- Tamanho do CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Quebra o CLOB em blocos de n_max_size caso necessario
+    IF n_size > n_max_size THEN
+       BEGIN
+          n_split := CEIL(n_size/n_max_size);
+          FOR i in 1..n_split
+          LOOP
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+             n_iteration := n_iteration + 1;
+          END LOOP;
+       END;
+    ELSE
+       BEGIN
+          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
+          vc_stmt(1) := V_SQL2;
+       END;
+    END IF;
+
+    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
+    n_c := DBMS_SQL.open_cursor;
+    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
+    DBMS_SQL.bind_variable(n_c, ':DATA1', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATA2', P_DATAFIM);
+    n_res := DBMS_SQL.execute(n_c);
+    IF (n_res > 0) THEN
+      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLDEVOLAVULSA);
+    END IF;
+    DBMS_SQL.close_cursor(n_c);	
+	   
  END IF;
 
 BEGIN
