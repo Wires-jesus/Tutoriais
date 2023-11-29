@@ -351,6 +351,11 @@
 			"nome": "PCDEPARACATEGORIAC5",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
+		},
+		{
+		  "nome": "PROCESSO_INT_C5_INDICES",
+		  "tipo": "MIGRATION",
+		  "versao": "4.0.01.000"
 		}		
 	]
 }
