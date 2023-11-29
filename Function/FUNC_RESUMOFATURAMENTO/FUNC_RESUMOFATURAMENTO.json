@@ -3,14 +3,14 @@
  	"tipoPLSQL" : "FUNCTION",
  	"dependencias" : [
       {
-        "nome": "T_USER_VIEWS_COLLECTION",
-        "tipo": "OBJETO_PLSQL",
-        "versao": "4.0.04.000"
+        "nome": "MIG_T_USER_VIEWS",
+        "tipo": "MIGRATION",
+        "versao": "4.0.01.000"
       },
       {
          "nome":"F_GETSQL_VIEW_FATURAMENTO",
          "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.06.000"
+         "versao":"4.0.07.000"
       },
       {
          "nome":"RET_TABLE_VIEW_DEVOLUCAO",
