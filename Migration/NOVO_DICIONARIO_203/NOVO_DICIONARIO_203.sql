@@ -5,7 +5,7 @@ DECLARE
   V_STEP_3 CONSTANT VARCHAR2(50) := '03-Tributos';
   V_STEP_4 CONSTANT VARCHAR2(50) := '04-Logística';
   --step de todos campos modificados pelo cliente
-  V_STEP_5 CONSTANT VARCHAR2(50) := '05-Customizados ';
+  V_STEP_5 CONSTANT VARCHAR2(50) := '05-Customizados';
   --steps de todos os campos que não são principais
 
   V_STEP_8  CONSTANT VARCHAR2(50) := '08-Medicamentos';
