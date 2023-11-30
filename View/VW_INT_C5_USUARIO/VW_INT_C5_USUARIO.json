@@ -13,5 +13,11 @@
         "nome": "PCCONTROLECONSINCO",
         "tipo": "TABELA",
         "versao": "4.0.05.000"
-      }
-]}
+      },
+	  {
+	    "nome": "PKG_CRC32",
+	    "tipo": "OBJETO_PLSQL",
+	    "versao": "4.0.01.000"
+	  }
+	]
+}
