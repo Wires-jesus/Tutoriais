@@ -482,15 +482,15 @@ begin
                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
                                     to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
                              FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
@@ -660,15 +660,15 @@ begin
                                                 AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
                                      to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
                                                          FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
+                                                         WHERE DADOSID = 'CFOPCI'
                                                          AND CAMPO = 'CSTICMS'
                                                          AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
                               FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
