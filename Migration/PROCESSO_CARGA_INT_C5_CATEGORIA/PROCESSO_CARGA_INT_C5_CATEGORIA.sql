@@ -98,6 +98,11 @@ SELECT CATEG.NRODIVISAO,
               WHERE nome = 'NUMREGIAOPADRAOVAREJO'
                 AND valor <> '99'
                 AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
+                AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
+
+                UNION ALL
+
+              SELECT '0' valor from dual where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'  
             ) regparaovarejo
     WHERE regparaovarejo.valor IS NOT NULL) CATEG,
           pcdeparacategoriac5 c
@@ -155,6 +160,11 @@ SELECT
               WHERE nome = 'NUMREGIAOPADRAOVAREJO'
                 AND valor <> '99'
                 AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
+                AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'  
+
+                UNION ALL
+
+              SELECT '0' valor from dual where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'    
             ) regparaovarejo,
             
             (select min(s.ultimaexecucao) ultimaexecucao
