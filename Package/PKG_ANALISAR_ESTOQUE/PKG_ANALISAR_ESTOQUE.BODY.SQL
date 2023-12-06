@@ -2094,8 +2094,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     -- Atualizando dados para consultar cadastro
     vtPRODUTO.DTCADASTRO := NULL;
     vsRETORNO            := F_CONS_PRODUTO(NULL);
-    -- Buscar maior data
-    P_INTERNOS.DTBASE := F_BUSCAR_DTBASE;
+
     -- Limpar as tabelas
     PRC_LIMPAR_SALDOS;
     -- Inserir lista de dias
