@@ -17031,15 +17031,20 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     END IF;
 
     IF psECANCELAMENTO = 'S' THEN
-      SELECT CONDVENDA 
-        INTO vnCONDVENDA
-        FROM PCPEDC 
-       WHERE NUMPED IN (SELECT NUMPED 
-                          FROM PCMOV 
-                         WHERE NUMTRANSVENDA IN (SELECT PCESTCOM.NUMTRANSVENDA 
-                                                   FROM PCESTCOM 
-                                                  WHERE PCESTCOM.NUMTRANSENT = pnNUMTRANSACAO)); 
-    END IF; 
+      BEGIN
+		SELECT CONDVENDA 
+		  INTO vnCONDVENDA
+		  FROM PCPEDC 
+		 WHERE NUMPED IN (SELECT NUMPED 
+							  FROM PCMOV 
+							 WHERE NUMTRANSVENDA IN (SELECT PCESTCOM.NUMTRANSVENDA 
+													   FROM PCESTCOM 
+	  												  WHERE PCESTCOM.NUMTRANSENT = pnNUMTRANSACAO)); 
+      EXCEPTION
+	    WHEN OTHERS THEN
+		  vnCONDVENDA := 0;
+	  END;
+	END IF; 
 
     -- Lista produtos a serem alterados
     FOR REGISTROS IN (SELECT PCMOV.CODPROD -- Dados do estoque
