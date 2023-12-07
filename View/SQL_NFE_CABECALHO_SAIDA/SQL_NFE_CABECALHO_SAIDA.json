@@ -1,0 +1,9 @@
+{"nome":"SQL_NFE_CABECALHO_SAIDA",
+ "tipoPLSQL":"VIEW",
+ "dependencias":[
+ {
+  "nome": "PCINSCRICAOST",
+  "tipo": "TABELA",
+  "versao": "2.1.01.000"
+}
+ ]}
