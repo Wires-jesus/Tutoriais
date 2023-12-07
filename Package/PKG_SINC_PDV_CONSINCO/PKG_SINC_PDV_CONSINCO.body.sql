@@ -2538,7 +2538,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       UPDATE monitorpdvmiddle.TB_REGRAINCENTIVO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
-      AND   IDREF = '2017';
+      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
       
       MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
         USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
@@ -2551,7 +2551,8 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivo_C5.SEQTIPOCREDITO = VIEW_C5_INCENTIVO.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO          = VIEW_C5_INCENTIVO.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA      = VIEW_C5_INCENTIVO.TIPOREGRA,
-          tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO          
+          tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO,
+          tb_regraincentivo_C5.IDREF          = VIEW_C5_INCENTIVO.IDREF          
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -2560,22 +2561,25 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivo_C5.SEQTIPOCREDITO,
           tb_regraincentivo_C5.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA,
-          tb_regraincentivo_C5.CUMULATIVO          
+          tb_regraincentivo_C5.CUMULATIVO, 
+          tb_regraincentivo_C5.IDREF         
         ) 
         VALUES(
-          VIEW_C5_INCENTIVO.SEQREGRA,
+          --VIEW_C5_INCENTIVO.SEQREGRA,
+          (PKG_SINC_PDV_CONSINCO.obter_seqregraincentivo),
           VIEW_C5_INCENTIVO.REGRA,
           VIEW_C5_INCENTIVO.SEQTIPOCREDITO,
           VIEW_C5_INCENTIVO.ATIVO,
           VIEW_C5_INCENTIVO.TIPOREGRA,
-          VIEW_C5_INCENTIVO.CUMULATIVO
+          VIEW_C5_INCENTIVO.CUMULATIVO,
+          VIEW_C5_INCENTIVO.IDREF
         );
 
    UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
-   WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+   WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-      OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+      OR IDREF IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
    
@@ -2607,7 +2611,8 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       UPDATE monitorpdvmiddle.TB_REGRAINCENTIVOPERIODO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
-      AND   IDREF = '2017';
+      --AND   IDREF = '2017';
+      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
       
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
         USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
@@ -2640,10 +2645,10 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
         );
 
     UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
-    WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+    WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-       OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+       OR IDREF IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
@@ -2664,9 +2669,10 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
                                 ELSE
                                   TO_CHAR(C.DTFINAL, 'DD-MM-YYYY') || ' 23:59:59' 
                             END) =  TO_CHAR(R.DTAHORFIM, 'DD-MM-YYYY HH24:MI:SS')
-                        AND  R.SEQREGRA = C.codfilial||2011||C.codoferta
+                        AND  R.IDREF = C.codfilial||C.codoferta||2011
                        )
-      AND IDREF = 2011;
+      --AND IDREF = 2011;
+      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2011';
     
     INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -2836,7 +2842,8 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       UPDATE monitorpdvmiddle.TB_REGRAPRODUTO SET ATIVO = 'N'
       WHERE ATIVO = 'S'
-      AND   IDREF = '2017';
+      --AND   IDREF = '2017';
+      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
       
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING (--SELECT * FROM VW_INT_C5_PRODUTO_R2011
@@ -2881,10 +2888,11 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
       WHERE  EXISTS  (SELECT C.CODOFERTA
                       FROM PCOFERTAPROGRAMADAC C 
-                      WHERE R.SEQREGRA = C.codfilial||2011||C.codoferta
+                      WHERE R.SEQREGRA = C.codfilial||C.codoferta||2011
                       AND   C.DTCANCEL IS NOT NULL
                       )
-      AND IDREF = 2011; 
+      --AND IDREF = 2011; 
+      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2011';
 
       /*UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
       WHERE ATIVO = 'S' 
@@ -2988,10 +2996,10 @@ BEGIN
           S.IDREF);
 
   UPDATE MONITORPDVMIDDLE.tb_regrafamilia SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+  WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
-     OR SEQREGRA IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+     OR IDREF IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
                        FROM PCPRECOPROMLOG L
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
   
@@ -3058,7 +3066,7 @@ BEGIN
           S.IDREF);
 
   UPDATE MONITORPDVMIDDLE.tb_regracliente SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+  WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
   
@@ -3124,7 +3132,7 @@ BEGIN
           S.ATIVO);
 
   UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
-  WHERE SEQREGRA IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+  WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
   
