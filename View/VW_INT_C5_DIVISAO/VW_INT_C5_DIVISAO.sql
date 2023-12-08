@@ -23,7 +23,12 @@ SELECT  F.CODIGO  NUMREGIAO,
         F.CODIGO  NRODIVISAO,
         'DIVISAO TRIBUTACAO POR UF' DIVISAO,
         'V' TIPO,
-        'S' ATIVO,
+        (CASE
+            WHEN F.dtexclusao IS NULL
+                THEN 'S'
+            ELSE
+          'N'
+        END) ATIVO,
         F.UF IDREF
 FROM PCFILIAL F,
      (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_DIVISAO'
