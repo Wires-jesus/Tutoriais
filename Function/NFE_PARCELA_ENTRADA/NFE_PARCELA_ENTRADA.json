@@ -5,12 +5,12 @@
   {
    "nome": "TABELA_NFE_PARCELA",
    "tipo":"OBJETO_PLSQL",
-   "versao": "3.0.01.000"
+   "versao": "4.0.01.000"
   },
   {
    "nome":"SQL_NFE_PARCELA_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"3.0.01.000"
+   "versao":"4.0.01.000"
   }
  ]
 }
