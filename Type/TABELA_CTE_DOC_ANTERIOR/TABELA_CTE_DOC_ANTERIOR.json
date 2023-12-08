@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_DOC_ANTERIOR",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_DOC_ANTERIOR",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

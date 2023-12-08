@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_NFE_NFREFERENCIADA",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_NFE_NFREFERENCIADA",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

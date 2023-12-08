@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CONFIG_EMAIL",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CONFIG_EMAIL",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

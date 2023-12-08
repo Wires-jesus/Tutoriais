@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_IMPOSTO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_IMPOSTO",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_INFO_NOTA",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_INFO_NOTA",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

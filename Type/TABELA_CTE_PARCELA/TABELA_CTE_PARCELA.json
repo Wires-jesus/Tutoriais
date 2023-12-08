@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_PARCELA",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_PARCELA",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

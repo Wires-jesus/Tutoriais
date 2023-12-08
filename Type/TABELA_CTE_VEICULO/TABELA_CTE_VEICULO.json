@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_VEICULO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_VEICULO",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}
