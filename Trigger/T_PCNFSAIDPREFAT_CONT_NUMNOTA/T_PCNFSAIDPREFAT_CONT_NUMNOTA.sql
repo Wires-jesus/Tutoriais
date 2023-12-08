@@ -1,4 +1,4 @@
-﻿create or replace trigger T_PCNFSAIDPREFAT_CONT_NUMNOTA
+create or replace trigger T_PCNFSAIDPREFAT_CONT_NUMNOTA
   before update of NUMNOTA on PCNFSAIDPREFAT
   referencing old as old new as new
   for each row

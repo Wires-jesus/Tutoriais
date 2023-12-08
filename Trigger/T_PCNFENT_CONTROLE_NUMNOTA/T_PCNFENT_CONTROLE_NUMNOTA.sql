@@ -1,4 +1,4 @@
-﻿create or replace trigger T_PCNFENT_CONTROLE_NUMNOTA
+create or replace trigger T_PCNFENT_CONTROLE_NUMNOTA
   before update of NUMNOTA on PCNFENT
   referencing old as old new as new
   for each row

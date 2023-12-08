@@ -1,4 +1,4 @@
-﻿create or replace trigger T_PCNFSAID_CONTROLE_NUMNOTA
+create or replace trigger T_PCNFSAID_CONTROLE_NUMNOTA
   before update of NUMNOTA on PCNFSAID
   referencing old as old new as new
   for each row
