@@ -1,0 +1,11 @@
+{
+ "nome":"LISTA_DE_STRINGS",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_STRING",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

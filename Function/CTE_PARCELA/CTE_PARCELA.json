@@ -1,0 +1,11 @@
+{
+ "nome":"CTE_PARCELA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CTE_PARCELA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

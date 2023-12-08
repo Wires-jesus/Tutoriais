@@ -1,0 +1,11 @@
+{
+ "nome":"NFE_REFERENCIADA_ENTRADA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_NFE_NFREFERENCIADA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

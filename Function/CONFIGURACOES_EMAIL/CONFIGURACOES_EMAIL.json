@@ -1,0 +1,11 @@
+{
+ "nome":"CONFIGURACOES_EMAIL",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CONFIG_EMAIL",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

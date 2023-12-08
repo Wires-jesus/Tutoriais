@@ -1,0 +1,11 @@
+{
+ "nome":"LISTA_DE_NUMEROS",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_INTEIRO",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

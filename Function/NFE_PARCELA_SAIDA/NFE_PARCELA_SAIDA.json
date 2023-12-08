@@ -1,0 +1,36 @@
+{
+ "nome":"NFE_PARCELA_SAIDA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_NFE_PARCELA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  },
+  {
+   "nome":"SQL_NFE_PARCELA_SAIDA_NORMAL",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  },
+  {
+   "nome":"SQL_NFE_PARCELA_SAIDA_ST",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  },
+  {
+   "nome":"SQL_NFE_PARCELA_SAIDA_DIN",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  },
+  {
+   "nome":"SQL_NFE_PARCELA_SAIDA_TROCO",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  },
+  {
+   "nome":"SQL_NFE_PARCELA_SAIDA_CARTAO",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  }
+ ]
+}
