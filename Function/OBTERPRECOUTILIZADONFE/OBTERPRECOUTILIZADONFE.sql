@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION OBTERPRECOUTILIZADONFE( 
+CREATE OR REPLACE FUNCTION OBTERPRECOUTILIZADONFE( 
                                        P_CODIGO_FILIAL  VARCHAR2, 
                                        P_CODIGO_CLIENTE NUMBER, 
                                        P_CODIGO_PRODUTO NUMBER) 

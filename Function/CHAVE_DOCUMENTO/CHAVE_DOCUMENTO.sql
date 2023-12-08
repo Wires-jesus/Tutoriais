@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION CHAVE_DOCUMENTO( P_UF            VARCHAR2,
+CREATE OR REPLACE FUNCTION CHAVE_DOCUMENTO( P_UF            VARCHAR2,
                                             P_CNPJ_EMITENTE VARCHAR2,
                                             P_MODELO        VARCHAR2,
                                             P_SERIE         VARCHAR2,
