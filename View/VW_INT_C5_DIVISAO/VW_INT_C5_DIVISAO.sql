@@ -1,7 +1,7 @@
 CREATE OR REPLACE VIEW VW_INT_C5_DIVISAO AS
 (
-SELECT R.NUMREGIAO,
-       D.NRODIVISAO,
+SELECT TO_CHAR(R.NUMREGIAO) NUMREGIAO,
+       TO_CHAR(D.NRODIVISAO) NRODIVISAO,
        SUBSTR(R.REGIAO, 1, 20) DIVISAO,
        'V' TIPO,
        (CASE
@@ -19,13 +19,25 @@ FROM PCREGIAO R,
 
 UNION ALL
 
-SELECT  0  NUMREGIAO,
-        0  NRODIVISAO,
+SELECT  F.CODIGO  NUMREGIAO,
+        F.CODIGO  NRODIVISAO,
         'DIVISAO TRIBUTACAO POR UF' DIVISAO,
         'V' TIPO,
-        'S' ATIVO,
-        'DIVISAO PADRAO PARA TRIBUTACAO POR UF' IDREF
-FROM DUAL
+        (CASE
+            WHEN F.dtexclusao IS NULL
+                THEN 'S'
+            ELSE
+          'N'
+        END) ATIVO,
+        F.UF IDREF
+FROM PCFILIAL F,
+     (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_DIVISAO'
+     ) DTPADRAO,
+     VW_INT_C5_OBTER_FILIAIS_C5 c5
 WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
+AND F.codigo >= '0'
+AND F.codigo < '99'
+AND F.codigo = c5.codfilial
+AND NVL(F.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
  
 )
