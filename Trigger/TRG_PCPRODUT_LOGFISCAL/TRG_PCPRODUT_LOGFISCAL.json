@@ -1,0 +1,5 @@
+﻿{
+	"nome":"TRG_PCPRODUT_LOGFISCAL",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":""
+}
