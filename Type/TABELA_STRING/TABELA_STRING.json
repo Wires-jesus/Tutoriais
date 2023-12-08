@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_STRING",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "ARRAY_STRING",
+   "tipo": "MIGRATION",
+   "versao": "4.0.01.000"
+  }
+ ]
+}

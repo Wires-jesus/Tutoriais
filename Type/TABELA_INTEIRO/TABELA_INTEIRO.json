@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_INTEIRO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "ARRAY_INTEIRO",
+   "tipo": "MIGRATION",
+   "versao": "4.0.01.000"
+  }
+ ]
+}
