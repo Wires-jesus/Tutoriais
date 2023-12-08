@@ -1,0 +1,37 @@
+DECLARE
+   V_EXISTE ALL_TYPES.TYPE_NAME%TYPE;
+BEGIN
+   SELECT T.TYPE_NAME
+     INTO V_EXISTE
+     FROM ALL_TYPES T
+    WHERE T.TYPE_NAME = 'TABELA_CTE_IMPOSTO'
+      AND OWNER = SYS_CONTEXT('USERENV', 'SESSION_USER');
+   IF NOT V_EXISTE IS NULL THEN
+      EXECUTE IMMEDIATE 'DROP TYPE TABELA_CTE_IMPOSTO';
+   END IF;
+EXCEPTION
+   WHEN OTHERS THEN
+      V_EXISTE := NULL;
+END;
+\
+CREATE OR REPLACE TYPE TIPO_CTE_IMPOSTO AS OBJECT
+  (
+     SITUACAO_TRIBUTARIA                      VARCHAR2(3),
+     VALOR_BC_ICMS                            NUMBER,
+     VALOR_ICMS                               NUMBER,
+     ALIQUOTA                                 NUMBER,
+     VALOR_CREDITO                            NUMBER,
+     PERCENTUAL_REDUCAO                       NUMBER,
+     VALOR_TRIBUTOS                           NUMBER, 
+     VALOR_BC_UF_FIM                          NUMBER(18,6),
+     ALIQUOTA_FCP                             NUMBER(5,2),
+     ALIQUOTA_INTERNA_DEST                    NUMBER(5,2),
+     ALIQUOTA_PROVISORIA_PARTILHA             NUMBER(5,2),
+     VALOR_FC_POBREZA                         NUMBER(18,6),
+     VALOR_ICMS_PART_DEST                     NUMBER(18,6),
+     VALOR_ICMS_PART_REM                      NUMBER(18,6),
+     VALOR_PRESTACAO_SERVICO                  NUMBER(18,6),
+     VALOR_A_RECEBER                          NUMBER(18,6)
+ );
+\
+CREATE OR REPLACE TYPE TABELA_CTE_IMPOSTO IS TABLE OF TIPO_CTE_IMPOSTO;
