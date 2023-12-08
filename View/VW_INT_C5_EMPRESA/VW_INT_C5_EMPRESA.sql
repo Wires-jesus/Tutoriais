@@ -5,13 +5,13 @@ SELECT f.codigo nroempresa,
 
        (CASE
          WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
-              (SELECT R.NRODIVISAO
+              (SELECT TO_CHAR(R.NRODIVISAO) NRODIVISAO
                FROM   PCDEPARAREGIAOC5 R
                WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
                                                                        F.CODIGO,
                                                                        '1')
               )
-         ELSE 0     
+         ELSE f.codigo     
        END) NRODIVISAO,
 
        --ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,
@@ -27,7 +27,16 @@ SELECT f.codigo nroempresa,
             ELSE
           'N'
         END) ativo,
-        (SELECT NUMREGIAO||UF FROM PCREGIAO WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') ) idref
+        
+        (CASE
+         WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
+              (SELECT NUMREGIAO||UF 
+               FROM PCREGIAO 
+               WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') 
+              )
+         ELSE f.UF     
+       END) IDREF
+        
   FROM  pcfilial f,
        (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
         where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA'
