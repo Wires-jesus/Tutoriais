@@ -9866,6 +9866,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Variáveis de Controle do Canal Autorizador PBM - CA PBM
       vnIntegradoraCaPbm                  PCINTEGRADORA.INTEGRADORA%TYPE;
       vnNumPedOperLogCaPbm                PCPEDCOMPRAOPERLOGCAB.NUMPED%TYPE;
+	  vvPosicaoOrcamento                    pcorcavendai.posicao%type;
             
       -- DDMEDICA-3918 - Bloqueios Automáticos
       CURSOR C_PCBLOQUEIO(PNUMPED            NUMBER,
@@ -11043,10 +11044,23 @@ IS PRAGMA SERIALLY_REUSABLE;
       -----------------------------------
       -- CRÍTICA - Preço Abaixo do Mínimo
       -----------------------------------
+	  -->> Verifica Posicao do item do Orcamento
+	  BEGIN
+        SELECT POSICAO
+          into vvPosicaoOrcamento
+          FROM PCORCAVENDAI
+         WHERE NUMORCA = pi_nNumPed
+           AND CODPROD = pi_nCodProd
+		   AND NUMSEQ  = pi_nNumSeq;
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vvPosicaoOrcamento := ''; 
+      END;
+	  
       IF ( ((pi_nCodRotina = 2316) AND (NVL(vrParametros.vACEITADESCTMK,'N') = 'S') AND (vrPedido.vvOrigemPed NOT IN ('R'))) OR       -- DDVENDAS-35974
            ((pi_nCodRotina = 2316) AND (NVL(vrParametros.vACEITADESCBALCAORESERVA,'N') = 'S') AND (vrPedido.vvOrigemPed IN ('R'))) OR -- DDVENDAS-35974
            ((pi_nCodRotina = 2513) AND (vrParametros.vACEITADESCTMKFV = 'S')) )  AND
-         (NVL(pi_nCodMotivoPosicaoMed,0) > 0) THEN
+         ((NVL(pi_nCodMotivoPosicaoMed,0) > 0)or (vvPosicaoOrcamento = 'X')) THEN
   
         P_ATU_VALIDACAO_ESTOQUE_RESERV( pi_vChamadaProcesso
                                       , pi_nNumPed
