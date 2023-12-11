@@ -779,12 +779,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABTRIB R, 
                         PCTRIBPISCOFINS T,
+                        VW_INT_C5_OBTER_FILIAIS_C5 C5,
                                                 
                         (SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
                          WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
                         ) DATAPADRAO 
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
+                   AND   R.CODFILIALNF = C5.CODFILIAL
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
                    AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
                    AND   R.UFDESTINO = (SELECT F.UF
