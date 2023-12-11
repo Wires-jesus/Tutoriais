@@ -208,6 +208,8 @@ IS
  n_c         NUMBER;              -- cursor ID
  n_res       NUMBER;              -- resultado do cursor (registros retornados)
  n_size      NUMBER;              --tamanho do CLOB
+ n_pos       NUMBER;              
+ n_pos_atual NUMBER;
 
  TYPE CLIENTES IS RECORD(TOTCLIENTESATIVOS NUMBER(10));
 
@@ -395,7 +397,7 @@ IS
       V_POSF     := INSTR(V_SQL,' ',V_POSI);
       V_PARAM    := SUBSTR(V_SQL,V_POSI,V_POSF - V_POSI);
       V_PARAM    := REPLACE(V_PARAM,CHR(10),'');
-    V_PARAM    := REPLACE(V_PARAM,CHR(13),'');
+      V_PARAM    := REPLACE(V_PARAM,CHR(13),'');
       V_PARAM    := REPLACE(V_PARAM,')','');
       V_PARAM    := REPLACE(V_PARAM,',','');
       V_PARAM    := TRIM(V_PARAM);
@@ -414,20 +416,20 @@ IS
 
   PROCEDURE OPEN_CURSOR_FOR_V_SQL IS
     VLISTA_PARAMETROS VARCHAR2(1000);
-	
-	vc_stmt_2   DBMS_SQL.VARCHAR2A;  -- TABLE OF VARCHAR2(32767)
+  
+    vc_stmt_2   DBMS_SQL.VARCHAR2A;  -- TABLE OF VARCHAR2(32767)
     n_split     NUMBER;              -- numero de cortes para o array caso necessário
     n_max_size  NUMBER := 32767;     -- numero máximo do string para split
     n_iteration NUMBER;              -- iteracoes da matriz    
     n_size      NUMBER;              --tamanho do CLOB
     n_pos       NUMBER;              
     n_pos_atual NUMBER;
-	
+  
   BEGIN
    
     VLISTA_PARAMETROS := GET_LISTA_PARAMETOS(V_SQL);
-	
-	-- Inicializa numeros
+  
+  -- Inicializa numeros
     n_split := 0;
     n_iteration := 0;
     vc_stmt_2.delete;
@@ -677,8 +679,8 @@ IS
       ELSE
         RAISE_APPLICATION_ERROR(-20000,'ERRO AO ABRIR O CURSOR, LISTA DE PARAMETROS: ''' || VLISTA_PARAMETROS || '''');
     END CASE;
-	
-	v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
+  
+  v_result_dbmsql := DBMS_SQL.EXECUTE(v_cursor_dbmsql);
 
     ---------------------- DEFININDO OS CAMPOS NO DBMS_SQL PARA O V_SQL ----------------------- 
     -------------------------------------------------------------------------------------------
@@ -34983,7 +34985,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        NULL NUMORIGINAL, NULL CODAUXILIAR, NULL PESOLIQ, NULL NUMPR, NULL PERCVENDA, NULL PERCLUCRO, NULL PERCMETA,
        NULL VLVENDAPF, NULL VLVENDAPJ, NULL PERCVENDAPF, NULL PERCVENDAPJ, NULL PERCPARTTOTAL,(DECODE(SUM(TOTAL.PESOBRUTO),
        0, 0,(SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLDEVOLUCAO)) / SUM(TOTAL.PESOBRUTO))) VLPESOTRANSP, SUM(TOTAL.VLDEVOLUCAO) VLDEVOLUCAO,
-       SUM(TOTAL.VLDEVOLAVULSAI) VLDEVOLAVULSAI, SUM(TOTAL.VLDEVCMVAVULSAI) VLDEVCMVAVULSAI, SUM(TOTAL.VLDEVOLBONIFIC) VLDEVOLBONIFIC, SUM(TOTAL.VLCMVDEVOL) VLCMVDEVOL,
+       NULL VLDEVOLAVULSAI, NULL VLDEVCMVAVULSAI, SUM(TOTAL.VLDEVOLBONIFIC) VLDEVOLBONIFIC, SUM(TOTAL.VLCMVDEVOL) VLCMVDEVOL,
        SUM(TOTAL.DEVOLTAB) DEVOLTAB, NVL(COUNT(DISTINCT TOTAL.CONTADOR), 0) CONTADOR ,NVL(COUNT(DISTINCT TOTAL.QTCLIPOS), 0) QTCLIPOS,
        COUNT(DISTINCT TOTAL.QTMIXPRODUTO) QTMIXPRODUTO, NULL QTCLIENTE,
        DECODE(SUM(TOTAL.VLVENDA),0,0, SUM(TOTAL.NUMDIAS * TOTAL.VLVENDA) / SUM(TOTAL.VLVENDA)) NUMDIAS, SUM(TOTAL.VLVENDA) VLVENDA, (SUM(TOTAL.VALORTOTALNOTA)) VALORTOTALNOTA,
@@ -34997,8 +34999,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
              (SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLTABELA)) VALORDESC,
        (SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLDEVOLUCAO)) VLLIQUIDO, NULL VLMETA, SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLTABELA) VLFLEX, ';
 
-   V_SQL := V_SQL || '(SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLCUSTOFIN) - SUM(TOTAL.VLDEVOLUCAO) - SUM(VLDEVOLAVULSAI) +
-         SUM(TOTAL.VLCMVDEVOL) + SUM(VLDEVCMVAVULSAI)) VLLUCRO, ';
+   V_SQL := V_SQL || '(SUM(TOTAL.VLVENDA) - SUM(TOTAL.VLCUSTOFIN) - SUM(TOTAL.VLDEVOLUCAO) + SUM(TOTAL.VLCMVDEVOL)) VLLUCRO, ';
 
    V_SQL :=
     V_SQL
@@ -35010,7 +35011,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
          SUM(TOTAL.VLCMVDEVOLBONIF) VLCMVDEVOLBONIF, SUM(TOTAL.VLCMVANTESAPLVERBA) VLCMVANTESAPLVERBA,
          (SUM(TOTAL.VLLUCROANTESAPLVERBA) - SUM(TOTAL.VLDEVOLUCAO) + SUM(TOTAL.VLCMVDEVOL)) VLLUCROANTESAPLVERBA, NULL PERCLUCROANTESAPLVERBA
          FROM(SELECT COUNT(1) AS DIVIDIVALORTOTAL, VENDAS.CODCLI, 0 CONDVENDA, VENDAS.NUMTRANSVENDA CONTADOR,
-         VENDAS.CODCLI QTCLIPOS, VENDAS.CODPROD QTMIXPRODUTO, 0 VLDEVOLUCAO, 0 VLDEVOLAVULSAI, 0 VLDEVOLBONIFIC, 0 VLCMVDEVOL, 0 VLDEVCMVAVULSAI, 0 DEVOLTAB,
+         VENDAS.CODCLI QTCLIPOS, VENDAS.CODPROD QTMIXPRODUTO, 0 VLDEVOLUCAO, 0 VLDEVOLBONIFIC, 0 VLCMVDEVOL, 0 DEVOLTAB,
          ROUND(DECODE(SUM(VENDAS.VLVENDA), 0, 0, SUM(VENDAS.PRAZOMEDIO * VENDAS.VLVENDA) / SUM(VENDAS.VLVENDA)), 2) NUMDIAS,
          DECODE(SUM(VENDAS.VLVENDA), 0, 0, SUM(VENDAS.PRAZOMEDIO * VENDAS.VLVENDA)) PRAZOMEDIO, SUM(VENDAS.VLVENDA) AS VENDA_SEMDESCONTO, ';
 
@@ -46637,22 +46638,28 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     INTO VLTITULO
     USING P_DATAINI
         , P_DATAFIM;*/
-		
-	-- Inicializa numeros
+    
+  -- Inicializa numeros
     n_split := 0;
     n_iteration := 0;
     vc_stmt.delete;
     -- Tamanho do CLOB
     n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
     -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
     IF n_size > n_max_size THEN
        BEGIN
-          n_split := CEIL(n_size/n_max_size);
           FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
              n_iteration := n_iteration + 1;
           END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt(n_iteration) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual );
        END;
     ELSE
        BEGIN
@@ -46670,7 +46677,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLTITULO);
     END IF;
-    DBMS_SQL.close_cursor(n_c);	
+    DBMS_SQL.close_cursor(n_c); 
 
    -- Verificando total de venda
    V_SQL3 := ' SELECT ';
@@ -46914,21 +46921,28 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     INTO VLVENDATOT
     USING P_DATAINI
         , P_DATAFIM;*/
-		
-	n_split := 0;
+    
+    -- Inicializa numeros
+    n_split := 0;
     n_iteration := 0;
     vc_stmt.delete;
     -- Tamanho do CLOB
-    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL2 = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
     -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
     IF n_size > n_max_size THEN
        BEGIN
-          n_split := CEIL(n_size/n_max_size);
           FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
              n_iteration := n_iteration + 1;
           END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt(n_iteration) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_pos_atual );
        END;
     ELSE
        BEGIN
@@ -46946,38 +46960,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
     END IF;
-    DBMS_SQL.close_cursor(n_c);n_split := 0;
-    n_iteration := 0;
-    vc_stmt.delete;
-    -- Tamanho do CLOB
-    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
-    -- Quebra o CLOB em blocos de n_max_size caso necessario
-    IF n_size > n_max_size THEN
-       BEGIN
-          n_split := CEIL(n_size/n_max_size);
-          FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
-             n_iteration := n_iteration + 1;
-          END LOOP;
-       END;
-    ELSE
-       BEGIN
-          n_iteration := 1; -- Se o CLOB não for maior que n_max_size so tera uma iteracao
-          vc_stmt(1) := V_SQL3;
-       END;
-    END IF;
-
-    -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
-    n_c := DBMS_SQL.open_cursor;
-    DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
-    DBMS_SQL.bind_variable(n_c, ':DATAINI2', P_DATAINI);
-    DBMS_SQL.bind_variable(n_c, ':DATAFIM2', P_DATAFIM);
-    n_res := DBMS_SQL.execute(n_c);
-    IF (n_res > 0) THEN
-      DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
-    END IF;
-    DBMS_SQL.close_cursor(n_c);	
+    DBMS_SQL.close_cursor(n_c); 
 
 
    VLVENDATOT := NVL(VLVENDATOT,0);
@@ -51851,21 +51834,28 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     INTO VLTITULO
     USING P_DATAINI
         , P_DATAFIM;*/
-	
+  
+    -- Inicializa numeros
     n_split := 0;
     n_iteration := 0;
     vc_stmt.delete;
     -- Tamanho do CLOB
     n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
     -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
     IF n_size > n_max_size THEN
        BEGIN
-          n_split := CEIL(n_size/n_max_size);
           FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
              n_iteration := n_iteration + 1;
           END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt(n_iteration) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual );
        END;
     ELSE
        BEGIN
@@ -51883,7 +51873,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLTITULO);
     END IF;
-    DBMS_SQL.close_cursor(n_c);	
+    DBMS_SQL.close_cursor(n_c); 
 
    -- Verificando total de venda
    V_SQL3 := ' SELECT ';
@@ -52117,21 +52107,28 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     INTO VLVENDATOT
     USING P_DATAINI
         , P_DATAFIM;*/
-	
+  
+    -- Inicializa numeros
     n_split := 0;
     n_iteration := 0;
     vc_stmt.delete;
     -- Tamanho do CLOB
-    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL3 = variavel CLOB
+    n_size := DBMS_LOB.GETLENGTH(V_SQL3); -- V_SQL2 = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
     -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
     IF n_size > n_max_size THEN
        BEGIN
-          n_split := CEIL(n_size/n_max_size);
           FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_max_size * ( i - 1 ) );
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL3, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
              n_iteration := n_iteration + 1;
           END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt(n_iteration) := DBMS_LOB.SUBSTR( V_SQL3, n_max_size, 1 + n_pos_atual );
        END;
     ELSE
        BEGIN
@@ -52149,7 +52146,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
     END IF;
-    DBMS_SQL.close_cursor(n_c);	
+    DBMS_SQL.close_cursor(n_c); 
 
    V_SQL :=
     ' SELECT NULL CODIGO, NULL CODIGO2, NULL CONDVENDA, NULL CODFILIAL, NULL NUMREGIAO, NULL CODUSUR, NULL NOMEUSUR, NULL UF,
@@ -72097,21 +72094,28 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
    INTO VLDEVOLAVULSA
    USING P_DATAINI
        , P_DATAFIM;*/
-	
+  
+    -- Inicializa numeros
     n_split := 0;
     n_iteration := 0;
     vc_stmt.delete;
     -- Tamanho do CLOB
     n_size := DBMS_LOB.GETLENGTH(V_SQL2); -- V_SQL2 = variavel CLOB
+    -- Inicializa o bloco inicial de corte
+    n_pos_atual := 0;
     -- Quebra o CLOB em blocos de n_max_size caso necessario
+    n_split := CEIL(n_size/n_max_size);              
     IF n_size > n_max_size THEN
        BEGIN
-          n_split := CEIL(n_size/n_max_size);
           FOR i in 1..n_split
-          LOOP
-             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_max_size * ( i - 1 ) );
+          LOOP             
+             n_pos := INSTR(DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual ), CHR(10), -1);
+             vc_stmt(i) := DBMS_LOB.SUBSTR( V_SQL2, n_pos, 1 + n_pos_atual  );
+             n_pos_atual := n_pos_atual + n_pos;
              n_iteration := n_iteration + 1;
           END LOOP;
+          n_iteration := n_iteration + 1;
+          vc_stmt(n_iteration) := DBMS_LOB.SUBSTR( V_SQL2, n_max_size, 1 + n_pos_atual );
        END;
     ELSE
        BEGIN
@@ -72129,8 +72133,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLDEVOLAVULSA);
     END IF;
-    DBMS_SQL.close_cursor(n_c);	
-	   
+    DBMS_SQL.close_cursor(n_c); 
+     
  END IF;
 
 BEGIN
