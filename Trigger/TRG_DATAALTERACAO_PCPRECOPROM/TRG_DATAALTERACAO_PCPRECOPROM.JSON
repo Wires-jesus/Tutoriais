@@ -1,0 +1,5 @@
+{"nome":"TRG_DATAALTERACAO_PCPRECOPROM","tipoPLSQL":"TRIGGER","dependencias":[{
+  "nome": "PCPRECOPROM",
+  "tipo": "TABELA",
+  "versao": "4.0.05.000"
+}]}
