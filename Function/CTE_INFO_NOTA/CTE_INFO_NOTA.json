@@ -1,0 +1,11 @@
+{
+ "nome":"CTE_INFO_NOTA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CTE_INFO_NOTA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "4.0.01.000"
+  }
+ ]
+}

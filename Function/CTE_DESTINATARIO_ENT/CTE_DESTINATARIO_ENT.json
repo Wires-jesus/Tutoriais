@@ -1,0 +1,11 @@
+{
+ "nome":"CTE_DESTINATARIO_ENT",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CTE_DESTINATARIO_ENT",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "4.0.01.000"
+  }
+ ]
+}
