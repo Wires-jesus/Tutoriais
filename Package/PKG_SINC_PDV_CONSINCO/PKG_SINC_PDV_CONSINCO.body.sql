@@ -1039,6 +1039,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                pcfilial e,
                pcfinalizadora              f,
                pccob                       c,
+               VW_INT_C5_OBTER_FILIAIS_C5 c5,
                (SELECT s.ultimaexecucao
                 FROM pccontroleconsinco s
                 WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO') D
@@ -1046,6 +1047,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           AND   F.CODFILIAL = E.codigo
           AND   f.codcob = c.codcob(+)
           AND   E.codigo >= '0'
+          AND   E.CODIGO = C5.CODFILIAL
+          AND   F.CODFILIAL = C5.CODFILIAL
           --AND   E.codigo < '99'
           AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
                 NVL(c.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
