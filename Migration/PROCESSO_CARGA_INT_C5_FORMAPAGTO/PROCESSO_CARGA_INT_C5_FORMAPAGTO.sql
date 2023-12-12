@@ -89,6 +89,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
       pcfinalizadora   f,
       pccob            o,
       pcplpag          p,
+      VW_INT_C5_OBTER_FILIAIS_C5 c5,
       (
         SELECT s.ultimaexecucao
         FROM pccontroleconsinco s
@@ -104,6 +105,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   E.codigo < '99'
    AND   E.CODIGO = TBEMP.NROEMPRESA
    AND   F.CODFILIAL = TBEMP.NROEMPRESA
+   AND   F.CODFILIAL = C5.CODFILIAL
+   AND   E.CODIGO = C5.CODFILIAL
+   AND   TBEMP.NROEMPRESA = C5.CODFILIAL
    AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
