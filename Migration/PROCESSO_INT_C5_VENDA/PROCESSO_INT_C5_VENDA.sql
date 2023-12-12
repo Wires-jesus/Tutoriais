@@ -1654,14 +1654,17 @@ AS
         (select est.vlicmsbcr from pcest est where est.codfilial = v.codfilial and est.codprod = v.codprod) vlicmsbcr,
         h.percpis,
         0 aliqicms1ret
-  FROM  monitorpdvmiddle.tb_doctoitem   i,
+FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
         --monitorpdvmiddle.tb_doctotributacaoitem ti,
         vw_int_c5_trib_pis h,
         vw_int_c5_pcprodut              v,
-        pcconsolidatributacao           a
+        pcconsolidatributacao           a,
+        monitorpdvmiddle.tb_empresa     e,
+        pcfilial ea,
+        PCDEPARAREGIAOC5 div
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
@@ -1681,9 +1684,15 @@ AS
    AND  i.nrotributacao = h.codst(+)
    AND  i.codacesso = h.codauxiliar(+)
    and  i.nroempresa = h.codfilial(+)
-   AND  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',d.nroempresa,1)
+   AND  e.nroempresa = d.nroempresa
+   AND  i.nroempresa = e.nroempresa
+   AND  to_char(e.nroempresa) = ea.codigo
+   AND  ea.uf = a.ufdestino
+   AND  div.nrodivisao = e.nrodivisao
+   AND  a.numregiao = div.numregiao
    AND  c.status in ('V', 'C')
-   AND  i.status = 'V')
+   AND  i.status = 'V'
+   )
    
 \
 
