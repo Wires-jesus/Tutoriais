@@ -1,0 +1,1 @@
+delete PCROTDESCONTINUADAS where codigo = 540

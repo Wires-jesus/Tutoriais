@@ -1,0 +1,6 @@
+{
+ "nome": "PCROTDESCONTINUADAS_REGISTROS",
+ "tipoPLSQL": "MIGRATION",
+ "dependencias":[
+ ]
+}
