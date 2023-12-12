@@ -3981,7 +3981,7 @@ BEGIN
                        ||            ' VENDAS.VLBONIFIC - (VENDAS.ICMSRETIDO + VENDAS.ICMSRETIDOBONIFIC)'
                        ||                             ' - (VENDAS.VLIPI + VENDAS.VLIPIBONIFIC)'
                        ||                             ' - VENDAS.VLREPASSE'
-                       ||                             ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC)) VLBONIFIC,';
+                       ||                             ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        ELSE
         V_SQL := V_SQL || ' SUM(DECODE(VENDAS.VLBONIFIC2,'
                        ||            ' 0,'
@@ -3989,7 +3989,7 @@ BEGIN
                        ||            ' VENDAS.VLBONIFIC2 - (VENDAS.ICMSRETIDO + VENDAS.ICMSRETIDOBONIFIC)'
                        ||                              ' - (VENDAS.VLIPI + VENDAS.VLIPIBONIFIC)'
                        ||                              ' - VENDAS.VLREPASSE'
-                       ||                              ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC)) VLBONIFIC,';
+                       ||                              ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -30169,22 +30169,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;       
       END IF;
      ELSIF P_DESCIPI = 1
@@ -30194,22 +30194,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      END IF;
@@ -30222,22 +30222,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      ELSIF P_DESCIPI = 1
@@ -30247,22 +30247,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      END IF;
@@ -32238,33 +32238,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32311,33 +32314,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - DECODE(VENDAS.VLBONIFIC, 0, 0, (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32394,33 +32400,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - VENDAS.VLREPASSE) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32475,33 +32484,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - VENDAS.VLREPASSE - DECODE(VENDAS.VLBONIFIC, 0, 0, (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32567,33 +32579,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - (VENDAS.VLIPIBONIFIC)) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32649,33 +32664,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - (VENDAS.VLIPIBONIFIC) - DECODE(VENDAS.VLBONIFIC, 0, 0, (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32736,33 +32754,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - (VENDAS.VLIPIBONIFIC) - VENDAS.VLREPASSE) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32821,33 +32842,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         V_SQL := V_SQL || ' SUM(VENDAS.VLBONIFIC2 - (VENDAS.VLIPIBONIFIC) - VENDAS.VLREPASSE - DECODE(VENDAS.VLBONIFIC, 0, 0, (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -32928,33 +32952,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||            ' VENDAS.VLBONIFIC2 - (VENDAS.ICMSRETIDO + VENDAS.ICMSRETIDOBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33019,33 +33046,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33114,33 +33144,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||            ' VENDAS.VLBONIFIC2 - (VENDAS.ICMSRETIDO + VENDAS.ICMSRETIDOBONIFIC) - VENDAS.VLREPASSE)) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33213,33 +33246,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
-       THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+       IF P_UF IS NOT NULL
+       THEN 
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33319,33 +33355,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - (VENDAS.VLIPI + VENDAS.VLIPIBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33418,33 +33457,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - (VENDAS.VLFECP - VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
-       THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+       IF P_UF IS NOT NULL
+       THEN 
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33526,33 +33568,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - VENDAS.VLREPASSE)) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -33634,33 +33679,36 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                        ||                              ' - (VENDAS.VLFECP + VENDAS.VLFECPBONIFIC))) VLBONIFIC,';
        END IF;
 
-       IF VERIFICAPF = TRUE
+       IF P_UF IS NOT NULL
        THEN
-        V_SQL := V_SQL || ' SUM(DECODE((CASE';
-
-        IF P_CONSIDTIPOFJ = 1
+        IF VERIFICAPF = TRUE
         THEN
-         V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
-        END IF;
+         V_SQL := V_SQL || ' SUM(DECODE((CASE';
 
-        IF P_CONSIDCONSUMIDORFINAL = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
-        END IF;
+         IF P_CONSIDTIPOFJ = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(PCCLIENT.TIPOFJ = ''F'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTO = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
-        END IF;
+         IF P_CONSIDCONSUMIDORFINAL = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.CONSUMIDORFINAL, ''N'') = ''S'') THEN ''S''';
+         END IF;
 
-        IF P_CONSIDISENTA = 1
-        THEN
-         V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
-        END IF;
+         IF P_CONSIDISENTO = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTO'') THEN ''S''';
+         END IF;
 
-        V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
-       ELSE
-        V_SQL := V_SQL || ' 0 VLVENDAPF,';
+         IF P_CONSIDISENTA = 1
+         THEN
+          V_SQL := V_SQL || ' WHEN(NVL(PCCLIENT.IEENT, ''ISENTO'') = ''ISENTA'') THEN ''S''';
+         END IF;
+
+         V_SQL := V_SQL || ' ELSE ''N'' END), ''S'', VENDAS.VLVENDA - VENDAS.ICMSRETIDO - VENDAS.VLIPI - VENDAS.VLREPASSE - VENDAS.VLFECP, 0)) VLVENDAPF,';
+        ELSE
+         V_SQL := V_SQL || ' 0 VLVENDAPF,';
+        END IF;
        END IF;
 
        IF P_BONIFICACAO = 0
@@ -53658,8 +53706,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB) DEVOLTAB,';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(DEVOL.VLDEVOLUCAO - DEVOL.VLFECP) VLDEVOLUCAO,';
@@ -53677,8 +53723,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLFECP) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLFECP) DEVOLTAB,';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
@@ -53699,8 +53743,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLREPASSE) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLREPASSE) DEVOLTAB,';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(DEVOL.VLDEVOLUCAO - DEVOL.VLREPASSE - DEVOL.VLFECP) VLDEVOLUCAO,';
@@ -53718,8 +53760,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLREPASSE - DEVOL.VLFECP) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLREPASSE - DEVOL.VLFECP) DEVOLTAB,';
        END IF;
       END IF;
      ELSIF P_DESCIPI = 1
@@ -53743,8 +53783,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLIPI) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLIPI) DEVOLTAB,';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(DEVOL.VLDEVOLUCAO - DEVOL.VLIPI - DEVOL.VLFECP) VLDEVOLUCAO,';
@@ -53762,8 +53800,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLIPI - DEVOL.VLFECP) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLIPI - DEVOL.VLFECP) DEVOLTAB,';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
@@ -53784,8 +53820,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLIPI - DEVOL.VLREPASSE) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLIPI - DEVOL.VLREPASSE) DEVOLTAB,';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(DEVOL.VLDEVOLUCAO - DEVOL.VLIPI - DEVOL.VLREPASSE - DEVOL.VLFECP) VLDEVOLUCAO,';
@@ -53803,8 +53837,6 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
         ELSE
          V_SQL := V_SQL || ' SUM(DEVOL.VLCMVDEVOLBONIF + DEVOL.VLCMVDEVOL - DEVOL.VLIPI - DEVOL.VLREPASSE - DEVOL.VLFECP) VLCMVDEVOL,';
         END IF;
-
-        V_SQL := V_SQL || ' SUM(DEVOL.DEVOLTAB - DEVOL.VLIPI - DEVOL.VLREPASSE - DEVOL.VLFECP) DEVOLTAB,';
        END IF;
       END IF;
      END IF;
@@ -64423,22 +64455,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;       
       END IF;
      ELSIF P_DESCIPI = 1
@@ -64448,22 +64480,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      END IF;
@@ -64476,22 +64508,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      ELSIF P_DESCIPI = 1
@@ -64501,22 +64533,22 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       ELSIF P_DESCVLREPASSE = 1
       THEN
        IF P_DESCFECP = 0
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE) VLDEVCMVAVULSAI';
        ELSIF P_DESCFECP = 1
        THEN
         V_SQL := V_SQL || ' SUM(AVULSA.VLTOTAL - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVOLAVULSAI,'
-                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI,';
+                       || ' SUM(AVULSA.VLDEVCMVAVULSAI - AVULSA.VLST - AVULSA.VLIPI - AVULSA.VLREPASSE - AVULSA.VLFECP) VLDEVCMVAVULSAI';
        END IF;
       END IF;
      END IF;
