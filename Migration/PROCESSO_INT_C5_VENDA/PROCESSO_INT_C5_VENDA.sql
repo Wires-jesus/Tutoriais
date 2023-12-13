@@ -471,7 +471,8 @@ BEGIN
          AND  p.nroempresa = pCodigoFilial
 		 AND  P.CODREDETEF = A.CODOPERADORACARTO
          AND  p.codbandeiratef = a.codbandeira(+)
-         AND  p.nrocheckout = pNumeroCaixa;
+         AND  p.nrocheckout = pNumeroCaixa
+		 AND  A.modalidadetef = P.MODALIDADETEF;
     EXCEPTION
       WHEN TOO_MANY_ROWS THEN
       SELECT  a.CODCOB
@@ -487,6 +488,7 @@ BEGIN
 		 AND  P.CODREDETEF = A.CODOPERADORACARTO
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
+		 AND  A.modalidadetef = P.MODALIDADETEF
          AND  ROWNUM = 1;
       
       WHEN OTHERS THEN
