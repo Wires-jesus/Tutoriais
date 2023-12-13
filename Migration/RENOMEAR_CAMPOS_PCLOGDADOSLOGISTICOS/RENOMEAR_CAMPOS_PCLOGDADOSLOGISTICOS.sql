@@ -1,4 +1,4 @@
-DECLARE
+ADECLARE
   v_sql VARCHAR2(200);
 BEGIN
 /*  -- Renomeando a coluna abastecepalete para abastepalete
@@ -28,7 +28,6 @@ BEGIN
   -- Renomeando a coluna qttopal_ant para qttotpal_ant 
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN qttopal_ant TO qttotpal_ant';
   EXECUTE IMMEDIATE v_sql;
-   qttotpal_ant
   
   DBMS_OUTPUT.PUT_LINE('Alterações concluídas com sucesso.');
 EXCEPTION
