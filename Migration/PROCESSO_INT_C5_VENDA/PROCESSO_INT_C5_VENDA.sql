@@ -307,6 +307,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_COBRANCA_WINTHOR AS
                  AND
                  NVL(o.tipopagtoecf,'T') IN ('A','T')
                 THEN '0200'
+			WHEN NVL(o.tipooperacaotef,'02') = '03'
+			    THEN '0300'
             ELSE
                 '0000'
          END) modalidadetef,
