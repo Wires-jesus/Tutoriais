@@ -1,4 +1,4 @@
-ADECLARE
+DECLARE
   v_sql VARCHAR2(200);
 BEGIN
 /*  -- Renomeando a coluna abastecepalete para abastepalete
