@@ -17,6 +17,10 @@ BEGIN
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN abastecepaletecx_ant TO abastepaletecx_ant';
   EXECUTE IMMEDIATE v_sql;
   
+  -- Renomeando a coluna ESTOQUEPORDATAVALIDADE para ESTOQUEPORDTVALIDADE 
+  v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN ESTOQUEPORDATAVALIDADE TO ESTOQUEPORDTVALIDADE';
+  EXECUTE IMMEDIATE v_sql;
+  
   DBMS_OUTPUT.PUT_LINE('Alterações concluídas com sucesso.');
 EXCEPTION
   WHEN OTHERS THEN
