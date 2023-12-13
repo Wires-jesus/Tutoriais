@@ -15,11 +15,20 @@ BEGIN
 
   -- Renomeando a coluna abastecepaletecx_ant para abastepaletecx_ant
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN abastecepaletecx_ant TO abastepaletecx_ant';
-  EXECUTE IMMEDIATE v_sql;*/
+  EXECUTE IMMEDIATE v_sql;
   
   -- Renomeando a coluna estoquepordatavalidade para estoquepordtvalidade 
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN estoquepordatavalidade TO estoquepordtvalidade';
+  EXECUTE IMMEDIATE v_sql;*/
+  
+  -- Renomeando a coluna qttopal para qttotpal 
+  v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN qttopal TO qttotpal';
   EXECUTE IMMEDIATE v_sql;
+  
+  -- Renomeando a coluna qttopal_ant para qttotpal_ant 
+  v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN qttopal_ant TO qttotpal_ant';
+  EXECUTE IMMEDIATE v_sql;
+   qttotpal_ant
   
   DBMS_OUTPUT.PUT_LINE('Alterações concluídas com sucesso.');
 EXCEPTION
