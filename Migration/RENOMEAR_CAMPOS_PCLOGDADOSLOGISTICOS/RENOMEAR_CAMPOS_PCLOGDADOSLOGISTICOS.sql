@@ -1,7 +1,7 @@
 DECLARE
   v_sql VARCHAR2(200);
 BEGIN
-/*  -- Renomeando a coluna abastecepalete para abastepalete
+  -- Renomeando a coluna abastecepalete para abastepalete
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN abastecepalete TO abastepalete';
   EXECUTE IMMEDIATE v_sql;
 
@@ -19,7 +19,7 @@ BEGIN
   
   -- Renomeando a coluna estoquepordatavalidade para estoquepordtvalidade 
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN estoquepordatavalidade TO estoquepordtvalidade';
-  EXECUTE IMMEDIATE v_sql;*/
+  EXECUTE IMMEDIATE v_sql;
   
   -- Renomeando a coluna qttopal para qttotpal 
   v_sql := 'ALTER TABLE pclogdadoslogisticos RENAME COLUMN qttopal TO qttotpal';
