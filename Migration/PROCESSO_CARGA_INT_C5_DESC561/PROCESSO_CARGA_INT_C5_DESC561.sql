@@ -265,6 +265,11 @@ AND   D.SEQCATEGORIAC5 = C.SEQCATEGORIA
 AND   DADOSCAT.NIVEL = C.NIVELHIERARQUIA
 AND   C.NRODIVISAO = (SELECT R.NRODIVISAO
                       FROM   PCDEPARAREGIAOC5 R
-                      WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', DADOSCAT.NROEMPRESA, '1')
+                      WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', DADOSCAT.NROEMPRESA, '1'
+                      AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
+                      
+                      UNION ALL
+                          
+                      SELECT '0' VALOR FROM DUAL WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' 
                      )
 )
