@@ -570,7 +570,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END;
     ELSE
       vvRetRegraPermissao := 'S';
-    END IF;	 
+    END IF;  
     
     -- Verificar se a Matricula tem acesso a Liberar o Bloqueio Comercial conforme cadastro da rotina 320 - DDMEDICA-3918
     IF (vvRetRegraPermissao = 'S') AND
@@ -599,7 +599,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         END;
       ELSE
         vvRetRegraPermissao := 'S';
-      END IF;	 
+      END IF;  
     END IF;
       
     -- Retorno
@@ -7044,7 +7044,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              , PCCONFIGSISTMARCAOPERLOG
          WHERE (PCINTEGRADORA.INTEGRADORA = PCCONFIGSISTOPERLOG.INTEGRADORA)
            AND (PCCONFIGSISTOPERLOG.CODSISTEMA = PCCONFIGSISTMARCAOPERLOG.CODSISTEMA)
-           AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA = vnCodMarca)	
+           AND (PCCONFIGSISTMARCAOPERLOG.CODMARCA = vnCodMarca) 
            AND (PCINTEGRADORA.INTEGRADORA IN (SELECT I.INTEGRADORA
                                                  FROM PCINTEGRADORA I
                                                 WHERE (I.LAYOUT = 58)
@@ -9866,7 +9866,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Variáveis de Controle do Canal Autorizador PBM - CA PBM
       vnIntegradoraCaPbm                  PCINTEGRADORA.INTEGRADORA%TYPE;
       vnNumPedOperLogCaPbm                PCPEDCOMPRAOPERLOGCAB.NUMPED%TYPE;
-	  vvPosicaoOrcamento                    pcorcavendai.posicao%type;
+	  vvPosicaoOrcamento                  PCORCAVENDAI.POSICAO%TYPE;
             
       -- DDMEDICA-3918 - Bloqueios Automáticos
       CURSOR C_PCBLOQUEIO(PNUMPED            NUMBER,
@@ -19975,7 +19975,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   Alteração    : 23/10/2019 - DDMEDICA-1112 - Marcos Levi - Quebra por Rca Linha de produto
   Alteração    : 28/11/2019 - DDMEDICA-1451 - Limitar valor recebido no campo totvolume da pccarreg
   Alteração    : 24/12/2019 - DDMEDICA-1666 - Quebra Pedidos Especial para Crossdocking
-  Alteração    : 09/01/2020 - DDMEDICA-1761 - Quebra Pedido Por Restrição de transporte	
+  Alteração    : 09/01/2020 - DDMEDICA-1761 - Quebra Pedido Por Restrição de transporte 
   Alteração    : 10/01/2019 - DDMEDICA-1769 - Rastreabilidade Crossdocking na Quebra do Pedido
   *******************************************************************************/
   PROCEDURE P_FINALIZACAO_PEDIDO_01(pi_nCodRotina      IN  NUMBER,
@@ -22151,9 +22151,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                  ------------------------------------------------
                                  NVL(PCPRODUT.RESTRICAOTRANSP,'N') TIPORESTRICAO,
                                  CASE 
-                               	 WHEN  PCPRODUT.RESTRICAOTRANSP = 'S' THEN 'PRODUTO '|| pcprodut.codprod  || ' INFLAMÁVEL'
-                               	 WHEN  PCPRODUT.RESTRICAOTRANSP = 'R' THEN 'PRODUTO' || pcprodut.codprod  || 'REFRIGERADO' 
-                               	 ELSE 'NORMAL' END DESCRICAO_RESTRICAO
+                                 WHEN  PCPRODUT.RESTRICAOTRANSP = 'S' THEN 'PRODUTO '|| pcprodut.codprod  || ' INFLAMÁVEL'
+                                 WHEN  PCPRODUT.RESTRICAOTRANSP = 'R' THEN 'PRODUTO' || pcprodut.codprod  || 'REFRIGERADO' 
+                                 ELSE 'NORMAL' END DESCRICAO_RESTRICAO
                                  FROM PCPEDC
                                , PCPEDI
                                , PCPRODUT
