@@ -266,7 +266,7 @@ AND   DADOSCAT.NIVEL = C.NIVELHIERARQUIA
 AND   C.NRODIVISAO = (SELECT R.NRODIVISAO
                       FROM   PCDEPARAREGIAOC5 R
                       WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', DADOSCAT.NROEMPRESA, '1')
-                      AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
+                      AND    FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
                       
                       UNION ALL
                           
