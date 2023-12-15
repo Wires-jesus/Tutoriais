@@ -301,7 +301,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_COBRANCA_WINTHOR AS
             WHEN NVL(o.tipooperacaotef,'02') = '02'
                  AND
                  NVL(o.tipopagtoecf,'T') = 'P'
-
                 THEN '0202'
             WHEN NVL(o.tipooperacaotef,'02') = '02'
                  AND
@@ -1809,7 +1808,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
          END) parcelamentotef,
        NULL prestef,
        p.codredetef codadmcartao,
-       '0'||TRUNC((p.modalidadetef/ 100),2) tipooperacaotef,
+       SUBSTR(p.modalidadetef,1,4) tipooperacaotef,
        p.codbandeiratef codbandeiratef,
        NULL dtbaixa,
        (CASE
