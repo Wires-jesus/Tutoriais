@@ -48224,16 +48224,33 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                           AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
 
    ELSE
+      IF VLVENDATOT > 0 THEN
+        V_SQL := V_SQL || ' SUM(PCPREST.VALOR) / ' ||  REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ' * 100 PERCVENDA,';
+      ELSE    
+        V_SQL := V_SQL || ' 0 PERCVENDA,';
+      END IF;
 
-       V_SQL := V_SQL || ' SUM(PCPREST.VALOR) / ' ||  REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ' * 100 PERCVENDA,
-                              COUNT(PCNFSAID.NUMTRANSVENDA) CONTADOR,
+         V_SQL := V_SQL ||'   COUNT(PCNFSAID.NUMTRANSVENDA) CONTADOR,
                               0 VLDEVOLUCAO,
                               0 VLDEVOLBONIFIC,
                               0 VLCMVDEVOL,
                               0 DEVOLTAB,
-                              SUM(PCPREST.VALOR) VLVENDA,
+                              SUM(PCPREST.VALOR) 
+                                - (CASE
+                                    WHEN (SELECT TIPOVLVENDA
+                                        FROM PCPARAMPLANOVOO WHERE ROWNUM = 1) = ''DEDUZIRFRETE''
+                                      THEN NVL(PCNFSAID.VLFRETE,0)
+                                    WHEN (SELECT TIPOVLVENDA
+                                        FROM PCPARAMPLANOVOO WHERE ROWNUM = 1) = ''DEDUZIROUTRASDESP''
+                                      THEN NVL(PCNFSAID.VLOUTRASDESP,0)
+                                    WHEN (SELECT TIPOVLVENDA
+                                        FROM PCPARAMPLANOVOO WHERE ROWNUM = 1) = ''DEDUZIRAMBOS''
+                                      THEN NVL(PCNFSAID.VLFRETE,0) - NVL(PCNFSAID.VLOUTRASDESP,0)
+                                    ELSE 0
+                                  END) VLVENDA,   
                               MAX((SELECT (NF.VLTOTGER) FROM PCNFSAID NF WHERE NF.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA)) AS VALORTOTALNOTA,
                               0 VLBONIFIC, ';
+                              
         IF P_CODEMITENTE IS NOT NULL THEN
           V_SQL := V_SQL || ' 0 PRAZOMEDIO ';
         ELSE
@@ -48247,7 +48264,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
      
         V_SQL := V_SQL ||'    FROM PCNFSAID, PCPEDC, PCUSUARI, PCPLPAG, PCCLIENT, PCPREST, PCCOB
                        WHERE PCPREST.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
-                         AND PCPREST.CODCOB = PCCOB.CODCOB ';
+                         AND PCPREST.CODCOB = PCCOB.CODCOB 
+                         AND NVL(PCPREST.PERMITEESTORNO,''S'') <> ''N''';
        IF (V_DESDCARTAOFECHCARGA = 'N') AND (P_CODEMITENTE IS NULL) AND P_CONSIDERACOBRANCATITULOS = 1 THEN
          V_SQL := V_SQL || ' AND CASE WHEN PCCOB.CARTAO = ''S'' AND PCPREST.VPAGO = 0 THEN ''DESD'' ELSE PCPREST.CODCOB END NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'',''BNRP'', ''DEVT'', ''DEVP'', ''DESD'') ';
        ELSE
@@ -48351,9 +48369,9 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
 
    IF P_CODEMITENTE IS NOT NULL
    THEN
-    V_SQL := V_SQL || ' AND PCNFSAID.CODEMITENTE = ' || P_CODEMITENTE || ' GROUP BY PCCOB.CODCOB, PCCOB.COBRANCA, PCNFSAID.NUMTRANSVENDA ';
+    V_SQL := V_SQL || ' AND PCNFSAID.CODEMITENTE = ' || P_CODEMITENTE || ' GROUP BY PCCOB.CODCOB, PCCOB.COBRANCA, PCNFSAID.NUMTRANSVENDA, PCNFSAID.VLFRETE, PCNFSAID.VLOUTRASDESP  ';
    ELSE
-    V_SQL := V_SQL || ' GROUP BY PCCOB.CODCOB, PCCOB.COBRANCA, PCNFSAID.NUMTRANSVENDA ';
+    V_SQL := V_SQL || ' GROUP BY PCCOB.CODCOB, PCCOB.COBRANCA, PCNFSAID.NUMTRANSVENDA, PCNFSAID.VLFRETE, PCNFSAID.VLOUTRASDESP  ';
    END IF;
 
    IF P_DEVOLUCAO = 1
