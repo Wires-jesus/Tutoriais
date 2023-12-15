@@ -1,0 +1,11 @@
+{
+    "nome": "PROCESSO_INT_C5_PARAMETROS2651",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+        {
+            "nome": "PCPARAMETROS2651",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        }
+    ]
+ }
