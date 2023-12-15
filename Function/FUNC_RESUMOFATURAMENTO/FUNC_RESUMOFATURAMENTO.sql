@@ -48224,9 +48224,13 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                           AND PCNFSAID.CODCOB NOT IN (''BNF'', ''BNFT'', ''BNFR'', ''BNFN'', ''BNTR'', ''BNRP'', ''DEVT'', ''DEVP'', ''DESD'')';
 
    ELSE
+      IF VLVENDATOT > 0 THEN
+        V_SQL := V_SQL || ' SUM(PCPREST.VALOR) / ' ||  REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ' * 100 PERCVENDA,';
+      ELSE    
+        V_SQL := V_SQL || ' 0 PERCVENDA,';
+      END IF;
 
-       V_SQL := V_SQL || ' SUM(PCPREST.VALOR) / ' ||  REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ' * 100 PERCVENDA,
-                              COUNT(PCNFSAID.NUMTRANSVENDA) CONTADOR,
+         V_SQL := V_SQL ||'   COUNT(PCNFSAID.NUMTRANSVENDA) CONTADOR,
                               0 VLDEVOLUCAO,
                               0 VLDEVOLBONIFIC,
                               0 VLCMVDEVOL,
@@ -48246,6 +48250,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                                   END) VLVENDA,   
                               MAX((SELECT (NF.VLTOTGER) FROM PCNFSAID NF WHERE NF.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA)) AS VALORTOTALNOTA,
                               0 VLBONIFIC, ';
+                              
         IF P_CODEMITENTE IS NOT NULL THEN
           V_SQL := V_SQL || ' 0 PRAZOMEDIO ';
         ELSE
