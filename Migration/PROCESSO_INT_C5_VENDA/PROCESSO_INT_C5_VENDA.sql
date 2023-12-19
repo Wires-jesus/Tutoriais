@@ -493,7 +493,7 @@ BEGIN
          AND  ROWNUM = 1;
       
       WHEN OTHERS THEN
-         vCodCob := 'D';
+         vCodCob := 'CAR';
     end;
   
   elsif vEspecie = 'S' then
@@ -690,6 +690,7 @@ SELECT  SUM(NVL(a.volume_prod,0))
    AND  i.codacesso = a.codauxiliar
    AND  i.seqdocto = pSeqDocto
    AND  i.nroempresa = pNroEmpresa
+   AND  i.STATUS = 'V'
    AND  i.nrocheckout = pNroCheckout;
  RETURN(vTotalVol);
 END;
@@ -767,6 +768,7 @@ BEGIN
        AND  i.codacesso = s.codauxiliar
        AND  i.seqdocto = pSeqDocto
        AND  I.nroempresa = pCodigoFilial
+	   AND  i.STATUS = 'V'
        AND  i.nrocheckout = pNumeroCaixa;
     RETURN(vTotalCustoFin);
 END;
@@ -785,6 +787,7 @@ BEGIN
       FROM  monitorpdvmiddle.tb_doctoitem i
      WHERE  i.seqdocto = pSeqDocto
        AND  i.nrocheckout = pNumeroCaixa
+	   AND  i.STATUS = 'V'
        AND  i.nroempresa = pCodigoFilial;
     RETURN(vNumItens);
 END;
@@ -827,6 +830,7 @@ SELECT
    AND  d.replicacao = 'P'
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
+   AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto
    AND  ROWNUM = 1;
   RETURN(vPerAcrescimoRodape);
@@ -872,6 +876,7 @@ BEGIN
    AND  d.replicacao = 'P'
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
+   AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto
    AND  ROWNUM = 1;
   RETURN(vPerDescRodape);
@@ -919,6 +924,7 @@ SELECT  SUM(
    AND  d.replicacao = 'P'
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
+   AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto;
   RETURN(vTotalAcrescimoRodape);
 END;
@@ -942,6 +948,7 @@ BEGIN
        AND  a.especie = 'NF'
        AND  z.nroempresa = pNroEmpresa
        AND  z.nrocheckout = pNroCheckout
+	   AND  z.STATUS = 'V'
        AND  z.seqdocto = pSeqDocto;
    RETURN(vTotal);
 END;
@@ -969,6 +976,7 @@ SELECT  SUM(i.VLRUNITARIO*i.quantidade)
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
    AND  d.replicacao = 'P'
+   AND  i.STATUS = 'V'
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
    AND  i.seqdocto = pSeqDocto;
@@ -1016,6 +1024,7 @@ SELECT  CASE
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
    AND  i.seqdocto = pSeqdocto
+   AND  i.STATUS = 'V'
    AND  i.seqitem = pSeqItem;
  RETURN(vVlAcrescimoFCP);
 END;
@@ -1041,6 +1050,7 @@ SELECT  i.vlrdesconto
    AND  i.seqdocto = pSeqdocto
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
+   AND  i.STATUS = 'V'
    AND  i.seqitem = pNumSeq
    AND  a.seqtipoacrescdescto = 2
    AND  i.vlrdesconto = (a.valor) * -1;
