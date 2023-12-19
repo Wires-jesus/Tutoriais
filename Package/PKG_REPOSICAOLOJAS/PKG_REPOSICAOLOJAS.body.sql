@@ -4924,7 +4924,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnPrecoCusto                       PCEST.CUSTOFIN%TYPE;
     vbArredondaPreco                   BOOLEAN;
     vvRETIRAIMPOSTO201                 VARCHAR2(1);
-
+	vnNumviasmapasep                   NUMBER;
    /**********************
     Declaração de Cursores
     **********************/
@@ -9684,7 +9684,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrPedido.nNUMPEDRCA         := NULL;
                 vrPedido.nDTABERTURAPEDPALM := NULL;
               END IF;
-
+			  vnNumviasmapasep := 0;
+              IF pi_vAutomaticoManual <> 'A' then
+                vnNumviasmapasep := -1;
+              END IF;
               -- Insere na PCPEDC
               INSERT INTO PCPEDC
                         ( NUMPED
@@ -9740,6 +9743,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , NUMREGIAO
                         , PEDIDOAVARIA
                         , VERSAOROTINA
+						, NUMVIASMAPASEP
                         )
                   VALUES( vrPedido.nNUMPED                      -- NUMPED
                         , 100                                   -- PERCVENDA
@@ -9794,6 +9798,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , vrPracaCliDestino.nNUMREGIAO
                         , DECODE(NVL(pi_vPedidoAvaria,'N'),'S','S',NULL)
                         , (SELECT 'PCSIS3600.EXE ' || PCVERSAOBD.VERSAO FROM PCVERSAOBD WHERE PCVERSAOBD.ROTINA = 'PCSIS3600.PC' AND OPCAO = 1)
+						, vnNumviasmapasep
                         );
 
               -- Log de Alteração de Dados - MED-2196
