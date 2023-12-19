@@ -20,9 +20,9 @@ BEGIN
          V_CODPRECOFIXO,
          V_CODIGOBRINDE
     FROM PCPEDI
-   WHERE NUMPED = PNUMPED
-     AND CODPROD = PCODPROD
-     AND NUMSEQ = PNUMSEQ;
+   WHERE NUMPED = P_NUMPED
+     AND CODPROD = P_CODPROD
+     AND NUMSEQ = P_NUMSEQ;
 
   IF V_CODDESCONTO <> 0 THEN  
     BEGIN    
@@ -32,7 +32,7 @@ BEGIN
              P_DTFIMVIGENCIA
         FROM PCDESCONTO
        WHERE CODDESCONTO = V_CODDESCONTO
-         AND NUMVERBA = PNUMVERBACAMPANHA;
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
     
       P_MSG_RETORNO := 'Desconto da 561 encontrado na PCDESCONTO.';
       RETURN 'S';
@@ -45,7 +45,7 @@ BEGIN
                  P_DTFIMVIGENCIA
             FROM PCDESCONTOLOG
            WHERE CODDESCONTO = V_CODDESCONTO
-             AND NUMVERBA = PNUMVERBACAMPANHA;
+             AND NUMVERBA = P_NUMVERBACAMPANHA;
           
           P_MSG_RETORNO := 'Desconto da 561 encontrado em PCDESCONTOLOG.';
           RETURN 'S';
@@ -65,7 +65,7 @@ BEGIN
              P_DTFIMVIGENCIA
         FROM PCDESCONTOC
        WHERE CODIGO = V_CODCOMBO
-         AND NUMVERBA = PNUMVERBACAMPANHA;
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
     
       P_MSG_RETORNO := 'Desconto da 3306 encontrado.';
       RETURN 'S';    
@@ -84,7 +84,7 @@ BEGIN
              P_DTFIMVIGENCIA
         FROM PCPRECOPROM
        WHERE CODPRECOPROM = V_CODPRECOFIXO
-         AND NUMVERBA = PNUMVERBACAMPANHA;
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
     
       P_MSG_RETORNO := 'Desconto da 357 encontrado na PCPRECOPROM.';
       RETURN 'S';    
@@ -97,7 +97,7 @@ BEGIN
                  P_DTFIMVIGENCIA
             FROM PCPRECOPROMLOG
            WHERE CODPRECOPROM = V_CODPRECOFIXO
-             AND NUMVERBA = PNUMVERBACAMPANHA;
+             AND NUMVERBA = P_NUMVERBACAMPANHA;
         
           P_MSG_RETORNO := 'Desconto da 357 encontrado na PCPRECOPROMLOG.';
           RETURN 'S';
@@ -118,7 +118,7 @@ BEGIN
              P_DTFIMVIGENCIA
         FROM PCBRINDEEX
        WHERE CODBREX = V_CODIGOBRINDE
-         AND NUMVERBA = PNUMVERBACAMPANHA;
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
     
       P_MSG_RETORNO := 'Política de brinde da 3320 encontrada.';
       RETURN 'S';
