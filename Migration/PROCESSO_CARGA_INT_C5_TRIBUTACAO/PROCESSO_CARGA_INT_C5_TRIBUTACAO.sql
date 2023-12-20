@@ -346,7 +346,7 @@ FROM (
      AND   T.CODOBSERVACAO = S.CODOBSERVACAO
      AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
      AND   R.nrodivisao = D.nrodivisao
-     AND   R.NUMREGIAO = (SELECT MIN(VALOR) VALOR
+     AND   R.NUMREGIAO = (SELECT MIN(TO_CHAR(VALOR)) VALOR
                           FROM PCPARAMFILIAL
                           WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                           AND VALOR <> '99'
@@ -357,7 +357,9 @@ FROM (
                           
                           UNION ALL
                           
-                          SELECT '0' VALOR FROM DUAL WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' )
+                          SELECT MIN(TO_CHAR(NROEMPRESA)) VALOR 
+                          FROM MONITORPDVMIDDLE.TB_EMPRESA 
+                          WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' )
     )EXCECAO
 WHERE EXCECAO.SEQUENCIA = 1
 )
