@@ -270,6 +270,9 @@ AND   C.NRODIVISAO = (SELECT R.NRODIVISAO
                       
                       UNION ALL
                           
-                      SELECT 0 VALOR FROM DUAL WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' 
+                      SELECT NROEMPRESA DIVISAO
+                      FROM MONITORPDVMIDDLE.TB_EMPRESA E
+                      WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' 
+                      AND   E.NROEMPRESA = DADOSCAT.NROEMPRESA
                      )
 )
