@@ -1,20 +1,26 @@
 {
-    "nome": "PROCESSO_INT_C5_VENDA",
-    "tipoPLSQL": "MIGRATION",
-	"dependencias":[{
-						"nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
-						"tipo": "MIGRATION",
-						"versao": "4.0.04.000"
-				    },
-					{
-						"nome": "FNC_INT_C5_CODUSUR",
-						"tipo": "OBJETO_PLSQL",
-						"versao": "4.0.01.000"
-					},
-					{
-					    "nome": "FNC_INT_C5_PRESTS_TEF",
-					    "tipo": "OBJETO_PLSQL",
-					    "versao": "4.0.01.000"
-					} 
-				   ]
+	"nome": "PROCESSO_INT_C5_VENDA",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": [
+		{
+			"nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
+			"tipo": "MIGRATION",
+			"versao": "4.0.04.000"
+		},
+		{
+			"nome": "FNC_INT_C5_CODUSUR",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "FNC_INT_C5_PRESTS_TEF",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCPEDCECF",
+			"tipo": "TABELA",
+			"versao": "4.0.01.000"
+		}
+	]
 }
