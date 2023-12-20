@@ -1723,7 +1723,8 @@ CREATE OR REPLACE VIEW vw_int_c5_agrup_dinheiro AS
 	 WHERE P.NROFORMAPAGTO IN
 		   (SELECT fp.nroformapagto
 			  FROM monitorpdvmiddle.tb_formapagto fp
-			 where fp.formapagto = 'DINHEIRO')
+			 where fp.especie = 'D'
+               and fp.formapagto LIKE '%DINHEIRO%')
 	   AND P.VLRTOTAL > 0
 	 GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto
 )
