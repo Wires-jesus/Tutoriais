@@ -523,7 +523,7 @@ IS
                                    p_pedido.vltributos AS "Vltributos",
                                    p_pedido.vltributosestadual AS "Vltributosestadual",
                                    p_pedido.vltributosmunicipal AS "Vltributosmunicipal",
-                                   p_pedido.vlacrescrodape AS "Vlacrescrodape",
+                                   p_pedido.vlacrescrodape AS "Vlacresrodape",
                                    p_pedido.vltotal AS "Vltotal",
                                    p_pedido.vlatend AS "Vlatend",
                                    p_pedido.vltabela AS "Vltabela",
