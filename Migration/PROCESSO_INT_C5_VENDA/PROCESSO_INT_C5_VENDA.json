@@ -21,6 +21,11 @@
 			"nome": "PCPEDCECF",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "P_PC_CALCULARCMV_INTEGRACAO",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "4.0.01.000"
 		}
 	]
 }
