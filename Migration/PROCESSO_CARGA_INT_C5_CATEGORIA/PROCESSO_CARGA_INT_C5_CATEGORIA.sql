@@ -94,15 +94,17 @@ SELECT CATEG.NRODIVISAO,
             ) dadosclassific,
             
             (SELECT DISTINCT pcparamfilial.valor
-               FROM pcparamfilial
-              WHERE nome = 'NUMREGIAOPADRAOVAREJO'
-                AND valor <> '99'
-                AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
-                AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
+             FROM pcparamfilial
+             WHERE nome = 'NUMREGIAOPADRAOVAREJO'
+             AND valor <> '99'
+             AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
+             AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
-                UNION ALL
+             UNION ALL
 
-              SELECT '0' valor from dual where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'  
+             SELECT TO_CHAR(NROEMPRESA) valor
+             from MONITORPDVMIDDLE.TB_EMPRESA
+             where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
             ) regparaovarejo
     WHERE regparaovarejo.valor IS NOT NULL) CATEG,
           pcdeparacategoriac5 c
