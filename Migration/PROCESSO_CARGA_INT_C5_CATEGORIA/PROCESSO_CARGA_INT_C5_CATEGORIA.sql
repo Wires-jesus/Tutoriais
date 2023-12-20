@@ -166,7 +166,9 @@ SELECT
 
                 UNION ALL
 
-              SELECT '0' valor from dual where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'    
+             SELECT TO_CHAR(NROEMPRESA) valor
+             from MONITORPDVMIDDLE.TB_EMPRESA
+             where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'    
             ) regparaovarejo,
             
             (select min(s.ultimaexecucao) ultimaexecucao
