@@ -357,9 +357,10 @@ FROM (
                           
                           UNION ALL
                           
-                          SELECT MIN(TO_CHAR(NROEMPRESA)) VALOR 
+                          SELECT TO_CHAR(NROEMPRESA) VALOR 
                           FROM MONITORPDVMIDDLE.TB_EMPRESA 
-                          WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' )
+                          WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' 
+                          AND ROWNUM = 1)
     )EXCECAO
 WHERE EXCECAO.SEQUENCIA = 1
 )
