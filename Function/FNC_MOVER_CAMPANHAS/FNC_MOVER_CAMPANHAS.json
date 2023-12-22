@@ -1,1 +1,26 @@
-{"nome":"FNC_MOVER_CAMPANHAS","tipoPLSQL":"FUNCTION","dependencias":""}
+{
+ "nome": "FNC_MOVER_CAMPANHAS",
+ "tipoPLSQL": "FUNCTION",
+ "dependencias": [
+  {
+   "nome": "PCDESCONTOLOG",
+   "tipo": "TABELA",
+   "versao": "4.0.01.000"
+  },
+  {
+   "nome": "PCPRECOPROMLOG",
+   "tipo": "TABELA",
+   "versao": "4.0.04.000"
+  },
+  {
+   "nome": "PCPRECOCESTAC",
+   "tipo": "TABELA",
+   "versao": "4.0.01.000"
+  },
+  {
+   "nome": "PCBRINDEEX",
+   "tipo": "TABELA",
+   "versao": "4.0.01.000"
+  }
+ ]
+}
