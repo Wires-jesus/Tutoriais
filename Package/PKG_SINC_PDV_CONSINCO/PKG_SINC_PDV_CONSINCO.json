@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "4.0.22.000"
+			"versao": "4.0.23.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
