@@ -1,0 +1,420 @@
+CREATE OR REPLACE FUNCTION FNC_MOVER_CAMPANHAS(P_NUMVERBA        IN NUMBER,
+                                               P_CODFUNCEXCLUSAO IN NUMBER,
+                                               P_MSG_RETORNO     OUT VARCHAR2)
+RETURN BOOLEAN IS
+  V_CONTADOR NUMBER;
+  V_RESULTADO BOOLEAN;
+  
+  PROCEDURE INFORMAR_MSG_RETORNO(P_MENSAGEM IN VARCHAR2)
+  IS
+  BEGIN
+    IF P_MSG_RETORNO IS NULL THEN
+      P_MSG_RETORNO := P_MENSAGEM;
+    ELSE
+      P_MSG_RETORNO := P_MSG_RETORNO || CHR(10) || P_MENSAGEM;
+    END IF;
+  END INFORMAR_MSG_RETORNO;
+BEGIN
+  V_RESULTADO := FALSE;
+  
+  BEGIN
+    SELECT COUNT(PCVERBA.NUMVERBA)
+      INTO V_CONTADOR
+      FROM PCVERBA, PCAPLICVERBAI
+     WHERE PCVERBA.NUMVERBA = PCAPLICVERBAI.NUMVERBA
+       AND PCVERBA.NUMVERBA = P_NUMVERBA
+       AND PCVERBA.TIPO = 5
+       AND PCAPLICVERBAI.CODROTINAPOLITICA IN ('301', '357', '561', '3306', '3307', '3320');
+  EXCEPTION
+   WHEN OTHERS THEN
+     V_CONTADOR := 0;
+  END;
+  
+  IF V_CONTADOR > 0 THEN    
+    BEGIN
+      SELECT COUNT(CODDESCONTO)
+        INTO V_CONTADOR
+        FROM PCDESCONTO
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado política de desconto vinculado com a verba na 561 (PCDESCONTO).');
+
+      FOR REG IN (SELECT CODDESCONTO FROM PCDESCONTO WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        INSERT INTO PCDESCONTOITEMLOG (
+          CODDESCONTO,
+          TIPO,
+          VALOR_ALFA,
+          VALOR_NUM)
+        (SELECT CODDESCONTO,
+                TIPO,
+                VALOR_ALFA,
+                VALOR_NUM
+           FROM PCDESCONTOITEM
+          WHERE CODDESCONTO = REG.CODDESCONTO
+            AND NOT EXISTS (SELECT * FROM PCDESCONTOLOG WHERE CODDESCONTO = PCDESCONTOITEM.CODDESCONTO));
+            
+        INSERT INTO PCDESCONTOLOG ( 
+          CODDESCONTO,
+          DESCRICAO,
+          CODCLI,
+          CODEPTO,
+          CODSEC,
+          CODCATEGORIA,
+          CODPROD,
+          PERCDESC,
+          PERCDESCMAX,
+          QTINI,
+          QTFIM,
+          DTINICIO,
+          DTFIM,
+          CODUSUR,
+          CODPLPAG,
+          BASECREDDEBRCA,
+          UTILIZADESCREDE,
+          CODFORNEC,
+          CODSUPERVISOR,
+          TIPOVENDA,
+          NUMREGIAO,
+          CODFUNCLANC,
+          DATALANC,
+          CODFUNCULTALTER,
+          DATAULTALTER,
+          CODATIV,
+          ORIGEMPED,
+          CODPRACA,
+          CODPRODPRINC,
+          CLASSEVENDA,
+          APLICADESCONTO,
+          TIPOCARGA,
+          CREDITASOBREPOLITICA,
+          TIPO,
+          PERCDESCFIN,
+          ALTERAPTABELA,
+          TIPOAPLICDESCONTOCB,
+          CODPRODCB,
+          DTEXCLUSAO,
+          CODFUNCEXCLUSAO,
+          CODFILIAL,
+          QTDEMAXIMAPOLITICA,
+          QTDEMAXIMAPEDIDO,
+          APENASPLPAGMAX,
+          PERCOMMINT,
+          PERCOMREP,
+          PERCOMEXT,
+          CODMARCA,
+          CODREDE,
+          CONSIDERACALCGIROMEDIC,
+          APLICADESCSIMPLESNACIONAL,
+          CODIDENTIFICADOR,
+          CODGRUPOREST,
+          TIPOGRUPOREST,
+          SUBCATEGORIA,
+          VLRMINIMO,
+          VLRMAXIMO,
+          CODAUXILIAR,
+          CLASSEPROD,
+          QTMINESTPARADESC,
+          QTDAPLICACOESDESC,
+          CODDESCONTOID,
+          PERCFORNEC,
+          NUMVERBA,
+          PERCCUSTFORNEC,
+          NUMORCA,
+          TIPOENTREGA,
+          TIPODESCONTO,
+          CODDESCRICAO,
+          COMISSAOPRIORITARIA,
+          OBSERVACAO)
+        SELECT CODDESCONTO,
+               DESCRICAO,
+               DECODE(CODCLI, 0, NULL, CODCLI),
+               DECODE(CODEPTO, 0, NULL, CODEPTO),
+               DECODE(CODSEC, 0, NULL, CODSEC),
+               DECODE(CODCATEGORIA, 0, NULL, CODCATEGORIA),
+               DECODE(CODPROD, 0, NULL, CODPROD),
+               PERCDESC,
+               PERCDESCMAX,
+               QTINI,
+               QTFIM,
+               DTINICIO,
+               DTFIM,
+               DECODE(CODUSUR, 0, NULL, CODUSUR),
+               CODPLPAG,
+               BASECREDDEBRCA,
+               UTILIZADESCREDE,
+               DECODE(CODFORNEC, 0, NULL, CODFORNEC),
+               DECODE(CODSUPERVISOR, 0, NULL, CODSUPERVISOR),
+               TIPOVENDA,
+               DECODE(NUMREGIAO, 0, NULL, NUMREGIAO),
+               DECODE(CODFUNCLANC, 0, NULL, CODFUNCLANC),
+               DATALANC,
+               DECODE(CODFUNCULTALTER, 0 , NULL, CODFUNCULTALTER),
+               DATAULTALTER,
+               DECODE(CODATIV, 0, NULL, CODATIV),
+               ORIGEMPED,
+               DECODE(CODPRACA, 0, NULL, CODPRACA),
+               DECODE(CODPRODPRINC, 0, NULL, CODPRODPRINC),
+               CLASSEVENDA,
+               APLICADESCONTO,
+               TIPOCARGA,
+               CREDITASOBREPOLITICA,
+               TIPO,
+               PERCDESCFIN,
+               ALTERAPTABELA,
+               TIPOAPLICDESCONTOCB,
+               DECODE(CODPRODCB, 0, NULL, CODPRODCB),
+               SYSDATE,
+               DECODE(P_CODFUNCEXCLUSAO, 0, NULL, P_CODFUNCEXCLUSAO),
+               CODFILIAL,
+               DECODE(QTDEMAXIMAPOLITICA, 0, NULL, QTDEMAXIMAPOLITICA),
+               DECODE(QTDEMAXIMAPEDIDO, 0, NULL, QTDEMAXIMAPEDIDO),
+               APENASPLPAGMAX,
+               DECODE(PERCOMMINT, 0, NULL, PERCOMMINT),
+               DECODE(PERCOMREP, 0, NULL, PERCOMREP),
+               DECODE(PERCOMEXT, 0, NULL, PERCOMEXT),
+               DECODE(CODMARCA, 0, NULL, CODMARCA),
+               DECODE(CODREDE, 0, NULL, CODREDE),
+               CONSIDERACALCGIROMEDIC,
+               APLICADESCSIMPLESNACIONAL,
+               CODIDENTIFICADOR,
+               DECODE(CODGRUPOREST, 0, NULL, CODGRUPOREST),
+               TIPOGRUPOREST,
+               SUBCATEGORIA,
+               DECODE(VLRMINIMO, 0, NULL, VLRMINIMO),
+               DECODE(VLRMAXIMO, 0, NULL, VLRMAXIMO),
+               CODAUXILIAR,
+               CLASSEPROD,
+               QTMINESTPARADESC,
+               QTDAPLICACOESDESC,
+               CODDESCONTOID,
+               PERCFORNEC,
+               NUMVERBA,
+               PERCCUSTFORNEC,
+               NUMORCA,
+               TIPOENTREGA,
+               TIPODESCONTO,
+               CODDESCRICAO,
+               COMISSAOPRIORITARIA,
+               'Campanha movida para log pela Rotina 1832.'
+          FROM PCDESCONTO
+         WHERE CODDESCONTO = REG.CODDESCONTO
+           AND NOT EXISTS (SELECT PCLOGDESCONTO.* FROM PCDESCONTOLOG WHERE CODDESCONTO = PCDESCONTO.CODDESCONTO);
+        
+        DELETE PCDESCONTOITEM WHERE CODDESCONTO = REG.CODDESCONTO;
+        DELETE PCDESCONTO WHERE CODDESCONTO = REG.CODDESCONTO;
+      END LOOP;
+      
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado política de desconto vinculado com a verba na 561 (PCDESCONTO).');
+    END IF;
+    
+    BEGIN
+      SELECT COUNT(CODIGO)
+        INTO V_CONTADOR
+        FROM PCDESCONTOC
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado campanha de desconto vinculado com a verba na 3306 (PCDESCONTOC).');
+      
+      FOR REG IN (SELECT CODIGO FROM PCDESCONTOC WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        DELETE PCDESCONTOCATEGORIA WHERE CODIGO = REG.CODIGO;
+        DELETE PCDESCONTOCPRODRELAC WHERE CODIGOCAMPANHA = REG.CODIGO;
+        DELETE PCDESCONTORESTRICAO WHERE CODIGO = REG.CODIGO;
+        DELETE PCDESCONTOI WHERE CODIGO = REG.CODIGO;
+        DELETE PCDESCONTOC WHERE CODIGO = REG.CODIGO;
+      END LOOP;
+      
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado campanha de desconto vinculado com a verba na 3306 (PCDESCONTOC).');
+    END IF;
+    
+    BEGIN
+      SELECT COUNT(CODPRECOPROM)
+        INTO V_CONTADOR
+        FROM PCPRECOPROM
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+    
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado política de preço fixo vinculado com a verba na 357 (PCPRECOPROM).');
+      
+      FOR REG IN (SELECT CODPRECOPROM FROM PCPRECOPROM WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        INSERT INTO PCPRECOPROMLOG(
+          CODPROD,
+          NUMREGIAO,
+          PRECOFIXO,
+          CODPLPAGMAX,
+          DTINICIOVIGENCIA,
+          DTFIMVIGENCIA,
+          CODCLI,
+          CODPRECOPROM,
+          FRENTECX,
+          CONSIDERACALCGIRO,
+          UTILIZAPRECOFIXOREDE,
+          UTILIZAPRECOFIXOFAMILIA,
+          CODUSUR,
+          CODPRACA,
+          CODFUNCULTALTER,
+          APENASPLPAGMAX,
+          ENVIAFV,
+          CODSUPERVISOR,
+          NUMLOTE,
+          CODAUXILIAR,
+          CODFILIAL,
+          DTULTALTER,
+          DTEXCLUSAO,
+          CODFUNCEXCLUSAO,
+          CONSIDERACALCGIROMEDIC,
+          ORIGEMPED,
+          CODATIV,
+          CONSIDERAPRECOSEMIMPOSTO,
+          PERCFORNEC,
+          CODGRUPOCLI,
+          NUMVERBA,
+          PERCCUSTFORNEC,
+          CODREDE,
+          OBSERVACAO)
+        SELECT CODPROD,
+               NUMREGIAO,
+               PRECOFIXO,
+               CODPLPAGMAX,
+               DTINICIOVIGENCIA,
+               DTFIMVIGENCIA,
+               CODCLI,
+               CODPRECOPROM,
+               FRENTECX,
+               CONSIDERACALCGIRO,
+               UTILIZAPRECOFIXOREDE,
+               UTILIZAPRECOFIXOFAMILIA,
+               CODUSUR,
+               CODPRACA,
+               CODFUNCULTALTER,
+               APENASPLPAGMAX,
+               ENVIAFV,
+               CODSUPERVISOR,
+               NUMLOTE,
+               CODAUXILIAR,
+               CODFILIAL,
+               DTULTALTER,
+               TRUNC(SYSDATE),
+               P_CODFUNCEXCLUSAO,
+               CONSIDERACALCGIROMEDIC,
+               ORIGEMPED,
+               CODATIV,
+               CONSIDERAPRECOSEMIMPOSTO,
+               PERCFORNEC,
+               CODGRUPOCLI,
+               NUMVERBA,
+               PERCCUSTFORNEC,
+               CODREDE,
+               'Campanha movida para log pela Rotina 1832.'
+          FROM PCPRECOPROM
+         WHERE CODPRECOPROM = REG.CODPRECOPROM
+           AND NOT EXISTS (SELECT PCPRECOPROMLOG.* FROM PCPRECOPROMLOG WHERE CODPRECOPROM = PCPRECOPROM.CODPRECOPROM);
+           
+        DELETE PCPRECOPROM WHERE CODPRECOPROM = REG.CODPRECOPROM;
+      END LOOP;
+      
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado política de preço fixo vinculado com a verba na 357 (PCPRECOPROM).');
+    END IF;
+    
+    BEGIN
+      SELECT COUNT(CODBREX)
+        INTO V_CONTADOR
+        FROM PCBRINDEEX
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+    
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado política de brinde vinculado com a verba na 3320 (PCBRINDEEX).');
+      
+      FOR REG IN (SELECT CODBREX FROM PCBRINDEEX WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        UPDATE PCBRINDEEX
+           SET DTCANCEL = TRUNC(SYSDATE),
+               OBSERVACAO = 'Campanha inativada pela Rotina 1832.'
+         WHERE CODBREX = REG.CODBREX;
+      END LOOP;
+      
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado política de brinde vinculado com a verba na 3320 (PCBRINDEEX).');
+    END IF;
+    
+    BEGIN
+      SELECT COUNT(NRAUTORIZACAO)
+        INTO V_CONTADOR
+        FROM PCAUTORI
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+    
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado autorização de preço de venda vinculado com a verba na 301 (PCAUTORI).');
+      
+      FOR REG IN (SELECT NRAUTORIZACAO FROM PCAUTORI WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        DELETE PCAUTORI WHERE NRAUTORIZACAO = REG.NRAUTORIZACAO;
+      END LOOP;
+    
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado preço de venda vinculado com a verba na 301 (PCAUTORI).');
+    END IF;
+    
+    BEGIN
+      SELECT COUNT(CODPRECOCESTA)
+        INTO V_CONTADOR
+        FROM PCPRECOCESTAC
+       WHERE NUMVERBA = P_NUMVERBA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_CONTADOR := 0;
+    END;
+    
+    IF V_CONTADOR > 0 THEN
+      INFORMAR_MSG_RETORNO('Encontrado cesta básica vinculado com a verba na 3307 (PCPRECOCESTAC).');
+      
+      FOR REG IN (SELECT CODPRECOCESTA FROM PCPRECOCESTAC WHERE NUMVERBA = P_NUMVERBA)
+      LOOP
+        UPDATE PCPRECOCESTAC 
+           SET DTEXCLUSAO = TRUNC(SYSDATE), 
+               OBSERVACAO = 'Campanha inativada pela Rotina 1832.'
+         WHERE CODPRECOCESTA = REG.CODPRECOCESTA;
+      END LOOP;
+      
+      V_RESULTADO := TRUE;
+    ELSE
+      INFORMAR_MSG_RETORNO('Não foi encontrado cesta básica vinculado com a verba na 3307 (PCPRECOCESTAC).');
+    END IF;
+  ELSE
+    INFORMAR_MSG_RETORNO('A verba não se enquadra na regra de nenhuma política.'); 
+  END IF;
+  
+  RETURN V_RESULTADO;
+END FNC_MOVER_CAMPANHAS;
