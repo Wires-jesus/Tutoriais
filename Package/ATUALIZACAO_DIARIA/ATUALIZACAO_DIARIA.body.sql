@@ -1131,8 +1131,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
                        WHERE CODFILIAL = V_FILIAL) PF
                WHERE E.CODPROD  = PA.CODPROD
                  AND PA.CODEPTO = D.CODEPTO(+)
-                 AND PA.CODPROD = PF.CODPROD(+)
-                 AND E.CODPROD  >= (SELECT MIN(CODPROD) FROM PCEST WHERE CODFILIAL = V_FILIAL)
+                 AND PA.CODPROD = PF.CODPROD(+)                 
                  AND E.CODFILIAL = V_FILIAL
                  AND ((V_GERARPCHISTESTPARA = 'T') OR
                      (NVL(E.QTEST, 0) <> 0) OR
