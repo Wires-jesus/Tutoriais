@@ -9838,6 +9838,8 @@ IS
                                      ELSE
                                        REGISTROS.NOTA_QTBLOQUEADA
                                      END;
+		  ELSE 
+		    vnESTOQUE_QTBLOQUEADA := 0;
           END IF;
           -- Atualizar quantidade Indenizada
           IF (REGISTROS.NOTA_QTAVARIA > 0 AND REGISTROS.CODOPER = 'ET' AND (vsROTINA LIKE '%1124%' OR vsROTINA LIKE '%1301%')) THEN
@@ -10043,7 +10045,7 @@ IS
          SET PCT_ESTOQUE = 'N',
          PCT_ESTOQUE_CANCELAMENTO = 'N'
        WHERE NUMTRANSENT = pnNUMTRANSACAO;
-      psMSG_RETORNO := 'Erro 8 (Compras Entrada Prod): A transação repassada para a PKG_ESTOQUE não tem registros validos.'||CHR(13)||
+      psMSG_RETORNO := 'Erro 8 (Compras Entrada Prod): A transação repassada para a PKG_ESTOQUE não tem registros validos.'||' - '||SQLERRM||CHR(13)||
                        'Transação: '||TO_CHAR(pnNUMTRANSACAO);
       PRIV_GERARLOG;
       RETURN vnCONTADORREGISTROS;
@@ -10058,7 +10060,7 @@ IS
   EXCEPTION
     WHEN OTHERS THEN
       P_INTERNO.MSG_RETORNO := psMSG_RETORNO;
-      P_INTERNO.INFORMACOES_LOG := 'Finalizou a função - COMPRAS_ENTRADA_PROD com erro';
+      P_INTERNO.INFORMACOES_LOG := 'Finalizou a função - COMPRAS_ENTRADA_PROD com erro' ||' - '||SQLERRM;
       PRIV_GERARLOG;
       RETURN 0;
   END COMPRAS_ENTRADA_PROD;
