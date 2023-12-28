@@ -20260,8 +20260,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvAplicaDescSimplesNacional := 'T';
       END IF;
 
-      -- Se chamado da Confirmação da alteração
-      IF (pi_vTipoChamada = '4') THEN
+      -- Se chamado da Confirmação da inclusao ou alteração
+      IF (pi_vTipoChamada in('2', '4')) THEN
 
         ---------------------------------
         -- Comissão por Grupo de Comissão
@@ -20362,7 +20362,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   AND T.CAMPO    = 'MA'
                                   AND T.CODIGO   = PCMED_PROMOCAOMARCA_FAIXA.CODMARCAREF);
         END IF; -- Fim Condição: Existem Grupos de Comissão
+      END IF;		 
 
+      -- Se chamado da Confirmação da alteração
+      IF (pi_vTipoChamada = '4') THEN
         ---------------------------------
         -- Edição de Produtos da Promoção
         ---------------------------------
