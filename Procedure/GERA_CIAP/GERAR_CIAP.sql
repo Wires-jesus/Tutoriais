@@ -156,7 +156,7 @@ begin
 
          -- Configurando Total das saidas tributadas utilizado filtros da tela
          if (V_DESCONSCFOPSAITRIB = 'S') then
-            V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
+            V_SQL := 'Select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
                                     0
                                  ELSE
                                     DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
@@ -172,7 +172,7 @@ begin
                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
                                  END) TOTALTRIB,';
          else
-            V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
+            V_SQL := 'SElect SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
                                     DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
                                     
                               -- Considerar vldesdobrado quando parametro SIM e vlbase = 0      
@@ -232,7 +232,7 @@ begin
 
          -- Configurando Saida Tributada (desconsiderando)
          if (V_DESCONSCFOPSAITRIB = 'S') and (V_CFOP_SAIDA_TRIB <> '-1') then
-             V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
+             V_SQL := 'selecT SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
                                      0
                                   ELSE
                                      DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
@@ -254,7 +254,7 @@ begin
 
          -- Configurando Saida Tributada (Considerando)
          if (V_DESCONSCFOPSAITRIB = 'N') and (V_CFOP_SAIDA_TRIB <> '-1') then
-             V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
+             V_SQL := 'seleCt SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
                                      DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
 
                               -- Considerar vldesdobrado quando parametro SIM e vlbase = 0      
@@ -275,7 +275,7 @@ begin
 
          -- Configurando Saida Tributada total. Quando não foi informado nenhum cfop na tela
          if ( V_DESCONSCFOPSAITRIB = 'N' or  V_DESCONSCFOPSAITRIB = 'S' ) and (V_CFOP_SAIDA_TRIB = '-1') then
-              V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL > 0 THEN
+              V_SQL := 'selEct SUM(CASE WHEN PCNFBASESAID.CODFISCAL > 0 THEN
                                         DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
 
                               -- Considerar vldesdobrado quando parametro SIM e vlbase = 0      
@@ -346,15 +346,15 @@ begin
                                              WHERE DADOSID = 'SAITRI'
                                                AND CAMPO = 'CODFISCAL'
                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
-                                    to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
+                                    to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
                                                          FROM PCDADOSGENERICOS
                                                          WHERE DADOSID = 'SAITRI'
                                                          AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
+                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
                                                          FROM PCDADOSGENERICOS
                                                          WHERE DADOSID = 'SAITRI'
                                                          AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
+                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
                                                          FROM PCDADOSGENERICOS
                                                          WHERE DADOSID = 'SAITRI'
                                                          AND CAMPO = 'CSTICMS'
@@ -365,13 +365,15 @@ begin
                                    GROUP BY CODREGISTRO, DADOSID) ITENS)
                LOOP
                   IF V_EXISTEFILTRO3403SAITRIB = 'S' THEN
-                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                     IF ((NVL(TRIM(DADOS.CSTICMS),'N') = 'N') OR 
+                             (TRIM(DADOS.CSTICMS) = '00')) THEN -- Quando esta nullo na grid ele recebe 00 e deve ser considerado para n gerar livro
                         V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
                         V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   ELSE
-                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                     IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
+                            (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
                         V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') ) ';
                      ELSE
                         V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -383,7 +385,7 @@ begin
                END LOOP;
                -----------------------------------------------------------------------------
                IF V_EXISTEFILTRO3403SAITRIB = 'N' THEN
-                  V_SQL := 'select SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB ||') AND ((NVL(PCNFBASESAID.VLDESDOBRADO, 0) - NVL(PCNFBASESAID.VLOUTRAS, 0) - NVL(PCNFBASESAID.VLISENTAS, 0)) >= 0) THEN ';
+                  V_SQL := 'seLect SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB ||') AND ((NVL(PCNFBASESAID.VLDESDOBRADO, 0) - NVL(PCNFBASESAID.VLOUTRAS, 0) - NVL(PCNFBASESAID.VLISENTAS, 0)) >= 0) THEN ';
                -- Gerando vltrib analisando parametros 
                   IF PVALORCONTABIL = 'S' THEN
                      V_SQL := V_SQL || ' NVL(PCNFBASESAID.VLDESDOBRADO, 0) END) TOTALTRIB,';
@@ -403,7 +405,7 @@ begin
                ELSE
                  ------------------------------------- // --------------------------------------- 
                   IF PCONS_CFOP_SAIDA_TRIB = 'S' THEN -- Abrindo 1
-                      V_SQL := 'select SUM(CASE WHEN ( ' || V_CONDICAOCFOPSAITRIB || ' ) 
+                      V_SQL := 'select   SUM(CASE WHEN ( ' || V_CONDICAOCFOPSAITRIB || ' ) 
                                           AND ((NVL(PCNFBASESAID.VLDESDOBRADO, 0) - 
                                                 NVL(PCNFBASESAID.VLOUTRAS, 0) - 
                                                 NVL(PCNFBASESAID.VLISENTAS, 0)) >= 0) THEN ';
@@ -425,7 +427,7 @@ begin
                       
                   ELSE
                  
-                  V_SQL := 'select SUM(CASE WHEN ( ' || V_CONDICAOCFOPSAITRIB || ' ) 
+                  V_SQL := 'select SUM(CASE   WHEN ( ' || V_CONDICAOCFOPSAITRIB || ' ) 
                                       AND ((NVL(PCNFBASESAID.VLDESDOBRADO, 0) - 
                                             NVL(PCNFBASESAID.VLOUTRAS, 0) - 
                                             NVL(PCNFBASESAID.VLISENTAS, 0)) >= 0) THEN
@@ -499,13 +501,15 @@ begin
                                    GROUP BY CODREGISTRO, DADOSID) ITENS)
                LOOP
                   IF V_EXISTEFILTRO3403TOTSAI = 'S' THEN
-                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                     IF( NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR 
+                       (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   ELSE
-                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                     IF( NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR 
+                       (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') ) ';
                      ELSE
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -580,6 +584,10 @@ begin
        and PCNFBASESAID.CODFISCAL BETWEEN 5000 AND 7999
        and ((PCNFBASESAID.VLDESDOBRADO > 0 ) or (PCNFBASESAID.VLICMS > 0) or (PCNFBASESAID.VLBASE > 0))
        and NVL(PCNFBASESAID.SERIE, ''X'') not in (''CF'', ''CP'')';
+
+     --insert into sql_gerado (texto_sql, codregra) values (V_SQL, 99); 
+     --commit;
+
 
          V_EXECUTAR := 'N';
          IF PDESCONSCFOP_SAIDA_TRIB = 'S' OR PDESCONSIDERACFOP_SAIDA = 'S' THEN
@@ -683,7 +691,9 @@ begin
                    END IF;           
                  
                    IF V_EXISTEFILTRO3403TOTSAI = 'S' THEN
-                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                      IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR 
+                         (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                        
                         IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
                           V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' AND CODFISCAL <> ' ||  DADOS.CODFISCAL; 
                         ELSE
@@ -697,7 +707,8 @@ begin
                         END IF;
                       END IF;
                    ELSE
-                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                      IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
+                         (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                       ELSE
                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -799,7 +810,8 @@ begin
                     END IF;
                   END IF;
                ELSE
-                  IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
+                  IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
+                     (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
                      V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                   ELSE
                      V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -1173,6 +1185,6 @@ begin
    end;
 end;
 ----------------------------------------------------------------------
--- 11/07/2023 - Última alteração - 
--- Implementado alteração no processo de geração do valor de devolução a ser deduzido.
+-- 28/12/2023 - 
+-- Implementado alteração na geração do cst de icms no filtro de geração do livro fiscal saida e entrada
 ----------------------------------------------------------------------
