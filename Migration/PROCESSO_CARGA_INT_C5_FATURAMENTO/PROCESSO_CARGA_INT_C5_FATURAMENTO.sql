@@ -46,7 +46,13 @@ select  c.nroempresa codfilial,
    AND e.nroempresa = c.nroempresa
    and e.nrocheckout = c.nrocheckout
    and e.seqdocto = c.seqdocto
-   and e.protocoloenvio is not null 
+   and e.protocoloenvio is not null
+   AND not exists (select 1
+                     from monitorpdvmiddle.tb_doctoinutnfe i
+					where i.seqdocto = m.seqdocto
+                      and i.nrocheckout = m.nrocheckout
+                      and i.nroempresa = m.nroempresa
+                      and i.nronotafiscal = c.nronotafiscal)
    AND M.ESPECIE IN ('NF', 'CF')
 )
  
