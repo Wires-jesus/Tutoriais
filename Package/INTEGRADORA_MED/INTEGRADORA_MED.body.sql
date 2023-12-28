@@ -6443,6 +6443,7 @@ end func_HoraDigitacaoPedido;
                and r.codcli                 = p_Regpedido.codcli
                and nvl(r.numpedcli,' ')     = nvl(p_regpedido.numpedcli,' ')
                and nvl(r.codigoprojeto,' ') = nvl(p_regpedido.codigoprojeto,' ')
+			   and r.codfilial        = p_regpedido.codfilial
                and (nvl(p.posicao,'C') <> 'C')
                and r.dtaberturapedpalm     >= (SYSDATE-180);
           -- Pedido OL diferente do layout 8 (SevenPDV) busca pelo Numero do Pedido da VAN recebidos nos ultimos 180 dias
@@ -6459,6 +6460,7 @@ end func_HoraDigitacaoPedido;
                and r.integradora        = p_regpedido.integradora -- 156777
                and r.codusur            = p_regpedido.codusur
                and r.codcli             = p_Regpedido.codcli
+			   and r.codfilial        = p_regpedido.codfilial
                and (nvl(p.posicao,'C') <> 'C')
                and r.dtaberturapedpalm >= (SYSDATE-180);
           end if;
@@ -6477,6 +6479,7 @@ end func_HoraDigitacaoPedido;
              and p.numpedcli        = p_regpedido.numpedcli
              and p.codusur          = p_regpedido.codusur
              and p.codcli           = p_Regpedido.codcli
+			 and r.codfilial        = p_regpedido.codfilial
              and (nvl(p.posicao,'C') <> 'C')
              and p.data            >= (SYSDATE-180);
         end if;
