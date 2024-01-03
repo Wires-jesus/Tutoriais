@@ -1,4 +1,3 @@
-gaucha
 CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2,
                                                           PDTINICIAL IN DATE,
                                                           PDTFINAL IN DATE,
