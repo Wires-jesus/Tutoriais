@@ -2952,79 +2952,82 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
 
     --GRAVAÇÃO DE ESTOQUE - CASO NÃO TENHA VENDA DO PRODUTO
     --PRIMEIRO GRAVA PEGANDO REGISTRO DA TABELA PCHISTESTFILA
-    V_SQL := 'INSERT INTO PCDTPROD
-                (CODFILIAL,
-                 CODPROD,
-                 DTMOV,
-                 CODEPTO,
-                 CODFORNEC,
-                 VLVENDA,
-                 VLCUSTOFIN,
-                 VLCUSTOREAL,
-                 VLCUSTOREP,
-                 VLCUSTOCONT,
-                 QTVENDA,
-                 QTNOTA,
-                 VLENT,
-                 QTENT,
-                 QTDEVOLCLI,
-                 VLDEVOLCLI,
-                 CODPRODPRINC,
-                 CLASSE,
-                 CODSEC,
-                 QTESTGER,
-                 CUSTOFIN,
-                 CUSTOREAL,
-                 CUSTOREP,
-                 CUSTOCONT)
-              SELECT PCHISTESTFILA.CODFILIAL,
-                     PCPRODUT.CODPROD,
-                     PCHISTESTFILA.DATA,
-                     PCPRODUT.CODEPTO,
-                     PCPRODUT.CODFORNEC,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     PCPRODUT.CODPRODPRINC,
-                     PCPRODUT.CLASSE,
-                     PCPRODUT.CODSEC,
-                     PCHISTESTFILA.QTESTGER,
-                     PCHISTESTFILA.CUSTOFIN,
-                     PCHISTESTFILA.CUSTOREAL,
-                     PCHISTESTFILA.CUSTOREP,
-                     PCHISTESTFILA.CUSTOCONT
-              FROM   PCFILIAL,
-                     PCHISTESTFILA,
-                     PCPRODUT
-              WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
-              AND    PCHISTESTFILA.CODFILIAL = PCFILIAL.CODIGO
-              AND    PCHISTESTFILA.CODPROD = PCPRODUT.CODPROD
-              AND    PCHISTESTFILA.DATA = :PDTTERMINO
-              AND NOT EXISTS( SELECT 1
-                              FROM PCDTPROD
-                              WHERE DTMOV = PCHISTESTFILA.DATA
-                              AND CODFILIAL = PCHISTESTFILA.CODFILIAL
-                              AND CODPROD = PCPRODUT.CODPROD)';
-
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCHISTESTFILA.CODPROD IN ( ' || PLISTACODIGO || ')';
-    END IF;
-
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCHISTESTFILA.CODFILIAL = ''' || PCODFILIAL || '''';
-    END IF;
-
-    EXECUTE immediate V_SQL USING PDTTERMINO;
-
-    COMMIT;
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
+    LOOP
+        V_SQL := 'INSERT INTO PCDTPROD (CODFILIAL,
+										CODPROD,
+										DTMOV,
+										CODEPTO,
+										CODFORNEC,
+										VLVENDA,
+										VLCUSTOFIN,
+										VLCUSTOREAL,
+										VLCUSTOREP,
+										VLCUSTOCONT,
+										QTVENDA,
+										QTNOTA,
+										VLENT,
+										QTENT,
+										QTDEVOLCLI,
+										VLDEVOLCLI,
+										CODPRODPRINC,
+										CLASSE,
+										CODSEC,
+										QTESTGER,
+										CUSTOFIN,
+										CUSTOREAL,
+										CUSTOREP,
+										CUSTOCONT)
+                  SELECT PCHISTESTFILA.CODFILIAL,
+                         PCPRODUT.CODPROD,
+                         PCHISTESTFILA.DATA,
+                         PCPRODUT.CODEPTO,
+                         PCPRODUT.CODFORNEC,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         0,
+                         PCPRODUT.CODPRODPRINC,
+                         PCPRODUT.CLASSE,
+                         PCPRODUT.CODSEC,
+                         PCHISTESTFILA.QTESTGER,
+                         PCHISTESTFILA.CUSTOFIN,
+                         PCHISTESTFILA.CUSTOREAL,
+                         PCHISTESTFILA.CUSTOREP,
+                         PCHISTESTFILA.CUSTOCONT
+                  FROM   PCFILIAL,
+                         PCHISTESTFILA,
+                         PCPRODUT
+                  WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
+                  AND    PCHISTESTFILA.CODFILIAL    = PCFILIAL.CODIGO
+                  AND    PCHISTESTFILA.CODPROD      = PCPRODUT.CODPROD
+                  AND    PCHISTESTFILA.DATA         = :PDTTERMINO
+                  AND NOT EXISTS( SELECT 1
+                                  FROM   PCDTPROD
+                                  WHERE  DTMOV      = PCHISTESTFILA.DATA                                  
+                                  AND    CODFILIAL  = ''' || REGISTRO.CODIGO || '''
+                                  AND    CODPROD    = PCPRODUT.CODPROD)
+                  AND    PCFILIAL.CODIGO    		= ''' || REGISTRO.CODIGO || '''';
+    
+        IF (PLISTACODIGO IS NOT NULL) THEN
+          V_SQL := V_SQL || ' AND PCHISTESTFILA.CODPROD IN ( ' || PLISTACODIGO || ')';
+        END IF;    
+        
+        EXECUTE immediate V_SQL USING PDTTERMINO;
+    
+        COMMIT;
+    END LOOP;
 
     --CASO NÃO TENHA REGISTROS NA TABELA PCHISTESTFILA PEGA OS REGISTROS DA TABELA PCHISTEST
     V_SQL := 'INSERT INTO PCDTPROD
