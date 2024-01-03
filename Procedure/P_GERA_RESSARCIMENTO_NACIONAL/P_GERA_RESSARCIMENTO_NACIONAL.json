@@ -1,0 +1,14 @@
+{
+    "nome": "P_GERA_RESSARCIMENTO_NACIONAL",
+    "tipoPLSQL": "PROCEDURE",
+    "dependencias": [{
+            "nome": "PCRESSARCIMENTONACIONAL",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        }, {
+            "nome": "PCHISTEST",
+            "tipo": "TABELA",
+            "versao": "4.0.03.000"
+        }
+    ]
+}
