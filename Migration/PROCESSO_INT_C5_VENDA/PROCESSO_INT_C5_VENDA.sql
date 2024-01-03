@@ -1147,6 +1147,23 @@ END;
 
 \
 
+CREATE OR REPLACE FUNCTION FNC_INT_C5_PRAZOCC(pCODCOB IN VARCHAR2)
+    RETURN NUMBER
+IS
+  vPRAZOCC NUMBER;
+BEGIN
+ vPRAZOCC := 0;
+ BEGIN
+ SELECT NVL(B.PRAZOCC, 0) PRAZOCC
+   INTO vPRAZOCC
+   FROM PCCOB B
+  WHERE B.CODCOB = pCODCOB;
+ END;
+ RETURN(vPRAZOCC);
+END;
+
+\
+
 CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
 (SELECT  a.seqdocto,
         e.chavenf chavenfe,
@@ -1768,7 +1785,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         c.nronotafiscal duplic,
         NVL(c.seqpessoa,1) codcli,
-        TO_CHAR(NVL(r.dtvenc, p.dtavencimento),'YYYY-MM-DD') dtvenc,
+        TO_CHAR(NVL(r.dtvenc + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))),
+            		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+					),'YYYY-MM-DD') dtvenc,
         NVL(
         (CASE
             WHEN p.valor < 0
@@ -1780,7 +1799,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         p.nroempresa codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(NVL(r.DTVENC,p.dtavencimento),'YYYY-MM-DD') dtvencorig,
+        TO_CHAR(NVL(r.dtvenc + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))),
+            		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+					),'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
         NULL numbanco,
@@ -1925,7 +1946,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         c.nronotafiscal duplic,
         NVL(c.seqpessoa,1) codcli,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvenc,
+        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+		        ,'YYYY-MM-DD') dtvenc,
         NVL(
         (CASE
             WHEN p.valor < 0
@@ -1937,7 +1959,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         p.nroempresa codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvencorig,
+        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+		        ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
         NULL numbanco,
@@ -2041,7 +2064,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         c.nronotafiscal duplic,
         NVL(c.seqpessoa,1) codcli,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvenc,
+        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+		        ,'YYYY-MM-DD') dtvenc,
         NVL(
         (CASE
             WHEN p.valor < 0
@@ -2053,7 +2077,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         p.nroempresa codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento,'YYYY-MM-DD') dtvencorig,
+        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+		        ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
         NULL numbanco,
