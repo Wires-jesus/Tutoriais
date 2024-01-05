@@ -20261,7 +20261,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Se chamado da Confirmação da inclusao ou alteração
-      IF (pi_vTipoChamada in('2', '4')) THEN
+      IF (pi_vTipoChamada in('2', '4', '8')) THEN
 
         ---------------------------------
         -- Comissão por Grupo de Comissão
