@@ -1,0 +1,198 @@
+CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA_REGIAO AS
+(
+  SELECT DISTINCT
+         p.codprod seqfamilia,
+         NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
+         MAX(p.codncmsh) codncmsh,
+         MAX(p.aceitavendafracao) permitedecimal,
+         MAX(p.permitemultiplicacao) permitemultiplicacao,
+         (SELECT nvl(CODCEST, 0) codcest
+          FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
+          WHERE PCCESTPRODUTO.CODPROD = p.codprod
+          AND ROWNUM = 1
+         ) codcest,
+         'S' ativo,
+         MAX(p.codmarca) seqmarca,
+         1 seqfamgrupo,
+         (CASE
+            WHEN  MIN(p.tipoembalagem) = 'P' THEN
+                  'S'
+            ELSE  'N'
+         END)PESAVEL,
+         MIN(NVL(p.indescalarelevante, 'S')) indescala,
+         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
+         MAX(p.codauxiliartrib) eantrib,
+         MAX(P.codprodprinc) seqfamiliaprinc
+  FROM VW_INT_C5_EMBPRODREGIAO p
+  GROUP BY p.codprod, p.descricao
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM_REGIAO AS
+(
+  SELECT
+    SEQFAMILIA,
+    QTDEMBALAGEM QTDEMBALAGEM,
+    max(EMBALAGEM) EMBALAGEM,
+    LEAST(max(PESOBRUTO), 9999.999) PESOBRUTO,
+    LEAST(max(PESOLIQ), 9999.999) PESOLIQ,
+    max(PESOAFERIDO) PESOAFERIDO,
+    max(ATIVO) ATIVO
+ FROM
+  (
+  select distinct
+    e.codprod seqfamilia,
+    NVL(e.qtunit, 1) qtdembalagem,
+    NVL(max(e.unidade), '1') embalagem,
+    NVL(max(e.pesobruto), 0) pesobruto,
+    NVL(max(e.pesoliq), 0) pesoliq,
+    'N' pesoaferido,
+    'S' ativo
+  from VW_INT_C5_EMBPRODREGIAO e
+  where
+    qtunit <> qtminimaatacado
+  group by
+    e.codprod,
+    NVL(e.qtunit, 1)
+  UNION ALL
+  select distinct
+    e.codprod seqfamilia,
+    NVL(e.qtminimaatacado, 1) qtdembalagem,
+    NVL(max(e.unidade), '1') embalagem,
+    NVL(max(e.pesobruto), 0) pesobruto,
+    NVL(max(e.pesoliq), 0) pesoliq,
+    'N' pesoaferido,
+    'S' ativo
+  from VW_INT_C5_EMBPRODREGIAO e
+  where
+    e.qtminimaatacado > 1
+  group by
+    e.codprod,
+    NVL(e.qtminimaatacado, 1))DADOSEMB
+  group by SEQFAMILIA, QTDEMBALAGEM
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO_REGIAO AS
+(
+  SELECT DISTINCT
+   PROD.CODAUXILIAR IDREF,
+   P.SEQPRODUTO SEQPRODUTO,
+   MAX(PROD.CODPRODUTO) CODPRODUTO,
+   MAX(PROD.desccompleta) desccompleta,
+   MAX(PROD.descreduzida) descreduzida,
+   MAX(PROD.produtocomposto) produtocomposto,
+   MAX(PROD.SEQFAMILIA) SEQFAMILIA,
+   MAX(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
+   MAX(PROD.codanp) codanp,
+   MAX(PROD.descanp_prod) descanp_prod,
+   MAX(PROD.ATIVO) ATIVO
+FROM
+  (
+  SELECT DISTINCT
+        E.CODAUXILIAR,
+        MAX(e.codprod) codproduto,
+        MAX(fnc_remove_char_esp(e.descricao)) desccompleta,
+        MAX(SUBSTR((fnc_remove_char_esp(e.descricao)),1,24)) descreduzida,
+        'N' produtocomposto,
+        MAX(e.codprod) seqfamilia,
+        0 QTDDIAVALIDADE,
+        MAX(nvl(e.anp, 0)) codanp,
+        MAX(e.descanp) descanp_prod,
+        'S' ATIVO
+  FROM  VW_INT_C5_EMBPRODREGIAO E
+  GROUP BY E.CODAUXILIAR
+  ) PROD,
+  PCDEPARAEMBALAGENSC5 P
+WHERE PROD.CODAUXILIAR = P.CODAUXILIAR
+GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA_REGIAO AS
+(
+  SELECT e.codfilial nroempresa,
+         e.codauxiliar idref,
+         P.SEQPRODUTO SEQPRODUTO,
+         0000000 estqloja,
+         'S' ativo
+  FROM VW_INT_C5_EMBPRODREGIAO e,
+       PCDEPARAEMBALAGENSC5 P
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
+
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO_REGIAO AS
+(
+  SELECT
+        e.codfilial nroempresa,
+        e.codauxiliar codacesso,
+        P.SEQPRODUTO SEQPRODUTO,
+        COALESCE(e.qtunit, 1) qtdembalagem,
+        (CASE
+            WHEN length(e.codauxiliar) = 13 AND NVL(E.PRODSEMCODBARRAS, 'N') = 'N'
+                 THEN 'E'
+            WHEN length(e.codauxiliar) = 14 AND NVL(E.PRODSEMCODBARRAS, 'N') = 'N'
+                 THEN 'D'
+            WHEN NVL(E.PRODSEMCODBARRAS, 'N') = 'S' THEN
+             'B'
+         ELSE
+           'B'
+         END) tipo,
+        'S' ativo
+ FROM  VW_INT_C5_EMBPRODREGIAO e,
+       PCDEPARAEMBALAGENSC5 P
+ WHERE E.CODAUXILIAR = P.CODAUXILIAR
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO_REGIAO AS
+(SELECT
+       e.codprod seqfamilia,
+       1 nrosegmento,
+       'S' ativo
+  FROM  VW_INT_C5_EMBPRODREGIAO e,
+    MONITORPDVMIDDLE.TB_FAMILIA T
+  WHERE
+    E.CODPROD = T.SEQFAMILIA
+
+)
+
+\
+
+CREATE OR REPLACE VIEW VW_INT_C5_PRODPRECO_REGIAO AS
+(
+  SELECT
+    E.CODAUXILIAR IDREF,
+    P.SEQPRODUTO SEQPRODUTO,
+    E.CODFILIAL NROEMPRESA,
+    NVL(E.QTUNIT, 1) QTDEMBALAGEM,
+    1 NROSEGMENTO,
+    'N' PROMOCAO,
+    LEAST(E.PVENDA, 9999999.999) PRECO,
+    'S' ATIVO
+  FROM VW_INT_C5_EMBPRODREGIAO E,
+       PCDEPARAEMBALAGENSC5 P
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
+  AND   E.QTUNIT <> E.QTMINIMAATACADO
+  UNION ALL
+  SELECT
+    E.CODAUXILIAR IDREF,
+    P.SEQPRODUTO SEQPRODUTO,
+    E.CODFILIAL NROEMPRESA,
+    NVL(E.QTMINIMAATACADO, 1) QTDEMBALAGEM,
+    1 NROSEGMENTO,
+    'N' PROMOCAO,
+    LEAST(ROUNDABNT((E.PVENDAATAC / E.QTUNIT) * E.QTMINIMAATACADO, 3), 9999999.999) PRECO,
+    'S' ATIVO
+  FROM VW_INT_C5_EMBPRODREGIAO E,
+       PCDEPARAEMBALAGENSC5 P
+  WHERE E.CODAUXILIAR = P.CODAUXILIAR
+  AND   E.QTMINIMAATACADO > 1
+)
