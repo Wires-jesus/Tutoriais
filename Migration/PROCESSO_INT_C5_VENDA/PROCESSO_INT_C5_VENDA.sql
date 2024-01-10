@@ -1162,6 +1162,8 @@ BEGIN
  RETURN(vPRAZOCC);
 END;
 
+\ 
+
 CREATE OR REPLACE FUNCTION FNC_INT_C5_OBTERNUMPED(pSeqDocto NUMBER,
                                                   pNroEmpresa NUMBER,
                                                   pNroCheckout NUMBER)
