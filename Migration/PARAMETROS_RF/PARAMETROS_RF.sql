@@ -100,7 +100,9 @@ BEGIN
 
   INSERT_DATA('CARREGAR_QUANTIDADE_SEPARAR', 'N', NULL, 'Carregar a quantidade a separar?', 'EXPEDICAO', 'BOOLEAN');   
   
-  INSERT_DATA('VISUALIZAR_DIVERGENCIA_QTDTOTAL_BONUS', 'N', NULL, 'Visualizar itens recebidos considerando a quantidade total no bônus', 'RECEBIMENTO', 'BOOLEAN');  
+  INSERT_DATA('VISUALIZAR_DIVERGENCIA_QTDTOTAL_BONUS', 'N', NULL, 'Visualizar itens recebidos considerando a quantidade total no bônus', 'RECEBIMENTO', 'BOOLEAN');
+
+  INSERT_DATA('VISUALIZAR_NOTIFICACOES_PENDENCIAS', 'N', NULL, 'Visualizar notificações de pendência de separação e conferência', 'EXPEDICAO', 'BOOLEAN');
 
 END;
 
