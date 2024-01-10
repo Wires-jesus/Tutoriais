@@ -1162,6 +1162,27 @@ BEGIN
  RETURN(vPRAZOCC);
 END;
 
+\ 
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_OBTERNUMPED(pSeqDocto NUMBER,
+                                                  pNroEmpresa NUMBER,
+                                                  pNroCheckout NUMBER)
+RETURN NUMBER
+IS 
+	vNROPREVENDA NUMBER;
+BEGIN
+	SELECT 
+		MAX(TB_DOCTOITEM.NROPREVENDA) NROPREVENDA
+	INTO VNROPREVENDA
+	FROM 
+		MONITORPDVMIDDLE.TB_DOCTOITEM TB_DOCTOITEM
+	WHERE TB_DOCTOITEM.SEQDOCTO = pSeqDocto
+		AND TB_DOCTOITEM.NROEMPRESA = pNroEmpresa
+		AND TB_DOCTOITEM.NROCHECKOUT = pNroCheckout;
+		
+	RETURN VNROPREVENDA;
+END;
+
 \
 
 CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
@@ -1241,7 +1262,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL numexecucao,
         NULL numlista,
         NULL numorca,
-        NULL numped,
+        FNC_INT_C5_OBTERNUMPED(a.seqdocto, a.nrocheckout, a.nroempresa) numped,
         NULL numpedcanc,
         NULL numpedrca,
         NULL numserieplacamae,
