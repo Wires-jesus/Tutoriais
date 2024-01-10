@@ -52206,8 +52206,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     -- Uso do DBMS_SQL para substituir o EXECUTE IMMEDIATE
     n_c := DBMS_SQL.open_cursor;
     DBMS_SQL.parse(n_c, vc_stmt, 1, n_iteration, TRUE, DBMS_SQL.NATIVE);
-    DBMS_SQL.bind_variable(n_c, ':DATAINI', P_DATAINI);
-    DBMS_SQL.bind_variable(n_c, ':DATAFIM', P_DATAFIM);
+    DBMS_SQL.bind_variable(n_c, ':DATAINI2', P_DATAINI);
+    DBMS_SQL.bind_variable(n_c, ':DATAFIM2', P_DATAFIM);
     n_res := DBMS_SQL.execute(n_c);
     IF (n_res > 0) THEN
       DBMS_SQL.variable_value(n_c, ':VLTOTAL', VLVENDATOT);
