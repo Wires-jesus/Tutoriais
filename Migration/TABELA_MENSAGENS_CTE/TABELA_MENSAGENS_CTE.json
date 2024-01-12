@@ -1,0 +1,5 @@
+{
+ "nome":"TABELA_MENSAGENS_CTE",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias": ""
+}

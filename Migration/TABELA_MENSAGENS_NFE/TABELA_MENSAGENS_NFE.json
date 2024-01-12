@@ -1,0 +1,5 @@
+{
+ "nome":"TABELA_MENSAGENS_NFE",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias": ""
+}
