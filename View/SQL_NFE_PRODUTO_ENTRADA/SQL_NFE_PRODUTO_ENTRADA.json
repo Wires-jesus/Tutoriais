@@ -4,17 +4,17 @@
   {
    "nome": "PCPRODUT",
    "tipo":"TABELA",
-   "versao": "2.1.05.000"
+   "versao": "3.0.01.000"
   },
   {
    "nome": "PCPRODFILIAL",
    "tipo":"TABELA",
-   "versao": "2.1.04.000"
+   "versao": "3.0.02.000"
   },
   {
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
-   "versao": "2.1.12.000"
+   "versao": "3.0.08.000"
   }
  ]
 }

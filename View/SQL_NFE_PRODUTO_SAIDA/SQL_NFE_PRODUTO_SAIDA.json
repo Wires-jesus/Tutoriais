@@ -4,17 +4,27 @@
   {
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
-   "versao": "2.1.13.000"
+   "versao": "4.0.01.000"
   },
   {
    "nome": "PCMOVCOMPLEPREFAT",
    "tipo":"TABELA",
-   "versao": "2.1.10.000"
+   "versao": "4.0.01.000"
   },
   {
    "nome": "PCCLIENT",
    "tipo":"TABELA",
-   "versao": "2.1.03.000"
+   "versao": "3.0.01.000"
+  },
+  {
+   "nome": "PCPRODFILIAL",
+   "tipo":"TABELA",
+   "versao": "	2.1.03.000"
+  },
+  {
+   "nome": "PCPRODUT",
+   "tipo":"TABELA",
+   "versao": "2.1.05.000"
   }
  ]
 }
