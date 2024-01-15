@@ -7643,7 +7643,7 @@ IS
             END IF;
 
             -- É rotina 201?
-            IF vsROTINA LIKE '%PCSIS201%' THEN
+            IF vsROTINA LIKE '%PCSIS201%' AND pnQTDE > 0 THEN
               -- Consultar produto
               PRIV_CONS_PRODUTO(NVL(pnCODPROD,pnCODPRODPRINC),vsUSAWMS,vsESTOQUEPORLOTE,vnQTUNITCX,vsTIPOMERC,vsPESOVARIAVEL);
               -- Atualizar parâmetro
