@@ -1,0 +1,9 @@
+{"nome":"SQL_NFE_RODAPE_SAIDA",
+ "tipoPLSQL":"VIEW",
+ "dependencias":[
+ {
+  "nome": "NFE_PRODUTO_SAIDA",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "2.1.19.000"
+}
+ ]}

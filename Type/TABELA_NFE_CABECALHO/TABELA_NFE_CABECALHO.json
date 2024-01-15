@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_NFE_CABECALHO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_NFE_CABECALHO",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}

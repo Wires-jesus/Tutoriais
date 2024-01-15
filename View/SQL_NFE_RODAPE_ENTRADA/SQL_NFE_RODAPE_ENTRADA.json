@@ -1,0 +1,9 @@
+{"nome":"SQL_NFE_RODAPE_ENTRADA",
+ "tipoPLSQL":"VIEW",
+ "dependencias":[
+ {
+  "nome": "NFE_PRODUTO_ENTRADA",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "2.1.12.000"
+}
+ ]}

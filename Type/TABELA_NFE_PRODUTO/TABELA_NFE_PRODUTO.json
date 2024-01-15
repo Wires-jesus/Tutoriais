@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_NFE_PRODUTO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_NFE_PRODUTO",
+   "tipo": "MIGRATION",
+   "versao": "2.1.09.000"
+  }
+ ]
+}

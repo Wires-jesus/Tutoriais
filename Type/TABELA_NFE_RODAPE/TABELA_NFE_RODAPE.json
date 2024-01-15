@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_NFE_RODAPE",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_NFE_RODAPE",
+   "tipo": "MIGRATION",
+   "versao": "2.1.05.000"
+  }
+ ]
+}

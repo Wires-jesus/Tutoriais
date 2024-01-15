@@ -1,0 +1,20 @@
+{"nome":"SQL_NFE_PRODUTO_ENTRADA",
+ "tipoPLSQL":"VIEW",
+ "dependencias": [
+  {
+   "nome": "PCPRODUT",
+   "tipo":"TABELA",
+   "versao": "2.1.05.000"
+  },
+  {
+   "nome": "PCPRODFILIAL",
+   "tipo":"TABELA",
+   "versao": "2.1.04.000"
+  },
+  {
+   "nome": "PCMOVCOMPLE",
+   "tipo":"TABELA",
+   "versao": "2.1.12.000"
+  }
+ ]
+}
