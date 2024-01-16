@@ -1,0 +1,10 @@
+{"nome":"SQL_NFE_PRODUTO_SAIDA_CIAP",
+ "tipoPLSQL":"VIEW",
+ "dependencias": [
+  {
+   "nome": "PCMOVCIAP",
+   "tipo":"TABELA",
+   "versao": "3.0.02.000"
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{"nome":"SQL_NFE_CABECALHO_ENTRADA_DEV",
+ "tipoPLSQL":"VIEW",
+ "dependencias":[
+ {
+  "nome": "PCNFENT",
+  "tipo": "TABELA",
+  "versao": "2.1.01.000"
+ },
+ {
+  "nome": "PCNFENTPREENT",
+  "tipo": "TABELA",
+  "versao": "2.1.01.000"
+ }
+
+ ]}
