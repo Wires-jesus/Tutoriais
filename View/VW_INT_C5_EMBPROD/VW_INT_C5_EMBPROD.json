@@ -8,5 +8,6 @@
             "tipo": "OBJETO_PLSQL",
             "versao": "4.0.01.000"
       },
-	  {"nome": "PCTABPR","tipo": "TABELA","versao": "4.0.01.000"}
+	  {"nome": "PCTABPR","tipo": "TABELA","versao": "4.0.01.000"},
+	  {"nome": "FERRAMENTAS","tipo": "OBJETO_PLSQL","versao": "3.0.01.000"}
 ]}
