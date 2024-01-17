@@ -1,0 +1,9 @@
+{
+    "nome":"VIEW_GET_RESPONSAVEL_TECNICO",
+    "tipoPLSQL":"VIEW",
+    "dependencias":[{
+        "nome": "PCFILIAL",
+        "tipo": "TABELA",
+        "versao": "3.0.03.000"
+    }]
+}
