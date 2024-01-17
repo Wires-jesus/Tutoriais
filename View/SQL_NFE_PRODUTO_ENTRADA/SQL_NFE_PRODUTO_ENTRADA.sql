@@ -1413,7 +1413,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                         ), 2) / PCMOV.QTCONT))+
                                        --MELHORIA HIS.02234.2016
                                        CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                              DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', NVL(PCMOV.VLDESCSUFRAMA,0), 0)
+                                               CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
+                                                  NVL(PCMOV.VLDESCSUFRAMA,0)
+                                               ELSE
+                                                  0
+                                               END      
                                             ELSE
                                               0
                                        END
@@ -1564,11 +1568,6 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                       ELSE
                                             0
                                       END)  +
-                                      --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
-                                        CASE WHEN (PCMOV.CODOPER = 'ED') THEN
-                                            CASE WHEN ((NVL(PCMOVCOMPLE.PERCICMSDESONERACAO, 0) > 0) AND (NVL(PCMOVCOMPLE.VLICMSDESONERACAO, 0) > 0) ) THEN PCMOVCOMPLE.VLICMSDESONERACAO
-                                                    ELSE 0 END + (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT)
-                                            ELSE 0 END +                                      
                                       DECODE(NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                                  PCFILIAL.CODIGO),
                                                    'L')),
@@ -1606,7 +1605,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 -------------------------------------------------------------------------------------------------
                                        --MELHORIA HIS.02234.2016
                                        CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                              DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', NVL(PCMOV.VLDESCSUFRAMA,0), 0)
+                                              CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
+                                                  NVL(PCMOV.VLDESCSUFRAMA,0)
+                                               ELSE
+                                                  0
+                                               END
                                             ELSE
                                               0
                                        END
@@ -1707,7 +1710,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                     ), 2) / PCMOV.QTCONT)) +
                             --MELHORIA HIS.02234.2016
                             CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
-                                   DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', NVL(PCMOV.VLDESCSUFRAMA,0), 0)
+                                   CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
+                                      NVL(PCMOV.VLDESCSUFRAMA,0)
+                                   ELSE
+                                      0
+                                   END
                                  ELSE
                                    0
                             END
@@ -2366,3 +2373,4 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
         AND    PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
         AND   PCMOV.CODFISCAL = PCCFO.CODFISCAL(+))
 ORDER  BY NUMSEQ
+;

@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_RECEBEDOR",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_RECEBEDOR",
+   "tipo": "MIGRATION",
+   "versao": "2.1.01.000"
+  }
+ ]
+}
