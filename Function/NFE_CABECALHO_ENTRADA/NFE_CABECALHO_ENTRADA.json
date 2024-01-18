@@ -1,0 +1,21 @@
+{
+ "nome":"NFE_CABECALHO_ENTRADA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_NFE_CABECALHO",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.01.000"
+  },
+  {
+   "nome": "SQL_NFE_CABECALHO_ENTRADA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.01.000"
+  },
+  {
+   "nome": "SQL_NFE_CABECALHO_ENTRADA_DEV",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.01.000"
+  }
+ ]
+}
