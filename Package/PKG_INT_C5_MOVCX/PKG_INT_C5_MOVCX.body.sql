@@ -1,6 +1,8 @@
 CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
 
-  PROCEDURE processar_movimento_caixa(p_seqdocto NUMBER DEFAULT 0) IS
+  PROCEDURE processar_movimento_caixa(p_seqdocto NUMBER Default 0,
+                                      p_nrocheckout NUMBER default 0,
+									  p_nroempresa NUMBER default 0) IS
     CURSOR c_logaberturacx IS
       SELECT defseq_numpedecf.NEXTVAL numpedecf,
              a.numcaixa,
@@ -17,6 +19,8 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
         FROM vw_int_c5_aberturacx a
        WHERE a.especie = 'AC'
          AND a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
+		 AND a.numcaixa = DECODE(p_nrocheckout, 0, a.seqdocto, p_nrocheckout)
+		 AND a.nroempresa = DECODE(p_nroempresa, 0, a.seqdocto, p_nroempresa)
 		 AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
 								WHERE M.SEQDOCTO = a.seqdocto
