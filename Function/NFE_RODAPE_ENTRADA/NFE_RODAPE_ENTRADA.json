@@ -1,0 +1,21 @@
+{
+ "nome":"NFE_RODAPE_ENTRADA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_NFE_RODAPE",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.03.000"
+  },
+  {
+   "nome":"SQL_NFE_RODAPE_ENTRADA",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.04.000"
+  },
+  {
+   "nome":"SQL_NFE_RODAPE_ENTRADA_COMP",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.01.000"
+  }
+ ]
+}

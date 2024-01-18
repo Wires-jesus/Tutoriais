@@ -1,0 +1,21 @@
+{
+ "nome":"NFE_RODAPE_SAIDA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_NFE_RODAPE",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "2.1.03.000"
+  },
+  {
+   "nome":"SQL_NFE_RODAPE_SAIDA",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.07.000"
+  },
+  {
+   "nome":"SQL_NFE_RODAPE_SAIDA_COMP",
+   "tipo":"OBJETO_PLSQL",
+   "versao":"2.1.03.000"
+  }
+ ]
+}
