@@ -5,17 +5,17 @@
   {
    "nome": "TABELA_NFE_RODAPE",
    "tipo":"OBJETO_PLSQL",
-   "versao": "2.1.03.000"
+   "versao": "5.0.01.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"2.1.04.000"
+   "versao":"5.0.01.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA_COMP",
    "tipo":"OBJETO_PLSQL",
-   "versao":"2.1.01.000"
+   "versao":"5.0.01.000"
   }
  ]
 }
