@@ -1,4 +1,4 @@
-﻿create or replace procedure OBTERPROXIMONUMERONOTANFE(P_CODIGOFILIAL in varchar2 default '',
+create or replace procedure OBTERPROXIMONUMERONOTANFE(P_CODIGOFILIAL in varchar2 default '',
                                                       P_TRANSACAO    in number default 0,
                                                       P_MOVIMENTO    in varchar2 default '',
                                                       P_SEFAZORIGEM  in varchar2 default 'S',

@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE OBTERPROXIMONUMERONOTACTE(P_CODIGOFILIAL IN VARCHAR2 DEFAULT '',
+CREATE OR REPLACE PROCEDURE OBTERPROXIMONUMERONOTACTE(P_CODIGOFILIAL IN VARCHAR2 DEFAULT '',
                                                       P_TRANSACAO    IN NUMBER DEFAULT 0,
                                                       P_MOVIMENTO    IN VARCHAR2 DEFAULT 'S',
                                                       P_NUMERO       OUT NUMBER,

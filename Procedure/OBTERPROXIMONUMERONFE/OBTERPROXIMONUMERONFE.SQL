@@ -1,4 +1,4 @@
-﻿create or replace procedure OBTERPROXIMONUMERONFE(P_ROTAPRINCIPAL in varchar2 default '',
+create or replace procedure OBTERPROXIMONUMERONFE(P_ROTAPRINCIPAL in varchar2 default '',
                                                   P_CODIGOFILIAL  in varchar2 default '',
                                                   P_MOVIMENTO     in varchar2 default '',
                                                   P_SEFAZORIGEM   in varchar2 default 'P',
