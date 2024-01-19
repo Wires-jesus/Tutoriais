@@ -1,0 +1,11 @@
+{
+ "nome":"CTE_EMITENTE",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+  {
+   "nome": "TABELA_CTE_EMITENTE",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.01.000"
+  }
+ ]
+}

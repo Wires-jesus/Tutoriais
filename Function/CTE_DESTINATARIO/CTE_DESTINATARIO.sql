@@ -1,0 +1,138 @@
+CREATE OR REPLACE FUNCTION CTE_DESTINATARIO(P_TRANSACAO_CONHECIMENTO NUMBER)
+  RETURN TABELA_CTE_DESTINATARIO IS
+
+  CURSOR CR_CLIENTE IS
+    SELECT DESTINATARIO.CGCENT,
+           DESTINATARIO.IEENT,
+           DESTINATARIO.SULFRAMA,
+           CASE
+             WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('AMBIENTECTE',
+                                                    NVL(PCNFSAID.CODFILIALNF,
+                                                        PCNFSAID.CODFILIAL)),
+                      'H') = 'P' THEN
+              DESTINATARIO.CLIENTE
+             ELSE
+              'CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL'
+           END AS CLIENTE,
+           DESTINATARIO.ENDERENT,
+           NVL(DESTINATARIO.NUMEROENT, 'S/N') AS NUMEROENT,
+           DESTINATARIO.COMPLEMENTOENT,
+           DESTINATARIO.BAIRROENT,
+           CIDADE_E.CODIBGE,
+           CIDADE_E.NOMECIDADE,
+           DESTINATARIO.CEPENT,
+           CIDADE_E.UF,
+           PCNFSAID.CODPAIS AS CODPAIS,
+           PCNFSAID.DESCPAIS AS DESCRICAO,
+           DESTINATARIO.TELENT, 
+           NVL(NVL(PCNFSAID.CONTRIBUINTE, DESTINATARIO.CONTRIBUINTE),'N') CONTRIBUINTE, 
+           NVL(DESTINATARIO.CONSUMIDORFINAL,'N') CONSUMIDOR_FINAL
+      FROM PCCLIENT DESTINATARIO,
+           PCCIDADE CIDADE_E,
+           PCESTADO UF_E,
+           PCPAIS PAIS_E,
+           PCNFSAID,
+           PCNFBASE
+     WHERE PCNFSAID.CODDESTINATARIOFRETE = DESTINATARIO.CODCLI
+       AND PCNFSAID.NUMTRANSVENDA = PCNFBASE.NUMTRANSVENDA(+)
+       AND DESTINATARIO.CODCIDADE = CIDADE_E.CODCIDADE(+)
+       AND CIDADE_E.UF = UF_E.UF(+)
+       AND UF_E.CODPAIS = PAIS_E.CODPAIS(+)
+       AND PCNFSAID.NUMTRANSVENDA = P_TRANSACAO_CONHECIMENTO
+       AND ((NVL(PCNFSAID.UTILIZAEXPDIVERSOS, 'N') = 'N')
+        OR ((NVL(PCNFSAID.UTILIZAEXPDIVERSOS, 'N') = 'S')
+           AND (NVL(SUBSTR(PCNFBASE.CODFISCAL, 0, 1) ,0) <> 5)))
+       
+    UNION
+    
+    SELECT DESTINATARIO.CGC AS CGCENT,
+           DESTINATARIO.IE AS IEENT,
+           NULL AS SULFRAMA,
+           CASE
+             WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('AMBIENTECTE',
+                                                    NVL(PCNFSAID.CODFILIALNF,
+                                                        PCNFSAID.CODFILIAL)),
+                      'H') = 'P' THEN
+              'DIVERSOS'
+             ELSE
+              'CT-E EMITIDO EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL'
+           END AS CLIENTE,
+           DESTINATARIO.ENDER AS ENDERENT,
+           NVL(DESTINATARIO.NUMEROEND, 'S/N') AS NUMEROENT,
+           DESTINATARIO.COMPLEMENTOEND AS COMPLEMENTOENT,
+           DESTINATARIO.BAIRRO AS BAIRROENT,
+           CIDADE_E.CODIBGE,
+           CIDADE_E.NOMECIDADE,
+           DESTINATARIO.CEP,
+           CIDADE_E.UF,
+           PCNFSAID.CODPAIS AS CODPAIS,
+           PCNFSAID.DESCPAIS AS DESCRICAO,
+           DESTINATARIO.TELFAB AS TELENT,
+           NVL(PCNFSAID.CONTRIBUINTE, 'N') CONTRIBUINTE, 
+           DECODE(DESTINATARIO.TIPOPESSOA,'F','S','N') AS CONSUMIDOR_FINAL
+      FROM PCFORNEC DESTINATARIO,
+           PCCIDADE CIDADE_E,
+           PCESTADO UF_E,
+           PCPAIS PAIS_E,
+           PCNFSAID,
+           PCFILIAL,
+           PCNFBASE
+     WHERE NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) = PCFILIAL.CODIGO
+       AND PCFILIAL.CODFORNEC = DESTINATARIO.CODFORNEC
+       AND PCNFSAID.NUMTRANSVENDA = PCNFBASE.NUMTRANSVENDA(+)
+       AND DESTINATARIO.CODCIDADE = CIDADE_E.CODCIDADE(+)
+       AND CIDADE_E.UF = UF_E.UF(+)
+       AND UF_E.CODPAIS = PAIS_E.CODPAIS(+)
+       AND PCNFSAID.NUMTRANSVENDA = P_TRANSACAO_CONHECIMENTO
+       AND ((NVL(PCNFSAID.UTILIZAEXPDIVERSOS, 'N') = 'S')
+           AND (NVL(SUBSTR(PCNFBASE.CODFISCAL, 0, 1) ,0) = 5));
+
+  RETORNO TABELA_CTE_DESTINATARIO;
+
+BEGIN
+  RETORNO := TABELA_CTE_DESTINATARIO();
+
+  FOR CLIENTE IN CR_CLIENTE LOOP
+    RETORNO.EXTEND;
+    RETORNO(RETORNO.COUNT) := TIPO_CTE_DESTINATARIO(NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL,
+                                                    NULL);
+                                                    
+    RETORNO(RETORNO.COUNT).CNPJ_CPF           := CLIENTE.CGCENT;
+    RETORNO(RETORNO.COUNT).INSCRICAO_ESTADUAL := CLIENTE.IEENT;
+    RETORNO(RETORNO.COUNT).INSCRICAO_SUFRAMA  := CLIENTE.SULFRAMA;
+    RETORNO(RETORNO.COUNT).RAZAO_SOCIAL       := CLIENTE.CLIENTE;
+    RETORNO(RETORNO.COUNT).LOGRADOURO         := CLIENTE.ENDERENT;
+    RETORNO(RETORNO.COUNT).NUMERO             := CLIENTE.NUMEROENT;
+    RETORNO(RETORNO.COUNT).COMPLEMENTO        := CLIENTE.COMPLEMENTOENT;
+    RETORNO(RETORNO.COUNT).BAIRRO             := CLIENTE.BAIRROENT;
+    RETORNO(RETORNO.COUNT).CODIGO_MUNICIPIO   := CLIENTE.CODIBGE;
+    RETORNO(RETORNO.COUNT).NOME_MUNICIPIO     := CLIENTE.NOMECIDADE;
+    RETORNO(RETORNO.COUNT).CEP                := CLIENTE.CEPENT;
+    RETORNO(RETORNO.COUNT).SIGLA_UF           := CLIENTE.UF;
+    RETORNO(RETORNO.COUNT).CODIGO_PAIS        := CLIENTE.CODPAIS;
+    RETORNO(RETORNO.COUNT).NOME_PAIS          := CLIENTE.DESCRICAO;
+    RETORNO(RETORNO.COUNT).TELEFONE           := CLIENTE.TELENT;           
+    RETORNO(RETORNO.COUNT).CONSUMIDOR_FINAL   := CLIENTE.CONSUMIDOR_FINAL;
+    RETORNO(RETORNO.COUNT).CONTRIBUINTE       := CLIENTE.CONTRIBUINTE;                                         
+  END LOOP;
+
+  RETURN RETORNO;
+EXCEPTION
+  WHEN OTHERS THEN  
+    raise_application_error(-20001, 'Erro motivo: ' || SQLERRM || '. Linha: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);
+END;
