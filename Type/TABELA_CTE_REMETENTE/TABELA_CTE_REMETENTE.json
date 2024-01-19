@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_REMETENTE",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_REMETENTE",
+   "tipo": "MIGRATION",
+   "versao": "5.0.02.000"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_CTE_DESTINATARIO",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "TIPO_CTE_DESTINATARIO",
+   "tipo": "MIGRATION",
+   "versao": "5.0.02.000"
+  }
+ ]
+}
