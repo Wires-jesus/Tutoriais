@@ -1,0 +1,11 @@
+{
+ "nome":"OBTERPROXIMONUMERONOTANFE",
+ "tipoPLSQL":"PROCEDURE",
+ "dependencias": [
+ {
+  "nome": "OBTERPROXIMONUMERONFE",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "2.1.01.000"
+ }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "nome":"OBTERPROXIMONUMERONFE",
+ "tipoPLSQL":"PROCEDURE",
+ "dependencias": [
+ {
+  "nome": "PCFILIALSEQNFEPORPRODUTO",
+  "tipo": "TABELA",
+  "versao": "2.1.01.000"
+ }
+ ]
+}
