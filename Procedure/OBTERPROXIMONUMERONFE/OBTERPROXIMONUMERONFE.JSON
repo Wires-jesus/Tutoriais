@@ -1,6 +1,6 @@
 {
  "nome":"OBTERPROXIMONUMERONFE",
- "tipoPLSQL":"PROCEDURE",
+ "tipoPLSQL" : "PROCEDURE",
  "dependencias": [
  {
   "nome": "PCFILIALSEQNFEPORPRODUTO",

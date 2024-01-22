@@ -3,8 +3,8 @@ create or replace procedure OBTERPROXIMONUMERONFE(P_ROTAPRINCIPAL in varchar2 de
                                                   P_MOVIMENTO     in varchar2 default '',
                                                   P_SEFAZORIGEM   in varchar2 default 'P',
                                                   P_TIPONUMERADOR in varchar2 default '',
-                                                  P_CODFILIALDESTINO in varchar2 default '',--usado no processo de venda para deposito fechado
-                                                  P_CODGRUPO_SEQ_PROD in number default null,--usado no processo de sequencia por produto
+                                                  P_CODFILIALDESTINO in varchar2 default '', --usado no processo de venda para deposito fechado
+                                                  P_CODGRUPO_SEQ_PROD in number default null, --usado no processo de sequencia por produto
                                                   P_NUMERO        out number,
                                                   P_SERIE         out number,
                                                   P_RESULTADO     out number,

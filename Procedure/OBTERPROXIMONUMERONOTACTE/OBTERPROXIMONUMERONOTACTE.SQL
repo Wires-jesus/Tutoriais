@@ -406,7 +406,7 @@ BEGIN
     WHEN OTHERS THEN
       P_RESULTADO := 1;
       P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
-                     ' - Erro ao tentar atualizar o proximo numero para o CT-e informado. ' ||
+                     ' - Erro ao tentar atualizar o próximo numero para o CT-e informado. ' ||
                      SQLCODE || ' - ' || SQLERRM;
       ROLLBACK;
       RETURN;
