@@ -1528,7 +1528,7 @@ begin
     end;
     --------------------------------------serie especifica por produto---------------------------------------------- 
 
-    ---Melhoria para passar a consumir uma serie e numeração difernetes para nota devolução de transferencia de deposito fechado---
+    ---Melhoria para passar a consumir uma serie e numeração diferentes para nota devolução de transferencia de deposito fechado---
     ---HIS.02186.2016 - Eddy Pereira
     if ((CONTROLE_NFE_DEP_FECHADO = 'S') AND
        (TIPODESCARGA IN ('6', '7', '8', 'T'))) then
