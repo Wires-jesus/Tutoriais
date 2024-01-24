@@ -539,7 +539,9 @@ IS
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLPARCELAS )
             FUNCTION retornar_xmlparcelas(p_numpedecf NUMBER,
-                                          p_seqdocto  NUMBER)
+                                          p_seqdocto  NUMBER,
+										  p_numcheckout NUMBER,
+										  p_codfilial NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeparcela   XMLTYPE;
@@ -640,14 +642,18 @@ IS
                                        p.carteiradigital AS "Carteiradigital" ))))
                   INTO l_xmltypeparcela
                   FROM vw_int_c5_pcprestecf p
-                 WHERE p.seqdocto = p_seqdocto;
+                 WHERE p.seqdocto = p_seqdocto
+				   AND p.numcheckout = p_numcheckout
+                   AND P.codfilial = p_codfilial;
 
                 RETURN l_xmltypeparcela;
             END retornar_xmlparcelas;
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLDOCELETRONICO )
             FUNCTION retornar_xmldoceletronico(p_numpedecf NUMBER,
-                                               p_seqdocto  NUMBER)
+                                               p_seqdocto  NUMBER,
+											   p_numcaixa NUMBER,
+											   p_codfilial NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypedoceletronico   XMLTYPE;
@@ -670,14 +676,18 @@ IS
                                        a.xmlnfcecancelamento AS "Xmlnfcecancelamento" ))))
                   INTO l_xmltypedoceletronico
                   FROM vw_int_c5_pcdoceletronico a
-                 WHERE a.seqdocto = p_seqdocto;
+                 WHERE a.seqdocto = p_seqdocto
+				   AND a.numcaixa = p_numcaixa
+                   AND a.codfilial = p_codfilial;
 
                 RETURN l_xmltypedoceletronico;
             END retornar_xmldoceletronico;
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLCONSUMIDORFINAL )
             FUNCTION retornar_xmlconsumidorfinal(p_numpedecf NUMBER,
-                                                  p_seqdocto NUMBER)
+                                                 p_seqdocto NUMBER,
+												 p_numcaixa NUMBER,
+												 p_codfilial NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeconsumidorfinal   XMLTYPE;
@@ -712,7 +722,9 @@ IS
                                        a.NUMEROENT AS "Numeroent" ))))
                   INTO l_xmltypeconsumidorfinal
                   FROM vw_int_c5_pcvendaconsumecf a
-                 WHERE a.seqdocto = p_seqdocto;
+                 WHERE a.seqdocto = p_seqdocto
+				   AND a.numcaixa = p_numcaixa
+                   AND a.codfilial = p_codfilial;
 
                 RETURN l_xmltypeconsumidorfinal;
             END retornar_xmlconsumidorfinal;
@@ -740,9 +752,9 @@ IS
             l_xmlcabecalho := retornar_xmlcabecalho(r_pedido,
                                                     v_numpedecf,
                                                     r_pedido.seqdocto);
-            l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto);
-            l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto);
-            l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto);
+            l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
+            l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
+            l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
 
             --L_XMLLOGDADOSPESSOAS := RETORNAR_XMLLOGDADOSPESSOAS(V_NUMPEDECF, R_PEDIDO.SEQDOCTO);
 
@@ -915,11 +927,7 @@ IS
         ------------- INÍCIO LOOP C_PEDIDO ---------------
         EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
-        OPEN c_pedido;
-
-        FETCH c_pedido   INTO r_pedido;
-
-        WHILE c_pedido%FOUND
+		FOR r_pedido IN c_pedido
         LOOP
             BEGIN
                 -- REGRAS DO CABEÇALHO DA NF DE VENDA
@@ -957,10 +965,8 @@ IS
             --ROLLBACK;
             END;
 
-            FETCH c_pedido   INTO r_pedido;
         END LOOP;
 
-        CLOSE c_pedido;
     ------------- FIM LOOP C_PEDIDO ---------------
     END processar_venda;
 

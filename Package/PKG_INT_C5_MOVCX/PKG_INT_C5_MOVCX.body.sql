@@ -218,12 +218,8 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
     ------------- INICIO LOOP C_LOGABERTURACX ---------------
     EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
-    OPEN c_logaberturacx;
-
-    FETCH c_logaberturacx
-      INTO r_logaberturacx;
-
-    WHILE c_logaberturacx%FOUND LOOP
+	FOR r_logaberturacx IN c_logaberturacx
+	LOOP
       BEGIN
         -- insere os dados da PCFILAMENSAGEM
         dados_pcfilamensagem := retornar_pcfilamensagem(r_logaberturacx);
@@ -247,11 +243,9 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
           --ROLLBACK;
       END;
 
-      FETCH c_logaberturacx
-        INTO r_logaberturacx;
+
     END LOOP;
 
-    CLOSE c_logaberturacx;
     ------------- FIM LOOP C_LOGABERTURACX ---------------
   END processar_movimento_caixa;
 END PKG_INT_C5_MOVCX;

@@ -362,11 +362,7 @@ IS
         --IN CIO LOOP C_CANC_CABECALHO
         EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
-        OPEN c_canc_cabecalho;
-
-        FETCH c_canc_cabecalho   INTO r_canc_cabecalho;
-
-        WHILE c_canc_cabecalho%FOUND
+		FOR r_canc_cabecalho IN c_canc_cabecalho
         LOOP
 		
 		  IF (verificar_se_venda_existe(r_canc_cabecalho)) THEN
@@ -428,10 +424,8 @@ IS
 		  
 
 
-            FETCH c_canc_cabecalho   INTO r_canc_cabecalho;
         END LOOP;
 
-        CLOSE c_canc_cabecalho;
 
         --COMMIT;
     -- FIM LOOP C_CANC_CABECALHO
