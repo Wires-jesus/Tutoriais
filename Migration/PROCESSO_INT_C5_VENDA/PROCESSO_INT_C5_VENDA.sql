@@ -1041,12 +1041,18 @@ IS
 BEGIN
  vVlDesc := 0;
 SELECT  i.vlrdesconto
- INTO  vVlDesc
-  FROM  monitorpdvmiddle.tb_doctoitem i,
+ INTO   vVlDesc
+ FROM   monitorpdvmiddle.tb_doctoitem i,
+        monitorpdvmiddle.tb_doctoacrescdesctoitem ia,
         monitorpdvmiddle.tb_doctoacrescdescto a
  WHERE  i.nroempresa = a.nroempresa
    AND  i.nrocheckout = a.nrocheckout
+   AND  ia.seqitem = i.seqitem
    AND  i.seqdocto = a.seqdocto
+   AND  ia.seqdocto = a.seqdocto
+   AND  ia.nrocheckout = a.nrocheckout
+   and  ia.nroempresa = a.nroempresa
+   and  ia.seqacrescdescto = a.seqacrescdescto
    AND  i.seqdocto = pSeqdocto
    AND  i.nroempresa = pCodFilial
    AND  i.nrocheckout = pNumCaixa
