@@ -4226,8 +4226,7 @@ IS
                        WHERE PCMOV.NUMNOTA = PCNFENT.NUMNOTA
                          AND PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
                          AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
-                         AND PCNFENT.DTENT BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13)||'
-                         AND PCMOV.DTMOV >= (SELECT MIN(DTMOV) FROM PCMOV)'||CHR(13);
+                         AND PCNFENT.DTENT BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13);
      IF psCODFILIAL IS NOT NULL THEN
        vsSQL := vsSQL||'                         AND NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
      END IF;
@@ -4271,8 +4270,7 @@ IS
                        WHERE PCMOV.NUMNOTA = PCNFENT.NUMNOTA
                          AND PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
                          AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
-                         AND TRUNC(PCMOV.DTCANCEL) BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13)||'
-                         AND PCMOV.DTMOV >= (SELECT MIN(DTMOV) FROM PCMOV)'||CHR(13);
+                         AND PCMOV.DTCANCEL BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13);
      IF psCODFILIAL IS NOT NULL THEN
        vsSQL := vsSQL||'                         AND NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
      END IF;
@@ -4291,7 +4289,7 @@ IS
      END IF;
        vsSQL := vsSQL||'                         AND PCMOV.STATUS IN (''A'', ''AB'')
                          AND NVL(PCNFENT.FINALIDADENFE, ''O'') <> ''C''
-                    GROUP BY TRUNC(PCMOV.DTCANCEL),
+                    GROUP BY PCMOV.DTCANCEL,
                              NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL),
                              PCMOV.CODPROD
                        ---------------------------------------------------------
@@ -4308,8 +4306,7 @@ IS
                        WHERE PCMOV.NUMNOTA = PCNFSAID.NUMNOTA
                          AND PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
                          AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
-                         AND PCNFSAID.DTSAIDA BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13)||'
-                         AND PCMOV.DTMOV >= (SELECT MIN(DTMOV) FROM PCMOV)'||CHR(13);
+                         AND PCNFSAID.DTSAIDA BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13);
      IF psCODFILIAL IS NOT NULL THEN
        vsSQL := vsSQL||'                         AND NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
      END IF;
@@ -4345,8 +4342,7 @@ IS
                        WHERE PCMOV.NUMNOTA = PCNFSAID.NUMNOTA
                          AND PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
                          AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
-                         AND TRUNC(PCMOV.DTCANCEL) BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13)||'
-                         AND PCMOV.DTMOV >= (SELECT MIN(DTMOV) FROM PCMOV)'||CHR(13);
+                         AND PCMOV.DTCANCEL BETWEEN '||CHR(39)||TO_CHAR(pdDTINICIAL,'DD-MON-RRRR')||CHR(39)||' AND '||CHR(39)||TO_CHAR(pdDTFINAL,'DD-MON-RRRR')||CHR(39)||CHR(13);
      IF psCODFILIAL IS NOT NULL THEN
        vsSQL := vsSQL||'                         AND NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
      END IF;
@@ -4390,8 +4386,11 @@ IS
                          AND NOT EXISTS (SELECT 1
                                            FROM PCNFSAID
                                           WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
-                                            AND PCNFSAID.ESPECIE IN (''NF'', ''CF'',''NP'', ''CP'',''NE'')
-                                            AND PCNFSAID.VLTOTAL > 0)
+                                            AND PCNFSAID.ESPECIE IN (''NF'', ''CF'',''NP'', ''CP'',''NE'')'||CHR(13);
+IF psCODFILIAL IS NOT NULL THEN
+  vsSQL := vsSQL||'                         AND NVL(PCNFSAID.CODFILIALNF,PCNFSAID.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
+END IF;                        
+  vsSQL := vsSQL||'                         AND PCNFSAID.VLTOTAL > 0)
                          AND PCMOV.STATUS IN (''A'', ''AB'')
                     GROUP BY PCMOV.DTMOV,
                              NVL(PCMOV.CODFILIALNF,PCMOV.CODFILIAL),
@@ -4831,18 +4830,28 @@ END IF;
                             AND PCMOV.STATUS IN (''B'', ''AB'')
                             AND (NOT EXISTS (SELECT NUMPED
                                                FROM PCPEDC
-                                              WHERE NUMPED = DECODE(PCMOV.CODOPER, ''EP'', -1, ''SP'',-1, PCMOV.NUMPED)
-                                                AND CONDVENDA = 7) OR (SUBSTR(PCMOV.CODOPER,1,1) = ''E''))
+                                              WHERE NUMPED = DECODE(PCMOV.CODOPER, ''EP'', -1, ''SP'',-1, PCMOV.NUMPED)'||CHR(13);                        
+IF psCODFILIAL IS NOT NULL THEN
+  vsSQL := vsSQL||'                             AND PCPEDC.CODFILIAL = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
+END IF;                        
+  vsSQL := vsSQL||'                             AND CONDVENDA = 7) OR (SUBSTR(PCMOV.CODOPER,1,1) = ''E''))
                             AND NOT (PCMOV.CODOPER IN (''EA'',''SA'') AND PCMOVCOMPLE.NUMINVENT IS NOT NULL)
                             AND NVL(PCMOVCOMPLE.MOVEST,''S'') = ''S''
                             AND NOT (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(''DEVOLVESIMPLESREMTV13TOTAL'',PCMOV.CODFILIAL,''N'') = ''S'' AND PCMOV.ROTINACAD LIKE ''%1332%'' AND NVL(PCMOVCOMPLE.QTRETORNOTV13,0) = 0)
-                            AND NOT EXISTS (SELECT NUMNOTA FROM PCNFSAID WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA AND SITUACAONFE IN (110,205,301,302,303))
+                            AND NOT EXISTS (SELECT NUMNOTA FROM PCNFSAID WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA '||CHR(13);
+IF psCODFILIAL IS NOT NULL THEN
+  vsSQL := vsSQL||'         AND NVL(PCNFSAID.CODFILIALNF,PCNFSAID.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
+END IF;                        
+  vsSQL := vsSQL||'     AND SITUACAONFE IN (110,205,301,302,303))
                             AND NOT EXISTS (SELECT DISTINCT (PCNFSAID.NUMTRANSVENDA)
                                               FROM PCNFSAID
                                                   ,PCPRODUT
                                              WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
-                                               AND PCNFSAID.CODFILIAL = PCMOV.CODFILIAL
-                                               AND PCMOV.CODOPER = ''S''
+                                               AND PCNFSAID.CODFILIAL = PCMOV.CODFILIAL'||CHR(13);
+IF psCODFILIAL IS NOT NULL THEN
+  vsSQL := vsSQL||'                            AND NVL(PCNFSAID.CODFILIALNF,PCNFSAID.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
+END IF;                        
+  vsSQL := vsSQL||'                            AND PCMOV.CODOPER = ''S''
                                                AND PCNFSAID.CONDVENDA IN (4, 7, 14)
                                                AND PCMOV.CODPROD = PCPRODUT.CODPROD
                                                AND PCPRODUT.TIPOMERC = ''CB'')
