@@ -89,7 +89,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
    vnVLCREDDISPONIVELTOTAL PCCLIENT.LIMCRED%TYPE;
    VNCODMOTIVO                PCBLOQUEIOSPEDIDO.CODMOTIVO%TYPE;
-	 VNCODMOTIVOBLOQUEIO        PCBLOQUEIOSPEDIDO.CODMOTBLOQUEIO%TYPE;
+   VNCODMOTIVOBLOQUEIO        PCBLOQUEIOSPEDIDO.CODMOTBLOQUEIO%TYPE;
    VSMOTIVO                   PCBLOQUEIOSPEDIDO.MOTIVO%TYPE;
    VSPOSICAO                  PCBLOQUEIOSPEDIDO.STATUS%TYPE;
    VSCOMBOCONTINUO            VARCHAR2(1);
@@ -256,7 +256,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
           IF (p_regpedido.POSICAOORIG <> VSPOSICAO) THEN
               p_regpedido.valido := FALSE;
-		          integradora_comple.proc_delitensped(p_regpedido, 'R');
+              integradora_comple.proc_delitensped(p_regpedido, 'R');
               integradora_comple.vLog.NUMPEDRCA          := p_regpedido.numpedrca;
               integradora_comple.vLog.CODUSUR            := p_regpedido.CODUSUR;
               integradora_comple.vLog.CGCCLI             := p_regpedido.CGCCLI;
@@ -414,7 +414,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     vMensagem          VARCHAR2(4000);
     vValido            BOOLEAN;
-	vCursorEstoque     integradora_comple.T_CURSOR_ESTOQUE_LOCK;
+  vCursorEstoque     integradora_comple.T_CURSOR_ESTOQUE_LOCK;
 
   BEGIN
     /*
@@ -462,7 +462,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                           vMensagem,
                                           vValido,
                                           vCursorEstoque);*/
-	  vValido := TRUE;
+    vValido := TRUE;
       if vValido = TRUE then
 
       FOR cr_pedcab IN (SELECT numpedrca,
@@ -548,7 +548,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                NVL(gerabrinde,'S') gerabrinde,
                                descintermediador,
                                cnpjintermediador,
-							   Opervendaexpindireta
+                 Opervendaexpindireta
                           FROM pcpedcfv
                          WHERE importado = p_tipoleitura
                            AND (NVL(trunc(dtinclusao),
@@ -573,7 +573,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
              where i.numpedrcafv = cr_pedcab.numpedrca
                --DDVENDAS-21600
                and ((cr_pedcab.vendaassistida = 'N' AND  i.codusur     = cr_pedcab.codusur) OR  (cr_pedcab.vendaassistida = 'S'))
-			   --and i.codusur     = cr_pedcab.codusur
+         --and i.codusur     = cr_pedcab.codusur
                and nvl(i.dtaberturapedpalmfv, cr_pedcab.dtaberturapedpalm) = cr_pedcab.dtaberturapedpalm;
 
           END IF;
@@ -682,7 +682,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           integradora_comple.gregpedido.codemitente           := nvl(cr_pedcab.codemitente, 8888);
           integradora_comple.gregpedido.descintermediador     := cr_pedcab.descintermediador;
           integradora_comple.gregpedido.cnpjintermediador     := cr_pedcab.cnpjintermediador;
-		  integradora_comple.gregpedido.opervendaexpindireta  := cr_pedcab.opervendaexpindireta;
+      integradora_comple.gregpedido.opervendaexpindireta  := cr_pedcab.opervendaexpindireta;
 
           IF NVL(integradora_comple.gregpedido.dtentrega,
                  TRUNC(SYSDATE)) < TRUNC(SYSDATE)
@@ -855,7 +855,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                 IF (cr_pedcab.condvenda = 7) and cr_pedcorp.tipoentrega IN ('EN', 'EF')
                 THEN
                     integradora_comple.gregitem.dtentrega           := nvl(cr_pedcorp.Dtentrega,cr_pedcab.dtentrega);
-                END IF;                
+                END IF;
                 vbleritemok                  := TRUE;
 
                 -----------------------------------------------------------
@@ -970,8 +970,8 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                              NULL);
         END;
       END LOOP;
-	  END IF;
-	  --Fim bloqueio estoque para importar
+    END IF;
+    --Fim bloqueio estoque para importar
     END IF;
     --fim pedidos
 
@@ -1764,7 +1764,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     vicontador                 NUMBER;
     vsmensagem                 VARCHAR2(32767) := NULL;
-	vsmensagem_cliente         VARCHAR2(32767) := NULL;
+  vsmensagem_cliente         VARCHAR2(32767) := NULL;
     vschar                     VARCHAR2(1) DEFAULT '#';
     vnnivelvendacli            pccob.nivelvenda%TYPE;
     vsnumregiao                pcregiao.numregiao%TYPE;
@@ -1841,18 +1841,18 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
     END IF;
 
   IF NVL(P_REGPEDIDO.VLFRETE,0) < 0
-	  THEN
-	    IF vsmensagem IS NOT NULL
-		  THEN
-		    vschar := '#';
-		  ELSE
+    THEN
+      IF vsmensagem IS NOT NULL
+      THEN
+        vschar := '#';
+      ELSE
             vschar := NULL;
-		END IF;
+    END IF;
 
       vsmensagem := vsmensagem || vschar || 'VALOR INVALIDO PARA O FRETE: ' || NVL(P_REGPEDIDO.VLFRETE,0) || '. ACEITO SOMENTE VALOR POSITIVO OU ZERADO.';
       p_regpedido.valido := FALSE;
 
-	END IF;
+  END IF;
 
     IF (ferramentas.F_BUSCARPARAMETRO_ALFA('FIL_USAESTOQUEDEPFECHADO',
                                               p_regpedido.codfilial,
@@ -1887,7 +1887,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
       END IF;
     END IF;
 
-	IF (p_regpedido.codfilial <> p_regpedido.codfilialnf) and
+  IF (p_regpedido.codfilial <> p_regpedido.codfilialnf) and
        (p_regpedido.condvenda = 11)
     THEN
       IF vsmensagem IS NOT NULL THEN
@@ -2006,9 +2006,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         FROM pcpedc,
              pcclient
        WHERE numpedrca = p_regpedido.numpedorig
-	     --DDVENDAS-21600
-		 and ((p_regpedido.vendaassistida = 'N' AND  pcpedc.codusur = p_regpedido.codusur) OR  (p_regpedido.vendaassistida = 'S'))
-		 --AND pcpedc.codusur = p_regpedido.codusur
+       --DDVENDAS-21600
+     and ((p_regpedido.vendaassistida = 'N' AND  pcpedc.codusur = p_regpedido.codusur) OR  (p_regpedido.vendaassistida = 'S'))
+     --AND pcpedc.codusur = p_regpedido.codusur
          AND nvl(pcpedc.brinde,
                  'N') <> 'S'
          AND pcpedc.numpedorigem IS NULL
@@ -2048,8 +2048,8 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             FROM pcpedc,
                  pcclient
            WHERE numpedrca = p_regpedido.numpedorig
-		     --DDVENDAS-21600
-			 AND pcpedc.condvenda = p_Regpedido.condvenda
+         --DDVENDAS-21600
+       AND pcpedc.condvenda = p_Regpedido.condvenda
              and ((p_regpedido.vendaassistida = 'N' AND  pcpedc.codusur     = p_regpedido.codusur) OR  (p_regpedido.vendaassistida = 'S'))
 --             AND pcpedc.codusur = p_regpedido.codusur
              AND nvl(pcpedc.brinde,'N') <> 'S'
@@ -3216,32 +3216,32 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         END IF;
 
         -- Validar SUFRAMA vencido
-		IF (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VALIDARDATAVENCSUFRAMA',99, 'S') = 'S')
-		THEN
+    IF (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VALIDARDATAVENCSUFRAMA',99, 'S') = 'S')
+    THEN
 
-			SELECT COUNT(*)
-			  INTO vicontador
-			  FROM PCCLIENT C
-			 WHERE c.CODCLI = p_regpedido.codcli
-			   AND nvl(c.sulframa,'X') <> 'X'
-			   AND c.dtvencsuframa < trunc(sysdate);
+      SELECT COUNT(*)
+        INTO vicontador
+        FROM PCCLIENT C
+       WHERE c.CODCLI = p_regpedido.codcli
+         AND nvl(c.sulframa,'X') <> 'X'
+         AND c.dtvencsuframa < trunc(sysdate);
 
-			IF vicontador > 0
-			THEN
+      IF vicontador > 0
+      THEN
 
-			  IF vsmensagem IS NOT NULL
-			  THEN
-				vschar := '#';
-			  ELSE
-				vschar := NULL;
-			  END IF;
+        IF vsmensagem IS NOT NULL
+        THEN
+        vschar := '#';
+        ELSE
+        vschar := NULL;
+        END IF;
 
-			  vsmensagem         := vsmensagem || vschar || 'Cliente com SUFRAMA vencido. Venda não permitida;';
-			  p_regpedido.valido := FALSE;
+        vsmensagem         := vsmensagem || vschar || 'Cliente com SUFRAMA vencido. Venda não permitida;';
+        p_regpedido.valido := FALSE;
 
 
-			END IF;
-		END IF;
+      END IF;
+    END IF;
 
         --155722
         IF p_regfilial.usaabatimento = 'S'
@@ -4512,9 +4512,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                 select max(c.prazomedio) into p_regpedido.prazomedio
                   from pcpedc c
                  where c.numpedrca = p_regpedido.numpedorig
-				   --DDVENDAS-21600
+           --DDVENDAS-21600
                    and ((p_regpedido.vendaassistida = 'N' AND  c.codusur     = p_regpedido.codusur) OR  (p_regpedido.vendaassistida = 'S'))
-				   --and c.codusur   = p_regpedido.codusur
+           --and c.codusur   = p_regpedido.codusur
                    and c.dtaberturapedpalm = p_regpedido.dtaberturapedpalm
                    and c.condvenda <> 5;
 
@@ -4704,7 +4704,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                      TRIM(codfilial),
                      nvl(pccob.cartao,
                          'N'),
-					 nvl(pccob.naovalidaprazomedio,
+           nvl(pccob.naovalidaprazomedio,
                          'N')
                 INTO p_Regcob
                 FROM pccob
@@ -4773,7 +4773,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                      TRIM(codfilial),
                      nvl(pccob.cartao,
                          'N'),
-					 nvl(pccob.naovalidaprazomedio,
+           nvl(pccob.naovalidaprazomedio,
                          'N')
                 INTO p_Regcob
                 FROM pccob
@@ -4787,74 +4787,74 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             END IF;
 
           END IF;
-		-- busca nivel da cobranca do cliente
-			SELECT COUNT(*)
-				INTO vicontador
-			FROM pccob
-			WHERE UPPER(TRIM(codcob)) = p_regcliente.codcob;
+    -- busca nivel da cobranca do cliente
+      SELECT COUNT(*)
+        INTO vicontador
+      FROM pccob
+      WHERE UPPER(TRIM(codcob)) = p_regcliente.codcob;
 
-			IF vicontador > 0
-			THEN
+      IF vicontador > 0
+      THEN
 
-				SELECT NVL(nivelvenda,
-						   0)
-				  INTO vnnivelvendacli
-				  FROM pccob
-				 WHERE UPPER(TRIM(codcob)) = p_regcliente.codcob;
+        SELECT NVL(nivelvenda,
+               0)
+          INTO vnnivelvendacli
+          FROM pccob
+         WHERE UPPER(TRIM(codcob)) = p_regcliente.codcob;
 
-			ELSE
+      ELSE
 
-				vnnivelvendacli := 0;
-				IF vsmensagem IS NOT NULL
-				THEN
-				  vschar := '#';
-				ELSE
-				  vschar := NULL;
-				END IF;
-				vsmensagem := vsmensagem || vschar || 'NIVEL DA COBRANCA DO CLIENTE (' || p_regcliente.codcob || ') NAO LOCALIZADA;';
+        vnnivelvendacli := 0;
+        IF vsmensagem IS NOT NULL
+        THEN
+          vschar := '#';
+        ELSE
+          vschar := NULL;
+        END IF;
+        vsmensagem := vsmensagem || vschar || 'NIVEL DA COBRANCA DO CLIENTE (' || p_regcliente.codcob || ') NAO LOCALIZADA;';
 
-				p_regpedido.valido := FALSE;
+        p_regpedido.valido := FALSE;
 
-			END IF;
+      END IF;
 
-			IF (p_Regcob.nivelvenda < vnnivelvendacli)
-			 AND vbvalidanivelcob = TRUE
-			THEN
+      IF (p_Regcob.nivelvenda < vnnivelvendacli)
+       AND vbvalidanivelcob = TRUE
+      THEN
 
-				IF vsmensagem IS NOT NULL
-				THEN
-				  vschar := '#';
-				ELSE
-				  vschar := NULL;
-				END IF;
-				vsmensagem := vsmensagem || vschar || 'NIVEL DE VENDA INFERIOR#' || 'AO NIVEL DE VENDA DO CLIENTE#' || 'NIVEL DA COBRANCA#' || p_Regcob.nivelvenda || ';' || 'NIVEL DO CLIENTE ' ||
-							  vnnivelvendacli || ';';
+        IF vsmensagem IS NOT NULL
+        THEN
+          vschar := '#';
+        ELSE
+          vschar := NULL;
+        END IF;
+        vsmensagem := vsmensagem || vschar || 'NIVEL DE VENDA INFERIOR#' || 'AO NIVEL DE VENDA DO CLIENTE#' || 'NIVEL DA COBRANCA#' || p_Regcob.nivelvenda || ';' || 'NIVEL DO CLIENTE ' ||
+                vnnivelvendacli || ';';
 
-				p_regpedido.valido := FALSE;
+        p_regpedido.valido := FALSE;
 
-			END IF;
+      END IF;
 
-			IF p_regcob.naovalidaprazomedio = 'N'
-			THEN
-			  IF ((p_regcob.prazomaximovenda < p_regplpag.numdias and p_regplpag.formaparcelamento <> 'V') OR
-				  (p_regcob.prazomaximovenda < p_regpedido.prazomedio and p_regplpag.formaparcelamento = 'V'))
-				 AND vbvalidanivelcob = TRUE
-			  THEN
+      IF p_regcob.naovalidaprazomedio = 'N'
+      THEN
+        IF ((p_regcob.prazomaximovenda < p_regplpag.numdias and p_regplpag.formaparcelamento <> 'V') OR
+          (p_regcob.prazomaximovenda < p_regpedido.prazomedio and p_regplpag.formaparcelamento = 'V'))
+         AND vbvalidanivelcob = TRUE
+        THEN
 
-				IF vsmensagem IS NOT NULL
-				THEN
-				  vschar := '#';
-				ELSE
-				  vschar := NULL;
-				END IF;
+        IF vsmensagem IS NOT NULL
+        THEN
+          vschar := '#';
+        ELSE
+          vschar := NULL;
+        END IF;
 
-				vsmensagem := vsmensagem || vschar || 'PRAZO MAXIMO DA COBRANCA#' || 'INFERIOR AO PRAZO DO PLANO#' || 'PRAZO MAXIMO DA COBRANCA ' || p_Regcob.prazomaximovenda || ';' ||
-							  'PRAZO DO PLANO ' || p_regplpag.numdias || ';';
+        vsmensagem := vsmensagem || vschar || 'PRAZO MAXIMO DA COBRANCA#' || 'INFERIOR AO PRAZO DO PLANO#' || 'PRAZO MAXIMO DA COBRANCA ' || p_Regcob.prazomaximovenda || ';' ||
+                'PRAZO DO PLANO ' || p_regplpag.numdias || ';';
 
-				p_regpedido.valido := FALSE;
+        p_regpedido.valido := FALSE;
 
-			  END IF;
-			END IF;
+        END IF;
+      END IF;
           IF p_regcob.codfilial IS NOT NULL
              AND p_Regcob.codfilial <> '99'
              AND
@@ -5449,7 +5449,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                                 P_REGCLIENTE.CODCLI) OR C.CODCLI IS NULL)
                                          --AND (C.CODPLPAG = P_REGPEDIDO.CODPLPAG OR C.CODPLPAG IS NULL)
                                          AND TRUNC(SYSDATE) BETWEEN C.DTINICIO AND C.DTFIM), 0) CODPRECOCESTA,
-										 NVL(KITABERTO,'N') KITABERTO
+                     NVL(KITABERTO,'N') KITABERTO
                              FROM PCFORMPROD P
                             WHERE P.CODPRODACAB = P_REGITEM.CODPROD) LOOP
 
@@ -5459,15 +5459,15 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
          p_regproduto.ptabela := 0;
       end if;
       vbvalidoprecofixocesta := true;
-	  if (reg_itenscesta.Kitaberto = 'S') then
-	    if vsmensagem is not null then
-		   vschar := '#';
-		else
-		   vschar := null;
-		end if;
-		 vsmensagem       := vsmensagem || vschar || 'Item cesta '||P_REGITEM.CODPROD||' kit aberto, processo não atendido na integradora, pedido será rejeitado';
-		 p_regitem.valido := false;
-	  end if;
+    if (reg_itenscesta.Kitaberto = 'S') then
+      if vsmensagem is not null then
+       vschar := '#';
+    else
+       vschar := null;
+    end if;
+     vsmensagem       := vsmensagem || vschar || 'Item cesta '||P_REGITEM.CODPROD||' kit aberto, processo não atendido na integradora, pedido será rejeitado';
+     p_regitem.valido := false;
+    end if;
       --utiliza venda por embalagem
       if p_regfilial.utilizavendaporembalagem = 'S' then
 
@@ -6316,12 +6316,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             FROM PCPLPAG
            WHERE PCPLPAG.CODPLPAG = p_regpedido.codplpag;
         END IF;
-	  ELSE
+    ELSE
          IF p_regfilial.utilizacontrolemedicamentos = 'N' AND
            reg_itenscesta.CODPRECOCESTA = 0
         THEN
           -- aplica taxa financeira do plano de pagamento
-		  vnptabela :=  INTEGRADORA_COMPLE.FUNC_RETORNARPTABELACESTA(P_REGREGIAO.NUMREGIAO,
+      vnptabela :=  INTEGRADORA_COMPLE.FUNC_RETORNARPTABELACESTA(P_REGREGIAO.NUMREGIAO,
                                                  P_REGFILIAL.TIPOPRECIFICACAO,
                                                  NVL(P_REGITEM.CODFILIALRETIRA,P_REGPEDIDO.CODFILIAL),
                                                  P_REGITEM.NUMPR,
@@ -6638,10 +6638,10 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
     vscoddistrib       IN pcprodut.coddistrib%TYPE,
     p_mensagem         OUT VARCHAR2,
     p_permaxdesc       OUT pcpedi.perdesc%TYPE,
-	vsMultiplicouPeso  OUT VARCHAR2
+  vsMultiplicouPeso  OUT VARCHAR2
   ) IS
 
-	fatorCoversaoEmbalagem       NUMBER := 1;
+  fatorCoversaoEmbalagem       NUMBER := 1;
     vicontador                   NUMBER := 0;
     vsmensagem                   VARCHAR2(32767) := NULL;
     vschar                       VARCHAR2(1) DEFAULT '#';
@@ -6752,7 +6752,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     p_regdesconto                integradora_comple.t_descontos;
     vsquestionausoprioritaria    pcdesconto.questionausoprioritaria%type;
-	vnPerDescMaxCad              NUMBER := 0;
+  vnPerDescMaxCad              NUMBER := 0;
 
     vsItemTV1BNF                 VARCHAR2(1);
     vnCondvenda                  pcpedc.condvenda%TYPE;
@@ -6808,12 +6808,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     vnPVALORDIFALIQUOTA       PCPEDI.PVENDA%TYPE;
     vsTipoContaCorrente       VARCHAR2(1);
-	  VNQTITEM_PEDORIG          NUMBER := 0;
+    VNQTITEM_PEDORIG          NUMBER := 0;
     vbRetornoRest             boolean;
     vsmensagem_restricao      VARCHAR2(1000);
     VNVLATEND_TEMP            PCPEDC.VLATEND%TYPE;
     VSMSGRETORNO_PSEMIMPOSTO  VARCHAR2(4000) := '';
-	  vJaCalculouptabela_semimpostos VARCHAR2(1);
+    vJaCalculouptabela_semimpostos VARCHAR2(1);
     vbClienteIsentoSt         BOOLEAN := FALSE;
     vnPvenda_Ant              PCPEDI.PVENDA%TYPE;
 
@@ -6835,7 +6835,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
     vsretirouimposto           := FALSE;
 
     vsmensagem := NULL;
-	vsMultiplicouPeso := 'N';
+  vsMultiplicouPeso := 'N';
     p_regorigempreco.valido := TRUE;
     p_regorigempreco.numped := p_regpedido.numped;
     p_regitem.codcli        := p_regpedido.codcli;
@@ -6852,7 +6852,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
     p_regorigemdesc.validarpoliticasdescclibloq := p_regfilial.validarpoliticasdescclibloq;
     p_regorigemdesc.PRECOFIXO                   := 'N';
     p_regorigemdesc.prioritariageral            := 'N';
-	tICMSPARTILHA := TIPO_ICMS_PARTILHA(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'N', 'N', null);
+  tICMSPARTILHA := TIPO_ICMS_PARTILHA(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'N', 'N', null);
 
     IF (p_regitem.bonific <> 'N'
       AND (p_regitem.bonific IN ('F', 'S'))) THEN
@@ -6923,11 +6923,11 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
       p_regitem.tipoentrega := NULL;
 
     END IF;
-    
-    IF p_regpedido.condvenda = 7 AND 
-          NVL(p_regitem.dtentrega,P_REGPEDIDO.dtentrega) IS NULL AND 
+
+    IF p_regpedido.condvenda = 7 AND
+          NVL(p_regitem.dtentrega,P_REGPEDIDO.dtentrega) IS NULL AND
             p_regitem.tipoentrega IN ('EN', 'EF') THEN
-       vsmensagem              := vsmensagem || vschar || 'PEDIDO COM TIPO ENTREGA ' || p_regitem.tipoentrega || ' NÃO FOI INFORMADO O CAMPO DTENTREGA'; 
+       vsmensagem              := vsmensagem || vschar || 'PEDIDO COM TIPO ENTREGA ' || p_regitem.tipoentrega || ' NÃO FOI INFORMADO O CAMPO DTENTREGA';
        p_regitem.valido        := FALSE;
     END IF;
 
@@ -6938,9 +6938,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
          WHERE pcpedi.numped = p_regpedido.numped
            and pcpedi.codusur = p_regpedido.codusur
            AND codprod = p_regitem.codprod
-           AND pcpedi.dtentrega is not null;      
+           AND pcpedi.dtentrega is not null;
        if vicontador > 0 then
-         vsmensagem              := vsmensagem || vschar || 'PEDIDO TV' || p_regpedido.condvenda || ' NÃO PODE TER O CAMPO DTENTREGA INFORMADO'; 
+         vsmensagem              := vsmensagem || vschar || 'PEDIDO TV' || p_regpedido.condvenda || ' NÃO PODE TER O CAMPO DTENTREGA INFORMADO';
          p_regitem.valido        := FALSE;
        end if;
     END IF;
@@ -7080,7 +7080,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     if (p_regfilial.UtilizaTribEndEnt = 'S') and
        (p_regpedido.codendentcli > 0) and
-	   (p_regpedido.codfilial <> NVL(P_REGITEM.codfilialretira, p_regpedido.codfilial))
+     (p_regpedido.codfilial <> NVL(P_REGITEM.codfilialretira, p_regpedido.codfilial))
     then
       BEGIN
         SELECT PCCLIENTENDENT.ESTENT
@@ -7771,7 +7771,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
          OR p_regitem.codauxiliar IS NULL
       THEN
 
-	    IF p_regfilial.tipoimportacaovenda = 'RI'
+      IF p_regfilial.tipoimportacaovenda = 'RI'
         THEN
           p_regitem.valido        := FALSE;
           p_regorigempreco.valido := FALSE;
@@ -8189,7 +8189,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                      NVL(PCTABPR.PERDESCFOB,0),
                      COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                      NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                     NVL ((SELECT QTMULTIPLA
+                                         FROM PCPRODFILIAL
+                                         WHERE CODPROD = PCPRODUT.CODPROD
+                                         AND CODFILIAL = PCEST.CODFILIAL),0) QTMULTIPLATABPR,
+                     NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO 
                 INTO p_regprecos
                 FROM pctabpr,
                      pctribut,
@@ -8492,7 +8497,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                  NVL(PCTABPR.PERDESCFOB,0),
                  COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                  NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                 NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                 NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                 NVL ((SELECT QTMULTIPLA
+                                         FROM PCPRODFILIAL
+                                         WHERE CODPROD = PCPRODUT.CODPROD
+                                         AND CODFILIAL = PCEST.CODFILIAL),0) QTMULTIPLATABPR,
+                 NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO                 
             INTO p_regprecos
             FROM pctabpr,
                  pctribut,
@@ -8786,7 +8796,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                 1)),
                     CASE WHEN DECODE( p_regfilial.PRECOPOREMBALAGEM, 'S',  PCEMBALAGEM.qtminimaatacado, 'N', PCPRODUT.QTMINIMAATACADO) <> 0 THEN
                       DECODE( p_regfilial.PRECOPOREMBALAGEM, 'S',  PCEMBALAGEM.qtminimaatacado, 'N', PCPRODUT.QTMINIMAATACADO)
-                    ELSE 
+                    ELSE
                           DECODE (( SELECT COUNT (*)
                                    FROM pcprodfilial
                                    WHERE codprod = pcprodut.codprod
@@ -8802,7 +8812,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                   ,DECODE (NVL (pcprodut.qtminimaatacado, 0)
                                   ,0, 1
                                   ,pcprodut.qtminimaatacado
-                                   ))) 
+                                   )))
                      END  qtminimaatacado,
                      decode(vnPOFERTAATAC, 0,
                      (decode(nvl(pcembalagem.pvendaatac,
@@ -8970,7 +8980,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                      NVL(PCTABPR.PERDESCFOB,0),
                      COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                      NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                     NVL ((SELECT QTMULTIPLA
+                                         FROM PCPRODFILIAL
+                                         WHERE CODPROD = PCPRODUT.CODPROD
+                                         AND CODFILIAL = PCEST.CODFILIAL),0) QTMULTIPLATABPR,
+                     NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO 
                 INTO p_regprecos
                 FROM pctabpr,
                      pctribut,
@@ -9347,7 +9362,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                    NVL(PCTABPR.PERDESCFOB,0),
                    COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                    NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                   NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                   NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                   DECODE(p_regfilial.PRECOPOREMBALAGEM, 'S', 0, NVL ((SELECT QTMULTIPLA
+                                                                         FROM PCPRODFILIAL
+                                                                      WHERE CODPROD = PCPRODUT.CODPROD
+                                                                       AND CODFILIAL = PCEST.CODFILIAL),0)) QTMULTIPLATABPR,
+                   DECODE(p_regfilial.PRECOPOREMBALAGEM, 'S', 'N',NVL(PCTABPR.UTILIZAMULTIPLO,'N')) UTILIZAMULTIPLO 
               INTO p_regprecos
               FROM pctabpr,
                    pctribut,
@@ -9716,7 +9736,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                      NVL(PCTABPR.PERDESCFOB,0),
                      COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                      NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                     NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                     NVL ((SELECT QTMULTIPLA
+                                         FROM PCPRODFILIAL
+                                         WHERE CODPROD = PCPRODUT.CODPROD
+                                         AND CODFILIAL = PCEST.CODFILIAL),0) QTMULTIPLATABPR,
+                     NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO                      
                 INTO p_regprecos
                 FROM pctabpr,
                      pctribut,
@@ -10015,7 +10040,12 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                    NVL(PCTABPR.PERDESCFOB,0),
                    COALESCE(PCTRIBUT.PERCACRESCBENFFIS,0 ) PERCACRESCBENFFIS,
                    NVL(PCTABPR.PERCACRESCIMOFRETE, 0) PERCACRESCIMOFRETE,
-                   NVL(PCTABPR.PERCDESCSIMPLESNAC,0)
+                   NVL(PCTABPR.PERCDESCSIMPLESNAC,0),
+                   NVL ((SELECT QTMULTIPLA
+                                         FROM PCPRODFILIAL
+                                         WHERE CODPROD = PCPRODUT.CODPROD
+                                         AND CODFILIAL = PCEST.CODFILIAL),0) QTMULTIPLATABPR,
+                   NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO                    
               INTO p_regprecos
               FROM pctabpr,
                    pctribut,
@@ -10145,14 +10175,14 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           p_regitem.qtcx     := vnqt;
           p_regitem.qtpecas  := NULL;
           p_regprecos.qtunit := 1;
-		  vsMultiplicouPeso := 'S';
+      vsMultiplicouPeso := 'S';
         ELSIF (upper(TRIM(p_regitem.unidadevenda)) = 'PC')
         THEN
           p_regitem.qt       := vnqt * p_regproduto.pesopeca;
           p_regitem.qtpecas  := vnqt;
           p_regitem.qtcx     := NULL;
           p_regprecos.qtunit := 1;
-		  vsMultiplicouPeso := 'S';
+      vsMultiplicouPeso := 'S';
 
         END IF;
 
@@ -10302,21 +10332,20 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         --Varejo
         IF p_regfilial.tipoprecificacao <> 'A'
         THEN
-          IF p_regprecos.qtminimaatacado > 1
-          THEN
-            IF p_regitem.qt >= p_regprecos.qtminimaatacado
-            THEN
-              p_regproduto.ptabela           := nvl(p_regprecos.pvendaatac,
-                                                    p_regprecos.pvendaemb) / p_regprecos.qtunit;
-              p_regproduto.ptabelasemimposto := nvl(p_regprecos.pvendaatac,
-                                                    p_regprecos.pvenda) / p_regprecos.qtunit;
-            ELSE
-              p_regproduto.ptabela           := p_regprecos.pvendaemb / p_regprecos.qtunit;
-              p_regproduto.ptabelasemimposto := p_regprecos.pvenda / p_regprecos.qtunit;
-            END IF;
+          IF (p_regprecos.UTILIZAMULTIPLO = 'S') THEN
+             IF (p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0) THEN
+                p_regproduto.ptabela           := NVL(p_regprecos.pvendaatac, p_regprecos.pvendaemb) / p_regprecos.qtunit;
+                p_regproduto.ptabelasemimposto := NVL(p_regprecos.pvendaatac, p_regprecos.pvenda) / p_regprecos.qtunit;
+             ELSE
+                p_regproduto.ptabela           := p_regprecos.pvendaemb / p_regprecos.qtunit;
+                p_regproduto.ptabelasemimposto := p_regprecos.pvenda / p_regprecos.qtunit;           
+             END IF;
+          ELSIF (p_regprecos.qtminimaatacado > 1) AND (p_regitem.qt >= p_regprecos.qtminimaatacado) THEN
+             p_regproduto.ptabela           := NVL(p_regprecos.pvendaatac, p_regprecos.pvendaemb) / p_regprecos.qtunit;
+             p_regproduto.ptabelasemimposto := NVL(p_regprecos.pvendaatac, p_regprecos.pvenda) / p_regprecos.qtunit;
           ELSE
-            p_regproduto.ptabela           := p_regprecos.pvendaemb / p_regprecos.qtunit;
-            p_regproduto.ptabelasemimposto := p_regprecos.pvenda / p_regprecos.qtunit;
+             p_regproduto.ptabela           := p_regprecos.pvendaemb / p_regprecos.qtunit;
+             p_regproduto.ptabelasemimposto := p_regprecos.pvenda / p_regprecos.qtunit;
           END IF;
           --Atacado
         ELSE
@@ -10337,12 +10366,13 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         IF (p_regprecos.poferta > 0)
            AND trunc(SYSDATE) BETWEEN p_regprecos.dtofertaini AND p_regprecos.dtofertafim
         THEN
-
-            IF p_regitem.qt < case p_regprecos.qtminimaatacado when 0 then 999999 else p_regprecos.qtminimaatacado end
-          THEN
-            p_regproduto.ptabela := p_regprecos.poferta / P_REGPRECOS.qtunit;
-
-          END IF;
+            IF (p_regprecos.UTILIZAMULTIPLO = 'S') THEN
+               IF NOT ((p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0)) THEN
+                   p_regproduto.ptabela := p_regprecos.poferta / P_REGPRECOS.qtunit;
+               END IF;    
+            ELSIF p_regitem.qt < case p_regprecos.qtminimaatacado when 0 then 999999 else p_regprecos.qtminimaatacado end THEN
+               p_regproduto.ptabela := p_regprecos.poferta / P_REGPRECOS.qtunit;
+            END IF;
         END IF;
 
         IF p_regfilial.tipoprecificacao <> 'A'
@@ -10350,24 +10380,32 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           IF (p_regprecos.poferta > 0)
              AND (trunc(SYSDATE) BETWEEN p_regprecos.dtofertaini AND p_regprecos.dtofertafim)
           THEN
-            IF p_regitem.qt < case p_regprecos.qtminimaatacado when 0 then 999999 else p_regprecos.qtminimaatacado end
-            THEN
+            IF (p_regprecos.UTILIZAMULTIPLO = 'S') THEN
+               IF NOT ((p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0)) THEN
+                  p_regproduto.ptabela := p_regprecos.poferta / P_REGPRECOS.QTUNIT;
+                  --myshop
+                  p_regitem.ptabelavar := p_regprecos.poferta / P_REGPRECOS.qtunit;
+               END IF;
+            ELSIF p_regitem.qt < case p_regprecos.qtminimaatacado when 0 then 999999 else p_regprecos.qtminimaatacado end THEN
               p_regproduto.ptabela := p_regprecos.poferta / P_REGPRECOS.QTUNIT;
               --myshop
               p_regitem.ptabelavar := p_regprecos.poferta / P_REGPRECOS.qtunit;
-
             END IF;
           END IF;
         ELSE
           IF (p_regprecos.pofertaatac > 0)
              AND (trunc(SYSDATE) BETWEEN p_regprecos.dtofertaatacini AND p_regprecos.dtofertaatacfim)
           THEN
-            IF p_regitem.qt >= p_regprecos.qtminimaatacado
-            THEN
+            IF (p_regprecos.UTILIZAMULTIPLO = 'S') THEN
+               IF (p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0) THEN
+                  p_regproduto.ptabela := p_regprecos.pofertaatac / P_REGPRECOS.QTUNIT;
+                  --myshop
+                  p_regitem.ptabelaatac := p_regprecos.poferta / P_REGPRECOS.qtunit; 
+               END IF;
+            ELSIF p_regitem.qt >= p_regprecos.qtminimaatacado THEN
               p_regproduto.ptabela := p_regprecos.pofertaatac / P_REGPRECOS.QTUNIT;
               --myshop
               p_regitem.ptabelaatac := p_regprecos.poferta / P_REGPRECOS.qtunit;
-
             END IF;
           END IF;
         END IF;
@@ -10401,12 +10439,14 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         *Data       : 15/09/2015
         *Alteração  : Ajustado package para utilizar o preço de tabela conforme o parametro TIPOPRECIFICACAO
         ***********************************************************/
-
-
-        if ((p_regfilial.tipoprecificacao = 'P') OR
-           (p_regfilial.tipoprecificacao = 'A' AND p_regitem.qt >= p_regprecos.qtminimaatacado) OR --HIS.00185.2015
-           (p_regfilial.tipoprecificacao = 'V' AND (p_regitem.qt < p_regprecos.qtminimaatacado OR NVL(p_regprecos.qtminimaatacado,0) = 0)))--HIS.00185.2015
-         THEN
+        --HIS.00185.2015
+          IF ((p_regfilial.tipoprecificacao = 'P') OR
+              (p_regfilial.tipoprecificacao = 'A' AND 
+                  ((p_regprecos.UTILIZAMULTIPLO = 'S' AND (p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0)) OR
+                   (p_regprecos.UTILIZAMULTIPLO <> 'S' AND p_regitem.qt >= p_regprecos.qtminimaatacado))) OR
+              (p_regfilial.tipoprecificacao = 'V' AND 
+                  ((p_regprecos.UTILIZAMULTIPLO = 'S' AND NOT ((p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0))) OR
+                   (p_regprecos.UTILIZAMULTIPLO <> 'S' AND (p_regitem.qt < p_regprecos.qtminimaatacado OR NVL(p_regprecos.qtminimaatacado, 0) = 0))))) THEN
           IF p_regitem.numpr = 1
           THEN
             p_regproduto.ptabela := p_regprecos.pvenda1;
@@ -10429,8 +10469,13 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           THEN
             p_regproduto.ptabela := p_regprecos.pvenda7;
           END IF;
-        ELSIF ((p_regfilial.tipoprecificacao = 'A' AND p_regitem.qt < p_regprecos.qtminimaatacado) OR--HIS.00185.2015
-              (p_regfilial.tipoprecificacao = 'V' AND p_regitem.qt >= p_regprecos.qtminimaatacado))--HIS.00185.2015
+        ELSIF ((p_regfilial.tipoprecificacao = 'A' AND (
+                  (p_regprecos.UTILIZAMULTIPLO = 'S' AND NOT ((p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0))) OR
+                  (p_regprecos.UTILIZAMULTIPLO <> 'S' AND p_regitem.qt < p_regprecos.qtminimaatacado) --HIS.00185.2015
+              )) OR
+                (p_regfilial.tipoprecificacao = 'V' AND (
+                  (p_regprecos.UTILIZAMULTIPLO = 'S' AND (p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_regitem.qt, p_regprecos.QTMULTIPLATABPR) = 0)) OR
+                  (p_regprecos.UTILIZAMULTIPLO <> 'S' AND p_regitem.qt >= p_regprecos.qtminimaatacado)))) --HIS.00185.2015
         THEN
           IF p_regitem.numpr = 1
           THEN
@@ -10748,20 +10793,20 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
     THEN
 
       IF NVL(p_regpedido.numpedorig,0) > 0
-	    THEN
-		BEGIN
+      THEN
+    BEGIN
 
-		  SELECT SUM(I.QT)
-		  INTO VNQTITEM_PEDORIG
-		  FROM PCPEDI I, PCPEDC C
-		  WHERE C.NUMPED = I.NUMPED
-		  AND C.NUMPEDRCA = P_REGPEDIDO.NUMPEDORIG
-		  AND I.CODPROD = P_REGITEM.CODPROD;
+      SELECT SUM(I.QT)
+      INTO VNQTITEM_PEDORIG
+      FROM PCPEDI I, PCPEDC C
+      WHERE C.NUMPED = I.NUMPED
+      AND C.NUMPEDRCA = P_REGPEDIDO.NUMPEDORIG
+      AND I.CODPROD = P_REGITEM.CODPROD;
 
-		EXCEPTION
-		  WHEN OTHERS THEN
-		    VNQTITEM_PEDORIG := 0;
-		END;
+    EXCEPTION
+      WHEN OTHERS THEN
+        VNQTITEM_PEDORIG := 0;
+    END;
       END IF;
 
       IF (p_regitem.qt + VNQTITEM_PEDORIG)  > vnQTMAXPEDVENDA
@@ -11116,7 +11161,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
         IF TRIM(vsmensagemitenscesta) IS NOT NULL
         THEN
-		      IF (vsmensagemitenscesta LIKE '%kit aberto%') THEN
+          IF (vsmensagemitenscesta LIKE '%kit aberto%') THEN
              p_regpedido.valido := FALSE;
           END IF;
 
@@ -11562,7 +11607,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
         T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
         T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+    T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
         T_PCPEDI.BONIFIC := P_REGITEM.bonific;
         T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -11804,7 +11849,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
           T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
           T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		  T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+      T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
           T_PCPEDI.BONIFIC := P_REGITEM.bonific;
           T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -11833,7 +11878,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                    vnCodMSGPartilha,
                                                    vsMSGPartilha);
 
-		  if vnCodMSGPartilha = 0 then
+      if vnCodMSGPartilha = 0 then
             tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
             vnPerDesc := integradora_comple.func_calcularperdescitem(vtITEM_PRECOS.ptabela_semimpostos,
                                             vtITEM_PRECOS.pvenda_semimpostos);
@@ -12139,7 +12184,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
           T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
           T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		  T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+      T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
           T_PCPEDI.BONIFIC := P_REGITEM.bonific;
           T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -12151,7 +12196,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
           FERRAMENTAS.DEFINIRCODFISCAL(T_PCPEDC, T_PCPEDI, VNCODFISCAL, VNSITTRIBUT, vsmensagemcodfiscal);
           vsmensagem := vsmensagem || ' ' ||  vsmensagemcodfiscal;
           p_regitem.vssittribut := VNSITTRIBUT;
-		  p_regitem.codfiscal := vncodfiscal;
+      p_regitem.codfiscal := vncodfiscal;
 
           pkg_fwpc_fiscal.icmspartilha_calcular_1_5(nvl(p_regpedido.codfilialnf,p_regpedido.codfilial),
                                                    nvl(p_regpedido.codclinf,p_regpedido.codcli),
@@ -12167,9 +12212,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                    vnCodMSGPartilha,
                                                    vsMSGPartilha);
 
-		  if vnCodMSGPartilha = 0 then
+      if vnCodMSGPartilha = 0 then
             tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-			vnPerDesc := integradora_comple.func_calcularperdescitem(vtITEM_PRECOS.ptabela_semimpostos,
+      vnPerDesc := integradora_comple.func_calcularperdescitem(vtITEM_PRECOS.ptabela_semimpostos,
                                             vtITEM_PRECOS.pvenda_semimpostos);
           end if;
 
@@ -12316,9 +12361,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                    vnCodMSGPartilha,
                                                    vsMSGPartilha);
 
-		if vnCodMSGPartilha = 0 then
-			tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-		end if;
+    if vnCodMSGPartilha = 0 then
+      tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
+    end if;
 
         p_regitem.VLICMSPARTPTABELA        := tICMSPARTILHA.vlicmspart;
 
@@ -12331,7 +12376,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
         --vtITEM_PRECOS.pbaserca := nvl(p_regitem.pbaserca, vtITEM_PRECOS.ptabela);
 
-		pkg_fwpc_fiscal.icmspartilha_calcular_1_5(nvl(p_regpedido.codfilialnf,p_regpedido.codfilial),
+    pkg_fwpc_fiscal.icmspartilha_calcular_1_5(nvl(p_regpedido.codfilialnf,p_regpedido.codfilial),
                                                    nvl(p_regpedido.codclinf,p_regpedido.codcli),
                                                    '',
                                                    vsufEnt,
@@ -12345,9 +12390,9 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                    vnCodMSGPartilha,
                                                    vsMSGPartilha);
 
-		if vnCodMSGPartilha = 0 then
-			tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-		end if;
+    if vnCodMSGPartilha = 0 then
+      tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
+    end if;
 
         p_regitem.VLICMSPARTPBASERCA        := tICMSPARTILHA.vlicmspart;
 
@@ -12373,34 +12418,34 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         vtITEM_PRECOS.pvenda_semimpostos := vtITEM_PRECOS.pvenda ;
       END IF; -- END IF (p_regitem.cesta = 'N') OR       (p_regitem.cesta = 'S' AND vbvalidoprecofixocesta = FALSE) AND (p_apenasvalida = 'N'  AND p_regfilial.precoporembalagem = 'N')
 
-	       ---------------------------Diferencial de ALiquotas------------------------------
+         ---------------------------Diferencial de ALiquotas------------------------------
       if (p_regcliente.isentodifaliquotas = 'N') and
          (nvl(p_regprecos.PERCDIFALIQUOTAS,0) > 0) then
 
-		  DECLARE
-			vnPVALORDIFALIQUOTA NUMBER := 0;
-		  BEGIN
-			vnPVALORDIFALIQUOTA := nvl(Round((vtITEM_PRECOS.ptabela_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
-												integradora_comple.gregpcconsum.numcasasdecvenda),0);
+      DECLARE
+      vnPVALORDIFALIQUOTA NUMBER := 0;
+      BEGIN
+      vnPVALORDIFALIQUOTA := nvl(Round((vtITEM_PRECOS.ptabela_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
+                        integradora_comple.gregpcconsum.numcasasdecvenda),0);
 
-			vtITEM_PRECOS.ptabela := vtITEM_PRECOS.ptabela + vnPVALORDIFALIQUOTA;
-
-
-			vnPVALORDIFALIQUOTA   := nvl(Round((vtITEM_PRECOS.pbaserca_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
-												integradora_comple.gregpcconsum.numcasasdecvenda),0);
-
-			vtITEM_PRECOS.pbaserca := vtITEM_PRECOS.pbaserca + vnPVALORDIFALIQUOTA;
+      vtITEM_PRECOS.ptabela := vtITEM_PRECOS.ptabela + vnPVALORDIFALIQUOTA;
 
 
-			vnPVALORDIFALIQUOTA   := nvl(Round((vtITEM_PRECOS.pvenda_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
-												integradora_comple.gregpcconsum.numcasasdecvenda),0);
+      vnPVALORDIFALIQUOTA   := nvl(Round((vtITEM_PRECOS.pbaserca_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
+                        integradora_comple.gregpcconsum.numcasasdecvenda),0);
 
-			vtITEM_PRECOS.pvenda := vtITEM_PRECOS.pvenda + vnPVALORDIFALIQUOTA;
+      vtITEM_PRECOS.pbaserca := vtITEM_PRECOS.pbaserca + vnPVALORDIFALIQUOTA;
 
-			p_regitem.vldifaliquotas := vnPVALORDIFALIQUOTA;
-			p_regitem.basedifaliquotas := ROUND(vtITEM_PRECOS.pvenda_semimpostos,integradora_comple.gregpcconsum.numcasasdecvenda);
-		  END;
-	  END IF;
+
+      vnPVALORDIFALIQUOTA   := nvl(Round((vtITEM_PRECOS.pvenda_semimpostos  * (p_regprecos.PERCDIFALIQUOTAS / 100)),
+                        integradora_comple.gregpcconsum.numcasasdecvenda),0);
+
+      vtITEM_PRECOS.pvenda := vtITEM_PRECOS.pvenda + vnPVALORDIFALIQUOTA;
+
+      p_regitem.vldifaliquotas := vnPVALORDIFALIQUOTA;
+      p_regitem.basedifaliquotas := ROUND(vtITEM_PRECOS.pvenda_semimpostos,integradora_comple.gregpcconsum.numcasasdecvenda);
+      END;
+    END IF;
 
       -----------------------------------------------DESCONTO DE SIMPLES NACIONAL COM PARAMETRO "USADESCSIMPLESNAC = S" ---------------------------------------------------
 
@@ -12694,7 +12739,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             vsmensagem := vsmensagem || vschar ||
                           '4(PSI): Item ' || p_regitem.codprod || ' retornou com Preco de Sem Imposto(vtITEM_PRECOS.ptabela_semimpostos) nulo ou zerado. ' || chr(13) ||
                           VSMSGRETORNO_PSEMIMPOSTO;
-			       raise ERRO_VALIDARPRECONULOOUZERADO;
+             raise ERRO_VALIDARPRECONULOOUZERADO;
 
           END IF;
 
@@ -12809,27 +12854,27 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
         IF p_regitem.cesta = 'N'
            OR (p_regitem.cesta = 'S' AND vbvalidoprecofixocesta = FALSE)
         THEN
-			IF p_regfilial.utilizavendaporembalagem = 'S' THEN
-				BEGIN
-				--Busca o fator de conversao do produto na pcembalagem
-				select nvl(pcembalagem.qtunit,1) into fatorCoversaoEmbalagem
-					from pcembalagem
-					where pcembalagem.codprod = p_regitem.codprod
-					and pcembalagem.codfilial = p_regfilial.codigo;
-				EXCEPTION
-					WHEN OTHERS THEN
-					fatorCoversaoEmbalagem := 1;
-				END;
+      IF p_regfilial.utilizavendaporembalagem = 'S' THEN
+        BEGIN
+        --Busca o fator de conversao do produto na pcembalagem
+        select nvl(pcembalagem.qtunit,1) into fatorCoversaoEmbalagem
+          from pcembalagem
+          where pcembalagem.codprod = p_regitem.codprod
+          and pcembalagem.codfilial = p_regfilial.codigo;
+        EXCEPTION
+          WHEN OTHERS THEN
+          fatorCoversaoEmbalagem := 1;
+        END;
 
-				--O preco de venda do item quando a filial utiliza venda por embalagem
-				-- é o preço total do produto dividido pelo fator de conversão.
-				p_regitem.pvenda1 := (p_regprecos.pvenda1/fatorCoversaoEmbalagem);
+        --O preco de venda do item quando a filial utiliza venda por embalagem
+        -- é o preço total do produto dividido pelo fator de conversão.
+        p_regitem.pvenda1 := (p_regprecos.pvenda1/fatorCoversaoEmbalagem);
 
-			ELSE
-				--Se a filial não utiliza venda por embalagem o preço de venda é o preço total do produto
-				p_regitem.pvenda1 := p_regprecos.pvenda1;
-			END IF;
-		-------------------------------------ACRESCIMO/DESCONTO BENEFICIO FISCAL-----------------------------------------
+      ELSE
+        --Se a filial não utiliza venda por embalagem o preço de venda é o preço total do produto
+        p_regitem.pvenda1 := p_regprecos.pvenda1;
+      END IF;
+    -------------------------------------ACRESCIMO/DESCONTO BENEFICIO FISCAL-----------------------------------------
           IF (p_regcliente.POSSUIBENFFISCAL = 'S') THEN
             vtITEM_PRECOS.ptabela  := (vtITEM_PRECOS.ptabela * (1 - (p_regprecos.PERCACRESCBENFFIS/100)));
             vtITEM_PRECOS.pbaserca := (vtITEM_PRECOS.pbaserca * (1 - (p_regprecos.PERCACRESCBENFFIS/100)));
@@ -12993,7 +13038,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             vsmensagem := vsmensagem || vschar ||
                           '5(PSI): Item ' || p_regitem.codprod || ' retornou com Preco de Sem Imposto(vtITEM_PRECOS.ptabela_semimpostos) nulo ou zerado. ' || chr(13) ||
                           VSMSGRETORNO_PSEMIMPOSTO;
-			      raise ERRO_VALIDARPRECONULOOUZERADO;
+            raise ERRO_VALIDARPRECONULOOUZERADO;
           END IF;
 
           SELECT VALOR_REDUCAO_SIMPLES_NACIONAL,NOVO_PRECO_SIMPLES_NACIONAL
@@ -13107,7 +13152,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             vsmensagem := vsmensagem || vschar ||
                           '6(PSI): Item ' || p_regitem.codprod || ' retornou com Preco de Sem Imposto(vtITEM_PRECOS.pbaserca_semimpostos) nulo ou zerado. ' || chr(13) ||
                           VSMSGRETORNO_PSEMIMPOSTO;
-			      raise ERRO_VALIDARPRECONULOOUZERADO;
+            raise ERRO_VALIDARPRECONULOOUZERADO;
           END IF;
 
           vtITEM_PRECOS.pbaserca_semimpostos := nvl(vtITEM_PRECOS.pbaserca_semimpostos, vtITEM_PRECOS.pvenda_semimpostos);
@@ -13204,7 +13249,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
          T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
          T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
          T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		 T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+     T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
          T_PCPEDI.BONIFIC := P_REGITEM.bonific;
          T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -13216,7 +13261,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
          FERRAMENTAS.DEFINIRCODFISCAL(T_PCPEDC, T_PCPEDI, VNCODFISCAL, VNSITTRIBUT, vsmensagemcodfiscal);
          vsmensagem := vsmensagem || ' ' ||  vsmensagemcodfiscal;
          p_regitem.vssittribut := VNSITTRIBUT;
-		 p_regitem.codfiscal := vncodfiscal;
+     p_regitem.codfiscal := vncodfiscal;
          pkg_fwpc_fiscal.icmspartilha_calcular_1_5(nvl(p_regpedido.codfilialnf,p_regpedido.codfilial),
                                                    nvl(p_regpedido.codclinf,p_regpedido.codcli),
                                                    '',
@@ -13231,11 +13276,11 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                    vnCodMSGPartilha,
                                                    vsMSGPartilha);
 
-		if vnCodMSGPartilha = 0 then
-			tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-		end if;
+    if vnCodMSGPartilha = 0 then
+      tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
+    end if;
 
-		p_regitem.VLICMSPARTPBASERCA := Ticmspartilha.vlicmspart;
+    p_regitem.VLICMSPARTPBASERCA := Ticmspartilha.vlicmspart;
 
          if (vnCodMSGPartilha = 0) and (p_regpedido.PRECOCOMPARTILHA = 'S') and (p_regitem.vlicmspart = 0) and (p_regitem.VLICMSPARTPBASERCA > 0) then
            if (p_regitem.vlicmspart = 0) then
@@ -13347,7 +13392,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
             vsmensagem := vsmensagem || vschar ||
                           '8(PSI): Item ' || p_regitem.codprod || ' retornou com Preco de Sem Imposto(vtITEM_PRECOS.pvenda_semimpostos) nulo ou zerado. ' || chr(13) ||
                           VSMSGRETORNO_PSEMIMPOSTO;
-			      raise ERRO_VALIDARPRECONULOOUZERADO;
+            raise ERRO_VALIDARPRECONULOOUZERADO;
 
           END IF;
 
@@ -13574,7 +13619,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
               vsmensagem := vsmensagem || vschar ||
                             '10(PSI): Item ' || p_regitem.codprod || ' retornou com Preco de Sem Imposto(vtITEM_PRECOS.ptabela_semimpostos) nulo ou zerado. ' || chr(13) ||
                             VSMSGRETORNO_PSEMIMPOSTO;
-			        raise ERRO_VALIDARPRECONULOOUZERADO;
+              raise ERRO_VALIDARPRECONULOOUZERADO;
             END IF;
 
            if (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_UTILIZAALIQREDVLPAUTADOS', p_regfilial.codigo, 'N') = 'S') and
@@ -14233,8 +14278,8 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                                                 integradora_comple.gregpcconsum.numcasasdecvenda);
 
             vtITEM_PRECOS.pvenda := vtITEM_PRECOS.pvenda + vnPVALORDIFALIQUOTA;
-			p_regitem.vldifaliquotas := vnPVALORDIFALIQUOTA;
-			p_regitem.basedifaliquotas := ROUND(vtITEM_PRECOS.pvenda_semimpostos,integradora_comple.gregpcconsum.numcasasdecvenda);
+      p_regitem.vldifaliquotas := vnPVALORDIFALIQUOTA;
+      p_regitem.basedifaliquotas := ROUND(vtITEM_PRECOS.pvenda_semimpostos,integradora_comple.gregpcconsum.numcasasdecvenda);
           END;
         end if;
         ---------------------------Fim Diferencial de ALiquotas------------------------------
@@ -14319,9 +14364,17 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
 
             -- MyShop
-             if p_regprecos.qtminimaatacado >= vniniciointervalo and p_regprecos.qtminimaatacado <= vnfimintervalo then
-                p_regitem.ptabelaatac := (p_regitem.ptabelaatac) *
-                                      (1 - (nvl(p_regdesconto.percdescaut,0) / 100));
+             IF (p_regprecos.UTILIZAMULTIPLO = 'S') THEN
+               IF p_regprecos.QTMULTIPLATABPR >= vniniciointervalo and 
+                  p_regprecos.QTMULTIPLATABPR <= vnfimintervalo and
+                  (MOD(vniniciointervalo, p_regprecos.QTMULTIPLATABPR) = 0) and 
+                  (MOD(vnfimintervalo, p_regprecos.QTMULTIPLATABPR) = 0) THEN
+                        p_regitem.ptabelaatac := (p_regitem.ptabelaatac) *
+                                                 (1 - (nvl(p_regdesconto.percdescaut,0) / 100));
+               END IF;             
+             ELSIF  p_regprecos.qtminimaatacado >= vniniciointervalo and p_regprecos.qtminimaatacado <= vnfimintervalo then
+                    p_regitem.ptabelaatac := (p_regitem.ptabelaatac) *
+                                             (1 - (nvl(p_regdesconto.percdescaut,0) / 100));
              end if;
 
              p_regitem.ptabelavar  := (p_regitem.ptabelavar) *
@@ -14365,7 +14418,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                 IF (vnDescComboCODCOMBO > 0) THEN
                   p_regitem.codcombo            := vnDescComboCODCOMBO;
                   p_regorigempreco.CODDESCFLEX  := vnDescComboCODCOMBO;
-				ELSIF (vnDescComboCODCAMPANHA > 0) THEN
+        ELSIF (vnDescComboCODCAMPANHA > 0) THEN
                   p_regitem.codcombo            := vnDescComboCODCAMPANHA;
                   p_regorigempreco.CODDESCFLEX  := vnDescComboCODCAMPANHA;
                 END IF;
@@ -14410,7 +14463,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                          p_Regdesconto.prioritariageral := 'N';
                       end;
 
-					  vnPerDescMaxCad := p_regprecos.perdescmax;
+            vnPerDescMaxCad := p_regprecos.perdescmax;
 
 
                      integradora_comple.vLog.TipoLog   := 'I';
@@ -14431,7 +14484,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
                            (p_regitem.politicaprioritaria = 'S' or
                                (vsquestionausoprioritaria = 'N' and p_regitem.politicaprioritaria = 'N'))) then
 
-						 integradora_comple.vLog.MSG      := 'CodProd: ' || p_regitem.CODPROD|| chr(13) ||
+             integradora_comple.vLog.MSG      := 'CodProd: ' || p_regitem.CODPROD|| chr(13) ||
                                                           'Desconto: ' || p_regdesconto.codesconto|| chr(13) ||
                                                           'Perc. Desc.  : ' || vnPerDesc || chr(13) ||
                                                           'Perc. Desc. Max : ' || vnPerDescMaxCad || chr(13) ||
@@ -15227,7 +15280,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORA IS
 
     END IF; --END IF ITEM VALIDO
 
-	if (nvl(p_regpedido.pvendasemimposto, 'N') = 'S'
+  if (nvl(p_regpedido.pvendasemimposto, 'N') = 'S'
        and nvl(p_regitem.perdescpauta, 0) > 0
        and (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_UTILIZAALIQREDVLPAUTADOS', p_regfilial.codigo, 'N') = 'N'))
     THEN
@@ -15453,7 +15506,7 @@ FUNCTION func_inseriritemcesta
     tICMSPARTILHA            tipo_icms_partilha;
     vnCodMSGPartilha         number(2);
     vsMSGPartilha            varchar2(100);
-    VSRETORNOPartilha 		 varchar2(4000);
+    VSRETORNOPartilha      varchar2(4000);
     vnVlipi                  pcpedi.vlipi%type;
     vnVlipiPtabela           pcpedi.vlipi%type;
     vnST                     pcpedi.st%type;
@@ -15549,8 +15602,8 @@ FUNCTION func_inseriritemcesta
     tICMSPARTILHA := TIPO_ICMS_PARTILHA(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'N', 'N', null);
     vncountitenscesta := integradora_comple.gvet_regitenscesta.COUNT;
     vPerDescProdAcab  := nvl(integradora_comple.func_calcularperdescitem(
-												(nvl(round(p_regitem.ptabela,integradora_comple.gregpcconsum.numcasasdecvenda),0)),
-												(nvl(round(p_regitem.pvenda,integradora_comple.gregpcconsum.numcasasdecvenda),0))),0);
+                        (nvl(round(p_regitem.ptabela,integradora_comple.gregpcconsum.numcasasdecvenda),0)),
+                        (nvl(round(p_regitem.pvenda,integradora_comple.gregpcconsum.numcasasdecvenda),0))),0);
 
     vsLogTextoCabecalho := 'Verificando Desconto do Cabecalho CB' || chr(13) || ' - Produto: ' || p_regitem.codprod || chr(13);
     integradora_comple.vLog.MSG               := vsLogTextoCabecalho || ' PerDesc CB: ' || vPerDescProdAcab || ' CodDesconto CB: ' || p_regitem.coddesconto;
@@ -15753,7 +15806,7 @@ FUNCTION func_inseriritemcesta
          T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
          T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
          T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		 T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+     T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
          T_PCPEDI.BONIFIC := P_REGITEM.bonific;
          T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -15779,12 +15832,12 @@ FUNCTION func_inseriritemcesta
                                                   vnCodMSGPartilha,
                                                   vsMSGPartilha);
 
-		if vnCodMSGPartilha = 0 then
-			tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-		end if;
+    if vnCodMSGPartilha = 0 then
+      tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
+    end if;
 
         vnptabelasemimposto := vnptabelasemimposto + NVL(tICMSPARTILHA.VLICMSPART,0);
-		integradora_comple.gvet_regitenscesta(i).vlcustofin := integradora_comple.gvet_regitenscesta(i).vlcustofin + NVL(tICMSPARTILHA.VLICMSPART,0);
+    integradora_comple.gvet_regitenscesta(i).vlcustofin := integradora_comple.gvet_regitenscesta(i).vlcustofin + NVL(tICMSPARTILHA.VLICMSPART,0);
         integradora_comple.gvet_regitenscesta(i).vlcustoreal := integradora_comple.gvet_regitenscesta(i).vlcustoreal + NVL(tICMSPARTILHA.VLICMSPART,0);
         /*------------------------------------------------------------
                            FIM CALCULAR ICMS PARTILHA
@@ -16026,7 +16079,7 @@ FUNCTION func_inseriritemcesta
         T_PCPEDC.CONTAORDEM  := P_REGPEDIDO.contaordem;
         T_PCPEDC.CODCOB := P_REGPEDIDO.codcob;
         T_PCPEDC.USACFOPVENDANATV10 := P_REGPEDIDO.USACFOPVENDANATV10;
-		T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
+    T_PCPEDC.OPERVENDAEXPINDIRETA := P_REGPEDIDO.opervendaexpindireta;
 
         T_PCPEDI.BONIFIC := P_REGITEM.bonific;
         T_PCPEDI.VLDESCSUFRAMA := P_REGITEM.vldescsuframa;
@@ -16052,9 +16105,9 @@ FUNCTION func_inseriritemcesta
                                                   vnCodMSGPartilha,
                                                   vsMSGPartilha);
 
-		if vnCodMSGPartilha = 0 then
-			tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
-		end if;
+    if vnCodMSGPartilha = 0 then
+      tICMSPARTILHA := func_prepararRetXMLPartilha(VSRETORNOPartilha);
+    end if;
 
         vnpvendasemimposto := vnpvendasemimposto + NVL(tICMSPARTILHA.VLICMSPART,0);
         integradora_comple.gvet_regitenscesta(i).vlcustofin := integradora_comple.gvet_regitenscesta(i).vlcustofin + NVL(tICMSPARTILHA.VLICMSPART,0);
@@ -16434,7 +16487,7 @@ FUNCTION func_inseriritemcesta
                                   integradora_comple.gvet_regitenscesta(i).ST,
                                   0,
                                   0,
-								  0,
+                  0,
                                   p_regcliente.contribuinte,
                                   0,
                                   0, --nvl(integradora_comple.gvet_regitem(j).VLREDPVENDASIMPLESNA,0),
@@ -16461,10 +16514,10 @@ FUNCTION func_inseriritemcesta
                                   0,
                                   0,
                                   0,
-								  0,
-								  p_regpedido.numped,
-								  p_regitem.numseq,
-								  p_regitem.codprod);
+                  0,
+                  p_regpedido.numped,
+                  p_regitem.numseq,
+                  p_regitem.codprod);
 
         vPerDescCesta := ROUND(vPerDescCesta,
                            integradora_comple.gregpcconsum.numcasasdecvenda);
@@ -17147,12 +17200,12 @@ FUNCTION func_inseriritemcesta
        codprecofixo,           --113
        codprecocesta,          --114
        NUMPEDCLI,              --115
-	     VLICMSPARTPTABELA,      --116
-	     VLICMSPARTPBASERCA,      --117
-	     vldifaliquotas,         --118
+       VLICMSPARTPTABELA,      --116
+       VLICMSPARTPBASERCA,      --117
+       vldifaliquotas,         --118
        basedifaliquotas,       --119
        numitemped,              --120
-	   vlverbacmvcli,           --121
+     vlverbacmvcli,           --121
        dtentrega                --122
               )
     VALUES
@@ -17290,15 +17343,15 @@ FUNCTION func_inseriritemcesta
        p_regitem.codprecofixo,           --113
        p_regitem.codprecocesta,          --114
        p_regitem.NUMPEDCLI,              --115
-	     p_regitem.VLICMSPARTPTABELA,      --116
-	     p_regitem.VLICMSPARTPBASERCA,     --117
-	     p_regitem.vldifaliquotas,         --118
+       p_regitem.VLICMSPARTPTABELA,      --116
+       p_regitem.VLICMSPARTPBASERCA,     --117
+       p_regitem.vldifaliquotas,         --118
        p_regitem.basedifaliquotas,       --119
        p_regitem.numitemped,             --120
-	   p_regitem.vlverbacmvcli,          --121
+     p_regitem.vlverbacmvcli,          --121
        p_regitem.dtentrega             --122
        );
-    
+
 
     BEGIN
       SELECT NUMPEDRCAFV
@@ -18112,8 +18165,8 @@ FUNCTION func_inseriritemcesta
          vlverbacmvcli, --116
          descintermediador, --117
          cnpjintermediador, -- 118,
-		 opervendaexpindireta, --119
-		 BLOQUEIOSUPPLIER
+     opervendaexpindireta, --119
+     BLOQUEIOSUPPLIER
          )
       VALUES
         (p_regpedido.codcli, --1
@@ -18258,8 +18311,8 @@ FUNCTION func_inseriritemcesta
          p_vlverbacmvcli, --116
          p_regpedido.descintermediador, --117
          p_regpedido.cnpjintermediador, --118
-		 p_regpedido.opervendaexpindireta, --119
-		 DECODE(p_regpedido.CODCOB, 'SUPP', 'S', 'N')
+     p_regpedido.opervendaexpindireta, --119
+     DECODE(p_regpedido.CODCOB, 'SUPP', 'S', 'N')
          );
 
        IF p_regpedido.CODCOB = 'SUPP' THEN
@@ -18350,7 +18403,7 @@ FUNCTION func_inseriritemcesta
              pcprodut
        WHERE pcpedi.numped = p_regpedido.numped
          AND pcpedi.codprod = pcprodut.codprod
-		 AND PCPEDI.QT > 0;
+     AND PCPEDI.QT > 0;
       UPDATE pcpedc
          SET vlatend     = decode(p_Regpedido.condvenda,
                                   5,
@@ -19183,7 +19236,7 @@ FUNCTION func_inseriritemcesta
         IF vsaceitavendafracao_prod = 'S' THEN
           p_qtdisp     := round((p_qtdisp),6);
           p_qtdispcont := round((p_qtdispcont),6);
-		elsif (vsaceitavendafracao_prod = 'M') and
+    elsif (vsaceitavendafracao_prod = 'M') and
                      (((p_qtdisp < 1) and (p_qtdisp > 0))
                      or ((p_qtdispcont < 1) and (p_qtdispcont > 0)) ) THEN
             p_qtdisp     := (round((p_qtdisp / vnmultiplo_prod),6)) * vnmultiplo_prod;
@@ -19242,7 +19295,7 @@ FUNCTION func_inseriritemcesta
           IF vsaceitavendafracao_prod = 'S' THEN
             p_qtdisp     := round((p_qtdisp),6);
             p_qtdispcont := round((p_qtdispcont),6);
-		  elsif (vsaceitavendafracao_prod = 'M') and
+      elsif (vsaceitavendafracao_prod = 'M') and
                      (((p_qtdisp < 1) and (p_qtdisp > 0))
                      or ((p_qtdispcont < 1) and (p_qtdispcont > 0)) ) THEN
             p_qtdisp     := (round((p_qtdisp / vnmultiplo_prod),6)) * vnmultiplo_prod;
@@ -19383,12 +19436,12 @@ FUNCTION func_inseriritemcesta
              p_regpedido.posicao := 'P';
              p_regpedido.motivoposicao := 'PRODUTO SEM ESTOQUE';
           END IF;
-          
-          IF (p_regpedido.condvenda = 7) and (p_regitem.tipoentrega = 'EF') 
+
+          IF (p_regpedido.condvenda = 7) and (p_regitem.tipoentrega = 'EF')
           THEN
              p_regpedido.posicao := 'P';
              p_regpedido.motivoposicao := 'PRODUTO SEM ESTOQUE';
-          END IF;          
+          END IF;
 
             IF ((p_regfilial.verificaestoquecont = 'S' AND p_regfilial.con_verificaestoquecont = 'S') AND (vnqtdisponivel_cont < cr_pcest.qt) and (cr_pcest.tipomerc <> 'CB'))
             THEN
@@ -20086,9 +20139,9 @@ FUNCTION func_inseriritemcesta
                      AND pcest.codprod = itens.codprod;
 
                   integradora_comple.proc_pcpedimov(p_regpedido, itens.codprod, itens.numseq, (itens.qt - itens.qtfalta),'N');
-				  integradora_comple.pro_insereMensagemFalta(p_regpedido.CODUSUR, p_regpedido.NUMPED, p_regpedido.CODCLI,
-				                     nvl(itens.codfilialretira, p_regpedido.codfilial), itens.codprod, itens.numseq, itens.codauxiliar,
-				                     nvl(itens.qtfalta,0), itens.pvenda);
+          integradora_comple.pro_insereMensagemFalta(p_regpedido.CODUSUR, p_regpedido.NUMPED, p_regpedido.CODCLI,
+                             nvl(itens.codfilialretira, p_regpedido.codfilial), itens.codprod, itens.numseq, itens.codauxiliar,
+                             nvl(itens.qtfalta,0), itens.pvenda);
 
                   if integradora_comple.func_existepcfalta(p_regpedido.numped,
                                                            itens.codprod,
@@ -20337,7 +20390,7 @@ FUNCTION func_inseriritemcesta
              pcprodut
        WHERE pcpedi.numped = p_regpedido.numped
          AND pcpedi.codprod = pcprodut.codprod
-		 AND pcpedi.QT > 0;
+     AND pcpedi.QT > 0;
 
       -- Somar corte total de item
       vnsomafalta := 0;
@@ -20505,7 +20558,7 @@ FUNCTION func_inseriritemcesta
     vpermitirvendaestadualpfsemie PCPARAMFILIAL.Valor%type;
     vUf PCFILIAL.UF%type;
     vnsaldodisponivel_LimCred     number;
-	vsCLIENTEMAISNEGOCIOS  PCCLIENT.CLIENTEMAISNEGOCIOS%TYPE;
+  vsCLIENTEMAISNEGOCIOS  PCCLIENT.CLIENTEMAISNEGOCIOS%TYPE;
   BEGIN
 
     vsmensagem := NULL;
@@ -20867,11 +20920,11 @@ FUNCTION func_inseriritemcesta
       END IF;
 
       IF ( ((p_vltotped + nvl(p_regpedido.vlfrete,0)) < p_regplpag.vlminpedido) AND
-			(p_regpedido.orcamento = 'N') ) OR
-			((p_vltotped < p_regplpag.vlminpedido) AND
-			(p_regpedido.orcamento = 'S') AND
-			(FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VALIDAVLMINIMOORCAMENTO','99','N') = 'S' ) )
-	  THEN
+      (p_regpedido.orcamento = 'N') ) OR
+      ((p_vltotped < p_regplpag.vlminpedido) AND
+      (p_regpedido.orcamento = 'S') AND
+      (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VALIDAVLMINIMOORCAMENTO','99','N') = 'S' ) )
+    THEN
 
         IF (integradora_comple.gregpcconsum.ACEITAVENDABLOQ = 'N') or
            (p_regfilial.bloquearpedidosabaixovlminimo = 'N')
@@ -20919,31 +20972,31 @@ FUNCTION func_inseriritemcesta
 
     --DMAISNEG-18----------------------------------------------
     IF (p_regpedido.CODCOB = 'SUPP') THEN
-	   IF p_regpedido.CONDVENDA <> 1 THEN
+     IF p_regpedido.CONDVENDA <> 1 THEN
           p_regpedido.valido := FALSE;
-          vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para condição de venda igual a 1.';	 
-	   ELSIF p_regpedido.ORIGEMPED <> 'F' THEN
+          vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para condição de venda igual a 1.';
+     ELSIF p_regpedido.ORIGEMPED <> 'F' THEN
              p_regpedido.valido := FALSE;
-             vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para origem do pedido igual a (F)orça de venda.';	 
-	   END IF;
-	   
-	   BEGIN
-	     SELECT NVL(PCCLIENT.CLIENTEMAISNEGOCIOS,'N')
-		   INTO vsCLIENTEMAISNEGOCIOS 
-		   FROM PCCLIENT
-		  WHERE PCCLIENT.CODCLI = p_regcliente.codcli;
-	   EXCEPTION
+             vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para origem do pedido igual a (F)orça de venda.';
+     END IF;
+
+     BEGIN
+       SELECT NVL(PCCLIENT.CLIENTEMAISNEGOCIOS,'N')
+       INTO vsCLIENTEMAISNEGOCIOS
+       FROM PCCLIENT
+      WHERE PCCLIENT.CODCLI = p_regcliente.codcli;
+     EXCEPTION
        WHEN NO_DATA_FOUND THEN
-	   	  vsCLIENTEMAISNEGOCIOS := 'N' ;
-	   END;
-	   
-	   IF vsCLIENTEMAISNEGOCIOS = 'N' THEN
+        vsCLIENTEMAISNEGOCIOS := 'N' ;
+     END;
+
+     IF vsCLIENTEMAISNEGOCIOS = 'N' THEN
           p_regpedido.valido := FALSE;
-         vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para cliente marcado para trabalhar no "Mais negócio", verifique cadastro do cliente na rotina 302.';	 
-	   END IF;	
-	END IF;
+         vsmensagem         := vsmensagem || vschar || 'Cobrança SUPP - Permitido apenas para cliente marcado para trabalhar no "Mais negócio", verifique cadastro do cliente na rotina 302.';
+     END IF;
+  END IF;
     -----------------------------------------------------------
-    	
+
     /*********  HIS.02142.2016  ***********/
     SELECT VENDAS.VALIDA_VLR_LIM_VENDA_MEI(p_regpedido.codcli,
                                            p_vltotped)
@@ -21254,7 +21307,7 @@ FUNCTION func_inseriritemcesta
         P_REGPEDIDO.VALIDO      := FALSE;
     END;
 
-    if p_regpedido.CODCOB NOT IN ('SUPP')  THEN	
+    if p_regpedido.CODCOB NOT IN ('SUPP')  THEN
       if (integradora_comple.gregpcconsum.ACEITAVENDABLOQ = 'N') then
 
         /* OBTER O VLATEND PARA VALIDAR O LIMITE DO CLIENTE */
@@ -21263,7 +21316,7 @@ FUNCTION func_inseriritemcesta
           FROM PCPEDI
         WHERE PCPEDI.NUMPED = p_regpedido.numped;
 
-	    IF NOT
+      IF NOT
             integradora_comple.func_existelimitecliente(p_regpedido,
                                                         p_regcliente,
                                                         p_regfilial,
@@ -21547,7 +21600,7 @@ FUNCTION func_inseriritemcesta
                                                  0,
                                                  integradora_comple.gvet_regpedido(i).numpedrca,
                                                  integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
-						--DDVENDAS-21600
+            --DDVENDAS-21600
                         and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND  p.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
                         --AND p.codusur = integradora_comple.gvet_regpedido(i).codusur
                         AND p.dtaberturapedpalm = integradora_comple.gvet_regpedido(i).dtaberturapedpalm
@@ -21666,8 +21719,8 @@ FUNCTION func_inseriritemcesta
                                                         0,
                                                         integradora_comple.gvet_regpedido(i).numpedrca,
                                                         integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
-								 --DDVENDAS-21600
-								 and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+                 --DDVENDAS-21600
+                 and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
                                  --AND codusur = integradora_comple.gvet_regpedido(i).codusur
                                  AND codcli = integradora_comple.gvet_regpedido(i).codcli
                                  AND dtaberturapedpalm = integradora_comple.gvet_regpedido(i).dtaberturapedpalm);
@@ -21685,7 +21738,7 @@ FUNCTION func_inseriritemcesta
            where i.numpedrca = decode(integradora_comple.gvet_regpedido(i).numpedorig, 0,integradora_comple.gvet_regpedido(i).numpedrca, integradora_comple.gvet_regpedido(i).numpedorig)
              --DDVENDAS-21600
              and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND i.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
-			 --and i.codusur   = integradora_comple.gvet_regpedido(i).codusur
+       --and i.codusur   = integradora_comple.gvet_regpedido(i).codusur
 --             and i.codcli    = integradora_comple.gvet_regpedido(i).codcli
              and i.dtaberturapedpalm   = integradora_comple.gvet_regpedido(i).dtaberturapedpalm
              and i.qt_faturada < i.qt;
@@ -21731,8 +21784,8 @@ FUNCTION func_inseriritemcesta
                                       integradora_comple.gvet_regpedido(i).numpedrca,
                                       integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
              --DDVENDAS-21600
-			 and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND p.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
-			 --AND p.codusur = integradora_comple.gvet_regpedido(i).codusur
+       and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND p.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+       --AND p.codusur = integradora_comple.gvet_regpedido(i).codusur
              AND p.dtaberturapedpalm = integradora_comple.gvet_regpedido(i).dtaberturapedpalm
              AND p.codcli = integradora_comple.gvet_regpedido(i).codcli;
 
@@ -21775,8 +21828,8 @@ FUNCTION func_inseriritemcesta
                                                    integradora_comple.gvet_regpedido(i).numpedrca,
                                                    integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
                           --DDVENDAS-21600
-						  and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND  p.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
-						  --AND p.codusur = integradora_comple.gvet_regpedido(i).codusur
+              and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND  p.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+              --AND p.codusur = integradora_comple.gvet_regpedido(i).codusur
                           AND p.dtaberturapedpalm = integradora_comple.gvet_regpedido(i).dtaberturapedpalm
                           AND p.codcli = integradora_comple.gvet_regpedido(i).codcli
                           AND p.codcli = c.codcli
@@ -21811,15 +21864,15 @@ FUNCTION func_inseriritemcesta
             vnqtatend  := regped.numitens;
 
             -- Reconta os itens totais do pedido e o total de itens atendidos
-			IF nvl(integradora_comple.gvet_regpedido(i).orcamento,
+      IF nvl(integradora_comple.gvet_regpedido(i).orcamento,
                'N') = 'N' THEN
                select count(*) into vnqtatend from pcpedi where numped = regped.numped;
-			ELSE
-			   select count(*) into vnqtatend from pcorcavendac oc
+      ELSE
+         select count(*) into vnqtatend from pcorcavendac oc
                                                  , pcorcavendai oi
                                              where oc.numorca = oi.numorca
                                                and oc.numpedrca = integradora_comple.gvet_regpedido(i).numpedrca;
-			END IF;
+      END IF;
 
             select count(*) into vnnumitensgeral
               from pcpedifv
@@ -22054,8 +22107,8 @@ FUNCTION func_inseriritemcesta
                                                                       0,
                                                                       integradora_comple.gvet_regpedido(i).numpedrca,
                                                                       integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
-										--DDVENDAS-21600
-										and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND  pcpedc.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+                    --DDVENDAS-21600
+                    and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND  pcpedc.codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
                                         --AND pcpedc.codusur = integradora_comple.gvet_regpedido(i).codusur
                                         AND pcpedc.codcli = integradora_comple.gvet_regpedido(i).codcli
                                         AND pcpedc.numpedorigem = regped.numped
@@ -22155,35 +22208,35 @@ FUNCTION func_inseriritemcesta
                      AND pcorcavendai.numseq  = cr_pedcorp.numseq
                      AND (pcorcavendai.codauxiliar = cr_pedcorp.codauxiliar OR pcorcavendai.codauxiliar IS NULL)
                      AND rownum = 1;
-			      integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-				  integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-				  integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-				  integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
-				  integradora_comple.vLog.TipoLog            := 'C';
-				  integradora_comple.vLog.MSG                := 'Contagem qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
-																'numseq ' || cr_pedcorp.numseq || chr(13) ||
-																'codauxiliar ' || cr_pedcorp.codauxiliar || chr(13) ||
-																'codcli ' || regped.codcli || chr(13) ||
-																'codusur ' || regped.codusur || chr(13);
+            integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+          integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+          integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+          integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
+          integradora_comple.vLog.TipoLog            := 'C';
+          integradora_comple.vLog.MSG                := 'Contagem qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
+                                'numseq ' || cr_pedcorp.numseq || chr(13) ||
+                                'codauxiliar ' || cr_pedcorp.codauxiliar || chr(13) ||
+                                'codcli ' || regped.codcli || chr(13) ||
+                                'codusur ' || regped.codusur || chr(13);
 
-				  PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+          PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
                 EXCEPTION
                 WHEN OTHERS THEN
                   vnqtatend := 0;
-				  integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-				  integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-				  integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-				  integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
-				  integradora_comple.vLog.TipoLog            := 'C';
-				  integradora_comple.vLog.MSG                := 'Falha contagem qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
-																'numseq ' || cr_pedcorp.numseq || chr(13) ||
-																'codauxiliar ' || cr_pedcorp.codauxiliar || chr(13) ||
-																'codcli ' || regped.codcli || chr(13) ||
-																'codusur ' || regped.codusur || chr(13) ||
-																SQLCODE || '-' || SQLERRM;
+          integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+          integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+          integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+          integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
+          integradora_comple.vLog.TipoLog            := 'C';
+          integradora_comple.vLog.MSG                := 'Falha contagem qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
+                                'numseq ' || cr_pedcorp.numseq || chr(13) ||
+                                'codauxiliar ' || cr_pedcorp.codauxiliar || chr(13) ||
+                                'codcli ' || regped.codcli || chr(13) ||
+                                'codusur ' || regped.codusur || chr(13) ||
+                                SQLCODE || '-' || SQLERRM;
 
-				  PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+          PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
                 END;
 
               ELSE
@@ -22241,19 +22294,19 @@ FUNCTION func_inseriritemcesta
 
             END IF;
 
-			integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-			integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-			integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-			integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
-			integradora_comple.vLog.TipoLog            := 'C';
-			integradora_comple.vLog.MSG                := 'Atualizar qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
-			                                              'vnqtatend ' || vnqtatend || chr(13) ||
-			                                              'vicontador ' || vicontador || chr(13) ||
-			                                              'cr_pedcorp.qt ' || cr_pedcorp.qt || chr(13) ||
-			                                              'orcamento ' || integradora_comple.gvet_regpedido(i).orcamento || chr(13) ||
-			                                              'vscorte ' || vscorte || chr(13);
+      integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+      integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+      integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+      integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).dtaberturapedpalm;
+      integradora_comple.vLog.TipoLog            := 'C';
+      integradora_comple.vLog.MSG                := 'Atualizar qt faturada codprod ' || cr_pedcorp.codprod || chr(13) ||
+                                                    'vnqtatend ' || vnqtatend || chr(13) ||
+                                                    'vicontador ' || vicontador || chr(13) ||
+                                                    'cr_pedcorp.qt ' || cr_pedcorp.qt || chr(13) ||
+                                                    'orcamento ' || integradora_comple.gvet_regpedido(i).orcamento || chr(13) ||
+                                                    'vscorte ' || vscorte || chr(13);
 
-			PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+      PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
             IF vicontador > 0
             THEN
@@ -22303,8 +22356,8 @@ FUNCTION func_inseriritemcesta
                                                 0,
                                                 integradora_comple.gvet_regpedido(i).numpedrca,
                                                 integradora_comple.gvet_regpedido(i).numpedorig) --integradora_comple.gvet_regpedido(i).numpedrca
-						 --DDVENDAS-21600
-						 and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+             --DDVENDAS-21600
+             and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND codusur     = integradora_comple.gvet_regpedido(i).codusur) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
                          --AND codusur = integradora_comple.gvet_regpedido(i).codusur
                          AND codcli = integradora_comple.gvet_regpedido(i).codcli
                          AND dtaberturapedpalm = integradora_comple.gvet_regpedido(i).dtaberturapedpalm
@@ -22669,7 +22722,7 @@ FUNCTION func_inseriritemcesta
     vncontped           NUMBER;
     vncontitem          NUMBER;
     vncontitensvalidos  NUMBER;
-	  vncontitenstodos    NUMBER;
+    vncontitenstodos    NUMBER;
     vnvltotped          NUMBER;
     vnvlatend           NUMBER;
     vnvltottab          NUMBER;
@@ -22784,7 +22837,7 @@ FUNCTION func_inseriritemcesta
 
     --PKG_MOTIVOBLQOUEIO
     VNCODMOTIVO                PCBLOQUEIOSPEDIDO.CODMOTIVO%TYPE;
-	VNCODMOTIVOBLOQUEIO        PCBLOQUEIOSPEDIDO.CODMOTBLOQUEIO%TYPE;
+  VNCODMOTIVOBLOQUEIO        PCBLOQUEIOSPEDIDO.CODMOTBLOQUEIO%TYPE;
     VSMOTIVO                   PCBLOQUEIOSPEDIDO.MOTIVO%TYPE;
     VSPOSICAO                  PCBLOQUEIOSPEDIDO.STATUS%TYPE;
     VSCOMBOCONTINUO            VARCHAR2(1);
@@ -22816,13 +22869,13 @@ FUNCTION func_inseriritemcesta
 
     ERRO_PROC_FINAL       EXCEPTION;
     ERRO_CCRCA_FINAL      EXCEPTION;
-	  vMensagem          VARCHAR2(4000);
+    vMensagem          VARCHAR2(4000);
     vValido            BOOLEAN;
     vCursorEstoque     integradora_comple.T_CURSOR_ESTOQUE_LOCK;
     vnPvendaTemp      PCPEDI.PVENDA%TYPE := 0;
     vnPtabelaTemp     PCPEDI.PTABELA%TYPE := 0;
     vnPerDescTemp     PCPEDI.PERDESC%TYPE := 0;
-	  vsMultiplicouPeso  VARCHAR2(1);
+    vsMultiplicouPeso  VARCHAR2(1);
     vnVLCREDDISPONIVELTOTAL PCCLIENT.LIMCRED%TYPE;
     vsDADOSLIMCRED   VARCHAR2(4000);
 
@@ -23022,7 +23075,7 @@ FUNCTION func_inseriritemcesta
                                             vValido,
                                             vCursorEstoque);
           END IF;
-		if vValido then
+    if vValido then
           proc_validarcabped(integradora_comple.gvet_regpedido(i),
                              regcliente,
                              regrca,
@@ -23117,31 +23170,31 @@ FUNCTION func_inseriritemcesta
               vnpercdesccom := 0;
               vnpercdescrca := 0;
 
-			  IF integradora_comple.gvet_regpedido(i).orcamento = 'N' THEN
-			    --Ajuste numseq do item no pedido
-				vnnumseq                                  := vnnumseq + 1;
+        IF integradora_comple.gvet_regpedido(i).orcamento = 'N' THEN
+          --Ajuste numseq do item no pedido
+        vnnumseq                                  := vnnumseq + 1;
 
-				integradora_comple.vLog.NUMPEDRCA         := integradora_comple.gvet_regpedido(i).numpedrca;
-				integradora_comple.vLog.CODUSUR           := integradora_comple.gvet_regpedido(i).CODUSUR;
-				integradora_comple.vLog.CGCCLI            := integradora_comple.gvet_regpedido(i).CGCCLI;
-				integradora_comple.vLog.DTABERTURAPEDPALM := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-				integradora_comple.vLog.TIPOLOG           := 'G';
-				integradora_comple.vLog.MSG               := 'Ajustar numseq de pedido ' || integradora_comple.gvet_regitem(j).codprod;
+        integradora_comple.vLog.NUMPEDRCA         := integradora_comple.gvet_regpedido(i).numpedrca;
+        integradora_comple.vLog.CODUSUR           := integradora_comple.gvet_regpedido(i).CODUSUR;
+        integradora_comple.vLog.CGCCLI            := integradora_comple.gvet_regpedido(i).CGCCLI;
+        integradora_comple.vLog.DTABERTURAPEDPALM := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+        integradora_comple.vLog.TIPOLOG           := 'G';
+        integradora_comple.vLog.MSG               := 'Ajustar numseq de pedido ' || integradora_comple.gvet_regitem(j).codprod;
 
-				PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
-			  ELSE
-			    --Não tem uma tabela auxiliar de vínculo, então se mudar o numseq perde a referência com o item importado
-			    vnnumseq                                  := integradora_comple.gvet_regitem(j).numseqfv;
+        PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+        ELSE
+          --Não tem uma tabela auxiliar de vínculo, então se mudar o numseq perde a referência com o item importado
+          vnnumseq                                  := integradora_comple.gvet_regitem(j).numseqfv;
 
-			    integradora_comple.vLog.NUMPEDRCA         := integradora_comple.gvet_regpedido(i).numpedrca;
-				integradora_comple.vLog.CODUSUR           := integradora_comple.gvet_regpedido(i).CODUSUR;
-				integradora_comple.vLog.CGCCLI            := integradora_comple.gvet_regpedido(i).CGCCLI;
-				integradora_comple.vLog.DTABERTURAPEDPALM := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-				integradora_comple.vLog.TIPOLOG           := 'G';
-				integradora_comple.vLog.MSG               := 'Ajustar numseq de orçamento ' || integradora_comple.gvet_regitem(j).codprod;
+          integradora_comple.vLog.NUMPEDRCA         := integradora_comple.gvet_regpedido(i).numpedrca;
+        integradora_comple.vLog.CODUSUR           := integradora_comple.gvet_regpedido(i).CODUSUR;
+        integradora_comple.vLog.CGCCLI            := integradora_comple.gvet_regpedido(i).CGCCLI;
+        integradora_comple.vLog.DTABERTURAPEDPALM := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+        integradora_comple.vLog.TIPOLOG           := 'G';
+        integradora_comple.vLog.MSG               := 'Ajustar numseq de orçamento ' || integradora_comple.gvet_regitem(j).codprod;
 
-				PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
-			  END IF;
+        PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+        END IF;
 
               integradora_comple.gvet_regitem(j).numseq        := vnnumseq;
               integradora_comple.gvet_regorigempreco(j).numseq := vnnumseq;
@@ -23217,7 +23270,7 @@ FUNCTION func_inseriritemcesta
                                         vscoddistrib,
                                         vsmensagemitem,
                                         vnpermaxdesc,
-										vsMultiplicouPeso);
+                    vsMultiplicouPeso);
                   EXCEPTION
                     WHEN ERRO_VALIDARPRECONULOOUZERADO THEN
                       IF regfilial.tipoimportacaovenda = 'RI' THEN
@@ -23228,52 +23281,52 @@ FUNCTION func_inseriritemcesta
                   END;
 
                   IF integradora_comple.gvet_regitem(j).valido = TRUE then
-					IF (integradora_comple.gvet_regitem(j).qt > 0) THEN
+          IF (integradora_comple.gvet_regitem(j).qt > 0) THEN
                        vnvltotped := vnvltotped +  ROUND((integradora_comple.gvet_regitem(j).qt * integradora_comple.gvet_regitem(j).pvenda  ), 2);
-					END IF;
+          END IF;
                   ELSE
-					  SELECT tipoestoque,
-								 UNIDADEMASTER,
-								 GET_PRODUTO_PESO(pcprodut.codprod, integradora_comple.gvet_regpedido(i).codfilial) PESOBRUTOMASTER,
-								 GET_PRODUTO_PECA(pcprodut.codprod, integradora_comple.gvet_regpedido(i).codfilial) PESOPECA,
-								 UNIDADE
-							INTO VStipoestoque,
-								 VSUNIDADEMASTER,
-								 VFPESOBRUTOMASTER,
-								 VFPESOPECA,
-								 VSUNIDADE
-							FROM PCPRODUT
-							WHERE CODPROD = integradora_comple.gvet_regitem(j).codprod;
+            SELECT tipoestoque,
+                 UNIDADEMASTER,
+                 GET_PRODUTO_PESO(pcprodut.codprod, integradora_comple.gvet_regpedido(i).codfilial) PESOBRUTOMASTER,
+                 GET_PRODUTO_PECA(pcprodut.codprod, integradora_comple.gvet_regpedido(i).codfilial) PESOPECA,
+                 UNIDADE
+              INTO VStipoestoque,
+                 VSUNIDADEMASTER,
+                 VFPESOBRUTOMASTER,
+                 VFPESOPECA,
+                 VSUNIDADE
+              FROM PCPRODUT
+              WHERE CODPROD = integradora_comple.gvet_regitem(j).codprod;
 
-						  IF VStipoestoque = 'FR'  AND
-							((FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_UTILIZAFRIOSEMBALAGEM', integradora_comple.gvet_regpedido(I).CODFILIAL, 'N') = 'S'
-							   AND regfilial.utilizavendaporembalagem = 'S')  OR
-							 (regfilial.utilizavendaporembalagem = 'N'))
-						  THEN
+              IF VStipoestoque = 'FR'  AND
+              ((FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_UTILIZAFRIOSEMBALAGEM', integradora_comple.gvet_regpedido(I).CODFILIAL, 'N') = 'S'
+                 AND regfilial.utilizavendaporembalagem = 'S')  OR
+               (regfilial.utilizavendaporembalagem = 'N'))
+              THEN
 
-							IF upper(TRIM(integradora_comple.gvet_regitem(j).unidadevenda)) = upper(TRIM(VSUNIDADEMASTER)) and (vsMultiplicouPeso = 'N')
-							THEN
-							  vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * VFPESOBRUTOMASTER * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
+              IF upper(TRIM(integradora_comple.gvet_regitem(j).unidadevenda)) = upper(TRIM(VSUNIDADEMASTER)) and (vsMultiplicouPeso = 'N')
+              THEN
+                vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * VFPESOBRUTOMASTER * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
 
-							ELSIF upper(TRIM(integradora_comple.gvet_regitem(j).unidadevenda)) = 'PC' and (vsMultiplicouPeso = 'N')
-							THEN
-							  vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * VFPESOPECA * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
-							ELSE
-							  integradora_comple.gvet_regitem(j).vsunidadeVenda := VSUNIDADE; --5896.111382.2017 - Rafael Soares
-							  vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
-							END IF;
+              ELSIF upper(TRIM(integradora_comple.gvet_regitem(j).unidadevenda)) = 'PC' and (vsMultiplicouPeso = 'N')
+              THEN
+                vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * VFPESOPECA * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
+              ELSE
+                integradora_comple.gvet_regitem(j).vsunidadeVenda := VSUNIDADE; --5896.111382.2017 - Rafael Soares
+                vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
+              END IF;
 
-						  ELSE
-							 vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
-						  END IF;
+              ELSE
+               vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (integradora_comple.gvet_regitem(j).pvenda - nvl(vlredsimplesnac_pvenda,0))), 2), 0);
+              END IF;
 
-						IF ( integradora_comple.gregpedido.pvendasemimposto = 'S') then --3790.147867.2017
-							 vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (nvl(integradora_comple.gvet_regitem(j).st,0) + nvl(integradora_comple.gvet_regitem(j).vlipi, 0) + nvl(integradora_comple.gvet_regitem(j).VLFECP, 0))), 2), 0);
-						END IF;
+            IF ( integradora_comple.gregpedido.pvendasemimposto = 'S') then --3790.147867.2017
+               vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (nvl(integradora_comple.gvet_regitem(j).st,0) + nvl(integradora_comple.gvet_regitem(j).vlipi, 0) + nvl(integradora_comple.gvet_regitem(j).VLFECP, 0))), 2), 0);
+            END IF;
 
-						IF ( nvl(integradora_comple.gvet_regitem(j).VLICMSPART,0) > 0) then --2001.136302.2017
-							 vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (nvl(integradora_comple.gvet_regitem(j).VLICMSPART,0)  )), 2), 0);
-						END IF;
+            IF ( nvl(integradora_comple.gvet_regitem(j).VLICMSPART,0) > 0) then --2001.136302.2017
+               vnvltotped := vnvltotped + NVL(ROUND((integradora_comple.gvet_regitem(j).qt * (nvl(integradora_comple.gvet_regitem(j).VLICMSPART,0)  )), 2), 0);
+            END IF;
                   END IF;
 
                   IF integradora_comple.gvet_regitem(j).valido = TRUE
@@ -23586,7 +23639,7 @@ FUNCTION func_inseriritemcesta
                       integradora_comple.gvet_regitem(j).percom := 0;
                     end if;
 
-					IF integradora_comple.gvet_regitem(J).CODCOMBO > 0 THEN
+          IF integradora_comple.gvet_regitem(J).CODCOMBO > 0 THEN
                       BEGIN
                         SELECT NVL(UTILIZACODPRODPRINC, 'N'), TIPOCAMPANHA
                           INTO VSUTILIZACODPRODPRINC, VSTIPOCAMPANHA
@@ -24173,7 +24226,7 @@ FUNCTION func_inseriritemcesta
                                                 integradora_comple.gvet_regitem(j).Numseq,
                                                 integradora_comple.gvet_regitem(j).Codprod);
 
-					  IF NVL(integradora_comple.gvet_regitem(j).VLICMSPART, 0) > 0
+            IF NVL(integradora_comple.gvet_regitem(j).VLICMSPART, 0) > 0
                          AND (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('ACRESCICMSPARTILHAPRECO',integradora_comple.gvet_regpedido(i).codfilial,'N') = 'S')  THEN
                         integradora_comple.vLog.NUMPEDRCA         := integradora_comple.gvet_regitem(j).numpedrca;
                         integradora_comple.vLog.CODUSUR           := integradora_comple.gvet_regpedido(i).CODUSUR;
@@ -24676,7 +24729,7 @@ FUNCTION func_inseriritemcesta
                     if (p_vsAlterarPtabela = 'S') and (P_tipocampanhacombo = 'SQP') then
                     /*  update pcpedi
                          set ptabela = pvenda,
-							 pbaserca = pvenda,
+               pbaserca = pvenda,
                              perdesc = 0
                        where numped = integradora_comple.gvet_regpedido(i).numped
                          and codcombo = reg_combos.codcombo
@@ -24703,10 +24756,10 @@ FUNCTION func_inseriritemcesta
                 --END IF;
 
                   FOR reg_combos_grupo IN (SELECT PCPEDI.PVENDA, PCPEDI.PTABELA, PCPEDI.PBASERCA, PCPEDI.CODPROD, PCPEDI.PERDESC, PCPEDI.NUMSEQ
-				                             FROM PCPEDI
-											WHERE PCPEDI.NUMPED = integradora_comple.gvet_regpedido(i).numped
+                                     FROM PCPEDI
+                      WHERE PCPEDI.NUMPED = integradora_comple.gvet_regpedido(i).numped
                                               AND PCPEDI.CODCOMBO = reg_combos.codcombo
-											  AND NVL(PCPEDI.BONIFIC, 'N') = 'N')LOOP
+                        AND NVL(PCPEDI.BONIFIC, 'N') = 'N')LOOP
 
                     BEGIN
                       SELECT NVL(C.NAODEBITCCRCA, 'S'),
@@ -24726,7 +24779,7 @@ FUNCTION func_inseriritemcesta
                       p_vsAlterarPtabela := 'N';
                     END;
 
-					if (P_VSNAODEBITACCRCA = 'S') AND (p_vsAlterarPtabela <> 'S')
+          if (P_VSNAODEBITACCRCA = 'S') AND (p_vsAlterarPtabela <> 'S')
                        AND (integradora_comple.gvet_regpedido(I).CONDVENDA IN (1, 14))
                        AND (reg_combos_grupo.PVENDA < reg_combos_grupo.PBASERCA) then
                       update pcpedi
@@ -24750,7 +24803,7 @@ FUNCTION func_inseriritemcesta
 
                     end if;
 
-					if (P_VSNAODEBITACCRCA = 'S') AND (P_VSCREDITACCRCA = 'N') AND (p_vsAlterarPtabela <> 'S')
+          if (P_VSNAODEBITACCRCA = 'S') AND (P_VSCREDITACCRCA = 'N') AND (p_vsAlterarPtabela <> 'S')
                        AND (integradora_comple.gvet_regpedido(I).CONDVENDA IN (1, 14))
                        AND (reg_combos_grupo.PVENDA > reg_combos_grupo.PBASERCA) then
                       update pcpedi
@@ -25269,33 +25322,33 @@ FUNCTION func_inseriritemcesta
                              vsOperador := 'RCA';
                           end if;
 
-						  integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-						  integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-						  integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-						  integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-						  integradora_comple.vLog.TipoLog            := 'C';
-						  integradora_comple.vLog.MSG                := 'CCRCA: Validacao 01 Movimentando Conta Corrente ' || vsOperador;
-						  integradora_comple.vLog.ptabela            := null;
-						  integradora_comple.vLog.PVENDA             := null;
-						  integradora_comple.vLog.PBASE              := null;
+              integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+              integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+              integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+              integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+              integradora_comple.vLog.TipoLog            := 'C';
+              integradora_comple.vLog.MSG                := 'CCRCA: Validacao 01 Movimentando Conta Corrente ' || vsOperador;
+              integradora_comple.vLog.ptabela            := null;
+              integradora_comple.vLog.PVENDA             := null;
+              integradora_comple.vLog.PBASE              := null;
 
-						  PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+              PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
                           IF (vnvldisponivel + reg_itens.saldo + vnvlsaldoped) < 0 AND reg_itens.saldo < 0 THEN
 
                             integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-							integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-							integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-							integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-							integradora_comple.vLog.TipoLog            := 'C';
-							integradora_comple.vLog.MSG                := 'CCRCA: Validacao 01 Movimentando Conta Corrente ' || vsOperador || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
-							integradora_comple.vLog.ptabela            := null;
-							integradora_comple.vLog.PVENDA             := null;
-							integradora_comple.vLog.PBASE              := null;
+              integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+              integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+              integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+              integradora_comple.vLog.TipoLog            := 'C';
+              integradora_comple.vLog.MSG                := 'CCRCA: Validacao 01 Movimentando Conta Corrente ' || vsOperador || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
+              integradora_comple.vLog.ptabela            := null;
+              integradora_comple.vLog.PVENDA             := null;
+              integradora_comple.vLog.PBASE              := null;
 
-							PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+              PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
-							integradora_comple.proc_registralog(integradora_comple.gvet_regpedido(i).numped,
+              integradora_comple.proc_registralog(integradora_comple.gvet_regpedido(i).numped,
                                              integradora_comple.gvet_regpedido(i).numpedrca,
                                              reg_itens.codprod,
                                              reg_itens.numseq,
@@ -25463,17 +25516,17 @@ FUNCTION func_inseriritemcesta
                                            NULL,
                                            null);
 
-					        integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-							integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-							integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-							integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-							integradora_comple.vLog.TipoLog            := 'C';
-							integradora_comple.vLog.MSG                := 'Rca sem saldo disponivel(C/C Fin) ' || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
-							integradora_comple.vLog.ptabela            := null;
-							integradora_comple.vLog.PVENDA             := null;
-							integradora_comple.vLog.PBASE              := null;
+                  integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+              integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+              integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+              integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+              integradora_comple.vLog.TipoLog            := 'C';
+              integradora_comple.vLog.MSG                := 'Rca sem saldo disponivel(C/C Fin) ' || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
+              integradora_comple.vLog.ptabela            := null;
+              integradora_comple.vLog.PVENDA             := null;
+              integradora_comple.vLog.PBASE              := null;
 
-							PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+              PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
                           IF regfilial.aceitavendarcasemsaldofv = 'S'
                           THEN
@@ -25663,20 +25716,20 @@ FUNCTION func_inseriritemcesta
                                                                   vnvlverbacmvcli);
 
               END IF;
-  			  
-			  IF (NVL(integradora_comple.gvet_regpedido(i).vlfrete,0) > 0) THEN
-				  IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_INCLUIFRETEOUTRASDESPBASEST',integradora_comple.gvet_regpedido(i).codfilial, 'N' ) = 'S' THEN
-					 IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FORMARETEIOFRETE_OUTRASDESP_VENDA',integradora_comple.gvet_regpedido(i).codfilial, 'F' ) = 'G' THEN
-						FATURAMENTO.RATEAR_FRETE_OUTRASDESPESAS(integradora_comple.gvet_regpedido(i).numped, 0,0, vMensagem );
-					 elsif FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FORMARETEIOFRETE_OUTRASDESP_VENDA',integradora_comple.gvet_regpedido(i).codfilial, 'F') = 'Q' THEN
-     				   IF integradora_comple.GVET_REGITEM(i).RESPQUESTFRETE = 'S' THEN
-					      FATURAMENTO.RATEAR_FRETE_OUTRASDESPESAS(integradora_comple.gvet_regpedido(i).numped, 0, 0, vMensagem );
-					   END IF;
-					 END IF;
-				  END IF;
+
+        IF (NVL(integradora_comple.gvet_regpedido(i).vlfrete,0) > 0) THEN
+          IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_INCLUIFRETEOUTRASDESPBASEST',integradora_comple.gvet_regpedido(i).codfilial, 'N' ) = 'S' THEN
+           IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FORMARETEIOFRETE_OUTRASDESP_VENDA',integradora_comple.gvet_regpedido(i).codfilial, 'F' ) = 'G' THEN
+            FATURAMENTO.RATEAR_FRETE_OUTRASDESPESAS(integradora_comple.gvet_regpedido(i).numped, 0,0, vMensagem );
+           elsif FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FORMARETEIOFRETE_OUTRASDESP_VENDA',integradora_comple.gvet_regpedido(i).codfilial, 'F') = 'Q' THEN
+               IF integradora_comple.GVET_REGITEM(i).RESPQUESTFRETE = 'S' THEN
+                FATURAMENTO.RATEAR_FRETE_OUTRASDESPESAS(integradora_comple.gvet_regpedido(i).numped, 0, 0, vMensagem );
+             END IF;
+           END IF;
+          END IF;
               END IF;
 
-			  
+
               IF nvl(integradora_comple.gvet_regpedido(i).numpedtv1 ,0) > 0
               AND nvl(integradora_comple.gvet_regpedido(i).codbrex,0) > 0 THEN
 
@@ -25910,42 +25963,42 @@ FUNCTION func_inseriritemcesta
                   END IF;
                 END IF;
 
-			   	SELECT COUNT(*),
-					 SUM(DECODE(NVL(pcpedi.bonific, 'N'), 'F', 0, 'S', 0, Round(pcpedi.qt * pcpedi.pvenda, 2)))
-				INTO vncontitensvalidos,
-					 vnvlatend
-				FROM pcpedi
-			   inner join pcpedipcpedifv
-				  on pcpedipcpedifv.numped = pcpedi.numped
-				 and pcpedipcpedifv.numseq = pcpedi.numseq
-				 and pcpedipcpedifv.codprod = pcpedi.codprod
-			   WHERE pcpedi.numped = integradora_comple.gvet_regpedido(i).numped
-				AND  pcpedipcpedifv.numpedrcafv  = integradora_comple.gvet_regpedido(i).numpedrca;
+          SELECT COUNT(*),
+           SUM(DECODE(NVL(pcpedi.bonific, 'N'), 'F', 0, 'S', 0, Round(pcpedi.qt * pcpedi.pvenda, 2)))
+        INTO vncontitensvalidos,
+           vnvlatend
+        FROM pcpedi
+         inner join pcpedipcpedifv
+          on pcpedipcpedifv.numped = pcpedi.numped
+         and pcpedipcpedifv.numseq = pcpedi.numseq
+         and pcpedipcpedifv.codprod = pcpedi.codprod
+         WHERE pcpedi.numped = integradora_comple.gvet_regpedido(i).numped
+        AND  pcpedipcpedifv.numpedrcafv  = integradora_comple.gvet_regpedido(i).numpedrca;
 
-				SELECT COUNT(*)
-				INTO vncontitenstodos
-				FROM pcpedifv
-			   WHERE pcpedifv.numpedrca  = integradora_comple.gvet_regpedido(i).numpedrca
-			     and pcpedifv.DTABERTURAPEDPALM = integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+        SELECT COUNT(*)
+        INTO vncontitenstodos
+        FROM pcpedifv
+         WHERE pcpedifv.numpedrca  = integradora_comple.gvet_regpedido(i).numpedrca
+           and pcpedifv.DTABERTURAPEDPALM = integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
 
-			   IF (vncontitensvalidos <> vncontitenstodos) and (vncontitensvalidos > 0) THEN
-				integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-				integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-				integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-				integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-				integradora_comple.vLog.TipoLog            := 'C';
-				integradora_comple.vLog.MSG                := 'Atualizando vlatend após corte.' || chr(13)
-															   || 'Valor Total: ' || to_char(vnvltotped + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)) || '.' || chr(13)
-															   || 'Valor Atendido: ' || to_char(vnvlatend + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)) || '.' || chr(13)
-															   || 'Qtd FV: ' || to_char(vncontitenstodos) || '.' || chr(13)
-															   || 'Qtd Validos: ' || to_char(vncontitensvalidos) || '.' || chr(13);
+         IF (vncontitensvalidos <> vncontitenstodos) and (vncontitensvalidos > 0) THEN
+        integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+        integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+        integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+        integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+        integradora_comple.vLog.TipoLog            := 'C';
+        integradora_comple.vLog.MSG                := 'Atualizando vlatend após corte.' || chr(13)
+                                 || 'Valor Total: ' || to_char(vnvltotped + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)) || '.' || chr(13)
+                                 || 'Valor Atendido: ' || to_char(vnvlatend + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)) || '.' || chr(13)
+                                 || 'Qtd FV: ' || to_char(vncontitenstodos) || '.' || chr(13)
+                                 || 'Qtd Validos: ' || to_char(vncontitensvalidos) || '.' || chr(13);
 
-				PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
-				update pcpedc c
-				   SET c.vlatend     = vnvlatend + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)
-					  ,c.NUMITENS    = vncontitensvalidos
-				where c.numped       = integradora_comple.gvet_regpedido(i).numped;
-			  END IF;
+        PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+        update pcpedc c
+           SET c.vlatend     = vnvlatend + nvl(integradora_comple.gvet_regpedido(i).vlfrete,0)
+            ,c.NUMITENS    = vncontitensvalidos
+        where c.numped       = integradora_comple.gvet_regpedido(i).numped;
+        END IF;
 
               IF integradora_comple.gvet_regpedido(i).valido = TRUE
               THEN
@@ -26083,17 +26136,17 @@ FUNCTION func_inseriritemcesta
                                              NULL,
                                              null);
 
-							integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-							integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-							integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-							integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-							integradora_comple.vLog.TipoLog            := 'C';
-							integradora_comple.vLog.MSG                := 'CCRCA: Validacao 02 Movimentando Conta Corrente ' || vsOperador || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
-							integradora_comple.vLog.ptabela            := null;
-							integradora_comple.vLog.PVENDA             := null;
-							integradora_comple.vLog.PBASE              := null;
+              integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+              integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+              integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+              integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+              integradora_comple.vLog.TipoLog            := 'C';
+              integradora_comple.vLog.MSG                := 'CCRCA: Validacao 02 Movimentando Conta Corrente ' || vsOperador || ' - sem credito disponivel - ACEITAVENDARCASEMSALDOFV ' || regfilial.aceitavendarcasemsaldofv;
+              integradora_comple.vLog.ptabela            := null;
+              integradora_comple.vLog.PVENDA             := null;
+              integradora_comple.vLog.PBASE              := null;
 
-							PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+              PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
                             IF regfilial.aceitavendarcasemsaldofv = 'S'
                             THEN
@@ -26363,7 +26416,7 @@ FUNCTION func_inseriritemcesta
                   THEN
                     --DDVENDAS-21600
                     IF integradora_comple.gvet_regpedido(i).condvenda = 7
-					and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND integradora_comple.gvet_regpedido(i).numpedorig = 0) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
+          and ((integradora_comple.gvet_regpedido(i).vendaassistida = 'N' AND integradora_comple.gvet_regpedido(i).numpedorig = 0) OR  (integradora_comple.gvet_regpedido(i).vendaassistida = 'S'))
                     --AND integradora_comple.gvet_regpedido(i).numpedorig = 0
                     THEN
 
@@ -26591,7 +26644,7 @@ FUNCTION func_inseriritemcesta
                                      AND NVL(PCPEDI.CODFILIALRETIRA, integradora_comple.gvet_regpedido(i).codfilial) = EST_DISP.CODFILIAL
                                      AND PCPEDI.QT > EST_DISP.QTDISP
                                      AND PCPEDC.NUMPED = PCPEDI.NUMPED
-									 AND PCPEDI.POSICAO NOT IN ('L','M')
+                   AND PCPEDI.POSICAO NOT IN ('L','M')
                                      AND PCPEDC.NUMPEDTV1 = INTEGRADORA_COMPLE.GVET_REGPEDIDO(I).NUMPED
                                      AND NVL(PCPEDI.BRINDE, 'N') = 'S';
                                   EXCEPTION
@@ -26602,50 +26655,50 @@ FUNCTION func_inseriritemcesta
 
 
                             IF VNCONTITEM > 0 THEN
-								IF (integradora_comple.gregpcconsum.ACEITAVENDABLOQ = 'S') THEN
-								  VNNUMPEDLOCAL := integradora_comple.gvet_regpedido(i).numped;
-								  integradora_comple.gvet_regpedido(i).posicao := 'B';
-								  VSPOSICAOLOCAL := integradora_comple.gvet_regpedido(i).POSICAO;
+                IF (integradora_comple.gregpcconsum.ACEITAVENDABLOQ = 'S') THEN
+                  VNNUMPEDLOCAL := integradora_comple.gvet_regpedido(i).numped;
+                  integradora_comple.gvet_regpedido(i).posicao := 'B';
+                  VSPOSICAOLOCAL := integradora_comple.gvet_regpedido(i).POSICAO;
 
-								  UPDATE PCPEDC
-									 SET POSICAO = VSPOSICAOLOCAL
-								   WHERE NUMPED = VNNUMPEDLOCAL;
+                  UPDATE PCPEDC
+                   SET POSICAO = VSPOSICAOLOCAL
+                   WHERE NUMPED = VNNUMPEDLOCAL;
 
-								  UPDATE PCPEDI
-									 SET POSICAO = VSPOSICAOLOCAL
-								   WHERE NUMPED = VNNUMPEDLOCAL;
+                  UPDATE PCPEDI
+                   SET POSICAO = VSPOSICAOLOCAL
+                   WHERE NUMPED = VNNUMPEDLOCAL;
 
-								  PKG_MOTIVOBLOQUEIO.INSERTMOTIVO(VNNUMPEDLOCAL,
-																  22,
-																  substr('Item brinde sem estoque ' ||
-																  vsmensagembrindE,1,200),
-																  'C');
-								  integradora_comple.gvet_regpedido(i).motivoposicao := substr('Item brinde sem estoque. ' ||
-																								vsmensagembrinde,1,60);
-								  integradora_comple.gvet_regpedido(i).log := integradora_comple.gvet_regpedido(i)
-																			  .log || CHR(13) ||
-																			   'Item brinde sem estoque. ' ||
-																			   vsmensagembrinde;
-								ELSE 
-								  VNNUMPEDLOCAL := integradora_comple.gvet_regpedido(i).numped;
-								  integradora_comple.gvet_regpedido(i).posicao := 'P';
-								  VSPOSICAOLOCAL := integradora_comple.gvet_regpedido(i).POSICAO;
+                  PKG_MOTIVOBLOQUEIO.INSERTMOTIVO(VNNUMPEDLOCAL,
+                                  22,
+                                  substr('Item brinde sem estoque ' ||
+                                  vsmensagembrindE,1,200),
+                                  'C');
+                  integradora_comple.gvet_regpedido(i).motivoposicao := substr('Item brinde sem estoque. ' ||
+                                                vsmensagembrinde,1,60);
+                  integradora_comple.gvet_regpedido(i).log := integradora_comple.gvet_regpedido(i)
+                                        .log || CHR(13) ||
+                                         'Item brinde sem estoque. ' ||
+                                         vsmensagembrinde;
+                ELSE
+                  VNNUMPEDLOCAL := integradora_comple.gvet_regpedido(i).numped;
+                  integradora_comple.gvet_regpedido(i).posicao := 'P';
+                  VSPOSICAOLOCAL := integradora_comple.gvet_regpedido(i).POSICAO;
 
-								  UPDATE PCPEDC
-								   SET POSICAO = VSPOSICAOLOCAL
-								   WHERE NUMPED = VNNUMPEDLOCAL;
+                  UPDATE PCPEDC
+                   SET POSICAO = VSPOSICAOLOCAL
+                   WHERE NUMPED = VNNUMPEDLOCAL;
 
-								  UPDATE PCPEDI
-								   SET POSICAO = VSPOSICAOLOCAL
-								   WHERE NUMPED = VNNUMPEDLOCAL;
-								  integradora_comple.gvet_regpedido(i).motivoposicao := substr('Item brinde sem estoque. ' ||
-																								vsmensagembrinde,1,60);
-								  integradora_comple.gvet_regpedido(i).log := integradora_comple.gvet_regpedido(i)
-																			  .log || CHR(13) ||
-																			   'Item brinde sem estoque. ' ||
-																			   vsmensagembrinde;
-								   
-								END IF;
+                  UPDATE PCPEDI
+                   SET POSICAO = VSPOSICAOLOCAL
+                   WHERE NUMPED = VNNUMPEDLOCAL;
+                  integradora_comple.gvet_regpedido(i).motivoposicao := substr('Item brinde sem estoque. ' ||
+                                                vsmensagembrinde,1,60);
+                  integradora_comple.gvet_regpedido(i).log := integradora_comple.gvet_regpedido(i)
+                                        .log || CHR(13) ||
+                                         'Item brinde sem estoque. ' ||
+                                         vsmensagembrinde;
+
+                END IF;
                             END IF;
                           END;
 
@@ -26697,7 +26750,7 @@ FUNCTION func_inseriritemcesta
                           FOR reg_itens IN (SELECT codprod,
                                                    numseq,
                                                    qt,
-												   ROUND(nvl(pcpedi.pbaserca, 0), 3) pbaserca,
+                           ROUND(nvl(pcpedi.pbaserca, 0), 3) pbaserca,
                                                    pc_pkg_controlarsaldorca.ccrca_saldo_item(integradora_comple.gregpcconsum.usacredrca,
                                                                                              integradora_comple.gvet_regpedido(i).usadebcredrca,
                                                                                              'N',
@@ -26751,20 +26804,20 @@ FUNCTION func_inseriritemcesta
 
                             PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
 
-							IF (reg_itens.pbaserca = 0) THEN
-							   integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
-							   integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
-							   integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
-							   integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
-							   integradora_comple.vLog.TipoLog            := 'C';
-							   integradora_comple.vLog.MSG                := 'CCRCA: Validacao 03 Movimentando Conta Corrente ' || vsOperador || ' Base RCA zerado e inválido';
+              IF (reg_itens.pbaserca = 0) THEN
+                 integradora_comple.vLog.NUMPEDRCA          := integradora_comple.gvet_regpedido(i).numpedrca;
+                 integradora_comple.vLog.CODUSUR            := integradora_comple.gvet_regpedido(i).CODUSUR;
+                 integradora_comple.vLog.CGCCLI             := integradora_comple.gvet_regpedido(i).CGCCLI;
+                 integradora_comple.vLog.DTABERTURAPEDPALM  := integradora_comple.gvet_regpedido(i).DTABERTURAPEDPALM;
+                 integradora_comple.vLog.TipoLog            := 'C';
+                 integradora_comple.vLog.MSG                := 'CCRCA: Validacao 03 Movimentando Conta Corrente ' || vsOperador || ' Base RCA zerado e inválido';
 
                                PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
-							   integradora_comple.gvet_regpedido(i).log := vsOperador || ' Base RCA zerado e inválido';
-							   integradora_comple.gvet_regpedido(i).valido := FALSE;
+                 integradora_comple.gvet_regpedido(i).log := vsOperador || ' Base RCA zerado e inválido';
+                 integradora_comple.gvet_regpedido(i).valido := FALSE;
                  p_existerro := TRUE;
                  RAISE ERRO_CCRCA_FINAL;
-							END IF;
+              END IF;
 
               IF (vnvldisponivel + reg_itens.saldo) < 0 AND reg_itens.saldo < 0 THEN
 
@@ -26780,7 +26833,7 @@ FUNCTION func_inseriritemcesta
                 IF regfilial.aceitavendarcasemsaldofv = 'S'
                 THEN
 
-							   vbsaldorca := pc_pkg_controlarsaldorca.ccrca_incluir_item_pedido(integradora_comple.gvet_regpedido(i).codemitente,
+                 vbsaldorca := pc_pkg_controlarsaldorca.ccrca_incluir_item_pedido(integradora_comple.gvet_regpedido(i).codemitente,
                                                                                   2596,
                                                                                   coalesce(reg_itens.codusur, integradora_comple.gvet_regpedido(i).codusur),
                                                                                   integradora_comple.gvet_regpedido(i).numped,
@@ -26804,12 +26857,12 @@ FUNCTION func_inseriritemcesta
 
                    PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
                   ELSE
-							    integradora_comple.gvet_regpedido(i).log := vsOperador || ' sem saldo disponivel';
-							    p_existerro := TRUE;
+                  integradora_comple.gvet_regpedido(i).log := vsOperador || ' sem saldo disponivel';
+                  p_existerro := TRUE;
                   RAISE ERRO_CCRCA_FINAL;
                 END IF;
-							ELSE
-							  vbsaldorca := pc_pkg_controlarsaldorca.ccrca_incluir_item_pedido(integradora_comple.gvet_regpedido(i).codemitente,
+              ELSE
+                vbsaldorca := pc_pkg_controlarsaldorca.ccrca_incluir_item_pedido(integradora_comple.gvet_regpedido(i).codemitente,
                                                                                  2596,
                                                                                  coalesce(reg_itens.codusur, integradora_comple.gvet_regpedido(i).codusur),
                                                                                  integradora_comple.gvet_regpedido(i).numped,
@@ -26832,7 +26885,7 @@ FUNCTION func_inseriritemcesta
                   integradora_comple.vLog.PBASE              := null;
 
                   PRC_LOG_INTEGRADORA(integradora_comple.vLog, (CASE WHEN integradora_comple.vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
-							END IF;
+              END IF;
 
                           END LOOP;
 
@@ -26898,7 +26951,7 @@ FUNCTION func_inseriritemcesta
                              vnvlcustorealped
                         FROM pcpedi
                        WHERE pcpedi.numped = integradora_comple.gvet_regpedido(i).numped
-					   AND pcpedi.QT > 0;
+             AND pcpedi.QT > 0;
 
                       BEGIN
 
@@ -27148,7 +27201,7 @@ FUNCTION func_inseriritemcesta
              VENDAS.APLICAR_VERBACAMPANHA(itemped.numped,
                                           itemped.codprod,
                                           itemped.numseq,
-										  integradora_comple.gvet_regpedido(i).codfilial);
+                      integradora_comple.gvet_regpedido(i).codfilial);
 
            END LOOP;
            -----------------------------------------------------------
@@ -27543,53 +27596,53 @@ FUNCTION func_inseriritemcesta
                       END LOOP;
                     END IF;
           END IF;
-			IF REGFILIAL.utilizaroteirizacao = 'S'
-			   AND REGFILIAL.atualizarotanomomentovenda = 'S'
-			THEN
-				  DECLARE
-					  vsmensagematurota VARCHAR2(1000);
-					  vbjustvalida      BOOLEAN;
-				  BEGIN
+      IF REGFILIAL.utilizaroteirizacao = 'S'
+         AND REGFILIAL.atualizarotanomomentovenda = 'S'
+      THEN
+          DECLARE
+            vsmensagematurota VARCHAR2(1000);
+            vbjustvalida      BOOLEAN;
+          BEGIN
 
-				  PRC_ATUALIZA_ROTA(REGFILIAL.utilizaroteirizacao,
-									REGFILIAL.atualizarotanomomentovenda,
-									integradora_comple.gvet_regpedido(i).codcli,
-									integradora_comple.gvet_regpedido(i).CODUSUR,
-									'PED',
-									integradora_comple.gvet_regpedido(i).numped,
-									trunc(integradora_comple.gvet_regpedido(i).dtaberturapedpalm),
-									integradora_comple.gvet_regpedido(i).codrota,
-									NULL,
-									NULL,
-									vsmensagematurota,
-									vbjustvalida);
+          PRC_ATUALIZA_ROTA(REGFILIAL.utilizaroteirizacao,
+                  REGFILIAL.atualizarotanomomentovenda,
+                  integradora_comple.gvet_regpedido(i).codcli,
+                  integradora_comple.gvet_regpedido(i).CODUSUR,
+                  'PED',
+                  integradora_comple.gvet_regpedido(i).numped,
+                  trunc(integradora_comple.gvet_regpedido(i).dtaberturapedpalm),
+                  integradora_comple.gvet_regpedido(i).codrota,
+                  NULL,
+                  NULL,
+                  vsmensagematurota,
+                  vbjustvalida);
 
-				  IF vsmensagematurota IS NOT NULL
-				  THEN
-
-
-					integradora_comple.proc_registralog(integradora_comple.gvet_regpedido(i).numped,
-									 integradora_comple.gvet_regpedido(i).numpedrca,
-									 NULL,
-									 NULL,
-									 NULL,
-									 integradora_comple.gvet_regpedido(i).cgccli,
-									 NULL,
-									 NULL,
-									 NULL,
-									 integradora_comple.gvet_regpedido(i).CODUSUR,
-									 integradora_comple.gvet_regpedido(i).dtaberturapedpalm,
-									 NULL,
-									 '2',
-									 vsmensagematurota || ';',
-									 NULL,
-									 null);
-
-				  END IF;
-				  END;
+          IF vsmensagematurota IS NOT NULL
+          THEN
 
 
-			END IF;
+          integradora_comple.proc_registralog(integradora_comple.gvet_regpedido(i).numped,
+                   integradora_comple.gvet_regpedido(i).numpedrca,
+                   NULL,
+                   NULL,
+                   NULL,
+                   integradora_comple.gvet_regpedido(i).cgccli,
+                   NULL,
+                   NULL,
+                   NULL,
+                   integradora_comple.gvet_regpedido(i).CODUSUR,
+                   integradora_comple.gvet_regpedido(i).dtaberturapedpalm,
+                   NULL,
+                   '2',
+                   vsmensagematurota || ';',
+                   NULL,
+                   null);
+
+          END IF;
+          END;
+
+
+      END IF;
 
           COMMIT;
 
@@ -27917,7 +27970,7 @@ FUNCTION func_inseriritemcesta
     -- processamento do retorno.
     proc_processaretornotab(vbexisterro);
 
-	-- A posição do cabeçalho deve ser a mesma dos itens
+  -- A posição do cabeçalho deve ser a mesma dos itens
     DECLARE
       VSPOSICAO VARCHAR2(1);
     BEGIN
@@ -27926,7 +27979,7 @@ FUNCTION func_inseriritemcesta
                    WHERE NUMPEDRCA = p_numpedrca
                      AND CODUSUR = p_codusur) LOOP
         BEGIN
-		  VSPOSICAO := '';
+      VSPOSICAO := '';
           SELECT POSICAO
             INTO VSPOSICAO
             FROM PCPEDI
@@ -28003,4 +28056,3 @@ FUNCTION func_inseriritemcesta
   END importarpedido;
 
 END; -- INTEGRADORA
-
