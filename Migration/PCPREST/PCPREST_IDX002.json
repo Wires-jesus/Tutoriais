@@ -1,0 +1,11 @@
+{
+   "nome": "PCPREST_IDX002",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+      {
+        "nome": "PCPREST",
+        "tipo": "TABELA",
+        "versao": "4.0.04.000"
+      }
+    ]
+}
