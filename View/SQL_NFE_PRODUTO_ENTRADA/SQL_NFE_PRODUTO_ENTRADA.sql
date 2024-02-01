@@ -515,7 +515,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                ELSE
                   NULL
                END AS EAN_UNIDADE
-              ,PCMOV.UNIDADE AS UNIDADE_TRIBUTAVEL
+              ,PCMOVCOMPLE.UNIDADETRIB AS UNIDADE_TRIBUTAVEL
               ,CASE WHEN (NVL(PCNFENT.FINALIDADENFE,'O') = 'C') THEN
                     0
                ELSE
@@ -1528,7 +1528,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                ELSE
                   NULL
                END AS EAN_UNIDADE
-              ,PCMOV.UNIDADE AS UNIDADE_TRIBUTAVEL
+              ,PCMOVCOMPLE.UNIDADETRIB AS UNIDADE_TRIBUTAVEL
               ,CASE WHEN (NVL(PCNFENT.FINALIDADENFE,'O') = 'C') THEN
                     0
                ELSE
