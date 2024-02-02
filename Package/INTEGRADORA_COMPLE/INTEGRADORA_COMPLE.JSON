@@ -1,1 +1,12 @@
-{"nome":"INTEGRADORA_COMPLE","tipoPLSQL":"PACKAGE","dependencias":""}
+{"nome":"INTEGRADORA_COMPLE",
+"tipoPLSQL":"PACKAGE",
+"dependencias":[
+{"nome":"PCPRODFILIAL",
+"tipo":"TABELA",
+"versao":"5.0.01.000"
+},
+{"nome":"PCTABPR",
+"tipo":"TABELA",
+"versao":"5.0.01.000"
+}]
+}
