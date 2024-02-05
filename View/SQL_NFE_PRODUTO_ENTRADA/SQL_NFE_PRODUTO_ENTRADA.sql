@@ -1411,10 +1411,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), 2) / PCMOV.QTCONT))+
-                                       --MELHORIA HIS.02234.2016
                                        CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                               CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
-                                                  NVL(PCMOV.VLDESCSUFRAMA,0)
+                                               CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
+                                                     AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
+                                                  COALESCE(PCMOV.VLDESCSUFRAMA,0)
                                                ELSE
                                                   0
                                                END      
@@ -1602,11 +1602,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), 2) / PCMOV.QTCONT)) +
-                                -------------------------------------------------------------------------------------------------
-                                       --MELHORIA HIS.02234.2016
                                        CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                              CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
-                                                  NVL(PCMOV.VLDESCSUFRAMA,0)
+                                              CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
+                                                     AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
+                                                  COALESCE(PCMOV.VLDESCSUFRAMA,0)
                                                ELSE
                                                   0
                                                END
@@ -1708,10 +1707,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                0,
                                                                NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                     ), 2) / PCMOV.QTCONT)) +
-                            --MELHORIA HIS.02234.2016
                             CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
-                                   CASE WHEN (NVL(PCFORNEC.SUFRAMA, 'S') = 'S') THEN
-                                      NVL(PCMOV.VLDESCSUFRAMA,0)
+                                    CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
+                                         AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
+                                             COALESCE(PCMOV.VLDESCSUFRAMA,0)
                                    ELSE
                                       0
                                    END
