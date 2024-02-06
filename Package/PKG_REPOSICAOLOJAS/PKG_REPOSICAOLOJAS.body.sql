@@ -5537,8 +5537,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                 0,
                                                 0,
                                                 NULL,
-                                                'S',  --HIS.01188.2013 (verifique história)
-                                                '')); --DDVENDAS-37042 - Igual a 316 para não dar diferença de ST (pTransferencia indica que é 1419 ou 1436, não para a 316)
+                                                'S'  --HIS.01188.2013 (verifique história)
+                                                )); --DDVENDAS-37042 - Igual a 316 para não dar diferença de ST (pTransferencia indica que é 1419 ou 1436, não para a 316)
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
             vnBaseST   := 0;
