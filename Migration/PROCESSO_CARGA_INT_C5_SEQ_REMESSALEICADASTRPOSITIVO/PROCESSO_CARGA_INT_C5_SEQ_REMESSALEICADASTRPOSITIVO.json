@@ -1,0 +1,6 @@
+{
+    "nome": "PROCESSO_CARGA_INT_C5_SEQ_REMESSALEICADASTRPOSITIVO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+ }
