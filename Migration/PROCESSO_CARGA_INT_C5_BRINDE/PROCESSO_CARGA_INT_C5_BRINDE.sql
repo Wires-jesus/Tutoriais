@@ -489,7 +489,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_BRINDE_ITENS_AUT AS(
     AND TRUNC(SYSDATE) BETWEEN TRUNC(DTINICIO) AND TRUNC(DTFIM)
     AND NVL(PCPRODUT.TIPOMERC, 'L') = 'L'
     AND (NVL(PCPROMC.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao
-        OR NVL(EMBALAGEMCABECALHO.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
+        OR NVL(EMBALAGEMCABECALHO.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao
+		OR NVL(PCPRODUT.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
     AND PCPROMC.TIPODESCONTOBRINDE = 'B'
     AND PCPROMC.CODFILIAL = C5.CODFILIAL
 )
