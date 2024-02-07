@@ -29,7 +29,7 @@ BEGIN
   END IF;
 
 
-  insert into pclogdadoslogisticos (
+  insert into pclogdadoslogisticos2 (
   codfilial,
   codfilial_ant,
   codendereco,
