@@ -2200,7 +2200,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 ,0) +
                                 NVL(PCMOVCOMPLE.VLANTIDUMPING, 0)
                             ,0),
-                            DECODE(PCMOV.CODOPER, 'ED', PCMOV.VLOUTROS, PCMOV.VLOUTRASDESP)
+                            DECODE(PCMOV.CODOPER, 'EN', PCMOV.VLOUTROS, 'ED', PCMOV.VLOUTROS, PCMOV.VLOUTRASDESP)
                             ) * PCMOV.QTCONT,2
                     ) AS VALOR_OUTROS
               --dados veiculos
