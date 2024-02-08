@@ -127,12 +127,12 @@ create or replace package body INTEGRADORA_COMPLE is
   FUNCTION BuscarLimCredSazonal(p_codcli  NUMBER,
                                 P_codusur NUMBER,
                                 p2553_132 VARCHAR2) RETURN NUMBER IS
-  
+
     vlimcredtemp NUMBER := 0;
     vpercaumento NUMBER := 0;
-  
+
   BEGIN
-  
+
     if (p2553_132 = 'N') Then
       select sum(limcred)
         into vlimcredtemp
@@ -147,7 +147,7 @@ create or replace package body INTEGRADORA_COMPLE is
                 from pcclient
                where codcli = p_codcli);
     end if;
-  
+
     BEGIN
       SELECT percaumento
         into vpercaumento
@@ -160,9 +160,9 @@ create or replace package body INTEGRADORA_COMPLE is
       WHEN OTHERS THEN
         vpercaumento := 0;
     END;
-  
+
     Return vlimcredtemp *(nvl(vpercaumento, 0) / 100);
-  
+
   END;
 
   procedure proc_delitensped(p_regpedido in t_cabped, p_movest in varchar2) is
@@ -214,7 +214,7 @@ create or replace package body INTEGRADORA_COMPLE is
   EXCEPTION
     WHEN NO_DATA_FOUND THEN
       VNBLOQUEADO := 0;
-    END;     
+    END;
 
     IF VNBLOQUEADO > 0 THEN
       -- BLOQUEIA O REGISTRO AUTORIZANDO A IMPORTAÇÃO
@@ -2028,9 +2028,9 @@ create or replace package body INTEGRADORA_COMPLE is
     p_saldodisponivel OUT NUMBER
   ) RETURN BOOLEAN IS
 
-									
-									
-									
+
+
+
     vnvltotped               NUMBER;
 
     vnVLBONIFIC              NUMBER;
@@ -2039,11 +2039,11 @@ create or replace package body INTEGRADORA_COMPLE is
   BEGIN
 
     p_saldodisponivel := 0;
-						   
+
     vnvltotped        := p_vltotped;
-    
+
     p_saldodisponivel := PKG_LIMITECREDITO.RETORNA_LIMITE_CRED_DISPONIVEL(p_regcliente.codcli);
-    
+
     SELECT NVL(PCCOB.VALIDALIMITECREDITO, 'S')
       INTO vbValidarLimiteCredito
       FROM PCCOB
@@ -2058,7 +2058,7 @@ create or replace package body INTEGRADORA_COMPLE is
             (isCobrancaCartao(p_regpedido.CODCOB))) and
           (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_VERIFICALIMCREDCODCOBD',99,'N') = 'N'))
           and (vbValidarLimiteCredito = 'S')
-          
+
     THEN
 
       IF p_saldodisponivel + func_validaautorizacaopcautorc(p_regcliente,
@@ -2068,14 +2068,14 @@ create or replace package body INTEGRADORA_COMPLE is
                                                             vnvltotped) >= vnvltotped
       THEN
 
-													
-									 
-						  
-									   
-					  
-												   
-									   
-									 
+
+
+
+
+
+
+
+
 
         proc_atualizarpcautorc(p_regpedido.numped,
                                p_regpedido.codusur,
@@ -2085,299 +2085,299 @@ create or replace package body INTEGRADORA_COMPLE is
                                               0)),
                                p_regcliente.limcred);
 
-								 
-							
-										
-					   
-											 
-								 
-																				
-																						 
-														
-													
-																		 
-													 
-			
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         RETURN TRUE;
-							
-										
-					   
-											 
-								 
-																				
-																						 
-													 
 
-			   
 
-										
-						  
-					 
-										   
-																			  
-																					   
-									  
-											
 
-																					   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       ELSE
         RETURN FALSE;
-									 
-						  
-									   
-					  
-												   
-									
-																					
 
 
-										   
 
-																					 
-							
-										
-							   
-													
-											  
-											
-										
-																					   
-																								
-																			 
-											  
-																			 
-														
-													
-																		 
-													 
 
-			
 
-																					 
-						  
-									  
-							 
-												  
-											
-										  
-									  
-																					 
-																							  
-																				  
-											
-												   
 
-			   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       END IF;
 
 
-													  
-																			  
-															   
-														 
-																  
-												  
-																	 
-																	 
-																					  
-
-												   
-																
-
-															
-											 
-												 
-														 
-											
-											
-											 
-														 
-																							
-		  
-
-																		   
-																				  
-																		  
-																				
-																					   
-			
 
 
-													
-													 
-													
-															   
-																	   
-													
-													   
 
 
-					  
 
-			
-					   
-			   
-		  
-					
-			 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     ELSE
 
-											  
-		  
-
-													
-									 
-						  
-									   
-					  
-														 
-												  
-																																  
-									   
-									 
-
-									   
-										   
-
-								 
-							
-										
-					   
-												   
-											
-																													
-								 
-																				
-																						 
-																			 
-														
-													
-																		 
-													 
-
-			
-
-								 
-						  
-									  
-					 
-												 
-										  
-																												  
-							   
-																			  
-																					   
-								   
-												   
-
-			   
-
-										 
-						  
-							   
-											  
-													   
-															   
-																					 
-																							  
-									   
-											
-
-																		 
-
-		  
-
-													
-									 
-						  
-									   
-					  
-														 
-												  
-																																  
-									
-																					
-
-									   
-																				   
-						  
-									  
-							 
-														
-												 
-																																
-											
-										  
-									  
-																					 
-																							  
-																				  
-											
-												   
-
-			 
-
-								  
-						   
-					 
-																									   
-
-												
-																			  
-															   
-														 
-																  
-												  
-																	 
-																	 
-																					  
-
-												   
-																
-
-															
-											 
-												 
-														 
-											
-											
-											 
-														 
-																							
-		  
-
-																		   
-																				  
-																		  
-																				
-																					   
-			
 
 
-													
-													 
-													
-															   
-																	   
-													
-													   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       RETURN TRUE;
 
-			
-					   
-			   
-		  
-					
+
+
+
+
+
     END IF;
 
 
-		   
+
 
   EXCEPTION
     WHEN OTHERS THEN
@@ -3616,7 +3616,7 @@ create or replace package body INTEGRADORA_COMPLE is
                                     p_regcliente.contribuinte,
                                     0,
                                     CASE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USADESCSIMPLESNAC',
-                                                                       p_regpedido.codfilial,   
+                                                                       p_regpedido.codfilial,
                                                                        'N') WHEN 'S' THEN 0 ELSE nvl(reg_itens.VLREDPVENDASIMPLESNA,
                                         0) END,
                                     p_regcliente.consumidorfinal,
@@ -4519,8 +4519,8 @@ create or replace package body INTEGRADORA_COMPLE is
              pcpedc.vlatend       = decode(vncondvenda,
                                            5,
                                            0,decode(vncondvenda,
-										   11,
-										   0,
+                       11,
+                       0,
                                            decode(vncondvenda,
                                                   20,
                                                   0,
@@ -4859,7 +4859,7 @@ PROCEDURE proc_lerparametros(p_existerro IN OUT BOOLEAN) IS
                     DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
 
   END validarValorTv1Tv5;
-  
+
 PROCEDURE proc_lockestoque(p_CGCCLI  IN VARCHAR2
                          , p_datainicial  IN DATE
                          , p_datafinal    IN DATE
@@ -4874,18 +4874,18 @@ PROCEDURE proc_lockestoque(p_CGCCLI  IN VARCHAR2
   vsFiltroNumPedRca          varchar2(400);
     BEGIN
       p_valido := FALSE;
-      p_mensagem := 'Nenhuma';    
+      p_mensagem := 'Nenhuma';
       vsFiltroCodUsur := '';
       vsFiltroNumPedRca := '';
-    
+
       IF p_codusur IS NOT NULL THEN
       vsFiltroCodUsur := 'AND (PCPEDCFV.codusur = ' || p_codusur || ') ';
       END IF;
-    
+
       IF p_numpedrca IS NOT NULL THEN
       vsFiltroNumPedRca := 'AND (PCPEDCFV.numpedrca = ' || p_numpedrca || ') ';
       END IF;
-    
+
       vsSqlCursorEstoquePedido := 'SELECT CODPROD, CODFILIAL
                                      FROM PCEST
                                     WHERE (CODPROD, CODFILIAL) IN
@@ -4896,8 +4896,8 @@ PROCEDURE proc_lockestoque(p_CGCCLI  IN VARCHAR2
                         AND PCPEDIFV.CODUSUR   = PCPEDCFV.CODUSUR
                         AND nvl(PCPEDIFV.DTABERTURAPEDPALM, PCPEDCFV.DTABERTURAPEDPALM) = PCPEDCFV.DTABERTURAPEDPALM
                                               AND PCPEDCFV.CGCCLI = ' ||''''|| p_CGCCLI||'''' || '
-                                              AND (NVL(trunc(PCPEDCFV.dtinclusao), TRUNC(SYSDATE)) BETWEEN 
-                                                  TO_DATE(' || '''' || TO_CHAR(p_datainicial, 'DD-MM-YYYY') || '''' || ', ' || '''DD-MM-YYYY'')' || ' AND 
+                                              AND (NVL(trunc(PCPEDCFV.dtinclusao), TRUNC(SYSDATE)) BETWEEN
+                                                  TO_DATE(' || '''' || TO_CHAR(p_datainicial, 'DD-MM-YYYY') || '''' || ', ' || '''DD-MM-YYYY'')' || ' AND
                                                   TO_DATE(' || '''' || TO_CHAR(p_datafinal, 'DD-MM-YYYY') || '''' || ', ' || '''DD-MM-YYYY'')' || ' )
                                               AND nvl(PCPEDCFV.tipofv, ' || '''' || 'FV' || '''' || ') = ' || '''' || 'FV' || '''' ||
                                               vsFiltroCodUsur ||
@@ -4908,7 +4908,7 @@ PROCEDURE proc_lockestoque(p_CGCCLI  IN VARCHAR2
     OPEN pCursorEstoque FOR
            vsSqlCursorEstoquePedido;
       p_valido := TRUE;
-       
+
   EXCEPTION
     WHEN OTHERS THEN
       p_valido := FALSE;
@@ -4932,7 +4932,7 @@ PROCEDURE proc_lockestoque(p_CGCCLI  IN VARCHAR2
                        NULL,
                        NULL);
     END proc_lockestoque;
-  
+
 PROCEDURE proc_liberaestoque(pCursorEstoque IN OUT T_CURSOR_ESTOQUE_LOCK) is
     BEGIN
     CLOSE pCursorEstoque;
@@ -4955,7 +4955,7 @@ PROCEDURE proc_liberaestoque(pCursorEstoque IN OUT T_CURSOR_ESTOQUE_LOCK) is
     return(vsCartao = 'S');
 
   END;
-  
+
 PROCEDURE pro_insereMensagemFalta(p_codusur IN NUMBER,
                                   p_numped IN NUMBER,
                                   p_codcli IN NUMBER,
@@ -4972,13 +4972,13 @@ BEGIN
     into vsCliente
     FROM pcclient cli
    where cli.codcli = p_codcli;
-   
+
   select p.descricao || ' ' ||
          nvl((select e.embalagem from pcembalagem e where e.codauxiliar = p_codauxiliar and e.codfilial = p_codfilial and rownum = 1), p.embalagem)
     into vsEmbalagem
   from pcprodut p
   where p.codprod = p_codprod;
-  
+
   INSERT INTO pcmens
       (codusur, --1
        data, --2
@@ -5002,7 +5002,7 @@ BEGIN
 END;
 FUNCTION FUNC_RETORNARPTABELACESTA(P_NUMREGIAO IN PCPEDC.NUMREGIAO%TYPE,
                                                  P_TIPOPRECIFICACAO IN PCFILIAL.TIPOPRECIFICACAO%TYPE,
-                                                 P_CODFILIAL IN PCPEDC.CODFILIAL%TYPE, 
+                                                 P_CODFILIAL IN PCPEDC.CODFILIAL%TYPE,
                                                  P_NUMPR IN NUMBER,
                                                  P_CODPRODMP IN NUMBER,
                                                  P_CODPRODACAB IN NUMBER,
@@ -5034,7 +5034,9 @@ TYPE T_preco IS RECORD(
   PVENDAATAC5       PCTABPR.PVENDAATAC5%TYPE,
   PVENDAATAC6       PCTABPR.PVENDAATAC6%TYPE,
   PVENDAATAC7       PCTABPR.PVENDAATAC7%TYPE,
-  qtminimaatacado   PCEMBALAGEM.QTMINIMAATACADO%TYPE);
+  qtminimaatacado   PCEMBALAGEM.QTMINIMAATACADO%TYPE,
+  QTMULTIPLATABPR   PCPRODFILIAL.QTMULTIPLA%TYPE,
+  UTILIZAMULTIPLO   PCTABPR.UTILIZAMULTIPLO%TYPE);
   p_regprecos T_preco;
 BEGIN
   BEGIN
@@ -5075,7 +5077,12 @@ BEGIN
             DECODE(NVL(pcprodut.qtminimaatacado, 0),
                  0,
                  1,
-                 pcprodut.qtminimaatacado))) qtminimaatacado
+       pcprodut.qtminimaatacado))) qtminimaatacado,
+       NVL ((SELECT QTMULTIPLA
+                    FROM PCPRODFILIAL
+                    WHERE CODPROD = PCPRODUT.CODPROD
+                    AND CODFILIAL = p_codfilial),0) QTMULTIPLATABPR,
+       NVL(PCTABPR.UTILIZAMULTIPLO,'N') UTILIZAMULTIPLO            
     INTO p_regprecos.PVENDAATAC1,
        p_regprecos.PVENDAATAC2,
        p_regprecos.PVENDAATAC3,
@@ -5097,7 +5104,9 @@ BEGIN
        p_regprecos.pvendasemimposto5,
        p_regprecos.pvendasemimposto6,
        p_regprecos.pvendasemimposto7,
-       p_regprecos.qtminimaatacado
+       p_regprecos.qtminimaatacado,
+       p_regprecos.QTMULTIPLATABPR,
+       p_regprecos.UTILIZAMULTIPLO
     FROM PCTABPR, pcprodut
      WHERE PCTABPR.CODPROD = pcprodut.CODPROD
      AND PCTABPR.CODPROD = p_CODPRODMP
@@ -5126,14 +5135,18 @@ BEGIN
     p_regprecos.pvendasemimposto6 := 0;
     p_regprecos.pvendasemimposto7 := 0;
     p_regprecos.qtminimaatacado   := 0;
+    p_regprecos.QTMULTIPLATABPR   := 0;
+    p_regprecos.UTILIZAMULTIPLO   := 'N';
   END;
 
-  if ((p_tipoprecificacao = 'P') OR
-     (p_tipoprecificacao = 'A' AND p_qt >= p_regprecos.qtminimaatacado) OR 
-     (p_tipoprecificacao = 'V' AND
-     (p_qt < p_regprecos.qtminimaatacado OR
-     NVL(p_regprecos.qtminimaatacado, 0) = 0))) AND p_comimposto = 'S' 
-   THEN
+
+  IF ((p_tipoprecificacao = 'P') OR
+      (p_tipoprecificacao = 'A' AND 
+          ((p_regprecos.UTILIZAMULTIPLO = 'S' AND (p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_qt, p_regprecos.QTMULTIPLATABPR) = 0)) OR
+           (p_regprecos.UTILIZAMULTIPLO <> 'S' AND p_qt >= p_regprecos.qtminimaatacado))) OR
+      (p_tipoprecificacao = 'V' AND 
+          ((p_regprecos.UTILIZAMULTIPLO = 'S' AND NOT ((p_regprecos.QTMULTIPLATABPR > 0) AND (MOD(p_qt, p_regprecos.QTMULTIPLATABPR) = 0))) OR
+           (p_regprecos.UTILIZAMULTIPLO <> 'S' AND (p_qt < p_regprecos.qtminimaatacado OR NVL(p_regprecos.qtminimaatacado, 0) = 0))))) AND p_comimposto = 'S' THEN
     IF p_numpr = 1 THEN
     VNPRECO := p_regprecos.pvenda1;
     ELSIF p_numpr = 2 THEN
@@ -5149,8 +5162,8 @@ BEGIN
     ELSIF p_numpr = 7 THEN
     VNPRECO := p_regprecos.pvenda7;
     END IF;
-  ELSIF ((p_tipoprecificacao = 'A' AND p_qt < p_regprecos.qtminimaatacado) OR 
-      (p_tipoprecificacao = 'V' AND p_qt >= p_regprecos.qtminimaatacado)) 
+  ELSIF ((p_tipoprecificacao = 'A' AND p_qt < p_regprecos.qtminimaatacado) OR
+      (p_tipoprecificacao = 'V' AND p_qt >= p_regprecos.qtminimaatacado))
    THEN
     IF p_numpr = 1 THEN
     VNPRECO := p_regprecos.pvendaatac1;
@@ -5248,11 +5261,11 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
       IF vbVendaEmb THEN
         BEGIN
           SELECT SUM(I.QT * NVL(DECODE(E.QTUNIT, 0, 1, E.QTUNIT), 1)),
-				 SUM(I.QT)
+         SUM(I.QT)
             INTO vnQTPCPEDICOMBO, vnQTPCPEDICOMBO_EMBALAGEM
             FROM PCPEDIFV I, PCPEDCFV P,PCEMBALAGEM E
            WHERE I.CODPROD = E.CODPROD
-			       AND I.NUMPEDRCA = P.NUMPEDRCA
+             AND I.NUMPEDRCA = P.NUMPEDRCA
              AND I.DTABERTURAPEDPALM = P.DTABERTURAPEDPALM
              AND NVL(I.CODFILIALRETIRA,NVL(P.CODFILIALRETIRA,P.CODFILIAL)) = E.CODFILIAL
              AND I.CODAUXILIAR = E.CODAUXILIAR
@@ -5272,7 +5285,7 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
             INTO vnQTUNIDADES, vsUNIDADE
             FROM PCPEDIFV I, PCPEDCFV P,PCEMBALAGEM E
            WHERE I.CODPROD = E.CODPROD
-			       AND I.NUMPEDRCA = P.NUMPEDRCA
+             AND I.NUMPEDRCA = P.NUMPEDRCA
              AND I.DTABERTURAPEDPALM = P.DTABERTURAPEDPALM
              AND NVL(I.CODFILIALRETIRA,NVL(P.CODFILIALRETIRA,P.CODFILIAL)) = E.CODFILIAL
              AND I.CODAUXILIAR = E.CODAUXILIAR
@@ -5410,7 +5423,7 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
                            END),1))) QT
                   FROM PCPEDIFV I, PCPRODUT P, PCPEDCFV PD
                  WHERE P.CODPROD = I.CODPROD
-				           AND I.NUMPEDRCA = PD.NUMPEDRCA
+                   AND I.NUMPEDRCA = PD.NUMPEDRCA
                    AND P.CODSEC = FAIXAS.TIPOVALOR
                    AND I.DTABERTURAPEDPALM = PD.DTABERTURAPEDPALM
                    AND 'S - Seção' = FAIXAS.TIPO
@@ -5432,7 +5445,7 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
                            END),1))) QT
                   FROM PCPEDIFV I, PCPRODUT P, PCPEDCFV PD
                  WHERE P.CODPROD = I.CODPROD
-				           AND I.NUMPEDRCA = PD.NUMPEDRCA
+                   AND I.NUMPEDRCA = PD.NUMPEDRCA
                    AND P.CODCATEGORIA = FAIXAS.TIPOVALOR
                    AND I.DTABERTURAPEDPALM = PD.DTABERTURAPEDPALM
                    AND 'C - Categoria' = FAIXAS.TIPO
@@ -5476,7 +5489,7 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
                            END),1))) QT
                   FROM PCPEDIFV I, PCPRODUT P, PCPEDCFV PD
                  WHERE P.CODPROD = I.CODPROD
-				           AND I.NUMPEDRCA = PD.NUMPEDRCA
+                   AND I.NUMPEDRCA = PD.NUMPEDRCA
                    AND P.CODLINHAPROD = FAIXAS.TIPOVALOR
                    AND I.DTABERTURAPEDPALM = PD.DTABERTURAPEDPALM
                    AND 'LP - Linha de Produtos' = FAIXAS.TIPO
@@ -5498,7 +5511,7 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
                            END),1))) QT
                   FROM PCPEDIFV I, PCPRODUT P, PCPEDCFV PD
                  WHERE P.CODPROD = I.CODPROD
-				           AND I.NUMPEDRCA = PD.NUMPEDRCA
+                   AND I.NUMPEDRCA = PD.NUMPEDRCA
                    AND I.DTABERTURAPEDPALM = PD.DTABERTURAPEDPALM
                    AND 'GP - Grupo de Produtos' = FAIXAS.TIPO
                    AND I.CODCOMBO = FAIXAS.CODIGO
@@ -5531,10 +5544,10 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
           pMSG  := '';
 
           vSQL := ' SELECT SUM(I.QT * NVL(DECODE(E.QTUNIT, 0, 1, E.QTUNIT), 1)),
-						   SUM(I.QT)
-					  FROM PCPEDIFV I, PCEMBALAGEM E, PCPEDCFV P
+               SUM(I.QT)
+            FROM PCPEDIFV I, PCEMBALAGEM E, PCPEDCFV P
                      WHERE I.CODPROD = E.CODPROD
-					             AND I.NUMPEDRCA = P.NUMPEDRCA
+                       AND I.NUMPEDRCA = P.NUMPEDRCA
                        AND I.DTABERTURAPEDPALM = P.DTABERTURAPEDPALM
                        AND NVL(I.CODFILIALRETIRA,NVL(P.CODFILIALRETIRA,P.CODFILIAL)) = E.CODFILIAL
                        AND I.CODAUXILIAR = E.CODAUXILIAR
@@ -5793,13 +5806,13 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
     vsUNIDADE          VARCHAR2(2);
     vnCODFAIXA         NUMBER := 0;
     vnQTPCPEDIFVFAIXA  NUMBER := 0;
-	vsSQL			   VARCHAR(32767);
+  vsSQL        VARCHAR(32767);
 
   BEGIN
 
 
     BEGIN
-	  vnQTUNIDADES := 0;
+    vnQTUNIDADES := 0;
       vsUNIDADE    := '';
       vsSQL := '';
       BEGIN
@@ -6296,4 +6309,3 @@ FUNCTION F_RETORNARDESCFAIXACAMPANHASQP(pNUMPEDRCA         IN NUMBER,
   END;
 
 end INTEGRADORA_COMPLE;
-
