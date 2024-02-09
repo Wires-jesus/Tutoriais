@@ -1,11 +1,5 @@
 {"nome":"VW_INT_C5_EMB_DESMEMBRADAS","tipoPLSQL":"VIEW","dependencias":[
       {
-            "nome": "VW_INT_C5_EMBPROD",
-            "tipo": "OBJETO_PLSQL",
-            "versao": "5.0.02.000"
-      },
-
-      {
             "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
             "tipo": "OBJETO_PLSQL",
             "versao": "4.0.01.000"
