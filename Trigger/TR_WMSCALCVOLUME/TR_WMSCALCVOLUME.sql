@@ -381,7 +381,7 @@ begin
                    where pcpedi.numped = :new.numped
                      and pcpedi.codProd = pcprodut.codProd
                      and nvl(pcprodut.pesoVariavel, 'N') <> 'S'
-					 and pcprodut.tipomerc not in ('PA' 'MP')
+					 and pcprodut.tipomerc not in ('PA', 'MP')
                    group by pcpedi.codProd,
                             pcprodut.qtUnitCx,
                             pcprodut.pesoBrutoMaster,
