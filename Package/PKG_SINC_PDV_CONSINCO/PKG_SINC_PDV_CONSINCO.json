@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "4.0.18.000"
+			"versao": "5.0.02.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -65,7 +65,12 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.17.000"
+			"versao": "5.0.02.000"
+		},
+		{
+			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "5.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -95,7 +100,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.01.000"
+			"versao": "5.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -331,6 +336,11 @@
 			"nome": "PCDEPARAEMBALAGENSC5",
 			"tipo": "TABELA",
 			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "PCDEPARAPRODC5",
+			"tipo": "TABELA",
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PCDEPARAPLPAGC5",
