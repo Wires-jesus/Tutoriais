@@ -533,8 +533,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.codanp,
                       P.descanp_prod,
                       P.ativo,
-                      P.codproduto,
-                      p.idref
+                      P.codproduto
+                     -- p.idref
         FROM VW_INT_C5_PRODUTO P
        ) b
 
@@ -546,8 +546,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.ativo           = b.ATIVO,
                  s.produtocomposto = b.PRODUTOCOMPOSTO,
                  s.seqfamilia      = b.SEQFAMILIA,
-                 s.codproduto      = b.codproduto,
-                 s.idref           = b.idref
+                 s.codproduto      = b.codproduto
+                -- s.idref           = b.idref
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODUTO,
@@ -556,8 +556,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ATIVO,
              s.PRODUTOCOMPOSTO,
              s.SEQFAMILIA,
-             s.codproduto,
-             s.idref
+             s.codproduto
+            -- s.idref
              )
           VALUES
             (b.SEQPRODUTO,
@@ -566,8 +566,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ATIVO,
              b.PRODUTOCOMPOSTO,
              b.SEQFAMILIA,
-             b.codproduto,
-             b.idref);
+             b.codproduto
+             --b.idref
+             );
 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
