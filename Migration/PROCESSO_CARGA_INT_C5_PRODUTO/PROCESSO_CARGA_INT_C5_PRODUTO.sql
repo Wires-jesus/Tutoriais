@@ -33,7 +33,103 @@ CREATE OR REPLACE VIEW VW_INT_C5_MARCA AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 (
-  SELECT DISTINCT
+SELECT
+    DEPARA.SEQFAMILIA,
+    TBFAM."CODPROD", TBFAM."CODAUXILIAR",TBFAM."ORIGEM",TBFAM."FAMILIA",TBFAM."CODNCMSH",TBFAM."PERMITEDECIMAL",TBFAM."PERMITEMULTIPLICACAO",TBFAM."CODCEST",TBFAM."ATIVO",TBFAM."SEQMARCA",TBFAM."SEQFAMGRUPO",TBFAM."PESAVEL",TBFAM."INDESCALA",TBFAM."CNPJFABRICANTE",TBFAM."EANTRIB",TBFAM."SEQFAMILIAPRINC"
+FROM (
+      SELECT
+           /*NECESSÁRIO ATRIBUIR ZERO QUANDO O CODAUXILIAR ESTIVER NULO, POIS NA TABELA DEPARACODPRODC5 O CAMPO É PK(NÃO ACEITA NULO)*/
+           MIN(PROD.CODPROD) CODPROD,
+           (CASE
+             WHEN MIN(PROD.CODAUXILIAR) IS NULL THEN
+                  0
+             ELSE MIN(PROD.CODAUXILIAR)
+           END) CODAUXILIAR,
+           MIN(PROD.ORIGEM) ORIGEM,
+           MIN(PROD.familia) FAMILIA,
+           MIN(PROD.codncmsh) codncmsh,
+           MIN(PROD.permitedecimal) permitedecimal,
+           MIN(PROD.permitemultiplicacao) permitemultiplicacao,
+           MIN(PROD.codcest) codcest,
+           MIN(PROD.ativo) ativo,
+           MIN(PROD.seqmarca) seqmarca,
+           MIN(PROD.seqfamgrupo) seqfamgrupo,
+           MIN(PROD.PESAVEL) PESAVEL,
+           MIN(PROD.indescala) indescala,
+           MIN(PROD.cnpjfabricante) cnpjfabricante,
+           MIN(PROD.eantrib) eantrib,
+           MIN(PROD.Seqfamiliaprinc) Seqfamiliaprinc
+
+      FROM (
+            /* SELECT ORIGINAL VIEW EMBPROD */
+            SELECT DISTINCT
+                   p.codprod CODPROD,
+                   NULL CODAUXILIAR,
+                   MIN(P.CODAUXILIAR) IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
+                   'E' ORIGEM,
+                   NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
+                   MAX(p.codncmsh) codncmsh,
+                   MAX(p.aceitavendafracao) permitedecimal,
+                   MAX(p.permitemultiplicacao) permitemultiplicacao,
+                   (SELECT nvl(CODCEST, 0) codcest
+                    FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
+                    WHERE PCCESTPRODUTO.CODPROD = p.codprod
+                    AND ROWNUM = 1
+                   ) codcest,
+                   'S' ativo,
+                   MAX(p.codmarca) seqmarca,
+                   1 seqfamgrupo,
+                   (CASE
+                      WHEN  MIN(p.tipoembalagem) = 'P' THEN
+                            'S'
+                      ELSE  'N'
+                   END)PESAVEL,
+                   MIN(NVL(p.indescalarelevante, 'S')) indescala,
+                   MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
+                   MAX(p.codauxiliartrib) eantrib,
+                   MAX(P.codprodprinc) seqfamiliaprinc
+            FROM VW_INT_C5_EMBPROD p
+            GROUP BY p.codprod, p.descricao
+
+            UNION ALL
+
+            /* SELECT CUSTOMIZADO PARA TRAZER EMBALAGENS COM O MESMO QTUNIT DESMEMBRADAS */
+            SELECT
+                   p.codprod CODPROD,
+                   p.codauxiliar CODAUXILIAR,
+                   p.codauxiliar IDREF, /*NECESSÁRIO REPETIR O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
+                   'D' ORIGEM,
+                   NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
+                   p.codncmsh,
+                   p.aceitavendafracao permitedecimal,
+                   p.permitemultiplicacao,
+                   (SELECT nvl(CODCEST, 0) codcest
+                    FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
+                    WHERE PCCESTPRODUTO.CODPROD = p.codprod
+                    AND ROWNUM = 1
+                   ) codcest,
+                   'S' ativo,
+                   p.codmarca seqmarca,
+                   1 seqfamgrupo,
+                   (CASE
+                      WHEN  p.tipoembalagem = 'P' THEN
+                            'S'
+                      ELSE  'N'
+                   END)PESAVEL,
+                   NVL(p.indescalarelevante, 'S') indescala,
+                   fnc_remove_char_esp(p.cnpjfabricante) cnpjfabricante,
+                   p.codauxiliartrib eantrib,
+                   P.codprodprinc seqfamiliaprinc
+
+            FROM VW_INT_C5_EMB_DESMEMBRADAS p
+           ) PROD /*TABELA VIRTUAL CRIADA PARA LISTAR REGISTROS DA VIEW EMBPROD E VW_INT_C5_EMB_DESMEMBRADAS*/
+      GROUP BY PROD.IDREF /*ORDERNAÇÃO DEVE SER PELO IDREF PARA AGRUPAR O RESULTADO O UNION ALL DA TABELA VIRTUAL "PROD"*/
+      ) TBFAM, /*TABELA VIRTUAL COM O RESULTADO FINAL DO AGRUPAMENTO, SEM CODAUXILIAR DUPLICADO*/
+      PCDEPARAPRODC5 DEPARA
+WHERE TBFAM.CODPROD = DEPARA.CODPROD(+)
+AND   TBFAM.CODAUXILIAR = DEPARA.CODAUXILIAR(+)
+  
+  /*SELECT DISTINCT
          p.codprod seqfamilia,
          NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
          MAX(p.codncmsh) codncmsh,
@@ -58,7 +154,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
          MAX(p.codauxiliartrib) eantrib,
          MAX(P.codprodprinc) seqfamiliaprinc
   FROM VW_INT_C5_EMBPROD p
-  GROUP BY p.codprod, p.descricao
+  GROUP BY p.codprod, p.descricao*/
 )
 
 \
