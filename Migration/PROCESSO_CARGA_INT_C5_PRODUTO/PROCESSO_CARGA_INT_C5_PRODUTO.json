@@ -4,6 +4,8 @@
     {"nome":"PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
     {"nome":"PCMARCA","tipo": "TABELA","versao": "4.0.01.000"},
     {"nome":"ROUNDABNT","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
-    {"nome":"PCDEPARAEMBALAGENSC5","tipo": "TABELA","versao": "4.0.01.000"}
+    {"nome":"PCDEPARAEMBALAGENSC5","tipo": "TABELA","versao": "4.0.01.000"},
+    {"nome":"VW_INT_C5_EMB_DESMEMBRADAS","tipo": "TABELA","versao": "5.0.02.000"},
+    {"nome":"PCDEPARAPRODC5","tipo": "TABELA","versao": "5.0.01.000"}
 ]}
 
