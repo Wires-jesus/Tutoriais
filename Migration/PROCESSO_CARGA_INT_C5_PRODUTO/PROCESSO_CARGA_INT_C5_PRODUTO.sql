@@ -212,7 +212,75 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
 (
-  SELECT DISTINCT
+SELECT
+    DEPARA.SEQPRODUTO,
+    (CASE
+      WHEN ORIGEM = 'D' THEN
+           DEPARA.SEQFAMILIA
+      ELSE (SELECT DEPARA.SEQFAMILIA FROM PCPRODUT P WHERE P.CODPRODPRINC = DEPARA.CODPROD)
+    END) SEQFAMILIA,
+           
+    TBPROD.*
+FROM (
+      SELECT 
+           MIN(PROD.CODPROD) CODPROD,
+           (CASE
+             WHEN MIN(PROD.CODAUXILIAR) IS NULL THEN
+                  0
+             ELSE MIN(PROD.CODAUXILIAR)
+           END) CODAUXILIAR,
+           MIN(PROD.ORIGEM) ORIGEM,
+           MIN(PROD.CODPRODUTO) CODPRODUTO,
+           MIN(PROD.desccompleta) desccompleta,
+           MIN(PROD.descreduzida) descreduzida,
+           MIN(PROD.produtocomposto) produtocomposto,
+           MIN(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
+           MIN(PROD.codanp) codanp,
+           MIN(PROD.descanp_prod) descanp_prod,
+           MIN(PROD.ATIVO) ATIVO
+      FROM( 
+            SELECT DISTINCT
+                   p.codprod CODPROD,
+                   NULL CODAUXILIAR,
+                   MIN(P.CODAUXILIAR) IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
+                   'E' ORIGEM,
+                   p.codprod codproduto,
+                   fnc_remove_char_esp(p.descricao) desccompleta,
+                   SUBSTR((fnc_remove_char_esp(P.descricao)),1,24) descreduzida,
+                   'N' produtocomposto,
+                   0 QTDDIAVALIDADE,
+                   MAX(nvl(P.anp, 0)) codanp,
+                   MAX(P.descanp) descanp_prod,
+                   'S' ATIVO
+            FROM VW_INT_C5_EMBPROD p
+            GROUP BY p.codprod, p.descricao
+
+            UNION ALL
+
+            /* SELECT CUSTOMIZADO PARA TRAZER EMBALAGENS COM O MESMO QTUNIT DESMEMBRADAS */
+            SELECT
+                   p.codprod CODPROD,
+                   p.codauxiliar CODAUXILIAR,
+                   p.codauxiliar IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
+                   'D' ORIGEM,
+                   p.codprod codproduto,
+                   fnc_remove_char_esp(p.descricao) desccompleta,
+                   SUBSTR((fnc_remove_char_esp(p.descricao)),1,24) descreduzida,
+                   'N' produtocomposto,
+                   0 QTDDIAVALIDADE,
+                   nvl(p.anp, 0) codanp,
+                   p.descanp descanp_prod,
+                   'S' ATIVO
+
+            FROM VW_INT_C5_EMB_DESMEMBRADAS p
+          ) PROD /*TABELA VIRTUAL CRIADA PARA LISTAR REGISTROS DA VIEW EMBPROD E VW_INT_C5_EMB_DESMEMBRADAS*/
+      GROUP BY PROD.IDREF /*ORDERNAÇÃO DEVE SER PELO IDREF PARA AGRUPAR O RESULTADO O UNION ALL DA TABELA VIRTUAL "PROD"*/
+      ) TBPROD, /*TABELA VIRTUAL COM O RESULTADO FINAL DO AGRUPAMENTO, SEM CODAUXILIAR DUPLICADO*/
+      PCDEPARAPRODC5 DEPARA
+WHERE TBPROD.CODPROD = DEPARA.CODPROD
+AND   TBPROD.CODAUXILIAR = DEPARA.CODAUXILIAR
+  
+  /*SELECT DISTINCT
    PROD.CODAUXILIAR IDREF,
    P.SEQPRODUTO SEQPRODUTO,
    MAX(PROD.CODPRODUTO) CODPRODUTO,
@@ -242,7 +310,7 @@ FROM
   ) PROD,
   PCDEPARAEMBALAGENSC5 P
 WHERE PROD.CODAUXILIAR = P.CODAUXILIAR
-GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR
+GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR*/
 )
 
 \
