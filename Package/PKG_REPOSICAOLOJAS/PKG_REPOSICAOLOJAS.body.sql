@@ -8757,6 +8757,12 @@ IS PRAGMA SERIALLY_REUSABLE;
               ELSE
                 vvRETIRAIMPOSTO201 := 'S';
               END IF;
+			  
+              IF (NVL(vUSAQTUNITPCEMBREPLOJA,'N') = 'S') THEN
+                vrItemPedido.nCODAUXILIAR := NVL(vc_Dados_Ite.CODAUXILIAR_O,0);
+              ELSE
+                vrItemPedido.nCODAUXILIAR := NULL;              
+              END IF;			  
 
               -- Calcula o ST
               vbCalculouST := FCALCULAR_ST(V_TIPOCUSTOTRANSF_APLICAR,
@@ -8766,7 +8772,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            vrFilDestino.nCODCLI,
                                            vrClienteDestino.nCODPLPAG,
                                            vc_Dados_Ite.CODPROD_O,
-                                           vc_Dados_Ite.CODAUXILIAR_O,
+                                           vrItemPedido.nCODAUXILIAR,
                                            vrPedido.nCONDVENDA,
                                            vnPrecoComImpostos, -- DDVENDAS-37042
                                            vnValorStPrecificacao, -- DDVENDAS-37042
@@ -8831,7 +8837,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                              vrFilDestino.nCODCLI,
                                              vrClienteDestino.nCODPLPAG,
                                              vc_Dados_Ite.CODPROD_O,
-                                             vc_Dados_Ite.CODAUXILIAR_O,
+                                             vrItemPedido.nCODAUXILIAR,
                                              vrPedido.nCONDVENDA,
                                              vrItemPedido.nPTABELA,
                                              vnValorStPrecificacao, -- DDVENDAS-37042
