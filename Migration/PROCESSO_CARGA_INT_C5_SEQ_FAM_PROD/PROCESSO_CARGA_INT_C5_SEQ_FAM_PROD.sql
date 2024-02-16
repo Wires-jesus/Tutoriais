@@ -1,5 +1,5 @@
 -- Create sequence 
-create sequence DFSEQ_INT_C5_SEQ_FAMILIA_PRODUTO
+create sequence DFSEQ_INT_C5_SEQ_PRODUTO
 minvalue 1
 maxvalue 999999999999999999999999999
 start with 1
