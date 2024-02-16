@@ -175,7 +175,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
 			"tipo": "MIGRATION",
-			"versao": "5.0.01.000"
+			"versao": "5.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
