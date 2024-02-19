@@ -195,7 +195,7 @@
 		{
 		    "nome": "TRIGGER_INATIVACOESREGISTROSC5",
 		    "tipo": "MIGRATION",
-		    "versao": "4.0.04.000"
+		    "versao": "5.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
