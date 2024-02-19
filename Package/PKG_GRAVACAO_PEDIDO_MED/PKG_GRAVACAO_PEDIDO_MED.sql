@@ -74,6 +74,7 @@ CREATE OR REPLACE PACKAGE PKG_GRAVACAO_PEDIDO_MED
   08/11/2022  Anderson Silva     DDVENDAS-38786 - Alteração da forma de incluir um novo pedido por quebra
   14/12/2022  Anderson Silva     DDVENDAS-39352 - Ajuste descrição produto críticas promoções
   04/04/2023  Anderson Silva     DDVENDAS-38983 - Pré-Pedido PFIZER
+  18/02/2024  Anderson Silva     DDVENDAS-46097 - Bloqueio Filial Retira
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
