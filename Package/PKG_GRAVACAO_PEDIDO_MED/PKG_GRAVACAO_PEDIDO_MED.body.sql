@@ -17836,7 +17836,6 @@ IS PRAGMA SERIALLY_REUSABLE;
       ----------------------------------------------------------------------------------------------
       ----------------------------------------------------------------------------------------------
       IF (pi_nCodRotina                      IN (2316,2513)) AND
-         (vrParametros.vLIBERARPEDIDOPENDENTE = 'S')         AND
          (vrParametros.vACEITAVENDASEMEST     = 'S')         AND
          (po_vPosicaoFinalPedido              = 'P')         AND
          (NVL(po_vExistemFaltas,'N')          = 'N')         THEN
