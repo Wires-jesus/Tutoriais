@@ -6,4 +6,8 @@
   "nome": "PCLAYOUTINTEGRAVERSOPERLOG",
   "tipo": "TABELA",
   "versao": "3.0.01.000"
+},{
+  "nome": "PCFILIALRETIRAFORNEC",
+  "tipo": "TABELA",
+  "versao": "5.0.01.000"
 }]}

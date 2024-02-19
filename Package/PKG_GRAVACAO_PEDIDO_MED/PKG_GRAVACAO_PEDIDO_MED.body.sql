@@ -68,6 +68,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GRAVACAO_PEDIDO_MED
   24/03/2023  Anderson Silva     DDVENDAS-41227 - Validar múltiplo no corte
   04/04/2023  Anderson Silva     DDVENDAS-38983 - Pré-Pedido PFIZER
   24/05/2023  Anderson Silva     DDVENDAS-41449 - Modalidade V - Venda no Pré-Pedido OL
+  18/02/2024  Anderson Silva     DDVENDAS-46097 - Bloqueio Filial Retira
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -102,13 +103,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-41227        v@33.0.6
   DDVENDAS-38983        v@33.0.7
   DDVENDAS-41449        v@34.0.1
+  DDVENDAS-46097        v@35.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@34.0.1';
+    vvVersao := 'v@35.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -1308,6 +1310,34 @@ IS PRAGMA SERIALLY_REUSABLE;
     RETURN vvRetMsgCriticas;
                       
   END F_CRITICA_PEDIDO_CA_PBM;  
+
+ /*********************************************************************
+  FUNÇÃO    : F_CRITICA_FILIALRETIRAFORNEC
+  DESCRIÇÃO : Função para verificar se existe mais de uma Filial Retira
+              no Pedido
+  *********************************************************************/
+  FUNCTION F_CRITICA_FILIALRETIRAFORNEC(pi_nNumPed IN NUMBER)
+  RETURN VARCHAR2 IS
+    viQtde       INTEGER;
+    vvRetCritica VARCHAR2(1);
+  BEGIN
+  
+    vvRetCritica := 'N';
+    
+    SELECT COUNT(DISTINCT NVL(PCPEDI.CODFILIALRETIRA, PCPEDC.CODFILIAL)) QTDE
+      INTO viQtde
+      FROM PCPEDI 
+         , PCPEDC
+     WHERE (PCPEDC.NUMPED = PCPEDI.NUMPED)
+       AND (PCPEDC.NUMPED = pi_nNumPed); 
+       
+    IF (NVL(viQtde,0) > 1) THEN
+      vvRetCritica := 'S';
+    END IF;
+    
+    RETURN vvRetCritica;
+  
+  END F_CRITICA_FILIALRETIRAFORNEC;  
 
  /***********************************************************************************************
   PROCEDIMENTO: P_HISTORICO_MOTIVO_BLOQ
@@ -7843,7 +7873,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vIGNORARVALIDACAOALVARACRF     VARCHAR2(255), -- DDMEDICA-6491
          vACEITARPEDALVARAVENCINTEGRAD  VARCHAR2(255), -- DDMEDICA-6491
          vHABILITCANALAUTORIZPBMTELEV   VARCHAR2(255), -- CA PBM
-         vACEITADESCBALCAORESERVA       VARCHAR2(255)  -- DDVENDAS-35974
+         vACEITADESCBALCAORESERVA       VARCHAR2(255), -- DDVENDAS-35974
+         vEXISTE_FILIALRETIRAFORNEC     VARCHAR2(1) 
          );
     vrParametros                        TRecParametros; 
     -- Controle de Ações sobre as Críticas
@@ -7927,7 +7958,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnPermissItemBnfTV1            NUMBER,
          vvLibItemBnfTV1                VARCHAR2(1),
          vvAcaoFaturamentoIntegral      VARCHAR2(1),
-         vvAcaoCanalAutorizadorPbm      VARCHAR2(1) -- CA PBM
+         vvAcaoCanalAutorizadorPbm      VARCHAR2(1), -- CA PBM
+         vvAcaoFilialRetiraFornec       VARCHAR2(1)
          ); 
     vrAcaoSobreCritica                  TRecAcaoSobreCritica;
   
@@ -12015,9 +12047,33 @@ IS PRAGMA SERIALLY_REUSABLE;
         END IF;
                                 
       END IF; -- Fim Condição: -- CRÍTICA - Canal Autorizador PBM - CA PBM
-            
+
+      -------------------------------------
+      -- CRÍTICA - Filial Retira Fornecedor
+      -------------------------------------
+      IF (vrParametros.vEXISTE_FILIALRETIRAFORNEC = 'S') THEN
+
+        P_ATU_VALIDACAO_ESTOQUE_RESERV( pi_vChamadaProcesso
+                                      , pi_nNumPed
+                                      , 0  -- Sem Plano de Pagamento
+                                      , 34   -- CODREJEICAO
+                                      , vrAcaoSobreCritica.vvAcaoFilialRetiraFornec
+                                      , SUBSTR('Pedido com mais de uma filial retira',1,100)
+                                      , 2355
+                                      , NULL  -- pVALORVALIDACAO
+                                      , NULL  -- pVALORATINGIDO
+                                      , 'X'
+                                      , NULL -- Parâmetros
+                                      , 708  -- Código Motivo Bloqueio
+                                      , NULL -- Código Motivo Bloqueio
+                                      ,  SUBSTR('Pedido com mais de uma filial retira',1,60)
+                                      , NULL -- PERMISSAO
+                                      ,  SUBSTR('Pedido com mais de uma filial retira',1,60) );
+                                        
+      END IF; -- Fim Condição: -- CRÍTICA - Filial Retira Fornecedor
+
     END P_ATU_CRITICAS_VALOR_MINIMO;  
-    
+        
    /*********************************************************************
     PROCEDIMENTO : P_PROC_CRITICAS_VALOR_MINIMO
     DESCRIÇÃO    : Procedimento para processar a Tabela Temporária de
@@ -12995,6 +13051,20 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
             
           END IF;
+          
+        END IF;  
+
+        -------------------------------------
+        -- CRÍTICA - Filial Retira Fornecedor 
+        -------------------------------------
+        IF (vc_Criticas.CODREJEICAO IN (34)) THEN   
+        
+          IF (F_CRITICA_FILIALRETIRAFORNEC(pi_nNumPed) = 'S') THEN            
+            vvVendaPermitida       := 'N';                          
+            vvObsVendaNaoPermitida := vc_Criticas.SOLUCAOP4;
+          ELSE
+            vvVendaPermitida       := 'S';                          
+          END IF;              
           
         END IF;  
 
@@ -14406,6 +14476,16 @@ IS PRAGMA SERIALLY_REUSABLE;
       WHEN NO_DATA_FOUND THEN
         vrParametros.vACEITADESCTMKFV := 'N';
     END;              
+    -- DDVENDAS-46097
+    BEGIN
+      SELECT 'S'
+        INTO vrParametros.vEXISTE_FILIALRETIRAFORNEC
+        FROM PCFILIALRETIRAFORNEC 
+       WHERE (ROWNUM = 1);
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vrParametros.vEXISTE_FILIALRETIRAFORNEC := 'N';
+    END;
     --
     POBTEM_PARAMFILIAL_STRING('99',
                               'MEDPERMITEDISTRIBDIFRCA',
@@ -15061,6 +15141,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Perguntar se Bloqueia
         vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'P';
 
+        --********** FILIAL RETIRA FORNEC **********--
+        -- Perguntar se Bloqueia
+        vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'P';
+
       -- Se Chamado da Gravação do Pedido ou da Edição do Pedido --
       -------------------------------------------------------------
       ELSIF (pi_vChamadaProcesso IN ('GP','EP')) THEN
@@ -15258,6 +15342,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         --********** CANAL AUTORIZADOR PBM CA PBM **********--
         -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
         vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'B';
+
+        --********** FILIAL RETIRA FORNEC **********--
+        -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
+        vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'B';
 
       END IF; -- Fim Condição: Tipo Chamada
      
@@ -15627,6 +15715,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Ignora ou Aborta Continuação do Processo conforme Situação do Pedido na Integradora
         vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := F_OBTER_ACAO_SITUACAO_CA_PBM(pi_nNumPed);
 
+        --********** FILIAL RETIRA FORNEC **********--
+        -- Abortar Continuação do Processo
+        vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'A';
+
       -- Se a Posição do Pedido ficar como Bloqueado ou Pendente
       ELSE
       
@@ -15742,6 +15834,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         --********** CANAL AUTORIZADOR PBM CA PBM **********--
         -- Ignorar Ação
         vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'I';
+
+        --********** FILIAL RETIRA FORNEC **********--
+        -- Ignorar Ação
+        vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'I';
 
       END IF; -- Fim Condição: Para Qual Posição o Pedido será Alterado
   
@@ -16029,6 +16125,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Bloqueia
       vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'B';
 
+      --********** FILIAL RETIRA FORNEC **********--
+      -- Bloqueia
+      vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'B';
+
     --------------------------------------------------------------------------------------------------
     -- CHAMANDO DA 2312 ------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------
@@ -16157,7 +16257,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       --********** CANAL AUTORIZADOR PBM CA PBM **********--
       -- Ignorar Ação
       vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'I';
-                   
+
+      --********** FILIAL RETIRA FORNEC **********--
+      -- Ignorar Ação
+      vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'I';
+
     --------------------------------------------------------------------------------------------------
     -- CHAMANDO DA 2641 ------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------
@@ -16291,6 +16395,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Ignorar Ação
       vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'I';
 
+      --********** FILIAL RETIRA FORNEC **********--
+      -- Ignorar Ação
+      vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'I';
+
     END IF; -- FIM CONDIÇÃO: ORIGEM CHAMADA
   
     -------------------------------------------------------------------------------------------------------
@@ -16419,6 +16527,18 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Ignorar Ação
       vrAcaoSobreCritica.vvAcaoItemBnfTV1 := 'I';
 
+      --********** FATURAMENTO INTEGRAL **********--
+      -- Ignorar Ação
+      vrAcaoSobreCritica.vvAcaoFaturamentoIntegral := 'I';
+
+      --********** CANAL AUTORIZADOR PBM CA PBM **********--
+      -- Ignorar Ação
+      vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm := 'I';
+
+      --********** FILIAL RETIRA FORNEC **********--
+      -- Ignorar Ação
+      vrAcaoSobreCritica.vvAcaoFilialRetiraFornec := 'I';
+
     END IF;
       
     -- LOG: Ações
@@ -16455,7 +16575,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                'vvPermissBloqueioComercial = '   || vrAcaoSobreCritica.vvPermissBloqueioComercial   || CHR(13) ||
                                'vvAcaoItemBnfTV1 = '             || vrAcaoSobreCritica.vvAcaoItemBnfTV1             || CHR(13) ||
                                'vvAcaoFaturamentoIntegral = '    || vrAcaoSobreCritica.vvAcaoFaturamentoIntegral    || CHR(13) ||
-                               'vvAcaoCanalAutorizadorPbm = '    || vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm
+                               'vvAcaoCanalAutorizadorPbm = '    || vrAcaoSobreCritica.vvAcaoCanalAutorizadorPbm    || CHR(13) ||
+                               'vvAcaoFilialRetiraFornec = '     || vrAcaoSobreCritica.vvAcaoFilialRetiraFornec                                                       
                                );
     
     -- LOG: Parâmetros
@@ -16520,7 +16641,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                'vIGNORARVALIDACAOALVARASUS = '     || vrParametros.vIGNORARVALIDACAOALVARASUS          || CHR(13) ||
                                'vIGNORARVALIDACAOALVARACRF = '     || vrParametros.vIGNORARVALIDACAOALVARACRF          || CHR(13) ||
                                'vACEITARPEDALVARAVENCINTEGRAD = '  || vrParametros.vACEITARPEDALVARAVENCINTEGRAD       || CHR(13) ||
-                               'vHABILITCANALAUTORIZPBMTELEV = '   || vrParametros.vHABILITCANALAUTORIZPBMTELEV                      -- CA PMB
+                               'vHABILITCANALAUTORIZPBMTELEV = '   || vrParametros.vHABILITCANALAUTORIZPBMTELEV        || CHR(13) || -- CA PMB
+                               'vEXISTE_FILIALRETIRAFORNEC = '     || vrParametros.vEXISTE_FILIALRETIRAFORNEC                        -- DDVENDAS-46097
                                );
                                
     IF (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN                               
