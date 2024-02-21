@@ -46,6 +46,9 @@ SELECT DISTINCT
   AND TRUNC(SYSDATE) BETWEEN B.DTINICIAL AND B.DTFINAL
   AND A.VLOFERTAATAC > 0
   AND E.QTMINIMAATACADO > 0
+  AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+                                                                  C5.CODFILIAL,
+                                                                  'N') = 'S'
 
 UNION ALL
 --Ofertas da 2017 ativas
@@ -85,6 +88,9 @@ SELECT DISTINCT
   AND NVL(E.enviafrentecaixa,'S') = 'S'
   AND E.CODFILIAL = C5.CODFILIAL
   AND E.DTINATIVO IS NULL
+  AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+                                                                  C5.CODFILIAL,
+                                                                  'N') = 'S'
 
 /*SELECT
   MAX(PRODPRECOAPARTIR.SEQAPARTIRDE)SEQAPARTIRDE,
