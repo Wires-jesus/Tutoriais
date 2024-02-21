@@ -12,10 +12,17 @@ SELECT CATEG.NRODIVISAO,
             CATEG.IDREF
  FROM 
     (SELECT DISTINCT
-            (SELECT r.nrodivisao
+            /*(SELECT r.nrodivisao
                FROM pcdepararegiaoc5 r
               WHERE r.numregiao = regparaovarejo.valor
-            ) nrodivisao,
+            ) nrodivisao,*/
+     
+            (CASE
+              WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
+                   (SELECT TO_CHAR(r.nrodivisao) FROM pcdepararegiaoc5 r WHERE r.numregiao = regparaovarejo.valor)
+              ELSE regparaovarejo.valor
+            END)nrodivisao,
+
             TO_NUMBER(regparaovarejo.valor) || TO_NUMBER(dadosclassific.seqcategoria) seqcategoriawinthor,
             dadosclassific.seqcategoriapai,
             dadosclassific.nivelhierarquia,
