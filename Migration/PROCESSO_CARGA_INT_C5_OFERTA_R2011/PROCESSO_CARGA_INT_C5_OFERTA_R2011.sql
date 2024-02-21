@@ -42,6 +42,9 @@ SELECT
        AND A.DTINICIAL IS NOT NULL
        AND A.DTFINAL IS NOT NULL
        AND A.CODFILIAL = C5.CODFILIAL
+	   AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+                                                                  C5.CODFILIAL,
+                                                                  'N') = 'S'
 )
 
 \
@@ -97,6 +100,9 @@ SELECT DISTINCT
   AND D.IDREF = A.CODFILIAL||A.CODOFERTA||2011
   AND B.dtinicial IS NOT NULL
   AND B.dtfinal IS NOT NULL
+  AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+                                                                  C5.CODFILIAL,
+                                                                  'N') = 'S'
   AND TRUNC(SYSDATE) BETWEEN B.DTINICIAL AND B.DTFINAL
   AND NVL(A.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
 UNION
@@ -142,6 +148,9 @@ SELECT DISTINCT
   --AND    D.SEQREGRA = OFERTA_HIST.CODFILIAL||2011||OFERTA_HIST.CODOFERTA
   AND    D.IDREF = OFERTA_HIST.CODFILIAL||OFERTA_HIST.CODOFERTA||2011
   AND    OFERTA_HIST.DATAEXCLUSAO IS NOT NULL
+  AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+                                                                  C5.CODFILIAL,
+                                                                  'N') = 'S'
   AND    NOT EXISTS(SELECT O.CODOFERTA, O.CODAUXILIAR
                     FROM PCOFERTAPROGRAMADAI O
                     WHERE O.CODOFERTA = OFERTA_HIST.CODOFERTA
