@@ -1812,7 +1812,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         c.nronotafiscal duplic,
         NVL(c.seqpessoa,1) codcli,
-        TO_CHAR(NVL(r.dtvenc + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))),
+        TO_CHAR(NVL(r.dtvenc,
             		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 					),'YYYY-MM-DD') dtvenc,
         NVL(
@@ -1826,7 +1826,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         p.nroempresa codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(NVL(r.dtvenc + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))),
+        TO_CHAR(NVL(r.dtvenc,
             		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 					),'YYYY-MM-DD') dtvencorig,
         'N' operacao,
@@ -1943,7 +1943,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
         vw_int_c5_cobranca_winthor v,
-    TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto)) r
+    TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto, p.nrocheckout, p.nroempresa, FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))))) r
  WHERE  p.seqdocto = d.seqdocto
    AND p.nroformapagto not in (SELECT fp.nroformapagto
           FROM monitorpdvmiddle.tb_formapagto fp
