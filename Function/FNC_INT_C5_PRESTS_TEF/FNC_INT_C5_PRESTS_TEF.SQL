@@ -1,4 +1,7 @@
-CREATE OR REPLACE FUNCTION FNC_INT_C5_PRESTS_TEF(pSeqDocto NUMBER)
+CREATE OR REPLACE FUNCTION FNC_INT_C5_PRESTS_TEF(pSeqDocto NUMBER,
+												 pNROCHECKOUT NUMBER,
+                                                 pNROEMPRESA NUMBER,
+												 pPRAZOCC NUMBER)
   RETURN TB_PREST_DESD IS
 
   TYPE tList IS REF CURSOR;
@@ -18,7 +21,9 @@ BEGIN
     SELECT TO_CHAR(T.NROEMPRESA)
       INTO vCodfilial
       FROM MONITORPDVMIDDLE.TB_DOCTO T
-     WHERE T.SEQDOCTO = pSeqDocto;
+     WHERE T.SEQDOCTO = pSeqDocto
+	   AND T.NROCHECKOUT = pNROCHECKOUT
+	   AND T.NROEMPRESA = pNROEMPRESA;
   EXCEPTION
     WHEN OTHERS THEN
       vCodfilial := '99';
@@ -41,6 +46,8 @@ BEGIN
         from monitorpdvmiddle.tb_doctopagto
        where nvl(qtdparcelatef, 0) > 1
          AND seqdocto = pSeqDocto
+		 AND nrocheckout = pNROCHECKOUT
+         AND nroempresa = pNROEMPRESA		 
        order by seqdocto, seqitem;
   
     LOOP
@@ -66,7 +73,7 @@ BEGIN
                                 vList.seqitem,
                                 vContador,
                                 vList.valor,
-                                TRUNC(SYSDATE + (30 * vContador)));
+                                TRUNC(SYSDATE + (pPRAZOCC * vContador)));
         ttList.extend;
         ttList(ttList.Count) := vListTemp;
       
