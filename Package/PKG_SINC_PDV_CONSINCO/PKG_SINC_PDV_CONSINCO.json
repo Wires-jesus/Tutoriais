@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "4.0.21.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
@@ -155,7 +155,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRECOAPARTIR",
 			"tipo": "MIGRATION",
-			"versao": "4.0.08.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017",
