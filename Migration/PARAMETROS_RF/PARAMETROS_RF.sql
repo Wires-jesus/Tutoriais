@@ -103,6 +103,8 @@ BEGIN
   INSERT_DATA('VISUALIZAR_DIVERGENCIA_QTDTOTAL_BONUS', 'N', NULL, 'Visualizar itens recebidos considerando a quantidade total no bônus', 'RECEBIMENTO', 'BOOLEAN');
 
   INSERT_DATA('VISUALIZAR_NOTIFICACOES_PENDENCIAS', 'N', NULL, 'Visualizar notificações de pendências', 'GERAL', 'BOOLEAN');
+  
+  INSERT_DATA('VISUALIZAR_LOCAIS_ATRIBUIDOS', 'N', NULL, 'Visualizar local e contagens atribuídas ao usuário?', 'INVENTARIO', 'BOOLEAN'); 
 
 END;
 
