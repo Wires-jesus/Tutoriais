@@ -1511,7 +1511,7 @@ AS
         a.codmotivodesoneracao codmotivoicmsdesonerado,
         v.codprod,
         h.codtribpiscofins,
-        NVL(fnc_int_c5_codusur(d.sequsuario),1) codusur,
+        NVL(I.NROVENDEDOR, NVL(FNC_INT_C5_CODUSUR(D.SEQUSUARIO), 1)) CODUSUR,
         0 codvasilhameecf,
         0 custofinest,
         0 custoultent,
