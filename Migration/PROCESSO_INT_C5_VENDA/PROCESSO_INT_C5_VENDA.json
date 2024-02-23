@@ -26,6 +26,11 @@
 			"nome": "P_PC_CALCULARCMV_INTEGRACAO",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.01.000"
+		},
+		{
+		   "nome": "PCDEPARAPRODC5",
+		   "tipo": "TABELA",
+		   "versao": "5.0.01.000"
 		}
 	]
 }
