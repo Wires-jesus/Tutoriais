@@ -1225,7 +1225,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
             AND ROWNUM = 1) tipovenda,
         NVL(fnc_int_c5_praca_cli(c.seqpessoa),1) codpraca,
         NVL(fnc_int_c5_codsuperv(a.sequsuario),1) codsupervisor,
-        NVL(fnc_int_c5_codusur(a.sequsuario),1) codusur,
+        NVL(
+          (
+          	SELECT NROVENDEDOR 
+           	FROM MONITORPDVMIDDLE.TB_DOCTOITEM 
+           	WHERE SEQDOCTO = A.SEQDOCTO AND NROCHECKOUT = A.NROCHECKOUT AND NROEMPRESA = A.NROEMPRESA AND ROWNUM = 1),
+          NVL(fnc_int_c5_codusur(a.sequsuario),1)
+        ) codusur,
         'N' contingenciaservidor,
         fnc_int_c5_tot_custofin(a.seqdocto, a.nrocheckout, a.nroempresa) custofinest,
         TO_CHAR(a.DTAHOREMISSAO,'YYYY-MM-DD') DATA,
