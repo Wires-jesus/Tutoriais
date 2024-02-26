@@ -1,0 +1,6 @@
+{
+	"nome":"MIG_HEADER_PCESTRUTURALAYOUTREGISTRO",
+	"tipoPLSQL":"MIGRATION",
+	"dependencias": [
+	]
+}
