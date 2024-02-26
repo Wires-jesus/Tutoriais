@@ -1045,6 +1045,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO') D
           WHERE f.especie = vef.winthor(+)
           AND   F.CODFILIAL = E.codigo
+		  AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', E.CODIGO, 'N')= 'S'
           AND   f.codcob = c.codcob(+)
           AND   E.codigo >= '0'
           --AND   E.codigo < '99'
@@ -2668,6 +2669,20 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
 
     COMMIT;
     EXCEPTION
+	WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regraincentivo',
+           'carrega_tb_regraincentivo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
