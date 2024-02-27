@@ -43,11 +43,20 @@ CREATE OR REPLACE VIEW VW_INT_C5_ENDERECO_ALTERNATIVO AS(
     TO_NUMBER(REPLACE(nvl(nvl(c.cepent, c.cepcob), f.cep), '-', '')) cep,
     (CASE WHEN c.dtexclusao IS NOT NULL THEN 'N' ELSE 'S' END) ativo,
     UPPER(NVL(c.codmunicipio,f.codmun)) codibge
-  FROM  pcfilial f
-  INNER JOIN pcclient c
-  ON (c.CODCLI = f.CODCLI AND c.CODCLI > 0)
-  WHERE 
-    (nvl(c.dtalterc5,PKG_SINC_PDV_CONSINCO.get_inicio_execucao ) between PKG_SINC_PDV_CONSINCO.get_inicio_execucao and PKG_SINC_PDV_CONSINCO.get_final_execucao)
-    and (nvl(f.dtalterc5,PKG_SINC_PDV_CONSINCO.get_inicio_execucao ) between PKG_SINC_PDV_CONSINCO.get_inicio_execucao and PKG_SINC_PDV_CONSINCO.get_final_execucao)
-  	and LENGTH(TRIM(TRANSLATE(f.codigo, '0123456789',' '))) IS null
+  FROM PCFILIAL F
+  INNER JOIN PCCLIENT C
+  ON (C.CODCLI = F.CODCLI AND C.CODCLI > 0),
+
+  (
+    SELECT
+      MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
+    FROM
+      PCCONTROLECONSINCO S
+    WHERE
+      UPPER(S.OBJETOREFERENCIA) IN ( 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_ENDERECOALTERNATIVO')
+  ) D
+  WHERE
+    NVL(F.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO
+    OR NVL(C.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO
+    AND LENGTH(TRIM(TRANSLATE(F.CODIGO, '0123456789', ' '))) IS NULL
 )
