@@ -140,7 +140,7 @@
 		{
 			"nome": "VW_INT_C5_ENDERECO_ALTERNATIVO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.05.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
