@@ -320,6 +320,7 @@ WHERE T.IDREF IS NOT NULL
 
 CREATE OR REPLACE VIEW VW_INT_C5_CADOBSSPEDFAMILIA AS
 (
+
 SELECT
   *
 FROM (  
@@ -348,6 +349,7 @@ FROM (
      AND   T.IDREF = E.CODCADASTROPRINC
      AND   T.CODOBSERVACAO = S.CODOBSERVACAO
      AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
      AND   R.nrodivisao = D.nrodivisao
      AND   R.NUMREGIAO = (SELECT MIN(TO_CHAR(VALOR)) VALOR
                           FROM PCPARAMFILIAL
@@ -355,15 +357,47 @@ FROM (
                           AND VALOR <> '99'
                           AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                           AND VALOR IS NOT NULL
-                          AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
+                          --AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
                           HAVING MIN(VALOR) IS NOT NULL
                           
-                          UNION ALL
+                          /*UNION ALL
                           
                           SELECT TO_CHAR(NROEMPRESA) VALOR 
                           FROM MONITORPDVMIDDLE.TB_EMPRESA 
                           WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S' 
-                          AND ROWNUM = 1)
+                          AND ROWNUM = 1*/)
+                          
+     UNION ALL
+     
+     SELECT 
+        ROW_NUMBER() OVER(partition by FAM.SEQFAMILIA,  S.SEQOBSSPED  order BY  E.CODEXCECAO) sequencia,
+        FAM.SEQFAMILIA,
+        E.CODEXCECAO,
+        S.SEQOBSSPED,
+        E.CODCADASTROPRINC,
+        E.CODCADASTROEXCECAO CODAJUSTEEFD,
+        T.UFORIGEM UF,
+        E.TIPO1,
+        E.VALOR1,
+        'S' ATIVO,
+        E.TIPO1||E.VALOR1 IDREF
+     FROM MONITORPDVMIDDLE.TB_CADOBSSPED S,
+          MONITORPDVMIDDLE.TB_FAMILIA FAM,
+          MONITORPDVMIDDLE.tb_famdivisao D,
+          MONITORPDVMIDDLE.TB_TRIBUTACAOUF T,
+          PCEXCECAOCADASTROSFISCAIS E
+          --pcdepararegiaoc5 R
+          --VW_INT_C5_TRIB_UF_CONSOLIDADA T
+     WHERE S.CODAJUSTEEFD = E.CODCADASTROPRINC
+     AND   D.seqfamilia = FAM.SEQFAMILIA
+     AND   T.NROTRIBUTACAO = D.nrotributacao
+     AND   T.IDREF = E.CODCADASTROPRINC
+     AND   T.CODOBSERVACAO = S.CODOBSERVACAO
+     AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
+     AND   D.nrodivisao = (SELECT TO_CHAR(NROEMPRESA) VALOR 
+                          FROM MONITORPDVMIDDLE.TB_EMPRESA 
+                          WHERE ROWNUM = 1)
     )EXCECAO
 WHERE EXCECAO.SEQUENCIA = 1
 )
