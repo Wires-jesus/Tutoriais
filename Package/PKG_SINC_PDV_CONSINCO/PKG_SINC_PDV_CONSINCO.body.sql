@@ -2400,51 +2400,51 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   BEGIN 
     UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
 
-    MERGE INTO monitorpdvmiddle.tb_enderecoalternativo EnderecoAlternativoC5
-    USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) ViewEnderecoAlt
-    ON (EnderecoAlternativoC5.seqpessoa = ViewEnderecoAlt.seqpessoa and EnderecoAlternativoC5.seqlogradouro = ViewEnderecoAlt.SEQLOGRADOURO)
+    MERGE INTO monitorpdvmiddle.tb_enderecoalternativo TB_ENDERECOALTERNATIVO
+    USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) VW_INT_C5_ENDERECO_ALTERNATIVO
+    ON (TB_ENDERECOALTERNATIVO.seqpessoa = VW_INT_C5_ENDERECO_ALTERNATIVO.seqpessoa and TB_ENDERECOALTERNATIVO.seqlogradouro = VW_INT_C5_ENDERECO_ALTERNATIVO.SEQLOGRADOURO)
     WHEN MATCHED THEN
       UPDATE SET 
-        EnderecoAlternativoC5.tipo          = ViewEnderecoAlt.tipo,
-        EnderecoAlternativoC5.logradouro    = ViewEnderecoAlt.logradouro,
-        EnderecoAlternativoC5.nrologradouro = ViewEnderecoAlt.nrologradouro,
-        EnderecoAlternativoC5.bairro        = ViewEnderecoAlt.bairro,
-        EnderecoAlternativoC5.complemento   = ViewEnderecoAlt.complemento,
-        EnderecoAlternativoC5.cidade        = ViewEnderecoAlt.cidade,
-        EnderecoAlternativoC5.uf            = ViewEnderecoAlt.uf,
-        EnderecoAlternativoC5.cep           = ViewEnderecoAlt.cep,
-        EnderecoAlternativoC5.ativo         = ViewEnderecoAlt.ativo,
-        EnderecoAlternativoC5.codibge       = ViewEnderecoAlt.codibge
+        TB_ENDERECOALTERNATIVO.tipo          = VW_INT_C5_ENDERECO_ALTERNATIVO.tipo,
+        TB_ENDERECOALTERNATIVO.logradouro    = VW_INT_C5_ENDERECO_ALTERNATIVO.logradouro,
+        TB_ENDERECOALTERNATIVO.nrologradouro = VW_INT_C5_ENDERECO_ALTERNATIVO.nrologradouro,
+        TB_ENDERECOALTERNATIVO.bairro        = VW_INT_C5_ENDERECO_ALTERNATIVO.bairro,
+        TB_ENDERECOALTERNATIVO.complemento   = VW_INT_C5_ENDERECO_ALTERNATIVO.complemento,
+        TB_ENDERECOALTERNATIVO.cidade        = VW_INT_C5_ENDERECO_ALTERNATIVO.cidade,
+        TB_ENDERECOALTERNATIVO.uf            = VW_INT_C5_ENDERECO_ALTERNATIVO.uf,
+        TB_ENDERECOALTERNATIVO.cep           = VW_INT_C5_ENDERECO_ALTERNATIVO.cep,
+        TB_ENDERECOALTERNATIVO.ativo         = VW_INT_C5_ENDERECO_ALTERNATIVO.ativo,
+        TB_ENDERECOALTERNATIVO.codibge       = VW_INT_C5_ENDERECO_ALTERNATIVO.codibge
       WHEN NOT MATCHED THEN
         INSERT  
         (
-	        EnderecoAlternativoC5.seqpessoa,
-	        EnderecoAlternativoC5.seqlogradouro,
-	        EnderecoAlternativoC5.tipo,
-	        EnderecoAlternativoC5.logradouro,
-	        EnderecoAlternativoC5.nrologradouro,
-	        EnderecoAlternativoC5.bairro,
-	        EnderecoAlternativoC5.complemento,
-	        EnderecoAlternativoC5.cidade,
-	        EnderecoAlternativoC5.uf,
-	        EnderecoAlternativoC5.cep,
-	        EnderecoAlternativoC5.ativo,
-	        EnderecoAlternativoC5.codibge
+	        TB_ENDERECOALTERNATIVO.seqpessoa,
+	        TB_ENDERECOALTERNATIVO.seqlogradouro,
+	        TB_ENDERECOALTERNATIVO.tipo,
+	        TB_ENDERECOALTERNATIVO.logradouro,
+	        TB_ENDERECOALTERNATIVO.nrologradouro,
+	        TB_ENDERECOALTERNATIVO.bairro,
+	        TB_ENDERECOALTERNATIVO.complemento,
+	        TB_ENDERECOALTERNATIVO.cidade,
+	        TB_ENDERECOALTERNATIVO.uf,
+	        TB_ENDERECOALTERNATIVO.cep,
+	        TB_ENDERECOALTERNATIVO.ativo,
+	        TB_ENDERECOALTERNATIVO.codibge
         )
         VALUES
         (
-          ViewEnderecoAlt.seqpessoa,
-          ViewEnderecoAlt.seqlogradouro,
-          ViewEnderecoAlt.tipo,
-          ViewEnderecoAlt.logradouro,
-          ViewEnderecoAlt.nrologradouro,
-          ViewEnderecoAlt.bairro,
-          ViewEnderecoAlt.complemento,
-          ViewEnderecoAlt.cidade,
-          ViewEnderecoAlt.uf,
-          ViewEnderecoAlt.cep,
-          ViewEnderecoAlt.ativo,
-          ViewEnderecoAlt.codibge
+          VW_INT_C5_ENDERECO_ALTERNATIVO.seqpessoa,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.seqlogradouro,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.tipo,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.logradouro,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.nrologradouro,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.bairro,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.complemento,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.cidade,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.uf,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.cep,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.ativo,
+          VW_INT_C5_ENDERECO_ALTERNATIVO.codibge
          );
          
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
