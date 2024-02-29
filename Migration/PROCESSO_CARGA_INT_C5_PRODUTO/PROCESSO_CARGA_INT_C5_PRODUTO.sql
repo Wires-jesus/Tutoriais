@@ -174,37 +174,34 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
  FROM
   (
   --Embalagem preço varejo
-  select distinct
-    e.codprod seqfamilia,
-    NVL(e.qtunit, 1) qtdembalagem,
-    NVL(max(e.unidade), '1') embalagem,
-    NVL(max(e.pesobruto), 0) pesobruto,
-    NVL(max(e.pesoliq), 0) pesoliq,
-    'N' pesoaferido,
-    'S' ativo
+  select distinct DEPARA.SEQFAMILIA seqfamilia,
+                NVL(e.qtunit, 1) qtdembalagem,
+                NVL(max(e.unidade), '1') embalagem,
+                NVL(max(e.pesobruto), 0) pesobruto,
+                NVL(max(e.pesoliq), 0) pesoliq,
+                'N' pesoaferido,
+                'S' ativo
   from VW_INT_C5_EMBPROD e
-  where
-    qtunit <> qtminimaatacado
-  group by
-    e.codprod,
-    NVL(e.qtunit, 1)
-
-  UNION ALL
- --Embalagem preço Atacado
-  select distinct
-    e.codprod seqfamilia,
-    NVL(e.qtminimaatacado, 1) qtdembalagem,
-    NVL(max(e.unidade), '1') embalagem,
-    NVL(max(e.pesobruto), 0) pesobruto,
-    NVL(max(e.pesoliq), 0) pesoliq,
-    'N' pesoaferido,
-    'S' ativo
+ inner join PCDEPARAPRODC5 DEPARA
+    ON (DEPARA.CODPROD = E.CODPROD AND DEPARA.CODAUXILIAR = E.codprod)
+ where E.qtunit <> E.qtminimaatacado
+ group by DEPARA.SEQFAMILIA,
+          NVL(e.qtunit, 1)
+UNION ALL
+--Embalagem preço Atacado
+select distinct DEPARA.SEQFAMILIA seqfamilia,
+                NVL(e.qtminimaatacado, 1) qtdembalagem,
+                NVL(max(e.unidade), '1') embalagem,
+                NVL(max(e.pesobruto), 0) pesobruto,
+                NVL(max(e.pesoliq), 0) pesoliq,
+                'N' pesoaferido,
+                'S' ativo
   from VW_INT_C5_EMBPROD e
-  where
-    e.qtminimaatacado > 1
-  group by
-    e.codprod,
-    NVL(e.qtminimaatacado, 1))DADOSEMB
+ inner join PCDEPARAPRODC5 DEPARA
+    ON (DEPARA.CODPROD = E.CODPROD AND DEPARA.CODAUXILIAR = E.codprod)
+ where e.qtminimaatacado > 1
+ group by DEPARA.SEQFAMILIA,
+          NVL(e.qtminimaatacado, 1))DADOSEMB
   group by SEQFAMILIA, QTDEMBALAGEM
 )
 
