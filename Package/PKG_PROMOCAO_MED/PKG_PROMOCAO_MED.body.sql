@@ -56,6 +56,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_PROMOCAO_MED
   26/10/2022  Anderson Silva     DDVENDAS-38534 - Ajuste gravação restrições clientes sem normalização da promoção
   16/11/2022  Anderson Silva     DDVENDAS-38892 - Melhoria de performance na gravação da promoção
   24/04/2023  Anderson Silva     DDVENDAS-41697 - Revalição inclusão orçamento
+  03/03/2024  Anderson Silva     DDVENDAS-46442 - RCA do Cliente por Linha e Filial
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -73,13 +74,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38534        v@33.1.1
   DDVENDAS-38892        v@33.1.2
   DDVENDAS-41697        v@33.0.3
+  DDVENDAS-46442        v@35.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.1.3';
+    vvVersao := 'v@35.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -234,8 +236,10 @@ IS PRAGMA SERIALLY_REUSABLE;
   PROCEDURE: F_OBTER_RCA_LINHAPROD
   DESCRIÇÃO: DDMEDICA-1835 - Obter o RCA da Linha de Produto
   ***********************************************************************************************/
-  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli  IN NUMBER,
-                                 pi_nCodProd IN NUMBER) RETURN NUMBER IS
+  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli                    IN NUMBER,
+                                 pi_nCodProd                   IN NUMBER,
+                                 pi_vCodFilial                 IN VARCHAR2 DEFAULT NULL,
+                                 pi_vUsarClienteLinhaFilialMed IN VARCHAR2 DEFAULT 'N') RETURN NUMBER IS
     nCODLINHAPROD PCPRODUT.CODLINHAPROD%TYPE;
     nCODUSUR      PCCLIUSURLINHAPROD.CODUSUR%TYPE;    
   BEGIN
@@ -250,16 +254,30 @@ IS PRAGMA SERIALLY_REUSABLE;
         nCODLINHAPROD := NULL;
     END;
     
-    BEGIN
-      SELECT CODUSUR
-        INTO nCODUSUR
-        FROM PCCLIUSURLINHAPROD
-       WHERE (CODCLI       = pi_nCodCli) 
-         AND (CODLINHAPROD = nCODLINHAPROD);
-    EXCEPTION 
-      WHEN NO_DATA_FOUND THEN
-        nCODUSUR := NULL;
-    END;
+    IF (NVL(pi_vUsarClienteLinhaFilialMed,'N') = 'S') THEN
+      BEGIN
+        SELECT CODUSUR
+          INTO nCODUSUR
+          FROM PCCLIUSURFILIALLINHAPROD
+         WHERE (CODCLI       = pi_nCodCli) 
+           AND (CODLINHAPROD = nCODLINHAPROD)
+           AND (CODFILIAL    = pi_vCodFilial);
+      EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+          nCODUSUR := NULL;
+      END;
+    ELSE
+      BEGIN
+        SELECT CODUSUR
+          INTO nCODUSUR
+          FROM PCCLIUSURLINHAPROD
+         WHERE (CODCLI       = pi_nCodCli) 
+           AND (CODLINHAPROD = nCODLINHAPROD);
+      EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+          nCODUSUR := NULL;
+      END;
+    END IF;
     
     RETURN nCODUSUR;
     
@@ -6923,7 +6941,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vUTILIZANOVOPROCESSOLICITACAO VARCHAR2(100), -- DDVENDAS-33442
          nCON_NUMCASASDECESTOQUE       NUMBER,        -- DDVENDAS-33442
          vMEDTIPOARREDQTPEDLICIT       VARCHAR2(100),
-         vUTILIZATRIBENDENT            VARCHAR2(100)  -- DDVENDAS-33920
+         vUTILIZATRIBENDENT            VARCHAR2(100), -- DDVENDAS-33920
+         vUSARCACLIENTELINHAPORFILIALME VARCHAR2(100)
          );
     vrParamFilial                      TRecParamFilial;
 
@@ -8886,6 +8905,12 @@ IS PRAGMA SERIALLY_REUSABLE;
         POBTEM_PARAMFILIAL_STRING(pi_vCodFilial,
                                   'UTILIZATRIBENDENT',
                                   vrParamFilial.vUTILIZATRIBENDENT, --> Valor do Parâmetro
+                                  vvErroPesqParam,
+                                  vvMsgErroPesqParam);
+
+        POBTEM_PARAMFILIAL_STRING(pi_vCodFilial,
+                                  'USARCACLIENTELINHAPORFILIALMED',
+                                  vrParamFilial.vUSARCACLIENTELINHAPORFILIALME, --> Valor do Parâmetro
                                   vvErroPesqParam,
                                   vvMsgErroPesqParam);
 
@@ -11584,7 +11609,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnCodUsurLinha := NULL;
             IF (vrRegraMed.vAPURARCOMISSAOPELORCALINHA = 'S') THEN
               vnCodUsurLinha := F_OBTER_RCA_LINHAPROD(pi_nCodCli,
-                                                      vrItemPedido.nCODPROD);
+                                                      vrItemPedido.nCODPROD,
+                                                      pi_vCodFilial,
+                                                      vrParamFilial.vUSARCACLIENTELINHAPORFILIALME);
             END IF;
 
             -- Comissão do Item do Pedido
@@ -14654,7 +14681,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vnCodUsurLinha := NULL;
                     IF (vrRegraMed.vAPURARCOMISSAOPELORCALINHA = 'S') THEN
                       vnCodUsurLinha := F_OBTER_RCA_LINHAPROD(pi_nCodCli,
-                                                              vrItemPedido.nCODPROD);
+                                                              vrItemPedido.nCODPROD,
+                                                              pi_vCodFilial,
+                                                              vrParamFilial.vUSARCACLIENTELINHAPORFILIALME);
                     END IF;
 
                     -- Próxima Seq. Item

@@ -1,1 +1,5 @@
-{"nome":"INTEGRADORACOMPLE_MED","tipoPLSQL":"PACKAGE","dependencias":[]}
+{"nome":"INTEGRADORACOMPLE_MED","tipoPLSQL":"PACKAGE","dependencias":[{
+  "nome": "PCCLIUSURFILIALLINHAPROD",
+  "tipo": "TABELA",
+  "versao": "5.0.01.000"
+}]}

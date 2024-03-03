@@ -640,8 +640,10 @@ IS PRAGMA SERIALLY_REUSABLE;
   PROCEDURE: F_OBTER_RCA_LINHAPROD
   DESCRIÇÃO: DDMEDICA-1835 - Obter o RCA da Linha de Produto
   ***********************************************************************************************/
-  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli  IN NUMBER,
-                                 pi_nCodProd IN NUMBER) RETURN NUMBER;
+  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli                    IN NUMBER,
+                                 pi_nCodProd                   IN NUMBER,
+                                 pi_vCodFilial                 IN VARCHAR2 DEFAULT NULL,
+                                 pi_vUsarClienteLinhaFilialMed IN VARCHAR2 DEFAULT 'N') RETURN NUMBER;
 
  /***********************************************************************************************
   PROCEDURE: F_RCA_PREPOSTO
