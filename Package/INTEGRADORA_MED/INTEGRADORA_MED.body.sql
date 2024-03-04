@@ -559,6 +559,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     18/08/2022  Anderson Silva DDVENDAS-37313 - Sobreposição do Bloqueio por Alvará Vencido  
     01/11/2022  Anderson Silva DDVENDAS-38483 - Quebra de Pedidos do Força de Vendas
     02/03/2022  Anderson Silva DDVENDAS-40171 - Grupo de Comissão no SERVCON
+    03/03/2024  Anderson Silva DDVENDAS-46442 - RCA do Cliente por Linha e Filial
   */
 
  /*****************************************
@@ -598,13 +599,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-37313        v@31.1.11
   DDVENDAS-38483        v@33.1.1
   DDVENDAS-40171        v@33.0.2
+  DDVENDAS-46442        v@35.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.2';
+    vvVersao := 'v@35.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -3720,7 +3722,8 @@ end func_HoraDigitacaoPedido;
                 'N',  -- UTILIZATRIBENDENT            -- DDVENDAS-33718
                 'N',  -- VENDAPOREMBALAGEMINTEGRADORA -- DDVENDAS-33713
                 NULL, -- CONCEDENTEFERTA              -- DDVENDAS-33961
-                'NA'  -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
+                'NA', -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
+                'N'   -- USARCACLIENTELINHAPORFILIALMED
           into p_regfilial
           from pcfilial
          where codigo = p_regpedido.codfilial;
@@ -4225,6 +4228,11 @@ end func_HoraDigitacaoPedido;
                                                                                     'NA');
        p_regfilial.sobreposicaobloqueioalvara := NVL(vrParamIntegradoraMed.SOBREPOSICAOBLOQUEIOALVARA,'NA');
      END IF;    
+
+     proc_pcparamfilial(p_regpedido.codfilial,
+                        'USARCACLIENTELINHAPORFILIALMED',
+                        'N',
+                         p_regfilial.usarcaclientelinhaporfilialmed);
 
   end proc_parametros;
 
@@ -16074,7 +16082,9 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                                                                     'N');
           IF (NVL(vPRIORIZARCAINTEGRADORARCALIN,'N') <> 'S') THEN
             p_regitem.codusurlinha := INTEGRADORACOMPLE_MED.F_OBTER_RCA_LINHAPROD(p_regpedido.codcli,
-                                                                                  p_regitem.codprod);
+                                                                                  p_regitem.codprod,
+                                                                                  p_regpedido.codfilial,
+                                                                                  p_regfilial.usarcaclientelinhaporfilialmed);
             PGRAVA_LOG_TEXTO('RCA Linha:',p_regitem.codusurlinha);
           ELSE     
             PGRAVA_LOG_TEXTO('RCA Linha: Priorizou o RCA da Integradora:',p_regpedido.codusur);
@@ -30618,7 +30628,9 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                                   'APURARCOMISSAOPELORCALINHA') = 'S') THEN
 
                         gvet_regitem(j).codusurlinha := INTEGRADORACOMPLE_MED.F_OBTER_RCA_LINHAPROD(gvet_regpedido(i).codcli,
-                                                                                                    gvet_regitem(j).CODPROD);
+                                                                                                    gvet_regitem(j).CODPROD,
+                                                                                                    gvet_regpedido(i).codfilial,
+                                                                                                    regfilial.usarcaclientelinhaporfilialmed);
 
                         -- Log
                         gvet_regitem(j).logprocmed := gvet_regitem(j).logprocmed || CHR(13) || 'RCA Linha: ' || gvet_regitem(j).codusurlinha;
