@@ -56,6 +56,7 @@ CREATE OR REPLACE PACKAGE BODY INTEGRADORACOMPLE_MED
   03/11/2022  Anderson Silva DDVENDAS-38538 - Serviço de Limite de Crédito
   01/12/2022  Anderson Silva DDVENDAS-38983 - Inclusão de CallCenter na pesquisa de promoção
   04/01/2023  Anderson Silva DDVENDAS-39681 - Ajuste na pesquisa de políticas por grupo de produtos da 561 no OL
+  03/03/2024  Anderson Silva DDVENDAS-46442 - RCA do Cliente por Linha e Filial
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 
@@ -66,13 +67,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-35581        v@31.1.2
   DDVENDAS-38983        v@33.0.1
   DDVENDAS-39681        v@33.0.2
+  DDVENDAS-46442        v@35.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@33.0.2';
+    vvVersao := 'v@35.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -2969,7 +2971,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 				into vdatavalidadecredito
 			from (select NVL(trunc(pcclient.dtvenclimcred), trunc(sysdate)) dtvenclimcred
 				from pcclient
-			where (pcclient.codcliprinc = pi_nCodCliPrincipal OR pcclient.codcli = pi_nCodCli))
+			where (pcclient.codcliprinc = pi_nCodCliPrincipal OR pcclient.codcli = pi_nCodCli));
       exception
         when others then
           vdatavalidadecredito := trunc(sysdate);
@@ -9544,8 +9546,10 @@ IS PRAGMA SERIALLY_REUSABLE;
   PROCEDURE: F_OBTER_RCA_LINHAPROD
   DESCRIÇÃO: DDMEDICA-1835 - Obter o RCA da Linha de Produto
   ***********************************************************************************************/
-  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli  IN NUMBER,
-                                 pi_nCodProd IN NUMBER) RETURN NUMBER IS
+  FUNCTION F_OBTER_RCA_LINHAPROD(pi_nCodCli                    IN NUMBER,
+                                 pi_nCodProd                   IN NUMBER,
+                                 pi_vCodFilial                 IN VARCHAR2 DEFAULT NULL,
+                                 pi_vUsarClienteLinhaFilialMed IN VARCHAR2 DEFAULT 'N') RETURN NUMBER IS
     nCODLINHAPROD PCPRODUT.CODLINHAPROD%TYPE;
     nCODUSUR      PCCLIUSURLINHAPROD.CODUSUR%TYPE;    
   BEGIN
@@ -9560,16 +9564,30 @@ IS PRAGMA SERIALLY_REUSABLE;
         nCODLINHAPROD := NULL;
     END;
     
-    BEGIN
-      SELECT CODUSUR
-        INTO nCODUSUR
-        FROM PCCLIUSURLINHAPROD
-       WHERE (CODCLI       = pi_nCodCli) 
-         AND (CODLINHAPROD = nCODLINHAPROD);
-    EXCEPTION 
-      WHEN NO_DATA_FOUND THEN
-        nCODUSUR := NULL;
-    END;
+    IF (NVL(pi_vUsarClienteLinhaFilialMed,'N') = 'S') THEN
+      BEGIN
+        SELECT CODUSUR
+          INTO nCODUSUR
+          FROM PCCLIUSURFILIALLINHAPROD
+         WHERE (CODCLI       = pi_nCodCli) 
+           AND (CODLINHAPROD = nCODLINHAPROD)
+           AND (CODFILIAL    = pi_vCodFilial);
+      EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+          nCODUSUR := NULL;
+      END;
+    ELSE
+      BEGIN
+        SELECT CODUSUR
+          INTO nCODUSUR
+          FROM PCCLIUSURLINHAPROD
+         WHERE (CODCLI       = pi_nCodCli) 
+           AND (CODLINHAPROD = nCODLINHAPROD);
+      EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+          nCODUSUR := NULL;
+      END;
+    END IF;
     
     RETURN nCODUSUR;
     
