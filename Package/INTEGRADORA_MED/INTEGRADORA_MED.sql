@@ -1416,7 +1416,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     utilizatribendent             varchar2(200), -- DDVENDAS-33718    
     vendaporembalagemintegradora  varchar2(200), -- DDVENDAS-33713
     concedenteferta               varchar2(200), -- DDVENDAS-33961
-    sobreposicaobloqueioalvara    varchar2(200)  -- DDVENDAS-37313
+    sobreposicaobloqueioalvara    varchar2(200), -- DDVENDAS-37313
+    usarcaclientelinhaporfilialmed varchar2(200)
     );
 
 
