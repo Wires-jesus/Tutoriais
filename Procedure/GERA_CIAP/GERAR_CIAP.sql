@@ -165,11 +165,12 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) +                                     
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  +                                     
                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    END)
                                  END) TOTALTRIB,';
          else
             V_SQL := 'SElect SUM(CASE WHEN PCNFBASESAID.CODFISCAL IN (' || V_CFOP_SAIDA_TRIB || ') THEN
@@ -179,12 +180,12 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) +                                     
-                                                                            
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  +                                    
                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    END)
                                  ELSE
                                     0
                                  END) TOTALTRIB,
@@ -241,12 +242,12 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) + 
-                                                                        
-                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  + 
+                                    DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                    DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                    DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    END)
                                   END) TOTALTRIB,';
 
          end if;
@@ -261,12 +262,12 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) + 
-                                                                        
-                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) + 
+                                    DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                    DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                    DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                      END)
                                   ELSE
                                      0
                                   END) TOTALTRIB,';
@@ -282,13 +283,12 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) + 
-                                                                        
-
-                                        DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                                        DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                                        DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                        DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  + 
+                                    DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                    DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                    DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    END)
                                     ELSE
                                        0
                                     END) TOTALTRIB,';
@@ -395,11 +395,11 @@ begin
                      (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL( PCNFBASESAID.VLBASE,0) = 0 THEN 
                                DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                           ELSE 
-                               DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) END    +
+                               DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)     +
                                      DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
                                      DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
                                      DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)) TOTALTRIB,';
+                                     DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END) END) TOTALTRIB,';
                    end if;
                 --------------     
                ELSE
@@ -418,11 +418,11 @@ begin
                          (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                         DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                    ELSE 
-                                        DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) END    +
-                                         DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                                         DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                                         DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                         DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)) TOTALTRIB,';
+                                        DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)     +
+                                        DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                        DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                        DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                        DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END) END) TOTALTRIB,';
                       END IF;  
                       
                   ELSE
@@ -443,11 +443,11 @@ begin
                      (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) END    +
-                                       DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                                       DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                                       DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                       DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)) TOTALTRIB,';
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)     +
+                                    DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                    DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                    DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END) END) TOTALTRIB,';
                      
                    END IF;
                  END IF; -- Fechando 1
@@ -461,11 +461,11 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) + 
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  + 
                                     DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
                                     DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
                                     DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0) END)
                                         ) TOTALTRIB,
                                         ------------------------------
                                         ';
@@ -562,12 +562,11 @@ begin
                               (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE
-                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0) END) +
-
-                              DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
-                              DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
-                              DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
-                              DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)) TOTALTRIB, ';
+                                    DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  +
+                                    DECODE(:PVALOROUTRAS, ''S'', NVL(PCNFBASESAID.VLOUTRAS, 0), 0)       +
+                                    DECODE(:PVALORISENAOTRIB, ''S'', NVL(PCNFBASESAID.VLISENTAS, 0), 0)  +
+                                    DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
+                                    DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END)) TOTALTRIB, ';
       V_SQL :=  V_SQL || ' SUM(NVL(PCNFBASESAID.VLDESDOBRADO,0)) TOTALSAIDAS ';
    end if;
 --------------------------------------------------------------------------------------------
@@ -891,6 +890,18 @@ begin
         end;
       end;
       --------------------------------------------------------------------
+      IF V_TOTALTRIBUTADAS IS NULL THEN
+         V_TOTALTRIBUTADAS := 0;
+      END IF;  
+      IF V_ENTRADATRIBUTADA IS NULL THEN
+         V_ENTRADATRIBUTADA := 0;
+      END IF; 
+      IF V_TOTALSAIDAS IS NULL THEN
+         V_TOTALSAIDAS := 0;
+      END IF; 
+      IF V_ENTRADATOTAL IS NULL THEN
+         V_ENTRADATOTAL := 0;
+      END IF; 
       --------------------------------------------------------------------
       -- Cálculo das colunas de "Saídas Tributadas" e "Total Saídas
       V_TOTALTRIBUTADAS := V_TOTALTRIBUTADAS - V_ENTRADATRIBUTADA;
