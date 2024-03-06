@@ -494,7 +494,7 @@ BEGIN
     ROWPCLANC.Tipolanc    := 'C';
     ROWPCLANC.DtEmissao   := TRUNC(SYSDATE);
     ROWPCLANC.Moeda       := 'R';
-    ROWPCLANC.Historico   := 'Conta Referente á transferência: ' ||
+    ROWPCLANC.Historico   := 'Conta Referente Ã¡ transferÃªncia: ' ||
                              P_NUMTRANSENT;
     ROWPCLANC.Valor       := VNVLTOTAL;
     ROWPCLANC.Numtransent := P_NUMTRANSENT;
@@ -560,7 +560,7 @@ END;
     END;
 
   BEGIN
-    ----------------- INÍCIO ---------------------------
+    ----------------- INÃCIO ---------------------------
     --    SERIENFENT := SERIENF;
     VSCODFILIAL   := P_CODFILIAL;
     VSCODFILIALNF := P_CODFILIALNF;
@@ -678,7 +678,7 @@ END;
       INSERT INTO PCNFENT VALUES ROWPCNFENT;
       ------------------------------------------------
 
-      -- Vínculo com a PCNFSAID
+      -- VÃ­nculo com a PCNFSAID
       UPDATE PCNFSAID
          SET NUMTRANSENTORIGEM = P_NUMTRANSENT
        WHERE NUMTRANSVENDA = P_NUMTRANSVENDA;
@@ -700,7 +700,7 @@ END;
                               P_NUMTRANSITEM        IN PCMOVCOMPLE.NUMTRANSITEM%TYPE,
                               P_MSG                 OUT VARCHAR2) IS
 
-    -- INÍCIO - Cursor para processar o registro de transferência "ET" ---------------
+    -- INÃCIO - Cursor para processar o registro de transferÃªncia "ET" ---------------
     CURSOR C_TRANSF_ET(P_NUMTRANSVENDA PCMOV.NUMTRANSVENDA%TYPE, P_NUMTRANSITEM NUMBER) IS
       SELECT TODOS_REG.*
         FROM (SELECT M.*,
@@ -730,8 +730,8 @@ END;
                     TODOS_REG.NUMTRANSITEM,
                     P_NUMTRANSITEM);
 
-    MOV_ENT C_TRANSF_ET%ROWTYPE; -- Variável contendo tipo do cursor
-    -- FIM - Cursor para processar o registro de transferência "ET" ---------------
+    MOV_ENT C_TRANSF_ET%ROWTYPE; -- VariÃ¡vel contendo tipo do cursor
+    -- FIM - Cursor para processar o registro de transferÃªncia "ET" ---------------
 
     VNCODST                  NUMBER;
     VSCODFILIALNF            VARCHAR2(4);
@@ -881,17 +881,17 @@ END;
           WHEN NO_DATA_FOUND THEN
             VNCODST := 0;
         END;
-        -- BUSCA TRIBUTAÇÃO
+        -- BUSCA TRIBUTAÃ‡ÃƒO
         TRANSF.TRIBUTACAO := BUSCAR_TRIBUTACAO_PORUF(VNCODST,
                                                      TRANSF.PARAMETRO.GERATRIBUTENTTRANSFDEP);
       ELSE
-        -- BUSCA TRIBUTAÇÃO
+        -- BUSCA TRIBUTAÃ‡ÃƒO
         TRANSF.TRIBUTACAO := BUSCAR_TRIBUTACAO(VNNUMREGIAO,
                                                MOV_ENT.CODPROD,
                                                TRANSF.PARAMETRO.GERATRIBUTENTTRANSFDEP);
       END IF;
 
-      --Busca Custo Contábil
+      --Busca Custo ContÃ¡bil
       BEGIN
         SELECT NVL(PCEST.CUSTOCONT, 0)
           INTO VNCUSTOCONTABIL
@@ -904,7 +904,7 @@ END;
           VNCUSTOCONTABIL := 0;
       END;
 
-      --Busca Código do pis/codfins
+      --Busca CÃ³digo do pis/codfins
       BEGIN
         SELECT PCPRODUT.CODSITTRIBPISCOFINS
           INTO vnCodSitTribpiscofins
@@ -929,9 +929,9 @@ END;
       END IF;
 
       IF VNCODFISCALENTRADAITEM = 0 THEN
-        P_MSG := 'CÓDIGO FISCAL NÃO CADASTRADO! VERIFIQUE NA ROTINA (514) NA ABA TRANSFERÊNCIA EM CFOP (ESTADUAL E INTERESTADUAL).' ||
-                 CHR(13) || 'FIGURA TRIBUTÁRIA: ' || VNCODST || CHR(13) ||
-                 'PRODUTO: ' || MOV_ENT.CODPROD || CHR(13) || 'REGIÃO: ' ||
+        P_MSG := 'CÃ“DIGO FISCAL NÃƒO CADASTRADO! VERIFIQUE NA ROTINA (514) NA ABA TRANSFERÃŠNCIA EM CFOP (ESTADUAL E INTERESTADUAL).' ||
+                 CHR(13) || 'FIGURA TRIBUTÃRIA: ' || VNCODST || CHR(13) ||
+                 'PRODUTO: ' || MOV_ENT.CODPROD || CHR(13) || 'REGIÃƒO: ' ||
                  VNNUMREGIAO;
         EXIT;
       END IF;
@@ -939,8 +939,8 @@ END;
 
       -- IPI
       IF NOT P_VBDESTACAIPIENTRADA THEN
-        VNPERCIPIVENDA := 0; --// PERCENTUAL DE IPI DO ITEM DE SAÍDA (ST)
-        --VLIPI          := 0; --// IPI DO ITEM DE SAÍDA (ST)
+        VNPERCIPIVENDA := 0; --// PERCENTUAL DE IPI DO ITEM DE SAÃDA (ST)
+        --VLIPI          := 0; --// IPI DO ITEM DE SAÃDA (ST)
       END IF;
 
 --      VLIPIVENDA := MOV_ENT.VLIPI;
@@ -955,7 +955,7 @@ END;
       END IF;
       -- IPI
 
-     -- ST PRÓPRIO e ST CLIENTE (GNRE)
+     -- ST PRÃ“PRIO e ST CLIENTE (GNRE)
       IF UPPER(TRANSF.TRIBUTACAO.COL.TIPOCALCULOGNRETRANSF) = 'P' THEN
         VNSTENTRADA     := MOV_ENT.ST;
         VNBASESTENTRADA := MOV_ENT.BASEICST;
@@ -1120,7 +1120,7 @@ END;
           ROWPCMOV_ET.PAGTOGNRENOMEDOREMETENTE := 'N';
         END IF;
       ELSIF UPPER(TRANSF.TRIBUTACAO.COL.TIPOCALCULOGNRETRANSF) = 'C' THEN
-        --    // TAREFA 161758 - QUANTO TEM STGNRE NÃO DIMINUI O ST NO PUNITCONT
+        --    // TAREFA 161758 - QUANTO TEM STGNRE NÃƒO DIMINUI O ST NO PUNITCONT
         ROWPCMOV_ET.ST       := (0);
         ROWPCMOV_ET.BASEICST := (0);
 
@@ -1228,8 +1228,8 @@ END;
       ROWPCMOV_ET.CUSTOCONT := VNCUSTOCONTABIL; --// 907.010135.2015
       ROWPCMOV_ET.CUSTOREAL := (0);
       --      // HIS.01840.2015 --DATA: 28/10/2015
-      --        // DEVE PASSAR A GRAVAR O CUSTO CONTÁBIL ANTERIOR, QUE ESTA GRAVADA NA TABELA DE ESTOQUE, NAS MOVIMENTAÇÕES DE
-      --        // TRANSFERÊNCIA (PCEST.CUSTOCONT -> PCMOV.CUSTOCONTANT).
+      --        // DEVE PASSAR A GRAVAR O CUSTO CONTÃBIL ANTERIOR, QUE ESTA GRAVADA NA TABELA DE ESTOQUE, NAS MOVIMENTAÃ‡Ã•ES DE
+      --        // TRANSFERÃŠNCIA (PCEST.CUSTOCONT -> PCMOV.CUSTOCONTANT).
       ROWPCMOV_ET.CUSTOCONTANT := VNCUSTOCONTABIL; --(VNVALORCUSTOCONT);
       --Codsittribpiscofins da entrada buscado na pcprodut
       ROWPCMOV_ET.Codsittribpiscofins := vnCodSitTribpiscofins;
@@ -1242,7 +1242,7 @@ END;
       --------------------------- INSERIR PCMOV - CODOPER = 'ET' ----------------------------------
       INSERT INTO PCMOV ROWPCMOV_ET VALUES ROWPCMOV_ET;
       ---------------------------------------------------------------------------------------------
-      --GRAVAR O ENQUADRAMENTO DE IPI NA TRANSFERÊNCIA. (ET)
+      --GRAVAR O ENQUADRAMENTO DE IPI NA TRANSFERÃŠNCIA. (ET)
 
       vsDADOSTRIBUTACAOIPI := FISCAL.GET_DADOS_TRIBUTACAO_IPI(VNCODFORNEC,
                                                                MOV_ENT.CODPROD,
@@ -1321,7 +1321,7 @@ END;
     CLOSE C_TRANSF_ET;
     --------------- FIM DO LOOP
 
-    -------------- Procedimento para gerar o cabeçalho
+    -------------- Procedimento para gerar o cabeÃ§alho
     IF VBGEROUMOV THEN
        GERAR_CAB_ET(P_NUMTRANSVENDA,
                     P_NUMTRANSENT,
@@ -1334,7 +1334,7 @@ END;
 
   END PROCESSAR_ET_VIRT;
 
-  ------------------ Método gerenciado principal ------------------------------------
+  ------------------ MÃ©todo gerenciado principal ------------------------------------
   PROCEDURE TRANSF_VIRTUAL(P_NUMTRANSVENDA       IN NUMBER,
                            P_CODFILIAL           IN PCPEDC.CODFILIAL%TYPE,
                            P_CODFILIALNF         IN PCPEDC.CODFILIALNF%TYPE,
@@ -1345,8 +1345,8 @@ END;
                            P_MSG                 OUT VARCHAR2) IS
   BEGIN
     BEGIN
-      IF NOT NOTA_EXISTE(P_NUMTRANSVENDA, 'ET') THEN -- Validar se a nota de entrada(ET) já existe
-        -- PARÂMETROS
+      IF NOT NOTA_EXISTE(P_NUMTRANSVENDA, 'ET') THEN -- Validar se a nota de entrada(ET) jÃ¡ existe
+        -- PARÃ‚METROS
         TRANSF.PARAMETRO := BUSCAR_PARAMETROS(P_CODFILIAL, 'ET');
 
         -- PROCESSAR REGISTROS DE ENTRADA - CODOPER = "ET" - PROCESSO DE FILIAL VIRTUAL
@@ -1371,13 +1371,13 @@ END;
   END TRANSF_VIRTUAL;
 
 ---------------
-  PROCEDURE TRANSF_RETIRA_CDVIRTUAL(P_NUMTRANSVENDA       IN NUMBER, --Sempre deve ser informado a transação da venda original
-                                    P_NUMTRANSENT         IN NUMBER DEFAULT NULL, --Para o processo de devolução é obrigatório informa-lo
-                                    P_EFATURAMENTO        IN VARCHAR2 DEFAULT 'S', --S: é faturamento, N: é devolução
-                                    P_ECANCELAMENTO       IN VARCHAR2 DEFAULT 'N', --S: é um processo de cancelamento do faturamento ou da devolução, N: é um faturamento ou uma devolução normal
+  PROCEDURE TRANSF_RETIRA_CDVIRTUAL(P_NUMTRANSVENDA       IN NUMBER, --Sempre deve ser informado a transaÃ§Ã£o da venda original
+                                    P_NUMTRANSENT         IN NUMBER DEFAULT NULL, --Para o processo de devoluÃ§Ã£o Ã© obrigatÃ³rio informa-lo
+                                    P_EFATURAMENTO        IN VARCHAR2 DEFAULT 'S', --S: Ã© faturamento, N: Ã© devoluÃ§Ã£o
+                                    P_ECANCELAMENTO       IN VARCHAR2 DEFAULT 'N', --S: Ã© um processo de cancelamento do faturamento ou da devoluÃ§Ã£o, N: Ã© um faturamento ou uma devoluÃ§Ã£o normal
                                     P_MSG                 OUT VARCHAR2)
   IS
-     --Declaração das variáveis utilizadas
+     --DeclaraÃ§Ã£o das variÃ¡veis utilizadas
      voPCNFSAID          PCNFSAID%ROWTYPE;
      voPCMOV             PCMOV%ROWTYPE;
      vnRetornoPkgEstoque NUMBER(10);
@@ -1399,7 +1399,7 @@ END;
    FUNCTION PROXIMO_NUMNOTA(psCODFILIAL IN VARCHAR2) RETURN NUMBER
    IS vnNUMNOTA PCNFSAID.NUMNOTA%TYPE;
    BEGIN
-    --Obtendo o próximo número de nota fiscal
+    --Obtendo o prÃ³ximo nÃºmero de nota fiscal
     BEGIN
       SELECT NVL(PCFILIAL.PROXNUMNOTA, 1)
         INTO vnNUMNOTA
@@ -1411,7 +1411,7 @@ END;
       vnNUMNOTA := 0;
     END;
 
-     --Atualizando o próximo número da nota fiscal
+     --Atualizando o prÃ³ximo nÃºmero da nota fiscal
      UPDATE PCFILIAL
         SET PCFILIAL.PROXNUMNOTA = vnNUMNOTA + 1
       WHERE PCFILIAL.CODIGO = psCODFILIAL;
@@ -1429,7 +1429,7 @@ END;
 						     , pnPERCFUNCEPTRANSFCD IN PCMOVCOMPLE.PERCFUNCEPTRANSFCD%TYPE
 						     , pnBASEFUNCEPTRANSFCD IN PCMOVCOMPLE.BASEFUNCEPTRANSFCD%TYPE
 						     )
-   IS --Numtransitem tanto para entrada como para saída, com base no PCMOV que foi repasado como base
+   IS --Numtransitem tanto para entrada como para saÃ­da, com base no PCMOV que foi repasado como base
      voPCMOVCOMPLE PCMOVCOMPLE%ROWTYPE;
    BEGIN
       --Clonando itemd o PCMOVCOMPLE
@@ -1466,7 +1466,7 @@ END;
       voPCMOVCOMPLE.PERCALIQEXTBCR       := 0;
       voPCMOVCOMPLE.PERICMBCR            := 0;
       
-      --Trocado os campos BCR da PCMOV para TRANSFCD na PCMOVCOMPLE, deve ser zerados na transferência
+      --Trocado os campos BCR da PCMOV para TRANSFCD na PCMOVCOMPLE, deve ser zerados na transferÃªncia
       voPCMOVCOMPLE.BASESTTRANSFCD       := 0;
       voPCMOVCOMPLE.VLSTTRANSFCD         := 0;
       voPCMOVCOMPLE.BASEICMSTRANSFCD     := 0;
@@ -1543,7 +1543,7 @@ END;
      voPCNFENT       PCNFENT%ROWTYPE;
      voPCLANC        PCLANC%ROWTYPE;
    BEGIN
-    --Gerar cabeçalho
+    --Gerar cabeÃ§alho
     voPCNFENT                   := NULL;
     voPCNFENT.NUMTRANSENT       := poPCNFSAID.NUMTRANSENTORIGEM;
     voPCNFENT.NUMNOTA           := poPCNFSAID.NUMNOTA;
@@ -1568,7 +1568,7 @@ END;
     voPCNFENT.DTWMS             := vdDATAWMS;
     voPCNFENT.OBS               := 'ENT.DE TRANSF. CD VIRTUAL - ORIGEM: ' || vsACAO;
     voPCNFENT.HORALANC          := TO_CHAR(SYSDATE,'HH24');
-    voPCNFENT.MINUTOLANC        := TO_CHAR(TO_NUMBER(TO_CHAR(SYSDATE,'MI'))+1); --Para dar uma diferença entre a saida e a entrada
+    voPCNFENT.MINUTOLANC        := TO_CHAR(TO_NUMBER(TO_CHAR(SYSDATE,'MI'))+1); --Para dar uma diferenÃ§a entre a saida e a entrada
     voPCNFENT.ESPECIE           := 'TP'; --'NF';
     voPCNFENT.TIPODESCARGA      := '1';
     voPCNFENT.VLFRETE           := 0;
@@ -1602,7 +1602,7 @@ END;
          , PCFORNEC
          , PCCONSUM
      WHERE PCFILIAL.CODFORNEC = PCFORNEC.CODFORNEC(+)
-       AND PCFILIAL.CODIGO = poPCNFSAID.CODFILIAL; --Fornecedor da nota que esta expedido a nota de saída de transferência
+       AND PCFILIAL.CODIGO = poPCNFSAID.CODFILIAL; --Fornecedor da nota que esta expedido a nota de saÃ­da de transferÃªncia
 
     --Calculo do valor total
     IF (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('GERATRIBUTENTTRANSFDEP', '99', 'N') = 'S') THEN
@@ -1678,7 +1678,7 @@ END;
       voPCMOV.PERCOFINS       := 0;
       voPCMOV.VLDESCONTO      := 0;
 
-      --Obter tributação de transferência
+      --Obter tributaÃ§Ã£o de transferÃªncia
       TRANSF.TRIBUTACAO := BUSCAR_TRIBUTACAO_PORID( voPCMOV.CODST
                                                   , voPCMOV.CODPROD      
                                                   , psGERATRIBUTENTTRANSFDEP
@@ -1700,7 +1700,7 @@ END;
                                               );
       END IF;*/
 
-      --Obtendo os códigos fiscais
+      --Obtendo os cÃ³digos fiscais
       IF (voPCNFENT.UF = voPCNFENT.UFFILIAL) THEN
         voPCMOV.CODFISCAL := TRANSF.TRIBUTACAO.COL.CODFISCALTRANSFENT;
       ELSE
@@ -1773,7 +1773,7 @@ END;
 
     END LOOP;
 
-    --Inserindo o cabeçalho
+    --Inserindo o cabeÃ§alho
     INSERT INTO PCNFENT
          VALUES voPCNFENT;
 
@@ -1787,7 +1787,7 @@ END;
       voPCLANC.Tipolanc    := 'C';
       voPCLANC.Moeda       := 'R';
       voPCLANC.Duplic      := '1';
-      voPCLANC.Historico   := 'Conta Referente á transferência: ' || voPCNFENT.NUMTRANSENT;
+      voPCLANC.Historico   := 'Conta Referente Ã¡ transferÃªncia: ' || voPCNFENT.NUMTRANSENT;
       voPCLANC.RecNum      := FERRAMENTAS.F_PROX_RECNUM;
       voPCLANC.DTLANC      := voPCNFENT.DTENT;
       voPCLANC.Codfornec   := voPCNFENT.CODFORNEC;
@@ -1807,7 +1807,7 @@ END;
     BEGIN
       vnRetornoPkgEstoque := PKG_ESTOQUE.COMPRAS_ENTRADA(voPCNFENT.NUMTRANSENT, 'N', P_MSG);
       IF NVL(vnRetornoPkgEstoque, 0) <= 0 THEN
-         P_MSG := 'Não foi possível efetuar a entrada de estoque dos produtos na transferência' || chr(13) ||
+         P_MSG := 'NÃ£o foi possÃ­vel efetuar a entrada de estoque dos produtos na transferÃªncia' || chr(13) ||
                   'Msg. PKG_ESTOQUE: ' || P_MSG;
 			INSERT INTO PCLOGALTERACAODADOS
 				(DATA,
@@ -1880,12 +1880,12 @@ END;
           ,TOTVOLUME        = 0
           ,NUMITENS         = 0
           ,ICMSRETIDO       = 0
-          ,OBS              = 'CANCELAMENTO DE NOTA NÃO PROCESSADA PELO SERVIDOR.. ' || OBS
+          ,OBS              = 'CANCELAMENTO DE NOTA NÃƒO PROCESSADA PELO SERVIDOR.. ' || OBS
           ,VLBASEIPI        = 0
           ,VLIPI            = 0
           ,VLICMSANTECIPADO = 0
           ,VLRECEBIDOCARTAO = 0
-          ,ESPECIE          = 'TP' --para não aparecer no sped.
+          ,ESPECIE          = 'TP' --para nÃ£o aparecer no sped.
           ,SITUACAONFE      = -1
           ,DTDENEGADA       = NULL
      WHERE NUMTRANSVENDA = P_NUMTRANSVENDA;
@@ -1901,9 +1901,9 @@ END;
           ,VLBASEIPI   = 0
           ,BASEICST    = 0
           ,VLST        = 0
-          ,ESPECIE     = 'TP' --para não aparecer no sped
+          ,ESPECIE     = 'TP' --para nÃ£o aparecer no sped
           ,SITUACAONFE = -1
-          ,OBS         = 'CANCELAMENTO DE NOTA NÃO PROCESSADA PELO SERVIDOR.. ' || OBS
+          ,OBS         = 'CANCELAMENTO DE NOTA NÃƒO PROCESSADA PELO SERVIDOR.. ' || OBS
      WHERE NUMTRANSENT = P_NUMTRANSENT;
 
     /** CANCELANDO ITENS DA ENTRADA E SAIDA **/
@@ -1970,7 +1970,7 @@ END;
     vnretorno_pkg_estoque := PKG_ESTOQUE.VENDAS_MOVIMENTACAO(P_NUMTRANSENT,P_NUMTRANSVENDA, 'S', MSG_PKG_ESTOQUE);
 
     IF NVL(vnretorno_pkg_estoque, 0) <= 0 THEN
-      P_MSG := 'NÃO FOI POSSÍVEL EFETUAR O CANCELAMENTO DA MOVIMENTAÇÃO DOS ITENS DE TRANSFERENCIA. ' || CHR(13) ||
+      P_MSG := 'NÃƒO FOI POSSÃVEL EFETUAR O CANCELAMENTO DA MOVIMENTAÃ‡ÃƒO DOS ITENS DE TRANSFERENCIA. ' || CHR(13) ||
                'MENSAGEM PKG: ' || MSG_PKG_ESTOQUE;
 			   
 			INSERT INTO PCLOGALTERACAODADOS
@@ -2015,7 +2015,7 @@ END;
   END;
 
 BEGIN
-  --Inicializando as variáveis
+  --Inicializando as variÃ¡veis
   P_MSG := 'OK';
   vnRetornoPkgEstoque := 0;
 
@@ -2026,10 +2026,10 @@ BEGIN
      vsACAO := 'Canc. fat.';
      vnCodigoAcao := 1;
   ELSIF P_EFATURAMENTO = 'N' AND P_ECANCELAMENTO = 'N' THEN
-     vsACAO := 'Devolução';
+     vsACAO := 'DevoluÃ§Ã£o';
      vnCodigoAcao := 2;
   ELSIF P_EFATURAMENTO = 'N' AND P_ECANCELAMENTO = 'S' THEN
-     vsACAO := 'Canc. Devolução';
+     vsACAO := 'Canc. DevoluÃ§Ã£o';
      vnCodigoAcao := 3;
   END IF;
 
@@ -2093,7 +2093,7 @@ BEGIN
   END IF;
   /**************************************************************************/
 
-  BEGIN --Listando as possíveis filiais a serem tratadas.
+  BEGIN --Listando as possÃ­veis filiais a serem tratadas.
     FOR LISTAPOSSIVEISREGISTROS IN (SELECT DISTINCT CASE WHEN P_EFATURAMENTO = 'S' AND P_ECANCELAMENTO = 'N'
                                                 THEN PCMOV.CODFILIALRETIRA
                                                 WHEN P_EFATURAMENTO = 'S' AND P_ECANCELAMENTO = 'S'
@@ -2179,7 +2179,7 @@ BEGIN
     --------------------------------------------------------------------
     -- GERANDO NOTA FISCAL DE SAIDA DE TRANSFERENCIA NA FILIAL RETIRA --
     --------------------------------------------------------------------
-      --Clonar cabeçalho da venda, sempre da nota orginal da venda
+      --Clonar cabeÃ§alho da venda, sempre da nota orginal da venda
       voCURSORT_TEMP := FERRAMENTAS.RETORNAR_ROWTYPE('PCNFSAID',
                                                      'NUMTRANSVENDA',
                                                      TO_CHAR(P_NUMTRANSVENDA));
@@ -2188,7 +2188,7 @@ BEGIN
 
       CLOSE voCURSORT_TEMP;
 
-      BEGIN--Dados da filial de origem da nota de saída
+      BEGIN--Dados da filial de origem da nota de saÃ­da
         SELECT PCFILIAL.UF
              , PCFILIAL.CGC
              , PCFILIAL.IE
@@ -2203,7 +2203,7 @@ BEGIN
          WHERE PCFILIAL.CODIGO = LISTAPOSSIVEISREGISTROS.CODFILIALSAIDA;
       EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        P_MSG := 'Filial de origem da nota de saída de transferência não encontrada!';
+        P_MSG := 'Filial de origem da nota de saÃ­da de transferÃªncia nÃ£o encontrada!';
       END;
 
       BEGIN--Dados do cliente para a nota
@@ -2259,7 +2259,7 @@ BEGIN
            AND PCFILIAL.CODIGO    = LISTAPOSSIVEISREGISTROS.CODFILIALENTRADA;
       EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        P_MSG := 'Cliente relacionado a filial ' || LISTAPOSSIVEISREGISTROS.CODFILIALENTRADA || ' não encontrado!';
+        P_MSG := 'Cliente relacionado a filial ' || LISTAPOSSIVEISREGISTROS.CODFILIALENTRADA || ' nÃ£o encontrado!';
       END;
 
       --Valores default
@@ -2291,7 +2291,7 @@ BEGIN
       voPCNFSAID.NUMVIAS                 := 0;
 	  voPCNFSAID.TIPOEMISSAO             := '1';
 
-      --Guardar o número de transação de origem deste lançamento
+      --Guardar o nÃºmero de transaÃ§Ã£o de origem deste lanÃ§amento
       voPCNFSAID.NUMTRANSVENDADEPENDENTE := voPCNFSAID.NUMTRANSVENDA;
 
       IF ((P_EFATURAMENTO = 'S') AND (P_ECANCELAMENTO = 'S')) THEN
@@ -2359,7 +2359,7 @@ BEGIN
                                    , PCEST
                                WHERE PCMOV.NUMTRANSITEM       = PCMOVCOMPLE.NUMTRANSITEM
                                  AND PCMOV.CODPROD            = PCEST.CODPROD
-                                 AND PCEST.CODFILIAL          = NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL) --Estoque da filial de saída
+                                 AND PCEST.CODFILIAL          = NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL) --Estoque da filial de saÃ­da
                                  AND PCMOVCOMPLE.ORIGMERCTRIB = '1'
                                  AND NVL(PCMOV.QT,0) > 0
                                  AND ((P_EFATURAMENTO      = 'S' AND
@@ -2426,7 +2426,7 @@ BEGIN
         voPCMOV.PERPIS          := 0;
         voPCMOV.PERCOFINS       := 0;
 
-        --Obter tributação
+        --Obter tributaÃ§Ã£o
         TRANSF.TRIBUTACAO := BUSCAR_TRIBUTACAO_PORID( voPCMOV.CODST
                                                     , voPCMOV.CODPROD      
                                                     , LISTAPOSSIVEISREGISTROS.GERATRIBUTENTTRANSFDEP
@@ -2448,7 +2448,7 @@ BEGIN
                                                 );
         END IF;*/
 
-        --Obtendo os códigos fiscais
+        --Obtendo os cÃ³digos fiscais
         IF UPPER(TRIM(voPCNFSAID.UF)) = UPPER(TRIM(voPCNFSAID.UFFILIAL)) THEN
           voPCMOV.CODFISCAL := TRANSF.TRIBUTACAO.COL.CODFISCALTRANSF;
         ELSE
@@ -2478,14 +2478,14 @@ BEGIN
 
       IF vnRetornoPkgEstoque <= 0 THEN
          P_MSG := 'Nenhum produto encontrado. '         || chr(13) ||
-                  'Número de transação de venda: '      || to_char(P_NUMTRANSVENDA) || chr(13) ||
-                  'Número de transação de entrada: '    || to_char(P_NUMTRANSENT) || chr(13) ||
-                  'É Faturamento: '  || P_EFATURAMENTO  || chr(13) ||
-                  'É Cancelamento: ' || P_ECANCELAMENTO || chr(13) ||
+                  'NÃºmero de transaÃ§Ã£o de venda: '      || to_char(P_NUMTRANSVENDA) || chr(13) ||
+                  'NÃºmero de transaÃ§Ã£o de entrada: '    || to_char(P_NUMTRANSENT) || chr(13) ||
+                  'Ã‰ Faturamento: '  || P_EFATURAMENTO  || chr(13) ||
+                  'Ã‰ Cancelamento: ' || P_ECANCELAMENTO || chr(13) ||
                   'Processo abortado!';
          RAISE ExecacaoEstoque;
       END IF;
-      --Totalizando o cabeçalho
+      --Totalizando o cabeÃ§alho
       FOR TOTALIZADORES IN (SELECT SUM(ROUND((NVL(PUNITCONT, 0) - NVL(PCMOV.VLIPI, 0) -
                                              NVL(PCMOV.ST, 0) -
                                              decode(NVL(PCMOVCOMPLE.Utilizoumotorcalculo, 'N'),
@@ -2541,7 +2541,7 @@ BEGIN
         VOPCNFSAID.BCST        := TOTALIZADORES.TOTBASEICST;
       END LOOP;
 
-      --Inserindo o novo cabeçalho
+      --Inserindo o novo cabeÃ§alho
       INSERT INTO PCNFSAID
            VALUES voPCNFSAID;
 
@@ -2549,7 +2549,7 @@ BEGIN
       BEGIN
         vnRetornoPkgEstoque := PKG_ESTOQUE.VENDAS_SAIDA_PROD(voPCNFSAID.NUMTRANSVENDA, 0, 'N', vsResultadoEstoque);
         IF NVL(vnRetornoPkgEstoque, 0) <= 0 THEN
-           P_MSG := 'Não foi possível efetuar a baixa de estoque dos produtos na transferência' || chr(13) ||
+           P_MSG := 'NÃ£o foi possÃ­vel efetuar a baixa de estoque dos produtos na transferÃªncia' || chr(13) ||
                     'Msg. PKG_ESTOQUE: ' || vsResultadoEstoque;
 			
 			INSERT INTO PCLOGALTERACAODADOS
