@@ -30,7 +30,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_TRANSFERENCIA IS
     END;
 
 
-  -----------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------
   FUNCTION BUSCAR_PCLOGTRANSFVIRTRET(P_NUMTRANSVENDA IN NUMBER,
                                      P_CODPROD       IN NUMBER,
                                      P_NUMSEQ        IN NUMBER)
