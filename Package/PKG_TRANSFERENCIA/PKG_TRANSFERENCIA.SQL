@@ -1,0 +1,57 @@
+CREATE OR REPLACE PACKAGE PKG_TRANSFERENCIA IS
+
+  TYPE T_TRANF_VIRTUAL IS RECORD(
+    ROWPCTRANSFVIRT PCTRANSFVIRT%ROWTYPE);
+
+  TYPE T_TRANF_RETIRA IS RECORD(
+    ROWPCTRANSFDEP PCTRANSFDEP%ROWTYPE);
+
+  TYPE T_PCMOV_ET IS RECORD(
+    ROWPCMOV_ET PCMOV%ROWTYPE);
+
+  TYPE T_TRIBUTACAO IS RECORD(
+    COL pctribut%ROWTYPE);
+
+  TYPE T_CLIENTE IS RECORD(
+    CLI PCCLIENT%ROWTYPE);
+
+
+  TYPE T_PCLOGTRANSFVIRTRET IS RECORD(
+    CAMPO PCLOGTRANSFVIRTRET%ROWTYPE);
+
+  TYPE T_PARAMETROS IS RECORD(
+    USATRIBUTACAOPORUF     PCCONSUM.USATRIBUTACAOPORUF%TYPE,
+    GERATRIBUTENTTRANSFDEP VARCHAR2(1),
+    PROXNUMTRANSENT        PCCONSUM.PROXNUMTRANSENT%TYPE,
+    CODCONTFOR             PCCONSUM.CODCONTFOR%TYPE,
+    PERMITECREDICMCOMST    PCFILIAL.PERMITECREDICMCOMST%TYPE);
+
+  --  TYPE T_TRANSFERENCIA_TBL IS TABLE OF T_TRANSFERENCIA_ROW;
+  TYPE TRANSFERENCIA IS RECORD(
+    TR_VIRTUAL  T_TRANF_VIRTUAL,
+    TR_RETIRA   T_TRANF_RETIRA,
+    TR_PCMOV_ET T_PCMOV_ET,
+    TRIBUTACAO  T_Tributacao,
+    CLIENTE     T_CLIENTE,
+    PARAMETRO   T_PARAMETROS,
+    LOG         T_PCLOGTRANSFVIRTRET);
+
+  --Variável GLOBAL do TYPE TRANSFERENCIA
+  TRANSF TRANSFERENCIA;
+
+  PROCEDURE TRANSF_VIRTUAL(P_NUMTRANsvenda       in number,
+                           P_CODFILIAL           IN PCPEDC.CODFILIAL%TYPE,
+                           P_CODFILIALNF         IN PCPEDC.CODFILIALNF%TYPE,
+                           P_VBDESTACAIPIENTRADA IN BOOLEAN,
+                           P_VBDESTACAIPISAIDA IN BOOLEAN,
+                           P_NUMTRANSITEM        IN PCMOVCOMPLE.NUMTRANSITEM%TYPE,
+                           P_NUMTRANSENT         OUT NUMBER,
+                           P_MSG                 OUT VARCHAR2);
+
+    PROCEDURE TRANSF_RETIRA_CDVIRTUAL(P_NUMTRANSVENDA       IN NUMBER, --Sempre deve ser informado a transação da venda original
+                                      P_NUMTRANSENT         IN NUMBER DEFAULT NULL, --Para o processo de devolução é obrigatório informa-lo
+                                      P_EFATURAMENTO        IN VARCHAR2 DEFAULT 'S', --S: é faturamento, N: é devolução
+                                      P_ECANCELAMENTO       IN VARCHAR2 DEFAULT 'N', --S: é um processo de cancelamento do faturamento ou da devolução, N: é um faturamento ou uma devolução normal
+                                      P_MSG                 OUT VARCHAR2);
+                                   
+END PKG_TRANSFERENCIA;
