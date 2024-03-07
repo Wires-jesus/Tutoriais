@@ -1,5 +1,5 @@
 {"nome":"VW_INT_C5_DIVISAO","tipoPLSQL":"VIEW","dependencias":[
       {"nome": "PCREGIAO","tipo": "TABELA","versao": "4.0.01.000"},
       {"nome": "PCCONTROLECONSINCO","tipo": "TABELA","versao": "4.0.05.000"},
-      {"nome": "PCDEPARAREGIAOC5","tipo": "TABELA","versao": "4.0.01.000"}
+      {"nome": "PCDEPARAREGIAOC5","tipo": "TABELA","versao": "5.0.01.000"}
 ]}
