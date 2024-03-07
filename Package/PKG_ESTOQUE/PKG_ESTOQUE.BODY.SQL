@@ -7718,7 +7718,7 @@ IS
                                             ,(pnCODDEVOL || ' - ' || 'LIBERANDO APÓS PRECIFICAR'));
                 END IF;
                 -- Envair mensagem para o RCA
-                IF (vnQTDE <> ESTOQUE.SALDO_ESTANTERIOR) AND (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CON_ENVIAMENSRCALIBEST'), 'N') = 'S') THEN
+                IF (vnQTDE > 0) AND (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CON_ENVIAMENSRCALIBEST'), 'N') = 'S') THEN
                   PRIV_MSG_RCA(ESTOQUE.CODFILIAL, ESTOQUE.CODPROD);
                 END IF;
                 -- Atualizar tabela de bonus
