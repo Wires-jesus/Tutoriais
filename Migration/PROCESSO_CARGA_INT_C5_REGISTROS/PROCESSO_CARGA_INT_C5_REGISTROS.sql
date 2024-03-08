@@ -275,17 +275,22 @@ values (53, 'tb_promsurpresaitem')
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (54, 'tb_cadobs')
+values (54, 'tb_promsurpresagrupo')
 
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (55, 'tb_cadobssped')
+values (55, 'tb_cadobs')
 
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (56, 'tb_cadobsspedfamilia')
+values (56, 'tb_cadobssped')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (57, 'tb_cadobsspedfamilia')
 
 
 
@@ -559,14 +564,19 @@ values (53, 53, 'Sincronização de tabela TB_PROMSURPRESAITEM', TRUNC(SYSDATE),
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (54, 54, 'Sincronização de tabela TB_CADOBS', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobs',  54,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (54, 54, 'Sincronização de tabela TB_PROMSURPRESAGRUPO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresagrupo',  54,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (55, 55, 'Sincronização de tabela TB_CADOBSSPED', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobssped',  55,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (55, 55, 'Sincronização de tabela TB_CADOBS', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobs',  55,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (56, 56, 'Sincronização de tabela TB_CADOBSSPEDFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobsspedfamilia',  56,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (56, 56, 'Sincronização de tabela TB_CADOBSSPED', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobssped',  56,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (57, 57, 'Sincronização de tabela TB_CADOBSSPEDFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_cadobsspedfamilia',  57,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
