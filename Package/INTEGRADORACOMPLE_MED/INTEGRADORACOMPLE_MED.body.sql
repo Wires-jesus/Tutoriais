@@ -2969,7 +2969,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 				into vdatavalidadecredito
 			from (select NVL(trunc(pcclient.dtvenclimcred), trunc(sysdate)) dtvenclimcred
 				from pcclient
-			where (pcclient.codcliprinc = pi_nCodCliPrincipal OR pcclient.codcli = pi_nCodCli))
+			where (pcclient.codcliprinc = pi_nCodCliPrincipal OR pcclient.codcli = pi_nCodCli));
       exception
         when others then
           vdatavalidadecredito := trunc(sysdate);
