@@ -127,6 +127,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_promsurpresaitem(p_id IN pccontroleconsinco.id%TYPE);
 
+  PROCEDURE carrega_tb_promsurpresagrupo(p_id IN pccontroleconsinco.id%TYPE);
+
   PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE);

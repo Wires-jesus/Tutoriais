@@ -145,7 +145,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "4.0.11.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",

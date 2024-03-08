@@ -4269,6 +4269,77 @@ END;
     END;   
   END;
 
+PROCEDURE carrega_tb_promsurpresagrupo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+
+  UPDATE MONITORPDVMIDDLE.tb_promsurpresagrupo SET ATIVO = 'N' WHERE SEQPROMSURPRESA IN (SELECT SEQPROMSURPRESA FROM VW_INT_C5_BRINDE_ITENS_AUT);
+
+  MERGE INTO MONITORPDVMIDDLE.tb_promsurpresagrupo T
+  USING(SELECT * FROM VW_INT_C5_BRINDE_GRUPO_AUT) V
+
+  ON (T.SEQPROMSURPRESA = V.SEQPROMSURPRESA AND T.SEQGRUPO = V.SEQGRUPO)
+  WHEN MATCHED THEN
+  UPDATE SET
+    T.QTDE = V.QTDE,
+    T.GRUPO = V.GRUPO,
+    T.ATIVO = V.ATIVO,
+    T.IDREF = V.IDREF
+
+  WHEN NOT MATCHED THEN 
+  INSERT (
+    T.SEQPROMSURPRESA,
+    T.SEQGRUPO,
+    T.QTDE,
+    T.GRUPO,
+    T.ATIVO,
+    T.IDREF
+  )VALUES(
+    V.SEQPROMSURPRESA,
+    V.SEQGRUPO,
+    V.QTDE,
+    V.GRUPO,
+    V.ATIVO,
+    V.IDREF
+  );
+
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_promsurpresagrupo', 'carrega_tb_promsurpresagrupo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresagrupo',
+           'carrega_tb_promsurpresagrupo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_promsurpresagrupo',
+           'carrega_tb_promsurpresagrupo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+
+        RAISE;
+  END;
+END;
+
 PROCEDURE carrega_tb_cadobs(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   UPDATE monitorpdvmiddle.tb_cadobs S SET S.ATIVO = 'N'
