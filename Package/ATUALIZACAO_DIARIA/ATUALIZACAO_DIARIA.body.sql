@@ -969,7 +969,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
         FROM (SELECT E.CODFILIAL,
                      E.CODPROD,
                      PA.NBM,
-                     PA.DESCRICAO,
+                     SUBSTR(PA.DESCRICAO, 0 , 40) DESCRICAO,
                      NVL(PA.CLASSIFICFISCAL, V_FILIAL) CLASSIFICFISCAL,
                      PA.UNIDADE,
                      TRUNC(VPROCESSAMENTO) DATA,
