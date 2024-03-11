@@ -181,10 +181,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
                 NVL(max(e.pesoliq), 0) pesoliq,
                 'N' pesoaferido,
                 'S' ativo
-  from VW_INT_C5_EMBPROD e
- inner join PCDEPARAPRODC5 DEPARA
-    ON (DEPARA.CODPROD = E.CODPROD AND DEPARA.CODAUXILIAR = E.codprod)
+  from VW_INT_C5_EMBPROD e, PCDEPARAPRODC5 DEPARA
  where E.qtunit <> E.qtminimaatacado
+   and (((DEPARA.CODPROD = E.CODPROD)
+   and (DEPARA.CODAUXILIAR = E.codprod))
+    or ((DEPARA.CODPROD = E.CODPROD) 
+   and (DEPARA.CODAUXILIAR = 0)))
  group by DEPARA.SEQFAMILIA,
           NVL(e.qtunit, 1)
 UNION ALL
@@ -196,10 +198,12 @@ select distinct DEPARA.SEQFAMILIA seqfamilia,
                 NVL(max(e.pesoliq), 0) pesoliq,
                 'N' pesoaferido,
                 'S' ativo
-  from VW_INT_C5_EMBPROD e
- inner join PCDEPARAPRODC5 DEPARA
-    ON (DEPARA.CODPROD = E.CODPROD AND DEPARA.CODAUXILIAR = E.codprod)
+  from VW_INT_C5_EMBPROD e, PCDEPARAPRODC5 DEPARA
  where e.qtminimaatacado > 1
+   and (((DEPARA.CODPROD = E.CODPROD)
+   and (DEPARA.CODAUXILIAR = E.codprod))
+    or ((DEPARA.CODPROD = E.CODPROD) 
+	and (DEPARA.CODAUXILIAR = 0)))
  group by DEPARA.SEQFAMILIA,
           NVL(e.qtminimaatacado, 1))DADOSEMB
   group by SEQFAMILIA, QTDEMBALAGEM
@@ -349,8 +353,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
         'S' ativo
  FROM  VW_INT_C5_EMBPROD e,
        PCDEPARAPRODC5 P
- WHERE E.CODAUXILIAR = P.CODAUXILIAR
-   AND E.CODPROD = P.CODPROD
+ WHERE ((E.CODPROD = P.CODPROD) AND (E.CODAUXILIAR = P.CODAUXILIAR))
+     OR ((E.CODPROD = P.CODPROD) AND (P.CODAUXILIAR = 0))
 )
 
 \
