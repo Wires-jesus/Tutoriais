@@ -4,7 +4,7 @@
 	"dependencias":[{
 					  "nome": "PROCESSO_INT_C5_VENDA",
 					  "tipo": "MIGRATION",
-					  "versao": "5.0.05.000"
+					  "versao": "5.0.06.000"
 					},
 					{
 					  "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
