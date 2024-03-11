@@ -1,6 +1,7 @@
 CREATE OR REPLACE PACKAGE BODY INTEGRADORACOMPLE_MED
 /***********************************************************************************************
   Complemento da Package de Integracao do Winthor com Sistemas de Forca de Vendas - MEDICAMENTOS
+  
 +++++++++++++++++++++++++++++++++++++++++++++++++++++
   04/02/2021  Anderson Silva DDMEDICA-5511 - Restrição da Condição
   16/03/2020  Anderson Silva DDMEDICA-5980 - Promoção de Makup na Integração SERVCON
