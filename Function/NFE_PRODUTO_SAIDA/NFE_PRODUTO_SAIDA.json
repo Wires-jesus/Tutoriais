@@ -10,7 +10,7 @@
   {
    "nome":"SQL_NFE_PRODUTO_SAIDA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"5.0.02.000"
+   "versao":"5.0.03.000"
   },
   {
    "nome":"SQL_NFE_PRODUTO_SAIDA_CIAP",
