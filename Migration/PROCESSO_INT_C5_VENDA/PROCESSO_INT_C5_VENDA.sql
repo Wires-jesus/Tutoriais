@@ -213,7 +213,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
  WHERE  p.codprod = e.codprod
    AND  e.codprod = f.codprod
    AND  e.codfilial = f.codfilial
-   AND  c.codauxiliar = e.codauxiliar
+   --AND  c.codauxiliar = e.codauxiliar
    AND  c.codprod = e.codprod
    AND  LENGTH (p.nbm) >= 2
    AND  e.codprod >= 0
@@ -689,6 +689,7 @@ SELECT  SUM(NVL(a.volume_prod,0))
         VW_INT_C5_PCPRODUT a
  WHERE  i.nroempresa = a.codfilial
    AND  i.codacesso = a.codauxiliar
+   AND  i.seqproduto = a.seqproduto
    AND  i.seqdocto = pSeqDocto
    AND  i.nroempresa = pNroEmpresa
    AND  i.STATUS = 'V'
