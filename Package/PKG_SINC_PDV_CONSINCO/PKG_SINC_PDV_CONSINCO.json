@@ -100,7 +100,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.16.000"
+			"versao": "5.0.17.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -130,7 +130,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "5.0.08.000"
+			"versao": "5.0.09.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
@@ -195,7 +195,7 @@
 		{
 		    "nome": "TRIGGER_INATIVACOESREGISTROSC5",
 		    "tipo": "MIGRATION",
-		    "versao": "5.0.02.000"
+		    "versao": "5.0.03.000"
 		},
 		{
 			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
