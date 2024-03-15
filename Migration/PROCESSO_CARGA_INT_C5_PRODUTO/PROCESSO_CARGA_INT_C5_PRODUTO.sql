@@ -323,8 +323,8 @@ GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR*/
 
 CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
 (
-  SELECT E.codfilial nroempresa,
-         E.codauxiliar idref,
+  SELECT DISTINCT E.codfilial nroempresa,
+         E.CODPROD idref,
          P.SEQPRODUTO SEQPRODUTO,
          0000000 estqloja,
          'S' ativo

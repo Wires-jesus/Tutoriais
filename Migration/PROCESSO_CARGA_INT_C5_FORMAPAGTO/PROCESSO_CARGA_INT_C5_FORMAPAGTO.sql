@@ -103,11 +103,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    and   f.codfinalizadora is not null
    AND   E.codigo >= '0'
    AND   E.codigo < '99'
-   AND   E.CODIGO = TBEMP.NROEMPRESA
-   AND   F.CODFILIAL = TBEMP.NROEMPRESA
+   AND   E.CODIGO = TO_CHAR(TBEMP.NROEMPRESA)
+   AND   F.CODFILIAL = TO_CHAR(TBEMP.NROEMPRESA)
    AND   F.CODFILIAL = C5.CODFILIAL
    AND   E.CODIGO = C5.CODFILIAL
-   AND   TBEMP.NROEMPRESA = C5.CODFILIAL
+   AND   TO_CHAR(TBEMP.NROEMPRESA) = C5.CODFILIAL
    AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
@@ -178,7 +178,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
    AND   E.codigo >= '0'
-   AND   E.CODIGO = TBEMP.NROEMPRESA
+   AND   E.CODIGO = TO_CHAR(TBEMP.NROEMPRESA)
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
