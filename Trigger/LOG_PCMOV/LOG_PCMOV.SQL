@@ -435,7 +435,7 @@ BEGIN
        :NEW.NUMPED
        );
   end if;
-  if (:new.NUMBONUS <> :old.NUMBONUS) then
+  if (NVL(:new.NUMBONUS, 0) <> NVL(:old.NUMBONUS, 0)) then
     INSERT INTO PCLOGALTERACAODADOS
       (DATA,
        TABELA,
