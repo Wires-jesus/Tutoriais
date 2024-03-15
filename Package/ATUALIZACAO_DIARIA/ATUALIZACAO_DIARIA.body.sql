@@ -1911,6 +1911,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
          WHERE CODPROD = DADOS_ACUMULADORES.CODPROD
            AND CODFILIAL = FILIAIS.CODIGO
            AND ROWID = V_RID;
+		   
+        P_DEL_PEDIDO_SEM_CABECALHO(FILIAIS.CODIGO);   
       
         commit;      
       END LOOP;
@@ -1929,48 +1931,6 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
        sysdate,
        'Final Zerar Acumuladores Venda do Dia');
     commit;
-
-    begin
-      select count(1)
-        into vnQtPedSemCabecalho
-        from pcpedi
-       where numped not in
-             (select numped from pcpedc where pcpedc.numped = pcpedi.numped and pcpedc.data between trunc(sysdate) - 1 and trunc(sysdate))
-         and pcpedi.data between trunc(sysdate) - 1 and trunc(sysdate);
-    exception
-      when others then
-        vnQtPedSemCabecalho := 0;
-    end;
-
-    if vnQtPedSemCabecalho > 0 then
-      insert into PCLOGJOB
-        (MODULO, FUNCAO, TIPO_LOG, DATA_LOG, DS_JOB)
-      values
-        ('zeraracumvendadia',
-         'pcpedi',
-         'IN',
-         sysdate,
-         'Removendo ' || vnQtPedSemCabecalho || ' pedidos sem cabeçalho');
-      commit;
-
-      delete from pcpedi
-       where numped not in
-             (select numped from pcpedc where pcpedc.numped = pcpedi.numped)
-         and pcpedi.data between trunc(sysdate) - 1 and trunc(sysdate);
-      commit;
-
-      insert into PCLOGJOB
-        (MODULO, FUNCAO, TIPO_LOG, DATA_LOG, DS_JOB)
-      values
-        ('zeraracumvendadia',
-         'pcpedi',
-         'FI',
-         sysdate,
-         vnQtPedSemCabecalho || ' removidos com sucesso.');
-
-      commit;
-
-    end if;
   end;
 
   --Bloquear Produto FL sem Estoque  (P_PC_BLOQPRODFLSEMESTOQUE)
@@ -6381,6 +6341,72 @@ BEGIN
        WHERE CODFILIAL = psCODFILIAL
          AND NOME LIKE '%DTPROCESSAMENTOFILIAL%';
     END IF;
-END;
+  END;
+
+  PROCEDURE P_DEL_PEDIDO_SEM_CABECALHO(psCODFILIAL IN VARCHAR2) IS
+    vsCodMenorFilial varchar2(2);
+    vnQtPedSemCabecalho number;
+  BEGIN
+    BEGIN
+      SELECT MIN(CODIGO)
+        INTO vsCodMenorFilial
+        FROM PCFILIAL;
+    EXCEPTION
+      WHEN OTHERS THEN
+        vsCodMenorFilial := psCODFILIAL;
+    END; 
+	  
+    BEGIN
+      SELECT COUNT(1)
+        INTO vnQtPedSemCabecalho
+        FROM PCPEDI
+       WHERE NVL(PCPEDI.CODFILIALRETIRA, vsCodMenorFilial) = psCODFILIAL 
+         AND PCPEDI.DATA BETWEEN TRUNC(SYSDATE) - 1 AND TRUNC(SYSDATE)
+         AND NOT EXISTS(SELECT 1
+                          FROM PCPEDC
+                         WHERE PCPEDC.NUMPED = PCPEDI.NUMPED);
+    EXCEPTION
+      WHEN OTHERS THEN
+        vnQtPedSemCabecalho := 0;
+    END;
+
+    if vnQtPedSemCabecalho > 0 then
+	
+      INSERT INTO PCLOGJOB(
+        MODULO, 
+        FUNCAO, 
+        TIPO_LOG, 
+        DATA_LOG, 
+        DS_JOB
+      ) VALUES (
+        'pedidosemcabecalho',
+        'pcpedi',
+        'IN',
+        sysdate,
+        'Removendo ' || vnQtPedSemCabecalho || ' pedidos sem cabeçalho'
+      );
+
+      DELETE FROM PCPEDI
+       WHERE NVL(PCPEDI.CODFILIALRETIRA, vsCodMenorFilial) = psCODFILIAL 
+         AND PCPEDI.DATA BETWEEN TRUNC(SYSDATE) - 1 AND TRUNC(SYSDATE)
+         AND NOT EXISTS(SELECT 1
+                          FROM PCPEDC
+                         WHERE PCPEDC.NUMPED = PCPEDI.NUMPED);         
+
+      INSERT INTO PCLOGJOB(
+        MODULO, 
+        FUNCAO, 
+        TIPO_LOG, 
+        DATA_LOG, 
+        DS_JOB
+      ) VALUES (
+        'pedidosemcabecalho',
+        'pcpedi',
+        'FI',
+        sysdate,
+        vnQtPedSemCabecalho || ' removidos com sucesso.'
+      );
+    end if;      
+  END;  
 
 END;
