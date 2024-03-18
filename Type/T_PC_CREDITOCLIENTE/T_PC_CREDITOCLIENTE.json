@@ -1,5 +1,5 @@
 {
-  "nome": "PLJSON_VALUE",
+  "nome": "T_PC_CREDITOCLIENTE",
   "tipoPLSQL": "TYPE",
   "dependencias": [
     {
