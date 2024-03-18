@@ -1,6 +1,6 @@
 {
   "nome": "T_PC_CREDITOCLIENTE",
-  "tipoPLSQL": "TYPE",
+  "tipoPLSQL": "MIGRATION",
   "dependencias": [
     {
       "nome": "PCCRECLI",
