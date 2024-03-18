@@ -1,11 +1,5 @@
 {
   "nome": "T_PC_CREDITOCLIENTE",
   "tipoPLSQL": "TYPE",
-  "dependencias": [
-    {
-      "nome": "PCCRECLI",
-      "tipo": "TABELA",
-      "versao": "5.0.01.000"
-    }
-  ]
+  "dependencias": ""
 }
