@@ -1350,54 +1350,80 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         (SELECT i.numdias
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazomedio,
         (SELECT i.prazo1
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo1,
         (SELECT i.prazo2
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo2,
         (SELECT i.prazo3
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo3,
         (SELECT i.prazo4
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo4,
         (SELECT i.prazo5
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo5,
         (SELECT i.prazo6
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo6,
         (SELECT i.prazo7
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo7,
         (SELECT i.prazo8
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo8,
         (SELECT i.prazo9
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo9,
         (SELECT i.prazo10
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		  	AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo10,
         (SELECT i.prazo11
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo11,
         (SELECT i.prazo12
            FROM VW_INT_C5_PLANOP_VENDA i
           WHERE i.seqdocto = a.seqdocto
+		    AND i.NROCHECKOUT = a.NROCHECKOUT
+		    AND i.NROEMPRESA = a.NROEMPRESA
             AND ROWNUM = 1) prazo12,
         0 vlcustofin,
         0 vlcustoreal,
