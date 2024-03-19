@@ -1,6 +1,6 @@
 CREATE OR REPLACE PACKAGE PKG_CREDITOCLIENTE IS
 
-  VSVERSAOPACKAGE VARCHAR(100) := '31.1.10.1';
+  VSVERSAOPACKAGE VARCHAR(100) := '35.0.0.1';
 
   /*
   1. "FNC_BAIXARCREDITOCLIENTE"
@@ -81,7 +81,11 @@ CREATE OR REPLACE PACKAGE PKG_CREDITOCLIENTE IS
                                     pfCODIGOROTINA            IN NUMBER,
                                     pfMATRICULAUSUARIO        IN NUMBER,
                                     psCODIGOFILIALDESCONTO    IN VARCHAR2,
-                                    psCODIGOSCREDITOGERADO    IN OUT VARCHAR2
+                                    psCODIGOSCREDITOGERADO    IN OUT VARCHAR2,                                    
+                                    psSEQDOCTO                IN NUMBER DEFAULT NULL,
+				                    psNROEMPRESA              IN NUMBER DEFAULT NULL,                                    
+				                    psNROCHECKOUT             IN NUMBER DEFAULT NULL									
+
                                     )
   RETURN LISTA_PC_CREDITOCLIENTE;
   ----------------------------------------------------------------------------------------
@@ -109,7 +113,11 @@ CREATE OR REPLACE PACKAGE PKG_CREDITOCLIENTE IS
                                           pfCODIGOROTINA            IN NUMBER,
                                           pfMATRICULAUSUARIO        IN NUMBER ,
                                           psCODIGOSCREDITOGERADO    IN OUT VARCHAR2,
-                                          psCAIXAVENDAABERTA        IN VARCHAR2 DEFAULT 'N'
+                                          psCAIXAVENDAABERTA        IN VARCHAR2 DEFAULT 'N',
+                                          psSEQDOCTO                IN NUMBER DEFAULT NULL,
+                                          psNROEMPRESA              IN NUMBER DEFAULT NULL,                                    
+                                          psNROCHECKOUT             IN NUMBER DEFAULT NULL									
+
   )
   RETURN VARCHAR2;
 
@@ -135,9 +143,19 @@ CREATE OR REPLACE PACKAGE PKG_CREDITOCLIENTE IS
   SE O CODIGO INFORMADO FOR DO CREDITO DE 100,00 QUE JA ENCONTRA-SE ESTORNADO, O SISTEMA IRA
   APAGAR OS CREDITOS DE 80,00 E 20,00 VOLTANDO 100,00 EM ABERTO.
   */
-  FUNCTION FNC_CANCELARESTORCREDITOVAREJO(pfCODIGOCREDITO IN NUMBER, pUltimoCredito IN VARCHAR2,
-           pNUMCUPOM IN NUMBER, pfCODIGOROTINA IN NUMBER, pfMATRICULAUSUARIO IN NUMBER, pCODIGODEST IN NUMBER,
-           pNUMPEDECF IN NUMBER, pNUMSERIEEQUIP IN VARCHAR2, pNUMCAIXA IN NUMBER)
+  FUNCTION FNC_CANCELARESTORCREDITOVAREJO(pfCODIGOCREDITO           IN NUMBER,
+                                          pUltimoCredito            IN VARCHAR2,
+                                          pNUMCUPOM                 IN NUMBER, 
+                                          pfCODIGOROTINA            IN NUMBER, 
+                                          pfMATRICULAUSUARIO        IN NUMBER, 
+                                          pCODIGODEST               IN NUMBER,
+                                          pNUMPEDECF                IN NUMBER, 
+                                          pNUMSERIEEQUIP            IN VARCHAR2, 
+                                          pNUMCAIXA                 IN NUMBER,
+                                          pSEQDOCTO                 IN NUMBER DEFAULT NULL,
+                                          pNROEMPRESA               IN NUMBER DEFAULT NULL,                                    
+                                          pNROCHECKOUT              IN NUMBER DEFAULT NULL									
+                                          )
   RETURN BOOLEAN;
   ----------------------------------------------------------------------------------------
   /*

@@ -1,1 +1,16 @@
-{"nome":"PKG_CREDITOCLIENTE","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"T_PC_CONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"}]}
+{
+  "nome": "PKG_CREDITOCLIENTE",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "T_PC_CONTASRECEBER",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "4.0.02.000"
+    },
+    {
+      "nome": "T_PC_CREDITOCLIENTE",
+      "tipo": "MIGRATION",
+      "versao": "5.0.01.000"
+    }
+  ]
+}
