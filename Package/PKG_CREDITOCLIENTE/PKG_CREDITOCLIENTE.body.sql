@@ -862,7 +862,10 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
                                     pfCODIGOROTINA            IN NUMBER,
                                     pfMATRICULAUSUARIO        IN NUMBER,
                                     psCODIGOFILIALDESCONTO    IN VARCHAR2,
-                                    psCODIGOSCREDITOGERADO    IN OUT VARCHAR2
+                                    psCODIGOSCREDITOGERADO    IN OUT VARCHAR2,                                    
+                                    psSEQDOCTO                IN NUMBER DEFAULT NULL,
+                                    psNROEMPRESA              IN NUMBER DEFAULT NULL,                                    
+                                    psNROCHECKOUT             IN NUMBER DEFAULT NULL									
                                     )
   RETURN LISTA_PC_CREDITOCLIENTE IS
     voLISTA LISTA_PC_CREDITOCLIENTE;
@@ -882,7 +885,7 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
       RAISE_APPLICATION_ERROR(-20016,'FAVOR INFORMAR O VALOR A SER BAIXADO COM CREDITO!');
     END IF;
 
-    IF (pfNUMPEDECF <= 0) THEN
+    IF (pfNUMPEDECF <= 0) AND (psSEQDOCTO IS NULL) THEN
       RAISE_APPLICATION_ERROR(-20016,'FAVOR INFORMAR UM NUMERO DE PEDIDO ECF VALIDO!');
     END IF;
 
@@ -940,6 +943,9 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
       voCREDITOCLIENTE.CODROTINA     := pfCODIGOROTINA;
       voCREDITOCLIENTE.CODFUNCCX     := pfMATRICULAUSUARIO;
       voCREDITOCLIENTE.DTLANC        := voCREDITOCLIENTE.DTLANC;
+      voCREDITOCLIENTE.NUMDOCTOPDV   := psSEQDOCTO;
+  	  voCREDITOCLIENTE.CODEMPRESAPDV 	:= psNROEMPRESA;     
+	  voCREDITOCLIENTE.CODCHECKOUTPDV := psNROCHECKOUT;
       voCREDITOCLIENTE.BAIXAR;
 
       INSERELOG('FNC_BAIXADECREDITOVAREJO', '99', 0, 0, 0, 0, voCREDITOCLIENTE.VALOR, pfVALORBAIXAR, 'BaixaTotal', vfNUMCRED, 0, pfCODIGOROTINA);
@@ -973,6 +979,9 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
       voCREDITOCLIENTEESTORNADO.CODFUNC       := pfMATRICULAUSUARIO;
       voCREDITOCLIENTEESTORNADO.CODROTINA     := pfCODIGOROTINA;
       voCREDITOCLIENTEESTORNADO.DTLANC        := voCREDITOCLIENTE.DTLANC;
+      voCREDITOCLIENTEESTORNADO.NUMDOCTOPDV   := psSEQDOCTO;
+	  voCREDITOCLIENTEESTORNADO.CODEMPRESAPDV := psNROEMPRESA;     
+	  voCREDITOCLIENTEESTORNADO.CODCHECKOUTPDV := psNROCHECKOUT;
       voCREDITOCLIENTEESTORNADO.ESTORNARTOTAL;
       --BAIXANDO O VALOR INFORMADO
       voCREDITOCLIENTEPARCIALBAIXADO.CODIGO        := voCREDITOCLIENTEPARCIALBAIXADO.PROXIMOCODIGOCREDITO;
@@ -994,6 +1003,10 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
       voCREDITOCLIENTEPARCIALBAIXADO.CODPLPAG      := voCREDITOCLIENTE.CODPLPAG;
       voCREDITOCLIENTEPARCIALBAIXADO.DTVENC        := voCREDITOCLIENTE.DTVENC;
       voCREDITOCLIENTEPARCIALBAIXADO.DTLANC        := voCREDITOCLIENTE.DTLANC;
+      voCREDITOCLIENTEPARCIALBAIXADO.NUMDOCTOPDV   := psSEQDOCTO;
+	  voCREDITOCLIENTEPARCIALBAIXADO.CODEMPRESAPDV := psNROEMPRESA;     
+	  voCREDITOCLIENTEPARCIALBAIXADO.CODCHECKOUTPDV := psNROCHECKOUT;
+
       voCREDITOCLIENTEPARCIALBAIXADO.INSERIR;
       INSERELOG('FNC_BAIXADECREDITOVAREJO', '99', 0, 0, 0, 0, voCREDITOCLIENTE.VALOR, pfVALORBAIXAR, 'BaixaParcial', vfNUMCRED, 0, pfCODIGOROTINA);
       --GRAVANDO DESDOBRAMENTO
@@ -1109,7 +1122,11 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                                           pfCODIGOROTINA            IN NUMBER,
                                           pfMATRICULAUSUARIO        IN NUMBER,                                          
                                           psCODIGOSCREDITOGERADO    IN OUT VARCHAR2,
-                                          psCAIXAVENDAABERTA        IN VARCHAR2 DEFAULT 'N')
+                                          psCAIXAVENDAABERTA        IN VARCHAR2 DEFAULT 'N',
+                                          psSEQDOCTO                IN NUMBER DEFAULT NULL,
+                                          psNROEMPRESA              IN NUMBER DEFAULT NULL,                                    
+                                          psNROCHECKOUT             IN NUMBER DEFAULT NULL)									
+
   RETURN VARCHAR2 IS
      vnQtCreditos NUMBER;
      vsCODIGOSCREDITOGERADO varchar2(4000);
@@ -1120,7 +1137,7 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
      vExisteDesdobramento NUMBER(10);
   BEGIN
      --VALIDACOES DOS PARAMETROS DE ENTRADA
-     IF (pfNUMPEDECF <= 0) THEN
+     IF (pfNUMPEDECF <= 0) AND (psSEQDOCTO IS NULL) THEN
         RAISE_APPLICATION_ERROR(-20016,'FAVOR INFORMAR UM NUMERO DE PEDIDO ECF VALIDO!');
      END IF;
 
@@ -1148,8 +1165,11 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                       FROM PCDESDCRECLI D,
                            PCCRECLI C
                       WHERE D.CODIGOORIG = C.CODIGO
-                        AND C.NUMCUPOM = pfNUMCUPOM
-                        AND C.NUMPEDECF = PFNUMPEDECF
+                        AND ((C.NUMPEDECF = PFNUMPEDECF AND C.NUMCUPOM = pfNUMCUPOM) 
+                             OR(C.NUMDOCTOPDV = psSEQDOCTO
+                                AND C.CODEMPRESAPDV = psNROEMPRESA
+                                AND C.CODCHECKOUTPDV = psNROCHECKOUT)
+                            )
                         AND C.NUMSERIEEQUIP = PSNUMSERIEEQUIP
                         AND C.NUMCAIXA = PFNUMCAIXA
                         AND C.DTDESCONTO IS NOT NULL
@@ -1185,16 +1205,22 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
      END LOOP;
 
      -- NECESSÁRIO PARA RETORNAR O CRÉDITO QUE NÃO HOUVE DESDOBRAMENTO.
-     IF vCancelouPrimeiroCredito = 'S' AND PFNUMPEDECF > 0 THEN
+     IF vCancelouPrimeiroCredito = 'S' AND ((PFNUMPEDECF > 0) or (psSEQDOCTO is not null)) THEN
         FOR CRED IN (SELECT CC.CODIGO,
                             CC.NUMCUPOM,
                             CC.NUMPEDECF,
                             CC.NUMSERIEEQUIP,
-                            CC.NUMCAIXA
+                            CC.NUMCAIXA,
+                            CC.CODEMPRESAPDV,
+                            CC.CODCHECKOUTPDV,
+                            CC.NUMDOCTOPDV
                      FROM PCCRECLI CC
-                     WHERE CC.NUMCUPOM = pfNUMCUPOM
-                       AND CC.DTDESCONTO IS NOT NULL
-                       AND CC.NUMPEDECF = PFNUMPEDECF
+                     WHERE CC.DTDESCONTO IS NOT NULL
+                       AND ((CC.NUMPEDECF = PFNUMPEDECF AND CC.NUMCUPOM = pfNUMCUPOM)
+                             OR(CC.NUMDOCTOPDV = psSEQDOCTO
+                                AND CC.CODEMPRESAPDV = psNROEMPRESA
+                                AND CC.CODCHECKOUTPDV = psNROCHECKOUT)
+                            )
                        AND CC.NUMSERIEEQUIP = PSNUMSERIEEQUIP
                        AND CC.NUMCAIXA = PFNUMCAIXA
                        AND TRUNC(CC.DTDESCONTO) >= (TRUNC(SYSDATE) - 5)
@@ -1214,9 +1240,12 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                    AND EXISTS (SELECT 1
                           FROM PCCRECLI C
                          WHERE C.CODIGO = D.CODIGOORIG
-                           AND C.NUMCUPOM = CRED.NUMCUPOM
                            AND C.DTDESCONTO IS NOT NULL
-                           AND C.NUMPEDECF = CRED.NUMPEDECF
+                           AND ((C.NUMPEDECF = PFNUMPEDECF AND C.NUMCUPOM = CRED.NUMCUPOM)
+                             OR(C.NUMDOCTOPDV = CRED.NUMDOCTOPDV
+                                AND C.CODEMPRESAPDV = CRED.CODEMPRESAPDV
+                                AND C.CODCHECKOUTPDV = CRED.CODCHECKOUTPDV)
+                            )
                            AND C.NUMSERIEEQUIP = CRED.NUMSERIEEQUIP
                            AND C.NUMCAIXA = CRED.NUMCAIXA);
               EXCEPTION WHEN OTHERS THEN
@@ -1234,6 +1263,9 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                    AND C.NUMCUPOM              = CRED.NUMCUPOM
                    AND C.NUMSERIEEQUIP         = CRED.NUMSERIEEQUIP
                    AND C.NUMCAIXA              = CRED.NUMCAIXA
+                   AND C.NUMDOCTOPDV           = CRED.NUMDOCTOPDV
+                   AND C.CODEMPRESAPDV         = CRED.CODEMPRESAPDV
+                   AND C.CODCHECKOUTPDV        = CRED.CODCHECKOUTPDV
                    AND C.VALOR                 < 0;
                 
                  DELETE FROM PCDESDCRECLI D
@@ -1249,7 +1281,10 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                                NUMCRED           = NULL,
                                DTESTORNO         = NULL,
                                NUMCUPOM          = NULL,
-                               NUMPEDECF         = NULL
+                               NUMPEDECF         = NULL,
+                               NUMDOCTOPDV       = NULL,
+                               CODEMPRESAPDV     = NULL,
+                               CODCHECKOUTPDV    = NULL
            WHERE CODIGO = vCodigoCredito
              AND NVL(VALOR,0) > 0;
 
@@ -1362,9 +1397,19 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
   SE O CODIGO INFORMADO FOR DO CREDITO DE 100,00 QUE JA ENCONTRA-SE ESTORNADO, O SISTEMA IRA
   APAGAR OS CREDITOS DE 80,00 E 20,00 VOLTANDO 100,00 EM ABERTO.
   */
-  FUNCTION FNC_CANCELARESTORCREDITOVAREJO(pfCODIGOCREDITO IN NUMBER, pUltimoCredito IN VARCHAR2,
-           pNUMCUPOM IN NUMBER, pfCODIGOROTINA IN NUMBER, pfMATRICULAUSUARIO IN NUMBER, pCODIGODEST IN NUMBER,
-           pNUMPEDECF IN NUMBER, pNUMSERIEEQUIP IN VARCHAR2, pNUMCAIXA IN NUMBER)
+  FUNCTION FNC_CANCELARESTORCREDITOVAREJO(pfCODIGOCREDITO           IN NUMBER,
+                                          pUltimoCredito            IN VARCHAR2,
+                                          pNUMCUPOM                 IN NUMBER, 
+                                          pfCODIGOROTINA            IN NUMBER, 
+                                          pfMATRICULAUSUARIO        IN NUMBER, 
+                                          pCODIGODEST               IN NUMBER,
+                                          pNUMPEDECF                IN NUMBER, 
+                                          pNUMSERIEEQUIP            IN VARCHAR2, 
+                                          pNUMCAIXA                 IN NUMBER,
+                                          pSEQDOCTO                 IN NUMBER DEFAULT NULL,
+                                          pNROEMPRESA               IN NUMBER DEFAULT NULL,                                    
+                                          pNROCHECKOUT              IN NUMBER DEFAULT NULL									
+                                          )
   RETURN BOOLEAN IS
      vsCODIGOS  VARCHAR2(100);
      V_SQL      VARCHAR2(100);
@@ -1462,7 +1507,11 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
         FOR CRED IN (SELECT CC.CODIGO
                      FROM PCCRECLI CC
                      WHERE CC.NUMCUPOM = pNUMCUPOM
-                       AND CC.NUMPEDECF = pNUMPEDECF
+                       AND (CC.NUMPEDECF = pNUMPEDECF 
+                           OR (CC.NUMDOCTOPDV = pSEQDOCTO
+                              AND CC.CODEMPRESAPDV = pNROEMPRESA
+                              AND CC.CODCHECKOUTPDV = pNROCHECKOUT)
+                       )
                        AND CC.NUMSERIEEQUIP = pNUMSERIEEQUIP
                        AND CC.NUMCAIXA = pNUMCAIXA
                        AND CC.DTDESCONTO IS NOT NULL
@@ -1839,6 +1888,5 @@ END INSERIRREGISTROSVAREJO;
   END FNC_BUSCACREDITO_CODIGO;
 
 ----------------------------------------------------------------------------------------
-
 
 END PKG_CREDITOCLIENTE;
