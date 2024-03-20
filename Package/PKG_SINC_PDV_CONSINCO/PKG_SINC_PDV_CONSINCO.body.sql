@@ -4550,6 +4550,62 @@ BEGIN
   END;
 END;
 
+PROCEDURE CARREGA_TB_ESPECIEFINANCEIRA(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+  MERGE INTO MONITORPDVMIDDLE.TB_ESPECIEFINANCEIRA TB_ESPECIEFINANCEIRA
+    USING (SELECT 'CRED' CODESPECIE, 'CRÉDITO DE CLIENTE' DESCRICAO, 'S' ATIVO, CODFILIAL NROEMPRESA FROM VW_INT_C5_OBTER_FILIAIS_C5) T
+    ON (TB_ESPECIEFINANCEIRA.NROEMPRESAMAE = T.NROEMPRESA)
+  WHEN NOT MATCHED THEN
+    INSERT(
+     TB_ESPECIEFINANCEIRA.CODESPECIE,
+     TB_ESPECIEFINANCEIRA.DESCRICAO,
+     TB_ESPECIEFINANCEIRA.ATIVO,
+     TB_ESPECIEFINANCEIRA.NROEMPRESAMAE
+    )
+    VALUES(
+      T.CODESPECIE,
+      T.DESCRICAO,
+      T.ATIVO,
+      T.NROEMPRESA
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_ESPECIEFINANCEIRA', 'TB_ESPECIEFINANCEIRA OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_ESPECIEFINANCEIRA',
+           'carrega_TB_ESPECIEFINANCEIRA ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_ESPECIEFINANCEIRA',
+           'carrega_TB_ESPECIEFINANCEIRA ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
