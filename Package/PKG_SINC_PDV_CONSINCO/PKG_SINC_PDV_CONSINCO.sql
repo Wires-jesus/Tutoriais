@@ -133,7 +133,9 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_cadobssped(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE) ;
+  PROCEDURE carrega_tb_cadobsspedfamilia(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_especiefinanceira(p_id in pccontroleconsinco.id%TYPE);  
     
   PROCEDURE exec_sinc;
 
