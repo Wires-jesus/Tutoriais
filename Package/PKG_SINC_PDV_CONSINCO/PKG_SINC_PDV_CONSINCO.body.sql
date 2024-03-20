@@ -1694,14 +1694,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
     --Controle promoções
     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
-      USING (SELECT 
-                * 
-            FROM 
-              VW_INT_C5_PROMOCOES_VIGENTES 
-            WHERE 
-               FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM', VW_INT_C5_PROMOCOES_VIGENTES.NROEMPRESA, 'N') = 'S'
-               AND  PRIORIDADE = (SELECT min(PRIORIDADE)FROM VW_INT_C5_PROMOCOES_VIGENTES vw WHERE vw.seqproduto = SEQPRODUTO AND vw.nroempresa = NROEMPRESA AND vw.qtdembalagem = QTDEMBALAGEM )
-              
+      USING (SELECT MIN(idref) idref,
+				   seqproduto,
+				   nroempresa,
+				   qtdembalagem,
+				   nrosegmento,
+				   MIN(preco) preco,
+				   MIN(promocao) promocao,
+				   MIN(ativo) ativo,
+				   MIN(prioridade) prioridade,
+				   MIN(preconormal) preconormal
+			  FROM vw_int_c5_promocoes_vigentes
+			 WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+													  VW_INT_C5_PROMOCOES_VIGENTES.NROEMPRESA,
+													  'N') = 'S'
+			   AND PRIORIDADE = (SELECT min(PRIORIDADE)
+								   FROM VW_INT_C5_PROMOCOES_VIGENTES vw
+								  WHERE vw.seqproduto = SEQPRODUTO
+									AND vw.nroempresa = NROEMPRESA
+									AND vw.qtdembalagem = QTDEMBALAGEM)
+			 GROUP BY seqproduto, nroempresa, qtdembalagem, nrosegmento           
     ) VW_INT_C5_PROMOCOES_VIGENTES
     on(
       TB_PRODPRECO_C5.seqproduto       = VW_INT_C5_PROMOCOES_VIGENTES.seqproduto 
