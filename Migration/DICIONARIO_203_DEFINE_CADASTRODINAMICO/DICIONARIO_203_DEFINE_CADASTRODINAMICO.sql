@@ -23,7 +23,17 @@ BEGIN
                          'UNIDADEPADRAO',
                          'UNIDADETRIB',
                          'UNIDADETRIBEX',
-                         'CODNCMEX');
+                         'CODNCMEX',
+                         'CODPRINCIPATIVO2',
+                         'CODPRINCIPATIVO',
+                         'CODSUBMARCA',
+                         'CODSUBCATEGORIA');
+
+    UPDATE PCDICIONARIOITEM
+       SET TITULO = 'NCM + Exceção'
+     WHERE NOMEOBJETO = 'PCPRODUT'
+       AND NOMECAMPO = 'CODNCMEX';
+
     COMMIT;
   END IF;
 END;
