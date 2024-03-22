@@ -10460,8 +10460,7 @@ IS
                                   WHEN ((NVL(PCNFSAID.TIPODEVOL, 'X') = '1') OR
                                        (NVL(PCNFSAID.TIPODEVOL, 'X') = '4') OR
                                        (NVL(PCNFSAID.TIPODEVOL, 'X') = '6') OR
-                                       (NVL(PCNFSAID.TIPODEVOL, 'X') = '7') OR
-                                       (NVL(PCNFSAID.TIPODEVOL, 'X') = '8')) AND
+                                       (NVL(PCNFSAID.TIPODEVOL, 'X') = '7')) AND
                                        ((NVL(PCMOV.STATUS, 'X') = 'AB') OR
                                        (NVL(PCMOV.STATUS, 'X') = 'B')) THEN
                                     'S'
@@ -10474,8 +10473,7 @@ IS
                                         (NVL(PCNFSAID.NFDEVENTFUTURA, 'N') = 'N')) OR
                                         (NVL(PCNFSAID.TIPODEVOL, 'X') = '4') OR
                                         (NVL(PCNFSAID.TIPODEVOL, 'X') = '6') OR
-                                        (NVL(PCNFSAID.TIPODEVOL, 'X') = '7') OR
-                                        (NVL(PCNFSAID.TIPODEVOL, 'X') = '8')) AND
+                                        (NVL(PCNFSAID.TIPODEVOL, 'X') = '7')) AND
                                         ((NVL(PCMOV.STATUS, 'X') = 'AB') OR
                                         (NVL(PCMOV.STATUS, 'X') = 'A')) THEN
                                      'S'
@@ -18215,7 +18213,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
 
         IF vnESTOQUE_QTESTGER < 0 THEN
           UPDATE PCEST
-            SET QTBLOQUEADA = 0
+            SET QTBLOQUEADA = LEAST(QTBLOQUEADA, GREATEST(QTESTGER))
           WHERE CODPROD = REGISTROS.CODPROD
             AND CODFILIAL = REGISTROS.CODFILIALGERENCIAL
             AND QTBLOQUEADA > QTESTGER;
