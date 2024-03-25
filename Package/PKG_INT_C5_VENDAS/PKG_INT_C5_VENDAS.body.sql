@@ -148,6 +148,28 @@ IS
         mensagemerro         VARCHAR2(1000);
         dados_pcfilamensagem tr_dados_pcfilamensagem;
 
+        PROCEDURE atualizar_pccrecli(p_numpedecf number, p_numcupom number, p_seqdocto number, p_numcheckout number, p_codempresa number) is
+          n_countcreditocliente  number;
+        BEGIN
+          n_countcreditocliente := 0;
+          
+          SELECT COUNT(*)
+          INTO n_countcreditocliente
+          FROM vw_int_c5_pcprestecf
+          WHERE vw_int_c5_pcprestecf.seqdocto = p_seqdocto
+           AND vw_int_c5_pcprestecf.codfilial = p_codempresa
+           AND vw_int_c5_pcprestecf.numcheckout = p_numcheckout
+           AND vw_int_c5_pcprestecf.codcob = 'CRED';
+                    
+          if n_countcreditocliente > 0 then
+            UPDATE PCCRECLI SET NUMPEDECF = p_numpedecf, NUMCUPOM = p_numcupom
+            where
+                   numdoctopdv = p_seqdocto
+                   and codcheckoutpdv = p_numcheckout
+                   and codempresapdv = p_codempresa;
+          END IF;
+          
+        END;
         -- RETORNAR_XML_VENDA
         FUNCTION retornar_xml_venda(r_pedido c_pedido%ROWTYPE)
             RETURN XMLTYPE
@@ -935,6 +957,7 @@ IS
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
                 inserir_pcfilamensagem(dados_pcfilamensagem);
+                atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.codfilial);
 				if r_pedido.status = 'C'  then
                   PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
                 end if;
