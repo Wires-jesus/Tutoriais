@@ -2,9 +2,11 @@
 	"nome":"TRG_PCMANIFDESTINATARIO",
 	"tipoPLSQL":"TRIGGER",
 	"dependencias":
+	[
 	  {
         "nome": "PCMANIFDESTINATARIO",
         "tipo": "TABELA",
         "versao": "5.0.01.000"
       }
+	]
 }
