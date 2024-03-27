@@ -65,7 +65,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             (CASE
                 WHEN e.dtinativo IS NOT NULL
                     THEN 'N'
-                WHEN f.proibidavenda = 'N'
+                WHEN f.proibidavenda = 'S'
                     THEN 'N'
                 WHEN p.dtexclusao IS NOT NULL
                     THEN 'N'
@@ -119,7 +119,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND e.codfilial = f.codfilial
         and e.codfilial = c5.codfilial
         AND NVL(P.REVENDA,'S') = 'S'
-        AND NVL(P.TIPOMERC, 'L') = 'L'
+        --AND NVL(P.TIPOMERC, 'L') = 'L'
         AND P.DTEXCLUSAO IS NULL
         AND LENGTH(p.nbm) >= 2
         AND e.codprod >= 0
@@ -193,7 +193,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         (CASE
           WHEN E.DTINATIVO IS NOT NULL THEN
            'N'
-          WHEN PF.PROIBIDAVENDA = 'N' THEN
+          WHEN PF.PROIBIDAVENDA = 'S' THEN
            'N'
           WHEN P.DTEXCLUSAO IS NOT NULL THEN
            'N'
@@ -256,7 +256,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
           WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
             AND CODFILIAL = 99) PCPARAMFILIAL
   WHERE NVL(NVL(PF.REVENDA ,P.REVENDA), 'S') = 'S'
-    AND NVL(P.TIPOMERC, 'L') = 'L'
+    --AND NVL(P.TIPOMERC, 'L') = 'L'
     AND P.DTEXCLUSAO IS NULL
     AND LENGTH(P.NBM) >= 2
     AND E.CODPROD >= 0
