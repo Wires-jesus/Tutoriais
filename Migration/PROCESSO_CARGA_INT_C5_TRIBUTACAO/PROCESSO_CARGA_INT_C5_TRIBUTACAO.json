@@ -3,5 +3,5 @@
       {"nome": "PCTRIBUT","tipo": "TABELA","versao": "4.0.01.000"},
       {"nome": "PCCONTROLECONSINCO","tipo": "TABELA","versao": "4.0.05.000"},
       {"nome": "PCCFO","tipo": "TABELA","versao": "4.0.01.000"},
-      {"nome": "PROCESSO_CARGA_INT_C5_PRODUTO","tipo": "MIGRATION","versao": "5.0.22.000"}
+      {"nome": "PROCESSO_CARGA_INT_C5_PRODUTO","tipo": "MIGRATION","versao": "5.0.24.000"}
 ]}
