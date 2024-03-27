@@ -254,7 +254,12 @@ FROM (
                    p.codprod codproduto,
                    fnc_remove_char_esp(p.descricao) desccompleta,
                    SUBSTR((fnc_remove_char_esp(P.descricao)),1,24) descreduzida,
-                   'N' produtocomposto,
+                   --'N' produtocomposto,
+                   (CASE
+                      WHEN MAX(P.TIPOMERC) IN ('CB', 'KT') THEN
+                           'S'
+                      ELSE 'N'     
+                   END) PRODUTOCOMPOSTO,
                    0 QTDDIAVALIDADE,
                    MAX(nvl(P.anp, 0)) codanp,
                    MAX(P.descanp) descanp_prod,
