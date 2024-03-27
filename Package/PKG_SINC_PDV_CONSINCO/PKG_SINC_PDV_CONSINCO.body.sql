@@ -606,6 +606,80 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       END;
   END;
 
+  PROCEDURE carrega_tb_prodcomposto(p_id IN pccontroleconsinco.id%TYPE) AS
+  BEGIN
+    MERGE INTO monitorpdvmiddle.tb_prodcomposto s
+        USING (
+               SELECT P.SEQPRODCOMPOSTO,
+                      P.SEQPRODUTO,
+                      P.QTDEMBALAGEM,
+                      P.QUANTIDADE,
+                      P.PRECO,
+                      P.ATIVO
+                      
+        FROM VW_INT_C5_PRODCOMPOSTO P
+       ) b
+
+      ON (s.seqproduto = b.SEQPRODUTO and s.qtdembalagem = b.qtdembalagem and s.SEQPRODCOMPOSTO = b.SEQPRODCOMPOSTO)
+      WHEN MATCHED THEN
+      UPDATE
+             SET s.QUANTIDADE  = b.QUANTIDADE,
+                 s.PRECO       = b.PRECO,
+                 s.ATIVO       = b.ATIVO
+      WHEN NOT MATCHED THEN
+        INSERT
+            (s.SEQPRODCOMPOSTO,
+             s.SEQPRODUTO,
+             s.QTDEMBALAGEM,
+             s.QUANTIDADE,
+             s.PRECO,
+             s.ATIVO
+             )
+          VALUES
+            (b.SEQPRODCOMPOSTO,
+             b.SEQPRODUTO,
+             b.QTDEMBALAGEM,
+             b.QUANTIDADE,
+             b.PRECO,
+             b.ATIVO
+             );
+
+    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+		ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_prodcomposto',
+           'carrega_tb_prodcomposto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_prodcomposto',
+           'carrega_tb_prodcomposto ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+  END;
+
   PROCEDURE carrega_tb_famgrupo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
     MERGE INTO monitorpdvmiddle.tb_famgrupo s
