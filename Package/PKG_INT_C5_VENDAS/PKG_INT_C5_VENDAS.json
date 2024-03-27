@@ -25,6 +25,11 @@
 					  "nome": "PCFILAMENSAGEMERRO",
 					  "tipo": "TABELA",
 					  "versao": "4.0.04.000"
-					}
+					},
+          {
+            "nome": "PCCRECLI",
+            "tipo": "TABELA",
+            "versao": "5.0.01.000"
+          }
 				   ]
 }
