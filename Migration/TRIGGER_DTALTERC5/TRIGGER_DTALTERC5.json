@@ -129,7 +129,7 @@
   {
     "nome": "PCOFERTAPROGRAMADAI",
     "tipo": "TABELA",
-    "versao": "4.0.01.000"
+    "versao": "5.0.01.000"
   },
   {
     "nome": "PCOFERTAPROGRAMADAC_HIST",
@@ -150,6 +150,21 @@
     "nome": "PCEXCECAOCADASTROSFISCAIS",
     "tipo": "TABELA",
     "versao": "4.0.02.000"
+  },
+  {
+    "nome": "PCFORMPROD",
+    "tipo": "TABELA",
+    "versao": "5.0.01.000"
+  },
+  {
+    "nome": "PCPRECOCESTAC",
+    "tipo": "TABELA",
+    "versao": "5.0.01.000"
+  },
+  {
+    "nome": "PCPRECOCESTAI",
+    "tipo": "TABELA",
+    "versao": "5.0.01.000"
   },
   {
     "nome": "PCPROMI",
