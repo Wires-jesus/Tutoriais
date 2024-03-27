@@ -297,6 +297,11 @@ values (57, 'tb_cadobsspedfamilia')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (58, 'tb_especiefinanceira')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (59, 'tb_prodcomposto')
+
 
 /* Popular tabela PCCONTROLECONSINCO */
 
@@ -589,3 +594,10 @@ values (57, 57, 'Sincronização de tabela TB_CADOBSSPEDFAMILIA', TRUNC(SYSDATE)
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (58, 58, 'Sincronização de tabela TB_ESPECIEFINANCEIRA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_especiefinanceira',  58,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (59, 59, 'Sincronização de tabela TB_PRODCOMPOSTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_prodcomposto',  59,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+
