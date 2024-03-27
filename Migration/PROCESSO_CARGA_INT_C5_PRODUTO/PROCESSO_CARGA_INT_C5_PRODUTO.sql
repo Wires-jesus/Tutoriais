@@ -222,7 +222,7 @@ SELECT
     NVL((CASE
          WHEN ORIGEM = 'D' THEN
            DEPARA.SEQFAMILIA
-         ELSE (SELECT PP.SEQFAMILIA FROM PCPRODUT P, PCDEPARAPRODC5 PP WHERE P.CODPRODPRINC = PP.CODPROD AND ROWNUM = 1)
+         ELSE (SELECT PP.SEQFAMILIA FROM PCPRODUT P, PCDEPARAPRODC5 PP WHERE P.CODPROD = PP.CODPROD  AND PP.CODAUXILIAR = 0 AND TBPROD.CODPRODPRINC = PP.CODPROD)
         END
         ), DEPARA.SEQPRODUTO) SEQFAMILIA,
            
@@ -243,6 +243,7 @@ FROM (
            MIN(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
            MIN(PROD.codanp) codanp,
            MIN(PROD.descanp_prod) descanp_prod,
+           MIN(PROD.CODPRODPRINC)CODPRODPRINC,
            MIN(PROD.ATIVO) ATIVO
       FROM( 
             SELECT DISTINCT
@@ -257,6 +258,7 @@ FROM (
                    0 QTDDIAVALIDADE,
                    MAX(nvl(P.anp, 0)) codanp,
                    MAX(P.descanp) descanp_prod,
+                   MIN(P.CODPRODPRINC) CODPRODPRINC,
                    'S' ATIVO
             FROM VW_INT_C5_EMBPROD p
             GROUP BY p.codprod, p.descricao
@@ -276,6 +278,7 @@ FROM (
                    0 QTDDIAVALIDADE,
                    nvl(p.anp, 0) codanp,
                    p.descanp descanp_prod,
+                   NULL CODPRODPRINC,
                    'S' ATIVO
 
             FROM VW_INT_C5_EMB_DESMEMBRADAS p
