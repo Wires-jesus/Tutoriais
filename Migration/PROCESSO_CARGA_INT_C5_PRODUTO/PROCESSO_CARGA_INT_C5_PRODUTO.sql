@@ -372,14 +372,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODCODIGO AS
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
-(SELECT
-       e.codprod seqfamilia,
+(SELECT DISTINCT
+       --e.codprod seqfamilia,
+       T.SEQFAMILIA,
        1 nrosegmento,
        'S' ativo
   FROM  VW_INT_C5_EMBPROD e,
     MONITORPDVMIDDLE.TB_FAMILIA T
   WHERE
-    E.CODPROD = T.SEQFAMILIA
+    E.CODPROD = T.IDREF
 
 )
 
