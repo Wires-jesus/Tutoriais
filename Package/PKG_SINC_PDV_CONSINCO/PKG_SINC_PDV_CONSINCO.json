@@ -100,7 +100,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.25.000"
+			"versao": "5.0.26.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.06.000"
+			"versao": "5.0.07.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
