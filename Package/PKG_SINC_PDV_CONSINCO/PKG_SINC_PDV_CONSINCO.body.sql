@@ -2576,7 +2576,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                FROM VW_INT_C5_FAMDIVISAO E,
                     PCPRODFILIAL F,
                     VW_INT_C5_OBTER_FILIAIS_C5 c5
-               WHERE E.SEQFAMILIA = F.CODPROD
+               WHERE E.CODPROD = F.CODPROD
                AND   C5.CODFILIAL = F.CODFILIAL) b
 
       ON (s.seqfamilia = b.seqfamilia AND s.nrodivisao = b.nrodivisao)
