@@ -125,7 +125,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
     PRODTRIB."SEQFAMILIA",PRODTRIB."NROTRIBUTACAO",PRODTRIB."NRODIVISAO",PRODTRIB."IDREF",PRODTRIB."ATIVO", PRODTRIB."CODORIGEMTRIB"
  FROM
      (SELECT DISTINCT
-        --R.CODPROD seqfamilia,
+        R.CODPROD,
         T.SEQFAMILIA,
         R.CODST nrotributacao,
         0 codorigemtrib,
@@ -158,7 +158,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
       UNION ALL
       
       SELECT DISTINCT
-        --TB.CODPROD seqfamilia,
+        TB.CODPROD,
         T.SEQFAMILIA,
         TB.CODST nrotributacao,
         0 codorigemtrib,
