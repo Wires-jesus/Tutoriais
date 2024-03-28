@@ -112,6 +112,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMSEGMENTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
+             or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
              ) DTPADRAO
       WHERE p.codprod = e.codprod
@@ -249,6 +250,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMSEGMENTO')
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
+             OR (UPPER(S.OBJETOREFERENCIA) =
+                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')   
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR'))
   DTPADRAO, (SELECT VALOR MARCAPADRAO
