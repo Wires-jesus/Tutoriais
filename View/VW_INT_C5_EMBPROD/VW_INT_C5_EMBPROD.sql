@@ -94,7 +94,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             f.cnpjfabricante,
             e.dtalterc5,
             p.codauxiliartrib,
-            0 CODCEST --PROVISORIO
+            0 CODCEST 
        FROM pcembalagem e,
             pcprodut p
             LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'),    
