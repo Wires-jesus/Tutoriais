@@ -153,6 +153,11 @@ BEGIN
 
     UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
     WHERE CODPROD = :OLD.CODPROD;
+
+    UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+    WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
+                                                                            FROM PCFORMPROD 
+                                                                            WHERE CODPRODMP = :OLD.CODPROD));
 END; 
   
 \
