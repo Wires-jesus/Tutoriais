@@ -1,0 +1,5 @@
+{
+ "nome":"PCORDEMAPURACAOCOMIS_INDEX",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias": ""
+}
