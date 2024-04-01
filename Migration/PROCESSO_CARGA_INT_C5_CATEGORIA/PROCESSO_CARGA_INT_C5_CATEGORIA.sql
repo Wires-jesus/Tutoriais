@@ -8,7 +8,7 @@ SELECT CATEG.NRODIVISAO,
             CATEG.CATEGORIA,
             CATEG.ATIVO,
             'M' TIPO,
-            'N' LERPESO,
+            'S' LERPESO,
             CATEG.IDREF
  FROM 
     (SELECT DISTINCT
