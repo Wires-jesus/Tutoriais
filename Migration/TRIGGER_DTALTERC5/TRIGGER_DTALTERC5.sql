@@ -5,16 +5,6 @@ REFERENCING NEW AS NEW OLD AS OLD
  FOR EACH ROW
 BEGIN
     :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
-
-    /*IF (:OLD.PERCTRIBUTOS <> :NEW.PERCTRIBUTOS) THEN
-       UPDATE PCNCM SET
-              DTALTERC5 = CURRENT_TIMESTAMP
-       WHERE CODNCM IN (SELECT DISTINCT P.NBM 
-                         FROM PCPRODUT P,
-                              PCTABPR R 
-                         WHERE P.CODPROD = R.CODPROD
-                         AND   R.CODST = :OLD.CODST);   
-    END IF;*/
 END;
 
 \
