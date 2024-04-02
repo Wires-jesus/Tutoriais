@@ -375,10 +375,10 @@ BEGIN
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
                                                                           WHERE CODPRODMP = :NEW.CODPROD));                                                                          
-  UPDATE PCPRODFILIAL SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
-                                                                          FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :NEW.CODPROD));                                                                          
+  -- UPDATE PCPRODFILIAL SET DTALTERC5 = CURRENT_TIMESTAMP
+  -- WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
+  --                                                                         FROM PCFORMPROD 
+  --                                                                         WHERE CODPRODMP = :NEW.CODPROD));                                                                          
 
 END; 
 
