@@ -6128,7 +6128,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    WHERE (CODPROD = vnCodProd);
               END;
                   
-              vnEstoqueDisponivel := (NVL(vnEstoqueDisponivel,0) - REMAINDER(NVL(vnEstoqueDisponivel,0),NVL(vMULTIPLOPRODUTO,0)));
+              vnEstoqueDisponivel := TRUNC(NVL(vnEstoqueDisponivel,0) / NVL(vMULTIPLOPRODUTO,0)) * NVL(vMULTIPLOPRODUTO,0);
                   
             END IF;
           END IF;
@@ -9434,6 +9434,68 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Se Gera Pedido sem ter Estoque
           ELSIF (NVL(pi_vGeraPedSemEstoque,'S') = 'S') THEN
 
+            -- VALIDAR MULTIPLO    
+            -- Regra para multiplo do produto -- DDVENDAS-45056
+            POBTEM_PARAMFILIAL_STRING(vc_Dados_Cab.CODFILIAL_O,
+                                      'FIL_UTILIZAVENDAPOREMBALAGEM',
+                                      vUTILIZAVENDAPOREMBALAGEM,
+                                      vvErroPesqParam,
+                                      vvMsgErroPesqParam);
+            IF (vUTILIZAVENDAPOREMBALAGEM IS NULL) THEN
+              POBTEM_PARAMFILIAL_STRING('99',
+                                        'CON_UTILIZAVENDAPOREMBALAGEM',
+                                        vUTILIZAVENDAPOREMBALAGEM,
+                                        vvErroPesqParam,
+                                        vvMsgErroPesqParam);
+            END IF;
+            
+            IF (NVL(vUTILIZAVENDAPOREMBALAGEM,'N') <> 'S') THEN
+
+               vAPLICARVALIDACAOMULTIPLO := F_OBTER_PARAM_REPOSICAO_LOJAS('99',
+                                                                          'APLICARVALIDACAOMULTIPLO',
+                                                                          'N');
+
+              -- Verifica se o cliente está configurado para utilizar multiplo
+              BEGIN
+                SELECT NVL(PCCLIENT.VALIDARMULTIPLOVENDA,'N')
+                  INTO vVALIDARMULTIPLOVENDA
+                  FROM PCCLIENT, PCFILIAL
+                 WHERE PCCLIENT.CODCLI = PCFILIAL.CODCLI
+                   AND PCFILIAL.CODIGO = vc_Dados_Cab.CODFILIAL_D;
+              EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                 vVALIDARMULTIPLOVENDA := 'N';
+              END;
+
+              IF vVALIDARMULTIPLOVENDA = 'S' AND vAPLICARVALIDACAOMULTIPLO = 'S' THEN
+                BEGIN
+                  SELECT PCPRODFILIAL.MULTIPLO
+                    INTO vMULTIPLOPRODUTO
+                    FROM PCPRODFILIAL
+                   WHERE (CODFILIAL = vc_Dados_Cab.CODFILIAL_O)
+                     AND (CODPROD   = vc_Dados_Ite.CODPROD_O);
+                         
+                     IF NVL(vMULTIPLOPRODUTO,0) = 0 THEN
+                        SELECT NVL(PCPRODUT.MULTIPLO ,1)
+                          INTO vMULTIPLOPRODUTO
+                          FROM PCPRODUT
+                         WHERE (CODPROD = vc_Dados_Ite.CODPROD_O);                         
+                     END IF;  
+                EXCEPTION
+                  WHEN NO_DATA_FOUND THEN
+                    SELECT NVL(PCPRODUT.MULTIPLO ,1)
+                      INTO vMULTIPLOPRODUTO
+                      FROM PCPRODUT
+                     WHERE (CODPROD = vc_Dados_Ite.CODPROD_O);
+                END;
+                    
+                vc_Dados_Ite.QTD_EST_O := TRUNC(NVL(vc_Dados_Ite.QTD_EST_O,0) / NVL(vMULTIPLOPRODUTO,0)) * NVL(vMULTIPLOPRODUTO,0);    
+                    
+              END IF;
+            END IF;
+            -- FIM -- DDVENDAS-45056
+
+
             -- Se Transferência/Operador Logísticoe
             -- Se Filial Destino do Tipo Varejo e
             -- Se Libera Pedido Automaticamente e
@@ -9482,6 +9544,67 @@ IS PRAGMA SERIALLY_REUSABLE;
 
           -- Se não Gera Pedido sem ter Estoque
           ELSE
+            
+            -- VALIDAR MULTIPLO    
+            -- Regra para multiplo do produto -- DDVENDAS-45056
+            POBTEM_PARAMFILIAL_STRING(vc_Dados_Cab.CODFILIAL_O,
+                                      'FIL_UTILIZAVENDAPOREMBALAGEM',
+                                      vUTILIZAVENDAPOREMBALAGEM,
+                                      vvErroPesqParam,
+                                      vvMsgErroPesqParam);
+            IF (vUTILIZAVENDAPOREMBALAGEM IS NULL) THEN
+              POBTEM_PARAMFILIAL_STRING('99',
+                                        'CON_UTILIZAVENDAPOREMBALAGEM',
+                                        vUTILIZAVENDAPOREMBALAGEM,
+                                        vvErroPesqParam,
+                                        vvMsgErroPesqParam);
+            END IF;
+            
+            IF (NVL(vUTILIZAVENDAPOREMBALAGEM,'N') <> 'S') THEN
+
+               vAPLICARVALIDACAOMULTIPLO := F_OBTER_PARAM_REPOSICAO_LOJAS('99',
+                                                                          'APLICARVALIDACAOMULTIPLO',
+                                                                          'N');
+
+              -- Verifica se o cliente está configurado para utilizar multiplo
+              BEGIN
+                SELECT NVL(PCCLIENT.VALIDARMULTIPLOVENDA,'N')
+                  INTO vVALIDARMULTIPLOVENDA
+                  FROM PCCLIENT, PCFILIAL
+                 WHERE PCCLIENT.CODCLI = PCFILIAL.CODCLI
+                   AND PCFILIAL.CODIGO = vc_Dados_Cab.CODFILIAL_D;
+              EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                 vVALIDARMULTIPLOVENDA := 'N';
+              END;
+
+              IF vVALIDARMULTIPLOVENDA = 'S' AND vAPLICARVALIDACAOMULTIPLO = 'S' THEN
+                BEGIN
+                  SELECT PCPRODFILIAL.MULTIPLO
+                    INTO vMULTIPLOPRODUTO
+                    FROM PCPRODFILIAL
+                   WHERE (CODFILIAL = vc_Dados_Cab.CODFILIAL_O)
+                     AND (CODPROD   = vc_Dados_Ite.CODPROD_O);
+                         
+                     IF NVL(vMULTIPLOPRODUTO,0) = 0 THEN
+                        SELECT NVL(PCPRODUT.MULTIPLO ,1)
+                          INTO vMULTIPLOPRODUTO
+                          FROM PCPRODUT
+                         WHERE (CODPROD = vc_Dados_Ite.CODPROD_O);                         
+                     END IF;  
+                EXCEPTION
+                  WHEN NO_DATA_FOUND THEN
+                    SELECT NVL(PCPRODUT.MULTIPLO ,1)
+                      INTO vMULTIPLOPRODUTO
+                      FROM PCPRODUT
+                     WHERE (CODPROD = vc_Dados_Ite.CODPROD_O);
+                END;
+                    
+                -- vc_Dados_Ite.QTD_EST_O := (NVL(vc_Dados_Ite.QTD_EST_O,0) - Rr os EMAINDER(NVL(vc_Dados_Ite.QTD_EST_O,0),NVL(vMULTIPLOPRODUTO,0)));
+                vc_Dados_Ite.QTD_EST_O := TRUNC(NVL(vc_Dados_Ite.QTD_EST_O,0) / NVL(vMULTIPLOPRODUTO,0)) * NVL(vMULTIPLOPRODUTO,0);    
+              END IF;
+            END IF;
+            -- FIM -- DDVENDAS-45056
 
             -- Se a Sugestão Exceder o Estoque
             IF (NVL(vc_Dados_Ite.QTD_TRANSFERIR_O,0) > NVL(vc_Dados_Ite.QTD_EST_O,0)) THEN
