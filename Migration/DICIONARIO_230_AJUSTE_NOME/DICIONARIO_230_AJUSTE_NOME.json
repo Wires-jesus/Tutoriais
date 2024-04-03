@@ -1,0 +1,6 @@
+{
+    "nome": "DICIONARIO_230_AJUSTE_NOME",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
