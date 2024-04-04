@@ -98,14 +98,14 @@ BEGIN
                             END, 1, 2000);
    END IF;
    IF (INSERTING) OR (UPDATING) THEN
-     IF NVL((:NEW.DESCRICAO), 0) <> NVL((:OLD.DESCRICAO), 0) THEN
+     IF NVL((:NEW.DESCRICAO), '') <> NVL((:OLD.DESCRICAO), '') THEN
       GERAR_LOG('CODCOLECAOVAR',
                 :old.DESCRICAO,
                 :new.DESCRICAO,
                 :new.CODCOLECAOVAR,
                 VSDADOSOBSERVACAO2);
      END IF;
-	 IF (NVL((:NEW.DTEXCLUSAO), 0) <> NVL((:OLD.DTEXCLUSAO), 0)) THEN
+	 IF (NVL((:NEW.DTEXCLUSAO), '') <> NVL((:OLD.DTEXCLUSAO), '')) THEN
       GERAR_LOG('CODCOLECAOVAR',
                 :old.DTEXCLUSAO,
                 :new.DTEXCLUSAO,
