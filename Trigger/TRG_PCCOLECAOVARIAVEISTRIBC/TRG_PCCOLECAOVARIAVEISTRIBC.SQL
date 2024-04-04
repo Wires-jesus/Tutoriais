@@ -5,19 +5,7 @@ CREATE OR REPLACE TRIGGER TRG_PCCOLECAOVARIAVEISTRIBC
 REFERENCING NEW AS NEW OLD AS OLD
  FOR EACH ROW
 DECLARE
-/*****************************************************************************
-                           Historico de Alteracoes
-------------------------------------------------------------------------------
- Data        Responsavel           Tarefa     Alteracao
- ----------  --------------------  -----------    --------------------------------
- 25/04/2006  Rogerio                              Criacao do Programa
- 01/02/2008  Pablo                                  Alteração para gravar PCPEDC.VLBONIFIC conforme total de PCPEDC.VLATEND
-                                                                (Totalização do preço de venda PCPEDI.PVENDA que é o mesmo valor de
-PCPEDI.PBONIFIC)
- 27/05/2008  Pablo                  63215     Alteração para gravar PCPEDC.VLBONIFIC somente quando este for null
- 19/09/2008  Aracelia               69110     Alteração realizada para restringir apenas qt maior q zero
- 04/02/2010  Pablo                  121185    Alteração para passar a registrar o LOG de motivo de bloqueio na tabela pclogbloqueiopedvenda
-*****************************************************************************/
+
   vicontador              INTEGER;
   VSPROGRAMA              VARCHAR2(30);
   VSMOTIVO                VARCHAR2(100);
