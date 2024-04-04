@@ -98,7 +98,7 @@ BEGIN
                             END, 1, 2000);
    END IF;
    IF (INSERTING) OR (UPDATING) THEN
-     IF NVL((:NEW.DESCRICAO), 0) <> NVL((:OLD.DESCRICAO), 0) THEN
+     IF NVL((:NEW.DESCRICAO), '') <> NVL((:OLD.DESCRICAO), '') THEN
       GERAR_LOG('CODCOLECAOVAR',
                 :old.DESCRICAO,
                 :new.DESCRICAO,
