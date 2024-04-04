@@ -105,7 +105,7 @@ BEGIN
                 :new.CODCOLECAOVAR,
                 VSDADOSOBSERVACAO2);
      END IF;
-	 IF (NVL((:NEW.DTEXCLUSAO), 0) <> NVL((:OLD.DTEXCLUSAO), 0)) THEN
+	 IF (NVL((:NEW.DTEXCLUSAO), '') <> NVL((:OLD.DTEXCLUSAO), '')) THEN
       GERAR_LOG('CODCOLECAOVAR',
                 :old.DTEXCLUSAO,
                 :new.DTEXCLUSAO,
