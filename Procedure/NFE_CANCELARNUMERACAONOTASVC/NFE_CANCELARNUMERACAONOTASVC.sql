@@ -192,7 +192,7 @@ begin
          and pcnfent.especie in ('NF')
          and pcnfent.notadupliquesvc = 'S'
          and pcfilial.codigo = P_CODFILIAL
-         and pcnfent.dtsaida = P_DTEMISSAO
+         and COALESCE(pcnfent.dtsaida, pcnfent.DTEMISSAO) = P_DTEMISSAO
          and pcnfent.chavenfe = P_CHAVENFE
          and ROWNUM = 1;
     exception
