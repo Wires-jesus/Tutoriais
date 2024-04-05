@@ -1,1 +1,1 @@
-{"nome":"GERAR_CIAP","tipoPLSQL":"PROCEDURE","dependencias":[]}
+{"nome":"GERAR_CIAP","tipoPLSQL":"PROCEDURE","dependencias":[{"nome":"PCMOVCIAP","tipo":"TABELA","versao":"2.1.01.000"},{"nome":"VIEW_GERA_CIAP","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"}]}
