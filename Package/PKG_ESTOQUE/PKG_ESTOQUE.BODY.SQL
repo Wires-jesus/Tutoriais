@@ -1716,6 +1716,35 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   16/09/2020     Marcelo Hakenhoar  DDLEGFIN-871        Criado a procedure para administrar o processo de transferência na saída da TV10.
   /***********************************************************************************************************************/
+  FUNCTION PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
+                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
+                                  ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
+                                  ,pnCODFORNEC     IN PCFORNEC.CODFORNEC%TYPE
+                                  ,psCNPJ          IN PCFILIAL.CGC%TYPE
+                                  ,psCODFISCAL     IN PCMOV.CODFISCAL%TYPE
+                                  ,pnQTDE          IN PCEST.QTEST%TYPE
+                                  ,psCODFILIAL     IN PCFILIAL.CODIGO%TYPE
+                                  ,psMSG_RETORNO   OUT VARCHAR2)
+  RETURN NUMBER
+  IS
+  BEGIN
+    psMSG_RETORNO := 'OK';
+    PRIV_COMPRAS_TERCEIRO (pnCODPROD       
+                          ,psECANCELAMENTO 
+                          ,pnNUMTRANSACAO  
+                          ,pnCODFORNEC     
+                          ,psCNPJ          
+                          ,psCODFISCAL     
+                          ,pnQTDE          
+                          ,psCODFILIAL);
+    psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
+    IF psMSG_RETORNO <> 'OK' THEN
+      RETURN 0;
+    ELSE
+      RETURN 1;
+    END IF;     
+  END;
+  
   PROCEDURE PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
                                   ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
                                   ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
@@ -1777,14 +1806,17 @@ IS
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
             vsCODFILIALORIGEM := NULL;
-            WHEN TOO_MANY_ROWS THEN
-            P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_COMPRAS_TERCEIRO): O fornecedor da nota fiscal está vinculado em mais de uma filial.' || CHR(13) ||
+            P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_COMPRAS_TERCEIRO): O fornecedor informado não pertence a nenhuma filial';
+			WHEN TOO_MANY_ROWS THEN
+            P_INTERNO.MSG_RETORNO := 'Erro 2 (PRIV_COMPRAS_TERCEIRO): O fornecedor da nota fiscal está vinculado em mais de uma filial.' || CHR(13) ||
                                     'Favor, realizar o ajuste na rotina 535.' || CHR(13) ||
                                     'Transação: ' || TO_CHAR(pnNUMTRANSACAO);
             vsCODFILIALORIGEM := NULL;
         END;
 
-        IF psCODFILIAL IS NOT NULL AND
+        IF pnCODPROD IS NOT NULL THEN
+		
+		IF psCODFILIAL IS NOT NULL AND
             vsCODFILIALORIGEM IS NOT NULL AND
             psCNPJ IS NOT NULL THEN
 
@@ -1823,8 +1855,25 @@ IS
                 AND CODFILIALDESTINO = psCODFILIAL
                 AND CNPJDESTINO = psCNPJ;
             END IF;
+        ELSE
+          IF vsCODFILIALORIGEM IS NOT NULL THEN
+            IF psCODFILIAL IS NULL AND psCNPJ IS NOT NULL THEN 
+              P_INTERNO.MSG_RETORNO := 'Erro 3 (PRIV_COMPRAS_TERCEIRO): FALTA PARAMETRO FILIAL';
+            ELSIF psCODFILIAL IS NOT NULL AND psCNPJ IS NULL THEN
+              P_INTERNO.MSG_RETORNO := 'Erro 4 (PRIV_COMPRAS_TERCEIRO): FALTA PARAMETRO CNPJ';
+            ELSE
+              P_INTERNO.MSG_RETORNO := 'Erro 5 (PRIV_COMPRAS_TERCEIRO): FALTA PARAMETRO DE FILIAL E CNPJ'; 
+            END IF;
+          END IF;
         END IF;
+       ELSE
+         P_INTERNO.MSG_RETORNO := 'Erro 6 (PRIV_COMPRAS_TERCEIRO): FALTA PARAMETRO DE PRODUTO';
+       END IF;  
+      ELSE
+        P_INTERNO.MSG_RETORNO := 'Erro 7 (PRIV_COMPRAS_TERCEIRO): ERRO SELECT TV10'; 
       END IF;
+    ELSE
+      P_INTERNO.MSG_RETORNO := 'Erro 8 (PRIV_COMPRAS_TERCEIRO): ERRO SELECT PCCFO';
     END IF;
   -- Procedure
   END PRIV_COMPRAS_TERCEIRO;

@@ -335,6 +335,17 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
                                         ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE)
   RETURN TB_DADOS_PEDIDO PIPELINED;
 
+  FUNCTION PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
+                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
+                                  ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
+                                  ,pnCODFORNEC     IN PCFORNEC.CODFORNEC%TYPE
+                                  ,psCNPJ          IN PCFILIAL.CGC%TYPE
+                                  ,psCODFISCAL     IN PCMOV.CODFISCAL%TYPE
+                                  ,pnQTDE          IN PCEST.QTEST%TYPE
+                                  ,psCODFILIAL     IN PCFILIAL.CODIGO%TYPE
+                                  ,psMSG_RETORNO   OUT VARCHAR2)
+  RETURN NUMBER;
+
   /**********************************************************************************************/
   /* alterar estoque bloqueado por produto */
   /**********************************************************************************************/
