@@ -785,11 +785,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     'N' as permitemultiplicacao,
                     v.codncmsh,
                     --v.codcest,
-                    (SELECT nvl(CODCEST, 0) codcest
+                    /*(SELECT nvl(CODCEST, 0) codcest
                      FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
-                     WHERE PCCESTPRODUTO.CODPROD = v.seqfamilia
+                     WHERE PCCESTPRODUTO.CODPROD = v.codprod
                      AND ROWNUM = 1
-                    ) codcest,
+                    )*/ v.codcest,
 
                     v.ativo,
                     v.seqmarca,
@@ -875,7 +875,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
                          NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)      
                   ) PRODPISCOFINS --vinculo do produto com os dados de pis e cofins
-             WHERE V.seqfamilia = PRODPISCOFINS.CODPROD(+)
+             WHERE v.codprod = PRODPISCOFINS.CODPROD(+)
                 
       ) B
 
