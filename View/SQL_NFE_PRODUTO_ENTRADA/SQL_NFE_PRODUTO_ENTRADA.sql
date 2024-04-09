@@ -409,7 +409,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                        END ||
                        CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') = '61') AND 
                                   (NVL(PCMOVCOMPLE.VICMSMONORET, 0) > 0)) THEN
-                            ' ICMS monofÃ¡sico sobre combustÃ­veis cobrado anteriormente conforme ConvÃªnio ICMS 199/2022.'
+                            ' ICMS monofásico sobre combustíveis cobrado anteriormente conforme Convênio ICMS 199/2022.'
                        END
                      ) AS INFO_TECNICA
               ,REPLACE(PCMOV.NBM, '.', '') AS NCM
@@ -1340,7 +1340,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                        END ||
                        CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') = '61') AND 
                                   (NVL(PCMOVCOMPLE.VICMSMONORET, 0) > 0)) THEN
-                            ' ICMS monofÃ¡sico sobre combustÃ­veis cobrado anteriormente conforme ConvÃªnio ICMS 199/2022.'
+                            ' ICMS monofásico sobre combustíveis cobrado anteriormente conforme Convênio ICMS 199/2022.'
                        END
                       ) AS INFO_TECNICA
               ,REPLACE(PCMOV.NBM, '.', '') AS NCM
@@ -1374,7 +1374,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              --FORMA QUE ESTAVA ANTERIORMENTE
                              (DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT ) - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,
                                           0), 0)  +
-                              --CONSIDERAR VALOR DESONERAÃ‡ÃƒO PARA ENTRADA DEVOLUÃ‡ÃƒO
+                              --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
                                 CASE WHEN (PCMOV.CODOPER = 'ED') THEN
                                     CASE WHEN ((NVL(PCMOVCOMPLE.PERCICMSDESONERACAO, 0) > 0) AND (NVL(PCMOVCOMPLE.VLICMSDESONERACAO, 0) > 0) ) THEN PCMOVCOMPLE.VLICMSDESONERACAO
                                             ELSE 0 END + (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT)
@@ -1385,7 +1385,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                        'L',
                                        0,
                                        'LR',
-                                       --devoluÃ§Ã£o tem que ser a msm regra da venda, que Ã© 0 quando parametro = LR
+                                       --devolução tem que ser a msm regra da venda, que é 0 quando parametro = LR
                                        DECODE(PCMOV.CODOPER, 'ED', 0, NVL(PCMOV.VLREPASSE,0)),
                                        DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                         (ROUND( PCMOV.QTCONT *
@@ -1423,7 +1423,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                        END
 
                                      ) +
-                                          --apenas para devoluÃ§Ã£o, calculo conforme a venda -- aqui
+                                          --apenas para devolução, calculo conforme a venda -- aqui
                                               (CASE WHEN (/*(PCNFENT.FINALIDADENFE <> 'A') AND*/ (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
                                                     CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                                                ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  pcnfent.dtent))) THEN
@@ -1557,7 +1557,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                               (DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) -
                                       DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,
                                                       0), 0)  +
-                                      --apenas para devoluÃ§Ã£o, calculo conforme a venda -- aqui
+                                      --apenas para devolução, calculo conforme a venda -- aqui
                                       (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
                                             CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                                        ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  pcnfent.dtent))) THEN
@@ -1574,10 +1574,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                'L',
                                                0,
                                                'LR',
-                                               --devoluÃ§Ã£o tem que ser a msm regra da venda, que Ã© 0 quando parametro = LR
+                                               --devolução tem que ser a msm regra da venda, que é 0 quando parametro = LR
                                                DECODE(PCMOV.CODOPER, 'ED', 0, NVL(PCMOV.VLREPASSE,0)),
 
-                                               --Adicionado mesmo arredondamento de desconto que existe na saida para corrigir rejeiÃ§Ã£o 610 31/08/2018
+                                               --Adicionado mesmo arredondamento de desconto que existe na saida para corrigir rejeição 610 31/08/2018
                                        DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                           (ROUND( PCMOV.QTCONT *
                                           (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),
@@ -2174,11 +2174,6 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                   'N',
                                                   NVL(PCMOVCOMPLE.VLCAPATAZIA, 0),
                                                   0)+
-                                           DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'),
-                                                  'N',
-                                                  NVL(PCMOVCOMPLE.VLAFRMM, 0),
-                                                  0)+
-
                                            DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ACRESCIMOS', PCFILIAL.CODIGO),'N'),
                                                   'N',
                                                   NVL(PCMOV.VLDESPDENTRONF, 0),
@@ -2192,6 +2187,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                   NVL(PCMOV.VLOUTRASDESP,0))
                                         END
                                       ,0) +
+                                (CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') THEN
+                                      DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'),
+                                                  'N',
+                                                  NVL(PCMOVCOMPLE.VLAFRMM, 0),
+                                                  0)
+                                  ELSE 0 END) +
                                 NVL(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('SOMARPISCOFINSVLOUTRASDESPIMP',
                                                NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)), 'S'),
                                            'S',
