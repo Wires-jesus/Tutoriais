@@ -32534,6 +32534,22 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                             null);
 
                         end if;
+                     else
+                        proc_registralog(gvet_regpedido(i).numped,
+                                            gvet_regpedido(i).numpedrca,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).cgccli,
+                                            null,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).codusur,
+                                            gvet_regpedido(i).dtaberturapedpalm,
+                                            null,
+                                            '2',
+                                            'Pedido TV8 gerado : '||vnnumpedtv8||' na posicao : '||vsposicaotv8 ||';',
+                                            null,
+                                            null);
                      end if;
                    end if;
                end if;
