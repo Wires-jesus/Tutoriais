@@ -352,7 +352,8 @@ FROM (
      AND   T.NROTRIBUTACAO = D.nrotributacao
      AND   T.IDREF = E.CODCADASTROPRINC
      AND   T.CODOBSERVACAO = S.CODOBSERVACAO
-     AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     --AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.IDREF), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
      AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
      AND   R.nrodivisao = D.nrodivisao
      AND   R.NUMREGIAO = (SELECT MIN(TO_CHAR(VALOR)) VALOR
@@ -397,7 +398,8 @@ FROM (
      AND   T.NROTRIBUTACAO = D.nrotributacao
      AND   T.IDREF = E.CODCADASTROPRINC
      AND   T.CODOBSERVACAO = S.CODOBSERVACAO
-     AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+     --AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.SEQFAMILIA), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
+-    AND   NVL(E.VALOR1, '0') = (DECODE(NVL(E.TIPO1,'XX'), 'PR', TO_CHAR(FAM.IDREF), 'FT', TO_CHAR(D.nrotributacao), 'CM', TO_CHAR(FAM.codnbmsh)))
      AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
      AND   D.nrodivisao = (SELECT TO_CHAR(NROEMPRESA) VALOR 
                           FROM MONITORPDVMIDDLE.TB_EMPRESA 
