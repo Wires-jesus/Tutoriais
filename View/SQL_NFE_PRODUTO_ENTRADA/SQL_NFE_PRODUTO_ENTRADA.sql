@@ -2174,11 +2174,6 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                   'N',
                                                   NVL(PCMOVCOMPLE.VLCAPATAZIA, 0),
                                                   0)+
-                                           DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'),
-                                                  'N',
-                                                  NVL(PCMOVCOMPLE.VLAFRMM, 0),
-                                                  0)+
-
                                            DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ACRESCIMOS', PCFILIAL.CODIGO),'N'),
                                                   'N',
                                                   NVL(PCMOV.VLDESPDENTRONF, 0),
@@ -2192,6 +2187,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                   NVL(PCMOV.VLOUTRASDESP,0))
                                         END
                                       ,0) +
+                                (CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') THEN
+                                      DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'),
+                                                  'N',
+                                                  NVL(PCMOVCOMPLE.VLAFRMM, 0),
+                                                  0)
+                                  ELSE 0 END) +
                                 NVL(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('SOMARPISCOFINSVLOUTRASDESPIMP',
                                                NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)), 'S'),
                                            'S',
