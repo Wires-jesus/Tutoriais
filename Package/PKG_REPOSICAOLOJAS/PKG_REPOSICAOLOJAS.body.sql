@@ -2755,7 +2755,6 @@ IS PRAGMA SERIALLY_REUSABLE;
                        WHERE (CODPROD   = N_CODPROD_O);
                   END;
                   
-                  N_QTD_SUGERIDA_D   := (NVL(N_QTD_SUGERIDA_D,0) - REMAINDER(NVL(N_QTD_SUGERIDA_D,0),NVL(vMULTIPLOPRODUTO,0)));
                   N_QTD_TRANSFERIR_O := (NVL(N_QTD_TRANSFERIR_O,0) - REMAINDER(NVL(N_QTD_TRANSFERIR_O,0),NVL(vMULTIPLOPRODUTO,0)));
                   
                 END IF;
