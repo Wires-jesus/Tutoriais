@@ -95,12 +95,12 @@
 		{
 			"nome": "VW_INT_C5_PRECOFIXO_R357",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.14.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.32.000"
+			"versao": "5.0.33.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
@@ -115,17 +115,17 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.16.000"
+			"versao": "5.0.17.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "4.0.23.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.02.000"
+			"versao": "5.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
