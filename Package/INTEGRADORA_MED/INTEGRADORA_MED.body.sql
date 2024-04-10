@@ -32476,59 +32476,82 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
 
                if gvet_regpedido(i).condvenda = 7 and gvet_regpedido(i).numpedorig = 0 then
 
-                   if regfilial.RESERVARESTOQUETV7 = 'S' then
+                  if regfilial.RESERVARESTOQUETV7 = 'S' then
+                     begin
+                       SELECT 'S'
+                         INTO vsAchouPedidoTV8
+                         FROM PCPEDC
+                        WHERE (numpedentfut = gvet_regpedido(i).numped)
+                          AND (ROWNUM = 1);
+                     exception
+                       when NO_DATA_FOUND then
+                         vsAchouPedidoTV8 := 'N';                       
+                     end;
+                     
+                     if vsAchouPedidoTV8 = 'N' then
+                        prc_gerarpedtv8(gvet_regpedido(i).numped,
+                                        vsmensagempedidotv8,
+                                        vnnumpedtv8,
+                                        vsposicaotv8,
+                                        vnmotivotv8);
 
-                      prc_gerarpedtv8(gvet_regpedido(i).numped,
-                                      vsmensagempedidotv8,
-                                      vnnumpedtv8,
-                                      vsposicaotv8,
-                                      vnmotivotv8);
 
 
+                        if trim(vsmensagempedidotv8) is not null then
 
-                       if trim(vsmensagempedidotv8) is not null then
+                           proc_registralog(gvet_regpedido(i).numped,
+                                            gvet_regpedido(i).numpedrca,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).cgccli,
+                                            null,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).codusur,
+                                            gvet_regpedido(i).dtaberturapedpalm,
+                                            null,
+                                            '2',
+                                            vsmensagempedidotv8 || ';',
+                                            null,
+                                            null);
 
+                        else
+
+                           proc_registralog(gvet_regpedido(i).numped,
+                                            gvet_regpedido(i).numpedrca,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).cgccli,
+                                            null,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).codusur,
+                                            gvet_regpedido(i).dtaberturapedpalm,
+                                            null,
+                                            '2',
+                                            'Pedido TV8 gerado : '||vnnumpedtv8||' na posicao : '||vsposicaotv8 ||';',
+                                            null,
+                                            null);
+
+                        end if;
+                     else
                         proc_registralog(gvet_regpedido(i).numped,
-                                         gvet_regpedido(i).numpedrca,
-                                         null,
-                                         null,
-                                         gvet_regpedido(i).cgccli,
-                                         null,
-                                         null,
-                                         null,
-                                         gvet_regpedido(i).codusur,
-                                         gvet_regpedido(i).dtaberturapedpalm,
-                                         null,
-                                         '2',
-                                         vsmensagempedidotv8 || ';',
-                                         null,
-                                         null);
-
-                         else
-
-
-                              proc_registralog(gvet_regpedido(i).numped,
-                                 gvet_regpedido(i).numpedrca,
-                                 null,
-                                 null,
-                                 gvet_regpedido(i).cgccli,
-                                 null,
-                                 null,
-                                 null,
-                                 gvet_regpedido(i).codusur,
-                                 gvet_regpedido(i).dtaberturapedpalm,
-                                 null,
-                                 '2',
-                                 'Pedido TV8 gerado : '||vnnumpedtv8||' na posicao : '||vsposicaotv8 ||';',
-                                 null,
-                                 null);
-
-
-
-                       end if;
-
+                                            gvet_regpedido(i).numpedrca,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).cgccli,
+                                            null,
+                                            null,
+                                            null,
+                                            gvet_regpedido(i).codusur,
+                                            gvet_regpedido(i).dtaberturapedpalm,
+                                            null,
+                                            '2',
+                                            'Pedido TV8 gerado : '||vnnumpedtv8||' na posicao : '||vsposicaotv8 ||';',
+                                            null,
+                                            null);
+                     end if;
                    end if;
-
                end if;
 
 
