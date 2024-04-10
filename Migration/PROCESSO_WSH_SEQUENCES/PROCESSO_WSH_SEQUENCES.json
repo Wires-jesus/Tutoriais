@@ -1,53 +1,7 @@
 {
 	"nome": "PROCESSO_WSH_SEQUENCES",
 	"tipoPLSQL": "MIGRATION",
-	"dependencias": [
-		{
-			"nome": "PCINTEGRACAODADOSEMPRESA",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOROTASERVICO",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOVARIAVEIS",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOCORE",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOVARIAVEISTEMP",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAODADOSRECEBIDOS",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOAGENDAMENTO",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOFLUXOEXECUCAO",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		},
-		{
-			"nome": "PCINTEGRACAOERROREQUISICAO",
-			"tipo": "TABELA",
-			"versao": "1.0.01.000"
-		}
-	]
+	"dependencias": []
 } 
 
 
