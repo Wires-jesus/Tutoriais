@@ -2710,7 +2710,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
       AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
       
       MERGE INTO monitorpdvmiddle.tb_regraincentivo tb_regraincentivo_C5
-        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT DISTINCT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
         tb_regraincentivo_C5.SEQREGRA         = VIEW_C5_INCENTIVO.SEQREGRA 
       )
