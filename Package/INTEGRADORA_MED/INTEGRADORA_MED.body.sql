@@ -29076,6 +29076,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
     vvOcorreramErrosQuebraPedido     VARCHAR2(1);
     vvMsgErrosQuebraPedido           VARCHAR2(4000);
     vvPosicaoQuebraPedido            PCPEDC.POSICAO%TYPE;
+    vsAchouPedidoTV8                 VARCHAR2(1);
 
   begin
   
