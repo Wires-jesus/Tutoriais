@@ -2755,7 +2755,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                        WHERE (CODPROD   = N_CODPROD_O);
                   END;
                   
-                  N_QTD_TRANSFERIR_O := (NVL(N_QTD_TRANSFERIR_O,0) - REMAINDER(NVL(N_QTD_TRANSFERIR_O,0),NVL(vMULTIPLOPRODUTO,0)));
+                  if (NVL(N_QTD_TRANSFERIR_O,0) - REMAINDER(NVL(N_QTD_TRANSFERIR_O,0),NVL(vMULTIPLOPRODUTO,0))) < N_QTD_TRANSFERIR_O then
+                    N_QTD_TRANSFERIR_O := (NVL(N_QTD_TRANSFERIR_O,0) - REMAINDER(NVL(N_QTD_TRANSFERIR_O,0),NVL(vMULTIPLOPRODUTO,0))) + NVL(vMULTIPLOPRODUTO,0);
+                  else
+                    N_QTD_TRANSFERIR_O := (NVL(N_QTD_TRANSFERIR_O,0) - REMAINDER(NVL(N_QTD_TRANSFERIR_O,0),NVL(vMULTIPLOPRODUTO,0)));
+                  end if;
+                  
+                  
                   
                 END IF;
 
@@ -2865,7 +2871,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PRODUTO.MARCA_O
                         , N_QTUNITCX_O
                         , NVL(V_QTD_EST_ORIG,0)
-                        , NVL(N_QTD_TRANSFERIR_O,0)
+                        , NVL(N_QTD_SUGERIDA_D,0)
                         , NVL(N_QTD_TRANSFERIR_O,0)
                         , PRODUTO.CODFILIAL_D
                         , PRODUTO.PRIORIDADE_D
