@@ -1,0 +1,11 @@
+{
+	"nome": "ALTER_TABLE_ADD_CONFIGURACAOERP",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": [
+		{
+			"nome": "PCINTEGRACAODADOSEMPRESA",
+			"tipo": "TABELA",
+			"versao": "5.0.01.000"
+		} 		
+	]
+}
