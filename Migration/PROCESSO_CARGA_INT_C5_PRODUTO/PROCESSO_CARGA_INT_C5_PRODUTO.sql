@@ -279,8 +279,7 @@ FROM (
            MIN(PROD.codanp) codanp,
            MIN(PROD.descanp_prod) descanp_prod,
            MIN(PROD.CODPRODPRINC)CODPRODPRINC,
-           MIN(PROD.ATIVO) ATIVO,
-           (SELECT F.NRODIVISAO FROM VW_INT_C5_FAMDIVISAO F WHERE F.CODPROD = TBPROD.CODPROD  AND ROWNUM = 1) NRODIVISAO
+           MIN(PROD.ATIVO) ATIVO
       FROM( 
             SELECT DISTINCT
                    p.codprod CODPROD,
