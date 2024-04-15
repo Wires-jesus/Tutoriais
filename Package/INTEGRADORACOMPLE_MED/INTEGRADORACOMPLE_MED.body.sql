@@ -5381,49 +5381,53 @@ IS PRAGMA SERIALLY_REUSABLE;
         --------------------
         ELSIF (vc_Promocoes.TIPOPOLITICA = 'P') AND
               (vbPodePesquisarPrecoFixo)        THEN -- 5685.084449.2016
+			  
+          -- Se a Quantidade Pedida estiver dentro da Faixa
+          IF ((NVL(pi_nQtde,0) >= NVL(vc_Promocoes.INICIOINTERVALOPROMOCAOMED,0)) AND
+              (NVL(pi_nQtde,0) <= NVL(vc_Promocoes.FIMINTERVALOPROMOCAOMED,999999))) THEN
 
-          -- Se não achou a Promoção do Item do Pedido
-          IF (NOT vbAchouPromocaoItemPedido) THEN
-            -- Se o Preço da Promoção menor que o encontrado anteriormente ou Promoção do Item do Pedido
-            IF ((NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100))) < NVL(vnMenorPrecoEncontrado,0)) OR
-               ((NVL(pi_nCodPromocaoMed,0) > 0) AND (NVL(pi_nCodPromocaoMed,0) = NVL(vc_Promocoes.CODPROMOCAOMED,0))) THEN
-              vbEncontrouPromocaoPreco := TRUE;             -->> Encontrou a Promoção de Preço - Não pesquisará as Promoções de Desconto (Prioridade)
-              vvAplicaDesconto         := vvTipoIncidencia; -->> Modo de Aplicação
-              -- Se não ignora desconto encontrado
-              IF (NVL(vvTipoIncidencia,' ') <> 'I') THEN
-                vvTipoPromoPrecoOuDesconto := 'P';
-                vnCodDesconto              := vc_Promocoes.CODDESCONTO;
-                vnCodPromocaoMed           := vc_Promocoes.CODPROMOCAOMED;
-                vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
-                vnPercDescFin              := NVL(vc_Promocoes.PERCDESCFIN,0);
-                vnInicioIntervaloQt        := vc_Promocoes.INICIOINTERVALOPROMOCAOMED;
-                vnMenorPrecoEncontrado     := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100));
-                -- Variável com o Valor da Verba para Rebaixa de CMV da Promoção da PCDESCONTO - DDMEDICA-5009
-                vnVlDescCmvPromocaoMed     := vc_Promocoes.VLDESCCMVPROMOCAOMED;                
-                -- Se Achou Promoção do Item do Pedido
-                IF ((NVL(pi_nCodPromocaoMed,0) > 0) AND (NVL(pi_nCodPromocaoMed,0) = NVL(vc_Promocoes.CODPROMOCAOMED,0))) THEN
-                  vbAchouPromocaoItemPedido := TRUE;
+            -- Se não achou a Promoção do Item do Pedido
+            IF (NOT vbAchouPromocaoItemPedido) THEN
+              -- Se o Preço da Promoção menor que o encontrado anteriormente ou Promoção do Item do Pedido
+              IF ((NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100))) < NVL(vnMenorPrecoEncontrado,0)) OR
+                 ((NVL(pi_nCodPromocaoMed,0) > 0) AND (NVL(pi_nCodPromocaoMed,0) = NVL(vc_Promocoes.CODPROMOCAOMED,0))) THEN
+                vbEncontrouPromocaoPreco := TRUE;             -->> Encontrou a Promoção de Preço - Não pesquisará as Promoções de Desconto (Prioridade)
+                vvAplicaDesconto         := vvTipoIncidencia; -->> Modo de Aplicação
+                -- Se não ignora desconto encontrado
+                IF (NVL(vvTipoIncidencia,' ') <> 'I') THEN
+                  vvTipoPromoPrecoOuDesconto := 'P';
+                  vnCodDesconto              := vc_Promocoes.CODDESCONTO;
+                  vnCodPromocaoMed           := vc_Promocoes.CODPROMOCAOMED;
+                  vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
+                  vnPercDescFin              := NVL(vc_Promocoes.PERCDESCFIN,0);
+                  vnInicioIntervaloQt        := vc_Promocoes.INICIOINTERVALOPROMOCAOMED;
+                  vnMenorPrecoEncontrado     := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100));
+                  -- Variável com o Valor da Verba para Rebaixa de CMV da Promoção da PCDESCONTO - DDMEDICA-5009
+                  vnVlDescCmvPromocaoMed     := vc_Promocoes.VLDESCCMVPROMOCAOMED;                
+                  -- Se Achou Promoção do Item do Pedido
+                  IF ((NVL(pi_nCodPromocaoMed,0) > 0) AND (NVL(pi_nCodPromocaoMed,0) = NVL(vc_Promocoes.CODPROMOCAOMED,0))) THEN
+                    vbAchouPromocaoItemPedido := TRUE;
+                  END IF;
                 END IF;
+              ELSE
+                vvAplicaDesconto := NULL;
               END IF;
-            ELSE
-              vvAplicaDesconto := NULL;
-            END IF;
-          END IF; -- Fim Condição: Se não achou a Promoção do Item do Pedido
+            END IF; -- Fim Condição: Se não achou a Promoção do Item do Pedido
 
-          -- Procedimento para Inserir na Tabela Temporária
-          P_INSERE_TABTEMP(vc_Promocoes.CODPROMOCAOMED,
-                           vc_Promocoes.CODDESCONTO,
-                           vc_Promocoes.TIPOPOLITICA,
-                           vc_Promocoes.INICIOINTERVALOPROMOCAOMED,
-                           vc_Promocoes.FIMINTERVALOPROMOCAOMED,
-                           NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0),
-                           NULL,
-                           vc_Promocoes.PERCDESCFIN,
-                           vvAplicaDesconto,
-                           vc_Promocoes.PRIORIDADE_TIPOPOLITICA,
-                           vc_Promocoes.VLDESCCMVPROMOCAOMED,
-                           vnCodFornec);
-
+            -- Procedimento para Inserir na Tabela Temporária
+            P_INSERE_TABTEMP(vc_Promocoes.CODPROMOCAOMED,
+                             vc_Promocoes.CODDESCONTO,
+                             vc_Promocoes.TIPOPOLITICA,
+                             vc_Promocoes.INICIOINTERVALOPROMOCAOMED,
+                             vc_Promocoes.FIMINTERVALOPROMOCAOMED,
+                             NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0),
+                             NULL,
+                             vc_Promocoes.PERCDESCFIN,
+                             vvAplicaDesconto,
+                             vc_Promocoes.PRIORIDADE_TIPOPOLITICA,
+                             vc_Promocoes.VLDESCCMVPROMOCAOMED,
+                             vnCodFornec);
+          END IF;
         -----------------------------------------------
         -- Promoção de Desconto por Faixa de Quantidade
         -----------------------------------------------
