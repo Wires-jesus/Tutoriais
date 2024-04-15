@@ -219,10 +219,45 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODUTO AS
 (
 SELECT
     DEPARA.SEQPRODUTO,
+    
     NVL((CASE
+         /*DEFINICAO DO SEQFAMILIA DOS PRODUTOS DESMEMBRADOS*/
          WHEN ORIGEM = 'D' THEN
-           DEPARA.SEQFAMILIA
-         ELSE (SELECT PP.SEQFAMILIA FROM PCPRODUT P, PCDEPARAPRODC5 PP WHERE P.CODPROD = PP.CODPROD  AND PP.CODAUXILIAR = 0 AND TBPROD.CODPRODPRINC = PP.CODPROD)
+              DEPARA.SEQFAMILIA
+         /*DEFINICAO DO SEQFAMILIA DE PRODUTO PAI*/
+         WHEN TBPROD.CODPROD = TBPROD.CODPRODPRINC THEN
+              DEPARA.SEQFAMILIA
+         /*DEFINICAO DO SEQFAMILIA DE PRODUTO FILHO, DE ACORDO COM A TRIBUTACAO DO PRODUTO PAI*/     
+         WHEN /*SE O PRODUTO É FILHO...*/
+              (TBPROD.CODPROD <> TBPROD.CODPRODPRINC) AND 
+              
+              /*E SE A TRIBUTACAO DO PRODUTO FILHO É DIFERENTE DA TRIBUTACAO DO PRODUTO PAI, ENTÃO SETA O SEQFAMILIA DO FILHO*/
+              (
+                (SELECT F.NROTRIBUTACAO 
+                 FROM VW_INT_C5_FAMDIVISAO F 
+                 WHERE F.CODPROD = TBPROD.CODPROD 
+                 AND ROWNUM = 1
+                ) 
+                
+                <>
+              
+                NVL((SELECT F.NROTRIBUTACAO 
+                     FROM VW_INT_C5_FAMDIVISAO F
+                     WHERE F.CODPROD = TBPROD.CODPRODPRINC
+                     AND ROWNUM = 1), (SELECT F.NROTRIBUTACAO
+                                       FROM MONITORPDVMIDDLE.TB_FAMDIVISAO F,
+                                            PCDEPARAPRODC5 D
+                                       WHERE F.SEQFAMILIA = D.SEQFAMILIA
+                                       AND   D.ATIVO = 'S'
+                                       AND   D.CODPROD = TBPROD.CODPRODPRINC
+                                       AND   D.CODAUXILIAR = 0
+                                       AND ROWNUM = 1)
+                    )
+              ) 
+              THEN 
+                DEPARA.SEQFAMILIA
+         ELSE /*SE A TRIBUTACAO PRODUTO FILHO É IGUAL A TRIBUTACAO DO PRODUTO PAI, SETA O SEQFAMILIA DO PRODUTO PAI*/ 
+             (SELECT PP.SEQFAMILIA FROM PCPRODUT P, PCDEPARAPRODC5 PP WHERE P.CODPROD = PP.CODPROD  AND PP.CODAUXILIAR = 0 AND TBPROD.CODPRODPRINC = PP.CODPROD)                   
         END
         ), DEPARA.SEQPRODUTO) SEQFAMILIA,
            
@@ -244,7 +279,8 @@ FROM (
            MIN(PROD.codanp) codanp,
            MIN(PROD.descanp_prod) descanp_prod,
            MIN(PROD.CODPRODPRINC)CODPRODPRINC,
-           MIN(PROD.ATIVO) ATIVO
+           MIN(PROD.ATIVO) ATIVO,
+           (SELECT F.NRODIVISAO FROM VW_INT_C5_FAMDIVISAO F WHERE F.CODPROD = TBPROD.CODPROD  AND ROWNUM = 1) NRODIVISAO
       FROM( 
             SELECT DISTINCT
                    p.codprod CODPROD,
