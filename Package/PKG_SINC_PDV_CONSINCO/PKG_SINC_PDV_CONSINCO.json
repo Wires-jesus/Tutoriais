@@ -85,7 +85,7 @@
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.17.000"
+			"versao": "5.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_PLPAG",
