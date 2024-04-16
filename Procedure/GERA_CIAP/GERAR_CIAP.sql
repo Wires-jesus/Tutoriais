@@ -139,12 +139,10 @@ begin
 
       if PCFOP_SAIDA_TRIB is null then
          V_CFOP_SAIDA_TRIB        := '-1';
---               V_DESCONSCFOPSAITRIB := 'S';
       end if;
 
       if PCFOP_SAIDA is null then
          V_CFOP_SAIDA             := '-1';
---               V_DESCONSIDERACFOPTLNOTA := 'S';
       end if;
 
 --------------------------------------------------------------------------------------------
@@ -342,43 +340,34 @@ begin
                -----------------------------------------------------------------------------
                -- CFOP Grid de Saídas Tributadas
                for dados in (SELECT to_char((SELECT TO_NUMBER(VALOR_NUM) AS CODFISCAL
-                                             FROM PCDADOSGENERICOS
-                                             WHERE DADOSID = 'SAITRI'
-                                               AND CAMPO = 'CODFISCAL'
-                                               AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
-                                    to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) 
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
+                                               FROM PCDADOSGENERICOS
+                                              WHERE DADOSID = 'SAITRI'
+                                                AND CAMPO = 'CODFISCAL'
+                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
+                                    to_char((SELECT VALOR_TEXTO 
+                                               FROM PCDADOSGENERICOS
+                                              WHERE DADOSID = 'SAITRI'
+                                                AND CAMPO = 'CSTICMS'
+                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CSTICMS
                              FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
-                                   FROM PCDADOSGENERICOS
-                                   WHERE DADOSID = 'SAITRI'
-                                   GROUP BY CODREGISTRO, DADOSID) ITENS)
+                                     FROM PCDADOSGENERICOS
+                                    WHERE DADOSID = 'SAITRI'
+                                    GROUP BY CODREGISTRO, DADOSID) ITENS)
                LOOP
                   IF V_EXISTEFILTRO3403SAITRIB = 'S' THEN
-                     IF ((NVL(TRIM(DADOS.CSTICMS),'N') = 'N') OR 
-                             (TRIM(DADOS.CSTICMS) = '00')) THEN -- Quando esta nullo na grid ele recebe 00 e deve ser considerado para n gerar livro
+                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN 
                         V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
                         V_AUX := ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   ELSE
-                     IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
-                            (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN 
                         V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') ) ';
                      ELSE
                         V_AUX := '(PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
                      END IF;
                   END IF;
+
                   V_CONDICAOCFOPSAITRIB := V_CONDICAOCFOPSAITRIB || V_AUX;
                   V_AUX := '';
                   V_EXISTEFILTRO3403SAITRIB := 'S';
@@ -401,7 +390,6 @@ begin
                                      DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
                                      DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END) END) TOTALTRIB,';
                    end if;
-                --------------     
                ELSE
                  ------------------------------------- // --------------------------------------- 
                   IF PCONS_CFOP_SAIDA_TRIB = 'S' THEN -- Abrindo 1
@@ -424,7 +412,6 @@ begin
                                         DECODE(:PVALORSUBSTTRIB, ''S'', NVL(PCNFBASESAID.VLST, 0), 0)        +
                                         DECODE(:PVALORIPI, ''S'', NVL(PCNFBASESAID.VLIPI, 0), 0)END) END) TOTALTRIB,';
                       END IF;  
-                      
                   ELSE
                  
                   V_SQL := 'select SUM(CASE   WHEN ( ' || V_CONDICAOCFOPSAITRIB || ' ) 
@@ -478,31 +465,22 @@ begin
                  V_EXISTEFILTRO3403TOTSAI := 'N';
                -----------------------------------------------------------------------------
                for dados in (SELECT to_char((SELECT TO_NUMBER(VALOR_NUM) AS CODFISCAL
-                                             FROM PCDADOSGENERICOS
-                                             WHERE DADOSID = 'CFOPCI'
-                                               AND CAMPO = 'CODFISCAL'
-                                               AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
-                                    to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
+                                               FROM PCDADOSGENERICOS
+                                              WHERE DADOSID = 'CFOPCI'
+                                                AND CAMPO = 'CODFISCAL'
+                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
+                                    to_char((SELECT VALOR_TEXTO 
+                                               FROM PCDADOSGENERICOS
+                                              WHERE DADOSID = 'CFOPCI'
+                                                AND CAMPO = 'CSTICMS'
+                                                AND CODREGISTRO = ITENS.CODREGISTRO))  CSTICMS
                              FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
                                    FROM PCDADOSGENERICOS
                                    WHERE DADOSID = 'CFOPCI'
-                                   GROUP BY CODREGISTRO, DADOSID) ITENS)
+                                   GROUP BY CODREGISTRO, DADOSID) ITENS)                                   
                LOOP
                   IF V_EXISTEFILTRO3403TOTSAI = 'S' THEN
-                     IF( NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR 
-                       (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                     IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N'  THEN
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ')) ';
                      ELSE
                         V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI || ' OR (PCNFBASESAID.CODFISCAL IN (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -584,9 +562,8 @@ begin
        and ((PCNFBASESAID.VLDESDOBRADO > 0 ) or (PCNFBASESAID.VLICMS > 0) or (PCNFBASESAID.VLBASE > 0))
        and NVL(PCNFBASESAID.SERIE, ''X'') not in (''CF'', ''CP'')';
 
-     --insert into sql_gerado (texto_sql, codregra) values (V_SQL, 99); 
-     --commit;
-
+--     insert into sql_gerado (texto_sql, codregra) values (V_SQL, 99); 
+--    commit;
 
          V_EXECUTAR := 'N';
          IF PDESCONSCFOP_SAIDA_TRIB = 'S' OR PDESCONSIDERACFOP_SAIDA = 'S' THEN
@@ -661,27 +638,19 @@ begin
             -- CFOP Grid de Total das Saídas
             IF PVUTILIZOUGRIDSAIDA = 'S' THEN -- Abriu Ponto1
                 for dados in (SELECT to_char((SELECT TO_NUMBER(VALOR_NUM) CODFISCAL
-                                              FROM PCDADOSGENERICOS
-                                              WHERE DADOSID = 'CFOPCI'
-                                                AND CAMPO = 'CODFISCAL'
-                                                AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
-                                     to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'CFOPCI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
+                                                FROM PCDADOSGENERICOS
+                                               WHERE DADOSID = 'CFOPCI'
+                                                 AND CAMPO = 'CODFISCAL'
+                                                 AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
+                                     to_char((SELECT VALOR_TEXTO
+                                                FROM PCDADOSGENERICOS
+                                               WHERE DADOSID = 'CFOPCI'
+                                                 AND CAMPO = 'CSTICMS'
+                                                 AND CODREGISTRO = ITENS.CODREGISTRO))  CSTICMS
                               FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
                                     FROM PCDADOSGENERICOS
                                     WHERE DADOSID = 'CFOPCI'
-                                    GROUP BY CODREGISTRO, DADOSID) ITENS)
+                                    GROUP BY CODREGISTRO, DADOSID) ITENS)                                    
                 LOOP
                    IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
                      V_CODFISCALIN := 'CODFISCAL <> ';
@@ -690,8 +659,7 @@ begin
                    END IF;           
                  
                    IF V_EXISTEFILTRO3403TOTSAI = 'S' THEN
-                      IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR 
-                         (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                         
                         IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
                           V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI  ||  ' AND CODFISCAL <> ' ||  DADOS.CODFISCAL; 
@@ -706,8 +674,7 @@ begin
                         END IF;
                       END IF;
                    ELSE
-                      IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
-                         (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                      IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN 
                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                       ELSE
                          V_CONDICAOCFOPTOTSAI := V_CONDICAOCFOPTOTSAI ||  '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -736,8 +703,8 @@ begin
                    V_SQLETRI := V_SQLETRI || ' AND  (' || V_CONDICAOCFOPTOTSAI || ' ) ';
                 END IF;
 
---        INSERT INTO SQL_GERADO (TEXTO_SQL) VALUES (V_SQLETRI);
-
+--          insert into sql_gerado (texto_sql, codregra) values (V_SQLETRI, 99); 
+          
                 execute immediate V_SQLETRI
                    into V_ENTRADATOTAL
                    using PEXERCICIO, V_MES, PCODFILIAL;
@@ -765,28 +732,20 @@ begin
             --------------------------------------------------------------
             -- CFOP Grid de Total das Saídas Trib 
         IF PVUTILIZOUGRIDSAIDATRIB = 'S' THEN -- Abriu Ponto1
-            for dados in (SELECT to_char((SELECT TO_NUMBER(VALOR_NUM) CODFISCAL
-                                          FROM PCDADOSGENERICOS
+           for dados in (SELECT to_char((SELECT TO_NUMBER(VALOR_NUM) AS CODFISCAL
+                                           FROM PCDADOSGENERICOS
                                           WHERE DADOSID = 'SAITRI'
                                             AND CAMPO = 'CODFISCAL'
                                             AND CODREGISTRO = ITENS.CODREGISTRO)) CODFISCAL,
-                                 to_char(DECODE(SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),1,1),0,SUBSTR(LPAD(NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0),3,'0'),2,2),NVL((SELECT TO_NUMBER(VALOR_TEXTO) CODFISCAL
-                                                         FROM PCDADOSGENERICOS
-                                                         WHERE DADOSID = 'SAITRI'
-                                                         AND CAMPO = 'CSTICMS'
-                                                         AND CODREGISTRO = ITENS.CODREGISTRO),0)))  CSTICMS
+                                to_char((SELECT VALOR_TEXTO 
+                                                 FROM PCDADOSGENERICOS
+                                                WHERE DADOSID = 'SAITRI'
+                                                  AND CAMPO = 'CSTICMS'
+                                                  AND CODREGISTRO = ITENS.CODREGISTRO)) CSTICMS
                           FROM (SELECT COUNT(*) QUANTIDADE, CODREGISTRO, DADOSID
-                                FROM PCDADOSGENERICOS
-                                WHERE DADOSID = 'SAITRI'
-                                GROUP BY CODREGISTRO, DADOSID) ITENS)
+                                  FROM PCDADOSGENERICOS
+                                 WHERE DADOSID = 'SAITRI'
+                                 GROUP BY CODREGISTRO, DADOSID) ITENS)                                
             LOOP
              IF PDESCONSCFOP_SAIDA_TRIB = 'S' THEN
                  V_CODFISCALIN := 'CODFISCAL <> ';
@@ -809,8 +768,7 @@ begin
                     END IF;
                   END IF;
                ELSE
-                  IF (NVL(TRIM(DADOS.CSTICMS),'N') = 'N' OR
-                     (TRIM(DADOS.CSTICMS) = '00')) THEN -- 
+                  IF NVL(TRIM(DADOS.CSTICMS),'N') = 'N' THEN
                      V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') ) ';
                   ELSE
                      V_AUX := '('|| V_CODFISCALIN ||' (' || DADOS.CODFISCAL || ') AND (DECODE(SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),1,1),0,SUBSTR(LPAD(NVL(SITTRIBUT,0),3,''0''),2,2),NVL(SITTRIBUT,0)) IN (' || DADOS.CSTICMS || ' ) )) ';
@@ -878,8 +836,7 @@ begin
 -------------------------------------------------------------------------------------------------
 -- PROCESSO 7 : FIM
 -------------------------------------------------------------------------------------------------
-  end;--fim do primerio loop
-
+  end; --fim do primerio loop
       exception
       when NO_DATA_FOUND then
         begin
@@ -1056,18 +1013,6 @@ begin
                   END LOOP;
          END;
 
-/*  -- processo anterior de ajuste 
-         update PCCIAPITEM
-         set VLCREDITO = VLCREDITO * EXTRACT(day from DATABAIXA) /
-                         EXTRACT(day from LAST_DAY(DATABAIXA))
-         where DATABAIXA > TRUNC(DATABAIXA, 'MM')
-           and ANO = EXTRACT(year from DATABAIXA)
-           and MES = EXTRACT(month from DATABAIXA)
-           and ANO = PEXERCICIO
-           and MES = V_MES
-           and CODFILIAL = PCODFILIAL;
-*/
-
          -- Cálculo rateado do último Mês
          update PCCIAPITEM
          set VLCREDITO = VLCREDITO *
@@ -1080,47 +1025,6 @@ begin
            and MES = V_MES
            and CODFILIAL = PCODFILIAL;
       end if;
-/*      ------------------------------------------------------------------------
-      -- Atualizar coluna CODPRODSEQ da PCCIAPITEM conforme notas/itens da PCMOVCIAP 
-      ------------------------------------------------------------------------
-      FOR DADOS1 IN (
-          -- Filtrando itens do periodo que contem o mesmo codprod mais de uma vez na pcmovciap
-          SELECT TAB.CODFILIAL, TAB.CODPROD, TAB.NUMTRANSENT, TAB.QTD_MOV, TAB.QTD_MESES, TAB.FATOR
-          FROM ( SELECT DISTINCT I.CODFILIAL, I.CODPROD, I.NUMTRANSENT
-                        ,(SELECT COUNT(*) FROM PCMOVCIAP M WHERE M.NUMTRANSENT = I.NUMTRANSENT AND M.CODPROD = I.CODPROD) QTD_MOV
-                        ,TRIM(SUBSTR(I.FATOR,3,3)) QTD_MESES
-                        ,I.FATOR 
-                    FROM PCCIAPITEM I 
-                   WHERE ANO           = PEXERCICIO
-                         AND MES      >= V_MES
-                         AND CODFILIAL = PCODFILIAL
-               ) TAB WHERE TAB.QTD_MOV > 1
-          ) LOOP 
-            
-            FOR DADOS2 IN (
-            -- Segundo For para identificar o CODPRODSEQ da pcmovciap
-                SELECT M.NUMTRANSENT, M.CODPROD, M.NUMSEQ, M.QTMESESCREDCIAP
-                ,CASE WHEN M.ITEMDUPLICADO = 'S' THEN 
-                      TO_CHAR(M.CODPROD)||'-'||TO_CHAR(M.NUMSEQ)
-                 ELSE 
-                      TO_CHAR(M.CODPROD)
-                 END CODPRODSEQ 
-                FROM PCMOVCIAP M 
-               WHERE M.NUMTRANSENT     = DADOS1.NUMTRANSENT
-                 AND M.CODPROD         = DADOS1.CODPROD
-                 AND M.CODFILIAL       = DADOS1.CODFILIAL
-                 AND M.QTMESESCREDCIAP = DADOS1.QTD_MESES
-            ) LOOP 
-              -- ALTERAÇÃO DA PCCIAPITEM COM O CODPRODSEQ 
-              UPDATE PCCIAPITEM I SET I.CODPRODSEQ = DADOS2.CODPRODSEQ 
-               WHERE I.NUMTRANSENT = DADOS2.NUMTRANSENT 
-                 AND I.CODPROD     = DADOS2.CODPROD 
-                 AND I.FATOR       = DADOS1.FATOR
-                 AND I.MES        >= V_MES
-                 AND I.ANO         = PEXERCICIO
-                 AND I.CODFILIAL   = PCODFILIAL;
-            END LOOP; -- DADOS2
-          END LOOP; -- DADOS1      
       ------------------------------------------------------------------------      */
       begin
          if not V_GEROU_CIAPITEM then
@@ -1196,6 +1100,7 @@ begin
    end;
 end;
 ----------------------------------------------------------------------
--- 28/12/2023 - 
--- Implementado alteração na geração do cst de icms no filtro de geração do livro fiscal saida e entrada
+-- 28/12/2023 - Implementado alteração na geração do cst de icms no filtro de geração do livro fiscal saida e entrada
+-- 15/04/2024 - Ajuste na pesquisa dos dados genericos. Não considerar mais como 00 o CST nullo na grid.
+-- 16/04/2024 - Merge
 ----------------------------------------------------------------------
