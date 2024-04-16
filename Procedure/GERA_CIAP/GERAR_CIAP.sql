@@ -160,7 +160,7 @@ begin
                                     DECODE(:PVALORCONTABIL, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0) +
                               
                               -- Considerar vldesdobrado quando parametro SIM e vlbase = 0      
-                              (CASE WHE/N :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
+                              (CASE WHEN :PUTILIZAVALORCONTABIL = ''S'' AND NVL(PCNFBASESAID.VLBASE,0) = 0 THEN 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLDESDOBRADO, 0), 0)
                                ELSE 
                                     DECODE(:PVALORBASECALC, ''S'', NVL(PCNFBASESAID.VLBASE, 0), 0)  +                                     
@@ -1102,4 +1102,5 @@ end;
 ----------------------------------------------------------------------
 -- 28/12/2023 - Implementado alteração na geração do cst de icms no filtro de geração do livro fiscal saida e entrada
 -- 15/04/2024 - Ajuste na pesquisa dos dados genericos. Não considerar mais como 00 o CST nullo na grid.
+-- 16/04/2024 - Merge
 ----------------------------------------------------------------------
