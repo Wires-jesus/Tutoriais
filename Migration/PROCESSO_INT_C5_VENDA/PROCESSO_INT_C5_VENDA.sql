@@ -213,7 +213,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
  WHERE  p.codprod = e.codprod
    AND  e.codprod = f.codprod
    AND  e.codfilial = f.codfilial
-   --AND  c.codauxiliar = e.codauxiliar
    AND  c.codprod = e.codprod
    AND  LENGTH (p.nbm) >= 2
    AND  e.codprod >= 0
