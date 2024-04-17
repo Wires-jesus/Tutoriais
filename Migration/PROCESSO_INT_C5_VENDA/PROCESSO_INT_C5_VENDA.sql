@@ -603,6 +603,66 @@ END;
 
 \
 
+CREATE OR REPLACE FUNCTION fnc_int_c5_BUSCATRIB(pCodFilial  NUMBER,
+                                                pNumCaixa    NUMBER,
+                                                pSeqdocto    NUMBER,
+                                                pSeqItem     NUMBER,
+												pSeqTipoTrib NUMBER,
+												pCampo       VARCHAR2)
+    RETURN NUMBER
+IS
+    vReturn NUMBER;
+BEGIN
+
+/*
+'A' = PERCALIQUOTA
+'B' = VLRBASE
+'R' = PERCBASECALCULO
+'V' = VLRTRIBUTO
+*/
+SELECT  CASE pCampo
+            WHEN  'A' THEN T.PERCALIQUOTA
+			WHEN  'B' THEN T.VLRBASE
+			WHEN  'R' THEN T.PERCBASECALCULO
+			WHEN  'V' THEN T.VLRTRIBUTO 
+        END
+  INTO  vReturn
+  FROM  monitorpdvmiddle.tb_doctotributacaoitem t
+ WHERE  t.SEQDOCTO = pSeqdocto
+   AND  t.NROCHECKOUT = pNumCaixa
+   AND  t.NROEMPRESA = pCodFilial
+   AND  t.SEQITEM = pSeqItem
+   AND  t.SEQTIPOTRIBUTACAO = pSeqTipoTrib;
+ RETURN(vReturn);
+ EXCEPTION
+   WHEN OTHERS then
+     RETURN NULL; 
+   END;
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_EXBENEF(pSeqFamilia  NUMBER,
+                                                pUF    VARCHAR2)
+    RETURN VARCHAR2
+IS
+    vReturn VARCHAR2(10);
+BEGIN
+
+SELECT  T.CODAJUSTEEFD 
+  INTO  vReturn
+  FROM  MONITORPDVMIDDLE.TB_CADOBSSPEDFAMILIA T
+ WHERE  T.SEQFAMILIA = pSeqFamilia
+   AND  T.UF = pUF;
+ RETURN(vReturn);
+  EXCEPTION
+   WHEN OTHERS then
+     RETURN NULL; 
+   END;
+END;
+
+\
+
 CREATE OR REPLACE FUNCTION fnc_int_c5_codplpag_venda(pNroFormaPagto NUMBER,
                              pCodFilial     VARCHAR2)
     RETURN NUMBER
@@ -1028,6 +1088,9 @@ SELECT  CASE
    AND  i.seqdocto = pSeqdocto
    AND  i.STATUS = 'V'
    AND  i.seqitem = pSeqItem;
+   
+   
+   
  RETURN(vVlAcrescimoFCP);
 END;
 
@@ -1521,7 +1584,7 @@ AS
         NULL codagregacao,
         i.codacesso codauxiliar,
         NULL codbarrabalanca,
-        a.codbeneficiofiscal,
+        NVL (FNC_INT_C5_EXBENEF(p.SEQFAMILIA, a.uforigem) ,a.codbeneficiofiscal) codbeneficiofiscal,
         0 codcampanha,
         v.codcest,
         NVL(c.seqpessoa,1) codcli,
@@ -1529,13 +1592,7 @@ AS
         d.nroempresa codfilial,
         NULL codfilialretira,
         --NULL codecf,
-        (select percaliquota
-           from monitorpdvmiddle.tb_doctotributacaoitem
-          where nroempresa = i.nroempresa
-            and nrocheckout = i.nrocheckout
-            and seqdocto = i.seqdocto
-            and seqitem = i.seqitem
-            and seqtipotributacao = 1) codecf,
+        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A') codecf,
         i.cfop codfiscal,
         v.codfornec,
         d.sequsuario codfunccx,
@@ -1663,7 +1720,7 @@ AS
           WHERE codfilial = i.nroempresa
             AND codauxiliar = i.codacesso) valorultent,
         --0 vlacrescimofuncep,
-        NVL(fnc_int_c5_vlacrescimofcp(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM),0) vlacrescimofuncep,
+        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -1688,13 +1745,7 @@ AS
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then ((select ROUND(vlrbase,2)
-                         from monitorpdvmiddle.tb_doctotributacaoitem
-                        where nroempresa = i.nroempresa
-                          and nrocheckout = i.nrocheckout
-                          and seqdocto = i.seqdocto
-                          and seqitem = i.seqitem
-                          and seqtipotributacao = 1))
+                then (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))
                 --THEN ROUND(ti.VLRBASE,2)
             ELSE
               0
@@ -1718,13 +1769,7 @@ AS
         0 vldescsociotorcedor,
         0 vlfrete,
        --fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
-       (select vlrtributo 
-           from monitorpdvmiddle.tb_doctotributacaoitem
-          where nroempresa = i.nroempresa
-            and nrocheckout = i.nrocheckout
-            and seqdocto = i.seqdocto
-            and seqitem = i.seqitem
-            and seqtipotributacao = 15) vlicmsdesoneracao,
+       (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'V')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
         0 vlitemtributosestadual,
@@ -1790,7 +1835,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        0 aliqfcp, --a.aliqfcp
+        0 fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'), --a.aliqfcp
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1800,20 +1845,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 aliqreducaopis,
         p.codanp anp,
         0 basebcr,
-        NVL((select 
-              (CASE 
-                 WHEN doctribitem.percbasecalculo < 100 THEN
-                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
-               END) vlrbase             
-                            
-             from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
-             where doctribitem.nroempresa = i.nroempresa
-             and doctribitem.nrocheckout = i.nrocheckout
-             and doctribitem.seqdocto = i.seqdocto
-             and doctribitem.seqitem = i.seqitem
-             and doctribitem.seqtipotributacao = 1
-             ), 0) baseicms,
+        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'), 0) baseicms,
         0 baseicmsbcr,
         0 baseicst,
         NULL baseipiecf,
@@ -1824,7 +1856,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NULL codagregacao,
         i.codacesso codauxiliar,
         NULL codbarrabalanca,
-        a.codbeneficiofiscal,
+        NVL (FNC_INT_C5_EXBENEF(p.SEQFAMILIA, a.uforigem) ,a.codbeneficiofiscal) codbeneficiofiscal,
         0 codcampanha,
         v.codcest,
         NVL(c.seqpessoa,1) codcli,
@@ -1832,13 +1864,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         d.nroempresa codfilial,
         NULL codfilialretira,
         --NULL codecf,
-        (select percaliquota
-           from monitorpdvmiddle.tb_doctotributacaoitem
-          where nroempresa = i.nroempresa
-            and nrocheckout = i.nrocheckout
-            and seqdocto = i.seqdocto
-            and seqitem = i.seqitem
-            and seqtipotributacao = 1) codecf,
+        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A')) codecf,
         i.cfop codfiscal,
         v.codfornec,
         d.sequsuario codfunccx,
@@ -1893,13 +1919,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 perdifereimentoicms,
         0 percmexiva,
         0 perciss,
-        (select percaliquota
-           from monitorpdvmiddle.tb_doctotributacaoitem
-          where nroempresa = i.nroempresa
-            and nrocheckout = i.nrocheckout
-            and seqdocto = i.seqdocto
-            and seqitem = i.seqitem
-            and seqtipotributacao = 1) percicm,
+        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A')) percicm,
         0 percicmsefet,
         v.comissao percom,
         0 percredbaseefet,
@@ -1966,7 +1986,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
           WHERE codfilial = i.nroempresa
             AND codauxiliar = i.codacesso) valorultent,
         --0 vlacrescimofuncep,
-        NVL(fnc_int_c5_vlacrescimofcp(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM),0) vlacrescimofuncep,
+        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -1991,13 +2011,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then ((select ROUND(vlrbase,2)
-                         from monitorpdvmiddle.tb_doctotributacaoitem
-                        where nroempresa = i.nroempresa
-                          and nrocheckout = i.nrocheckout
-                          and seqdocto = i.seqdocto
-                          and seqitem = i.seqitem
-                          and seqtipotributacao = 1))
+                then ((fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))
                 --THEN ROUND(ti.VLRBASE,2)
             ELSE
               0
@@ -2021,13 +2035,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 vldescsociotorcedor,
         0 vlfrete,
        --fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
-       (select vlrtributo 
-           from monitorpdvmiddle.tb_doctotributacaoitem
-          where nroempresa = i.nroempresa
-            and nrocheckout = i.nrocheckout
-            and seqdocto = i.seqdocto
-            and seqitem = i.seqitem
-            and seqtipotributacao = 15) vlicmsdesoneracao,
+       (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'V')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
         0 vlitemtributosestadual,
