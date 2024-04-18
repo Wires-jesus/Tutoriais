@@ -632,7 +632,6 @@ SELECT  CASE pCampo
  EXCEPTION
    WHEN OTHERS then
      RETURN NULL; 
-   END;
 END;
 
 \
@@ -653,7 +652,6 @@ SELECT  T.CODAJUSTEEFD
   EXCEPTION
    WHEN OTHERS then
      RETURN NULL; 
-   END;
 END;
 
 \
@@ -1540,7 +1538,7 @@ AS
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        0 aliqfcp,
+        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp,
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1811,7 +1809,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        0 fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'), 
+        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp, 
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1982,8 +1980,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then ((fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))
-                
+                then (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))                
             ELSE
               0
           END) vlbasefcpicms,
