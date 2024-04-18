@@ -1715,36 +1715,7 @@ IS
   Data           Autor              Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   16/09/2020     Marcelo Hakenhoar  DDLEGFIN-871        Criado a procedure para administrar o processo de transferência na saída da TV10.
-  /***********************************************************************************************************************/
-  FUNCTION PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
-                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
-                                  ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
-                                  ,pnCODFORNEC     IN PCFORNEC.CODFORNEC%TYPE
-                                  ,psCNPJ          IN PCFILIAL.CGC%TYPE
-                                  ,psCODFISCAL     IN PCMOV.CODFISCAL%TYPE
-                                  ,pnQTDE          IN PCEST.QTEST%TYPE
-                                  ,psCODFILIAL     IN PCFILIAL.CODIGO%TYPE
-                                  ,psMSG_RETORNO   OUT VARCHAR2)
-  RETURN NUMBER
-  IS
-  BEGIN
-    psMSG_RETORNO := 'OK';
-    PRIV_COMPRAS_TERCEIRO (pnCODPROD       
-                          ,psECANCELAMENTO 
-                          ,pnNUMTRANSACAO  
-                          ,pnCODFORNEC     
-                          ,psCNPJ          
-                          ,psCODFISCAL     
-                          ,pnQTDE          
-                          ,psCODFILIAL);
-    psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
-    IF psMSG_RETORNO <> 'OK' THEN
-      RETURN 0;
-    ELSE
-      RETURN 1;
-    END IF;     
-  END;
-  
+  /***********************************************************************************************************************/  
   PROCEDURE PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
                                   ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
                                   ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
@@ -1877,6 +1848,35 @@ IS
     END IF;
   -- Procedure
   END PRIV_COMPRAS_TERCEIRO;
+  
+  FUNCTION PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
+                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
+                                  ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
+                                  ,pnCODFORNEC     IN PCFORNEC.CODFORNEC%TYPE
+                                  ,psCNPJ          IN PCFILIAL.CGC%TYPE
+                                  ,psCODFISCAL     IN PCMOV.CODFISCAL%TYPE
+                                  ,pnQTDE          IN PCEST.QTEST%TYPE
+                                  ,psCODFILIAL     IN PCFILIAL.CODIGO%TYPE
+                                  ,psMSG_RETORNO   OUT VARCHAR2)
+  RETURN NUMBER
+  IS
+  BEGIN
+    psMSG_RETORNO := 'OK';
+    PRIV_COMPRAS_TERCEIRO (pnCODPROD       
+                          ,psECANCELAMENTO 
+                          ,pnNUMTRANSACAO  
+                          ,pnCODFORNEC     
+                          ,psCNPJ          
+                          ,psCODFISCAL     
+                          ,pnQTDE          
+                          ,psCODFILIAL);
+    psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
+    IF psMSG_RETORNO <> 'OK' THEN
+      RETURN 0;
+    ELSE
+      RETURN 1;
+    END IF;     
+  END;
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
