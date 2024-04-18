@@ -3023,30 +3023,26 @@ END;
 
 PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-      UPDATE monitorpdvmiddle.TB_REGRAPRODUTO SET ATIVO = 'N'
-      WHERE ATIVO = 'S'
-      --AND   IDREF = '2017';
-      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
-      
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
-        USING (--SELECT * FROM VW_INT_C5_PRODUTO_R2011
+        USING 
+             (
                SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF  
-               FROM VW_INT_C5_PRODUTO_R2011
+               FROM VW_INT_C5_DESC561PRODUTO
                UNION ALL
                SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
-               FROM VW_INT_C5_OFERTA_R2017 
-              ) vw_int_c5_regraproduto_2011
+               FROM VW_INT_C5_PRECOFIXO_R357 
+              ) vw_int_c5_regraproduto
       on(
-            tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto_2011.SEQPRODUTO        
-        AND tb_regraproduto_c5.QTDEMBALAGEM  = vw_int_c5_regraproduto_2011.QTDEMBALAGEM
-        AND tb_regraproduto_c5.SEQREGRA      = vw_int_c5_regraproduto_2011.SEQREGRA        
+            tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto.SEQPRODUTO        
+        AND tb_regraproduto_c5.QTDEMBALAGEM  = vw_int_c5_regraproduto.QTDEMBALAGEM
+        AND tb_regraproduto_c5.SEQREGRA      = vw_int_c5_regraproduto.SEQREGRA        
       )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraproduto_c5.PERCDESCONTO    = vw_int_c5_regraproduto_2011.PERCDESCONTO,
-          tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto_2011.PRECO,
-          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto_2011.ATIVO,
-          tb_regraproduto_c5.IDREF           = vw_int_c5_regraproduto_2011.IDREF  
+          tb_regraproduto_c5.PERCDESCONTO    = vw_int_c5_regraproduto.PERCDESCONTO,
+          tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto.PRECO,
+          tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto.ATIVO,
+          tb_regraproduto_c5.IDREF           = vw_int_c5_regraproduto.IDREF  
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3059,35 +3055,22 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraproduto_c5.IDREF          
         ) 
         VALUES(
-          vw_int_c5_regraproduto_2011.SEQREGRA,
-          vw_int_c5_regraproduto_2011.SEQPRODUTO,
-          vw_int_c5_regraproduto_2011.QTDEMBALAGEM,
-          vw_int_c5_regraproduto_2011.PERCDESCONTO,
-          vw_int_c5_regraproduto_2011.PRECO,
-          vw_int_c5_regraproduto_2011.ATIVO,
-          vw_int_c5_regraproduto_2011.IDREF
+          vw_int_c5_regraproduto.SEQREGRA,
+          vw_int_c5_regraproduto.SEQPRODUTO,
+          vw_int_c5_regraproduto.QTDEMBALAGEM,
+          vw_int_c5_regraproduto.PERCDESCONTO,
+          vw_int_c5_regraproduto.PRECO,
+          vw_int_c5_regraproduto.ATIVO,
+          vw_int_c5_regraproduto.IDREF
         );
 
-      UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
-      WHERE  EXISTS  (SELECT C.CODOFERTA
-                      FROM PCOFERTAPROGRAMADAC C 
-                      WHERE R.SEQREGRA = C.codfilial||C.codoferta||2011
-                      AND   C.DTCANCEL IS NOT NULL
-                      )
-      --AND IDREF = 2011; 
-      AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2011';
-
-      /*UPDATE MONITORPDVMIDDLE.tb_regraproduto R SET ATIVO = 'N'
-      WHERE ATIVO = 'S' 
-      AND   NOT EXISTS  (SELECT E.CODAUXILIAR
-                         FROM PCEMBALAGEM E,
-                              PCDEPARAEMBALAGENSC5 P
-                         WHERE P.CODAUXILIAR = E.CODAUXILIAR
-                         AND   P.SEQPRODUTO = R.SEQPRODUTO
-                         AND   R.QTDEMBALAGEM = E.QTUNIT
-                         AND   R.SEQREGRA = E.CODFILIAL||P.SEQPRODUTO
-                    )
-      AND IDREF = 2017; */
+      UPDATE MONITORPDVMIDDLE.tb_regraproduto SET ATIVO = 'N'
+      WHERE IDREF IN (SELECT L.CODFILIAL||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM)
+      OR IDREF IN (SELECT L.CODFILIAL||357||L.CODPRECOPROM  
+                       FROM PCPRECOPROMLOG L
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA);
 
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
