@@ -166,7 +166,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
   (SELECT  e.codprod,
         e.codauxiliar,
         c.seqproduto,
-        --e.codauxiliar||e.codfilial seqproduto, --alterar para o DEPARA (PCDEPARAEMBALAGENSC5)
         e.codfilial,
         p.codepto,
         p.codsec,
@@ -185,7 +184,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
         NVL(f.origmerctrib, 0) origmerctrib,
         p.anp,
         p.descanp,
-        --(SELECT CODCEST FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST WHERE PCCESTPRODUTO.CODPROD = p.CODPROD) codcest,
+        
         (SELECT  s.codcest
            FROM  pccest s,
                  pccestproduto sp
@@ -396,7 +395,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         NULL dtexportacao,
         'N' exportado,
         a.nrocheckout numcaixa,
-        --p_numpedecf numpedecf,
         'NOTAFISCAL' numserieequip,
         x.xml xmlnfce,
         x.xmlcanc xmlnfcecancelamento,
@@ -520,9 +518,6 @@ BEGIN
       WHEN OTHERS THEN
         vCodCob := 'D';
     end;
-  
-/*  elsif vEspecie in ('X', 'N', 'I') THEN --Não implementado no piloto. deverá ser definida regra posteriormente
-     vCodCob := 'D';*/
      
   else
     begin
@@ -619,6 +614,7 @@ BEGIN
 'R' = PERCBASECALCULO
 'V' = VLRTRIBUTO
 */
+
 SELECT  CASE pCampo
             WHEN  'A' THEN T.PERCALIQUOTA
 			WHEN  'B' THEN T.VLRBASE
@@ -768,9 +764,7 @@ BEGIN
     SELECT  a.tipovenda
       INTO  vTipoVenda
       FROM  VW_INT_C5_PLANOP_VENDA a,
-            --VW_INT_C5_FINALIZADORA a,
             monitorpdvmiddle.tb_doctopagto p
-            --monitorpdvmiddle.tb_docto d
      WHERE  p.nroformapagto = a.nroformapagto
        AND  p.nroempresa = a.nroempresa
         AND p.nrocheckout = a.nrocheckout 
@@ -873,7 +867,6 @@ SELECT
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
                                    AND z.SEQTIPOACRESCDESCTO = 7)
                 THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
-                  --/ fnc_int_c5_numitens(d.seqdocto, d.nrocheckout, d.nroempresa)
            ELSE
               0
          END)
@@ -914,7 +907,6 @@ BEGIN
  SELECT  (CASE
             WHEN i.vlrdesconto > 0
                  THEN a.VALOR
-                  --/ fnc_int_c5_numitens(d.seqdocto, d.nrocheckout, d.nroempresa)
            ELSE
               0
           END)
@@ -967,7 +959,6 @@ SELECT  SUM(
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
                                    AND z.SEQTIPOACRESCDESCTO = 7)
                 THEN i.VLRACRESCIMO
-                  --/ fnc_int_c5_numitens(d.seqdocto, d.nrocheckout, d.nroempresa)
            ELSE
               0
          END))
@@ -1678,7 +1669,6 @@ AS
         NULL posicaoretorno,
         0 pvendavasilhame,
         'L' posicao,
-        --i.vlrunitario ptabela,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) ptabela,
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) pvenda,
        /*(CASE
@@ -1687,7 +1677,6 @@ AS
             ELSE
               (i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade))
          END) pvenda,*/
-        --i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade) pvenda,
         (i.quantidade * NVL(i.QTDEMBALAGEM,1)) qt,
         NULL qtfalta,
         NULL qtminatacvenda,
@@ -1718,7 +1707,6 @@ AS
            FROM vw_int_c5_custos
           WHERE codfilial = i.nroempresa
             AND codauxiliar = i.codacesso) valorultent,
-        --0 vlacrescimofuncep,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
@@ -1767,7 +1755,6 @@ AS
         0 vldescrodape,
         0 vldescsociotorcedor,
         0 vlfrete,
-       --fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'V')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
@@ -1780,7 +1767,6 @@ AS
         0 vloutrasdesp,
         NULL vlmexiva,
         ((NVL(h.percpis,0)/100) * i.vlrtotal) vlpis,
-        --(i.quantidade * (i.vlrunitario - (NVL(i.vlrdesconto,0) / i.quantidade))) vlsubtotitem,
         i.vlrtotal vlsubtotitem,
         0 vlricmssimplesnac,
         NULL vpart,
@@ -1810,11 +1796,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nroempresa = v.codfilial
    AND  i.codacesso = v.codauxiliar
    AND  i.seqproduto = v.seqproduto
-   --AND  i.seqdocto = ti.seqdocto
-   --AND  i.nrocheckout = ti.nrocheckout
-   --AND  i.nroempresa = ti.nroempresa
-  -- AND  i.seqitem = ti.seqitem
-     -- AND i.seqdocto = a.seqdocto(+)
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  i.codacesso = h.codauxiliar(+)
@@ -1944,7 +1925,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NULL posicaoretorno,
         0 pvendavasilhame,
         'L' posicao,
-        --i.vlrunitario ptabela,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) ptabela,
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) pvenda,
        /*(CASE
@@ -1953,7 +1933,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
             ELSE
               (i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade))
          END) pvenda,*/
-        --i.vlrunitario - (NVL(i.vlrdesconto,0)/ i.quantidade) pvenda,
         (i.quantidade * NVL(i.QTDEMBALAGEM,1)) qt,
         NULL qtfalta,
         NULL qtminatacvenda,
@@ -1984,7 +1963,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
            FROM vw_int_c5_custos
           WHERE codfilial = i.nroempresa
             AND codauxiliar = i.codacesso) valorultent,
-        --0 vlacrescimofuncep,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
@@ -2033,7 +2011,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 vldescrodape,
         0 vldescsociotorcedor,
         0 vlfrete,
-       --fnc_int_c5_vldesoneracao(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vlicmsdesoneracao,
        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'V')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
@@ -2075,11 +2052,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nroempresa = v.codfilial
    AND  i.codacesso = v.codauxiliar
    AND  i.seqproduto = v.seqproduto
-   --AND  i.seqdocto = ti.seqdocto
-   --AND  i.nrocheckout = ti.nrocheckout
-   --AND  i.nroempresa = ti.nroempresa
-  -- AND  i.seqitem = ti.seqitem
-     -- AND i.seqdocto = a.seqdocto(+)
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  i.codacesso = h.codauxiliar(+)
@@ -2300,9 +2272,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  d.nrocheckout = c.nrocheckout
    AND  p.nroformapagto = f.nroformapagto
    AND  f.codcob = v.codcob(+)
-   --AND f.codcob = v.especie(+)
    AND  d.especie IN ('NF', 'CF')
-   --AND c.status = 'V'
    AND p.Seqdocto = r.seqdocto(+)
    AND p.seqitem = r.seqitem(+)
    AND p.nroempresa = r.nroempresa(+)
@@ -2422,9 +2392,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  d.nrocheckout = c.nrocheckout
    AND  p.nroformapagto = f.nroformapagto
    AND  f.codcob = v.codcob(+)
-   --AND f.codcob = v.especie(+)
    AND  d.especie IN ('NF', 'CF')
-   --AND c.status = 'V'
    UNION ALL
       SELECT  d.seqdocto,
         NULL numgiftcard,
