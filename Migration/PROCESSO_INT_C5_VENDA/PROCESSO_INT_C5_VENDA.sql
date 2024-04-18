@@ -632,7 +632,6 @@ SELECT  CASE pCampo
  EXCEPTION
    WHEN OTHERS then
      RETURN NULL; 
-   END;
 END;
 
 \
@@ -653,7 +652,6 @@ SELECT  T.CODAJUSTEEFD
   EXCEPTION
    WHEN OTHERS then
      RETURN NULL; 
-   END;
 END;
 
 \
@@ -1540,7 +1538,7 @@ AS
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        0 aliqfcp, --a.aliqfcp
+        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp,
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1581,7 +1579,6 @@ AS
         0 codcontrolevasilhame,
         d.nroempresa codfilial,
         NULL codfilialretira,
-        --NULL codecf,
         fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A') codecf,
         i.cfop codfiscal,
         v.codfornec,
@@ -1663,7 +1660,6 @@ AS
         NVL(p.percglp,0) pglp,
         NVL(p.percgni,0) pgni,
         NVL(p.percgnn,0) pgnn,
-        --i.vlrunitario poriginal,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) poriginal,
         NULL possuicomplemento,
         NULL posicaoretorno,
@@ -1732,8 +1728,7 @@ AS
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))
-                --THEN ROUND(ti.VLRBASE,2)
+                then (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))                
             ELSE
               0
           END) vlbasefcpicms,
@@ -1779,7 +1774,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
-        --monitorpdvmiddle.tb_doctotributacaoitem ti,
         vw_int_c5_trib_pis h,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
@@ -1815,7 +1809,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        0 fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'), --a.aliqfcp
+        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp, 
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1843,7 +1837,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 codcontrolevasilhame,
         d.nroempresa codfilial,
         NULL codfilialretira,
-        --NULL codecf,
         (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A')) codecf,
         i.cfop codfiscal,
         v.codfornec,
@@ -1919,7 +1912,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NVL(p.percglp,0) pglp,
         NVL(p.percgni,0) pgni,
         NVL(p.percgnn,0) pgnn,
-        --i.vlrunitario poriginal,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) poriginal,
         NULL possuicomplemento,
         NULL posicaoretorno,
@@ -1988,8 +1980,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then ((fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))
-                --THEN ROUND(ti.VLRBASE,2)
+                then (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'))                
             ELSE
               0
           END) vlbasefcpicms,
@@ -2023,7 +2014,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 vloutrasdesp,
         NULL vlmexiva,
         ((NVL(h.percpis,0)/100) * i.vlrtotal) vlpis,
-        --(i.quantidade * (i.vlrunitario - (NVL(i.vlrdesconto,0) / i.quantidade))) vlsubtotitem,
         i.vlrtotal vlsubtotitem,
         0 vlricmssimplesnac,
         NULL vpart,
@@ -2036,7 +2026,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
-        --monitorpdvmiddle.tb_doctotributacaoitem ti,
         vw_int_c5_trib_pis h,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
