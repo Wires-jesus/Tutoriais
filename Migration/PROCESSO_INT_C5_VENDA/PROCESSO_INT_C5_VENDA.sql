@@ -215,8 +215,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
    AND  c.codprod = e.codprod
    AND  LENGTH (p.nbm) >= 2
    AND  e.codprod >= 0
-   AND  f.codprod >= 0
-   AND  NVL(e.enviafrentecaixa, 'S') = 'S' )
+   AND  f.codprod >= 0 )
    
 \
 
