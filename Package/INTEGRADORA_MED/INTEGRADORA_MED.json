@@ -1,5 +1,16 @@
-{"nome":"INTEGRADORA_MED","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"PCCLIENT","tipo":"TABELA","versao":"4.0.02.000"},{
-  "nome": "INTEGRADORACOMPLE_MED",
-  "tipo": "OBJETO_PLSQL",
-  "versao": "5.0.05.000"
-}]}
+{
+  "nome":"INTEGRADORA_MED",
+  "tipoPLSQL":"PACKAGE",
+  "dependencias": [
+    {
+      "nome":"PCCLIENT",
+      "tipo":"TABELA",
+      "versao":"4.0.02.000"
+    },
+    {
+      "nome": "INTEGRADORACOMPLE_MED",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "5.0.05.000"
+    }
+  ]
+}
