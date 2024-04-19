@@ -3110,7 +3110,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       END;
   END;
 
-PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
+/*PROCEDURE carrega_tb_regrafamilia(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrafamilia D
     USING (/*Rotina 357*/
@@ -3204,7 +3204,7 @@ BEGIN
         COMMIT;
         RAISE;
   END;
-END;
+END;*/
 
 PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
