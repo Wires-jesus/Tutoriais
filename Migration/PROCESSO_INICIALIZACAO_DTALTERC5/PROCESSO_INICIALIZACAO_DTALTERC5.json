@@ -155,7 +155,7 @@
   {
     "nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
     "tipo": "MIGRATION",
-    "versao": "4.0.06.000"
+    "versao": "5.0.04.000"
   }
   
 ]
