@@ -177,11 +177,14 @@ values (33, 'tb_regrasegmento')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (34, 'tb_regraproduto')
 
-/*
-\
 
-insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (35, 'tb_regrafamilia')*/
+
+--\
+
+--insert into pctipoprocessoconsinco(ID, DESCRICAO)
+--values (35, 'tb_regrafamilia')
+
+
 
 \
 
@@ -476,11 +479,12 @@ values (33, 33, 'Sincronização de tabela TB_REGRASEGMENTO', TRUNC(SYSDATE), 'D
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (34, 34, 'Sincronização de tabela TB_REGRAPRODUTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regraproduto',  34,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
-/*
-\
 
-insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (35, 35, 'Sincronização de tabela TB_REGRAFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regrafamilia',  35,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )*/
+--\
+
+--insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+--values (35, 35, 'Sincronização de tabela TB_REGRAFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regrafamilia',  35,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
 
 \
 
