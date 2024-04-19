@@ -95,7 +95,7 @@
 		{
 			"nome": "VW_INT_C5_PRECOFIXO_R357",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "5.0.02.000"
+			"versao": "5.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.06.000"
+			"versao": "5.0.07.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
