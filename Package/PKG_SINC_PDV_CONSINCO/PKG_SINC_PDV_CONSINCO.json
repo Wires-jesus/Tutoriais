@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "5.0.07.000"
+			"versao": "5.0.08.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
