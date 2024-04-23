@@ -145,7 +145,8 @@ SELECT
  FROM monitorpdvmiddle.tb_CATEGORIA T,
       monitorpdvmiddle.tb_familia F,
       (SELECT --DISTINCT
-         regparaovarejo.valor NUMREGIAO,
+         regparaovarejo.NUMREGIAO,
+         regparaovarejo.NRODIVISAO,
          CODPROD,
          CODEPTO,
          CODSEC,
@@ -163,21 +164,26 @@ SELECT
          END) SEQCATEGORIA
 
        FROM PCPRODUT P,
-            
-            (SELECT DISTINCT pcparamfilial.valor
-               FROM pcparamfilial
-              WHERE nome = 'NUMREGIAOPADRAOVAREJO'
+
+            (SELECT DISTINCT
+                    TO_CHAR(pcparamfilial.valor) NUMREGIAO,
+                    TO_CHAR(D.NRODIVISAO) NRODIVISAO
+               FROM pcparamfilial, PCDEPARAREGIAOC5 D
+              WHERE D.NUMREGIAO = pcparamfilial.valor
+                AND nome = 'NUMREGIAOPADRAOVAREJO'
                 AND valor <> '99'
                 AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
-                AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'  
+                AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
                 UNION ALL
 
-             SELECT TO_CHAR(NROEMPRESA) valor
+             SELECT
+                 TO_CHAR(NROEMPRESA) NUMREGIAO,
+                 TO_CHAR(NROEMPRESA) NRODIVISAO
              from MONITORPDVMIDDLE.TB_EMPRESA
-             where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'    
+             where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
             ) regparaovarejo,
-            
+
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
              where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
@@ -186,7 +192,7 @@ SELECT
           OR ((CODEPTO IS NOT NULL) AND (CODSEC IS NOT NULL) AND (CODCATEGORIA IS NOT NULL) AND (CODSUBCATEGORIA IS NULL)) -- CATEGORIA
           OR ((CODEPTO IS NOT NULL) AND (CODSEC IS NOT NULL) AND (CODCATEGORIA IS NULL) AND (CODSUBCATEGORIA IS NULL)) --SECAO
           OR (CODEPTO IS NOT NULL))   --DEPARTAMENTO
-       AND   NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO   
+       AND   NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
       )PRODCATEGORIA,
 
       PCDEPARACATEGORIAC5 C
@@ -195,5 +201,5 @@ SELECT
  AND   F.ATIVO = 'S'
  --AND   PRODCATEGORIA.CODPROD = F.SEQFAMILIA
  AND   PRODCATEGORIA.CODPROD = F.IDREF
- AND   T.NRODIVISAO = PRODCATEGORIA.NUMREGIAO
+ AND   T.NRODIVISAO = PRODCATEGORIA.NRODIVISAO
 )
