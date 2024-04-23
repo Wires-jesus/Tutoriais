@@ -90,11 +90,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
       pccob            o,
       pcplpag          p,
       VW_INT_C5_OBTER_FILIAIS_C5 c5,
-      (
+      (select min(s.ultimaexecucao) ultimaexecucao
+        from pccontroleconsinco s
+        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
+           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
+      ) D
+      /*(
         SELECT s.ultimaexecucao
         FROM pccontroleconsinco s
         WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-      ) D
+      ) D*/
    WHERE f.especie = vef.winthor(+)
    AND   F.CODFILIAL = E.codigo
    AND   f.codcob = o.codcob(+)
@@ -166,11 +171,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
         MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
         pccob            o,
         pcplpag          p,
-        (
+        (select min(s.ultimaexecucao) ultimaexecucao
+        from pccontroleconsinco s
+        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
+           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
+        ) D
+        /*(
          SELECT s.ultimaexecucao
          FROM pccontroleconsinco s
          WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-        ) D
+        ) D*/
    WHERE F.CODFILIAL = '99'
    AND   E.CODIGO <> '99'
    AND   f.codcob = o.codcob(+)
