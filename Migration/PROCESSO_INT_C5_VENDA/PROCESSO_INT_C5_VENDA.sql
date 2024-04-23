@@ -1623,7 +1623,7 @@ AS
         0 pauta,
         0 pbaserca,
         0 peracrescimocusto,
-        0 peracrescimofuncep,
+        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
            FROM pctribut
           WHERE codst = a.codst) percbasered,
@@ -1881,7 +1881,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 pauta,
         0 pbaserca,
         0 peracrescimocusto,
-        0 peracrescimofuncep,
+        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
            FROM pctribut
           WHERE codst = a.codst) percbasered,
