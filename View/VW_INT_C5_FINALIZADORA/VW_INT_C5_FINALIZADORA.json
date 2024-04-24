@@ -12,7 +12,7 @@
     {
       "nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
       "tipo": "MIGRATION",
-      "versao": "4.0.14.000"
+      "versao": "5.0.02.000"
     },
     {
       "nome": "PCCONTROLECONSINCO",
