@@ -214,7 +214,7 @@ BEGIN
           END;
         END IF;
 
-      IF NVL(:NEW.NUMPED, 0) > 0 THEN
+      IF NVL(:NEW.NUMPED, 0) > 0 AND :NEW.CODOPER <> 'E' THEN
         BEGIN
           SELECT NVL(NUMNOTACONSIG, 0)
             INTO VNNUMNOTACONSIG
