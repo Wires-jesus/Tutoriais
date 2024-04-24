@@ -1121,9 +1121,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                pcfilial e,
                pcfinalizadora              f,
                pccob                       c,
-               (SELECT s.ultimaexecucao
-                FROM pccontroleconsinco s
-                WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO') D
+               (select min(s.ultimaexecucao) ultimaexecucao
+                from pccontroleconsinco s
+                where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
+                or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
+               ) D
           WHERE f.especie = vef.winthor(+)
           AND   F.CODFILIAL = E.codigo
 		  AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', E.CODIGO, 'N')= 'S'
