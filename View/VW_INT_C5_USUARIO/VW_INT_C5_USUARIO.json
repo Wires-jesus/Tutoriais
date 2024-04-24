@@ -18,6 +18,11 @@
 	    "nome": "PKG_CRC32",
 	    "tipo": "OBJETO_PLSQL",
 	    "versao": "4.0.01.000"
-	  }
+	  },
+	  {
+        "nome": "VW_INT_C5_USUARIO_GRUPO",
+        "tipo": "OBJETO_PLSQL",
+        "versao": "5.0.01.000"
+      }
 	]
 }
