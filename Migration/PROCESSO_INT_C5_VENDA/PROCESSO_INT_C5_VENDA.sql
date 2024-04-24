@@ -309,6 +309,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_COBRANCA_WINTHOR AS
             ELSE
                 '0000'
          END) modalidadetef,
+		 NVL(o.tipooperacaotef,'02') tipooperacaotef,
+		 (CASE NVL(o.tipopagtoecf,'T')
+			WHEN 'A' THEN  '00'
+			WHEN 'P' THEN  '02'
+			ELSE 'T'
+		 END) tipopagtotef,
          NVL(o.nomecarteiradigital,'N') nomecarteiradigital,
         (CASE
             WHEN NVL(o.carteiradigital,'N') = 'S'
@@ -467,10 +473,13 @@ BEGIN
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
          AND  p.nroempresa = pCodigoFilial
-		 AND  P.CODREDETEF = A.CODOPERADORACARTO
+		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
-		 AND  A.modalidadetef = P.MODALIDADETEF;
+		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
+              (a.tipooperacaotef = substr(p.modalidadetef, 1, 2) AND
+              (A.tipopagtotef = 'T' OR
+               A.tipopagtotef = SUBSTR(p.modalidadetef, 3, 2))));
     EXCEPTION
       WHEN TOO_MANY_ROWS THEN
       SELECT  a.CODCOB
@@ -483,12 +492,14 @@ BEGIN
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
          AND  p.nroempresa = pCodigoFilial
-		 AND  P.CODREDETEF = A.CODOPERADORACARTO
+		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
-		 AND  A.modalidadetef = P.MODALIDADETEF
-         AND  ROWNUM = 1;
-      
+		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
+              (a.tipooperacaotef = substr(p.modalidadetef, 1, 2) AND
+              (A.tipopagtotef = 'T' OR
+               A.tipopagtotef = SUBSTR(p.modalidadetef, 3, 2))))
+         AND  ROWNUM = 1;     
       WHEN OTHERS THEN
          vCodCob := 'CAR';
     end;
@@ -1537,7 +1548,7 @@ AS
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp,
+        0 aliqfcp,
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
@@ -1808,7 +1819,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 numpedecf,
         i.nrocheckout numcheckout,
         0 vlitemtributos,
-        fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A') aliqfcp, 
+        0 aliqfcp, 
         a.aliqicms1,
         a.aliqicms2,
         0 aliqicmsfecp,
