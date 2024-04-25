@@ -1,0 +1,11 @@
+{
+ "nome":"LISTA_PC_CONTASRECEBER",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "T_PC_CONTASRECEBER",
+   "tipo": "TYPE",
+   "versao": "2.1.06.000"
+  }
+ ]
+}
