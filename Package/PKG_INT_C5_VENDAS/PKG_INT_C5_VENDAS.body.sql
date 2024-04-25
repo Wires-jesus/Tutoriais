@@ -769,7 +769,7 @@ IS
                 RETURN l_xmltypelogdadospessoas;
             END retornar_xmllogdadospessoas;
         BEGIN
-            v_numpedecf := defseq_numpedecf.NEXTVAL;
+            v_numpedecf := r_pedido.numpedecf;
             l_xmlitens := retornar_xmlitens(v_numpedecf,r_pedido);
             l_xmlcabecalho := retornar_xmlcabecalho(r_pedido,
                                                     v_numpedecf,
@@ -944,6 +944,7 @@ IS
             p_r_pedido.vlatend          := p_r_pedido.vltotal;
             p_r_pedido.vlsubtotal       := ROUND(p_r_pedido.vltotal,2);
             p_r_pedido.vltotalcomtroco  := p_r_pedido.vltotal;
+			p_r_pedido.numpedecf        := defseq_numpedecf.NEXTVAL;
         END;
     BEGIN
         ------------- INÍCIO LOOP C_PEDIDO ---------------
