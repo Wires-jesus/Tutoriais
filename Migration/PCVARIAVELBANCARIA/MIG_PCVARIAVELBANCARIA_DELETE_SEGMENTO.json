@@ -1,0 +1,6 @@
+{
+   "nome": "MIG_PCVARIAVELBANCARIA_DELETE_SEGMENTO",
+   "tipoPLSQL": "MIGRATION",
+   "dependencias":[
+     ]
+}
