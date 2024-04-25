@@ -4,7 +4,7 @@
  "dependencias": [
   {
    "nome": "T_PC_CONTASRECEBER",
-   "tipo": "TYPE",
+   "tipo": "OBJETO_PLSQL",
    "versao": "2.1.06.000"
   }
  ]
