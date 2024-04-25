@@ -1,0 +1,11 @@
+{
+ "nome":"LISTA_PC_CREDITOCLIENTE",
+ "tipoPLSQL":"TYPE",
+ "dependencias": [
+  {
+   "nome": "T_PC_CREDITOCLIENTE",
+   "tipo": "OBJETO_PLSQL",
+   "versao": "2.1.01.000"
+  }
+ ]
+}
