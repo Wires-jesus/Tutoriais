@@ -1128,7 +1128,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                ) D
           WHERE f.especie = vef.winthor(+)
           AND   F.CODFILIAL = E.codigo
-		  AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', E.CODIGO, 'N')= 'S'
+		      --AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', E.CODIGO, 'N')= 'S'
+          AND  ((FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', E.CODIGO, 'N')= 'S') OR (F.CODFILIAL = '99'))
           AND   f.codcob = c.codcob(+)
           AND   E.codigo >= '0'
           --AND   E.codigo < '99'
