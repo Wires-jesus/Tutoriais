@@ -1,16 +1,14 @@
-{
-  "nome": "PKG_CREDITOCLIENTE",
-  "tipoPLSQL": "PACKAGE",
-  "dependencias": [
-    {
-      "nome": "T_PC_CONTASRECEBER",
-      "tipo": "OBJETO_PLSQL",
-      "versao": "4.0.02.000"
-    },
-    {
-      "nome": "T_PC_CREDITOCLIENTE",
-      "tipo": "MIGRATION",
-      "versao": "5.0.01.000"
-    }
+{"nome":"PKG_CREDITOCLIENTE","tipoPLSQL":"PACKAGE","dependencias":
+  [{"nome":"PCVERSAOBD","tipo":"TABELA","versao":"4.0.01.000"},
+   {"nome":"PCCRECLI","tipo":"TABELA","versao":"5.0.01.000"},
+   {"nome":"PCPRESTECF","tipo":"TABELA","versao":"4.0.01.000"},
+   {"nome":"T_PC_CONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"4.0.02.000"},
+   {"nome":"T_PC_CREDITOCLIENTE","tipo":"MIGRATION","versao":"5.0.01.000"},
+   {"nome":"PARAMFILIAL","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},
+   {"nome":"FNC_GETPROXIMAPREST","tipo":"OBJETO_PLSQL","versao":"3.0.01.000"},
+   {"nome":"LISTA_PC_CREDITOCLIENTE","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
+   {"nome":"LISTA_PC_CONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
+   {"nome":"T_PC_DESDCONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
+   {"nome":"T_PC_DESDCREDITOCLIENTE","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"}
   ]
 }
