@@ -16,7 +16,11 @@ CREATE OR REPLACE FUNCTION NFE_PARCELA_ENTRADA(P_TRANSACAO NUMBER)
           NUMAUTOR_CARTAO,
           BANDEIRA_CARTAO,
           TP_INTEGRA,
-          INDPAG
+          INDPAG,
+		  CNPJPAG,
+		  UFPAG,
+		  CNPJRECEB,
+		  IDTERMPAG
     FROM (
            SELECT NUM_TRANSACAO,
                   PRESTACAO,
@@ -31,7 +35,11 @@ CREATE OR REPLACE FUNCTION NFE_PARCELA_ENTRADA(P_TRANSACAO NUMBER)
                   NUMAUTOR_CARTAO,
                   BANDEIRA_CARTAO,
                   NULL AS TP_INTEGRA,
-                  INDPAG
+                  INDPAG,
+				  CNPJPAG,
+				  UFPAG,
+				  CNPJRECEB,
+				  IDTERMPAG
              FROM SQL_NFE_PARCELA_ENTRADA PARCELA
             WHERE PARCELA.NUM_TRANSACAO = P_TRANSACAO
               AND NOT EXISTS (SELECT 1
@@ -53,7 +61,11 @@ CREATE OR REPLACE FUNCTION NFE_PARCELA_ENTRADA(P_TRANSACAO NUMBER)
                   P.NSUTEF AS NUMAUTOR_CARTAO,
                   TO_NUMBER(P.BANDEIRACARTAO) AS BANDEIRA_CARTAO,
                   P.TP_INTEGRA AS TP_INTEGRA,
-                  NVL(P.INDPAG, 0) AS INDPAG
+                  NVL(P.INDPAG, 0) AS INDPAG,
+				  '' AS CNPJPAG,
+				  '' AS UFPAG,
+				  '' AS CNPJRECEB,
+				  '' AS IDTERMPAG
              FROM PCLANCNF P
             WHERE P.NUMTRANSENT = P_TRANSACAO ) PARCELA       
        
@@ -89,7 +101,11 @@ CREATE OR REPLACE FUNCTION NFE_PARCELA_ENTRADA(P_TRANSACAO NUMBER)
               NULL AS NUMAUTOR_CARTAO,
               NULL AS BANDEIRA_CARTAO,
               NULL AS TP_INTEGRA,
-              0 AS INDPAG
+              0 AS INDPAG,
+			  NULL AS CNPJPAG,
+			  NULL AS UFPAG,
+			  NULL AS CNPJRECEB,
+			  NULL AS IDTERMPAG
          FROM PCPARCELANFE P
         WHERE P.NUMTRANSACAO = P_TRANSACAO
           AND NVL(P.TIPOMOV, 'X') = 'E';          
@@ -136,7 +152,11 @@ BEGIN
                                                  TP_INTEGRA             => NULL,
                                                  DATACONSOLIDACAOPREFAT => NULL,
                                                  PREFATURAMENTO         => NULL,
-                                                 INDPAG                 => NULL
+                                                 INDPAG                 => NULL,
+												 CNPJPAG                => NULL,
+												 UFPAG                  => NULL,
+												 CNPJRECEB              => NULL,
+												 IDTERMPAG              => NULL
                                                  );
 
       RETORNO(RETORNO.COUNT).DTVENC    := PARCELA.DTVENC;
@@ -152,6 +172,10 @@ BEGIN
       RETORNO(RETORNO.COUNT).BANDEIRA_CARTAO  := PARCELA.BANDEIRA_CARTAO;
       RETORNO(RETORNO.COUNT).TP_INTEGRA       := PARCELA.TP_INTEGRA;
       RETORNO(RETORNO.COUNT).INDPAG           := PARCELA.INDPAG;
+	  RETORNO(RETORNO.COUNT).CNPJPAG          := PARCELA.CNPJPAG;
+      RETORNO(RETORNO.COUNT).UFPAG            := PARCELA.UFPAG;
+      RETORNO(RETORNO.COUNT).CNPJRECEB        := PARCELA.CNPJRECEB;
+      RETORNO(RETORNO.COUNT).IDTERMPAG        := PARCELA.IDTERMPAG;
 
     END LOOP;
 
@@ -174,7 +198,11 @@ BEGIN
                                                  TP_INTEGRA             => NULL,
                                                  DATACONSOLIDACAOPREFAT => NULL,
                                                  PREFATURAMENTO         => NULL,
-                                                 INDPAG                 => NULL
+                                                 INDPAG                 => NULL,
+												 CNPJPAG                => NULL,
+												 UFPAG                  => NULL,
+												 CNPJRECEB              => NULL,
+												 IDTERMPAG              => NULL
                                                  );
 
       RETORNO(RETORNO.COUNT).DTVENC    := PARCELA.DTVENC;
@@ -190,6 +218,10 @@ BEGIN
       RETORNO(RETORNO.COUNT).BANDEIRA_CARTAO  := PARCELA.BANDEIRA_CARTAO;
       RETORNO(RETORNO.COUNT).TP_INTEGRA       := PARCELA.TP_INTEGRA;
       RETORNO(RETORNO.COUNT).INDPAG           := PARCELA.INDPAG;
+	  RETORNO(RETORNO.COUNT).CNPJPAG          := PARCELA.CNPJPAG;
+      RETORNO(RETORNO.COUNT).UFPAG            := PARCELA.UFPAG;
+      RETORNO(RETORNO.COUNT).CNPJRECEB        := PARCELA.CNPJRECEB;
+      RETORNO(RETORNO.COUNT).IDTERMPAG        := PARCELA.IDTERMPAG;
       END LOOP;
 
   END IF;

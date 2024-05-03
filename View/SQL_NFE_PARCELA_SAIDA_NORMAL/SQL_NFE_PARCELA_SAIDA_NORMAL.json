@@ -1,5 +1,16 @@
 {
 	"nome":"SQL_NFE_PARCELA_SAIDA_NORMAL",
 	"tipoPLSQL":"VIEW",
-	"dependencias":""
+	"dependencias":[
+	 {
+	  "nome": "PCPREST",
+	  "tipo": "TABELA",
+	  "versao": "5.0.07.000"
+	},
+	 {
+	  "nome": "PCPRESTPREFAT",
+	  "tipo": "TABELA",
+	  "versao": "5.0.03.000"
+	}
+   ]
 }
