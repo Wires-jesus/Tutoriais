@@ -183,7 +183,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
           daodoscabecalhoxml   VARCHAR2(200) := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
         BEGIN
       -- recebe xml da VENDA
-      l_xmltype := retornar_xml_movimento_caixa(r_logaberturacx);
+     
 
       dados_pcfilamensagem.rowpcfilamensagem.idmensagem          := dfseq_pcfilamensagem.NEXTVAL;
       dados_pcfilamensagem.rowpcfilamensagem.datatransacao       := SYSDATE;
@@ -202,6 +202,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
       dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento     := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.tipodocumento       := 'OD';
       dados_pcfilamensagem.rowpcfilamensagem.tipooperacao        := 'MOVC';
+	  l_xmltype := retornar_xml_movimento_caixa(r_logaberturacx);
       dados_pcfilamensagem.rowpcfilamensagem.mensagem            := REPLACE(l_xmltype.getclobval(),
                                                                             '<EsquemaExportacao>',
                                                                             daodoscabecalhoxml);
