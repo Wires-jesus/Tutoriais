@@ -17,7 +17,7 @@ SELECT a.nrocheckout numcaixa,
                and b.nrocheckout = a.nrocheckout
                and b.dtamovimento = a.dtamovimento
                and b.seqturno = a.seqturno
-			   and b.sequsuario. a.sequsuario
+			   and b.sequsuario = a.sequsuario
                and b.especie = 'AC'
 			   and rownum = 1)
           ELSE
