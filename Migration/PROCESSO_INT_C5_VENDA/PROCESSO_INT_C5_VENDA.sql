@@ -827,10 +827,10 @@ BEGIN
       INTO  vTotalCustoFin
       FROM  vw_int_c5_custos s,
             monitorpdvmiddle.tb_doctoitem i
-     WHERE  i.nroempresa = s.codfilial
+     WHERE  TO_CHAR(i.nroempresa) = s.codfilial
        AND  i.codacesso = s.codauxiliar
        AND  i.seqdocto = pSeqDocto
-       AND  I.nroempresa = pCodigoFilial
+       AND  TO_CHAR(I.nroempresa) = pCodigoFilial
 	   AND  i.STATUS = 'V'
        AND  i.nrocheckout = pNumeroCaixa;
     RETURN(vTotalCustoFin);
