@@ -4351,7 +4351,7 @@ BEGIN
         VDATATESTADA := SYSDATE;
       END;  
   
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
   
@@ -4509,7 +4509,7 @@ BEGIN
     END;
 
 
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
   
@@ -5507,7 +5507,7 @@ BEGIN
          VDATATESTADA := SYSDATE;
     END;
 
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
     
@@ -5626,7 +5626,7 @@ BEGIN
     END;
     
     
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
     
@@ -5790,7 +5790,7 @@ BEGIN
          VDATATESTADA := SYSDATE;
     END;
 
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
        raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
 
@@ -6033,7 +6033,7 @@ BEGIN
          VDATATESTADA := SYSDATE;
     END;
 
-    IF VCOUNT > 7 THEN
+    IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;  
     
