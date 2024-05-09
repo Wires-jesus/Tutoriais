@@ -1,0 +1,6 @@
+{
+    "nome": "PROCESSO_INT_C5_REMESSALEICADPOSITIVO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+ }
