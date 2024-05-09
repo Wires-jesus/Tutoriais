@@ -181,6 +181,7 @@ IS
             l_xmldoceletronico     XMLTYPE;
             l_xmlconsumidorfinal   XMLTYPE;
             l_xmllogdadospessoas   XMLTYPE;
+			l_xmlitenscesta        XMLTYPE;
             v_numpedecf            NUMBER;
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLITENS )
@@ -369,7 +370,29 @@ IS
                                        rowvw_pcpediecf.vlpis AS  "Vlpis" ,
                                        rowvw_pcpediecf.vlsubtotitem AS  "Vlsubtotitem" ,
                                        rowvw_pcpediecf.vlricmssimplesnac AS  "Vlricmssimplesnac" ,
-                                       rowvw_pcpediecf.vpart AS  "Vpart"
+                                       rowvw_pcpediecf.vpart AS  "Vpart",
+									   rowvw_pcpediecf.percipi as "Percipi",
+									   rowvw_pcpediecf.perfretecmv AS "Perfretecmv",
+									   rowvw_pcpediecf.vlbaseipi AS "Vlbaseipi",
+									   rowvw_pcpediecf.basedifaliquotas AS "Basedifaliquotas",
+									   rowvw_pcpediecf.percdifaliquotas AS "Percdifaliquotas",
+									   rowvw_pcpediecf.vldifaliquotas AS "Vldifaliquotas",
+									   rowvw_pcpediecf.vldescorgaopub AS "Vldescorgaopub",
+									   rowvw_pcpediecf.percipiecf AS "Percipiecf",
+									   rowvw_pcpediecf.baseipiecf AS "Baseipiecf",
+									   rowvw_pcpediecf.qtvendidavasilhame AS "Qtvendidavasilhame",
+									   rowvw_pcpediecf.vlacrescvasilhame AS "Vlacrescvasilhame",
+									   rowvw_pcpediecf.percicmssimplesnac AS "Percicmssimplesnac",
+									   rowvw_pcpediecf.vlbasepartdest AS "Vlbasepartdest",
+									   rowvw_pcpediecf.vlfcppart AS "Vlfcppart",
+									   rowvw_pcpediecf.vlicmspartdest AS "Vlicmspartdest",
+									   rowvw_pcpediecf.percprovpart AS "Percprovpart",
+									   rowvw_pcpediecf.vlicmspart AS "Vlicmspart",
+									   rowvw_pcpediecf.vlcredfcpicmssn AS "Vlcredfcpicmssn",
+									   rowvw_pcpediecf.vlfecp AS "Vlfecp",
+									   rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
+									   rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
+									   rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa"
 									   ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
@@ -750,6 +773,130 @@ IS
 
                 RETURN l_xmltypeconsumidorfinal;
             END retornar_xmlconsumidorfinal;
+			
+            FUNCTION retornar_xmlitenscesta(p_numpedecf number, p_pedido c_pedido%rowtype) 
+            RETURN XMLTYPE is
+              l_xmlItensCesta XMLTYPE;
+            BEGIN
+              SELECT 
+                XMLELEMENT(
+                  "ItensCesta",
+                  XMLAGG(
+                    XMLELEMENT(
+                      "PCPEDIECFCESTA",
+                      XMLFOREST(
+                        p_numpedecf               AS "Numpedecf",
+                        VW.codfunccx              AS "Codfunccx",
+                        VW.numcaixa               AS "Numcaixa",
+                        VW.numserieequip          AS "Numserieequip",
+                        VW.codecf                 AS "Codecf",
+                        VW.codfilial              AS "Codfilial",
+                        VW.numcaixafiscal         AS "Numcaixafiscal",
+                        VW.numped                 AS "Numped",
+                        VW.codprod                AS "Codprod",
+                        VW.NUMSEQ                 AS "Numseq",
+                        VW.CODAUXILIAR            AS "Codauxiliar",
+                        VW.EXPORTADO              AS "Exportado",
+                        VW.CODPRODMP              AS "Codprodmp",
+                        VW.QTMP                   AS "Qtmp",
+                        VW.PVENDA                 AS "Pvenda",
+                        VW.PTABELA                AS "Ptabela",
+                        VW.CODST                  AS "Codst",
+                        VW.PERCOM                 AS "Percom",
+                        VW.ALIQICMS1              AS "Aliqicms1",
+                        VW.ALIQICMS2              AS "Aliqicms2",
+                        VW.SITTRIBUT              AS "Sittribut",
+                        VW.CODFISCAL              AS "Codfiscal",
+						VW.CODECF                 AS "Codecf",
+                        VW.PBASERCA               AS "Pbaserca",
+                        VW.BASEICST               AS "Baseicst",
+                        VW.STCLIENTEGNRE          AS "Stclientegnre",
+                        VW.PERCIPI                AS "Percipi",
+                        VW.VLIPI                  AS "Vlipi",
+                        VW.PERCISS                AS "Perciss",
+                        VW.VLISS                  AS "Vliss",
+                        VW.VLDESCSUFRAMA          AS "Vldescsuframa",
+                        VW.VLCUSTOREP             AS "Vlcustorep",
+                        VW.VLCUSTOCONT            AS "Vlcustocont",
+						VW.VLCUSTOFIN             AS "Vlcustofin",
+						VW.VLCUSTOREAL            AS "Vlcustoreal",
+                        VW.VLDESCCUSTOCMV         AS "Vldesccustocmv",
+                        VW.PERDESCTAB             AS "Perdesctab",
+                        VW.IVA                    AS "Iva",
+                        VW.PAUTA                  AS "Pauta",
+                        VW.PERCBASERED            AS "Percbasered",
+                        VW.CUSTOFINEST            AS "Custofinest",
+                        VW.PERCBASEREDSTFONTE     AS "Percbaseredstfonte",
+                        VW.PERCBASEREDST          AS "Percbaseredst",
+                        VW.CODICMTAB              AS "Codicmtab",
+                        VW.TXVENDA                AS "Txvenda",
+                        VW.PERFRETECMV            AS "Perfretecmv",
+                        VW.VLDESCRODAPE           AS "Vldescrodape",
+                        VW.VLBASEIPI              AS "Vlbaseipi",
+                        VW.BASEICMS               AS "Baseicms",
+                        VW.PERCICM                AS "Percicm",
+                        VW.PERPIS                 AS "Perpis",
+                        VW.VLPIS                  AS "Vlpis",
+                        VW.PERCOFINS              AS "Percofins",
+                        VW.VLCOFINS               AS "Vlcofins",
+                        VW.PERCDESCPIS            AS "Percdescpis",
+                        VW.VLDESCREDUCAOCOFINS    AS "Vldescreducaocofins",
+                        VW.PERCDIFALIQUOTAS       AS "Percdifaliquotas",
+                        VW.VLDIFALIQUOTAS         AS "Vldifaliquotas",
+                        VW.PERCICMS               AS "Percicms",
+                        VW.PERCPIS                AS "Percpis",
+                        VW.VLITEMTRIBUTOS         AS "Vlitemtributos",
+                        VW.PERCTRIBUTOS           AS "Perctributos",
+                        VW.BASEIDFALIQUOTAS       AS "Baseidfaliquotas",
+                        VW.BCSS                   AS "Bcss",
+                        VW.VLSUBTOTITEM           AS "Vlsubtotitem",
+                        VW.VLITEMTRIBUTOSESTADUAL AS "Vlitemtributosestadual",
+                        VW.ALIQINTERNADEST        AS "Aliqinternadest",
+                        VW.ALIQFCP                AS "Aliqfcp",
+                        VW.VLBASEPARTDEST         AS "Vlbasepartdest",
+                        VW.PERCPROVPART           AS "Percprovpart",
+                        VW.VLICMSDIFALIQPART      AS "Vlicmsdifaliqpart",
+                        VW.VLICMSPART             AS "Vlicmspart",
+                        VW.ALIQINTERORIGPART      AS "Aliqinterorigpart",
+                        VW.DESCRICAOPAF           AS "Descricaopaf",
+                        VW.VLBASEFCPICMS          AS "Vlbasefcpicms",
+                        VW.VLBASEFCPST            AS "Vlbasefcpst",
+                        VW.PERFCPSTRET            AS "Perfcpstret",
+                        VW.VLFCPSTRET             AS "Vlfcpstret",
+                        VW.VLACRESCIMOFUNCEP      AS "Vlacrescimofuncep",
+                        VW.PERACRESCIMOFUNCEP     AS "Peracrescimofuncep",
+                        VW.ALIQICMSFECP           AS "Aliqicmsfecp",
+                        VW.VLFECP                 AS "Vlfecp",
+                        VW.PERDIFEREIMENTOICMS    AS "Perdifereimentoicms",
+                        VW.CUSTOULTENT            AS "Custoultent",
+                        VW.PERCREDBASEEFET        AS "Percredbaseefet",
+                        VW.VLBASEEFET             AS "Vlbaseefet",
+                        VW.PERCICMSEFET           AS "Percicmsefet",
+                        VW.VLICMSEFET             AS "Vlicmsefet",
+                        VW.MD5PAF                 AS "Md5paf",
+                        VW.PORIGINAL              AS "Poriginal",
+                        VW.NUMSEQITEM             AS "Numseqitem",
+                        VW.DATA                   AS "Data",
+                        VW.VLICMSBCR              AS "Vlicmsbcr",
+                        VW.BASEICMSBCR            AS "Baseicmsbcr",
+                        VW.VLDESCONTOMOTOROFERTA  AS "Vldescontomotoroferta",
+                        VW.BASEBCR                AS "Basebcr",
+                        VW.STBCR                  AS "Stbcr",
+                        VW.CODFORNEC              AS "Codfornec",
+                        VW.VLDESCITEM             AS "Vldescitem"
+                      )
+                    )
+                  )
+                )
+              INTO l_xmlItensCesta
+              FROM VW_INT_C5_PCPEDIECFCESTA VW
+              WHERE VW.SEQDOCTO = p_pedido.SEQDOCTO
+                AND VW.NUMCAIXA = p_pedido.NUMCAIXA
+                AND VW.CODFILIAL = p_pedido.CODFILIAL;
+
+              RETURN l_xmlItensCesta;
+
+            END RETORNAR_XMLITENSCESTA;			
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLLOGDADOSPESSOAS )
             FUNCTION retornar_xmllogdadospessoas (p_numpedecf    NUMBER,
@@ -777,6 +924,7 @@ IS
             l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
             l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
             l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
+			l_xmlitenscesta         := retornar_xmlitenscesta(v_numpedecf, r_pedido);
 
             --L_XMLLOGDADOSPESSOAS := RETORNAR_XMLLOGDADOSPESSOAS(V_NUMPEDECF, R_PEDIDO.SEQDOCTO);
 
@@ -787,6 +935,7 @@ IS
                                            l_xmldoceletronico,
                                            l_xmllogdadospessoas,
                                            l_xmlitens,
+										   l_xmlitenscesta,
                                            l_xmlcabecalho))
                        pedido
               INTO l_xmlesquema
