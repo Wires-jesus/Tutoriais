@@ -350,10 +350,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 0,
                                 '',
                                 ' DATA FAB.: ') ||
-                       (SELECT TO_CHAR(PCLOTE.DATAFABRICACAO, 'DD/MM/YYYY')
+                       (SELECT NVL(PCMOV.DATAFABRICACAO, TO_CHAR(PCLOTE.DATAFABRICACAO,'DD/MM/YYYY')) AS DATAFABRICACAO
                         FROM   PCLOTE
                         WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                        AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                        AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                         AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                         AND    ROWNUM = 1) || ' ' ||
                         DECODE(NVL(LENGTH(NVL(TRIM(PCMOV.NUMLOTE),
@@ -361,10 +361,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                         0),
                                     0,
                                     '',
-                                    ' DATA VAL.: ') || (SELECT TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')
+                                    ' DATA VAL.: ') || (SELECT NVL(PCMOV.DATAVALIDADE, TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')) AS DTVALIDADE
                         FROM   PCLOTE
                         WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                        AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                        AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL)
                         AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                         AND    ROWNUM = 1)
                     ELSE
@@ -648,16 +648,16 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,0 AS VALOR_DESCONTO_ADICAO
               ,PCMOV.NUMLOTE AS NUMERO_LOTE
               ,PCMOV.QTCONT AS QT_LOTE
-              ,(SELECT PCLOTE.DATAFABRICACAO
+              ,(SELECT NVL(PCMOV.DATAFABRICACAO, TO_CHAR(PCLOTE.DATAFABRICACAO,'DD/MM/YYYY')) AS DATAFABRICACAO
                 FROM   PCLOTE
                 WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                 AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                 AND    ROWNUM = 1) AS DATA_FABRICACAO
-              ,(SELECT PCLOTE.DTVALIDADE
+              ,(SELECT NVL(PCMOV.DATAVALIDADE, TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')) AS DTVALIDADE
                 FROM   PCLOTE
                 WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                 AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                 AND    ROWNUM = 1) AS DATA_VALIDADE
               ,NVL(PCMOVCOMPLE.PRECOMAXCONSUM,
@@ -980,7 +980,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,PCMOV.PERACRESCIMOCUSTO
               ,PCMOV.TIPOSEPARACAO
               ,PCMOV.QTUNITEMB
-              ,PCMOV.CODFILIALRETIRA
+              ,NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL) CODFILIALRETIRA
               ,PCEMBALAGEM.UNIDADE AS UNIDADE_EMBALAGEM
               ,(PCMOV.QTCONT / DECODE(NVL(PCEMBALAGEM.QTUNIT,
                                       0),
@@ -1285,10 +1285,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 0,
                                 '',
                                 ' DATA FAB.: ') ||
-                       (SELECT TO_CHAR(PCLOTE.DATAFABRICACAO, 'DD/MM/YYYY')
+                       (SELECT NVL(PCMOV.DATAFABRICACAO, TO_CHAR(PCLOTE.DATAFABRICACAO,'DD/MM/YYYY')) AS DATAFABRICACAO
                         FROM   PCLOTE
                         WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                        AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                        AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                         AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                         AND    ROWNUM = 1) || ' ' ||
                         DECODE(NVL(LENGTH(NVL(TRIM(PCMOV.NUMLOTE),
@@ -1296,10 +1296,10 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                         0),
                                     0,
                                     '',
-                                    ' DATA VAL.: ') || (SELECT TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')
+                                    ' DATA VAL.: ') || (SELECT NVL(PCMOV.DATAVALIDADE, TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')) AS DTVALIDADE
                         FROM   PCLOTE
                         WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                        AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                        AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                         AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                         AND    ROWNUM = 1)
                     ELSE
@@ -1747,16 +1747,16 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,0 AS VALOR_DESCONTO_ADICAO
               ,PCMOV.NUMLOTE AS NUMERO_LOTE
               ,PCMOV.QTCONT AS QT_LOTE
-              ,(SELECT PCLOTE.DATAFABRICACAO
+              ,(SELECT NVL(PCMOV.DATAFABRICACAO, TO_CHAR(PCLOTE.DATAFABRICACAO,'DD/MM/YYYY')) AS DATAFABRICACAO 
                 FROM   PCLOTE
                 WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                 AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                 AND    ROWNUM = 1) AS DATA_FABRICACAO
-              ,(SELECT PCLOTE.DTVALIDADE
+              ,(SELECT NVL(PCMOV.DATAVALIDADE, TO_CHAR(PCLOTE.DTVALIDADE,'DD/MM/YYYY')) AS DTVALIDADE
                 FROM   PCLOTE
                 WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
-                AND    PCLOTE.CODFILIAL = PCMOV.CODFILIAL
+                AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
                 AND    PCLOTE.NUMLOTE = PCMOV.NUMLOTE
                 AND    ROWNUM = 1) AS DATA_VALIDADE
               ,NVL(PCMOVCOMPLE.PRECOMAXCONSUM,
@@ -2113,7 +2113,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,PCMOV.PERACRESCIMOCUSTO
               ,PCMOV.TIPOSEPARACAO
               ,PCMOV.QTUNITEMB
-              ,PCMOV.CODFILIALRETIRA
+              ,NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL) CODFILIALRETIRA
               ,PCEMBALAGEM.UNIDADE AS UNIDADE_EMBALAGEM
               ,(PCMOV.QTCONT / DECODE(NVL(PCEMBALAGEM.QTUNIT,
                                       0),
