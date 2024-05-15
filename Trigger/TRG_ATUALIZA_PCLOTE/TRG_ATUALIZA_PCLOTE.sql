@@ -447,7 +447,9 @@ BEGIN
                           WHEN (VNCONDVENDA = 10) OR (:NEW.CODOPER IN ('S', 'SR', 'SB') AND NVL(:NEW.QT, 0) > 0) OR
                             (VNCONDVENDA = 1 AND :NEW.CODOPER IN ('ST') AND NVL(:NEW.QT, 0) > 0)  THEN
                               NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
-                          ELSE
+                          WHEN :NEW.CODOPER IN ('SC') THEN
+						    NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
+						  ELSE
                             NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
                           
                   ----RESERVA LOTE CASO USE CFAT E SEJA SAIDA DE TRANSFERENCIA        
