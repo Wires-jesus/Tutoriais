@@ -1,0 +1,11 @@
+{
+	"nome": "PCINTEGRACAOFLUXOEXECUCAO_ADICIONA_UNIQUE",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": [
+		{
+		  "nome": "PCINTEGRACAOFLUXOEXECUCAO",
+		  "tipo": "TABELA",
+		  "versao": "5.0.03.000"
+		}
+	]
+}
