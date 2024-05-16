@@ -1706,7 +1706,7 @@ AS
             ELSE (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
         END ) ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
               FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
                 WHERE X.SEQDOCTO = i.seqdocto
               AND X.nroempresa = i.nroempresa
@@ -1899,8 +1899,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  i.nroempresa = v.codfilial
-   AND  i.codacesso = v.codauxiliar
-   AND  i.seqproduto = v.seqproduto
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END 
@@ -2074,7 +2072,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
             FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
               WHERE X.SEQDOCTO = i.seqdocto
             AND X.nroempresa = i.nroempresa
@@ -2260,7 +2258,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  d.nrocheckout = c.nrocheckout
    AND  i.nroempresa = v.codfilial
    AND  tp.codacesso = v.codauxiliar
-   AND  i.seqproduto = v.seqproduto
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
