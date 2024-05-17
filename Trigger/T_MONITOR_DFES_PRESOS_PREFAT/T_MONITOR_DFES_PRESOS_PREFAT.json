@@ -1,0 +1,5 @@
+{
+	"nome":"T_MONITOR_DFES_PRESOS_PREFAT",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":""
+}
