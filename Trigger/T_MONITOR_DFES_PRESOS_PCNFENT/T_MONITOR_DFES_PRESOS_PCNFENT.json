@@ -1,5 +1,16 @@
 {
 	"nome":"T_MONITOR_DFES_PRESOS_PCNFENT",
 	"tipoPLSQL":"TRIGGER",
-	"dependencias":""
+	"dependencias":[
+    {
+	  "nome": "PCMONITORDFESPRESOS",
+	  "tipo": "TABELA",
+	  "versao": "5.0.01.000"
+	},
+    {
+	  "nome": "PCMONITORDFESPRESOSLOG",
+	  "tipo": "TABELA",
+	  "versao": "5.0.01.000"
+	}
+ ]
 }
