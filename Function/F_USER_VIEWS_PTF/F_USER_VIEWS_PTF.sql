@@ -14,7 +14,7 @@ RETURN T_USER_VIEWS_COLLECTION PIPELINED AS
  * @source  https://ellebaek.wordpress.com/2010/12/06/converting-a-long-column-to-a-clob-on-the-fly/
  */
 
-  query           VARCHAR2(200);
+  query           VARCHAR2(500);
   dbms_sql_cursor BINARY_INTEGER;
   n               PLS_INTEGER;
   each            T_USER_VIEWS;
@@ -32,7 +32,8 @@ BEGIN
              'VIEW_TYPE, ' || 
              'SUPERVIEW_NAME ' ||
      'from   user_views uv ' ||
-     'where  uv.view_name like :view_name_like';
+     'where length(uv.VIEW_NAME) <= 30' ||  
+     '  and uv.view_name like :view_name_like' ;
 
   -- Create cursor, parse and bind.
   DBMS_SQL_CURSOR := dbms_sql.open_cursor;
