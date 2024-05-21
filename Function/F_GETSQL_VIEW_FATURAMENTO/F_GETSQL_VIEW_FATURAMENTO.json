@@ -10,7 +10,7 @@
 	 {
 	  "nome": "F_USER_VIEWS_PTF",
 	  "tipo": "OBJETO_PLSQL",
-	  "versao": "4.0.03.000"
+	  "versao": "5.0.01.000"
 	 },
 		{
 			"nome": "VIEW_VENDAS_RESUMO_FATURAMENTO",
