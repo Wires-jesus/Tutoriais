@@ -1,1 +1,11 @@
-{"nome":"FNC_DADOS_CAMPANHAS","tipoPLSQL":"FUNCTION","dependencias":""}
+{
+  "nome":"FNC_DADOS_CAMPANHAS",
+  "tipoPLSQL":"FUNCTION",
+  "dependencias": [
+    {
+      "nome": "PCAUXVERBACUMULATIVAPROD",
+      "tipo": "TABELA",
+      "versao": "5.0.03.000"
+    }
+  ]
+}
