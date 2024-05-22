@@ -5,73 +5,73 @@ DECLARE
     vCount INTEGER;
 BEGIN
     FOR DADOS IN (
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Inicializar Venda do Mês e Consolidar Mês Anterior' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  			   
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '12' AS CODMODULO,
                'Consolidação de Dados Históricos' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '12' AS CODMODULO,
                'Atualizacao Balancete 12 Meses' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Consolidar dados de vendas' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Atualização de Classificação ABC de Venda dos Clientes' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Atualização de Classificação ABC de Venda dos Produtos' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Atualização de Classificação ABC de Venda dos Fornecedores' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '12' AS CODMODULO,
                'Gerar  Posição Analítica do Contas a Receber' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '2' AS CODMODULO,
                'Cancelar pedidos de compra pendentes automaticamente' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Atualização de Sub-Classe ABC' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '3' AS CODMODULO,
                'Consolidação de Média ponderada para calculo de ST, apenas na transferência' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
                '1' as PASSO, '0' AS DELAY  
           FROM DUAL UNION ALL
-        SELECT 'C:\Winthor\Prod\MOD-005\PCSIS504.PC' AS PATH, 
+        SELECT 'C:/Winthor/Prod/MOD-005/PCSIS504.PC' AS PATH, 
                'N' AS EXECUTAPORLOJA, 'N' AS EXECUTAPORTIMEZONE, '2' AS CODMODULO,
                'Calculo da Base de ST para atualizar ST no preço de venda' AS DESCRICAO,
                'S' AS CRIADOSISTEMA, 'M' AS LIMITEUTILIZADO,
