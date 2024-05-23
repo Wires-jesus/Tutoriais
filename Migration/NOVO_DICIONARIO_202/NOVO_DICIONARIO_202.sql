@@ -1,0 +1,435 @@
+DECLARE
+  --steps principais
+  V_STEP_1       CONSTANT VARCHAR2(50) := '01-Informações Gerais';
+  V_STEP_2       CONSTANT VARCHAR2(50) := '02-Compra e Financeiro';
+  V_STEP_3       CONSTANT VARCHAR2(50) := '03-Tributos';
+  V_STEP_4       CONSTANT VARCHAR2(50) := '04-Medicamentos';
+  V_STEP_5       CONSTANT VARCHAR2(50) := '05-Customizados';
+  V_CODIGOROTINA CONSTANT PCDICIONARIOITEMROT.CODROTINA%TYPE := 202;
+  V_OBJETO       CONSTANT PCDICIONARIOITEMROT.NOMEOBJETO%TYPE := 'PCFORNEC';
+  V_CONTADOR NUMBER(10) := 1;
+
+  TYPE ARRAY_CAMPOS IS VARRAY(100) OF VARCHAR2(100);
+  V_LISTA_CAMPOS ARRAY_CAMPOS;
+
+  PROCEDURE ATUALIZASECAODICIONARIO(PSECAO        IN VARCHAR2,
+                                    POBJETO       IN VARCHAR2,
+                                    PCODROTINA    IN NUMBER,
+                                    PLISTACAMPO   IN ARRAY_CAMPOS,
+                                    PCAMPOVISIVEL IN VARCHAR) IS
+  BEGIN
+    FOR I IN 1 .. PLISTACAMPO.COUNT
+    LOOP
+      UPDATE PCDICIONARIOITEMROT
+         SET PCDICIONARIOITEMROT.SECAO    = PSECAO
+            ,PCDICIONARIOITEMROT.ORDEMCAD = I
+            ,PCDICIONARIOITEMROT.VISIVEL  = PCAMPOVISIVEL
+       WHERE PCDICIONARIOITEMROT.NOMECAMPO = PLISTACAMPO(I)
+         AND PCDICIONARIOITEMROT.NOMEOBJETO = POBJETO
+         AND PCDICIONARIOITEMROT.CODROTINA = PCODROTINA;
+    END LOOP;
+  END;
+
+  PROCEDURE ATUALIZACAMPOS_NAOOBRIGATORIOS IS
+  BEGIN
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('ASSOCIACAODESPORTIVA', 'ADM_BAIRRO',
+                                   'CEP', 'CONTATO', 'CPFPRODUTORRURAL',
+                                   'ENDER', 'CODPRODUTORRURAL', 'INSS',
+                                   'PRODUTORRURAL', 'RG');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_1 || '\12-Dados do Fornecedor', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('CODLICITGRUPOFORNEC');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_1 || '\13-Licitação', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('PERIODICIDADECOMPRA',
+                                   'USAFRETEFOBPORFORNEC', 'DTPROXCOMPRA',
+                                   'DTULTCOMPRA');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_1 || '\14-Autopeças', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('ORIGEMPARCFINANC',
+                                   'USAECOMMERCEUNILEVER', 'DTCADASTRO',
+                                   'DTEXCLUSAO' );
+  
+    ATUALIZASECAODICIONARIO(V_STEP_1 || '\15-Outros', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('PERCIMPRODUTORURAL', 'LIBERAENTIMPXML',
+                                   'OBS2', 'CODPARCELA');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_2 || '\03-Condições Comerciais',
+                            V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('TAXA0', 'TAXA14', 'TAXA21', 'TAXA28',
+                                   'TAXA35', 'TAXA42', 'TAXA7');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_2 || '\04-Precificação', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+    V_LISTA_CAMPOS := ARRAY_CAMPOS('CODGLN', 'INDAQPRODRURAL');
+  
+    ATUALIZASECAODICIONARIO(V_STEP_3 || '\11-Outros', V_OBJETO,
+                            V_CODIGOROTINA, V_LISTA_CAMPOS, 'N');
+  
+  END;
+
+BEGIN
+  UPDATE PCDICIONARIOITEMROT
+     SET VISIVEL = 'N'
+   WHERE NOMEOBJETO = V_OBJETO
+     AND CODROTINA = V_CODIGOROTINA;
+
+  ATUALIZACAMPOS_NAOOBRIGATORIOS;
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CODFORNEC', 'FORNECEDOR', 'CODFORNECBAL ',
+                                 'CODIGONACIONALOBRAS', 'CLASSE',
+                                 'TIPOPESSOA', 'CGC', 'FANTASIA', 'IE',
+                                 'IEST', 'INSCMUNICIP', 'INSCESTRANGEIRA',
+                                 'CAE', 'CLASSEVENDA', 'TRANSPORTEPROPRIO',
+                                 'MANIFESTACAOAUTOMATICA',
+                                 'DETENTORREGESPECIAL', 'CONSUMIDORFINAL');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\01-Informações Básicas', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('REP_ENDERECO', 'BAIRRO', 'REP_CEP',
+                                 'COMPLEMENTOEND', 'NUMEROEND', 'ESTADO',
+                                 'CODPAIS', 'CIDADE', 'CODCIDADE',
+                                 'CODMUNICIPIO');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\02-Endereço do Fornecedor',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('EMAIL', 'TELFAB', 'FAXFAB', 'EMAILNFE');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\03-Contatos do Fornecedor',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('NUMBANCODOC', 'NUMCCORRENTEDOC',
+                                 'NUMAGENCIADOC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\04-Dados Bancários do Fornecedor',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CODCOMPRADOR', 'CODDEPTO',
+                                 'CODFORNECPRINC', 'FORNECIMPORTACAO',
+                                 'TIPOFORNEC', 'HORACOLETA', 'CODDISTRIB',
+                                 'CODFORNECFRETE', 'REVENDA',
+                                 'TRANSPAUTONOMO', 'CLASSECOMPRA',
+                                 'CLASSEESTOQUE', 'CLASSEMC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\05-Classificação', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('BLOQUEIO', 'DTBLOQUEIO', 'OBS');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\06-Bloqueio Fornecedor', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('EXIGEREDESPACHO', 'CONTRIBUINTEDOCPRB',
+                                 'INDUSTRIALOCAL', 'USADRAWBACK',
+                                 'EREABASTECIMENTO', 'USAPERCALTERCUSTOENT',
+                                 'DISTRIB', 'EREDESPACHO', 'ESTRATEGICO',
+                                 'OBSERVACAO');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\07-Outras Informações', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CREDITARSALDOESTVERBA', 'UTILIZAPERCBON',
+                                 'APLICAVERBAREBCUSTO',
+                                 'ALIMENTAFUNDOMULTIFILIAL', 'PERCBONDIN',
+                                 'SUPERVISORVERBA', 'RGCONTATOVERBA',
+                                 'CPFCONTATOVERBA', 'PERCBONOUTRAS',
+                                 'CONTATOVERBA', 'PERCBONMERC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\08-Verbas', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CONTATOCOM', 'COM_DTANIVERSARIO', '', '',
+                                 'SUP_EMAIL', 'TELEFONECOM', 'TELEXFAB',
+                                 'SUP_CELULAR', 'COM_CEP', 'COM_ENDERECO',
+                                 'COM_BAIRRO', '', '', 'COM_UF', '',
+                                 'COM_CIDADE');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 ||
+                          '\09-Informações de Supervisor/Gerente', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('REPRES', 'REP_DTANIVERSARIO', '', '',
+                                 'REP_EMAIL', 'TELREP', 'FAXREP', 'TELEXREP',
+                                 'REP_CEP', 'REP_ENDERECO', 'REP_BAIRRO', '',
+                                 '', 'REP_UF', 'REP_CIDADE', 'REP_NEXTELID',
+                                 'REP_OBS');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\10-Informações de Representante',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CONTATOADM', 'ADM_DTANIVERSARIO', '', '',
+                                 'COM_EMAIL', 'TELEFONEADM', 'COM_CELULAR',
+                                 'ADM_CEP', '', 'ADM_ENDERECO', 'ADM_UF',
+                                 'ADM_CIDADE');
+
+  ATUALIZASECAODICIONARIO(V_STEP_1 || '\11-Contato Administrativo',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  --Segundo step Compra e Financeiro                        
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('PERCMARGEMGARANTIDA', 'CODCENTROCUSTO',
+                                 'CODCOBSEFAZ', 'CODCLI',
+                                 'CODCONTACONTABADIANTFOR', 'DESCPAGTODUP',
+                                 'CODCONTAB', 'CODPARCELADIFALIQ',
+                                 'CODPARCELASTGUIA', 'CODPARCELAFRETEFOB',
+                                 'CODPARCELAFUNRURAL', 'CODPARCICMSANTECIP',
+                                 'CODPARCELAOUTDESP', 'CODFORNECBAL', 'DVAG',
+                                 'DVCC', 'FORMAPGTO', 'FORMATRIBPRODRURAL',
+                                 'NUMDEPIRRF', 'LOCALIZACAO',
+                                 'VALORDEDUCAOIRRF');
+
+  ATUALIZASECAODICIONARIO(V_STEP_2 || '\01-Financeiro', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CODUSUARIOWINTHOR', 'TIPOEMBALAGEMPEDIDO',
+                                 'SIMPLESNACIONAL', 'USAREDICMSPARA',
+                                 'CONSDESONNOVESUFRAMA',
+                                 'ACEITAENTREGAANCECIP', 'UTILIZAFATOR253',
+                                 'GERAPEDIDOCOMPRAXML',
+                                 'IMPORTAXMLAUTOMATICO', 'USANUMNEGOCIACAO',
+                                 'CALCDESPFINPRAZOPGTO', 'GERAPEDBONIFIC',
+                                 'GRAVARCODFAB253', 'TIPOFRETECIFFOB',
+                                 'TIPOFRETEDESPACHO', 'TIPOVENCIMENTO',
+                                 'PERCIMPPRODUTORURAL', '',
+                                 'DIASAVALIACAOVENDA', 'PRAZOENTREGA',
+                                 'QTDIASVENCVERBAS', 'VLMINPEDCOMPRA',
+                                 'PRAZOMIN', 'AVALIACAOVENDA', 'PERCDESPFIN',
+                                 'PERCDESCFIN', 'GRUPOCAMPANHA');
+
+  ATUALIZASECAODICIONARIO(V_STEP_2 || '\02-Pedido de Compra', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  --Terceiro step Tributos                        
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('ADJUDICACAO', 'SITTRIBENTADJUD',
+                                 'CFOPRESTITUICAO', 'CFOPENTADJUD',
+                                 'CFOPRESSARCIMENTOSTGUIA',
+                                 'SITTRIBUTRESSARCIMENTOSTGUIA',
+                                 'RESSARCIMENTOSTGUIA', 'RESSARCIMENTOSTNF',
+                                 'SITTRIBRESTITUICAO',
+                                 'GERARRECEITARESTITUICAO');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 ||
+                          '\01-Adjudiação e Ressarcimento Dev. Fornecedor',
+                          V_OBJETO, V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('DEDFRETECIFCREDPRESICMS',
+                                 'CONSIPICALCBASECREPRES', 'CONCEDCREDPRES');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\02-Crédito Presumido', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CONSFRETEFOBBASEDIFALIQ',
+                                 'DEDUZIRIPIBASEDIFALIQ',
+                                 'UTILIZAICMSTRIBENT',
+                                 'UTILIZAPISCOFINSTRIBENT', 'RECALCTRIBENT',
+                                 'EMITENFE', 'ATUALIZASTULTENT',
+                                 'CONSOLIDARDIFPRECOVERBA',
+                                 'GERACREDDIFPRECO', 'TIPOVENCIMENTO',
+                                 'TIPOFINANCDEVFORNEC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\03-Entrada de Mercadoria', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CONTRIBUINTEICMS', 'UTILIZADESCCALCICMS',
+                                 'UTILIZAFRETECALCICMS',
+                                 'CALCCREDICMSBASEREDUZIDA',
+                                 'UTILIZAOUTRASDESPCALCICMS',
+                                 'USAPERCICMSNAALIQEXTST',
+                                 'CONSCAPATAZIAICMS', 'UTILIZAICMSDIFZERADO',
+                                 'CONSMAIORICMSVLPAUTA', 'UTILIZAIPICALCICMS',
+                                 'CONSIPICALCICMSANT',
+                                 'CONSFRETEFOBCALCICMSANTECIP',
+                                 'NUMCASASDECREDUCAOICMS');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\04-ICMS', V_OBJETO, V_CODIGOROTINA,
+                          V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CALCIPICOMDESC', 'CALCULARIPIPESOLIQ',
+                                 'EQUIPINDUSTRIA', 'UTILIZAFRETECALCIPI',
+                                 'CALCIPICOMFRETEFOB', 'CALCIPICOMFRETENF',
+                                 'UTILIZAOUTRASDESPCALCIPI', 'CALCIPICOMDESC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\05-IPI', V_OBJETO, V_CODIGOROTINA,
+                          V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CODCONTACSRF', 'CODCONTAISS',
+                                 'VLLIMITEFRETEMIN', 'PERCCONTRIBSENAR',
+                                 'PERCCONTRIBPREVDESC', 'DESTACASELONF',
+                                 'PERCCOFINSNFSERVICO', 'PERCCSRF',
+                                 'PERCINSS', 'PERCINSSTOMADOR', 'PERCIRRF',
+                                 'PERCISS', 'PERCPISNFSERVICO',
+                                 'PERCSESTSENAT',
+                                 'CODSITTRIBPISCOFINSSERVICO',
+                                 'CODCONTACOFINS', 'CODCONTAINSS',
+                                 'CODCONTAINSSTOMADOR', 'CODCONTAIRRF',
+                                 'CODCONTAPIS', 'CODCONTASESTSENAT',
+                                 'JUROCAPITALPROP');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\06-Nota Fiscal', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('CALCPISCOFINSBASERED',
+                                 'CONSSTGUIAPISCOFINS',
+                                 'USAOUTRASDESPSEGUROPISCOFINS',
+                                 'USACREDPISCOFINSENTBONIFIC',
+                                 'CALCULAPISCOFINSCOMIPI',
+                                 'CONSSTNFPISCOFINS');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\07-PIS/CONFINS', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('TRANSPCREDENCIADOSEFAZ',
+                                 'BLOQUEIOSEFAZFORNEC', 'CODCOBSEFAZ',
+                                 'NUMCREDENCIAMENTOSEFAZ',
+                                 'DTBLOQUEIOSEFAZFORNEC');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\08-SEFAZ', V_OBJETO, V_CODIGOROTINA,
+                          V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('SOMAFRETEFOBNOSTFORANF',
+                                 'DEDUZIRFCPICMSDOFCPST',
+                                 'CONSFRETEFOBBASESTNF',
+                                 'DEDUZIRSUFRAMABCSTALIQ1',
+                                 'UTILIZADESCCALCST',
+                                 'UTILIZAOUTDESPNFBASEST',
+                                 'CONSIPICALCBASEST', 'ISENTOST',
+                                 'CALCSTGUIAALIQEXT', 'CODFORNECSTGUIA',
+                                 'CONSIDERARPAUTAZEROSTGUIA');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\09-ST', V_OBJETO, V_CODIGOROTINA,
+                          V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('DEDUZIRSUFRAMACALCCREDICM',
+                                 'DEDUZIRSUFRAMACALCCREDPIS',
+                                 'DEDUZIRSUFRAMAALIQEXT',
+                                 'CALCSUFRAMASOBREPLIQUIDO',
+                                 'DEDUZIRSUFRAMADIFALIQ', 'SUFRAMA',
+                                 'UTILIZAOUTDESPCALCSUFRAMA');
+
+  ATUALIZASECAODICIONARIO(V_STEP_3 || '\10-Suframa', V_OBJETO,
+                          V_CODIGOROTINA, V_LISTA_CAMPOS, 'S');
+
+  V_LISTA_CAMPOS := ARRAY_CAMPOS('PERCCONTRIBBEMCONC', 'DTVENCALVARAANVISA',
+                                 'NUMALVARAANVISA', 'DTVENCCRF',
+                                 'DTVENCALVARAFUNC', 'NUMALVARAFUNC',
+                                 'NUMALVARAPSICO', 'CONDCOMERCAUTORIZMED',
+                                 'CREDITADESCMENOROPERLOG', 'CRF',
+                                 'DTVENCALVARAPSICO', 'DIAPGVERBAOPERLOG',
+                                 'USADEBCREDOPERLOG', 'VLMINPEDREPOSICAO');
+
+  ATUALIZASECAODICIONARIO(V_STEP_4 || '\01-Geral', V_OBJETO, V_CODIGOROTINA,
+                          V_LISTA_CAMPOS, 'S');
+
+  FOR CUSTOMIZADOS IN (SELECT PCDICIONARIOITEMROTCUST.*
+                             ,PCDICIONARIOITEMROTCUST.ROWID AS R_ID
+                         FROM PCDICIONARIOITEMROTCUST
+                        WHERE PCDICIONARIOITEMROTCUST.CODROTINA =
+                              V_CODIGOROTINA
+                          AND PCDICIONARIOITEMROTCUST.NOMEOBJETO = V_OBJETO
+                        ORDER BY PCDICIONARIOITEMROTCUST.SECAO
+                                ,PCDICIONARIOITEMROTCUST.ORDEMCAD)
+  LOOP
+  
+    UPDATE PCDICIONARIOITEMROTCUST
+       SET PCDICIONARIOITEMROTCUST.SECAO    = V_STEP_5
+          ,PCDICIONARIOITEMROTCUST.ORDEMCAD = V_CONTADOR
+     WHERE PCDICIONARIOITEMROTCUST.ROWID = CUSTOMIZADOS.R_ID
+       AND PCDICIONARIOITEMROTCUST.NOMECAMPO NOT IN
+           ('CODFORNEC', 'FORNECEDOR', 'CODFORNECBAL ', 'CODIGONACIONALOBRAS',
+            'CLASSE', 'TIPOPESSOA', 'CGC', 'FANTASIA', 'IE', 'IEST',
+            'INSCMUNICIP', 'INSCESTRANGEIRA', 'CAE', 'CLASSEVENDA',
+            'TRANSPORTEPROPRIO', 'MANIFESTACAOAUTOMATICA',
+            'DETENTORREGESPECIAL', 'CONSUMIDORFINAL', 'REP_ENDERECO',
+            'BAIRRO', 'REP_CEP', 'COMPLEMENTOEND', 'NUMEROEND', 'ESTADO',
+            'CODPAIS', 'CIDADE', 'CODCIDADE', 'CODMUNICIPIO', 'EMAIL',
+            'TELFAB', 'FAXFAB', 'EMAILNFE', 'NUMBANCODOC', 'NUMCCORRENTEDOC',
+            'NUMAGENCIADOC', 'CODCOMPRADOR', 'CODDEPTO', 'CODFORNECPRINC',
+            'FORNECIMPORTACAO', 'TIPOFORNEC', 'HORACOLETA', 'CODDISTRIB',
+            'CODFORNECFRETE', 'REVENDA', 'TRANSPAUTONOMO', 'BLOQUEIO',
+            'DTBLOQUEIO', 'OBS', 'EXIGEREDESPACHO', 'CONTRIBUINTEDOCPRB',
+            'INDUSTRIALOCAL', 'USADRAWBACK', 'EREABASTECIMENTO',
+            'USAPERCALTERCUSTOENT', 'DISTRIB', 'EREDESPACHO', 'ESTRATEGICO',
+            'OBSERVACAO', 'CREDITARSALDOESTVERBA', 'UTILIZAPERCBON',
+            'APLICAVERBAREBCUSTO', 'ALIMENTAFUNDOMULTIFILIAL', 'PERCBONDIN',
+            'SUPERVISORVERBA', 'RGCONTATOVERBA', 'CPFCONTATOVERBA',
+            'PERCBONOUTRAS', 'CONTATOVERBA', 'PERCBONMERC', 'CONTATOCOM',
+            'COM_DTANIVERSARIO', '', '', 'SUP_EMAIL', 'TELEFONECOM',
+            'TELEXFAB', 'SUP_CELULAR', 'COM_CEP', 'COM_ENDERECO',
+            'COM_BAIRRO', '', '', 'COM_UF', '', 'COM_CIDADE', 'REPRES',
+            'REP_DTANIVERSARIO', '', '', 'REP_EMAIL', 'TELREP', 'FAXREP',
+            'TELEXREP', 'REP_CEP', 'REP_ENDERECO', 'REP_BAIRRO', '', '',
+            'REP_UF', 'REP_CIDADE', 'REP_NEXTELID', 'REP_OBS', 'CONTATOADM',
+            'ADM_DTANIVERSARIO', '', '', 'COM_EMAIL', 'TELEFONEADM',
+            'COM_CELULAR', 'ADM_CEP', '', 'ADM_ENDERECO', 'ADM_UF',
+            'ADM_CIDADE', 'PERCMARGEMGARANTIDA', 'CODCENTROCUSTO',
+            'CODCOBSEFAZ', 'CODCLI', 'CODCONTACONTABADIANTFOR',
+            'DESCPAGTODUP', 'CODCONTAB', 'CODUSUARIOWINTHOR',
+            'TIPOEMBALAGEMPEDIDO', 'SIMPLESNACIONAL', 'USAREDICMSPARA',
+            'CONSDESONNOVESUFRAMA', 'ACEITAENTREGAANCECIP', 'UTILIZAFATOR253',
+            'GERAPEDIDOCOMPRAXML', 'IMPORTAXMLAUTOMATICO', 'USANUMNEGOCIACAO',
+            'CALCDESPFINPRAZOPGTO', 'GERAPEDBONIFIC', 'GRAVARCODFAB253',
+            'TIPOFRETECIFFOB', 'TIPOFRETEDESPACHO', 'TIPOVENCIMENTO',
+            'PERCIMPPRODUTORURAL', '', 'DIASAVALIACAOVENDA', 'PRAZOENTREGA',
+            'QTDIASVENCVERBAS', 'VLMINPEDCOMPRA', 'PRAZOMIN',
+            'AVALIACAOVENDA', 'PERCDESPFIN', 'PERCDESCFIN', 'GRUPOCAMPANHA',
+            'ADJUDICACAO', 'SITTRIBENTADJUD', 'CFOPRESTITUICAO',
+            'CFOPENTADJUD', 'CFOPRESSARCIMENTOSTGUIA',
+            'SITTRIBUTRESSARCIMENTOSTGUIA', 'RESSARCIMENTOSTGUIA',
+            'RESSARCIMENTOSTNF', 'SITTRIBRESTITUICAO',
+            'GERARRECEITARESTITUICAO', 'DEDFRETECIFCREDPRESICMS',
+            'CONSIPICALCBASECREPRES', 'CONCEDCREDPRES',
+            'CONSFRETEFOBBASEDIFALIQ', 'DEDUZIRIPIBASEDIFALIQ',
+            'UTILIZAICMSTRIBENT', 'UTILIZAPISCOFINSTRIBENT', 'RECALCTRIBENT',
+            'EMITENFE', 'ATUALIZASTULTENT', 'CONSOLIDARDIFPRECOVERBA',
+            'GERACREDDIFPRECO', 'TIPOVENCIMENTO', 'TIPOFINANCDEVFORNEC',
+            'CONTRIBUINTEICMS', 'UTILIZADESCCALCICMS', 'UTILIZAFRETECALCICMS',
+            'CALCCREDICMSBASEREDUZIDA', 'UTILIZAOUTRASDESPCALCICMS',
+            'USAPERCICMSNAALIQEXTST', 'CONSCAPATAZIAICMS',
+            'UTILIZAICMSDIFZERADO', 'CONSMAIORICMSVLPAUTA',
+            'UTILIZAIPICALCICMS', 'CONSIPICALCICMSANT',
+            'CONSFRETEFOBCALCICMSANTECIP', 'NUMCASASDECREDUCAOICMS',
+            'CALCIPICOMDESC', 'CALCULARIPIPESOLIQ', 'EQUIPINDUSTRIA',
+            'UTILIZAFRETECALCIPI', 'CALCIPICOMFRETEFOB', 'CALCIPICOMFRETENF',
+            'UTILIZAOUTRASDESPCALCIPI', 'CALCIPICOMDESC', 'CODCONTACSRF',
+            'CODCONTAISS', 'VLLIMITEFRETEMIN', 'PERCCONTRIBSENAR',
+            'PERCCONTRIBPREVDESC', 'DESTACASELONF', 'CALCPISCOFINSBASERED',
+            'CONSSTGUIAPISCOFINS', 'USAOUTRASDESPSEGUROPISCOFINS',
+            'USACREDPISCOFINSENTBONIFIC', 'CALCULAPISCOFINSCOMIPI',
+            'CONSSTNFPISCOFINS', 'TRANSPCREDENCIADOSEFAZ',
+            'BLOQUEIOSEFAZFORNEC', 'CODCOBSEFAZ', 'NUMCREDENCIAMENTOSEFAZ',
+            'DTBLOQUEIOSEFAZFORNEC', 'SOMAFRETEFOBNOSTFORANF',
+            'DEDUZIRFCPICMSDOFCPST', 'CONSFRETEFOBBASESTNF',
+            'DEDUZIRSUFRAMABCSTALIQ1', 'UTILIZADESCCALCST',
+            'UTILIZAOUTDESPNFBASEST', 'CONSIPICALCBASEST', 'ISENTOST',
+            'CALCSTGUIAALIQEXT', 'CODFORNECSTGUIA',
+            'CONSIDERARPAUTAZEROSTGUIA', 'DEDUZIRSUFRAMACALCCREDICM',
+            'DEDUZIRSUFRAMACALCCREDPIS', 'DEDUZIRSUFRAMAALIQEXT',
+            'CALCSUFRAMASOBREPLIQUIDO', 'DEDUZIRSUFRAMADIFALIQ', 'SUFRAMA',
+            'UTILIZAOUTDESPCALCSUFRAMA', 'PERCCONTRIBBEMCONC',
+            'DTVENCALVARAANVISA', 'NUMALVARAANVISA', 'DTVENCCRF',
+            'DTVENCALVARAFUNC', 'NUMALVARAFUNC', 'NUMALVARAPSICO',
+            'CONDCOMERCAUTORIZMED', 'CREDITADESCMENOROPERLOG', 'CRF',
+            'DTVENCALVARAPSICO', 'DIAPGVERBAOPERLOG', 'USADEBCREDOPERLOG',
+            'VLMINPEDREPOSICAO');
+  
+    V_CONTADOR := V_CONTADOR + 1;
+  END LOOP;
+
+  UPDATE PCDICIONARIO
+     SET DESCRICAO = 'Fornecedor'
+   WHERE NOMEOBJETO = 'PCFORNEC';
+
+  COMMIT;
+
+END;
