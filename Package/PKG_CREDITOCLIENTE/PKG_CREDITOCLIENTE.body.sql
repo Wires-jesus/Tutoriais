@@ -1285,10 +1285,7 @@ FUNCTION FNC_ESTORNARBAIXACREDITOVAREJO(pfNUMPEDECF               IN NUMBER,
                                NUMCRED           = NULL,
                                DTESTORNO         = NULL,
                                NUMCUPOM          = NULL,
-                               NUMPEDECF         = NULL,
-                               NUMDOCTOPDV       = NULL,
-                               CODEMPRESAPDV     = NULL,
-                               CODCHECKOUTPDV    = NULL
+                               NUMPEDECF         = NULL
            WHERE CODIGO = vCodigoCredito
              AND NVL(VALOR,0) > 0;
 
