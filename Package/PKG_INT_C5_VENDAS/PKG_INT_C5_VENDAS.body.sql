@@ -166,7 +166,8 @@ IS
             where
                    numdoctopdv = p_seqdocto
                    and codcheckoutpdv = p_numcheckout
-                   and codempresapdv = p_codempresa;
+                   and codempresapdv = p_codempresa
+                   and dtdesconto is not null;
           END IF;
           
         END;
