@@ -128,33 +128,6 @@ FROM (
       PCDEPARAPRODC5 DEPARA
 WHERE TBFAM.CODPROD = DEPARA.CODPROD(+)
 AND   TBFAM.CODAUXILIAR = DEPARA.CODAUXILIAR(+)
-  
-  /*SELECT DISTINCT
-         p.codprod seqfamilia,
-         NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
-         MAX(p.codncmsh) codncmsh,
-         MAX(p.aceitavendafracao) permitedecimal,
-         MAX(p.permitemultiplicacao) permitemultiplicacao,
-         (SELECT nvl(CODCEST, 0) codcest
-          FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
-          WHERE PCCESTPRODUTO.CODPROD = p.codprod
-          AND ROWNUM = 1
-         ) codcest,
-         'S' ativo,
-         MAX(p.codmarca) seqmarca,
-         1 seqfamgrupo,
-         --MAX(p.pesovariavel) PESAVEL,
-         (CASE
-            WHEN  MIN(p.tipoembalagem) = 'P' THEN
-                  'S'
-            ELSE  'N'
-         END)PESAVEL,
-         MIN(NVL(p.indescalarelevante, 'S')) indescala,
-         MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
-         MAX(p.codauxiliartrib) eantrib,
-         MAX(P.codprodprinc) seqfamiliaprinc
-  FROM VW_INT_C5_EMBPROD p
-  GROUP BY p.codprod, p.descricao*/
 )
 
 \
@@ -328,38 +301,6 @@ FROM (
       PCDEPARAPRODC5 DEPARA
 WHERE TBPROD.CODPROD = DEPARA.CODPROD
 AND   TBPROD.CODAUXILIAR = DEPARA.CODAUXILIAR
-  
-  /*SELECT DISTINCT
-   PROD.CODAUXILIAR IDREF,
-   P.SEQPRODUTO SEQPRODUTO,
-   MAX(PROD.CODPRODUTO) CODPRODUTO,
-   MAX(PROD.desccompleta) desccompleta,
-   MAX(PROD.descreduzida) descreduzida,
-   MAX(PROD.produtocomposto) produtocomposto,
-   MAX(PROD.SEQFAMILIA) SEQFAMILIA,
-   MAX(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
-   MAX(PROD.codanp) codanp,
-   MAX(PROD.descanp_prod) descanp_prod,
-   MAX(PROD.ATIVO) ATIVO
-FROM
-  (
-  SELECT DISTINCT
-        E.CODAUXILIAR,
-        MAX(e.codprod) codproduto,
-        MAX(fnc_remove_char_esp(e.descricao)) desccompleta,
-        MAX(SUBSTR((fnc_remove_char_esp(e.descricao)),1,24)) descreduzida,
-        'N' produtocomposto,
-        MAX(e.codprod) seqfamilia,
-        0 QTDDIAVALIDADE,
-        MAX(nvl(e.anp, 0)) codanp,
-        MAX(e.descanp) descanp_prod,
-        'S' ATIVO
-  FROM  VW_INT_C5_EMBPROD E
-  GROUP BY E.CODAUXILIAR
-  ) PROD,
-  PCDEPARAEMBALAGENSC5 P
-WHERE PROD.CODAUXILIAR = P.CODAUXILIAR
-GROUP BY P.SEQPRODUTO, PROD.CODAUXILIAR*/
 )
 
 \
