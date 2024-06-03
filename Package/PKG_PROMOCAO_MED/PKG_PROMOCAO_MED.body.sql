@@ -16305,6 +16305,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnValorCotaGeral                   PCPROMOCAOMED.VALORCOTAGERAL%TYPE;
     vvTipoCotaCliente                  PCPROMOCAOMED.TIPOCOTACLIENTE%TYPE;
     vnValorCotaCliente                 PCPROMOCAOMED.VALORCOTACLIENTE%TYPE;
+    vnTipoLimitador                    PCPROMOCAOMED.TIPOLIMITADOR%TYPE;
+    vnQtMinComboLibMed                 PCPROMOCAOMED.QTMINCOMBOLIBMED%TYPE;
+    vnQtMaxComboMed                    PCPROMOCAOMED.QTMAXCOMBOMED%TYPE;
 
     -- Dados Complementares da Promoção
     vvApenasPlPagMax                   PCDESCONTO.APENASPLPAGMAX%TYPE;
@@ -19031,6 +19034,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , TIPOCOTACLIENTE
                   , VALORCOTACLIENTE
                   , ISENTOREBAIXACMV
+                  , TIPOLIMITADOR
+                  , QTMINCOMBOLIBMED
+                  , QTMAXCOMBOMED
                   )
              SELECT CODPROMOCAOMED
                   , IDENTIFICADORPROMOCAO
@@ -19097,6 +19103,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , TIPOCOTACLIENTE
                   , VALORCOTACLIENTE
                   , ISENTOREBAIXACMV
+                  , TIPOLIMITADOR
+                  , QTMINCOMBOLIBMED
+                  , QTMAXCOMBOMED
                FROM PCPROMOCAOMED
               WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19165,6 +19174,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , TIPOCOTACLIENTE
                 , VALORCOTACLIENTE
                 , ISENTOREBAIXACMV
+                , TIPOLIMITADOR
+                , QTMINCOMBOLIBMED
+                , QTMAXCOMBOMED
                 )
            SELECT CODPROMOCAOMED
                 , pi_nCodFunc
@@ -19231,6 +19243,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , TIPOCOTACLIENTE
                 , VALORCOTACLIENTE
                 , ISENTOREBAIXACMV
+                , TIPOLIMITADOR
+                , QTMINCOMBOLIBMED
+                , QTMAXCOMBOMED
              FROM PCPROMOCAOMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19461,10 +19476,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       INSERT INTO PCLOGPROMOCAOREGIAOMED(
                   CODPROMOCAOMED
                 , NUMREGIAO
-                , DTEXCLUSAO )
+                , DTEXCLUSAO
+                , QTMAXCOMBOMED )
            SELECT CODPROMOCAOMED
                 , NUMREGIAO
                 , vdDtExclusao
+                , QTMAXCOMBOMED
              FROM PCPROMOCAOREGIAOMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19472,10 +19489,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       INSERT INTO PCLOGPROMOCAOPRACAMED(
                   CODPROMOCAOMED
                 , CODPRACA
-                , DTEXCLUSAO )
+                , DTEXCLUSAO
+                , QTMAXCOMBOMED )
            SELECT CODPROMOCAOMED
                 , CODPRACA
                 , vdDtExclusao
+                , QTMAXCOMBOMED
              FROM PCPROMOCAOPRACAMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19483,10 +19502,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       INSERT INTO PCLOGPROMOCAORAMOATIVMED(
                   CODPROMOCAOMED
                 , CODATIV
-                , DTEXCLUSAO )
+                , DTEXCLUSAO
+                , QTMAXCOMBOMED )
            SELECT CODPROMOCAOMED
                 , CODATIV
                 , vdDtExclusao
+                , QTMAXCOMBOMED
              FROM PCPROMOCAORAMOATIVMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19494,10 +19515,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       INSERT INTO PCLOGPROMOCAOREDEMED(
                   CODPROMOCAOMED
                 , CODREDE
-                , DTEXCLUSAO )
+                , DTEXCLUSAO
+                , QTMAXCOMBOMED )
            SELECT CODPROMOCAOMED
                 , CODREDE
                 , vdDtExclusao
+                , QTMAXCOMBOMED
              FROM PCPROMOCAOREDEMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19505,10 +19528,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       INSERT INTO PCLOGPROMOCAOCLIMED(
                   CODPROMOCAOMED
                 , CODCLI
-                , DTEXCLUSAO )
+                , DTEXCLUSAO
+                , QTMAXCOMBOMED )
            SELECT CODPROMOCAOMED
                 , CODCLI
                 , vdDtExclusao
+                , QTMAXCOMBOMED
              FROM PCPROMOCAOCLIMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19575,20 +19600,24 @@ IS PRAGMA SERIALLY_REUSABLE;
         INSERT INTO PCLOGPROMOCAOCLASSEVENDAMED(
                     CODPROMOCAOMED
                   , CLASSEVENDA
-                  , DTEXCLUSAO )
+                  , DTEXCLUSAO
+                  , QTMAXCOMBOMED )
              SELECT CODPROMOCAOMED
                   , CLASSEVENDA
                   , vdDtExclusao
+                  , QTMAXCOMBOMED
                FROM PCPROMOCAOCLASSEVENDAMED
               WHERE (CODPROMOCAOMED = pi_nCodPromocao);
         --
         INSERT INTO PCLOGPROMOCAOGRUPOCOMERCMED(
                     CODPROMOCAOMED
                   , CODGRUPOCOMERCIALMED
-                  , DTEXCLUSAO )
+                  , DTEXCLUSAO
+                  , QTMAXCOMBOMED )
              SELECT CODPROMOCAOMED
                   , CODGRUPOCOMERCIALMED
                   , vdDtExclusao
+                  , QTMAXCOMBOMED
                FROM PCPROMOCAOGRUPOCOMERCMED
               WHERE (CODPROMOCAOMED = pi_nCodPromocao);
       END IF;
@@ -20207,6 +20236,9 @@ IS PRAGMA SERIALLY_REUSABLE;
              , VALORCOTAGERAL
              , TIPOCOTACLIENTE
              , VALORCOTACLIENTE
+             , TIPOLIMITADOR
+             , QTMINCOMBOLIBMED
+             , QTMAXCOMBOMED
           INTO vvIdentificadorPromocao
              , vvDescricaoResumida
              , vvDescricaoDetalhada
@@ -20263,6 +20295,9 @@ IS PRAGMA SERIALLY_REUSABLE;
              , vnValorCotaGeral
              , vvTipoCotaCliente
              , vnValorCotaCliente
+             , vnTipoLimitador
+             , vnQtMinComboLibMed
+             , vnQtMaxComboMed
          FROM PCMED_PROMOCAO;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -20624,6 +20659,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , VALORCOTAGERAL
                 , TIPOCOTACLIENTE
                 , VALORCOTACLIENTE
+                , TIPOLIMITADOR
+                , QTMINCOMBOLIBMED
+                , QTMAXCOMBOMED
                 )
          VALUES ( vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                 , vvIdentificadorPromocao
@@ -20684,6 +20722,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , vnValorCotaGeral
                 , vvTipoCotaCliente
                 , vnValorCotaCliente
+                , vnTipoLimitador
+                , vnQtMinComboLibMed
+                , vnQtMaxComboMed
                 );
 
       ----------------------------------------------------------------------------
@@ -21187,26 +21228,32 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Regiões informadas
       INSERT INTO PCPROMOCAOREGIAOMED(
                   CODPROMOCAOMED
-                , NUMREGIAO )
+                , NUMREGIAO
+                , QTMAXCOMBOMED )
            SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                 , NUMREGIAO
+                , QTMAXCOMBOMED
              FROM PCMED_PROMOCAOREG;
 
       -- Praças informadas
       INSERT INTO PCPROMOCAOPRACAMED(
                   CODPROMOCAOMED
-                , CODPRACA )
+                , CODPRACA
+                , QTMAXCOMBOMED )
            SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                 , CODPRACA
+                , QTMAXCOMBOMED
              FROM PCMED_PROMOCAOPRACA;
 
       -- Atividades informadas
       IF ((vnTipoRestricao NOT IN (1, 4))) THEN -- Não for Rede/Cliente
         INSERT INTO PCPROMOCAORAMOATIVMED(
                     CODPROMOCAOMED
-                  , CODATIV )
+                  , CODATIV
+                  , QTMAXCOMBOMED )
              SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                   , CODATIV
+                  , QTMAXCOMBOMED
                FROM PCMED_PROMOCAOATIV;
       END IF;
 
@@ -21214,9 +21261,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
         INSERT INTO PCPROMOCAOREDEMED(
                     CODPROMOCAOMED
-                  , CODREDE )
+                  , CODREDE
+                  , QTMAXCOMBOMED )
              SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                   , CODREDE
+                  , QTMAXCOMBOMED
                FROM PCMED_PROMOCAOREDE;
       END IF;
 
@@ -21224,9 +21273,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF ((vnTipoRestricao IN (1, 4))) THEN -- Se Rede/Cliente
         INSERT INTO PCPROMOCAOCLIMED(
                     CODPROMOCAOMED
-                  , CODCLI )
+                  , CODCLI
+                  , QTMAXCOMBOMED )
              SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                   , CODCLI
+                  , QTMAXCOMBOMED
                FROM PCMED_PROMOCAOCLI;
       END IF;
 
@@ -21283,16 +21334,20 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
         INSERT INTO PCPROMOCAOCLASSEVENDAMED(
                     CODPROMOCAOMED
-                  , CLASSEVENDA )
+                  , CLASSEVENDA
+                  , QTMAXCOMBOMED )
              SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                   , CLASSE
+                  , QTMAXCOMBOMED
                FROM PCMED_PROMOCAOCLASSE;
         --
         INSERT INTO PCPROMOCAOGRUPOCOMERCMED(
                     CODPROMOCAOMED
-                  , CODGRUPOCOMERCIALMED )
+                  , CODGRUPOCOMERCIALMED
+                  , QTMAXCOMBOMED )
              SELECT vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                   , CODGRUPOCOMERCIALMED
+                  , QTMAXCOMBOMED
                FROM PCMED_PROMOCAOGRUPOCOMERC;
       END IF;
 
@@ -21442,6 +21497,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , VALORCOTAGERAL
                     , TIPOCOTACLIENTE
                     , VALORCOTACLIENTE
+                    , TIPOLIMITADOR
+                    , QTMINCOMBOLIBMED
+                    , QTMAXCOMBOMED
                     )
              SELECT   CASE
                         WHEN NVL(pi_vTipoChamada,'0') = '7' THEN -->> SE REPLICAÇÃO, GRAVA O NOVO CÓDIGO DA PROMOÇÃO NA TABELA TEMPORÁRIA
@@ -21517,6 +21575,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , VALORCOTAGERAL
                     , TIPOCOTACLIENTE
                     , VALORCOTACLIENTE
+                    , TIPOLIMITADOR
+                    , QTMINCOMBOLIBMED
+                    , QTMAXCOMBOMED
                  FROM PCPROMOCAOMED
                 WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
 
@@ -21574,8 +21635,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Regiões
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
               INSERT INTO PCMED_PROMOCAOREG(
-                          NUMREGIAO )
+                          NUMREGIAO
+                        , QTMAXCOMBOMED )
                    SELECT NUMREGIAO
+                        , QTMAXCOMBOMED
                      FROM PCPROMOCAOREGIAOMED
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
              END IF;
@@ -21583,8 +21646,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Praças
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
                 INSERT INTO PCMED_PROMOCAOPRACA(
-                            CODPRACA )
+                            CODPRACA
+                          , QTMAXCOMBOMED )
                      SELECT CODPRACA
+                          , QTMAXCOMBOMED
                        FROM PCPROMOCAOPRACAMED
                       WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
             END IF;
@@ -21592,8 +21657,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Ramos de Atividade
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
               INSERT INTO PCMED_PROMOCAOATIV(
-                          CODATIV )
+                          CODATIV
+                        , QTMAXCOMBOMED )
                    SELECT CODATIV
+                        , QTMAXCOMBOMED
                      FROM PCPROMOCAORAMOATIVMED
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
             END IF;
@@ -21601,8 +21668,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Redes
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
               INSERT INTO PCMED_PROMOCAOREDE(
-                          CODREDE )
+                          CODREDE
+                        , QTMAXCOMBOMED )
                    SELECT CODREDE
+                        , QTMAXCOMBOMED
                      FROM PCPROMOCAOREDEMED
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
             END IF;
@@ -21610,8 +21679,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Carrega Tabela Temporária de Clientes
             IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
               INSERT INTO PCMED_PROMOCAOCLI(
-                          CODCLI )
+                          CODCLI
+                        , QTMAXCOMBOMED )
                    SELECT CODCLI
+                        , QTMAXCOMBOMED
                      FROM PCPROMOCAOCLIMED
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
             END IF;
@@ -21667,14 +21738,18 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- DDMEDICA-2258 (Somente carregará as inf se a promoção não for "Por Rede/Cliente (1)")
               IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
                 INSERT INTO PCMED_PROMOCAOCLASSE(
-                            CLASSE )
+                            CLASSE
+                          , QTMAXCOMBOMED )
                      SELECT CLASSEVENDA
+                          , QTMAXCOMBOMED
                        FROM PCPROMOCAOCLASSEVENDAMED
                       WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
                 --
                 INSERT INTO PCMED_PROMOCAOGRUPOCOMERC(
-                            CODGRUPOCOMERCIALMED )
+                            CODGRUPOCOMERCIALMED
+                          , QTMAXCOMBOMED )
                      SELECT CODGRUPOCOMERCIALMED
+                          , QTMAXCOMBOMED
                        FROM PCPROMOCAOGRUPOCOMERCMED
                       WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
               END IF;
@@ -22591,7 +22666,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV )            
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED )
                  SELECT CODPROMOCAOMED, IDENTIFICADORPROMOCAO, TIPOPOLITICA, DESCRICAORESUMIDA, DESCRICAODETALHADA,
                         DATAINICIAL, DATAFINAL, TIPOPROMOCAO, TIPORESTRICAO, BASECREDDEBRCA, CREDITASOBREPOLITICA,
                         CONSIDERACALCGIROMEDIC, UTILIZADESCREDE, TIPOPLANOPAG, APLICAFAMILIAPRODUTOS, ALTERADESCONTO,
@@ -22602,7 +22677,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED
                    FROM PCMED_PROMOCAO;
             -- Guarda Valores de Restrições antes da edição do usuário
             INSERT INTO PCMED_PROMOCAORESTRICOES(TIPOREG, TIPOCODIGO, CODIGO) SELECT 'OLD' TIPOREG, 'OP' TIPOCODIGO, ORIGEMPED              FROM PCMED_PROMOCAOORIGEM;
