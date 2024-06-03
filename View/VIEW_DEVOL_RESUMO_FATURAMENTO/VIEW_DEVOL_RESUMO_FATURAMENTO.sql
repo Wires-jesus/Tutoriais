@@ -198,7 +198,11 @@ SELECT PCFORNEC.CODFORNEC,
            0) QT,
        NVL(PCMOV.QTCONT, 0) QTCONT,
        PCPRODUT.QTUNITCX,
-       (NVL(PCMOV.QT, 0) *
+       (CASE WHEN NVL(PCMOV.QT, 0) = 0 AND (PCMOV.TIPOMERC = 'L') THEN
+           NVL(PCMOV.QTCONT, 0)
+        ELSE
+           NVL(PCMOV.QT, 0)
+        END *
        (DECODE(PCNFSAID.CONDVENDA,
                 5,
                 0,
