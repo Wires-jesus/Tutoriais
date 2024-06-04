@@ -156,7 +156,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
    AND d.nrocheckout = e.nrocheckout
    AND d.seqdocto = e.seqdocto
    AND d.especie = 'NF'
-   AND c.seqpessoa IS NULL
+   AND NVL(c.seqpessoa,1) IN (1,2,3)
    AND c.cnpjcpf IS NOT NULL
    AND NVL(C.SEQPESSOA, 1) = F.CODCLI(+))
 
@@ -1231,7 +1231,7 @@ BEGIN
  RETURN(vPRAZOCC);
 END;
 
-\ 
+\
 
 CREATE OR REPLACE FUNCTION FNC_INT_C5_OBTERNUMPED(pSeqDocto NUMBER,
                                                   pNroEmpresa NUMBER,
