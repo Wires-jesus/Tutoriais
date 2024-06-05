@@ -1,0 +1,46 @@
+{
+  "nome":"VIEW_MED_PROMOCAO_CLIENTE",
+  "tipoPLSQL":"VIEW",
+  "dependencias": [
+    {
+      "nome": "PCCLIENT",
+      "tipo": "TABELA",
+      "versao": "5.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOGRUPOCOMERCMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOCLASSEVENDAMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOPRACAMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAORAMOATIVMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOREDEMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOCLIMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO",
+      "tipo": "VIEW",
+      "versao": "6.0.01.000"
+    }
+  ]
+}

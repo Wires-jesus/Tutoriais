@@ -1,0 +1,21 @@
+{
+  "nome":"VIEW_MED_PROMOCAO_REGIAO",
+  "tipoPLSQL":"VIEW",
+  "dependencias": [
+    {
+      "nome": "PCREGIAO",
+      "tipo": "TABELA",
+      "versao": "4.0.01.000"
+    },
+    {
+      "nome": "PCPROMOCAOREGIAOMED",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO",
+      "tipo": "VIEW",
+      "versao": "6.0.01.000"
+    }
+  ]
+}
