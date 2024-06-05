@@ -17229,7 +17229,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtFIMINTERVALO_AUX           TT_NUMBER;
     vtOBRIGATORIO_AUX            TT_VARCHAR2;
     vtFAIXAZERO_AUX              TT_VARCHAR2;
-	vtVALORMINIMO_AUX            TT_NUMBER;
+    vtVALORMINIMO_AUX            TT_NUMBER;
+    vtQTMINCOMBOLIBMED_AUX       TT_NUMBER;
+    vtQTMAXCOMBOMED_AUX          TT_NUMBER;
     --
     vtCODPROMOCAOMED             TT_NUMBER;
     vtDESCRICAORESUMIDA          TT_VARCHAR2;
@@ -17255,15 +17257,19 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtFIMINTERVALOPROMOCAOMED    TT_NUMBER;
     vtPROMOCAOMEDOBRIGATORIO     TT_VARCHAR2;
     vtFAIXAZERO                  TT_VARCHAR2;
-	vtVALORMINIMO                TT_NUMBER;
+    vtVALORMINIMO                TT_NUMBER;
+    vtQTMINCOMBOLIBMED           TT_NUMBER;
+    vtQTMAXCOMBOMED              TT_NUMBER;
     --
     vtCODPLPAG                   TT_NUMBER;
     vtCGCFILIAL_PLPAG            TT_VARCHAR2;
     --
     vtCGCENT                     TT_VARCHAR2;
+    vtQTMAXCOMBOMED_CLIENTE      TT_NUMBER;
     --
     vtNUMREGIAO                  TT_NUMBER;
     vtUF_REGIAO                  TT_VARCHAR2;
+    vtQTMAXCOMBOMED_REGIAO       TT_NUMBER;
     -- Campanha
     vnQtdeMinima                 NUMBER;
     vnFaixaInicial               NUMBER;
@@ -17560,7 +17566,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESC_HYPER.FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
-					  , VIEW_MED_PROMOCAO.VALORMINIMO
+                      , VIEW_MED_PROMOCAO.VALORMINIMO
+                      , VIEW_MED_PROMOCAO.QTMINCOMBOLIBMED
+                      , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17626,7 +17634,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
-					  , VIEW_MED_PROMOCAO.VALORMINIMO
+                      , VIEW_MED_PROMOCAO.VALORMINIMO
+                      , VIEW_MED_PROMOCAO.QTMINCOMBOLIBMED
+                      , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17691,7 +17701,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , vtFIMINTERVALO_AUX
                         , vtOBRIGATORIO_AUX
                         , vtFAIXAZERO_AUX
-						, vtVALORMINIMO_AUX;
+                        , vtVALORMINIMO_AUX
+                        , vtQTMINCOMBOLIBMED_AUX
+                        , vtQTMAXCOMBOMED_AUX;
     EXCEPTION
       WHEN OTHERS THEN
         RAISE e_View;
@@ -17744,6 +17756,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPROMOCAOMEDOBRIGATORIO(viIdxProxItem)     := vtOBRIGATORIO_AUX(viIdxPromocao);
               vtFAIXAZERO(viIdxProxItem)                  := 'S'; -->> INDICATIVO DE FAIXA ZERO PARA NÃO TER DESCONTO
               vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
+              vtQTMINCOMBOLIBMED(viIdxProxItem)           := vtQTMINCOMBOLIBMED_AUX(viIdxPromocao);
+              vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
             -- Se a primeira faixa iniciar no valor 1, somente puxa a quantidade inicial para zero
             ELSE
 
@@ -17785,8 +17799,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         vtFIMINTERVALOPROMOCAOMED(viIdxProxItem)    := vtFIMINTERVALO_AUX(viIdxPromocao);
         vtPROMOCAOMEDOBRIGATORIO(viIdxProxItem)     := vtOBRIGATORIO_AUX(viIdxPromocao);
         vtFAIXAZERO(viIdxProxItem)                  := vtFAIXAZERO_AUX(viIdxPromocao);
-		vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
-      
+        vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
+        vtQTMINCOMBOLIBMED(viIdxProxItem)           := vtQTMINCOMBOLIBMED_AUX(viIdxPromocao);
+        vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
+              
       END LOOP;
 
     END IF;
@@ -17886,51 +17902,57 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Somente Faixa de Quantidade é Progressivo
             IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F')) THEN              
               vvProgressivoCondicao := 'S';
-			  vsTipoFaixaProgressivo := 'Q';
+              vsTipoFaixaProgressivo := 'Q';
             ELSE
               vvProgressivoCondicao := 'N';
-			  vsTipoFaixaProgressivo := '';
+              vsTipoFaixaProgressivo := '';
             END IF;            
             
-			-- Novo Layout
-			IF vsVersaoLayout = '4.18.2' THEN
-               vsMixProduto        := 'N';
-               viLimitador         := 99999;
-               viLiberacaoDeCanais := 0;
+            -- Novo Layout
+            IF vsVersaoLayout = '4.18.2' THEN
+              vsMixProduto        := 'N';
+              viLiberacaoDeCanais := 0;
+               
+              IF vtTIPOPROMOCAO(viIdxPromocao) = 'K' AND vtQTMAXCOMBOMED(viIdxPromocao) <> 0 THEN
+                viLimitador := vtQTMAXCOMBOMED(viIdxPromocao);
+              ELSE
+                viLimitador := NULL;
+              END IF;
               
-               viQtdCompraColetiva := 0;
-               IF vtTIPOPROMOCAO(viIdxPromocao) IN ('M', 'F') THEN
-                 viQtdCompraColetiva := NVL(vtVALORMINIMO(viIdxPromocao),0); 
-               END IF;
+              IF vtTIPOPROMOCAO(viIdxPromocao) = 'K' AND vtQTMINCOMBOLIBMED(viIdxPromocao) <> 0 THEN
+                viQtdCompraColetiva := vtQTMINCOMBOLIBMED(viIdxPromocao);
+              ELSE
+                viQtdCompraColetiva := NULL;
+              END IF;
 			   
-               vvConteudoCondicao := '1'                                                  ||
-                                  RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
-                                  GET_CHR_OP                                              ||
-                                  RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
-                                  TO_CHAR(vtDATAINICIAL(viIdxPromocao), 'YYYYMMDD')       ||
-                                  TO_CHAR(vtDATAFINAL(viIdxPromocao), 'YYYYMMDD')         ||
-                                  RPAD_BRANCOS(vtATIVA(viIdxPromocao), 1)                 ||
-                                  RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
-                                  RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
-                                  RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
-                                  RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1)    ||
-                                  RPAD_BRANCOS(vsMixProduto,1)                            ||
-                                  RPAD_BRANCOS(vsTipoFaixaProgressivo,1)                  ||
-                                  LPAD_ZEROS(viQtdCompraColetiva,5)                       ||
-                                  LPAD_ZEROS(viLimitador,5)                               ||
-                                  RPAD_BRANCOS(viLiberacaoDeCanais,1);
+              vvConteudoCondicao := '1'                                                  ||
+                                 RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
+                                 GET_CHR_OP                                              ||
+                                 RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
+                                 TO_CHAR(vtDATAINICIAL(viIdxPromocao), 'YYYYMMDD')       ||
+                                 TO_CHAR(vtDATAFINAL(viIdxPromocao), 'YYYYMMDD')         ||
+                                 RPAD_BRANCOS(vtATIVA(viIdxPromocao), 1)                 ||
+                                 RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
+                                 RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
+                                 RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
+                                 RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1)    ||
+                                 RPAD_BRANCOS(vsMixProduto,1)                            ||
+                                 RPAD_BRANCOS(vsTipoFaixaProgressivo,1)                  ||
+                                 CASE WHEN viQtdCompraColetiva IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viQtdCompraColetiva, 5) END ||
+                                 CASE WHEN viLimitador IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viLimitador, 5) END ||
+                                 RPAD_BRANCOS(viLiberacaoDeCanais,1);
             ELSE
-               vvConteudoCondicao := '1'                                                  ||
-                                  RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
-                                  GET_CHR_OP                                              ||
-                                  RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
-                                  TO_CHAR(vtDATAINICIAL(viIdxPromocao), 'YYYYMMDD')       ||
-                                  TO_CHAR(vtDATAFINAL(viIdxPromocao), 'YYYYMMDD')         ||
-                                  RPAD_BRANCOS(vtATIVA(viIdxPromocao), 1)                 ||
-                                  RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
-                                  RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
-                                  RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
-                                  RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1);
+              vvConteudoCondicao := '1'                                                  ||
+                                 RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
+                                 GET_CHR_OP                                              ||
+                                 RPAD_BRANCOS(vvDescricaoPromocao, 255)                  ||
+                                 TO_CHAR(vtDATAINICIAL(viIdxPromocao), 'YYYYMMDD')       ||
+                                 TO_CHAR(vtDATAFINAL(viIdxPromocao), 'YYYYMMDD')         ||
+                                 RPAD_BRANCOS(vtATIVA(viIdxPromocao), 1)                 ||
+                                 RPAD_BRANCOS(vvQtdeFixaCondicao, 1)                     ||
+                                 RPAD_BRANCOS(vvProgressivoCondicao, 1)                  ||
+                                 RPAD_BRANCOS(vtDESCRICAODETALHADA(viIdxPromocao), 2000) ||
+                                 RPAD_BRANCOS(vtTIPOCAMPANHAHYPERA(viIdxPromocao), 1);
             END IF; -- vsVersaoLayout = '4.18.2'
 			
           -- Registro de Condição - Demais Promoções
@@ -18109,22 +18131,41 @@ IS PRAGMA SERIALLY_REUSABLE;
             IF (vvGerarUf = 'S') THEN        
           
               vtUF_REGIAO.DELETE;
+              vtQTMAXCOMBOMED_REGIAO.DELETE;
 
-              EXECUTE IMMEDIATE ' SELECT DISTINCT VIEW_MED_PROMOCAO_REGIAO.UF
+              EXECUTE IMMEDIATE ' SELECT VIEW_MED_PROMOCAO_REGIAO.UF
+                                       , SUM(VIEW_MED_PROMOCAO_REGIAO.QTMAXCOMBOMED) AS QTMAXCOMBOMED
                                     FROM VIEW_MED_PROMOCAO_REGIAO
                                    WHERE VIEW_MED_PROMOCAO_REGIAO.CODPROMOCAOMED = ' || '''' || vvCodigoPromocao || '''' || '
+                                   GROUP BY VIEW_MED_PROMOCAO_REGIAO.UF
                                    ORDER BY VIEW_MED_PROMOCAO_REGIAO.UF '
-              BULK COLLECT INTO vtUF_REGIAO;
+              BULK COLLECT INTO vtUF_REGIAO, vtQTMAXCOMBOMED_REGIAO;
               
               IF (vtUF_REGIAO.COUNT > 0) THEN
             
                 FOR viIdxUf IN vtUF_REGIAO.FIRST..vtUF_REGIAO.LAST LOOP
                                               
-                  -- Conteúdo
-                  vvConteudo := '3'                                ||
-                                RPAD_BRANCOS(vvCodigoPromocao, 20) ||
-                                GET_CHR_OP                         ||
-                                LPAD_ZEROS(vtUF_REGIAO(viIdxUf), 2);
+                  IF vsVersaoLayout = '4.18.2' THEN
+                    
+                    IF vtTIPOPROMOCAO(viIdxPromocao) = 'K' AND vtQTMAXCOMBOMED_REGIAO(viIdxUf) <> 0 THEN
+                      viLimitador := vtQTMAXCOMBOMED_REGIAO(viIdxUf);
+                    ELSE
+                      viLimitador := NULL;
+                    END IF; 
+                    
+                    -- Conteúdo
+                    vvConteudo := '3'                                 ||
+                                  RPAD_BRANCOS(vvCodigoPromocao, 20)  ||
+                                  GET_CHR_OP                          ||
+                                  LPAD_ZEROS(vtUF_REGIAO(viIdxUf), 2) ||
+                                  CASE WHEN viLimitador IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viLimitador, 5) END;
+                  ELSE
+                    -- Conteúdo
+                    vvConteudo := '3'                                ||
+                                  RPAD_BRANCOS(vvCodigoPromocao, 20) ||
+                                  GET_CHR_OP                         ||
+                                  LPAD_ZEROS(vtUF_REGIAO(viIdxUf), 2);
+                  END IF;
                   
                   -- Observação
                   vvObsExportacao := TRIM(TO_CHAR(viSequencia,'000000000'))    ||
@@ -18163,12 +18204,14 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF (vtRESTRICAOCLIENTE(viIdxPromocao) = 'S') THEN
           
             vtCGCENT.DELETE;
+            vtQTMAXCOMBOMED_CLIENTE.DELETE;
           
             EXECUTE IMMEDIATE ' SELECT VIEW_MED_PROMOCAO_CLIENTE.CGCENT
+                                     , VIEW_MED_PROMOCAO_CLIENTE.QTMAXCOMBOMED
                                   FROM VIEW_MED_PROMOCAO_CLIENTE
                                  WHERE VIEW_MED_PROMOCAO_CLIENTE.CODPROMOCAOMED = ' || '''' || vvCodigoPromocao || '''' || '
                                  ORDER BY VIEW_MED_PROMOCAO_CLIENTE.CODCLI '
-            BULK COLLECT INTO vtCGCENT;
+            BULK COLLECT INTO vtCGCENT, vtQTMAXCOMBOMED_CLIENTE;
             
             IF (vtCGCENT.COUNT > 0) THEN
           
@@ -18181,12 +18224,28 @@ IS PRAGMA SERIALLY_REUSABLE;
                 ELSE
                   vvTipoRegistroPdv := '3';
                 END IF;
+                
+                IF vsVersaoLayout = '4.18.2' THEN  
+                                    
+                  IF vtTIPOPROMOCAO(viIdxPromocao) = 'K' AND vtQTMAXCOMBOMED_CLIENTE(viIdxCliente) <> 0 THEN
+                    viLimitador := vtQTMAXCOMBOMED_CLIENTE(viIdxCliente);
+                  ELSE
+                    viLimitador := NULL;
+                  END IF; 
                             
-                -- Conteúdo
-                vvConteudo := vvTipoRegistroPdv                  ||
-                              RPAD_BRANCOS(vvCodigoPromocao, 20) ||
-                              GET_CHR_OP                         ||
-                              LPAD_ZEROS(vtCGCENT(viIdxCliente), 14);
+                  -- Conteúdo
+                  vvConteudo := vvTipoRegistroPdv                      ||
+                                RPAD_BRANCOS(vvCodigoPromocao, 20)     ||
+                                GET_CHR_OP                             ||
+                                LPAD_ZEROS(vtCGCENT(viIdxCliente), 14) ||
+                                CASE WHEN viLimitador IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viLimitador, 5) END;
+                ELSE
+                  -- Conteúdo
+                  vvConteudo := vvTipoRegistroPdv                  ||
+                                RPAD_BRANCOS(vvCodigoPromocao, 20) ||
+                                GET_CHR_OP                         ||
+                                LPAD_ZEROS(vtCGCENT(viIdxCliente), 14);
+                END IF;
                 
                 -- Observação
                 vvObsExportacao := TRIM(TO_CHAR(viSequencia,'000000000'))    ||
