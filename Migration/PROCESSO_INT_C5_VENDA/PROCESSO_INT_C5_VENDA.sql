@@ -2466,7 +2466,11 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 THEN p.idtransacao
             ELSE NULL
          END) numtranspagdigital,
-        NULL nsupagdigital,
+        (CASE
+            WHEN f.especie = 'G'
+                THEN p.nsutef
+            ELSE NULL
+         END) nsupagdigital,
         fnc_int_c5_nome_pix(p.idcarteira) nomecarteiradigital,
         (CASE
             WHEN f.especie = 'G'
