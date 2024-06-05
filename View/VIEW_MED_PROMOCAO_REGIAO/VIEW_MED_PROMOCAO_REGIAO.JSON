@@ -14,8 +14,8 @@
     },
     {
       "nome": "VIEW_MED_PROMOCAO",
-      "tipo": "VIEW",
-      "versao": "6.0.01.000"
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.02.000"
     }
   ]
 }
