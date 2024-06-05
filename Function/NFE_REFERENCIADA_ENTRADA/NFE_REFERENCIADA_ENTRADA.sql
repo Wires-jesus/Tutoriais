@@ -116,8 +116,8 @@ BEGIN
 
   ELSE
 
-    --  Nota de devolu??o
-    IF (V_TIPODESCARGA IN ('6', '8', 'T', 'C') AND NVL(V_FINALIDADENFE,'X') NOT IN ('C', 'A')) THEN
+    --  Nota de devolução
+    IF (V_TIPODESCARGA IN ('6', '8', 'T', 'C') AND (NVL(V_FINALIDADENFE,'X') <> 'C')) THEN
 
       SELECT NVL((SELECT NVL(PCESTCOM.NUMTRANSVENDA,
                             0)
@@ -350,7 +350,7 @@ BEGIN
       RETURN RETORNO;
     END IF;
 
-    --  Nota de estorno de devolu??o 
+    --  Nota de estorno de devolução 
     IF (V_MOTESTORNONFE IS NOT NULL) THEN
 
       NUMERO_TRANSACAO := V_NUMTRANSVENDAORIGEM;
