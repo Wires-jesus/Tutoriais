@@ -6,6 +6,26 @@
    "nome": "TABELA_CTE_IDENTIFICACAO",
    "tipo":"OBJETO_PLSQL",
    "versao": "4.0.01.000"
+  },
+  {
+   "nome": "CTE_EMITENTE",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.02.000"
+  },
+  {
+   "nome": "CTE_DESTINATARIO",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.02.000"
+  },
+  {
+   "nome": "CTE_INFO_CARGA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "4.0.01.000"
+  },
+  {
+   "nome": "NFE_RODAPE_SAIDA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "5.0.03.000"
   }
  ]
 }
