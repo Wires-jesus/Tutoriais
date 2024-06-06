@@ -2,5 +2,10 @@
     "nome": "NOVO_DICIONARIO_203",
     "tipoPLSQL": "MIGRATION",
     "dependencias":[
+		{
+		  "nome": "DICIONARIO.203",
+		  "tipo": "DICIONARIO",
+		  "versao": "5.0.02.000"
+		}
     ]
   }
