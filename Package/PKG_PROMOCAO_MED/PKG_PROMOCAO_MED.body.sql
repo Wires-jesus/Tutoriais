@@ -7329,7 +7329,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vPRODDESCRICAODANFE       PCPEDI.PRODDESCRICAODANFE%TYPE,
          vPRODDESCRICAOCONTRATO    PCPEDI.PRODDESCRICAOCONTRATO%TYPE,
          nNUMVERBAREBCMV           PCPEDI.NUMVERBAREBCMV%TYPE,
-         nNUMITEMPED               PCPEDI.NUMITEMPED%TYPE
+         nNUMITEMPED               PCPEDI.NUMITEMPED%TYPE,
+         nQTCOMBOVIRTUAL           PCPEDI.QTCOMBOVIRTUAL%TYPE
          );
     vrItemPedido                   TRecItemPedido;
     vrLimpaItemPedido              TRecItemPedido;
@@ -11301,6 +11302,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrItemPedido.vPRODDESCRICAOCONTRATO    := vtIncluiItens(viNumSeq).vvDescricaoProdutoDanfe;
             vrItemPedido.nNUMITEMPED               := vtIncluiItens(viNumSeq).vnNUMITEMPED;
             
+            if vvTipoPromocaoPedido = 'K' THEN
+              vrItemPedido.nQTCOMBOVIRTUAL := PI_NQTCOMBOS;
+            END IF;
+            
             IF (pi_nTipoChamada IN (3,18)) THEN
               -- Log do Item
               P_INSERE_LOG(viLacoValidar, 'pi_nCodEdital: ' || pi_nCodEdital);
@@ -14639,13 +14644,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                       -- Atualiza
                       IF (vvCodFilialRetira IS NULL) THEN
                         UPDATE PCPEDI
-                           SET QT = NVL(vrItemPedido.nQT,0)
+                           SET QT = NVL(vrItemPedido.nQT,0),
+                               QTCOMBOVIRTUAL = NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
                          WHERE (NUMPED         = pi_nNumPed)
                            AND (CODPROD        = vrItemPedido.nCODPROD)
                            AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
                       ELSE
                         UPDATE PCPEDI
-                           SET QT = NVL(vrItemPedido.nQT,0)
+                           SET QT = NVL(vrItemPedido.nQT,0),
+                               QTCOMBOVIRTUAL = NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
                          WHERE (NUMPED          = pi_nNumPed)
                            AND (CODPROD         = vrItemPedido.nCODPROD)
                            AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
@@ -14659,13 +14666,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                       -- Atualiza
                       IF (vvCodFilialRetira IS NULL) THEN
                         UPDATE PCPEDI
-                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0)
+                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
+                               QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
                          WHERE (NUMPED         = pi_nNumPed)
                            AND (CODPROD        = vrItemPedido.nCODPROD)
                            AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
                       ELSE
                         UPDATE PCPEDI
-                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0)
+                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
+                               QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
                          WHERE (NUMPED          = pi_nNumPed)
                            AND (CODPROD         = vrItemPedido.nCODPROD)
                            AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
@@ -14875,6 +14884,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PRODDESCRICAODANFE
                               , PRODDESCRICAOCONTRATO
                               , NUMITEMPED
+                              , QTCOMBOVIRTUAL
                               )
                         VALUES( pi_nNumPed                            -- NUMPED
                               , vrItemPedido.nCODPROD                 -- CODPROD
@@ -15021,7 +15031,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrItemPedido.nFATORCONVERSAOPEDLICIT
                               , vrItemPedido.vPRODDESCRICAODANFE
                               , vrItemPedido.vPRODDESCRICAOCONTRATO
-                              , vrItemPedido.nNUMITEMPED							  
+                              , vrItemPedido.nNUMITEMPED
+                              , vrItemPedido.nQTCOMBOVIRTUAL
                               );
 
                     -- Insere Origem Preço
