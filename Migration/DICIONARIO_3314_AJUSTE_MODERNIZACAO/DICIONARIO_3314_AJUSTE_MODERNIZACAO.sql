@@ -1,0 +1,5 @@
+BEGIN
+   UPDATE PCDICIONARIO
+   SET DESCRICAO = 'Tabela de Preço Utilizado pelo Cliente'
+   WHERE NOMEOBJETO = 'PCTABPRCLI';
+END;
