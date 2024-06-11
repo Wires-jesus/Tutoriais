@@ -2609,7 +2609,9 @@ IS PRAGMA SERIALLY_REUSABLE;
               N_QTESTDISP_O := NVL(N_QTESTDISP_O,0) - NVL(N_ESTOQUEMINSUG_O,0);
               IF (NVL(N_QTESTDISP_O,0) < 0) THEN
                 N_QTESTDISP_O := 0;
-              END IF;
+              ELSIF (vARREDONDARSUGESTAOFRACIONADA = 'S') THEN
+                N_QTESTDISP_O := ROUND(N_QTESTDISP_O, 0);
+              END IF;  
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA TRANSFERIR = <EST. DISP. FILIAL ORIGEM> - <EST. MIN.>');
               PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. DISP. PARA TRANSFERIR = ' || NVL(N_QTESTDISP_O,0));
               -- Limita a Quantidade a Transferir ao Disponível
