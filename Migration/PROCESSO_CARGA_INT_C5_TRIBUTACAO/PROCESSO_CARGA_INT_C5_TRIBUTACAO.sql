@@ -39,7 +39,13 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             c.percdesoneracao percaliqicmsdeson,
             c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
-            t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) codobservacao,
+            --t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) codobservacao,
+
+            (CASE WHEN c.codbeneficiofiscal is null THEN 
+                      null
+                 ELSE t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) 
+            END)  codobservacao,
+
             t.codst,
             t.mensagem || ' - TRIBUTACAO' tributacao,
             t.mensagem || ' - TRIBUTACAO' descaplicacao,
