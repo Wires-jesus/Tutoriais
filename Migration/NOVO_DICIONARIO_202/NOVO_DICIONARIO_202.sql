@@ -329,7 +329,7 @@ BEGIN
                                  'USADEBCREDOPERLOG', 'VLMINPEDREPOSICAO');
 
   ATUALIZASECAODICIONARIO(V_STEP_4 || '\01-Geral', V_OBJETO, V_CODIGOROTINA,
-                          V_LISTA_CAMPOS, 'S');
+                          V_LISTA_CAMPOS, 'N');
   
   V_CONTADOR := 1;
    
