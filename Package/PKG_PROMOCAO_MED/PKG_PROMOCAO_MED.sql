@@ -203,5 +203,16 @@ IS PRAGMA SERIALLY_REUSABLE;
                  para obedecer a opção de alteração de desconto e preço da promoção
   *******************************************************************************/
   PROCEDURE P_APLIC_REGRA_ALTDSCPRC_PROMO;
+  PROCEDURE P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMed      in  NUMBER,
+                                      pi_nNumRegiao           IN  NUMBER,
+                                      pi_nCodPraca            IN  NUMBER, 
+                                      pi_nCodRede             IN  NUMBER,                                             
+                                      pi_nCodCli              IN  NUMBER,
+                                      pi_nRamoAtv             IN  NUMBER, 
+                                      pi_vCLASSE              IN  VARCHAR2,
+                                      pi_codgrupo             IN  NUMBER,
+                                      pi_vUfCliente           IN  VARCHAR2,
+                                      po_qtcombovirtual       OUT NUMBER,
+                                      po_qtcombovirtual_vendidos  OUT NUMBER);  
                                        
 END PKG_PROMOCAO_MED;
