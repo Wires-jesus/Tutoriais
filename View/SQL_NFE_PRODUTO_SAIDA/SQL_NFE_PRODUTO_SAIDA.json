@@ -4,12 +4,12 @@
   {
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
-   "versao": "5.0.02.000"
+   "versao": "6.0.01.000"
   },
   {
    "nome": "PCMOVCOMPLEPREFAT",
    "tipo":"TABELA",
-   "versao": "5.0.01.000"
+   "versao": "6.0.01.000"
   },
   {
    "nome": "PCCLIENT",
