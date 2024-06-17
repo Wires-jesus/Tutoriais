@@ -1,6 +1,6 @@
 {"nome":"PROCESSO_CARGA_INT_C5_CATEGORIA","tipoPLSQL":"MIGRATION","dependencias":[
     {"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"6.0.01.000"},
-    {"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipo": "MIGRATION","versao": "6.0.02.000"},
+    {"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipo": "MIGRATION","versao": "6.0.04.000"},
     {"nome":"PCSECAO", "tipo": "TABELA", "versao": "4.0.01.000"},
     {"nome":"PCDEPTO", "tipo": "TABELA", "versao": "4.0.01.000"},
     {"nome":"PCCATEGORIA", "tipo": "TABELA", "versao": "4.0.01.000"},
