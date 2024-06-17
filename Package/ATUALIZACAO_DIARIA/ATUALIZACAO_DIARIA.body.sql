@@ -1916,6 +1916,9 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
       
         commit;      
       END LOOP;
+	  P_DEL_PEDIDO_SEM_CABECALHO(FILIAIS.CODIGO);   
+      
+      commit;  
     END LOOP;
 
     insert into PCLOGJOB
