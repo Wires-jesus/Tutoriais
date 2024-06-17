@@ -1,0 +1,5 @@
+{
+  "nome":"TRG_INS_UP_ALERT_MALHAAGENDAMENTO",
+  "tipoPLSQL":"TRIGGER",
+  "dependencias":""
+}
