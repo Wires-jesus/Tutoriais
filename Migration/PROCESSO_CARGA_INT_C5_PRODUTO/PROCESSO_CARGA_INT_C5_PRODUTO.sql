@@ -70,7 +70,18 @@ FROM (
                    NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
                    MAX(p.codncmsh) codncmsh,
                    MAX(p.aceitavendafracao) permitedecimal,
-                   MAX(p.permitemultiplicacao) permitemultiplicacao,
+                   --MAX(p.permitemultiplicacao) permitemultiplicacao,
+                   
+                   CASE WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
+                              FROM PCEMBALAGEM
+                              WHERE codprod = p.codprod
+                              AND tipoembalagem IN ('U', 'P')) > 1 THEN
+                          'S'
+                        ELSE
+                          'N'
+                   END PERMITEMULTIPLICACAO,
+
+
                    (SELECT nvl(CODCEST, 0) codcest
                     FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
                     WHERE PCCESTPRODUTO.CODPROD = p.codprod
@@ -79,11 +90,30 @@ FROM (
                    'S' ativo,
                    MAX(p.codmarca) seqmarca,
                    1 seqfamgrupo,
-                   (CASE
+                   
+                   /*(CASE
                       WHEN  MIN(p.tipoembalagem) = 'P' THEN
                             'S'
                       ELSE  'N'
-                   END)PESAVEL,
+                   END)PESAVEL,*/
+
+                   CASE
+                       WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
+                             FROM PCEMBALAGEM
+                             WHERE codprod = p.codprod
+                             AND tipoembalagem IN ('U', 'P')) > 1 THEN
+                              'N'
+                       WHEN  (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
+                              FROM PCEMBALAGEM
+                              WHERE codprod = p.codprod
+                              AND tipoembalagem IN ('P')) = 1 THEN
+                                      
+                               'S'
+                       ELSE
+                               'N'
+                  END PESAVEL,
+
+                   
                    MIN(NVL(p.indescalarelevante, 'S')) indescala,
                    MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
@@ -676,11 +706,13 @@ FROM(/*SELECT BASE, SEM A VALIDAÇÃO COM A PRECOCESTAC E PRECOCESTA I QUE NEM S
                       AND   ((DTINATIVO IS NOT NULL) OR (PR.DTEXCLUSAO IS NOT NULL) OR (NVL(PRODFILIAL.PROIBIDAVENDA, 'N') = 'N'))
                      )
     ) CESTA,
-    PCPRECOCESTAC C,
+    --PCPRECOCESTAC C,
+    (SELECT * FROM PCPRECOCESTAC WHERE TRUNC(SYSDATE) BETWEEN DTINICIO AND DTFIM) C,
     PCPRECOCESTAI I,
     PCDEPARAPRODC5 EMBC5
 WHERE CESTA.CODPRODACAB = I.CODPRODACAB(+) 
-AND   NVL(C.CODPRECOCESTA, 1) = NVL(I.CODPRECOCESTA, 1)
+--AND   NVL(C.CODPRECOCESTA, 1) = NVL(I.CODPRECOCESTA, 1)
+AND   I.CODPRECOCESTA = C.CODPRECOCESTA(+)
 AND   CESTA.CODPRODMP = NVL(I.CODPRODMP, CESTA.CODPRODMP)
 AND   CESTA.NROEMPRESA = NVL(I.CODFILIAL, CESTA.NROEMPRESA)
 --AND  EMBC5.CODAUXILIAR = CESTA.CODAUXILIAR_PRODACAB/*Clausula para eliminar cestas que estao com cadastro inconsistentes*/
