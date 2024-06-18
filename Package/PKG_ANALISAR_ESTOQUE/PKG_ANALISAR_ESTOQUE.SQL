@@ -263,8 +263,11 @@ CREATE OR REPLACE PACKAGE PKG_ANALISAR_ESTOQUE
   -- Procedure para corrigir o histórico de produtos com erros durante a atualização diária
   PROCEDURE PRC_EXECUTAR_LISTA (P_ENTRADA IN TP_ENTRADA);
 
-  -- Procedure para corrigir as fotos do PCHISTEST com base nas movimentações
+  -- Procedure para criar as fotos do PCHISTEST com base na pcest para a rotina 820
   PROCEDURE PRC_ARMAZENARSALDOSESTOQUE(psCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL);
+  
+  -- Procedure para criar as fotos do PCHISTEST com base na pcest na 504.
+  PROCEDURE PRC_ARMAZENARSALDOSESTOQUE_504;
 
   -- Procedure para corrigir as fotos do PCHISTEST com base nas movimentações
   PROCEDURE PRC_CORRIGIR_PCHISTEST (P_ENTRADA IN TP_ENTRADA);
