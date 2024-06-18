@@ -1559,8 +1559,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
       SELECT * FROM PCHISTESTFILA
        WHERE PCHISTESTFILA.CODFILIAL <> '99'
          AND (DECODE(psCODFILIAL,'99',NULL,psCODFILIAL) IS NULL
-          OR PCHISTESTFILA.CODFILIAL = psCODFILIAL)
-    ORDER BY PCHISTESTFILA.DATA, PCHISTESTFILA.CODFILIAL, PCHISTESTFILA.CODPROD;
+          OR PCHISTESTFILA.CODFILIAL = psCODFILIAL);
     -- Variáveis internas */
     TYPE TROW_TYPE IS TABLE OF vcCURSOR_PRODUTOS%ROWTYPE;
     TROW               TROW_TYPE;
@@ -1573,7 +1572,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     LOOP
       -- Buscando as próximas 500 linhas */
       FETCH vcCURSOR_PRODUTOS BULK COLLECT
-        INTO TROW LIMIT 500;
+        INTO TROW LIMIT 5000;
       -- Vá até o fim do cursor */
       EXIT WHEN TROW.COUNT = 0;
       -- Insira os dados do cursor na PCHISTEST */
@@ -1781,7 +1780,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          AND CODFILIAL = TROW(NX).CODFILIAL
          AND CODPROD = TROW(NX).CODPROD;
       -- Fim da lista do cursor */
-      END LOOP;
+        COMMIT WORK;
+	  END LOOP;
       -- Confirmando os registros */
       COMMIT WORK;
     -- Fim do cursor */
@@ -1792,6 +1792,243 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     COMMIT;
   -- Fim da procedure */
   END PRC_ARMAZENARSALDOSESTOQUE;
+  
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor               Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
+  18/06/2024     Davi Bernado        DDESTOQUE-18448     Criar procedure para criar pchistest pela rotina 504
+  /***********************************************************************************************************************/
+  PROCEDURE PRC_ARMAZENARSALDOSESTOQUE_504
+  IS
+    -- Declaração do cursor usado na gravação do PCHISTEST */
+    CURSOR vcCURSOR_PRODUTOS IS
+      SELECT * FROM PCHISTESTFILA
+       WHERE PCHISTESTFILA.CODFILIAL <> '99';
+    -- Variáveis internas */
+    TYPE TROW_TYPE IS TABLE OF vcCURSOR_PRODUTOS%ROWTYPE;
+    TROW               TROW_TYPE;
+    vsCODFILIAL         PCFILIAL.CODIGO%TYPE;
+  vdDATA_ATUALIZADA   DATE;
+  BEGIN
+    -- Abrindo curso */
+    OPEN vcCURSOR_PRODUTOS;
+    LOOP
+      -- Buscando as próximas 500 linhas */
+      FETCH vcCURSOR_PRODUTOS BULK COLLECT
+        INTO TROW LIMIT 5000;
+      -- Vá até o fim do cursor */
+      EXIT WHEN TROW.COUNT = 0;
+      -- Insira os dados do cursor na PCHISTEST */
+      FOR NX IN 1 .. TROW.COUNT LOOP
+
+      IF (vdDATA_ATUALIZADA IS NULL OR
+            vdDATA_ATUALIZADA <> TROW(NX).DATA OR
+            vsCODFILIAL IS NULL OR
+            vsCODFILIAL <> TROW(NX).CODFILIAL) THEN
+
+          DELETE
+            FROM PCHISTEST
+           WHERE DATA = TROW(NX).DATA
+             AND CODFILIAL = TROW(NX).CODFILIAL;
+
+          vdDATA_ATUALIZADA := TROW(NX).DATA;
+          vsCODFILIAL       := TROW(NX).CODFILIAL;
+
+        END IF;
+
+        INSERT INTO PCHISTEST
+          (CODFILIAL,
+           CODPROD,
+           NBM,
+           DESCRICAO,
+           CLASSIFICFISCAL,
+           UNIDADE,
+           DATA,
+           QTEST,
+           QTESTGER,
+           QTRESERV,
+           QTBLOQUEADA,
+           QTPENDENTE,
+           QTULTENT,
+           QTINDENIZ,
+           CUSTOCONT,
+           CUSTOREAL,
+           CUSTOFIN,
+           CUSTOREP,
+           CUSTOULTENT,
+           VALORULTENT,
+           CUSTODOLAR,
+           CUSTOREALSEMST,
+           CUSTOULTENTMED,
+           CUSTOULTPEDCOMPRA,
+           CUSTOFORNEC,
+           VALORULTENTMED,
+           DTGERACAO,
+           QTTRANSITO,
+           QTFRENTELOJA,
+           CUSTOFINSEMST,
+           CUSTOULTENTFINSEMST,
+           CUSTOULTENTSEMST,
+           CUSTOFORNECSEMST,
+           CUSTONFSEMSTGUIAULTENT,
+           CUSTONFSEMST,
+           CUSTONFSEMSTGUIAULTENTTAB,
+           CUSTONFSEMSTTAB,
+           CUSTOPROXIMACOMPRA,
+           CUSTOPROXIMACOMPRASEMST,
+           CUSTOREALLIQ,
+           CUSTOULTENTANT,
+           CUSTOULTENTCONT,
+           CUSTOULTENTFIN,
+           CUSTOULTENTLIQ,
+           DTULTENT,
+           VLCUSTODIAFIN,
+           VLCUSTODIAREAL,
+           VLCUSTOMESFIN,
+           VLCUSTOMESFINANT,
+           VLCUSTOMESREAL,
+           VLCUSTOMESREALANT,
+           VLFRETECONHECULTENT,
+           VLFRETECONHECULTENTTAB,
+           VLIMPORTACAOFCI,
+           VLPARCELAIMPFCI,
+           VLSTGUIAULTENT,
+           VLSTGUIAULTENTTAB,
+           VLSTULTENT,
+           VLSTULTENTTAB,
+           VLULTENTCONTSEMST,
+           VLULTPCOMPRA,
+           BASEBCR,
+           STBCR,
+           VLIPIULTENT,
+           BASEIPIULTENT,
+           PERCIPIULTENT,
+           QTTRANSITOTV13,
+           DV,
+           CODAUXILIAR,
+           CODPRODSINTEGRA,
+           EMBALAGEM,
+           DTEXCLUSAOPROD,
+           TIPOMERC,
+           TIPOMERCDEPTO,
+           CODGENEROFISCAL,
+           PERCST,
+           PISCOFINSRETIDO,
+           PERPIS,
+           PERCOFINS,
+           CODINTERNO,
+           ALIQICMSVIGENTE,
+           SITTRIBUT,
+           CODICM,
+           CODCEST,
+           QTESTOQUEEMTERCEIRO,
+           QTESTOQUEDETERCEIRO,
+           QTTRANSITOTV10,
+           CUSTOFISCAL,
+           CUSTOULTENTFISCAL)
+        VALUES
+          (TROW(NX).CODFILIAL,
+           TROW(NX).CODPROD,
+           TROW(NX).NBM,
+           SUBSTR(TROW(NX).DESCRICAO, 0, 40),
+           TROW(NX).CLASSIFICFISCAL,
+           TROW(NX).UNIDADE,
+           TROW(NX).DATA,
+           TROW(NX).QTEST,
+           TROW(NX).QTESTGER,
+           TROW(NX).QTRESERV,
+           TROW(NX).QTBLOQUEADA,
+           TROW(NX).QTPENDENTE,
+           TROW(NX).QTULTENT,
+           TROW(NX).QTINDENIZ,
+           TROW(NX).CUSTOCONT,
+           TROW(NX).CUSTOREAL,
+           TROW(NX).CUSTOFIN,
+           TROW(NX).CUSTOREP,
+           TROW(NX).CUSTOULTENT,
+           TROW(NX).VALORULTENT,
+           TROW(NX).CUSTODOLAR,
+           TROW(NX).CUSTOREALSEMST,
+           TROW(NX).CUSTOULTENTMED,
+           TROW(NX).CUSTOULTPEDCOMPRA,
+           TROW(NX).CUSTOFORNEC,
+           TROW(NX).VALORULTENTMED,
+           TROW(NX).DTGERACAO,
+           TROW(NX).QTTRANSITO,
+           TROW(NX).QTFRENTELOJA,
+           TROW(NX).CUSTOFINSEMST,
+           TROW(NX).CUSTOULTENTFINSEMST,
+           TROW(NX).CUSTOULTENTSEMST,
+           TROW(NX).CUSTOFORNECSEMST,
+           TROW(NX).CUSTONFSEMSTGUIAULTENT,
+           TROW(NX).CUSTONFSEMST,
+           TROW(NX).CUSTONFSEMSTGUIAULTENTTAB,
+           TROW(NX).CUSTONFSEMSTTAB,
+           TROW(NX).CUSTOPROXIMACOMPRA,
+           TROW(NX).CUSTOPROXIMACOMPRASEMST,
+           TROW(NX).CUSTOREALLIQ,
+           TROW(NX).CUSTOULTENTANT,
+           TROW(NX).CUSTOULTENTCONT,
+           TROW(NX).CUSTOULTENTFIN,
+           TROW(NX).CUSTOULTENTLIQ,
+           TROW(NX).DTULTENT,
+           TROW(NX).VLCUSTODIAFIN,
+           TROW(NX).VLCUSTODIAREAL,
+           TROW(NX).VLCUSTOMESFIN,
+           TROW(NX).VLCUSTOMESFINANT,
+           TROW(NX).VLCUSTOMESREAL,
+           TROW(NX).VLCUSTOMESREALANT,
+           TROW(NX).VLFRETECONHECULTENT,
+           TROW(NX).VLFRETECONHECULTENTTAB,
+           TROW(NX).VLIMPORTACAOFCI,
+           TROW(NX).VLPARCELAIMPFCI,
+           TROW(NX).VLSTGUIAULTENT,
+           TROW(NX).VLSTGUIAULTENTTAB,
+           TROW(NX).VLSTULTENT,
+           TROW(NX).VLSTULTENTTAB,
+           TROW(NX).VLULTENTCONTSEMST,
+           TROW(NX).VLULTPCOMPRA,
+           TROW(NX).BASEBCR,
+           TROW(NX).STBCR,
+           TROW(NX).VLIPIULTENT,
+           TROW(NX).BASEIPIULTENT,
+           TROW(NX).PERCIPIULTENT,
+           TROW(NX).QTTRANSITOTV13,
+           TROW(NX).DV,
+           TROW(NX).CODAUXILIAR,
+           TROW(NX).CODPRODSINTEGRA,
+           TROW(NX).EMBALAGEM,
+           TROW(NX).DTEXCLUSAOPROD,
+           TROW(NX).TIPOMERC,
+           TROW(NX).TIPOMERCDEPTO,
+           TROW(NX).CODGENEROFISCAL,
+           TROW(NX).PERCST,
+           TROW(NX).PISCOFINSRETIDO,
+           TROW(NX).PERPIS,
+           TROW(NX).PERCOFINS,
+           TROW(NX).CODINTERNO,
+           TROW(NX).ALIQICMSVIGENTE,
+           TROW(NX).SITTRIBUT,
+           TROW(NX).CODICM,
+           TROW(NX).CODCEST,
+           TROW(NX).QTESTOQUEEMTERCEIRO,
+           TROW(NX).QTESTOQUEDETERCEIRO,
+           TROW(NX).QTTRANSITOTV10,
+           TROW(NX).CUSTOFISCAL,
+           TROW(NX).CUSTOULTENTFISCAL);
+      -- Fim da lista do cursor */
+      END LOOP;
+      -- Confirmando os registros */
+      COMMIT WORK;
+    -- Fim do cursor */
+    END LOOP;
+    -- Fechar cursor */
+    CLOSE vcCURSOR_PRODUTOS;
+    -- Confirmando registros */
+    COMMIT;
+  -- Fim da procedure */
+  END PRC_ARMAZENARSALDOSESTOQUE_504;
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
