@@ -1780,7 +1780,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          AND CODFILIAL = TROW(NX).CODFILIAL
          AND CODPROD = TROW(NX).CODPROD;
       -- Fim da lista do cursor */
-      END LOOP;
+        COMMIT WORK;
+	  END LOOP;
       -- Confirmando os registros */
       COMMIT WORK;
     -- Fim do cursor */
