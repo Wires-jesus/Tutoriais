@@ -213,6 +213,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       pi_codgrupo             IN  NUMBER,
                                       pi_vUfCliente           IN  VARCHAR2,
                                       po_qtcombovirtual       OUT NUMBER,
-                                      po_qtcombovirtual_vendidos  OUT NUMBER);  
+                                      po_qtcombovirtual_vendidos  OUT NUMBER,
+                                      pi_vNumped              IN FLOAT DEFAULT NULL);  
                                        
 END PKG_PROMOCAO_MED;
