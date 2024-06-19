@@ -2587,7 +2587,7 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
     VPARAMCODCLIPC NUMBER := 0;
 
     V_SQL    VARCHAR2(10000);
-    V_SQLAUX VARCHAR2(10000);
+    V_SQLAUX VARCHAR2(10000);    
 
     --PROCEDURE DE LOG
     PROCEDURE GRAVALOGJOB(P_MODULO     IN VARCHAR2,
@@ -2596,6 +2596,8 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                           P_DATA       IN DATE,
                           P_DSJOB      IN VARCHAR2,
                           P_PARAMETROS IN VARCHAR2) IS
+     
+      PRAGMA AUTONOMOUS_TRANSACTION;                     
     BEGIN
       BEGIN
         INSERT INTO PCLOGJOB
@@ -2610,74 +2612,15 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
       END;
     END;
   BEGIN
-    V_SQL := 'SELECT
-            VENDAS.CODFILIAL,
-            VENDAS.CODPROD,
-            VENDAS.DTSAIDA DTMOV,
-            SUM(VENDAS.VLVENDA) VLVENDA,
-            SUM(VENDAS.VLCUSTOFINB) VLCUSTOFIN,
-            SUM(VENDAS.VLCUSTOREAL) VLCUSTOREAL,
-            SUM(VENDAS.VLCUSTOREP) VLCUSTOREP,
-            SUM(VENDAS.VLCUSTOCONT) VLCUSTOCONT,
-            SUM(VENDAS.QTVENDA) QTVENDA,
-            COUNT(DISTINCT(DECODE(VENDAS.CODOPER,
-                                  ''S'',
-                                  VENDAS.NUMNOTA,
-                                  ''SM'',
-                                  VENDAS.NUMNOTA,
-                                  0))) QTNOTA,
-            SUM(VENDAS.QTENT) QTENT,
-            SUM(VENDAS.VLENT) VLENT,
-            SUM(VENDAS.VLDEVOLCLI) VLDEVOLCLI,
-            SUM(VENDAS.QTBONIFIC) QTBONIFIC,
-            SUM(VENDAS.VLBONIFIC) VLBONIFIC,
-            SUM(VENDAS.QTDEVOLCLI) QTDEVOLCLI,
-            SUM(NVL(VENDAS.ICMSRETIDO,0)) ST,
-            SUM(NVL(VENDAS.VLIPI,0)) VLIPI,
-            SUM(NVL(VENDAS.VLREPASSE,0)) VLREPASSE,
-            SUM(VENDAS.VLCUSTOFINBONIF) VLCUSTOFINBONIF,
-            SUM(VENDAS.ICMSRETIDOBONIFIC) STBONIFICACAO,
-            SUM(VENDAS.VLIPIBONIFIC) VLIPIBONIFICACAO
-            --FIN-2983
-            , SUM(VENDAS.VLVERBACMV) AS VLVERBACMV
-            , SUM(VENDAS.VLVERBACMVCLI) AS VLVERBACMVCLI
-            , SUM((SELECT NVL(SUM(NVL(PCAPLICVERBAPEDI.VLVERBACMV,0)* NVL(I.QT, 0)) , 0)
-                   FROM PCAPLICVERBAPEDI, PCPEDI I
-                   WHERE PCAPLICVERBAPEDI.NUMPED = VENDAS.NUMPED
-                   AND PCAPLICVERBAPEDI.NUMPED = I.NUMPED
-                   AND PCAPLICVERBAPEDI.CODPROD = I.CODPROD
-                   AND PCAPLICVERBAPEDI.CODPROD = VENDAS.CODPROD)) AS VLVERBACMVAVULSO
-       FROM (VIEW_VENDAS_RESUMO_FATURAMENTO) VENDAS, PCFILIAL
-      WHERE VENDAS.CODFILIAL = PCFILIAL.CODIGO
-        AND VENDAS.DTSAIDA BETWEEN :P_PDTINICIO AND :P_PDTTERMINO
-        AND NVL(VENDAS.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
-        AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
-        AND PCFILIAL.CONSOLIDADADOS504 = ''S'' ';
-
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND VENDAS.CODPROD IN (' || PLISTACODIGO || ')';
-    END IF;
-
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND VENDAS.CODFILIAL = ''' || PCODFILIAL || '''';
-    END IF;
-
-    V_SQL := V_SQL ||
-             ' GROUP BY VENDAS.CODFILIAL, VENDAS.CODPROD, VENDAS.DTSAIDA';
-
-    GRAVALOGJOB('CONSOLIDACAODADOS',
-                NULL,
-                NULL,
-                SYSDATE,
-                'INICIO CONSOLIDACAO',
-                TO_CHAR(PDTINICIO, 'DD/MM/YYYY') || ' / ' ||
-                TO_CHAR(PDTTERMINO, 'DD/MM/YYYY') || ' / ' || POPCAO ||
-                ' / ' || PCODFILIAL);
-
-    -- GARANTE ALGUM TRANSACTION ABERTO ANTERIORMENTE pelo aplicativo
-    ROLLBACK;
-
-    BEGIN
+    
+  ---DELETAR PCDTPROD    
+  BEGIN
+    FOR REGISTRO IN (SELECT CODIGO
+                     FROM PCFILIAL
+                    WHERE CODIGO <> '99'
+                      AND DTEXCLUSAO IS NULL
+                      AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
+    LOOP                  
       V_SQLAUX := 'SELECT COUNT(1)
                  FROM PCDTPROD
                  WHERE DTMOV BETWEEN :PDTINICIO AND :PDTTERMINO ';
@@ -2686,9 +2629,9 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
         V_SQLAUX := V_SQLAUX || ' AND CODPROD IN ( ' || PLISTACODIGO || ')';
       END IF;
 
-      IF (PCODFILIAL IS NOT NULL) THEN
-        V_SQLAUX := V_SQLAUX || ' AND CODFILIAL = ''' || PCODFILIAL || '''';
-      END IF;
+      --IF (REGISTRO.CODIGO IS NOT NULL) THEN
+        V_SQLAUX := V_SQLAUX || ' AND CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
 
       V_SQLAUX := V_SQLAUX || ' AND ROWNUM = 1';
 
@@ -2705,22 +2648,23 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
           V_SQLAUX := V_SQLAUX || ' AND CODPROD IN (' || PLISTACODIGO || ')';
         END IF;
 
-        IF (PCODFILIAL IS NOT NULL) THEN
-          V_SQLAUX := V_SQLAUX || ' AND CODFILIAL = ''' || PCODFILIAL || '''';
-        END IF;
+        --IF (REGISTRO.CODIGO IS NOT NULL) THEN
+          V_SQLAUX := V_SQLAUX || ' AND CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+        --END IF;
 
         EXECUTE IMMEDIATE V_SQLAUX
           USING PDTINICIO, PDTTERMINO;
-      END IF;
-    EXCEPTION
-      WHEN OTHERS THEN
-        RAISE_APPLICATION_ERROR(-20000,
-                                'Ocorreu erro ao executar o SQL de dados.' ||
-                                CHR(13) || SQLERRM);
-    END;
-
-    VFUNCAO := 'Produtos';
-
+            
+        COMMIT;            
+      END IF;        
+    END LOOP; 
+  EXCEPTION
+    WHEN OTHERS THEN
+      RAISE_APPLICATION_ERROR(-20000,
+                              'Ocorreu erro ao executar o SQL de dados.' ||
+                              CHR(13) || SQLERRM);                               
+  END;
+    
     -- Gera log da execucao da consolidacao
     GRAVALOGJOB('CONSOLIDACAODADOS',
                 VFUNCAO,
@@ -2731,177 +2675,263 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 TO_CHAR(PDTTERMINO, 'DD/MM/YYYY') || ' / ' || POPCAO||
                 ' / ' || PCODFILIAL);
 
-    OPEN CURSOR_MOVIMENTACAO FOR V_SQL
-      USING PDTINICIO, PDTTERMINO;
+    VQTDECOMMIT := 0;
+    
+    -- GARANTE ALGUM TRANSACTION ABERTO ANTERIORMENTE pelo aplicativo
+    ROLLBACK;  
+    
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
     LOOP
-      FETCH CURSOR_MOVIMENTACAO
-        INTO ITENS_PCMOV;
-      EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+      V_SQL := 'SELECT
+              VENDAS.CODFILIAL,
+              VENDAS.CODPROD,
+              VENDAS.DTSAIDA DTMOV,
+              SUM(VENDAS.VLVENDA) VLVENDA,
+              SUM(VENDAS.VLCUSTOFINB) VLCUSTOFIN,
+              SUM(VENDAS.VLCUSTOREAL) VLCUSTOREAL,
+              SUM(VENDAS.VLCUSTOREP) VLCUSTOREP,
+              SUM(VENDAS.VLCUSTOCONT) VLCUSTOCONT,
+              SUM(VENDAS.QTVENDA) QTVENDA,
+              COUNT(DISTINCT(DECODE(VENDAS.CODOPER,
+                                    ''S'',
+                                    VENDAS.NUMNOTA,
+                                    ''SM'',
+                                    VENDAS.NUMNOTA,
+                                    0))) QTNOTA,
+              SUM(VENDAS.QTENT) QTENT,
+              SUM(VENDAS.VLENT) VLENT,
+              SUM(VENDAS.VLDEVOLCLI) VLDEVOLCLI,
+              SUM(VENDAS.QTBONIFIC) QTBONIFIC,
+              SUM(VENDAS.VLBONIFIC) VLBONIFIC,
+              SUM(VENDAS.QTDEVOLCLI) QTDEVOLCLI,
+              SUM(NVL(VENDAS.ICMSRETIDO,0)) ST,
+              SUM(NVL(VENDAS.VLIPI,0)) VLIPI,
+              SUM(NVL(VENDAS.VLREPASSE,0)) VLREPASSE,
+              SUM(VENDAS.VLCUSTOFINBONIF) VLCUSTOFINBONIF,
+              SUM(VENDAS.ICMSRETIDOBONIFIC) STBONIFICACAO,
+              SUM(VENDAS.VLIPIBONIFIC) VLIPIBONIFICACAO
+              --FIN-2983
+              , SUM(VENDAS.VLVERBACMV) AS VLVERBACMV
+              , SUM(VENDAS.VLVERBACMVCLI) AS VLVERBACMVCLI
+              , SUM((SELECT NVL(SUM(NVL(PCAPLICVERBAPEDI.VLVERBACMV,0)* NVL(I.QT, 0)) , 0)
+                     FROM PCAPLICVERBAPEDI, PCPEDI I
+                     WHERE PCAPLICVERBAPEDI.NUMPED = VENDAS.NUMPED
+                     AND PCAPLICVERBAPEDI.NUMPED = I.NUMPED
+                     AND PCAPLICVERBAPEDI.CODPROD = I.CODPROD
+                     AND PCAPLICVERBAPEDI.CODPROD = VENDAS.CODPROD)) AS VLVERBACMVAVULSO
+         FROM (VIEW_VENDAS_RESUMO_FATURAMENTO) VENDAS, PCFILIAL
+        WHERE VENDAS.CODFILIAL = PCFILIAL.CODIGO
+          AND VENDAS.DTSAIDA BETWEEN :P_PDTINICIO AND :P_PDTTERMINO
+          AND NVL(VENDAS.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
+          AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
+          AND PCFILIAL.CONSOLIDADADOS504 = ''S'' ';
 
-      VCODFORNEC    := 0;
-      VCODEPTO      := 0;
-      VCODSEC       := 0;
-      VCODPRODPRINC := 0;
-      VQTESTGER     := 0;
-      VCUSTOFIN     := 0;
-      VCUSTOREAL    := 0;
-      VCUSTOREP     := 0;
-      VCUSTOCONT    := 0;
-
-      --PRIMEIRO PROCURA OS REGISTROS NA TABELA PCHISTESTFILA E CASO NÃO EXISTA PEGA DA PCHISTEST
-      BEGIN
-        SELECT PCPRODUT.CODFORNEC,
-               PCPRODUT.CODEPTO,
-               DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
-                      0,
-                      PCPRODUT.CODPROD,
-                      PCPRODUT.CODPRODPRINC),
-               PCPRODUT.CLASSE,
-               PCPRODUT.CODSEC,
-               PCHISTESTFILA.QTESTGER,
-               PCHISTESTFILA.CUSTOFIN,
-               PCHISTESTFILA.CUSTOREAL,
-               PCHISTESTFILA.CUSTOREP,
-               PCHISTESTFILA.CUSTOCONT
-        INTO VCODFORNEC,
-             VCODEPTO,
-             VCODPRODPRINC,
-             VCLASSE,
-             VCODSEC,
-             VQTESTGER,
-             VCUSTOFIN,
-             VCUSTOREAL,
-             VCUSTOREP,
-             VCUSTOCONT
-        FROM PCHISTESTFILA, PCPRODUT
-        WHERE PCHISTESTFILA.CODPROD = PCPRODUT.CODPROD
-        AND PCHISTESTFILA.CODFILIAL = ITENS_PCMOV.CODFILIAL
-        AND PCHISTESTFILA.CODPROD = ITENS_PCMOV.CODPROD
-        AND PCHISTESTFILA.DATA = ITENS_PCMOV.DTMOV;
-      EXCEPTION
-        WHEN OTHERS THEN
-          BEGIN
-            SELECT PCPRODUT.CODFORNEC,
-                   PCPRODUT.CODEPTO,
-                   DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
-                          0,
-                          PCPRODUT.CODPROD,
-                          PCPRODUT.CODPRODPRINC),
-                   PCPRODUT.CLASSE,
-                   PCPRODUT.CODSEC,
-                   PCHISTEST.QTESTGER,
-                   PCHISTEST.CUSTOFIN,
-                   PCHISTEST.CUSTOREAL,
-                   PCHISTEST.CUSTOREP,
-                   PCHISTEST.CUSTOCONT
-            INTO VCODFORNEC,
-                 VCODEPTO,
-                 VCODPRODPRINC,
-                 VCLASSE,
-                 VCODSEC,
-                 VQTESTGER,
-                 VCUSTOFIN,
-                 VCUSTOREAL,
-                 VCUSTOREP,
-                 VCUSTOCONT
-            FROM PCHISTEST, PCPRODUT
-            WHERE PCHISTEST.CODPROD = PCPRODUT.CODPROD
-            AND PCHISTEST.CODFILIAL = ITENS_PCMOV.CODFILIAL
-            AND PCHISTEST.CODPROD = ITENS_PCMOV.CODPROD
-            AND PCHISTEST.DATA = ITENS_PCMOV.DTMOV;
-          EXCEPTION
-            WHEN OTHERS THEN
-              NULL;
-        END;
-      END;
-
-      INSERT INTO PCDTPROD
-        (CODFILIAL,
-         CODPROD,
-         DTMOV,
-         CODEPTO,
-         CODFORNEC,
-         VLVENDA,
-         VLCUSTOFIN,
-         VLCUSTOREAL,
-         VLCUSTOREP,
-         VLCUSTOCONT,
-         QTVENDA,
-         QTNOTA,
-         VLENT,
-         QTENT,
-         QTDEVOLCLI,
-         VLDEVOLCLI,
-         QTBONIFIC,
-         VLBONIFIC,
-         CODPRODPRINC,
-         CLASSE,
-         CODSEC,
-         QTESTGER,
-         CUSTOFIN,
-         CUSTOREAL,
-         CUSTOREP,
-         CUSTOCONT,
-         ST,
-         VLIPI,
-         VLREPASSE,
-         VLCUSTOFINBONIF,
-         STBONIFICACAO,
-         VLIPIBONIFICACAO
-         --FIN-2983
-         ,VLVERBACMV
-         ,VLVERBACMVCLI
-         ,VLVERBACMVAVULSO
-         )
-      VALUES
-        (ITENS_PCMOV.CODFILIAL,
-         ITENS_PCMOV.CODPROD,
-         ITENS_PCMOV.DTMOV,
-         VCODEPTO,
-         VCODFORNEC,
-         ITENS_PCMOV.VLVENDA,
-         ITENS_PCMOV.VLCUSTOFIN,
-         ITENS_PCMOV.VLCUSTOREAL,
-         ITENS_PCMOV.VLCUSTOREP,
-         ITENS_PCMOV.VLCUSTOCONT,
-         ITENS_PCMOV.QTVENDA,
-         ITENS_PCMOV.QTNOTA,
-         ITENS_PCMOV.VLENT,
-         ITENS_PCMOV.QTENT,
-         ITENS_PCMOV.QTDEVOLCLI,
-         ITENS_PCMOV.VLDEVOLCLI,
-         ITENS_PCMOV.QTBONIFIC,
-         ITENS_PCMOV.VLBONIFIC,
-         VCODPRODPRINC,
-         VCLASSE,
-         VCODSEC,
-         VQTESTGER,
-         VCUSTOFIN,
-         VCUSTOREAL,
-         VCUSTOREP,
-         VCUSTOCONT,
-         ITENS_PCMOV.ST,
-         ITENS_PCMOV.VLIPI,
-         ITENS_PCMOV.VLREPASSE,
-         ITENS_PCMOV.VLCUSTOFINBONIF ,
-         ITENS_PCMOV.STBONIFICACAO,
-         ITENS_PCMOV.VLIPIBONIFICACAO
-         --FIN-2983
-         ,ITENS_PCMOV.VLVERBACMV
-         ,ITENS_PCMOV.VLVERBACMVCLI
-         ,ITENS_PCMOV.VLVERBACMVAVULSO
-         );
-
-      VQTDECOMMIT := VQTDECOMMIT + 1;
-
-      IF VQTDECOMMIT > 1000 THEN
-        COMMIT;
-        VQTDECOMMIT := 0;
+      IF (PLISTACODIGO IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND VENDAS.CODPROD IN (' || PLISTACODIGO || ')';
       END IF;
+
+      --IF (PCODFILIAL IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND VENDAS.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
+
+      V_SQL := V_SQL ||
+               ' GROUP BY VENDAS.CODFILIAL, VENDAS.CODPROD, VENDAS.DTSAIDA';
+      V_SQL := V_SQL ||
+               ' ORDER BY VENDAS.CODFILIAL, VENDAS.DTSAIDA, VENDAS.CODPROD';         
+
+      GRAVALOGJOB('CONSOLIDACAODADOS',
+                  NULL,
+                  NULL,
+                  SYSDATE,
+                  'INICIO CONSOLIDACAO',
+                  TO_CHAR(PDTINICIO, 'DD/MM/YYYY') || ' / ' ||
+                  TO_CHAR(PDTTERMINO, 'DD/MM/YYYY') || ' / ' || POPCAO ||
+                  ' / ' || PCODFILIAL);     
+
+      VFUNCAO := 'Produtos';    
+      
+      begin      
+        PKG_PARAMETRO_CONTABIL.SET_CODFILIAL(REGISTRO.CODIGO);
+        PKG_PARAMETRO_CONTABIL.SET_DATA1(PDTINICIO);
+        PKG_PARAMETRO_CONTABIL.SET_DATA2(PDTTERMINO);  
+      end;
+      
+      OPEN CURSOR_MOVIMENTACAO FOR V_SQL
+        USING PDTINICIO, PDTTERMINO;
+      LOOP
+        FETCH CURSOR_MOVIMENTACAO
+          INTO ITENS_PCMOV;
+        EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+
+        VCODFORNEC    := 0;
+        VCODEPTO      := 0;
+        VCODSEC       := 0;
+        VCODPRODPRINC := 0;
+        VQTESTGER     := 0;
+        VCUSTOFIN     := 0;
+        VCUSTOREAL    := 0;
+        VCUSTOREP     := 0;
+        VCUSTOCONT    := 0;
+
+        --PRIMEIRO PROCURA OS REGISTROS NA TABELA PCHISTESTFILA E CASO NÃO EXISTA PEGA DA PCHISTEST
+        BEGIN
+          SELECT PCPRODUT.CODFORNEC,
+                 PCPRODUT.CODEPTO,
+                 DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
+                        0,
+                        PCPRODUT.CODPROD,
+                        PCPRODUT.CODPRODPRINC),
+                 PCPRODUT.CLASSE,
+                 PCPRODUT.CODSEC,
+                 PCHISTESTFILA.QTESTGER,
+                 PCHISTESTFILA.CUSTOFIN,
+                 PCHISTESTFILA.CUSTOREAL,
+                 PCHISTESTFILA.CUSTOREP,
+                 PCHISTESTFILA.CUSTOCONT
+          INTO VCODFORNEC,
+               VCODEPTO,
+               VCODPRODPRINC,
+               VCLASSE,
+               VCODSEC,
+               VQTESTGER,
+               VCUSTOFIN,
+               VCUSTOREAL,
+               VCUSTOREP,
+               VCUSTOCONT
+          FROM PCHISTESTFILA, PCPRODUT
+          WHERE PCHISTESTFILA.CODPROD = PCPRODUT.CODPROD
+          AND PCHISTESTFILA.CODFILIAL = ITENS_PCMOV.CODFILIAL
+          AND PCHISTESTFILA.CODPROD = ITENS_PCMOV.CODPROD
+          AND PCHISTESTFILA.DATA = ITENS_PCMOV.DTMOV;
+        EXCEPTION
+          WHEN OTHERS THEN
+            BEGIN
+              SELECT PCPRODUT.CODFORNEC,
+                     PCPRODUT.CODEPTO,
+                     DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
+                            0,
+                            PCPRODUT.CODPROD,
+                            PCPRODUT.CODPRODPRINC),
+                     PCPRODUT.CLASSE,
+                     PCPRODUT.CODSEC,
+                     PCHISTEST.QTESTGER,
+                     PCHISTEST.CUSTOFIN,
+                     PCHISTEST.CUSTOREAL,
+                     PCHISTEST.CUSTOREP,
+                     PCHISTEST.CUSTOCONT
+              INTO VCODFORNEC,
+                   VCODEPTO,
+                   VCODPRODPRINC,
+                   VCLASSE,
+                   VCODSEC,
+                   VQTESTGER,
+                   VCUSTOFIN,
+                   VCUSTOREAL,
+                   VCUSTOREP,
+                   VCUSTOCONT
+              FROM PCHISTEST, PCPRODUT
+              WHERE PCHISTEST.CODPROD = PCPRODUT.CODPROD
+              AND PCHISTEST.CODFILIAL = ITENS_PCMOV.CODFILIAL
+              AND PCHISTEST.CODPROD = ITENS_PCMOV.CODPROD
+              AND PCHISTEST.DATA = ITENS_PCMOV.DTMOV;
+            EXCEPTION
+              WHEN OTHERS THEN
+                NULL;
+          END;
+        END;
+
+        INSERT INTO PCDTPROD
+          (CODFILIAL,
+           CODPROD,
+           DTMOV,
+           CODEPTO,
+           CODFORNEC,
+           VLVENDA,
+           VLCUSTOFIN,
+           VLCUSTOREAL,
+           VLCUSTOREP,
+           VLCUSTOCONT,
+           QTVENDA,
+           QTNOTA,
+           VLENT,
+           QTENT,
+           QTDEVOLCLI,
+           VLDEVOLCLI,
+           QTBONIFIC,
+           VLBONIFIC,
+           CODPRODPRINC,
+           CLASSE,
+           CODSEC,
+           QTESTGER,
+           CUSTOFIN,
+           CUSTOREAL,
+           CUSTOREP,
+           CUSTOCONT,
+           ST,
+           VLIPI,
+           VLREPASSE,
+           VLCUSTOFINBONIF,
+           STBONIFICACAO,
+           VLIPIBONIFICACAO
+           --FIN-2983
+           ,VLVERBACMV
+           ,VLVERBACMVCLI
+           ,VLVERBACMVAVULSO
+           )
+        VALUES
+          (ITENS_PCMOV.CODFILIAL,
+           ITENS_PCMOV.CODPROD,
+           ITENS_PCMOV.DTMOV,
+           VCODEPTO,
+           VCODFORNEC,
+           ITENS_PCMOV.VLVENDA,
+           ITENS_PCMOV.VLCUSTOFIN,
+           ITENS_PCMOV.VLCUSTOREAL,
+           ITENS_PCMOV.VLCUSTOREP,
+           ITENS_PCMOV.VLCUSTOCONT,
+           ITENS_PCMOV.QTVENDA,
+           ITENS_PCMOV.QTNOTA,
+           ITENS_PCMOV.VLENT,
+           ITENS_PCMOV.QTENT,
+           ITENS_PCMOV.QTDEVOLCLI,
+           ITENS_PCMOV.VLDEVOLCLI,
+           ITENS_PCMOV.QTBONIFIC,
+           ITENS_PCMOV.VLBONIFIC,
+           VCODPRODPRINC,
+           VCLASSE,
+           VCODSEC,
+           VQTESTGER,
+           VCUSTOFIN,
+           VCUSTOREAL,
+           VCUSTOREP,
+           VCUSTOCONT,
+           ITENS_PCMOV.ST,
+           ITENS_PCMOV.VLIPI,
+           ITENS_PCMOV.VLREPASSE,
+           ITENS_PCMOV.VLCUSTOFINBONIF ,
+           ITENS_PCMOV.STBONIFICACAO,
+           ITENS_PCMOV.VLIPIBONIFICACAO
+           --FIN-2983
+           ,ITENS_PCMOV.VLVERBACMV
+           ,ITENS_PCMOV.VLVERBACMVCLI
+           ,ITENS_PCMOV.VLVERBACMVAVULSO
+           );
+
+        VQTDECOMMIT := VQTDECOMMIT + 1;
+
+        IF VQTDECOMMIT > 1000 THEN
+          COMMIT;
+          VQTDECOMMIT := 0;
+        END IF;
+      END LOOP;
+      COMMIT;
+      VQTDECOMMIT := 0;
     END LOOP;
     ---------------------------------------------------------------------------------------------
-
-    COMMIT;
 
     VQTDECOMMIT := 0;
 
@@ -2919,7 +2949,8 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                        FROM PCFILIAL
                       WHERE CODIGO <> '99'
                         AND DTEXCLUSAO IS NULL
-                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL)
+                      ORDER BY CODIGO)
     LOOP
         V_SQL := 'INSERT INTO PCDTPROD (CODFILIAL,
 										CODPROD,
@@ -2993,79 +3024,86 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
     END LOOP;
 
     --CASO NÃO TENHA REGISTROS NA TABELA PCHISTESTFILA PEGA OS REGISTROS DA TABELA PCHISTEST
-    V_SQL := 'INSERT INTO PCDTPROD
-                (CODFILIAL,
-                 CODPROD,
-                 DTMOV,
-                 CODEPTO,
-                 CODFORNEC,
-                 VLVENDA,
-                 VLCUSTOFIN,
-                 VLCUSTOREAL,
-                 VLCUSTOREP,
-                 VLCUSTOCONT,
-                 QTVENDA,
-                 QTNOTA,
-                 VLENT,
-                 QTENT,
-                 QTDEVOLCLI,
-                 VLDEVOLCLI,
-                 CODPRODPRINC,
-                 CLASSE,
-                 CODSEC,
-                 QTESTGER,
-                 CUSTOFIN,
-                 CUSTOREAL,
-                 CUSTOREP,
-                 CUSTOCONT)
-              SELECT PCHISTEST.CODFILIAL,
-                     PCPRODUT.CODPROD,
-                     PCHISTEST.DATA,
-                     PCPRODUT.CODEPTO,
-                     PCPRODUT.CODFORNEC,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     PCPRODUT.CODPRODPRINC,
-                     PCPRODUT.CLASSE,
-                     PCPRODUT.CODSEC,
-                     PCHISTEST.QTESTGER,
-                     PCHISTEST.CUSTOFIN,
-                     PCHISTEST.CUSTOREAL,
-                     PCHISTEST.CUSTOREP,
-                     PCHISTEST.CUSTOCONT
-              FROM   PCFILIAL,
-                     PCHISTEST,
-                     PCPRODUT
-              WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
-              AND    PCHISTEST.CODFILIAL = PCFILIAL.CODIGO
-              AND    PCHISTEST.CODPROD = PCPRODUT.CODPROD
-              AND    PCHISTEST.DATA = :PDTTERMINO
-              AND NOT EXISTS( SELECT 1
-                              FROM PCDTPROD
-                              WHERE DTMOV = PCHISTEST.DATA
-                              AND CODFILIAL = PCHISTEST.CODFILIAL
-                              AND CODPROD = PCPRODUT.CODPROD)';
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
+    LOOP
+      V_SQL := 'INSERT INTO PCDTPROD
+                  (CODFILIAL,
+                   CODPROD,
+                   DTMOV,
+                   CODEPTO,
+                   CODFORNEC,
+                   VLVENDA,
+                   VLCUSTOFIN,
+                   VLCUSTOREAL,
+                   VLCUSTOREP,
+                   VLCUSTOCONT,
+                   QTVENDA,
+                   QTNOTA,
+                   VLENT,
+                   QTENT,
+                   QTDEVOLCLI,
+                   VLDEVOLCLI,
+                   CODPRODPRINC,
+                   CLASSE,
+                   CODSEC,
+                   QTESTGER,
+                   CUSTOFIN,
+                   CUSTOREAL,
+                   CUSTOREP,
+                   CUSTOCONT)
+                SELECT PCHISTEST.CODFILIAL,
+                       PCPRODUT.CODPROD,
+                       PCHISTEST.DATA,
+                       PCPRODUT.CODEPTO,
+                       PCPRODUT.CODFORNEC,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       0,
+                       PCPRODUT.CODPRODPRINC,
+                       PCPRODUT.CLASSE,
+                       PCPRODUT.CODSEC,
+                       PCHISTEST.QTESTGER,
+                       PCHISTEST.CUSTOFIN,
+                       PCHISTEST.CUSTOREAL,
+                       PCHISTEST.CUSTOREP,
+                       PCHISTEST.CUSTOCONT
+                FROM   PCFILIAL,
+                       PCHISTEST,
+                       PCPRODUT
+                WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
+                AND    PCHISTEST.CODFILIAL = PCFILIAL.CODIGO
+                AND    PCHISTEST.CODPROD = PCPRODUT.CODPROD
+                AND    PCHISTEST.DATA = :PDTTERMINO
+                AND NOT EXISTS( SELECT 1
+                                FROM PCDTPROD
+                                WHERE DTMOV = PCHISTEST.DATA
+                                AND CODFILIAL = ''' || REGISTRO.CODIGO || '''
+                                AND CODPROD = PCPRODUT.CODPROD)';
 
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCHISTEST.CODPROD IN ( ' || PLISTACODIGO || ')';
-    END IF;
+      IF (PLISTACODIGO IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCHISTEST.CODPROD IN ( ' || PLISTACODIGO || ')';
+      END IF;
 
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCHISTEST.CODFILIAL = ''' || PCODFILIAL || '''';
-    END IF;
+      --IF (PCODFILIAL IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCHISTEST.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
 
-    EXECUTE immediate V_SQL USING PDTTERMINO;
+      EXECUTE immediate V_SQL USING PDTTERMINO;
 
-    COMMIT;
+      COMMIT;
+    END LOOP;
     ---------------------------------------------------------------------------------------------
 
     -- Gera log da execucao da consolidacao
@@ -3077,139 +3115,147 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 PCODFILIAL);
 
     --GRAVAÇÃO DA QUANTIDADE DE PERDA DE ESTOQUE
-    V_SQL := 'SELECT PCMOV.CODPROD,
-                   PCMOV.CODFILIAL,
-                   PCMOV.DTMOV,
-                   SUM(DECODE(PCMOV.CODOPER,
-                              ''SL'',
-                              NVL(QT, 0),
-                              ''EL'',
-                              (NVL(QT, 0) * (-1)))) QTPERDA,
-                   SUM((NVL(PCMOV.CUSTOFIN, 0) *
-                       DECODE(PCMOV.CODOPER,
-                               ''SL'',
-                               NVL(QT, 0),
-                               ''EL'',
-                               (NVL(QT, 0) * (-1))))) VLCUSTOFIN,
-                   SUM((NVL(PCMOV.CUSTOREAL, 0) *
-                       DECODE(PCMOV.CODOPER,
-                               ''SL'',
-                               NVL(QT, 0),
-                               ''EL'',
-                               (NVL(QT, 0) * (-1))))) VLCUSTOREAL,
-                   SUM((NVL(PCMOV.CUSTOREP, 0) *
-                       DECODE(PCMOV.CODOPER,
-                               ''SL'',
-                               NVL(QT, 0),
-                               ''EL'',
-                               (NVL(QT, 0) * (-1))))) VLCUSTOREP
-            FROM PCMOV, PCFILIAL
-            WHERE PCMOV.DTMOV BETWEEN :PDTINICIO AND :PDTTERMINO
-            AND NVL(PCMOV.CODOPER, ''X'') IN (''SL'', ''EL'')
-            AND PCFILIAL.CODIGO = PCMOV.CODFILIAL
-            AND PCFILIAL.CONSOLIDADADOS504 = ''S''';
-
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCMOV.CODPROD IN (' || PLISTACODIGO || ')';
-    END IF;
-
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCMOV.CODFILIAL = ''' || PCODFILIAL || '''';
-    END IF;
-
-    V_SQL := V_SQL ||
-             'GROUP BY PCMOV.CODPROD, PCMOV.CODFILIAL, PCMOV.DTMOV';
-
-    OPEN CURSOR_MOVIMENTACAO FOR V_SQL
-      USING PDTINICIO, PDTTERMINO;
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
     LOOP
-      FETCH CURSOR_MOVIMENTACAO
-        INTO ITENS_PERDA;
-      EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+      V_SQL := 'SELECT PCMOV.CODPROD,
+                     PCMOV.CODFILIAL,
+                     PCMOV.DTMOV,
+                     SUM(DECODE(PCMOV.CODOPER,
+                                ''SL'',
+                                NVL(QT, 0),
+                                ''EL'',
+                                (NVL(QT, 0) * (-1)))) QTPERDA,
+                     SUM((NVL(PCMOV.CUSTOFIN, 0) *
+                         DECODE(PCMOV.CODOPER,
+                                 ''SL'',
+                                 NVL(QT, 0),
+                                 ''EL'',
+                                 (NVL(QT, 0) * (-1))))) VLCUSTOFIN,
+                     SUM((NVL(PCMOV.CUSTOREAL, 0) *
+                         DECODE(PCMOV.CODOPER,
+                                 ''SL'',
+                                 NVL(QT, 0),
+                                 ''EL'',
+                                 (NVL(QT, 0) * (-1))))) VLCUSTOREAL,
+                     SUM((NVL(PCMOV.CUSTOREP, 0) *
+                         DECODE(PCMOV.CODOPER,
+                                 ''SL'',
+                                 NVL(QT, 0),
+                                 ''EL'',
+                                 (NVL(QT, 0) * (-1))))) VLCUSTOREP
+              FROM PCMOV, PCFILIAL
+              WHERE PCMOV.DTMOV BETWEEN :PDTINICIO AND :PDTTERMINO
+              AND NVL(PCMOV.CODOPER, ''X'') IN (''SL'', ''EL'')
+              AND PCFILIAL.CODIGO = PCMOV.CODFILIAL
+              AND PCFILIAL.CONSOLIDADADOS504 = ''S''';
 
-      BEGIN
-        UPDATE PCDTPROD
-        SET QTPERDA     = ITENS_PERDA.QTPERDA,
-            VLCUSTOFIN  = NVL(VLCUSTOFIN, 0) + ITENS_PERDA.VLCUSTOFIN,
-            VLCUSTOREAL = NVL(VLCUSTOREAL, 0) + ITENS_PERDA.VLCUSTOREAL,
-            VLCUSTOREP  = NVL(VLCUSTOREP, 0) + ITENS_PERDA.VLCUSTOREP
-        WHERE PCDTPROD.CODPROD = ITENS_PERDA.CODPROD
-        AND PCDTPROD.CODFILIAL = ITENS_PERDA.CODFILIAL
-        AND PCDTPROD.DTMOV = ITENS_PERDA.DTMOV;
-
-        IF SQL%ROWCOUNT = 0 THEN
-          SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
-          INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
-          FROM PCPRODUT
-          WHERE PCPRODUT.CODPROD = ITENS_PERDA.CODPROD;
-
-          INSERT INTO PCDTPROD
-            (CODFILIAL,
-             CODPROD,
-             DTMOV,
-             CODEPTO,
-             CODFORNEC,
-             VLVENDA,
-             VLCUSTOFIN,
-             VLCUSTOREAL,
-             VLCUSTOREP,
-             VLCUSTOCONT,
-             QTVENDA,
-             QTNOTA,
-             VLENT,
-             QTENT,
-             QTDEVOLCLI,
-             VLDEVOLCLI,
-             CODPRODPRINC,
-             CLASSE,
-             CODSEC,
-             QTESTGER,
-             CUSTOFIN,
-             CUSTOREAL,
-             CUSTOREP,
-             CUSTOCONT,
-             QTPERDA)
-          VALUES
-            (ITENS_PERDA.CODFILIAL,
-             ITENS_PERDA.CODPROD,
-             ITENS_PERDA.DTMOV,
-             VNCODEPTO,
-             VNCODFORNEC,
-             0,
-             ITENS_PERDA.VLCUSTOFIN,
-             ITENS_PERDA.VLCUSTOREAL,
-             ITENS_PERDA.VLCUSTOREP,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             VNCODPRODPRINC,
-             VSCLASSE,
-             VNCODSEC,
-             0,
-             0,
-             0,
-             0,
-             0,
-             ITENS_PERDA.QTPERDA);
-        END IF;
-      EXCEPTION
-        WHEN OTHERS THEN
-          NULL;
-      END;
-
-      VQTDECOMMIT := VQTDECOMMIT + 1;
-
-      IF VQTDECOMMIT > 1000 THEN
-        COMMIT;
-        VQTDECOMMIT := 0;
+      IF (PLISTACODIGO IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCMOV.CODPROD IN (' || PLISTACODIGO || ')';
       END IF;
+
+      --IF (PCODFILIAL IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCMOV.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
+
+      V_SQL := V_SQL ||
+               'GROUP BY PCMOV.CODPROD, PCMOV.CODFILIAL, PCMOV.DTMOV';
+
+      OPEN CURSOR_MOVIMENTACAO FOR V_SQL
+        USING PDTINICIO, PDTTERMINO;
+      LOOP
+        FETCH CURSOR_MOVIMENTACAO
+          INTO ITENS_PERDA;
+        EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+
+        BEGIN
+          UPDATE PCDTPROD
+          SET QTPERDA     = ITENS_PERDA.QTPERDA,
+              VLCUSTOFIN  = NVL(VLCUSTOFIN, 0) + ITENS_PERDA.VLCUSTOFIN,
+              VLCUSTOREAL = NVL(VLCUSTOREAL, 0) + ITENS_PERDA.VLCUSTOREAL,
+              VLCUSTOREP  = NVL(VLCUSTOREP, 0) + ITENS_PERDA.VLCUSTOREP
+          WHERE PCDTPROD.CODPROD = ITENS_PERDA.CODPROD
+          AND PCDTPROD.CODFILIAL = ITENS_PERDA.CODFILIAL
+          AND PCDTPROD.DTMOV = ITENS_PERDA.DTMOV;
+
+          IF SQL%ROWCOUNT = 0 THEN
+            SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
+            INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
+            FROM PCPRODUT
+            WHERE PCPRODUT.CODPROD = ITENS_PERDA.CODPROD;
+
+            INSERT INTO PCDTPROD
+              (CODFILIAL,
+               CODPROD,
+               DTMOV,
+               CODEPTO,
+               CODFORNEC,
+               VLVENDA,
+               VLCUSTOFIN,
+               VLCUSTOREAL,
+               VLCUSTOREP,
+               VLCUSTOCONT,
+               QTVENDA,
+               QTNOTA,
+               VLENT,
+               QTENT,
+               QTDEVOLCLI,
+               VLDEVOLCLI,
+               CODPRODPRINC,
+               CLASSE,
+               CODSEC,
+               QTESTGER,
+               CUSTOFIN,
+               CUSTOREAL,
+               CUSTOREP,
+               CUSTOCONT,
+               QTPERDA)
+            VALUES
+              (ITENS_PERDA.CODFILIAL,
+               ITENS_PERDA.CODPROD,
+               ITENS_PERDA.DTMOV,
+               VNCODEPTO,
+               VNCODFORNEC,
+               0,
+               ITENS_PERDA.VLCUSTOFIN,
+               ITENS_PERDA.VLCUSTOREAL,
+               ITENS_PERDA.VLCUSTOREP,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               VNCODPRODPRINC,
+               VSCLASSE,
+               VNCODSEC,
+               0,
+               0,
+               0,
+               0,
+               0,
+               ITENS_PERDA.QTPERDA);
+          END IF;
+        EXCEPTION
+          WHEN OTHERS THEN
+            NULL;
+        END;
+
+        VQTDECOMMIT := VQTDECOMMIT + 1;
+
+        IF VQTDECOMMIT > 1000 THEN
+          COMMIT;
+          VQTDECOMMIT := 0;
+        END IF;
+      END LOOP;
+      COMMIT;
+      VQTDECOMMIT := 0;
     END LOOP;
     ---------------------------------------------------------------------------------------------
-
     -- Gera log da execucao da consolidacao
     GRAVALOGJOB('CONSOLIDACAODADOS',
                 VFUNCAO,
@@ -3217,118 +3263,128 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 SYSDATE,
                 'ENTRADA DE MERCADORIA',
               PCODFILIAL);
+    
+    VQTDECOMMIT := 0;          
 
     --GRAVAÇÃO DAS ENTRADAS DE MERCADORIAS
-    V_SQL := 'SELECT PCMOV.CODPROD,
-                   PCMOV.CODFILIAL,
-                   PCMOV.DTMOV,
-                   SUM(DECODE(PCMOV.CODOPER, ''E'', NVL(QT, 0), ''EB'', (NVL(QT, 0)), ''ET'', NVL(QT, 0) )) QTENT,
-                   SUM((NVL(PCMOV.PUNIT, 0) * DECODE(PCMOV.CODOPER, ''E'', NVL(QT, 0), ''EB'', (NVL(QT, 0)), ''ET'', NVL(QT, 0)  ))) VLENT
-            FROM PCMOV, PCFILIAL
-            WHERE PCMOV.DTMOV BETWEEN :PDTINICIO AND :PDTTERMINO
-            AND NVL(PCMOV.CODOPER, ''X'') IN (''E'', ''EB'', ''ET'')
-            AND PCMOV.DTCANCEL IS NULL
-            AND PCFILIAL.CODIGO = PCMOV.CODFILIAL
-            AND PCFILIAL.CONSOLIDADADOS504 = ''S''';
-
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCMOV.CODPROD IN ( ' || PLISTACODIGO || ')';
-    END IF;
-
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCMOV.CODFILIAL = ''' || PCODFILIAL || '''';
-    END IF;
-
-    V_SQL := V_SQL ||
-             'GROUP BY PCMOV.CODPROD, PCMOV.CODFILIAL, PCMOV.DTMOV';
-
-    OPEN CURSOR_MOVIMENTACAO FOR V_SQL
-      USING PDTINICIO, PDTTERMINO;
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
     LOOP
-      FETCH CURSOR_MOVIMENTACAO
-        INTO ITENS_ENTRADA_MERCADORIA;
-      EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
-      BEGIN
-        UPDATE PCDTPROD
-        SET QTENT = ITENS_ENTRADA_MERCADORIA.QTENT,
-            VLENT = NVL(VLENT, 0) + ITENS_ENTRADA_MERCADORIA.VLENT
-        WHERE PCDTPROD.CODPROD = ITENS_ENTRADA_MERCADORIA.CODPROD
-        AND PCDTPROD.CODFILIAL = ITENS_ENTRADA_MERCADORIA.CODFILIAL
-        AND PCDTPROD.DTMOV = ITENS_ENTRADA_MERCADORIA.DTMOV;
+      V_SQL := 'SELECT PCMOV.CODPROD,
+                     PCMOV.CODFILIAL,
+                     PCMOV.DTMOV,
+                     SUM(DECODE(PCMOV.CODOPER, ''E'', NVL(QT, 0), ''EB'', (NVL(QT, 0)), ''ET'', NVL(QT, 0) )) QTENT,
+                     SUM((NVL(PCMOV.PUNIT, 0) * DECODE(PCMOV.CODOPER, ''E'', NVL(QT, 0), ''EB'', (NVL(QT, 0)), ''ET'', NVL(QT, 0)  ))) VLENT
+              FROM PCMOV, PCFILIAL
+              WHERE PCMOV.DTMOV BETWEEN :PDTINICIO AND :PDTTERMINO
+              AND NVL(PCMOV.CODOPER, ''X'') IN (''E'', ''EB'', ''ET'')
+              AND PCMOV.DTCANCEL IS NULL
+              AND PCFILIAL.CODIGO = PCMOV.CODFILIAL
+              AND PCFILIAL.CONSOLIDADADOS504 = ''S''';
 
-        IF SQL%ROWCOUNT = 0 THEN
-          SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
-          INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
-          FROM PCPRODUT
-          WHERE PCPRODUT.CODPROD = ITENS_ENTRADA_MERCADORIA.CODPROD;
-
-          INSERT INTO PCDTPROD
-            (CODFILIAL,
-             CODPROD,
-             DTMOV,
-             CODEPTO,
-             CODFORNEC,
-             VLVENDA,
-             VLCUSTOFIN,
-             VLCUSTOREAL,
-             VLCUSTOREP,
-             VLCUSTOCONT,
-             QTVENDA,
-             QTNOTA,
-             VLENT,
-             QTENT,
-             QTDEVOLCLI,
-             VLDEVOLCLI,
-             CODPRODPRINC,
-             CLASSE,
-             CODSEC,
-             QTESTGER,
-             CUSTOFIN,
-             CUSTOREAL,
-             CUSTOREP,
-             CUSTOCONT,
-             QTPERDA)
-          VALUES
-            (ITENS_ENTRADA_MERCADORIA.CODFILIAL,
-             ITENS_ENTRADA_MERCADORIA.CODPROD,
-             ITENS_ENTRADA_MERCADORIA.DTMOV,
-             VNCODEPTO,
-             VNCODFORNEC,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             ITENS_ENTRADA_MERCADORIA.VLENT,
-             ITENS_ENTRADA_MERCADORIA.QTENT,
-             0,
-             0,
-             VNCODPRODPRINC,
-             VSCLASSE,
-             VNCODSEC,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0);
-        END IF;
-      EXCEPTION
-        WHEN OTHERS THEN
-          NULL;
-      END;
-
-      VQTDECOMMIT := VQTDECOMMIT + 1;
-
-      IF VQTDECOMMIT > 1000 THEN
-        COMMIT;
-        VQTDECOMMIT := 0;
+      IF (PLISTACODIGO IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCMOV.CODPROD IN ( ' || PLISTACODIGO || ')';
       END IF;
+
+      --IF (PCODFILIAL IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCMOV.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
+
+      V_SQL := V_SQL ||
+               'GROUP BY PCMOV.CODPROD, PCMOV.CODFILIAL, PCMOV.DTMOV';
+
+      OPEN CURSOR_MOVIMENTACAO FOR V_SQL
+        USING PDTINICIO, PDTTERMINO;
+      LOOP
+        FETCH CURSOR_MOVIMENTACAO
+          INTO ITENS_ENTRADA_MERCADORIA;
+        EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+        BEGIN
+          UPDATE PCDTPROD
+          SET QTENT = ITENS_ENTRADA_MERCADORIA.QTENT,
+              VLENT = NVL(VLENT, 0) + ITENS_ENTRADA_MERCADORIA.VLENT
+          WHERE PCDTPROD.CODPROD = ITENS_ENTRADA_MERCADORIA.CODPROD
+          AND PCDTPROD.CODFILIAL = ITENS_ENTRADA_MERCADORIA.CODFILIAL
+          AND PCDTPROD.DTMOV = ITENS_ENTRADA_MERCADORIA.DTMOV;
+
+          IF SQL%ROWCOUNT = 0 THEN
+            SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
+            INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
+            FROM PCPRODUT
+            WHERE PCPRODUT.CODPROD = ITENS_ENTRADA_MERCADORIA.CODPROD;
+
+            INSERT INTO PCDTPROD
+              (CODFILIAL,
+               CODPROD,
+               DTMOV,
+               CODEPTO,
+               CODFORNEC,
+               VLVENDA,
+               VLCUSTOFIN,
+               VLCUSTOREAL,
+               VLCUSTOREP,
+               VLCUSTOCONT,
+               QTVENDA,
+               QTNOTA,
+               VLENT,
+               QTENT,
+               QTDEVOLCLI,
+               VLDEVOLCLI,
+               CODPRODPRINC,
+               CLASSE,
+               CODSEC,
+               QTESTGER,
+               CUSTOFIN,
+               CUSTOREAL,
+               CUSTOREP,
+               CUSTOCONT,
+               QTPERDA)
+            VALUES
+              (ITENS_ENTRADA_MERCADORIA.CODFILIAL,
+               ITENS_ENTRADA_MERCADORIA.CODPROD,
+               ITENS_ENTRADA_MERCADORIA.DTMOV,
+               VNCODEPTO,
+               VNCODFORNEC,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               ITENS_ENTRADA_MERCADORIA.VLENT,
+               ITENS_ENTRADA_MERCADORIA.QTENT,
+               0,
+               0,
+               VNCODPRODPRINC,
+               VSCLASSE,
+               VNCODSEC,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0);
+          END IF;
+        EXCEPTION
+          WHEN OTHERS THEN
+            NULL;
+        END;
+
+        VQTDECOMMIT := VQTDECOMMIT + 1;
+
+        IF VQTDECOMMIT > 1000 THEN
+          COMMIT;
+          VQTDECOMMIT := 0;
+        END IF;
+      END LOOP;
+      COMMIT;
+      VQTDECOMMIT := 0;
     END LOOP;
     ---------------------------------------------------------------------------------------------
-
     -- Gera log da execucao da consolidacao
     GRAVALOGJOB('CONSOLIDACAODADOS',
                 VFUNCAO,
@@ -3337,186 +3393,199 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 'DEVOLUÇÃO DE MERCADORIA',
                PCODFILIAL);
 
-    VQTDECOMMIT := 0;
-
+    VQTDECOMMIT := 0;    
+    
     --GRAVAÇÃO DAS DEVOLUÇÕES DE MERCADORIAS
-    V_SQL := 'SELECT TOTAL.CODPROD,
-                   TOTAL.CODFILIAL,
-                   TOTAL.DTENT DTMOV,
-                   (SUM(TOTAL.TOTALDEVOL) + SUM(TOTAL.TOTALDEVOL2)) VLDEVOLCLI,
-                   (SUM(TOTAL.QTDEVOLCLI) + SUM(TOTAL.QTDEVOLCLI2)) QTDEVOLCLI,
-                   (SUM(TOTAL.VLCUSTOFIN) + SUM(TOTAL.VLCUSTOFIN2)) VLCUSTOFINDEVOLCLI,
-                   (SUM(TOTAL.VLST)) STDEVOLUCAO,
-                   (SUM(TOTAL.VLIPI)) VLIPIDEVOLUCAO,
-                   (SUM(TOTAL.VLREPASSE)) VLREPASSEDEVOLUCAO,
-                   (SUM(TOTAL.VLCMVDEVOLBONIF)) VLCMVDEVOLBONIF,
-                   NVL((SUM(TOTAL.STBONIFDEVOL)),0) STBONIFDEVOL,
-                   NVL((SUM(TOTAL.VLIPIBONIFDEVOL)),0) VLIPIBONIFDEVOL
-            FROM (SELECT DEVOL.CODPROD,
-                         DEVOL.CODFILIAL,
-                         DEVOL.DTENT,
-                         SUM(DEVOL.VLDEVOLUCAO) TOTALDEVOL,
-                         SUM(NVL(DEVOL.QT,0) - NVL(DEVOL.QTBONIFIC,0)) QTDEVOLCLI,
-                         SUM(NVL(DEVOL.VLCMVDEVOL, 0) + NVL(DEVOL.VLCMVDEVOLBONIF,0)) VLCUSTOFIN,
-                         0 TOTALDEVOL2,
-                         0 QTDEVOLCLI2,
-                         0 VLCUSTOFIN2,
-                         SUM(NVL(DEVOL.VLST,0)) VLST,
-                         SUM(NVL(DEVOL.VLIPI,0)) VLIPI,
-                         SUM(NVL(DEVOL.VLREPASSE,0)) VLREPASSE,
-                         SUM(NVL(DEVOL.VLCMVDEVOLBONIF, 0)) VLCMVDEVOLBONIF,
-                         SUM(NVL(DEVOL.ICMSRETIDO_BONIF, 0)) STBONIFDEVOL,
-                         SUM(NVL(DEVOL.VLIPI_BONIF, 0)) VLIPIBONIFDEVOL
-                  FROM VIEW_DEVOL_RESUMO_FATURAMENTO DEVOL
-                  WHERE DEVOL.CONDVENDA NOT IN (4, 8, 10, 13, 20, 98, 99)
-                  AND DEVOL.DTENT BETWEEN :PDTINICIO AND :PDTTERMINO
-                  GROUP BY DEVOL.CODPROD, DEVOL.CODFILIAL, DEVOL.DTENT
-                  UNION ALL
-                  SELECT DEVOL2.CODPROD,
-                         DEVOL2.CODFILIAL,
-                         DEVOL2.DTENT,
-                         0 TOTALDEVOL,
-                         0 QTDEVOLCLI,
-                         0 VLCUSTOFIN,
-                         SUM(DEVOL2.VLDEVOLUCAO) TOTALDEVOL2,
-                         SUM(DEVOL2.QT) QTDEVOLCLI2,
-                         SUM(NVL(DEVOL2.VLDEVCMVAVULSAI, 0)) VLCUSTOFIN2,
-                         SUM(DEVOL2.VLST) VLST,
-                         SUM(DEVOL2.VLIPI) VLIPI,
-                         SUM(DEVOL2.VLREPASSE) VLREPASSE,
-                         0 VLCMVDEVOLBONIF,
-                         0 STBONIFDEVOL,
-                         0 VLIPIBONIFDEVOL
-                  FROM VIEW_DEVOL_RESUMO_FATURAVULSA DEVOL2
-                  WHERE DEVOL2.DTENT BETWEEN :PDTINICIO AND :PDTTERMINO
-                  GROUP BY DEVOL2.CODPROD, DEVOL2.CODFILIAL, DEVOL2.DTENT) TOTAL,
-                 PCFILIAL
-            WHERE PCFILIAL.CODIGO = TOTAL.CODFILIAL
-            AND PCFILIAL.CONSOLIDADADOS504 = ''S'' ';
-
-    IF (PLISTACODIGO IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND TOTAL.CODPROD IN ( ' || PLISTACODIGO || ')';
-    END IF;
-
-    IF (PCODFILIAL IS NOT NULL) THEN
-      V_SQL := V_SQL || ' AND PCFILIAL.CODIGO = ''' || PCODFILIAL || '''';
-    END IF;
-
-    V_SQL := V_SQL ||
-             ' GROUP BY TOTAL.CODPROD,TOTAL.CODFILIAL,TOTAL.DTENT
-                      ORDER BY TOTAL.CODPROD,TOTAL.CODFILIAL';
-
-    OPEN CURSOR_MOVIMENTACAO FOR V_SQL
-      USING PDTINICIO, PDTTERMINO, PDTINICIO, PDTTERMINO;
+    FOR REGISTRO IN (SELECT CODIGO
+                       FROM PCFILIAL
+                      WHERE CODIGO <> '99'
+                        AND DTEXCLUSAO IS NULL
+                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
     LOOP
-      FETCH CURSOR_MOVIMENTACAO
-        INTO ITENS_DEVOLUCAO_MERCADORIA;
-      EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+      V_SQL := 'SELECT TOTAL.CODPROD,
+                     TOTAL.CODFILIAL,
+                     TOTAL.DTENT DTMOV,
+                     (SUM(TOTAL.TOTALDEVOL) + SUM(TOTAL.TOTALDEVOL2)) VLDEVOLCLI,
+                     (SUM(TOTAL.QTDEVOLCLI) + SUM(TOTAL.QTDEVOLCLI2)) QTDEVOLCLI,
+                     (SUM(TOTAL.VLCUSTOFIN) + SUM(TOTAL.VLCUSTOFIN2)) VLCUSTOFINDEVOLCLI,
+                     (SUM(TOTAL.VLST)) STDEVOLUCAO,
+                     (SUM(TOTAL.VLIPI)) VLIPIDEVOLUCAO,
+                     (SUM(TOTAL.VLREPASSE)) VLREPASSEDEVOLUCAO,
+                     (SUM(TOTAL.VLCMVDEVOLBONIF)) VLCMVDEVOLBONIF,
+                     NVL((SUM(TOTAL.STBONIFDEVOL)),0) STBONIFDEVOL,
+                     NVL((SUM(TOTAL.VLIPIBONIFDEVOL)),0) VLIPIBONIFDEVOL
+              FROM (SELECT DEVOL.CODPROD,
+                           DEVOL.CODFILIAL,
+                           DEVOL.DTENT,
+                           SUM(DEVOL.VLDEVOLUCAO) TOTALDEVOL,
+                           SUM(NVL(DEVOL.QT,0) - NVL(DEVOL.QTBONIFIC,0)) QTDEVOLCLI,
+                           SUM(NVL(DEVOL.VLCMVDEVOL, 0) + NVL(DEVOL.VLCMVDEVOLBONIF,0)) VLCUSTOFIN,
+                           0 TOTALDEVOL2,
+                           0 QTDEVOLCLI2,
+                           0 VLCUSTOFIN2,
+                           SUM(NVL(DEVOL.VLST,0)) VLST,
+                           SUM(NVL(DEVOL.VLIPI,0)) VLIPI,
+                           SUM(NVL(DEVOL.VLREPASSE,0)) VLREPASSE,
+                           SUM(NVL(DEVOL.VLCMVDEVOLBONIF, 0)) VLCMVDEVOLBONIF,
+                           SUM(NVL(DEVOL.ICMSRETIDO_BONIF, 0)) STBONIFDEVOL,
+                           SUM(NVL(DEVOL.VLIPI_BONIF, 0)) VLIPIBONIFDEVOL
+                    FROM VIEW_DEVOL_RESUMO_FATURAMENTO DEVOL
+                    WHERE DEVOL.CONDVENDA NOT IN (4, 8, 10, 13, 20, 98, 99)
+                    AND DEVOL.DTENT BETWEEN :PDTINICIO AND :PDTTERMINO
+                    GROUP BY DEVOL.CODPROD, DEVOL.CODFILIAL, DEVOL.DTENT
+                    UNION ALL
+                    SELECT DEVOL2.CODPROD,
+                           DEVOL2.CODFILIAL,
+                           DEVOL2.DTENT,
+                           0 TOTALDEVOL,
+                           0 QTDEVOLCLI,
+                           0 VLCUSTOFIN,
+                           SUM(DEVOL2.VLDEVOLUCAO) TOTALDEVOL2,
+                           SUM(DEVOL2.QT) QTDEVOLCLI2,
+                           SUM(NVL(DEVOL2.VLDEVCMVAVULSAI, 0)) VLCUSTOFIN2,
+                           SUM(DEVOL2.VLST) VLST,
+                           SUM(DEVOL2.VLIPI) VLIPI,
+                           SUM(DEVOL2.VLREPASSE) VLREPASSE,
+                           0 VLCMVDEVOLBONIF,
+                           0 STBONIFDEVOL,
+                           0 VLIPIBONIFDEVOL
+                    FROM VIEW_DEVOL_RESUMO_FATURAVULSA DEVOL2
+                    WHERE DEVOL2.DTENT BETWEEN :PDTINICIO AND :PDTTERMINO
+                    GROUP BY DEVOL2.CODPROD, DEVOL2.CODFILIAL, DEVOL2.DTENT) TOTAL,
+                   PCFILIAL
+              WHERE PCFILIAL.CODIGO = TOTAL.CODFILIAL
+              AND PCFILIAL.CONSOLIDADADOS504 = ''S'' ';
 
-      BEGIN
-        UPDATE PCDTPROD
-        SET QTDEVOLCLI                  = NVL(QTDEVOLCLI ,0) + ITENS_DEVOLUCAO_MERCADORIA.QTDEVOLCLI,
-            VLDEVOLCLI                  = NVL(VLDEVOLCLI ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLDEVOLCLI,
-            VLCUSTOFINDEVOLCLI          = NVL(VLCUSTOFINDEVOLCLI,0) + ITENS_DEVOLUCAO_MERCADORIA.VLCUSTOFINDEVOLCLI,
-            STDEVOLUCAO                 = NVL(STDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.STDEVOLUCAO,
-            PCDTPROD.VLIPIDEVOLUCAO     = NVL(PCDTPROD.VLIPIDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLIPIDEVOLUCAO,
-            PCDTPROD.VLREPASSEDEVOLUCAO = NVL(PCDTPROD.VLREPASSEDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLREPASSEDEVOLUCAO,
-            PCDTPROD.VLCUSTOFINDEVBONIF = NVL(PCDTPROD.VLCUSTOFINDEVBONIF, 0) + ITENS_DEVOLUCAO_MERCADORIA.VLCMVDEVOLBONIF,
-            PCDTPROD.STBONIFDEVOL        = NVL(PCDTPROD.STBONIFDEVOL, 0) + ITENS_DEVOLUCAO_MERCADORIA.STBONIFDEVOL,
-            PCDTPROD.VLIPIBONIFDEVOL    = NVL(PCDTPROD.VLIPIBONIFDEVOL, 0) + ITENS_DEVOLUCAO_MERCADORIA.VLIPIBONIFDEVOL
-        WHERE PCDTPROD.CODPROD = ITENS_DEVOLUCAO_MERCADORIA.CODPROD
-        AND PCDTPROD.CODFILIAL     = ITENS_DEVOLUCAO_MERCADORIA.CODFILIAL
-        AND PCDTPROD.DTMOV           = ITENS_DEVOLUCAO_MERCADORIA.DTMOV;
-
-        IF SQL%ROWCOUNT = 0 THEN
-          SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
-          INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
-          FROM PCPRODUT
-          WHERE PCPRODUT.CODPROD = ITENS_DEVOLUCAO_MERCADORIA.CODPROD;
-
-          INSERT INTO PCDTPROD
-            (CODFILIAL,
-             CODPROD,
-             DTMOV,
-             CODEPTO,
-             CODFORNEC,
-             VLVENDA,
-             VLCUSTOFIN,
-             VLCUSTOREAL,
-             VLCUSTOREP,
-             VLCUSTOCONT,
-             QTVENDA,
-             QTNOTA,
-             VLENT,
-             QTENT,
-             QTDEVOLCLI,
-             VLDEVOLCLI,
-             VLCUSTOFINDEVOLCLI,
-             CODPRODPRINC,
-             CLASSE,
-             CODSEC,
-             QTESTGER,
-             CUSTOFIN,
-             CUSTOREAL,
-             CUSTOREP,
-             CUSTOCONT,
-             QTPERDA,
-             STDEVOLUCAO,
-             VLIPIDEVOLUCAO,
-             VLREPASSEDEVOLUCAO,
-             VLCUSTOFINDEVBONIF,
-             STBONIFDEVOL,
-             VLIPIBONIFDEVOL)
-          VALUES
-            (ITENS_DEVOLUCAO_MERCADORIA.CODFILIAL,
-             ITENS_DEVOLUCAO_MERCADORIA.CODPROD,
-             ITENS_DEVOLUCAO_MERCADORIA.DTMOV,
-             VNCODEPTO,
-             VNCODFORNEC,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             ITENS_DEVOLUCAO_MERCADORIA.QTDEVOLCLI,
-             ITENS_DEVOLUCAO_MERCADORIA.VLDEVOLCLI,
-             ITENS_DEVOLUCAO_MERCADORIA.VLCUSTOFINDEVOLCLI,
-             VNCODPRODPRINC,
-             VSCLASSE,
-             VNCODSEC,
-             0,
-             0,
-             0,
-             0,
-             0,
-             0,
-             ITENS_DEVOLUCAO_MERCADORIA.STDEVOLUCAO,
-             ITENS_DEVOLUCAO_MERCADORIA.VLIPIDEVOLUCAO,
-             ITENS_DEVOLUCAO_MERCADORIA.VLREPASSEDEVOLUCAO,
-             ITENS_DEVOLUCAO_MERCADORIA.VLCMVDEVOLBONIF,
-             ITENS_DEVOLUCAO_MERCADORIA.STBONIFDEVOL,
-             ITENS_DEVOLUCAO_MERCADORIA.VLIPIBONIFDEVOL);
-        END IF;
-      EXCEPTION
-        WHEN OTHERS THEN
-          NULL;
-      END;
-
-      VQTDECOMMIT := VQTDECOMMIT + 1;
-
-      IF VQTDECOMMIT > 1000 THEN
-        COMMIT;
-        VQTDECOMMIT := 0;
+      IF (PLISTACODIGO IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND TOTAL.CODPROD IN ( ' || PLISTACODIGO || ')';
       END IF;
+
+      --IF (PCODFILIAL IS NOT NULL) THEN
+        V_SQL := V_SQL || ' AND PCFILIAL.CODIGO = ''' || REGISTRO.CODIGO || '''';
+      --END IF;
+
+      V_SQL := V_SQL ||
+               ' GROUP BY TOTAL.CODPROD,TOTAL.CODFILIAL,TOTAL.DTENT
+                        ORDER BY TOTAL.CODPROD,TOTAL.CODFILIAL';
+
+      begin
+        PKG_PARAMETRO_CONTABIL.SET_CODFILIAL(REGISTRO.CODIGO);
+        PKG_PARAMETRO_CONTABIL.SET_DATA1(PDTINICIO);
+        PKG_PARAMETRO_CONTABIL.SET_DATA2(PDTTERMINO);  
+      end;
+      
+      OPEN CURSOR_MOVIMENTACAO FOR V_SQL
+        USING PDTINICIO, PDTTERMINO, PDTINICIO, PDTTERMINO;
+      LOOP
+        FETCH CURSOR_MOVIMENTACAO
+          INTO ITENS_DEVOLUCAO_MERCADORIA;
+        EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
+
+        BEGIN
+          UPDATE PCDTPROD
+          SET QTDEVOLCLI                  = NVL(QTDEVOLCLI ,0) + ITENS_DEVOLUCAO_MERCADORIA.QTDEVOLCLI,
+              VLDEVOLCLI                  = NVL(VLDEVOLCLI ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLDEVOLCLI,
+              VLCUSTOFINDEVOLCLI          = NVL(VLCUSTOFINDEVOLCLI,0) + ITENS_DEVOLUCAO_MERCADORIA.VLCUSTOFINDEVOLCLI,
+              STDEVOLUCAO                 = NVL(STDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.STDEVOLUCAO,
+              PCDTPROD.VLIPIDEVOLUCAO     = NVL(PCDTPROD.VLIPIDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLIPIDEVOLUCAO,
+              PCDTPROD.VLREPASSEDEVOLUCAO = NVL(PCDTPROD.VLREPASSEDEVOLUCAO ,0) + ITENS_DEVOLUCAO_MERCADORIA.VLREPASSEDEVOLUCAO,
+              PCDTPROD.VLCUSTOFINDEVBONIF = NVL(PCDTPROD.VLCUSTOFINDEVBONIF, 0) + ITENS_DEVOLUCAO_MERCADORIA.VLCMVDEVOLBONIF,
+              PCDTPROD.STBONIFDEVOL        = NVL(PCDTPROD.STBONIFDEVOL, 0) + ITENS_DEVOLUCAO_MERCADORIA.STBONIFDEVOL,
+              PCDTPROD.VLIPIBONIFDEVOL    = NVL(PCDTPROD.VLIPIBONIFDEVOL, 0) + ITENS_DEVOLUCAO_MERCADORIA.VLIPIBONIFDEVOL
+          WHERE PCDTPROD.CODPROD = ITENS_DEVOLUCAO_MERCADORIA.CODPROD
+          AND PCDTPROD.CODFILIAL     = ITENS_DEVOLUCAO_MERCADORIA.CODFILIAL
+          AND PCDTPROD.DTMOV           = ITENS_DEVOLUCAO_MERCADORIA.DTMOV;
+
+          IF SQL%ROWCOUNT = 0 THEN
+            SELECT CODEPTO, CODSEC, CODFORNEC, CLASSE, CODPRODPRINC
+            INTO VNCODEPTO, VNCODSEC, VNCODFORNEC, VSCLASSE, VNCODPRODPRINC
+            FROM PCPRODUT
+            WHERE PCPRODUT.CODPROD = ITENS_DEVOLUCAO_MERCADORIA.CODPROD;
+
+            INSERT INTO PCDTPROD
+              (CODFILIAL,
+               CODPROD,
+               DTMOV,
+               CODEPTO,
+               CODFORNEC,
+               VLVENDA,
+               VLCUSTOFIN,
+               VLCUSTOREAL,
+               VLCUSTOREP,
+               VLCUSTOCONT,
+               QTVENDA,
+               QTNOTA,
+               VLENT,
+               QTENT,
+               QTDEVOLCLI,
+               VLDEVOLCLI,
+               VLCUSTOFINDEVOLCLI,
+               CODPRODPRINC,
+               CLASSE,
+               CODSEC,
+               QTESTGER,
+               CUSTOFIN,
+               CUSTOREAL,
+               CUSTOREP,
+               CUSTOCONT,
+               QTPERDA,
+               STDEVOLUCAO,
+               VLIPIDEVOLUCAO,
+               VLREPASSEDEVOLUCAO,
+               VLCUSTOFINDEVBONIF,
+               STBONIFDEVOL,
+               VLIPIBONIFDEVOL)
+            VALUES
+              (ITENS_DEVOLUCAO_MERCADORIA.CODFILIAL,
+               ITENS_DEVOLUCAO_MERCADORIA.CODPROD,
+               ITENS_DEVOLUCAO_MERCADORIA.DTMOV,
+               VNCODEPTO,
+               VNCODFORNEC,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               ITENS_DEVOLUCAO_MERCADORIA.QTDEVOLCLI,
+               ITENS_DEVOLUCAO_MERCADORIA.VLDEVOLCLI,
+               ITENS_DEVOLUCAO_MERCADORIA.VLCUSTOFINDEVOLCLI,
+               VNCODPRODPRINC,
+               VSCLASSE,
+               VNCODSEC,
+               0,
+               0,
+               0,
+               0,
+               0,
+               0,
+               ITENS_DEVOLUCAO_MERCADORIA.STDEVOLUCAO,
+               ITENS_DEVOLUCAO_MERCADORIA.VLIPIDEVOLUCAO,
+               ITENS_DEVOLUCAO_MERCADORIA.VLREPASSEDEVOLUCAO,
+               ITENS_DEVOLUCAO_MERCADORIA.VLCMVDEVOLBONIF,
+               ITENS_DEVOLUCAO_MERCADORIA.STBONIFDEVOL,
+               ITENS_DEVOLUCAO_MERCADORIA.VLIPIBONIFDEVOL);
+          END IF;
+        EXCEPTION
+          WHEN OTHERS THEN
+            NULL;
+        END;
+
+        VQTDECOMMIT := VQTDECOMMIT + 1;
+
+        IF VQTDECOMMIT > 1000 THEN
+          COMMIT;
+          VQTDECOMMIT := 0;
+        END IF;
+      END LOOP;
+      COMMIT;
+      VQTDECOMMIT := 0;
     END LOOP;
     ---------------------------------------------------------------------------------------------
-
-    COMMIT;
-
+    
     BEGIN
     SELECT PCPARAMFILIAL.VALOR
       INTO VPARAMCODCLIPC
@@ -3563,6 +3632,7 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 TO_CHAR(PDTTERMINO, 'DD/MM/YYYY') || ' / ' || POPCAO||
                 ' / ' || PCODFILIAL);
     -- Fim Gravacao do Estoque
+  COMMIT;
   EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK;
