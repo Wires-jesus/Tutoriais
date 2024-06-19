@@ -175,4 +175,12 @@ SELECT PCNFENT.CODFILIAL,
    AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
    AND PCNFENT.CODDEVOL = PCTABDEV.CODDEVOL(+)
    AND PCMOV.CODDEVOL = PCTABDEV2.CODDEVOL(+)
+   -- Filtros Pelo objeto Fiscal
+ AND PCNFENT.DTENT BETWEEN PKG_PARAMETRO_CONTABIL.GET_DATA1
+                    AND PKG_PARAMETRO_CONTABIL.GET_DATA2
+-- Filtrando Filiais -----------------------------------------------------
+ AND ((PCNFENT.CODFILIAL = PKG_PARAMETRO_CONTABIL.GET_CODFILIAL) or
+            (PKG_PARAMETRO_CONTABIL.GET_CODFILIAL is null))
+        --------------------------------------------------------------------------
+
    AND NVL(PCNFENT.TIPOMOVGARANTIA, -1) = -1
