@@ -1,0 +1,19 @@
+BEGIN
+ 
+ UPDATE
+   PCDICIONARIOITEM
+ SET
+   AJUDA = 'Ajuda para o campo'
+ WHERE
+   AJUDA IS NULL;
+
+ UPDATE
+   PCDICIONARIOITEMROTCUST
+ SET
+   AJUDA = 'Ajuda para o campo'
+ WHERE
+   AJUDA IS NULL;
+
+ COMMIT;
+
+END;
