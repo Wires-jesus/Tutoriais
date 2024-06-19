@@ -1,0 +1,5 @@
+{
+ "nome":"CARGA_PCCOBSEFAZ",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias": ""
+}
