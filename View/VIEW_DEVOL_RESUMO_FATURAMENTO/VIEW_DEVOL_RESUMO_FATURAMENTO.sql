@@ -537,3 +537,10 @@ SELECT PCFORNEC.CODFORNEC,
    AND NOT (PCNFENT.ROTINACAD like '%1303%' and PCNFSAID.CONDVENDA = 8)
    AND NOT (PCNFSAID.CONDVENDA = 8 AND PCMOV.CUSTOFIN = 0)
    AND PCMOV.STATUS IN ('A', 'AB')
+    -- Filtros Pelo objeto Fiscal
+   AND PCNFENT.DTENT BETWEEN PKG_PARAMETRO_CONTABIL.GET_DATA1
+                    AND PKG_PARAMETRO_CONTABIL.GET_DATA2
+   -- Filtrando Filiais -----------------------------------------------------
+   AND ((PCNFENT.CODFILIAL = PKG_PARAMETRO_CONTABIL.GET_CODFILIAL) or
+            (PKG_PARAMETRO_CONTABIL.GET_CODFILIAL is null))
+        --------------------------------------------------------------------------
