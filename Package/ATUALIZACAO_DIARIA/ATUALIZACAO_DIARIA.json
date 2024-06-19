@@ -1,1 +1,27 @@
-{"nome":"ATUALIZACAO_DIARIA","tipoPLSQL":"PACKAGE","dependencias":[{"nome":"PCHISTESTFILA","tipo":"TABELA","versao":"3.0.02.000"},{"nome":"PCHISTEST","tipo":"TABELA","versao":"3.0.02.000"}]}
+{"nome":"ATUALIZACAO_DIARIA",
+ "tipoPLSQL":"PACKAGE",
+ "dependencias":[
+     {"nome":"PCHISTESTFILA",
+      "tipo":"TABELA",
+      "versao":"3.0.02.000"
+     },
+     {"nome":"PCHISTEST",
+      "tipo":"TABELA",
+      "versao":"3.0.02.000"
+     },
+     {
+      "nome": "VIEW_VENDAS_RESUMO_FATURAMENTO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+     },
+     {
+      "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.02.000"
+     },
+     {
+      "nome": "VIEW_DEVOL_RESUMO_FATURAVULSA",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+     }
+    ]}
