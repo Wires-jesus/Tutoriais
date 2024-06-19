@@ -1,5 +1,9 @@
 {
  "nome":"VIEW_VENDAS_RESUMO_FATURAMENTO",
  "tipoPLSQL":"VIEW",
- "dependencias": ""
+ "dependencias": [{
+  "nome": "PKG_PARAMETRO_CONTABIL",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "6.0.01.000"
+}]
 }
