@@ -3710,8 +3710,8 @@ end func_HoraDigitacaoPedido;
                 'N',  -- UTILIZATRIBENDENT            -- DDVENDAS-33718
                 'N',  -- VENDAPOREMBALAGEMINTEGRADORA -- DDVENDAS-33713
                 NULL, -- CONCEDENTEFERTA              -- DDVENDAS-33961
-                'NA',  -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
-                'N'   -- USARCACLIENTELINHAPORFILIALMED
+                'NA', -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
+                'N',  -- USARCACLIENTELINHAPORFILIALMED
                 'N'   -- PRECIFICREGIAOFORAUFSEMST				
           into p_regfilial
           from pcfilial
