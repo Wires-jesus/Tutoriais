@@ -24635,7 +24635,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24655,11 +24655,11 @@ BEGIN
           IF nvl(pi_vNumped,0) > 0 THEN           
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed;
           END IF;
             
         EXCEPTION
@@ -24690,7 +24690,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24711,11 +24711,11 @@ BEGIN
           IF nvl(pi_vNumped,0) > 0 THEN 
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodRede, vnCodRede, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodRede, vnCodRede, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed;
           END IF;
           
         EXCEPTION
@@ -24746,7 +24746,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24766,11 +24766,11 @@ BEGIN
           IF nvl(pi_vNumped,0) > 0 THEN
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodCli, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_nCodCli, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nCodCli, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_nCodCli, pi_nCodPromocaoMed;
           END IF;
         
         EXCEPTION
@@ -24800,7 +24800,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24821,11 +24821,11 @@ BEGIN
           IF nvl(pi_vNumped,0) > 0 THEN
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
           END IF;
         
         EXCEPTION
@@ -24856,7 +24856,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24877,11 +24877,11 @@ BEGIN
         IF nvl(pi_vNumped,0) > 0 THEN
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
           END IF;
         
         EXCEPTION
@@ -24913,7 +24913,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24935,11 +24935,11 @@ BEGIN
           IF nvl(pi_vNumped,0) > 0 THEN
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed;
           END IF;
         
         EXCEPTION
@@ -24972,7 +24972,7 @@ BEGIN
         
         BEGIN
           vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0),po_qtcombovirtual_vendidos)
+          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
                       from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
                                    pcpedi.codpromocaomed,
                                    pcpedi.numped
@@ -24993,11 +24993,11 @@ BEGIN
         IF nvl(pi_vNumped,0) > 0 THEN
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed, pi_vNumped;
+            USING po_qtcombovirtual_vendidos, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed, pi_vNumped;
           ELSE
             EXECUTE IMMEDIATE vSQL
                INTO po_qtcombovirtual_vendidos
-            USING pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed;
+            USING po_qtcombovirtual_vendidos, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed;
           END IF;
         
         EXCEPTION
