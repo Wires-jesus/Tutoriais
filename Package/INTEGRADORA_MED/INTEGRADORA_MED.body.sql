@@ -3858,6 +3858,11 @@ end func_HoraDigitacaoPedido;
                             'TIPOAPLICREPASSEFILIAL',
                             'AB',
                              p_regfilial.TipoAplicRepasseFilial);
+							 
+         proc_pcparamfilial(p_regpedido.codfilialnf,
+                            'FIL_PERMITIRVENDAINTERESTADUALPF',
+                            'N',
+                             p_regfilial.permitirvendainterestadualpf);
      end if;
 
 
