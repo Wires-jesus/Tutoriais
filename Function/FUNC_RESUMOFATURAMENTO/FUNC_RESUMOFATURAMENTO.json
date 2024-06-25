@@ -15,12 +15,12 @@
       {
          "nome":"RET_TABLE_VIEW_DEVOLUCAO",
          "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.01.000"
+         "versao":"6.0.01.000"
       },
       {
          "nome":"RET_TABLE_VIEW_DEVOLAVULSA",
          "tipo":"OBJETO_PLSQL",
-         "versao":"4.0.01.000"
+         "versao":"6.0.01.000"
       },
       {
          "nome": "TABELA_FATURAMENTO",
