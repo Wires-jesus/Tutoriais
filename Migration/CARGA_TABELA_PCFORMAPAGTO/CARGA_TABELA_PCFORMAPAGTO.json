@@ -1,0 +1,5 @@
+{
+ "nome":"CARGA_TABELA_PCFORMAPAGTO",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias": ""
+}
