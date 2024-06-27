@@ -132,9 +132,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
      LEAST(NVL(f.vlminimo, 0), 999999) vlrminimo,
      LEAST(NVL(f.vlmaximo, 0), 999999) vlrmaximo,
      (CASE
-      WHEN f.especie IN ('D', 'BK', 'CHV', 'CHP', 'CTD', 'CTC', 'CRE') THEN
-      'S'
-      WHEN f.especie LIKE 'POS%' THEN
+      WHEN f.especie IN ('D', 'CHV', 'CHP') THEN
       'S'
       ELSE
       'N'
