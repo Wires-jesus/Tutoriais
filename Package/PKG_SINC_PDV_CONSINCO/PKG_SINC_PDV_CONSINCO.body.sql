@@ -621,6 +621,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.ATIVO
                       
         FROM VW_INT_C5_PRODCOMPOSTO P
+        where P.SEQPRODCOMPOSTO not in (select VW.SEQPRODCOMPOSTO from VW_INT_C5_PRODCOMPOSTO vw where nvl(VW.PRECO, 0) = 0)
        ) b
 
       ON (s.seqproduto = b.SEQPRODUTO and s.qtdembalagem = b.qtdembalagem and s.SEQPRODCOMPOSTO = b.SEQPRODCOMPOSTO)
