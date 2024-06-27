@@ -768,6 +768,7 @@ END;
     VBGEROUMOV               BOOLEAN := FALSE;
     vsTipoCustoTrVirtual     PCCLIENT.TIPOCUSTOTRANSF_FILIALVIRTUAL%TYPE;
     vnCodSitTribpiscofins    PCPRODUT.Codsittribpiscofins%TYPE;
+    VSPROGRAMANOVO           VARCHAR2(30);
   BEGIN
 
     VSCODFILIAL   := P_CODFILIAL;
@@ -1238,7 +1239,11 @@ END;
         THEN
         ROWPCMOV_ET.DATAESTOQUE := '';
       END IF;
-
+      VSPROGRAMANOVO := SUBSTR(UPPER(SYS_CONTEXT('USERENV', 'MODULE')), 1, 30);
+      IF NOT(TRIM(VSPROGRAMANOVO) LIKE '%PCSIS%') THEN
+        VSPROGRAMANOVO := f_obternomeaplicacao;
+      END IF;
+      ROWPCMOV_ET.ROTINACAD := VSPROGRAMANOVO;
       --------------------------- INSERIR PCMOV - CODOPER = 'ET' ----------------------------------
       INSERT INTO PCMOV ROWPCMOV_ET VALUES ROWPCMOV_ET;
       ---------------------------------------------------------------------------------------------
