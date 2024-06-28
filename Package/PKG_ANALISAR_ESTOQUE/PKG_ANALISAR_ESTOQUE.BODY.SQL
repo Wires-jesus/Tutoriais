@@ -15,7 +15,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
    ,TIPOCHAMADA       VARCHAR2(50) DEFAULT NULL
    ,ID_LISTA          VARCHAR2(50) DEFAULT NULL
    ,GERAR_LOG         VARCHAR2(1) DEFAULT 'N'
-   ,USA_FUNCAO_1070   VARCHAR2(1) DEFAULT 'N');
+   ,USA_FUNCAO_1070   VARCHAR2(1) DEFAULT 'N'); 
 
   -- Type para armazenar os dados
   TYPE T_DADOS IS RECORD
@@ -1797,7 +1797,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
-  18/06/2024     Davi Bernado        DDESTOQUE-18448     Criar procedure para criar pchistest pela rotina 504
+  28/06/2024     Davi Bernado        DDESTOQUE-18448     Criar procedure para criar pchistest pela rotina 504
   /***********************************************************************************************************************/
   PROCEDURE PRC_ARMAZENARSALDOSESTOQUE_504
   IS
