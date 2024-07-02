@@ -1677,7 +1677,14 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                     2))
                END AS VALOR_FRETE
               ,0 AS VALOR_SEGURO
-              ,ROUND(((DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
+              ,ROUND((DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE, NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
+                                                              PCFILIAL.CODIGO),
+                                'L'))),
+                            'L',
+                            0,
+                            'LR',
+                            0,
+                        DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                     (ROUND( PCMOV.QTCONT *
                                     (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),
                                                  0,
@@ -1700,17 +1707,15 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                -1,
                                                                0,
                                                                NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
-                                    ), 2) / PCMOV.QTCONT)) +
-                            CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
-                                    CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
-                                         AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
-                                             COALESCE(PCMOV.VLDESCSUFRAMA,0)
-                                   ELSE
-                                      0
-                                   END
+                                    ), 2) / PCMOV.QTCONT))
+                            ) * PCMOV.QTCONT) +
+                            (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
+                                   DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                     NVL(PCMOV.VLDESCSUFRAMA,0) * QTCONT, 
+                                     0)
                                  ELSE
                                    0
-                            END) * PCMOV.QTCONT) +
+                            END) +                            
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8','T')) THEN
                                  CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                        ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  PCNFENT.DTENT))) THEN
