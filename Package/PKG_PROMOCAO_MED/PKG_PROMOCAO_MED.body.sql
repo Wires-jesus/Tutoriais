@@ -16367,6 +16367,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnTipoLimitador                    PCPROMOCAOMED.TIPOLIMITADOR%TYPE;
     vnQtMinComboLibMed                 PCPROMOCAOMED.QTMINCOMBOLIBMED%TYPE;
     vnQtMaxComboMed                    PCPROMOCAOMED.QTMAXCOMBOMED%TYPE;
+    vnCodLiberacaoCanais               PCPROMOCAOMED.CODLIBERACAOCANAIS%TYPE;
+    vnCodReferencia                    PCPROMOCAOMED.CODREFERENCIA%TYPE;
 
     -- Dados Complementares da Promoção
     vvApenasPlPagMax                   PCDESCONTO.APENASPLPAGMAX%TYPE;
@@ -19096,6 +19098,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , TIPOLIMITADOR
                   , QTMINCOMBOLIBMED
                   , QTMAXCOMBOMED
+                  , CODLIBERACAOCANAIS
+                  , CODREFERENCIA
                   )
              SELECT CODPROMOCAOMED
                   , IDENTIFICADORPROMOCAO
@@ -19165,6 +19169,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , TIPOLIMITADOR
                   , QTMINCOMBOLIBMED
                   , QTMAXCOMBOMED
+                  , CODLIBERACAOCANAIS
+                  , CODREFERENCIA
                FROM PCPROMOCAOMED
               WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -19236,6 +19242,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , TIPOLIMITADOR
                 , QTMINCOMBOLIBMED
                 , QTMAXCOMBOMED
+                , CODLIBERACAOCANAIS
+                , CODREFERENCIA
                 )
            SELECT CODPROMOCAOMED
                 , pi_nCodFunc
@@ -19305,6 +19313,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , TIPOLIMITADOR
                 , QTMINCOMBOLIBMED
                 , QTMAXCOMBOMED
+                , CODLIBERACAOCANAIS
+                , CODREFERENCIA
              FROM PCPROMOCAOMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -20298,6 +20308,8 @@ IS PRAGMA SERIALLY_REUSABLE;
              , TIPOLIMITADOR
              , QTMINCOMBOLIBMED
              , QTMAXCOMBOMED
+             , CODLIBERACAOCANAIS
+             , CODREFERENCIA
           INTO vvIdentificadorPromocao
              , vvDescricaoResumida
              , vvDescricaoDetalhada
@@ -20357,6 +20369,8 @@ IS PRAGMA SERIALLY_REUSABLE;
              , vnTipoLimitador
              , vnQtMinComboLibMed
              , vnQtMaxComboMed
+             , vnCodLiberacaoCanais
+             , vnCodReferencia
          FROM PCMED_PROMOCAO;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -20721,6 +20735,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , TIPOLIMITADOR
                 , QTMINCOMBOLIBMED
                 , QTMAXCOMBOMED
+                , CODLIBERACAOCANAIS
+                , CODREFERENCIA
                 )
          VALUES ( vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                 , vvIdentificadorPromocao
@@ -20784,6 +20800,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , vnTipoLimitador
                 , vnQtMinComboLibMed
                 , vnQtMaxComboMed
+                , vnCodLiberacaoCanais
+                , vnCodReferencia
                 );
 
       ----------------------------------------------------------------------------
@@ -21559,6 +21577,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , TIPOLIMITADOR
                     , QTMINCOMBOLIBMED
                     , QTMAXCOMBOMED
+                    , CODLIBERACAOCANAIS
+                    , CODREFERENCIA
                     )
              SELECT   CASE
                         WHEN NVL(pi_vTipoChamada,'0') = '7' THEN -->> SE REPLICAÇÃO, GRAVA O NOVO CÓDIGO DA PROMOÇÃO NA TABELA TEMPORÁRIA
@@ -21637,6 +21657,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , TIPOLIMITADOR
                     , QTMINCOMBOLIBMED
                     , QTMAXCOMBOMED
+                    , CODLIBERACAOCANAIS
+                    , CODREFERENCIA
                  FROM PCPROMOCAOMED
                 WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
 
@@ -22725,7 +22747,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED )
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA )
                  SELECT CODPROMOCAOMED, IDENTIFICADORPROMOCAO, TIPOPOLITICA, DESCRICAORESUMIDA, DESCRICAODETALHADA,
                         DATAINICIAL, DATAFINAL, TIPOPROMOCAO, TIPORESTRICAO, BASECREDDEBRCA, CREDITASOBREPOLITICA,
                         CONSIDERACALCGIROMEDIC, UTILIZADESCREDE, TIPOPLANOPAG, APLICAFAMILIAPRODUTOS, ALTERADESCONTO,
@@ -22736,7 +22758,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA
                    FROM PCMED_PROMOCAO;
             -- Guarda Valores de Restrições antes da edição do usuário
             INSERT INTO PCMED_PROMOCAORESTRICOES(TIPOREG, TIPOCODIGO, CODIGO) SELECT 'OLD' TIPOREG, 'OP' TIPOCODIGO, ORIGEMPED              FROM PCMED_PROMOCAOORIGEM;
