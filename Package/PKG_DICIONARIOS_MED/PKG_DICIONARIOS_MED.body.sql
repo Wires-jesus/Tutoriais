@@ -17232,6 +17232,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtVALORMINIMO_AUX            TT_NUMBER;
     vtQTMINCOMBOLIBMED_AUX       TT_NUMBER;
     vtQTMAXCOMBOMED_AUX          TT_NUMBER;
+    vtCODLIBERACAOCANAIS_AUX     TT_NUMBER;
+    vtCODREFERENCIA_AUX          TT_VARCHAR2;
     --
     vtCODPROMOCAOMED             TT_NUMBER;
     vtDESCRICAORESUMIDA          TT_VARCHAR2;
@@ -17260,6 +17262,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtVALORMINIMO                TT_NUMBER;
     vtQTMINCOMBOLIBMED           TT_NUMBER;
     vtQTMAXCOMBOMED              TT_NUMBER;
+    vtCODLIBERACAOCANAIS         TT_NUMBER;
+    vtCODREFERENCIA              TT_VARCHAR2;
     --
     vtCODPLPAG                   TT_NUMBER;
     vtCGCFILIAL_PLPAG            TT_VARCHAR2;
@@ -17314,6 +17318,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     viQtdCompraColetiva          PCPROMOCAOMED.VLRMINITENSPROMOCAO%TYPE;
     viLimitador                  NUMBER; 
     viLiberacaoDeCanais          NUMBER;
+    vsCodigoReferencia           VARCHAR2(1000);
     
     -------------------------------------------------------------------------------------------------------
     -- Procedimento para Gerar as Filiais sempre que houver qualquer alteração da Promoção - DDVENDAS-37737
@@ -17569,6 +17574,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO.VALORMINIMO
                       , VIEW_MED_PROMOCAO.QTMINCOMBOLIBMED
                       , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
+                      , VIEW_MED_PROMOCAO.CODLIBERACAOCANAIS
+                      , VIEW_MED_PROMOCAO.CODREFERENCIA
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17637,6 +17644,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO.VALORMINIMO
                       , VIEW_MED_PROMOCAO.QTMINCOMBOLIBMED
                       , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
+                      , VIEW_MED_PROMOCAO.CODLIBERACAOCANAIS
+                      , VIEW_MED_PROMOCAO.CODREFERENCIA
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17703,7 +17712,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , vtFAIXAZERO_AUX
                         , vtVALORMINIMO_AUX
                         , vtQTMINCOMBOLIBMED_AUX
-                        , vtQTMAXCOMBOMED_AUX;
+                        , vtQTMAXCOMBOMED_AUX
+                        , vtCODLIBERACAOCANAIS_AUX
+                        , vtCODREFERENCIA_AUX;
     EXCEPTION
       WHEN OTHERS THEN
         RAISE e_View;
@@ -17758,6 +17769,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
               vtQTMINCOMBOLIBMED(viIdxProxItem)           := vtQTMINCOMBOLIBMED_AUX(viIdxPromocao);
               vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
+              vtCODLIBERACAOCANAIS(viIdxProxItem)         := vtCODLIBERACAOCANAIS_AUX(viIdxPromocao);
+              vtCODREFERENCIA(viIdxProxItem)              := vtCODREFERENCIA_AUX(viIdxPromocao);
             -- Se a primeira faixa iniciar no valor 1, somente puxa a quantidade inicial para zero
             ELSE
 
@@ -17802,6 +17815,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         vtVALORMINIMO(viIdxProxItem)                := vtVALORMINIMO_AUX(viIdxPromocao);
         vtQTMINCOMBOLIBMED(viIdxProxItem)           := vtQTMINCOMBOLIBMED_AUX(viIdxPromocao);
         vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
+        vtCODLIBERACAOCANAIS(viIdxProxItem)         := vtCODLIBERACAOCANAIS_AUX(viIdxPromocao);
+        vtCODREFERENCIA(viIdxProxItem)              := vtCODREFERENCIA_AUX(viIdxPromocao);
               
       END LOOP;
 
@@ -17911,7 +17926,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Novo Layout
             IF vsVersaoLayout = '4.18.2' THEN
               vsMixProduto        := 'N';
-              viLiberacaoDeCanais := 0;
+              viLiberacaoDeCanais := vtCODLIBERACAOCANAIS(viIdxPromocao);
+              vsCodigoReferencia  := 'codigo_referencia=' || vtCODREFERENCIA(viIdxPromocao);
+
                
               IF vtTIPOPROMOCAO(viIdxPromocao) = 'K' AND vtQTMAXCOMBOMED(viIdxPromocao) <> 0 THEN
                 viLimitador := vtQTMAXCOMBOMED(viIdxPromocao);
@@ -17940,7 +17957,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                  RPAD_BRANCOS(vsTipoFaixaProgressivo,1)                  ||
                                  CASE WHEN viQtdCompraColetiva IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viQtdCompraColetiva, 5) END ||
                                  CASE WHEN viLimitador IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viLimitador, 5) END ||
-                                 RPAD_BRANCOS(viLiberacaoDeCanais,1);
+                                 RPAD_BRANCOS(viLiberacaoDeCanais,1)                     ||
+                                 RPAD_BRANCOS(vsCodigoReferencia, 1000);
             ELSE
               vvConteudoCondicao := '1'                                                  ||
                                  RPAD_BRANCOS(vvCodigoPromocao, 20)                      ||
