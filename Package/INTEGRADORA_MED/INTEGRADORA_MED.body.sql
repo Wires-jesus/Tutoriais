@@ -680,7 +680,6 @@ IS PRAGMA SERIALLY_REUSABLE;
    p_vlcustofin                  OUT NUMBER,
    p_vldesccustocmv              OUT NUMBER,
    P_CODCLI                      IN NUMBER DEFAULT 0,
-   p_custoprecific               IN NUMBER DEFAULT 0,
    p_codprod                     IN NUMBER,    -- HIS.03510.2016
    p_codfilial                   IN VARCHAR2,  -- HIS.03510.2016
    p_qtde                        IN NUMBER,    -- HIS.03510.2016
@@ -704,17 +703,6 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
 
     p_custofinest       := p_custofin;
-
-    /*4346.127564.2014 - Rafael Braga*/
-    BEGIN
-      if p_custoprecific > 0 and FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('PRECIFICREGIAOFORAUFSEMST', 99, 'N') = 'S' then
-        p_custofinest := p_custoprecific;
-      end if;
-    EXCEPTION
-      WHEN OTHERS THEN
-        NULL;
-    END;
-
     p_txvenda_item      := nvl(p_txvenda, 0);
     p_perdesccusto_item := nvl(p_perdesccusto, 0);
     p_codicmtab_item    := nvl(p_codicmtab, 0);
@@ -3723,7 +3711,8 @@ end func_HoraDigitacaoPedido;
                 'N',  -- VENDAPOREMBALAGEMINTEGRADORA -- DDVENDAS-33713
                 NULL, -- CONCEDENTEFERTA              -- DDVENDAS-33961
                 'NA', -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
-                'N'   -- USARCACLIENTELINHAPORFILIALMED
+                'N',  -- USARCACLIENTELINHAPORFILIALMED
+                'N'   -- PRECIFICREGIAOFORAUFSEMST				
           into p_regfilial
           from pcfilial
          where codigo = p_regpedido.codfilial;
@@ -4206,6 +4195,12 @@ end func_HoraDigitacaoPedido;
                         'UTILIZATRIBENDENT',
                         'N',
                          p_regfilial.utilizatribendent);
+                         
+     -- DDVENDAS-47958
+     proc_pcparamfilial('99',
+                        'PRECIFICREGIAOFORAUFSEMST',
+                        'N',
+                         p_regfilial.PRECIFICREGIAOFORAUFSEMST);						 
                          
      -- Parâmetro da Integradora para Utilizar Venda por Embalagem - DDVENDAS-33713
      vrParamIntegradoraMed.VENDAPOREMBALAGEMINTEGRADORA := FOBTEM_PARAM_INTEGRADORA(p_regpedido.integradora,
@@ -10067,7 +10062,10 @@ end func_HoraDigitacaoPedido;
              NVL(pctribut.codicmtab, 0),
              pctabpr.codst,
              NVL(pcest.custocont, 0),
-             NVL(pcest.custofin, 0),
+             CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+               THEN NVL(pcest.custofinsemst, 0)
+               ELSE NVL(pcest.custofin, 0)
+             END,
              NVL(pcest.custoreal, 0),
              NVL(pcest.custorep, 0),
              NVL(pcest.custoultent, 0),
@@ -10354,7 +10352,10 @@ end func_HoraDigitacaoPedido;
                            nvl(pctribut.codicmtab, 0),
                            pctribut.codst,
                            nvl(pcest.custocont, 0),
-                           nvl(pcest.custofin, 0),
+                           CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                             THEN NVL(pcest.custofinsemst, 0)
+                             ELSE NVL(pcest.custofin, 0)
+                           END,
                            nvl(pcest.custoreal, 0),
                            nvl(pcest.custorep, 0),
                            nvl(pcest.custoultent, 0),
@@ -10526,7 +10527,10 @@ end func_HoraDigitacaoPedido;
                          NVL(pctribut.codicmtab, 0),
                          pctabpr.codst,
                          NVL(pcest.custocont, 0),
-                         NVL(pcest.custofin, 0),
+                         CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                           THEN NVL(pcest.custofinsemst, 0)
+                           ELSE NVL(pcest.custofin, 0)
+                         END,
                          NVL(pcest.custoreal, 0),
                          NVL(pcest.custorep, 0),
                          NVL(pcest.custoultent, 0),
@@ -10756,7 +10760,10 @@ end func_HoraDigitacaoPedido;
                        nvl(pctribut.codicmtab, 0),
                        pctribut.codst,
                        nvl(pcest.custocont, 0),
-                       nvl(pcest.custofin, 0),
+                       CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                         THEN NVL(pcest.custofinsemst, 0)
+                         ELSE NVL(pcest.custofin, 0)
+                       END,
                        nvl(pcest.custoreal, 0),
                        nvl(pcest.custorep, 0),
                        nvl(pcest.custoultent, 0),
@@ -11017,7 +11024,10 @@ end func_HoraDigitacaoPedido;
                      NVL(pctribut.codicmtab, 0),
                      pctabpr.codst,
                      NVL(pcest.custocont, 0),
-                     NVL(pcest.custofin, 0),
+                     CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                       THEN NVL(pcest.custofinsemst, 0)
+                       ELSE NVL(pcest.custofin, 0)
+                     END,
                      NVL(pcest.custoreal, 0),
                      NVL(pcest.custorep, 0),
                      NVL(pcest.custoultent, 0),
@@ -17028,7 +17038,10 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
              NVL(pctribut.codicmtab, 0),
              pctabpr.codst,
              NVL(pcest.custocont, 0),
-             NVL(pcest.custofin, 0),
+             CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+               THEN NVL(pcest.custofinsemst, 0)
+               ELSE NVL(pcest.custofin, 0)
+             END,
              NVL(pcest.custoreal, 0),
              NVL(pcest.custorep, 0),
              NVL(pcest.custoultent, 0),
@@ -17315,7 +17328,10 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                            nvl(pctribut.codicmtab, 0),
                            pctribut.codst,
                            nvl(pcest.custocont, 0),
-                           nvl(pcest.custofin, 0),
+                           CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                             THEN NVL(pcest.custofinsemst, 0)
+                             ELSE NVL(pcest.custofin, 0)
+                           END,
                            nvl(pcest.custoreal, 0),
                            nvl(pcest.custorep, 0),
                            nvl(pcest.custoultent, 0),
@@ -17534,7 +17550,10 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                          NVL(pctribut.codicmtab, 0),
                          pctabpr.codst,
                          NVL(pcest.custocont, 0),
-                         NVL(pcest.custofin, 0),
+                         CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                           THEN NVL(pcest.custofinsemst, 0)
+                           ELSE NVL(pcest.custofin, 0)
+                         END,
                          NVL(pcest.custoreal, 0),
                          NVL(pcest.custorep, 0),
                          NVL(pcest.custoultent, 0),
@@ -17810,7 +17829,10 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                        nvl(pctribut.codicmtab, 0),
                        pctribut.codst,
                        nvl(pcest.custocont, 0),
-                       nvl(pcest.custofin, 0),
+                       CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                         THEN NVL(pcest.custofinsemst, 0)
+                         ELSE NVL(pcest.custofin, 0)
+                       END,
                        nvl(pcest.custoreal, 0),
                        nvl(pcest.custorep, 0),
                        nvl(pcest.custoultent, 0),
@@ -18074,7 +18096,10 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                      NVL(pctribut.codicmtab, 0),
                      pctabpr.codst,
                      NVL(pcest.custocont, 0),
-                     NVL(pcest.custofin, 0),
+                     CASE WHEN (p_regfilial.precificregiaoforaufsemst = 'S') AND (p_regcliente.estent <> p_regfilial.uf)
+                       THEN NVL(pcest.custofinsemst, 0)
+                       ELSE NVL(pcest.custofin, 0)
+                     END,
                      NVL(pcest.custoreal, 0),
                      NVL(pcest.custorep, 0),
                      NVL(pcest.custoultent, 0),
@@ -27449,7 +27474,6 @@ end proc_GravaLogConvEmbalagem;
                                     vnVLCUSTOFIN,
                                     vnVLDESCCUSTOCMV,
                                     p_regpedido.codcli,            -- HIS.02787.2016
-                                    0, -- p_custoprecific          -- HIS.02787.2016
                                     p_regitem.codprod,             -- HIS.02787.2016
                                     p_regpedido.codfilial,         -- HIS.02787.2016
                                     p_regitem.qt,                  -- HIS.02787.2016
@@ -27752,7 +27776,6 @@ end proc_GravaLogConvEmbalagem;
                                     vnVLCUSTOFIN,
                                     vnVLDESCCUSTOCMV,
                                     p_regpedido.codcli,            -- HIS.02787.2016
-                                    0, -- p_custoprecific          -- HIS.02787.2016
                                     p_regitem.codprod,             -- HIS.02787.2016
                                     p_regpedido.codfilial,         -- HIS.02787.2016
                                     p_regitem.qt,                  -- HIS.02787.2016
@@ -28511,7 +28534,6 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           vnVLCUSTOFIN,
                                           vnVLDESCCUSTOCMV,
                                           p_regpedido.codcli,            -- HIS.02787.2016
-                                          0, -- p_custoprecific          -- HIS.02787.2016
                                           p_regitem.codprod,             -- HIS.02787.2016
                                           p_regpedido.codfilial,         -- HIS.02787.2016
                                           p_regitem.qt,                  -- HIS.02787.2016
@@ -28804,7 +28826,6 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           vnVLCUSTOFIN,
                                           vnVLDESCCUSTOCMV,
                                           p_regpedido.codcli,            -- HIS.02787.2016
-                                          0, -- p_custoprecific          -- HIS.02787.2016
                                           p_regitem.codprod,             -- HIS.02787.2016
                                           p_regpedido.codfilial,         -- HIS.02787.2016
                                           p_regitem.qt,                  -- HIS.02787.2016
@@ -30689,7 +30710,6 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regitem(j).VLCUSTOFIN,
                                               gvet_regitem(j).VLDESCCUSTOCMV,
                                               gvet_regpedido(i).codcli,          -- HIS.02787.2016
-                                              0, -- p_custoprecific              -- HIS.02787.2016
                                               gvet_regitem(j).CODPROD,           -- HIS.02787.2016
                                               gvet_regpedido(i).codfilial,       -- HIS.02787.2016
                                               gvet_regitem(j).QT,                -- HIS.02787.2016
@@ -31183,7 +31203,6 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regitem(j).VLCUSTOFIN,
                                               gvet_regitem(j).VLDESCCUSTOCMV,
                                               gvet_regpedido(i).codcli,          -- HIS.02787.2016
-                                              0, -- p_custoprecific              -- HIS.02787.2016
                                               gvet_regitem(j).CODPROD,           -- HIS.02787.2016
                                               gvet_regpedido(i).codfilial,       -- HIS.02787.2016
                                               gvet_regitem(j).QT,                -- HIS.02787.2016
