@@ -6,7 +6,7 @@
       "nome":"PCCLIENT",
       "tipo":"TABELA",
       "versao":"4.0.02.000"
-    },
+    }
     {
       "nome": "INTEGRADORACOMPLE_MED",
       "tipo": "OBJETO_PLSQL",
