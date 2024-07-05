@@ -28,7 +28,7 @@
 	{"nome": "PCLOGPROMOCAORAMOATIVMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAOCLASSEVENDAMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"},
-	{"nome": "VIEW_MED_PROMOCAO","tipo": "VIEW","versao": "6.0.02.000"},
+	{"nome": "VIEW_MED_PROMOCAO","tipo": "VIEW","versao": "6.0.03.000"},
 	{"nome": "VIEW_MED_PROMOCAO_REGIAO","tipo": "VIEW","versao": "6.0.01.000"},
 	{"nome": "VIEW_MED_PROMOCAO_CLIENTE","tipo": "VIEW","versao": "6.0.01.000"},
 	{"nome": "PKG_PROMOCAO_MED","tipo": "TABELA","versao": "6.0.05.000"}	
