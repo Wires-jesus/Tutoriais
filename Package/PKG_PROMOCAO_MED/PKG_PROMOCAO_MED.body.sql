@@ -8363,24 +8363,60 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvTipoPoliticaPedido        := NULL;
         vvPermiteQtMinimaSemObrig   := 'N';
     END;
-    IF vvTipoPromocaoPedido = 'K' THEN
-       P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMedPedido,
-                                  pi_nNumRegiao,
-                                  NULL, --pi_nCodPraca,
-                                  NULL, --pi_nCodRede,
-                                  pi_nCodCli,
-                                  NULL, --pi_nRamoAtv,
-                                  NULL, --pi_vCLASSE,
-                                  NULL, --pi_codgrupo,
-                                  NULL, --, pi_vUfCliente
-                                  vnQtComboVirtual,
-                                  vnQtCombovirtual_vendidos
-                                  );
-      vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
-      IF (vnQtCombovirtual_vendidos + pi_nQtCombos)  > vnQtComboVirtual THEN
-        po_vMotivoNaoPodeGravar := 'A quantidade solicitada ultrapassou o limite configurado na campanha. A quantidade disponível para esse combo é: ' || vnQtCombovirtual_disponivel;
-        RAISE e_Tratado;     
-      END IF;                                                                                               
+	
+	IF vvTipoPromocaoPedido = 'K' THEN
+	
+      IF (pi_vTipoFv = 'OL') THEN
+        P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMedPedido,
+                                   pi_nNumRegiao,
+                                   NULL, --pi_nCodPraca,
+                                   NULL, --pi_nCodRede,
+                                   pi_nCodCli,
+                                   NULL, --pi_nRamoAtv,
+                                   NULL, --pi_vCLASSE,
+                                   NULL, --pi_codgrupo,
+                                   NULL, --, pi_vUfCliente
+                                   vnQtComboVirtual,
+                                   vnQtCombovirtual_vendidos,
+                                   vsTipoLimitador,
+                                   NULL,
+                                   pi_vTipoFv
+                                   );
+         
+        vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
+         
+        IF (vnQtCombovirtual_vendidos + pi_nQtCombos)  > vnQtComboVirtual THEN
+          po_vMotivoNaoPodeGravar := 'O combo ' || pi_nCodPromocaoMedPedido || ' foi rejeitado pois não há mais quantidades disponíveis de acordo com os limitadores cadastrados. ' || CHR(13) ||
+                                     'Tipo Limitador cadastrado: ' || vsTipoLimitador || ' ' || CHR(13) || 
+                                     'Limite(Qt. Max. Combo): ' || vnQtComboVirtual || ' ' || CHR(13) ||
+                                     'Qt. Disponível da restrição: ' || vnQtCombovirtual_disponivel;
+          RAISE e_Tratado;     
+        END IF;
+      ELSE
+        P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMedPedido,
+                                   pi_nNumRegiao,
+                                   NULL, --pi_nCodPraca,
+                                   NULL, --pi_nCodRede,
+                                   pi_nCodCli,
+                                   NULL, --pi_nRamoAtv,
+                                   NULL, --pi_vCLASSE,
+                                   NULL, --pi_codgrupo,
+                                   NULL, --, pi_vUfCliente
+                                   vnQtComboVirtual,
+                                   vnQtCombovirtual_vendidos,
+                                   vsTipoLimitador
+                                   );
+         
+        vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
+         
+        IF (vnQtCombovirtual_vendidos + pi_nQtCombos)  > vnQtComboVirtual THEN
+          po_vMotivoNaoPodeGravar := 'O combo ' || pi_nCodPromocaoMedPedido || ' foi rejeitado pois não há mais quantidades disponíveis de acordo com os limitadores cadastrados. ' || CHR(13) ||
+                                     'Tipo Limitador cadastrado: ' || vsTipoLimitador || ' ' || CHR(13) || 
+                                     'Limite(Qt. Max. Combo): ' || vnQtComboVirtual || ' ' || CHR(13) ||
+                                     'Qt. Disponível da restrição: ' || vnQtCombovirtual_disponivel;
+          RAISE e_Tratado;     
+        END IF;      
+      END IF;                                                                                                  
     END IF;
 
     -- Se o Tipo de Chamada for Casadinha
@@ -14116,23 +14152,58 @@ IS PRAGMA SERIALLY_REUSABLE;
               END IF;
               
               IF pi_nTipoChamada = 11 AND vrDadosPromocaoAtual.vvTipoPromocao = 'K' THEN
-                 P_MED_OBTEM_QTCOMBOVIRTUAL(vrItemPedido.nCODPROMOCAOMED,
-                                            pi_nNumRegiao,
-                                            NULL, --pi_nCodPraca,
-                                            NULL, --pi_nCodRede,
-                                            pi_nCodCli,
-                                            NULL, --pi_nRamoAtv,
-                                            NULL, --pi_vCLASSE,
-                                            NULL, --pi_codgrupo,
-                                            NULL, --, pi_vUfCliente
-                                            vnQtComboVirtual,
-                                            vnQtCombovirtual_vendidos
-                                            );
-                vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
-                IF (vnQtCombovirtual_vendidos + vrItemPedido.nQTCOMBOVIRTUAL)  > vnQtComboVirtual THEN
-                  po_vMotivoNaoPodeGravar := 'A quantidade solicitada ultrapassou o limite configurado na campanha. A quantidade disponível para esse combo é: ' || vnQtCombovirtual_disponivel;
-                  RAISE e_Tratado;     
-                END IF;                           
+                 
+                IF (pi_vTipoFv = 'OL') THEN
+                  P_MED_OBTEM_QTCOMBOVIRTUAL(vrItemPedido.nCODPROMOCAOMED,
+                                             pi_nNumRegiao,
+                                             NULL, --pi_nCodPraca,
+                                             NULL, --pi_nCodRede,
+                                             pi_nCodCli,
+                                             NULL, --pi_nRamoAtv,
+                                             NULL, --pi_vCLASSE,
+                                             NULL, --pi_codgrupo,
+                                             NULL, --, pi_vUfCliente
+                                             vnQtComboVirtual,
+                                             vnQtCombovirtual_vendidos,
+                                             vsTipoLimitador,
+                                             NULL,
+                                             pi_vTipoFv
+                                             );
+                   
+                  vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
+                   
+                  IF (vnQtCombovirtual_vendidos + pi_nQtCombos)  > vnQtComboVirtual THEN
+                    po_vMotivoNaoPodeGravar := 'O combo ' || vrItemPedido.nCODPROMOCAOMED || ' foi rejeitado pois não há mais quantidades disponíveis de acordo com os limitadores cadastrados. ' || CHR(13) ||
+                                               'Tipo Limitador cadastrado: ' || vsTipoLimitador || ' ' || CHR(13) || 
+                                               'Limite(Qt. Max. Combo): ' || vnQtComboVirtual || ' ' || CHR(13) ||
+                                               'Qt. Disponível da restrição: ' || vnQtCombovirtual_disponivel;
+                    RAISE e_Tratado;     
+                  END IF;
+                ELSE
+                  P_MED_OBTEM_QTCOMBOVIRTUAL(vrItemPedido.nCODPROMOCAOMED,
+                                             pi_nNumRegiao,
+                                             NULL, --pi_nCodPraca,
+                                             NULL, --pi_nCodRede,
+                                             pi_nCodCli,
+                                             NULL, --pi_nRamoAtv,
+                                             NULL, --pi_vCLASSE,
+                                             NULL, --pi_codgrupo,
+                                             NULL, --, pi_vUfCliente
+                                             vnQtComboVirtual,
+                                             vnQtCombovirtual_vendidos,
+                                             vsTipoLimitador
+                                             );
+                   
+                  vnQtCombovirtual_disponivel := nvl(vnQtComboVirtual,0) - vnQtCombovirtual_vendidos;                          
+                   
+                  IF (vnQtCombovirtual_vendidos + pi_nQtCombos)  > vnQtComboVirtual THEN
+                    po_vMotivoNaoPodeGravar := 'O combo ' || vrItemPedido.nCODPROMOCAOMED || ' foi rejeitado pois não há mais quantidades disponíveis de acordo com os limitadores cadastrados. ' || CHR(13) ||
+                                               'Tipo Limitador cadastrado: ' || vsTipoLimitador || ' ' || CHR(13) || 
+                                               'Limite(Qt. Max. Combo): ' || vnQtComboVirtual || ' ' || CHR(13) ||
+                                               'Qt. Disponível da restrição: ' || vnQtCombovirtual_disponivel;
+                    RAISE e_Tratado;     
+                  END IF;      
+                END IF;                                                                                    
                                                                                     
               END IF;                                           
               
@@ -24494,7 +24565,9 @@ PROCEDURE P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMed         in NUMBER,
                                      pi_vUfCliente              IN VARCHAR2,
                                      po_qtcombovirtual          OUT NUMBER,
                                      po_qtcombovirtual_vendidos OUT NUMBER,
-                                     pi_vNumped                 IN FLOAT DEFAULT NULL) IS
+                                     po_vTipoLimitador          OUT VARCHAR,
+                                     pi_vNumped                 IN FLOAT DEFAULT NULL,
+                                     pi_vTipoFv                 IN VARCHAR2 DEFAULT NULL) IS
   vTipoLimitador PCPROMOCAOMED.Tipolimitador%TYPE;
   vQTMAXCOMBOMED PCPROMOCAOMED.QTMAXCOMBOMED%TYPE;
 
@@ -24508,11 +24581,13 @@ PROCEDURE P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMed         in NUMBER,
   vnCodPromocaoMed       PCCLIENT.CODPROMOCAOMED%TYPE;
   vnCodGrupoComercialMed PCCLIENT.CODGRUPOCOMERCIALMED%TYPE;
   vUfCliente             PCCLIENT.Estent%TYPE;
+  vvCGCENT               PCCLIENT.CGCENT%TYPE;
   
   vSQL                               VARCHAR2(32767);
   
 BEGIN
   po_qtcombovirtual_vendidos := 0;
+  
   BEGIN
     select tipolimitador, PCPROMOCAOMED.QTMAXCOMBOMED
       INTO vTipoLimitador, vQTMAXCOMBOMED
@@ -24526,509 +24601,832 @@ BEGIN
       po_qtcombovirtual_vendidos := 0;
       return;
   END;
-
-  IF vTipoLimitador = 'P' THEN
-    BEGIN
-      po_qtcombovirtual := vQTMAXCOMBOMED;
-      vSQL := '';
-      vSQL := ' select nvl(sum(qtcombovirtual), 0)
-                  from (select max(qtcombovirtual) qtcombovirtual,
-                               codpromocaomed,
-                               pcpedi.numped
-                          from pcpedi
-                         where pcpedi.qtcombovirtual is not null  
-                           and codpromocaomed = :pi_nCodPromocaoMed ';
-      
-      IF nvl(pi_vNumped,0) > 0 THEN   
-        vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-      END IF;
-      
-      vSQL := vSQL || '
-              group by numped, codpromocaomed)';
-      
-      IF nvl(pi_vNumped,0) > 0 THEN   
-        EXECUTE IMMEDIATE vSQL
-           INTO po_qtcombovirtual_vendidos
-        USING pi_nCodPromocaoMed, pi_vNumped;
-      ELSE
-        EXECUTE IMMEDIATE vSQL
-           INTO po_qtcombovirtual_vendidos
-        USING pi_nCodPromocaoMed;
-      END IF;
-
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        NULL;
-    END;
-    
-  END IF;
-  IF vTipoLimitador = 'R' AND pi_nNumRegiao IS NOT NULL THEN
-    BEGIN
-      SELECT PCPROMOCAOREGIAOMED.QTMAXCOMBOMED
-        INTO vQTMAXCOMBOMED
-        FROM PCPROMOCAOREGIAOMED
-       WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-         AND NUMREGIAO = pi_nNumRegiao;
-      
-      po_qtcombovirtual := vQTMAXCOMBOMED;
-      vSQL := '';
-      vSQL := ' select nvl(sum(qtcombovirtual), 0)
-                  from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                               pcpedi.codpromocaomed,
-                               pcpedi.numped
-                          from pcpedi, pcpedc
-                         where pcpedi.qtcombovirtual is not null
-                           and pcpedc.numped = pcpedi.numped
-                           and pcpedc.numregiao = :pi_nNumRegiao
-                           and pcpedi.codpromocaomed = :pi_nCodPromocaoMed';
-      
-      IF nvl(pi_vNumped,0) > 0 THEN   
-        vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-      END IF;
-      
-      vSQL := vSQL || '
-              group by pcpedi.numped, pcpedi.codpromocaomed)';
-    
-      IF nvl(pi_vNumped,0) > 0 THEN
-        EXECUTE IMMEDIATE vSQL
-           INTO po_qtcombovirtual_vendidos
-        USING pi_nNumRegiao, pi_nCodPromocaoMed, pi_vNumped;
-      ELSE
-        EXECUTE IMMEDIATE vSQL
-           INTO po_qtcombovirtual_vendidos
-        USING pi_nNumRegiao, pi_nCodPromocaoMed; 
-      END IF;
+   
+  po_vTipoLimitador := CASE vTipoLimitador
+                       WHEN 'S' THEN 
+                         '(S) - Sem Limitador'
+                       WHEN 'P' THEN
+                         '(P) - Por Campanha'
+                       WHEN 'R' THEN
+                         '(R) - Por Regiao / UF'
+                       WHEN 'C' THEN
+                         '(C) - Por restrições de Cliente / CNPJ'
+                       END;
+  
+  -- Buscar dados do Cliente
+  BEGIN
+    SELECT NVL(CODCLIPRINC, CODCLI) CODCLIPRINC,
+           CODATV1,
+           CODPRACA,
+           PCCLIENT.SIMPLESNACIONAL,
+           PCCLIENT.CODREDE,
+           PCCLIENT.CLASSEVENDA,
+           PCCLIENT.CODPROMOCAOMED,
+           PCCLIENT.CODGRUPOCOMERCIALMED,
+           PCCLIENT.ESTENT,
+           PCCLIENT.CGCENT
+      INTO vnCodCliPrinc,
+           vnCodAtv1,
+           vnCodPraca,
+           vvSimplesNacional,
+           vnCodRede,
+           vvClasseVenda,
+           vnCodPromocaoMed,
+           vnCodGrupoComercialMed,
+           vUfCliente,
+           vvCGCENT
+      FROM PCCLIENT
+     WHERE (CODCLI = pi_nCodCli);
      
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        NULL;
-    END;
-  END IF;
+     vvCGCENT := REGEXP_REPLACE(vvCGCENT, '[^0-9]', '');
+     
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      vnCodCliPrinc          := NULL;
+      vnCodAtv1              := NULL;
+      vnCodPraca             := NULL;
+      vvSimplesNacional      := NULL;
+      vnCodRede              := NULL;
+      vvClasseVenda          := NULL;
+      vnCodPromocaoMed       := NULL;
+      vnCodGrupoComercialMed := NULL;
+      vvCGCENT               := NULL;
+  END;
 
-  IF vTipoLimitador = 'C' THEN
-    -- Buscar dados do Cliente
-    BEGIN
-      SELECT NVL(CODCLIPRINC, CODCLI) CODCLIPRINC,
-             CODATV1,
-             CODPRACA,
-             PCCLIENT.SIMPLESNACIONAL,
-             PCCLIENT.CODREDE,
-             PCCLIENT.CLASSEVENDA,
-             PCCLIENT.CODPROMOCAOMED,
-             PCCLIENT.CODGRUPOCOMERCIALMED,
-             PCCLIENT.ESTENT
-        INTO vnCodCliPrinc,
-             vnCodAtv1,
-             vnCodPraca,
-             vvSimplesNacional,
-             vnCodRede,
-             vvClasseVenda,
-             vnCodPromocaoMed,
-             vnCodGrupoComercialMed,
-             vUfCliente
-        FROM PCCLIENT
-       WHERE (CODCLI = pi_nCodCli);
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        vnCodCliPrinc          := NULL;
-        vnCodAtv1              := NULL;
-        vnCodPraca             := NULL;
-        vvSimplesNacional      := NULL;
-        vnCodRede              := NULL;
-        vvClasseVenda          := NULL;
-        vnCodPromocaoMed       := NULL;
-        vnCodGrupoComercialMed := NULL;
-    END;
-    
-    IF nvl(pi_nCodPraca, vnCodPraca) IS NOT NULL THEN
+  IF (pi_vTipoFv = 'OL') THEN
+    IF vTipoLimitador = 'P' THEN
       BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAOPRACAMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND PCPROMOCAOPRACAMED.CODPRACA = nvl(pi_nCodPraca, vnCodPraca);
+        po_qtcombovirtual := vQTMAXCOMBOMED;
+        vSQL := '';
+        vSQL := ' select nvl(sum(qtcombovirtual), 0)
+                    from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i
+                           where c.numped = i.numped ';
+                                        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+        END IF;
+
+        vSQL := vSQL || '    and nvl(i.qtcombovirtual,0) > 0
+                             and c.posicao <> ''C''
+                             and i.codpromocaomed = :pi_nCodPromocaoMed
+                          group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                  where a.existe_devolucao = ''N'' ';
+		  
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_vNumped, pi_nCodPromocaoMed;
+        ELSE
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_nCodPromocaoMed;
+        END IF;
+
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
+          NULL;
       END;
+    END IF;
+    
+    IF vTipoLimitador = 'R' THEN
+      BEGIN
+        SELECT R.QTMAXCOMBOMED
+          INTO vQTMAXCOMBOMED
+          FROM VIEW_MED_PROMOCAO_REGIAO R
+         WHERE R.CODPROMOCAOMED = pi_nCodPromocaoMed
+           AND R.UF = nvl(pi_vUfCliente, vUfCliente);
+        
+        po_qtcombovirtual := vQTMAXCOMBOMED;
+        vSQL := '';
+        vSQL := ' select nvl(sum(qtcombovirtual), 0)
+                    from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i,
+                                 pcclient t
+                           where c.numped = i.numped
+                             and c.codcli = t.codcli ';
+        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+        END IF;
+        
+        vSQL := vSQL || '   and t.estent = nvl(:pi_vUfCliente, :vUfCliente)
+                            and nvl(i.qtcombovirtual,0) > 0
+                            and c.posicao <> ''C''
+                            and i.codpromocaomed = :pi_nCodPromocaoMed
+                          group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                  where a.existe_devolucao = ''N'' ';
       
-      IF (vQTMAXCOMBOMED > 0) THEN
+        IF nvl(pi_vNumped,0) > 0 THEN
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_vNumped, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed;
+        ELSE
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed; 
+        END IF;
+       
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          NULL;
+      END;
+    END IF;
+    
+    IF vTipoLimitador = 'C' THEN    
+      IF vvCGCENT IS NOT NULL THEN
+        BEGIN
+          SELECT C.QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM VIEW_MED_PROMOCAO_CLIENTE C
+           WHERE C.CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND C.CGCENT = vvCGCENT;
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+        
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and REGEXP_REPLACE(t.cgcent, ''[^0-9]'', '''') = :vvCGCENT
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';                 
+          
+          IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, vvCGCENT, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, vvCGCENT, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;
+        END IF;
+      END IF;
+    END IF;  
+  
+  ELSE -- TipoFV <> 'OL'
+    IF vTipoLimitador = 'P' THEN
+      BEGIN
         po_qtcombovirtual := vQTMAXCOMBOMED;
         
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc
-                             where pcpedi.qtcombovirtual is not null
-                               and pcpedc.numped = pcpedi.numped
-                               and pcpedc.Codpraca = nvl(:pi_nCodPraca, :vnCodPraca)
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed ';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;         
-          
-          vSQL := vSQL || '           
-                  group by pcpedi.numped, pcpedi.codpromocaomed)';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN           
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed;
-          END IF;
-            
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END;      
-      END IF;
-    END IF;
-  
-    IF nvl(pi_nCodRede, vnCodRede) IS NOT NULL THEN
-      BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAOREDEMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND CODREDE = nvl(pi_nCodRede, vnCodRede);
+        vSQL := '';
+        vSQL := ' select nvl(sum(qtcombovirtual), 0)
+                    from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i
+                           where c.numped = i.numped ';
+                                        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped';
+        END IF;
+        					 
+        vSQL := vSQL || '    and nvl(i.qtcombovirtual,0) > 0
+                             and c.posicao <> ''C''
+                             and i.codpromocaomed = :pi_nCodPromocaoMed
+                          group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                  where a.existe_devolucao = ''N'' ';
+        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_vNumped, pi_nCodPromocaoMed;
+        ELSE
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_nCodPromocaoMed;
+        END IF;
+
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-    
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
-        END IF;
-        
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc, pcclient
-                             where pcpedi.qtcombovirtual is not null
-                               and pcpedc.numped = pcpedi.numped
-                               and pcpedc.codcli = pcclient.codcli
-                               and pcclient.codrede = nvl(:pi_nCodRede, :vnCodRede)
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;               
-          
-          vSQL := vSQL || '
-                   group by pcpedi.numped, pcpedi.codpromocaomed)';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN 
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed;
-          END IF;
-          
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END; 
-      END IF;
+          NULL;
+      END;  
     END IF;
     
-    IF pi_nCodCli IS NOT NULL THEN
+   IF vTipoLimitador = 'R' AND pi_nNumRegiao IS NOT NULL THEN
       BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAOCLIMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND CODCLI = pi_nCodCli;
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-    
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
-        END IF;
-        
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc
-                             where pcpedi.qtcombovirtual is not null
-                               and pcpedc.numped = pcpedi.numped
-                               and pcpedc.Codcli = :pi_nCodCli
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed ';
-           
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;               
-          
-          vSQL := vSQL || '                            
-                  group by pcpedi.numped, pcpedi.codpromocaomed)';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodCli, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nCodCli, pi_nCodPromocaoMed;
-          END IF;
-        
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END;  
-      END IF;
-    END IF;
-    
-    IF NVL(pi_nRamoAtv, vnCodAtv1) IS NOT NULL THEN
-      BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAORAMOATIVMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND CODATIV = NVL(pi_nRamoAtv, vnCodAtv1);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
-        END IF;
-        
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc, pcclient
-                             where pcpedi.qtcombovirtual is not null
-                               and pcclient.codcli = pcpedc.codcli
-                               and pcclient.codatv1 = NVL(:pi_nRamoAtv, :vnCodAtv1)
-                               and pcpedc.numped = pcpedi.numped
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed ';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;               
-            
-          vSQL := vSQL || ' 
-                  group by pcpedi.numped, pcpedi.codpromocaomed)';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
-          END IF;
-        
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END;
-      END IF;
-    END IF;
-    
-    IF nvl(pi_vCLASSE, vvClasseVenda) IS NOT NULL THEN
-      BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAOCLASSEVENDAMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND CLASSEVENDA = nvl(pi_vCLASSE, vvClasseVenda);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-    
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
-        END IF;
-        
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc, pcclient
-                             where pcpedi.qtcombovirtual is not null
-                               and pcclient.codcli = pcpedc.codcli
-                               and pcpedc.numped = pcpedi.numped
-                               and pcclient.classevenda = nvl(:pi_vCLASSE, :vvClasseVenda)
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed ';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;               
-              
-          vSQL := vSQL || ' 
-                  group by pcpedi.numped, pcpedi.codpromocaomed)';
-        
-        IF nvl(pi_vNumped,0) > 0 THEN
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
-          END IF;
-        
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END;
-      END IF;
-    END IF;
-    
-    IF nvl(pi_codgrupo, vnCodGrupoComercialMed) IS NOT NULL THEN
-      BEGIN
-        SELECT QTMAXCOMBOMED
-          INTO vQTMAXCOMBOMED
-          FROM PCPROMOCAOGRUPOCOMERCMED
-         WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND CODGRUPOCOMERCIALMED =
-               nvl(pi_codgrupo, vnCodGrupoComercialMed);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-      
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
-        END IF;
-        
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc, pcclient
-                             where pcpedi.qtcombovirtual is not null
-                               and pcclient.codcli = pcpedc.codcli
-                               and pcpedc.numped = pcpedi.numped
-                               and pcclient.codgrupocomercialmed =
-                                   nvl(:pi_codgrupo, :vnCodGrupoComercialMed)
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed ';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN   
-            vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-          END IF;               
-              
-          vSQL := vSQL || '
-                 group by pcpedi.numped, pcpedi.codpromocaomed)';
-          
-          IF nvl(pi_vNumped,0) > 0 THEN
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed;
-          END IF;
-        
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            NULL;
-        END;
-      END IF;
-    END IF;
-  
-    IF nvl(pi_vUfCliente, vUfCliente) IS NOT NULL THEN
-      BEGIN
-        SELECT SUM(QTMAXCOMBOMED)
+        SELECT PCPROMOCAOREGIAOMED.QTMAXCOMBOMED
           INTO vQTMAXCOMBOMED
           FROM PCPROMOCAOREGIAOMED
          WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
-           AND PCPROMOCAOREGIAOMED.NUMREGIAO IN
-               (SELECT NUMREGIAO
-                  FROM PCREGIAO
-                 WHERE UF = nvl(pi_vUfCliente, vUfCliente));
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vQTMAXCOMBOMED := 0;
-      END;
-      IF vQTMAXCOMBOMED > 0 THEN
-        IF po_qtcombovirtual > 0 THEN
-          po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
-        ELSE
-          po_qtcombovirtual := vQTMAXCOMBOMED;
+           AND NUMREGIAO = pi_nNumRegiao;
+        
+        po_qtcombovirtual := vQTMAXCOMBOMED;
+        
+        vSQL := '';
+        vSQL := ' select nvl(sum(qtcombovirtual), 0)
+                    from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i
+                           where c.numped = i.numped ';
+                                        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
         END IF;
         
-        BEGIN
-          vSQL := '';
-          vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
-                      from (select max(pcpedi.qtcombovirtual) qtcombovirtual,
-                                   pcpedi.codpromocaomed,
-                                   pcpedi.numped
-                              from pcpedi, pcpedc, pcclient
-                             where pcpedi.qtcombovirtual is not null
-                               and pcclient.codcli = pcpedc.codcli
-                               and pcpedc.numped = pcpedi.numped
-                               and pcclient.Estent = nvl(:pi_vUfCliente, :vUfCliente)
-                               and pcpedi.codpromocaomed = :pi_nCodPromocaoMed';
-         
-        IF nvl(pi_vNumped,0) > 0 THEN   
-          vSQL := vSQL || '  and pcpedi.numped <> :pi_vNumped'; 
-        END IF;               
-              
-        vSQL := vSQL || '  
-                  group by pcpedi.numped, pcpedi.codpromocaomed)';
-        
+        vSQL := vSQL || '    and c.numregiao = :pi_nNumRegiao
+                             and nvl(i.qtcombovirtual,0) > 0
+                             and c.posicao <> ''C''
+                             and i.codpromocaomed = :pi_nCodPromocaoMed
+                           group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                    where a.existe_devolucao = ''N'' ';                 
+      
         IF nvl(pi_vNumped,0) > 0 THEN
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed, pi_vNumped;
-          ELSE
-            EXECUTE IMMEDIATE vSQL
-               INTO po_qtcombovirtual_vendidos
-            USING po_qtcombovirtual_vendidos, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed;
-          END IF;
-        
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_vNumped, pi_nNumRegiao, pi_nCodPromocaoMed;
+        ELSE
+          EXECUTE IMMEDIATE vSQL
+             INTO po_qtcombovirtual_vendidos
+          USING pi_nNumRegiao, pi_nCodPromocaoMed; 
+        END IF;
+       
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          NULL;
+      END;
+    END IF;
+
+    IF vTipoLimitador = 'C' THEN      
+      IF nvl(pi_nCodPraca, vnCodPraca) IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOPRACAMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND PCPROMOCAOPRACAMED.CODPRACA = nvl(pi_nCodPraca, vnCodPraca);
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            NULL;
+            vQTMAXCOMBOMED := 0;
         END;
+        	
+        IF (vQTMAXCOMBOMED > 0) THEN
+          po_qtcombovirtual := vQTMAXCOMBOMED;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := '  select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                         from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i
+                           where c.numped = i.numped ';
+                                        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+        END IF;
+        			 
+        vSQL := vSQL || '    and c.codpraca = nvl(:pi_nCodPraca, :vnCodPraca)
+                             and nvl(i.qtcombovirtual,0) > 0
+                             and c.posicao <> ''C''
+                             and i.codpromocaomed = :pi_nCodPromocaoMed
+                           group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                    where a.existe_devolucao = ''N'' ';
+            		  
+            IF nvl(pi_vNumped,0) > 0 THEN           
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_nCodPraca, vnCodPraca, pi_nCodPromocaoMed;
+            END IF;
+              
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;      
+        END IF;
+      END IF;
+    
+      IF nvl(pi_nCodRede, vnCodRede) IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOREDEMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND CODREDE = nvl(pi_nCodRede, vnCodRede);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+      
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and l.codrede = nvl(:pi_nCodRede, :vnCodRede)
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';
+            
+            IF nvl(pi_vNumped,0) > 0 THEN 
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_nCodRede, vnCodRede, pi_nCodPromocaoMed;
+            END IF;
+            
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END; 
+        END IF;
+      END IF;
+      
+      IF pi_nCodCli IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOCLIMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND CODCLI = pi_nCodCli;
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+      
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';      
+            vSQL := '  select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                         from (select max(i.qtcombovirtual) qtcombovirtual,
+                                 i.codpromocaomed,
+                                 i.numped,
+                                 case
+                                   when c.numtransvenda in
+                                        (select m.numtransvenda
+                                           from pcestcom m, pcnfent e
+                                          where m.numtransent = e.numtransent
+                                            and e.dtcancel is null
+                                            and m.historico is null) then
+                                    ''S''
+                                   else
+                                    ''N''
+                                 end Existe_Devolucao
+                            from pcpedc c, 
+                                 pcpedi i
+                           where c.numped = i.numped ';
+                                        
+        IF nvl(pi_vNumped,0) > 0 THEN   
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+        END IF;
+        
+        vSQL := vSQL || '    and c.codcli = :pi_nCodCli
+                             and nvl(i.qtcombovirtual,0) > 0
+                             and c.posicao <> ''C''
+                             and i.codpromocaomed = :pi_nCodPromocaoMed
+                           group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                    where a.existe_devolucao = ''N'' ';
+            IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_nCodCli, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_nCodCli, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;  
+        END IF;
+      END IF;
+      
+      IF NVL(pi_nRamoAtv, vnCodAtv1) IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAORAMOATIVMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND CODATIV = NVL(pi_nRamoAtv, vnCodAtv1);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and t.codatv1 = NVL(:pi_nRamoAtv, :vnCodAtv1)
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';
+            
+            IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed, pi_vNumped;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_nRamoAtv, vnCodAtv1, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;
+        END IF;
+      END IF;
+      
+      IF nvl(pi_vCLASSE, vvClasseVenda) IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOCLASSEVENDAMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND CLASSEVENDA = nvl(pi_vCLASSE, vvClasseVenda);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+      
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and t.classevenda = nvl(:pi_vCLASSE, :vvClasseVenda)
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';
+                        
+          IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_vCLASSE, vvClasseVenda, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vCLASSE, vvClasseVenda, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;
+        END IF;
+      END IF;
+      
+      IF nvl(pi_codgrupo, vnCodGrupoComercialMed) IS NOT NULL THEN
+        BEGIN
+          SELECT QTMAXCOMBOMED
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOGRUPOCOMERCMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND CODGRUPOCOMERCIALMED =
+                 nvl(pi_codgrupo, vnCodGrupoComercialMed);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+        
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and t.codgrupocomercialmed =
+                                     nvl(:pi_codgrupo, :vnCodGrupoComercialMed)
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';
+            
+            IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_codgrupo, vnCodGrupoComercialMed, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;
+        END IF;
+      END IF;
+    
+      IF nvl(pi_vUfCliente, vUfCliente) IS NOT NULL THEN
+        BEGIN
+          SELECT SUM(QTMAXCOMBOMED)
+            INTO vQTMAXCOMBOMED
+            FROM PCPROMOCAOREGIAOMED
+           WHERE CODPROMOCAOMED = pi_nCodPromocaoMed
+             AND PCPROMOCAOREGIAOMED.NUMREGIAO IN
+                 (SELECT NUMREGIAO
+                    FROM PCREGIAO
+                   WHERE UF = nvl(pi_vUfCliente, vUfCliente));
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vQTMAXCOMBOMED := 0;
+        END;
+        IF vQTMAXCOMBOMED > 0 THEN
+          IF po_qtcombovirtual > 0 THEN
+            po_qtcombovirtual := least(vQTMAXCOMBOMED, po_qtcombovirtual);
+          ELSE
+            po_qtcombovirtual := vQTMAXCOMBOMED;
+          END IF;
+          
+          BEGIN
+            vSQL := '';
+            vSQL := ' select GREATEST(nvl(sum(qtcombovirtual), 0), :po_qtcombovirtual_vendidos)
+                        from (select max(i.qtcombovirtual) qtcombovirtual,
+                                     i.codpromocaomed,
+                                     i.numped,
+                                     case
+                                       when c.numtransvenda in
+                                            (select m.numtransvenda
+                                               from pcestcom m, pcnfent e
+                                              where m.numtransent = e.numtransent
+                                                and e.dtcancel is null
+                                                and m.historico is null) then
+                                        ''S''
+                                       else
+                                        ''N''
+                                     end Existe_Devolucao
+                                from pcpedc c, 
+                                     pcpedi i,
+                                     pcclient t
+                               where c.numped = i.numped
+                                 and c.codcli = t.codcli ';
+                             
+            IF nvl(pi_vNumped,0) > 0 THEN   
+              vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
+            END IF;
+            
+            vSQL := vSQL || '    and t.estent = nvl(:pi_vUfCliente, :vUfCliente)
+                                 and nvl(i.qtcombovirtual,0) > 0
+                                 and c.posicao <> ''C''
+                                 and i.codpromocaomed = :pi_nCodPromocaoMed
+                               group by i.numped, i.codpromocaomed, c.numtransvenda) a
+                        where a.existe_devolucao = ''N'' ';
+          
+          IF nvl(pi_vNumped,0) > 0 THEN
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vNumped, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed, pi_vNumped;
+            ELSE
+              EXECUTE IMMEDIATE vSQL
+                 INTO po_qtcombovirtual_vendidos
+              USING po_qtcombovirtual_vendidos, pi_vUfCliente, vUfCliente, pi_nCodPromocaoMed;
+            END IF;
+          
+          EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+              NULL;
+          END;
+        END IF;
       END IF;
     END IF;
   END IF;
-
+  
 END P_MED_OBTEM_QTCOMBOVIRTUAL;
 END PKG_PROMOCAO_MED;
