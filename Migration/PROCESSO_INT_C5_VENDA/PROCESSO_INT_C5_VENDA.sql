@@ -208,10 +208,13 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
   FROM  pcembalagem e,
         pcprodut p,
         pcprodfilial f,
-        PCDEPARAPRODC5 c
+        PCDEPARAPRODC5 c,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  p.codprod = e.codprod
    AND  e.codprod = f.codprod
    AND  e.codfilial = f.codfilial
+   AND  e.codfilial = C5.codfilial
+   AND  f.codfilial = C5.codfilial
    AND  c.codprod = e.codprod
    AND  LENGTH (p.nbm) >= 2
    AND  e.codprod >= 0
@@ -1895,6 +1898,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  v.codauxiliar = tp.codacesso
    AND  p.seqproduto = tp.seqproduto
    AND  v.seqproduto = tp.seqproduto
+   AND  v.codfilial = ea.codigo
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
@@ -2251,6 +2255,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND tp.seqproduto = case when i.seqprodcomposto is null then i.seqproduto else i.seqprodcomposto end
    AND tp.nroempresa = i.nroempresa
    AND tp.qtdembalagem = i.qtdembalagem
+   AND  v.codfilial = ea.codigo
    AND  p.seqproduto = tp.seqproduto
    AND  v.seqproduto = tp.seqproduto
    AND  d.seqdocto = c.seqdocto
