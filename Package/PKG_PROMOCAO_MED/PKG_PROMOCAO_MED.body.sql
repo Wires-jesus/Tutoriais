@@ -3161,7 +3161,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         SELECT 'S'
           INTO vvAchouSelPromocao
           FROM PCMED_SELPROMOCAO
-         WHERE (PCMED_SELPROMOCAO.TIPOPOLITICA NOT IN ('Q','F','B'))
+         WHERE (PCMED_SELPROMOCAO.TIPOPOLITICA NOT IN ('Q','F','B','V'))
            AND (ROWNUM = 1);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -6207,7 +6207,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         SELECT 'S'
           INTO vvAchouSelPromocao
           FROM PCMED_SELPROMOCAO
-         WHERE (PCMED_SELPROMOCAO.TIPOPOLITICA NOT IN ('Q','F','B'))
+         WHERE (PCMED_SELPROMOCAO.TIPOPOLITICA NOT IN ('Q','F','B','V'))
            AND (ROWNUM = 1);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -10508,7 +10508,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 --, PCPROMOCAOMED.TIPOPROMOCAO
                                 -- MED_VLMIN_FXQ - Permitir que Promoção de Faixa de Quantidade com Valor Mínimo use os controles de Valor Mínimo
                                 , CASE
-                                    WHEN ((PCPROMOCAOMED.TIPOPROMOCAO = 'C') AND (PCPROMOCAOMED.TIPOPOLITICA IN ('Q','F')) AND (NVL(PCPROMOCAOMED.VLRMINITENSPROMOCAO,0) > 0)) THEN
+                                    WHEN ((PCPROMOCAOMED.TIPOPROMOCAO = 'C') AND (PCPROMOCAOMED.TIPOPOLITICA IN ('Q','F','V')) AND (NVL(PCPROMOCAOMED.VLRMINITENSPROMOCAO,0) > 0)) THEN
                                       'F'
                                     ELSE
                                       PCPROMOCAOMED.TIPOPROMOCAO
@@ -10519,7 +10519,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                          ((PCPROMOCAOMED.TIPOPROMOCAO = 'N') AND (NVL(PCPROMOCAOMED.TIPOVALIDAVALORMIN,'S') IN ('M','V','Q'))) THEN
                                        PCPROMOCAOMED.VLRMINITENSPROMOCAO
                                     -- MED_VLMIN_FXQ
-                                    WHEN ((PCPROMOCAOMED.TIPOPROMOCAO = 'C') AND (PCPROMOCAOMED.TIPOPOLITICA IN ('Q','F')) AND (NVL(PCPROMOCAOMED.VLRMINITENSPROMOCAO,0) > 0)) THEN
+                                    WHEN ((PCPROMOCAOMED.TIPOPROMOCAO = 'C') AND (PCPROMOCAOMED.TIPOPOLITICA IN ('Q','F','V')) AND (NVL(PCPROMOCAOMED.VLRMINITENSPROMOCAO,0) > 0)) THEN
                                        PCPROMOCAOMED.VLRMINITENSPROMOCAO
                                     ELSE
                                       TO_NUMBER(NULL)
@@ -15891,7 +15891,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     IF (pi_vTipoPromocao <> 'N') AND
        ((pi_vTipoPromocao = 'L') OR
-        (pi_vTipoPolitica IN ('F','Q','B'))) THEN
+        (pi_vTipoPolitica IN ('F','Q','B','V'))) THEN
       vvTabelaSelect := pi_vTabela || '_FAIXA';
       vvColunaSelect := pi_vColuna || 'REF';
     ELSE
@@ -15962,7 +15962,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         ' , 0 VLDESCCMVPROMOCAOMED ';
     END IF;             
     IF (pi_vTipoPromocao <> 'N') AND
-       (pi_vTipoPolitica IN ('F','Q','B')) THEN
+       (pi_vTipoPolitica IN ('F','Q','B','V')) THEN
       vvSqlInsertValues := vvSqlInsertValues ||
         ' , NVL(D.INICIOINTERVALO,0)
           , NVL(D.FIMINTERVALO,0) ';
@@ -16773,7 +16773,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -------------------------------------------------------------------------------------------------------------------
       -- Se Politica de Desconto/Desconto por Quantidade/Preço Fixo/ Preço por Quantidade/BonifMerc por Quantidade/Markup
       -------------------------------------------------------------------------------------------------------------------
-      IF    (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+      IF    (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
 
         -- Laço de Departamentos para Inclusao do Departamento e Seção
         FOR idxDepto IN vtPCMED_PROMOCAODEPTO.FIRST..vtPCMED_PROMOCAODEPTO.LAST LOOP
@@ -16798,7 +16798,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAODEPTO_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAODEPTO(idxDepto).PERCDESCBASERCA;
               vtPCMED_PROMOCAODEPTO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAODEPTO(idxDepto).REGRAALTERARDESCONTO;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAODEPTO_FAIXA
                 FROM PCMED_PROMOCAODEPTO_FAIXA
@@ -17065,7 +17065,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtPCMED_PROMOCAOSECAO_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOSECAO(idxSecao).PERCDESCBASERCA;
                   vtPCMED_PROMOCAOSECAO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOSECAO(idxSecao).REGRAALTERARDESCONTO;
                 -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
-                ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+                ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
                   SELECT *
                     BULK COLLECT INTO vtPCMED_PROMOCAOSECAO_FAIXA
                     FROM PCMED_PROMOCAOSECAO_FAIXA
@@ -17348,7 +17348,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtPCMED_PROMOCAOCATEG_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOCATEG(idxCateg).PERCDESCBASERCA;
                   vtPCMED_PROMOCAOCATEG_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOCATEG(idxCateg).REGRAALTERARDESCONTO;
                 -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
-                ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+                ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
                   SELECT *
                     BULK COLLECT INTO vtPCMED_PROMOCAOCATEG_FAIXA
                     FROM PCMED_PROMOCAOCATEG_FAIXA
@@ -17603,7 +17603,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOFORNEC_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOFORNEC(idxFornec).PERCDESCBASERCA;
               vtPCMED_PROMOCAOFORNEC_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOFORNEC(idxFornec).REGRAALTERARDESCONTO;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAOFORNEC_FAIXA
                 FROM PCMED_PROMOCAOFORNEC_FAIXA
@@ -17849,7 +17849,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOMARCA_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOMARCA(idxMarca).PERCDESCBASERCA;
               vtPCMED_PROMOCAOMARCA_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOMARCA(idxMarca).REGRAALTERARDESCONTO;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAOMARCA_FAIXA
                 FROM PCMED_PROMOCAOMARCA_FAIXA
@@ -18095,7 +18095,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOLINHAPROD_FA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).PERCDESCBASERCA;
               vtPCMED_PROMOCAOLINHAPROD_FA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).REGRAALTERARDESCONTO;
             -- De Desconto por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAOLINHAPROD_FA
                 FROM PCMED_PROMOCAOLINHAPROD_FAIXA
@@ -18343,7 +18343,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAORESTGRUPRO_FA(1).VLDESCCMVPROMOCAOMED     := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).VLDESCCMVPROMOCAOMED;
               vtPCMED_PROMOCAORESTGRUPRO_FA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).REGRAALTERARDESCONTO;
             -- De Desconto por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAORESTGRUPRO_FA
                 FROM PCMED_PROMOCAORESTGRUPRO_FAIXA
@@ -18634,7 +18634,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Campo de Controle de Qtde KIT
               vnQtdeKit                                                 := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTKIT;
             -- De Desconto/BonifMerc por Quantidade por Quantidade ou Preço por Quantidade Carrega Array as Faixas
-            ELSIF (vvTipoPolitica IN ('Q','F','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','F','B','V')) THEN
 
               SELECT *
                 BULK COLLECT INTO vtPCMED_PROMOCAOPRODUTO_FAIXA
@@ -19808,7 +19808,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
         -- Por faixa de quantidade
         -- Bonificação ou Lote
-        IF (pi_vTipoPolitica IN ('Q','F')) OR
+        IF (pi_vTipoPolitica IN ('Q','F','V')) OR
            (pi_vTipoPromocao IN ('L','B')) THEN    
         
           -- Politica por produto
@@ -20128,7 +20128,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          ((NVL(FUSA_REGRA_NORMALIZA_DESC,'N') = 'N') AND
           (NVL(vvTipoPromocao,' ') IN ('N','V','M'))) OR -- DDMEDICA-5751 "V" e "M"
          ((NVL(FUSA_REGRA_NORMALIZA_DESC,'N') = 'N') AND
-          (NVL(vvTipoPolitica,' ') IN ('F','Q'))     AND
+          (NVL(vvTipoPolitica,' ') IN ('F','Q','V'))     AND
           (NVL(vnVlrMinItensPromocao,0) > 0))        THEN -- DDMEDICA-5751 Faixa Qtde e Valor Mínimo
 
         -- Todos os Produtos
@@ -20955,7 +20955,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       --************************************
 
       -- Carrega Array com os Departamentos informados
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAODEPTO
           FROM PCMED_PROMOCAODEPTO;
@@ -20968,7 +20968,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Carrega Array com as Seções informadas
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOSECAO
           FROM PCMED_PROMOCAOSECAO;
@@ -20981,7 +20981,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Carrega Array com as Categorias informadas
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOCATEG
           FROM PCMED_PROMOCAOCATEG;
@@ -20995,7 +20995,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Carrega Array com os Fornecedores informados
       -- (Pode ficar sem dados no Array)
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOFORNEC
           FROM PCMED_PROMOCAOFORNEC;
@@ -21003,7 +21003,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Carrega Array com as Marcas informadas
       -- (Pode ficar sem dados no Array)
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOMARCA
           FROM PCMED_PROMOCAOMARCA;
@@ -21011,7 +21011,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Carrega Array com as Linhas de Produto informados
       -- (Pode ficar sem dados no Array)
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOLINHAPROD
           FROM PCMED_PROMOCAOLINHAPROD;
@@ -21019,7 +21019,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Carrega Array com os Grupos de Produtos informados - HIS.01889.2017
       -- (Pode ficar sem dados no Array)
-      IF (vvTipoPolitica IN ('D','Q','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAORESTGRUPRO
           FROM PCMED_PROMOCAORESTGRUPRO;
@@ -21027,7 +21027,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       -- Carrega Array com os Produtos informados
       -- (Pode ficar sem dados no Array)
-      IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade por Quantidade/Preço Fixo/Preço por Quantidade/Markup
+      IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN  -- Se Desconto/Desconto ou BonifMerc por Quantidade por Quantidade/Preço Fixo/Preço por Quantidade/Markup
         SELECT *
           BULK COLLECT INTO vtPCMED_PROMOCAOPRODUTO
           FROM PCMED_PROMOCAOPRODUTO;
@@ -21696,7 +21696,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF    (NVL(vvUsaRegraNormalizaDesc,'N') = 'S') THEN
 
             -- Carrega Tabela Temporária de Origens
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOORIGEM(
                           ORIGEMPED )
                    SELECT ORIGEMPED
@@ -21705,7 +21705,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Filiais
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOFIL(
                           CODFILIAL )
                    SELECT CODFILIAL
@@ -21714,7 +21714,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Regiões
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOREG(
                           NUMREGIAO
                         , QTMAXCOMBOMED )
@@ -21725,7 +21725,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              END IF;
 
             -- Carrega Tabela Temporária de Praças
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
                 INSERT INTO PCMED_PROMOCAOPRACA(
                             CODPRACA
                           , QTMAXCOMBOMED )
@@ -21736,7 +21736,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Ramos de Atividade
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOATIV(
                           CODATIV
                         , QTMAXCOMBOMED )
@@ -21747,7 +21747,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Redes
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOREDE(
                           CODREDE
                         , QTMAXCOMBOMED )
@@ -21758,7 +21758,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Clientes
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOCLI(
                           CODCLI
                         , QTMAXCOMBOMED )
@@ -21769,7 +21769,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Areas de Atuação
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOAREA(
                           CODIGO )
                    SELECT AREAATUACAO
@@ -21778,7 +21778,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Supervisores
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOSUP(
                           CODSUPERVISOR )
                    SELECT CODSUPERV
@@ -21787,7 +21787,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de RCA's
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOUSUR(
                           CODUSUR )
                    SELECT CODUSUR
@@ -21796,7 +21796,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Planos de Pagamento
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOPLPAG(
                           CODPLPAG )
                    SELECT CODPLPAG
@@ -21805,7 +21805,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Condições de Venda
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOCONDVENDA(
                           CODCONDICAOVENDA )
                    SELECT CODCONDICAOVENDA
@@ -21815,7 +21815,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
             -- Carrega Tabela Temporária de Classes
             -- Carrega Tabela Temporária de Grupos Comerciais
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               -- DDMEDICA-2258 (Somente carregará as inf se a promoção não for "Por Rede/Cliente (1)")
               IF ((nvl(vnTipoRestricao,0) NOT IN (1, 4))) THEN
                 INSERT INTO PCMED_PROMOCAOCLASSE(
@@ -21842,7 +21842,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSIF (NVL(vvUsaRegraNormalizaDesc,'N')  <> 'S') THEN
 
             -- Carrega Tabela Temporária de Origens
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOORIGEM(
                           ORIGEMPED )
                    SELECT DISTINCT
@@ -21864,7 +21864,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Filiais
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOFIL(
                           CODFILIAL )
                    SELECT DISTINCT
@@ -21875,7 +21875,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Regiões
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOREG(
                           NUMREGIAO )
                    SELECT DISTINCT
@@ -21886,7 +21886,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              END IF;
 
             -- Carrega Tabela Temporária de Praças
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
                 INSERT INTO PCMED_PROMOCAOPRACA(
                             CODPRACA )
                      SELECT DISTINCT
@@ -21897,7 +21897,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Ramos de Atividade
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOATIV(
                           CODATIV )
                    SELECT DISTINCT
@@ -21908,7 +21908,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Redes
-            IF (vvTipoPolitica IN ('D','Q','P','F','B')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAOREDE(
                           CODREDE )
                    SELECT DISTINCT
@@ -21919,7 +21919,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Clientes
-            IF (vvTipoPolitica IN ('D','Q','P','F','B')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAOCLI(
                           CODCLI )
                    SELECT DISTINCT
@@ -21930,7 +21930,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Areas de Atuação
-            IF (vvTipoPolitica IN ('D','Q','P','F','B')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAOAREA(
                           CODIGO )
                    SELECT DISTINCT
@@ -21941,7 +21941,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Areas de Supervisores
-            IF (vvTipoPolitica IN ('D','Q','P','F','B')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAOSUP(
                           CODSUPERVISOR )
                    SELECT DISTINCT
@@ -21952,7 +21952,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de RCA's
-            IF (vvTipoPolitica IN ('D','Q','P','F','B')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAOUSUR(
                           CODUSUR )
                    SELECT DISTINCT
@@ -21963,7 +21963,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Planos de Pagamento
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOPLPAG(
                           CODPLPAG )
                    SELECT DISTINCT
@@ -21974,7 +21974,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Condições de Venda
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               INSERT INTO PCMED_PROMOCAOCONDVENDA(
                           CODCONDICAOVENDA )
                    SELECT DISTINCT
@@ -21985,7 +21985,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
             -- Carrega Tabela Temporária de Classes
-            IF (vvTipoPolitica IN ('D','Q','P','F','B','M')) THEN
+            IF (vvTipoPolitica IN ('D','Q','P','F','B','M','V')) THEN
               -- DDMEDICA-1104 (Somente carregará as inf se a promoção for "Sem Restrições")
               IF ((nvl(vnTipoRestricao,0) IN (0))) THEN
                 INSERT INTO PCMED_PROMOCAOCLASSE(
@@ -22030,7 +22030,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODEPTO        IS NOT NULL)
                     AND (CODSEC         IS NULL); -->> Somente Descontos cadastrados para o Depto sem ref. a Seção
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAODEPTO(
                         CODEPTO )
                  SELECT DISTINCT
@@ -22095,7 +22095,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODSEC         IS NOT NULL)
                     AND (CODCATEGORIA   IS NULL); -->> Somente Descontos cadastrados para a Seção sem ref. a Categoria
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOSECAO(
                         CODSEC )
                  SELECT DISTINCT
@@ -22159,7 +22159,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODCATEGORIA   IS NOT NULL);
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOCATEG(
                         CODCATEGORIA )
                  SELECT DISTINCT
@@ -22221,7 +22221,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODFORNEC      IS NOT NULL);
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOFORNEC(
                         CODFORNEC )
                  SELECT DISTINCT
@@ -22283,7 +22283,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODMARCA       IS NOT NULL);
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOMARCA(
                         CODMARCA )
                  SELECT DISTINCT
@@ -22346,7 +22346,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODLINHAPROD   IS NOT NULL);
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOLINHAPROD(
                         CODLINHAPROD
                        )
@@ -22413,7 +22413,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODGRUPOREST IS NOT NULL)
                     AND (TIPOGRUPOREST = 'GP');
-          ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+          ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAORESTGRUPRO(
                         CODGRUPO
                        )
@@ -22661,7 +22661,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                       AND (CODPROD        IS NOT NULL);
             END IF;
-          ELSIF (vvTipoPolitica IN ('Q','F','B')) THEN -->> POR PRODUTOS É O ÚNICO QUE TEM PREÇO FIXO POR FAIXA DE QUANTIDADE
+          ELSIF (vvTipoPolitica IN ('Q','F','B','V')) THEN -->> POR PRODUTOS É O ÚNICO QUE TEM PREÇO FIXO POR FAIXA DE QUANTIDADE
             INSERT INTO PCMED_PROMOCAOPRODUTO(
                         CODPROD
                       )
@@ -22720,7 +22720,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF;
 
           -- Carrega Tabela Temporária de Verbas - DDMEDICA-4915
-          IF (vvTipoPolitica IN ('D','Q','P','F','M')) THEN
+          IF (vvTipoPolitica IN ('D','Q','P','F','M','V')) THEN
             INSERT INTO PCMED_PROMOCAOVERBA(
                         NUMVERBA
                       , VALORCOTA )
@@ -22926,7 +22926,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAODEPTO
                         , PCDEPTO
                     WHERE (PCMED_PROMOCAODEPTO.CODEPTO = PCDEPTO.CODEPTO(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23001,7 +23001,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOSECAO
                         , PCSECAO
                     WHERE (PCMED_PROMOCAOSECAO.CODSEC = PCSECAO.CODSEC(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23076,7 +23076,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOCATEG
                         , PCCATEGORIA
                     WHERE (PCMED_PROMOCAOCATEG.CODCATEGORIA = PCCATEGORIA.CODCATEGORIA(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23151,7 +23151,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOFORNEC
                         , PCFORNEC
                     WHERE (PCMED_PROMOCAOFORNEC.CODFORNEC = PCFORNEC.CODFORNEC(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23226,7 +23226,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOMARCA
                         , PCMARCA
                     WHERE (PCMED_PROMOCAOMARCA.CODMARCA = PCMARCA.CODMARCA(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23301,7 +23301,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOLINHAPROD
                         , PCLINHAPROD
                     WHERE (PCMED_PROMOCAOLINHAPROD.CODLINHAPROD = PCLINHAPROD.CODLINHA(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23376,7 +23376,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAORESTGRUPRO
                         , PCGRUPOSCAMPANHAC
                     WHERE (PCMED_PROMOCAORESTGRUPRO.CODGRUPO = PCGRUPOSCAMPANHAC.CODGRUPO(+));
-            ELSIF (vvTipoPolitica IN ('Q','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -23439,7 +23439,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      FROM PCMED_PROMOCAOPRODUTO
                         , PCPRODUT
                     WHERE (PCMED_PROMOCAOPRODUTO.CODPROD = PCPRODUT.CODPROD(+));
-            ELSIF (vvTipoPolitica IN ('Q','F','B')) THEN
+            ELSIF (vvTipoPolitica IN ('Q','F','B','V')) THEN
               INSERT INTO PCMED_PROMOCAORELDETDESC(
                           CODPROMOCAOMEDREF
                         , TIPO
@@ -24149,7 +24149,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- quando chamado para carregar as Promoções de Kit (Inserir Kit), no Delphi
             -- o Select do ComboBox tem a condição: TipoPromocao = 'K'
             -- HIS.01152.2015 - Adicionado para não carregar para seleção na promoção principal e no combo o tipo S - Casadinha
-            IF ((NVL(vvUsaPromoFaixaQtdePrincipal,'N')  = 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','Q','F','M'))) OR
+            IF ((NVL(vvUsaPromoFaixaQtdePrincipal,'N')  = 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','Q','F','M','V'))) OR
                ((NVL(vvUsaPromoFaixaQtdePrincipal,'N') <> 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','M'))) THEN
               IF (NVL(vvTipoPromocao,' ') NOT IN ('F','S')) THEN
         
@@ -24326,7 +24326,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- quando chamado para carregar as Promoções de Kit (Inserir Kit), no Delphi
             -- o Select do ComboBox tem a condição: TipoPromocao = 'K'
             -- HIS.01152.2015 - Adicionado para não carregar para seleção na promoção principal e no combo o tipo S - Casadinha
-            IF ((NVL(vvUsaPromoFaixaQtdePrincipal,'N')  = 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','Q','F','M'))) OR
+            IF ((NVL(vvUsaPromoFaixaQtdePrincipal,'N')  = 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','Q','F','M','V'))) OR
                ((NVL(vvUsaPromoFaixaQtdePrincipal,'N') <> 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','M'))) THEN
               IF (NVL(vvTipoPromocao,' ') NOT IN ('F','S')) THEN
         
