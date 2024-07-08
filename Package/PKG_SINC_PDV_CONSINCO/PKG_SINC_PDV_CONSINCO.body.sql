@@ -1499,7 +1499,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                                SELECT
                                                   ROW_NUMBER() OVER(partition by F.SEQFAMILIA,
                                                          F.NRODIVISAO
-                                                  ORDER BY  F.NROCARGA DESC
+                                                  ORDER BY  F.DTAHORALTERACAO DESC
                                                   ) SEQUENCIA,
                                                   F.SEQFAMILIA,
                                                   F.SEQCATEGORIA,
