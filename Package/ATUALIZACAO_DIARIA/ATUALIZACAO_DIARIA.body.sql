@@ -1358,7 +1358,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
       vSQLBLOQUEARPCEST := 'SELECT CODFILIAL
                               FROM PCEST
                              WHERE CODFILIAL = '||CHR(39)||FILIAL.CODIGO||CHR(39)||
-                              'FOR UPDATE';
+                            'ORDER BY CODPROD 
+							   FOR UPDATE';
 
       EXECUTE IMMEDIATE vSQLBLOQUEARPCEST;
       /* Certificar que não existem registros antigos */
