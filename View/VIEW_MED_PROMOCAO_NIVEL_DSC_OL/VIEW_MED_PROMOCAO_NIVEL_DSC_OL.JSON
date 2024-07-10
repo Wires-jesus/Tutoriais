@@ -1,0 +1,21 @@
+{
+  "nome":"VIEW_MED_PROMOCAO_NIVEL_DSC_OL",
+  "tipoPLSQL":"VIEW",
+  "dependencias": [
+    {
+      "nome": "PCDESCONTO",
+      "tipo": "TABELA",
+      "versao": "5.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.03.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO_NIVEL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+    }
+  ]
+}
