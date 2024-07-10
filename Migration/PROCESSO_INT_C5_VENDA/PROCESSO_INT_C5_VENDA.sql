@@ -292,8 +292,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_COBRANCA_WINTHOR AS
         o.boleto,
         NVL(o.cartao,'N') cartao,
         o.codclicc,
-        NVL(o.codoperadoracartao,'0') codoperadoracarto,
-        NVL(o.codbandeira,0) codbandeira,
+        LPAD(NVL(o.codoperadoracartao,'0'), 5, '0') codoperadoracarto,
+        LPAD(NVL(o.codbandeira,0),5,'0') codbandeira,
         REPLACE(REPLACE(REPLACE(c.cgcent, '.', ''), '/', ''), '-', '') cnpjcredenccartao,
         NVL(o.codbandeiraoperadoracartao,'99') codcobsefaz,
         (CASE
