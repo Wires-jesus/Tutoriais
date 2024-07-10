@@ -17497,48 +17497,12 @@ IS PRAGMA SERIALLY_REUSABLE;
     
       -- Prepara a Tabela Temporária
       EXECUTE IMMEDIATE 'INSERT INTO PCMED_PROMOCAO_NIVEL_DSC_OL
-                              SELECT PCDESCONTO.CODPROMOCAOMED
-                                   , PCPRODUT.CODPROD
-                                   , NVL(PCDESCONTO.INICIOINTERVALOPROMOCAOMED,0) AS INICIOINTERVALOPROMOCAOMED
-                                   , NVL(PCDESCONTO.FIMINTERVALOPROMOCAOMED,0) AS FIMINTERVALOPROMOCAOMED
-                                   , MIN(CASE WHEN (NVL(PCDESCONTO.CODPROD,0) > 0) THEN 1
-                                           WHEN (NVL(PCDESCONTO.CODGRUPOREST,0) > 0) THEN 2
-                                           WHEN (NVL(PCDESCONTO.CODFORNEC,0) > 0) THEN 3
-                                           WHEN (NVL(PCDESCONTO.CODMARCA,0) > 0) THEN 4
-                                           WHEN (NVL(PCDESCONTO.CODCATEGORIA,0) > 0) THEN 5
-                                           WHEN (NVL(PCDESCONTO.CODSEC,0) > 0) THEN 6
-                                           WHEN (NVL(PCDESCONTO.CODLINHAPROD,0) > 0) THEN 7
-                                           WHEN (NVL(PCDESCONTO.CODEPTO,0) > 0) THEN 8
-                                           ELSE 999
-                                         END) NIVEL
-                                FROM PCPRODUT
-                                   , PCDESCONTO
-                                   , VIEW_MED_PROMOCAO
-                                   , PCGRUPOSCAMPANHAI
-                               WHERE (PCDESCONTO.CODPROMOCAOMED = VIEW_MED_PROMOCAO.CODPROMOCAOMED)
-                                 AND (PCDESCONTO.TIPOFV = ''OL'')
-                                 AND (PCDESCONTO.DTFIM >= TRUNC(SYSDATE))
-                                 AND (PCPRODUT.DTEXCLUSAO IS NULL)
-                                 AND (PCPRODUT.CODMARCA IN (SELECT PCCONFIGSISTMARCAOPERLOG.CODMARCA
-                                                              FROM PCCONFIGSISTMARCAOPERLOG
-                                                                 , PCCONFIGSISTOPERLOG
-                                                                 , PCINTEGRADORA
-                                                             WHERE (PCCONFIGSISTMARCAOPERLOG.CODSISTEMA = PCCONFIGSISTOPERLOG.CODSISTEMA)
-                                                               AND (PCCONFIGSISTOPERLOG.INTEGRADORA     = PCINTEGRADORA.INTEGRADORA)
-                                                               AND (PCINTEGRADORA.LAYOUT                = 57))) -- CLOSE-UP
-                                 AND (PCPRODUT.CODPROD = PCGRUPOSCAMPANHAI.CODITEM(+))
-                                 AND ((PCDESCONTO.CODEPTO = PCPRODUT.CODEPTO) OR
-                                      (PCDESCONTO.CODSEC = PCPRODUT.CODSEC) OR
-                                      (PCDESCONTO.CODCATEGORIA = PCPRODUT.CODCATEGORIA) OR
-                                      (PCDESCONTO.CODFORNEC = PCPRODUT.CODFORNEC) OR
-                                      (PCDESCONTO.CODMARCA = PCPRODUT.CODMARCA) OR
-                                      (PCDESCONTO.CODLINHAPROD = PCPRODUT.CODLINHAPROD) OR
-                                      (PCDESCONTO.CODGRUPOREST = PCGRUPOSCAMPANHAI.CODGRUPO) OR
-                                      (PCDESCONTO.CODPROD = PCPRODUT.CODPROD))
-                                GROUP BY PCDESCONTO.CODPROMOCAOMED
-                                       , PCPRODUT.CODPROD
-                                       , NVL(PCDESCONTO.INICIOINTERVALOPROMOCAOMED,0)
-                                       , NVL(PCDESCONTO.FIMINTERVALOPROMOCAOMED,0) ';
+                              SELECT VIEW_MED_PROMOCAO_NIVEL_DSC_OL.CODPROMOCAOMED
+                                   , VIEW_MED_PROMOCAO_NIVEL_DSC_OL.CODPROD
+                                   , NVL(VIEW_MED_PROMOCAO_NIVEL_DSC_OL.INICIOINTERVALOPROMOCAOMED,0) AS INICIOINTERVALOPROMOCAOMED
+                                   , NVL(VIEW_MED_PROMOCAO_NIVEL_DSC_OL.FIMINTERVALOPROMOCAOMED,0) AS FIMINTERVALOPROMOCAOMED
+                                   , VIEW_MED_PROMOCAO_NIVEL_DSC_OL.NIVEL
+                                FROM VIEW_MED_PROMOCAO_NIVEL_DSC_OL ';
 
       -- SQL de Consulta
       vvSql := ' SELECT VIEW_MED_PROMOCAO.CODPROMOCAOMED
@@ -17567,8 +17531,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PERCDESC
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PERCMARKUPMED
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PRECOFIXOPROMOCAOMED
-                      , VIEW_MED_PROMOCAO_DESC_HYPER.INICIOINTERVALOPROMOCAOMED
-                      , VIEW_MED_PROMOCAO_DESC_HYPER.FIMINTERVALOPROMOCAOMED
+                      , CASE
+                          WHEN (VIEW_MED_PROMOCAO_DESC_HYPER.TIPOPOLITICA = ''V'') AND (VIEW_MED_PROMOCAO_DESC_HYPER.MENORINTERVALODEFAIXA = VIEW_MED_PROMOCAO_DESC_HYPER.INICIOINTERVALOPROMOCAOMED) THEN
+                            0
+                          ELSE
+                            VIEW_MED_PROMOCAO_DESC_HYPER.INICIOINTERVALOPROMOCAOMED
+                        END INICIOINTERVALOPROMOCAOMED
+                      , CASE
+                          WHEN (VIEW_MED_PROMOCAO_DESC_HYPER.TIPOPOLITICA = ''V'') AND (VIEW_MED_PROMOCAO_DESC_HYPER.MAIORINTERVALODEFAIXA = VIEW_MED_PROMOCAO_DESC_HYPER.FIMINTERVALOPROMOCAOMED) THEN
+                            9999.99
+                          ELSE
+                            VIEW_MED_PROMOCAO_DESC_HYPER.FIMINTERVALOPROMOCAOMED
+                        END FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESC_HYPER.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
                       , VIEW_MED_PROMOCAO.VALORMINIMO
@@ -17637,8 +17611,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PERCDESC
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PERCMARKUPMED
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PRECOFIXOPROMOCAOMED
-                      , VIEW_MED_PROMOCAO_DESCONTO_OL.INICIOINTERVALOPROMOCAOMED
-                      , VIEW_MED_PROMOCAO_DESCONTO_OL.FIMINTERVALOPROMOCAOMED
+                      , CASE
+                          WHEN (VIEW_MED_PROMOCAO_DESCONTO_OL.TIPOPOLITICA = ''V'') AND (VIEW_MED_PROMOCAO_DESCONTO_OL.MENORINTERVALODEFAIXA = VIEW_MED_PROMOCAO_DESCONTO_OL.INICIOINTERVALOPROMOCAOMED) THEN
+                            0
+                          ELSE
+                            VIEW_MED_PROMOCAO_DESCONTO_OL.INICIOINTERVALOPROMOCAOMED
+                        END INICIOINTERVALOPROMOCAOMED
+                      , CASE
+                          WHEN (VIEW_MED_PROMOCAO_DESCONTO_OL.TIPOPOLITICA = ''V'') AND (VIEW_MED_PROMOCAO_DESCONTO_OL.MAIORINTERVALODEFAIXA = VIEW_MED_PROMOCAO_DESCONTO_OL.FIMINTERVALOPROMOCAOMED) THEN
+                            9999.99
+                          ELSE
+                            VIEW_MED_PROMOCAO_DESCONTO_OL.FIMINTERVALOPROMOCAOMED
+                        END FIMINTERVALOPROMOCAOMED
                       , VIEW_MED_PROMOCAO_DESCONTO_OL.PROMOCAOMEDOBRIGATORIO
                       , ''N'' FAIXAZERO
                       , VIEW_MED_PROMOCAO.VALORMINIMO
@@ -17730,7 +17714,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       FOR viIdxPromocao IN vtCODPROMOCAOMED_AUX.FIRST..vtCODPROMOCAOMED_AUX.LAST LOOP
             
         -- Se Possui Faixa de Quantidade
-        IF (vtTIPOPOLITICA_AUX(viIdxPromocao) IN ('Q','F')) THEN
+        IF (vtTIPOPOLITICA_AUX(viIdxPromocao) IN ('Q','F','V')) THEN
         
           vvNovaQuebraProgressivo := TO_CHAR(vtCODPROMOCAOMED_AUX(viIdxPromocao)) || '|' || TO_CHAR(vtCODPROD_AUX(viIdxPromocao));
 
@@ -17898,7 +17882,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
           -- Novo Arquivo
           IF (vtTIPOPROMOCAO(viIdxPromocao) IN ('K','M','V')) OR 
-             (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F')) THEN
+             (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F','V')) THEN
             -- Arquivo de Campanhas abrange Promoção Combos/Mix/Valor e por Faixa de Quantidade
             vvArquivoCondicao := 'CAMPANHA';
           ELSE
@@ -17915,9 +17899,14 @@ IS PRAGMA SERIALLY_REUSABLE;
               vvQtdeFixaCondicao := 'N';
             END IF;
             -- Somente Faixa de Quantidade é Progressivo
-            IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F')) THEN              
+            IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F','V')) THEN              
               vvProgressivoCondicao := 'S';
-              vsTipoFaixaProgressivo := 'Q';
+              
+              IF vtTIPOPOLITICA(viIdxPromocao) = 'V' THEN
+                vsTipoFaixaProgressivo := 'V';
+              ELSE
+                vsTipoFaixaProgressivo := 'Q';
+              END IF;
             ELSE
               vvProgressivoCondicao := 'N';
               vsTipoFaixaProgressivo := '';
@@ -18461,7 +18450,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               ELSE
                 vnQtdeMinima := 0;
               END IF;
-              IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F')) THEN
+              IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F','V')) THEN
                 vnFaixaInicial := vtINICIOINTERVALOPROMOCAOMED(viIdxPromocao);
                 vnFaixaFinal   := vtFIMINTERVALOPROMOCAOMED(viIdxPromocao);
               ELSE
