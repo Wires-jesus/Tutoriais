@@ -297,6 +297,35 @@ values (58, 'tb_especiefinanceira')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (59, 'tb_prodcomposto')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (60, 'tb_precoapartir')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (61, 'tb_precoapartirpessoa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (62, 'tb_precoapartirempresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (63, 'tb_precoapartirperiodo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (64, 'tb_precoapartirsegmento')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (65, 'tb_precoapartirproduto')
 
 /* Popular tabela PCCONTROLECONSINCO */
 
@@ -590,4 +619,32 @@ values (58, 58, 'Sincronização de tabela TB_ESPECIEFINANCEIRA', TRUNC(SYSDATE)
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (59, 59, 'Sincronização de tabela TB_PRODCOMPOSTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_prodcomposto',  59,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
+\
 
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (60, 60, 'Sincronização de tabela TB_PRECOAPARTIR', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartir',  60,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (61, 61, 'Sincronização de tabela TB_PRECOAPARTIRPESSOA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirpessoa', 61, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (62, 62, 'Sincronização de tabela TB_PRECOAPARTIREMPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirempresa', 62, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (63, 63, 'Sincronização de tabela TB_PRECOAPARTIRPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirperiodo', 63, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (64, 64, 'Sincronização de tabela TB_PRECOAPARTIRSEGMENTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirsegmento', 64, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (65, 65, 'Sincronização de tabela TB_PRECOAPARTIRPRODUTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirproduto', 65, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
