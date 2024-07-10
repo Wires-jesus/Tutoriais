@@ -146,6 +146,31 @@
       "nome": "VIEW_MED_PROMOCAO_REGIAO",
       "tipo": "OBJETO_PLSQL",
       "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO_NIVEL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO_NIVEL_DSC_OL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "TABELA_PCMED_PROMOCAO_NIVEL_DSC_OL",
+      "tipo": "MIGRATION",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO_DESCONTO_OL",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "VIEW_MED_PROMOCAO_DESC_HYPER",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.01.000"
     }
   ]
 }
