@@ -145,7 +145,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "5.0.04.000"
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -176,6 +176,11 @@
 			"nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
 			"tipo": "MIGRATION",
 			"versao": "5.0.02.000"
+		},
+		{
+			"nome": "PROCESSO_CARGA_INT_C5_DESCONTO_CLIENTE",
+			"tipo": "MIGRATION",
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",

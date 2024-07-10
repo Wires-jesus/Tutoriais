@@ -4579,6 +4579,66 @@ BEGIN
   END;
 END;
 
+PROCEDURE CARREGA_TB_PRECOAPARTIR(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+  MERGE INTO MONITORPDVMIDDLE.TB_PRECOAPARTIR TB_PRECOAPARTIR
+    USING (SELECT SEQPRECOAPARTIR, DESCRICAO, ATIVO FROM VW_INT_C5_PRECOAPARTIR) T
+    ON (TB_PRECOAPARTIR.SEQPRECOAPARTIR = T.SEQPRECOAPARTIR)
+  WHEN MATCHED THEN
+    UPDATE SET
+      TB_PRECOAPARTIR.SEQPRECOAPARTIR = T.SEQPRECOAPARTIR,
+      TB_PRECOAPARTIR.DESCRICAO = T.DESCRICAO,
+      TB_PRECOAPARTIR.ATIVO = T.ATIVO
+
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_PRECOAPARTIR.SEQPRECOAPARTIR,
+      TB_PRECOAPARTIR.DESCRICAO,
+      TB_PRECOAPARTIR.ATIVO
+    )
+    VALUES(
+      T.SEQPRECOAPARTIR,
+      T.DESCRICAO,
+      T.ATIVO
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_PRECOAPARTIR', 'TB_PRECOAPARTIR OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_PRECOAPARTIR',
+           'carrega_TB_PRECOAPARTIR ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_PRECOAPARTIR',
+           'carrega_TB_PRECOAPARTIR ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
