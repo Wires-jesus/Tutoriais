@@ -1,5 +1,5 @@
 {
-  "nome":"VIEW_MED_PROMOCAO_DESC_HYPER",
+  "nome":"VIEW_MED_PROMOCAO_DESCONTO_OL",
   "tipoPLSQL":"VIEW",
   "dependencias": [
     {
@@ -23,8 +23,8 @@
       "versao": "6.0.01.000"
     },
     {
-      "nome": "TABELA_PCMED_PROMOCAO_NIVEL_DSC_OL",
-      "tipo": "MIGRATION",
+      "nome": "VIEW_MED_PROMOCAO_NIVEL_DSC_OL",
+      "tipo": "OBJETO_PLSQL",
       "versao": "6.0.01.000"
     }
   ]
