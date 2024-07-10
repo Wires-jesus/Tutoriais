@@ -50,7 +50,6 @@ create or replace procedure NFE_CANCELARNUMERACAONOTASVC(P_CODFILIAL            
   END;
 begin
   V_TOTAL_NOTA := 0;
-  delete from PCLISTAPROD_TMP;
   if P_TIPOMOV = 'S' then
     begin
       select PCNFSAID.NUMTRANSVENDA, PCNFSAID.DTSAIDA, PCNFSAID.VLTOTAL
@@ -126,7 +125,6 @@ begin
                      and PCMOV.QTCONT > 0) loop
       
         select * into ITEM from PCMOV where rowid = REG.ID;
-        INSERT INTO PCLISTAPROD_TMP (CODPROD) VALUES (ITEM.CODPROD);
       
         ITEM.NUMTRANSVENDA := V_NUMTRANSACAOGERADA;
         ITEM.NUMNOTA       := P_NUMNOTA;
@@ -256,7 +254,6 @@ begin
                      and PCMOV.QTCONT > 0) loop
       
         SELECT * INTO ITEM FROM PCMOV WHERE ROWID = REG.ID;
-        INSERT INTO PCLISTAPROD_TMP (CODPROD) VALUES (ITEM.CODPROD);
       
         ITEM.NUMTRANSENT := V_NUMTRANSACAOGERADA;
         ITEM.NUMNOTA     := P_NUMNOTA;
