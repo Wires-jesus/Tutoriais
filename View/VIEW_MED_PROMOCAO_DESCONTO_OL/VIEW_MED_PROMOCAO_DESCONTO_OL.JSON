@@ -1,5 +1,5 @@
 {
-  "nome":"VIEW_MED_PROMOCAO_DESC_HYPER",
+  "nome":"VIEW_MED_PROMOCAO_DESCONTO_OL",
   "tipoPLSQL":"VIEW",
   "dependencias": [
     {
