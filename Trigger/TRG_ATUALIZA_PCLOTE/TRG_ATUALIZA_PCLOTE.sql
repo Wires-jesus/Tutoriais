@@ -335,7 +335,7 @@ BEGIN
                          AND CODFILIAL = (CASE /*HUGO AQUINO*/
                               WHEN ((:NEW.CODOPER IN ('S') AND NVL(:NEW.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0) OR :NEW.CODOPER IN ('ED')) THEN
                                 DECODE(VNVOLTAESTOQUEFILIALRETIRA, 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))
-                              WHEN (VNCONDVENDA = 10) OR (:NEW.CODOPER IN ('S', 'SR') AND NVL(:NEW.QT, 0) > 0) OR
+                              WHEN (VNCONDVENDA = 10) OR (:NEW.CODOPER IN ('S', 'SR', 'SB') AND NVL(:NEW.QT, 0) > 0) OR
                                 (VNCONDVENDA = 1 AND :NEW.CODOPER IN ('ST') AND NVL(:NEW.QT, 0) > 0)  THEN
                                   NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
                               ELSE
@@ -383,11 +383,11 @@ BEGIN
                          AND CODPROD = :NEW.CODPROD
                          AND CODFILIAL = (CASE /*HUGO AQUINO*/
                               WHEN ((:NEW.CODOPER IN ('S') AND NVL(:NEW.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0) OR :NEW.CODOPER IN ('ED')) THEN
-                              DECODE(VNVOLTAESTOQUEFILIALRETIRA, 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))
+                                DECODE(VNVOLTAESTOQUEFILIALRETIRA, 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))
                               WHEN VNCONDVENDA IN (10) OR :NEW.CODOPER IN ('SR') THEN
-                              NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
+                                NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
                               ELSE
-                              NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
+                                NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
                     EXCEPTION
                       WHEN OTHERS THEN
                         RAISE_APPLICATION_ERROR(-20002,
