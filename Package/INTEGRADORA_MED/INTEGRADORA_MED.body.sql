@@ -31534,7 +31534,19 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                             vvPodeGravarComboPrm,
                                             vvMotivoNaoPodeGravarComboPrm,
                                             gvet_regpedido(i).codfilialnf,
-                                            gvet_regpedido(i).codcob);
+                                            gvet_regpedido(i).codcob
+											Null, -- CodEdital
+										    Null, -- NumEmpenho
+										    Null, -- CodMatricula
+										    'N', -- vVisualizarPromoBloq
+										    Null, -- pi_nCodProd
+										    0.000000, -- CodPlPagEtico
+										    0.000000, -- CodPlPagGenerico
+										    Null, -- NumOrcamento
+										    Null, -- CodLinhaPrazo
+										    Null, -- CodCondicaoVenda
+										    Null,
+										    gvet_regpedido(i).tipofv);
 
                     -- Se ocorreram problemas ao gravar o Combo
                     IF (NVL(vvPodeGravarComboPrm,'N') <> 'S') THEN

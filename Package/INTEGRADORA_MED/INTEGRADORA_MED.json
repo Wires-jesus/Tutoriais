@@ -1,16 +1,31 @@
-{
-  "nome":"INTEGRADORA_MED",
-  "tipoPLSQL":"PACKAGE",
-  "dependencias": [
-    {
-      "nome":"PCCLIENT",
-      "tipo":"TABELA",
-      "versao":"4.0.02.000"
-    },
-    {
-      "nome": "INTEGRADORACOMPLE_MED",
-      "tipo": "OBJETO_PLSQL",
-      "versao": "5.0.05.000"
-    }
-  ]
-}
+{"nome":"INTEGRADORA_MED","tipoPLSQL":"PACKAGE","dependencias": 
+[
+  {"nome":"PCCLIENT","tipo":"TABELA","versao":"4.0.02.000"},
+    {"nome": "INTEGRADORACOMPLE_MED","tipo": "OBJETO_PLSQL","versao": "5.0.05.000"},
+	{"nome": "PCPEDI","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCORCAVENDAI","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOREGIAOMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOPRACAMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOREDEMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOCLIMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAORAMOATIVMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOCLASSEVENDAMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAO","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOREG","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOPRACA","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOREDE","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOCLI","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOATIV","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOCLASSE","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCMED_PROMOCAOGRUPOCOMERC","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOREGIAOMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOPRACAMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOREDEMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOCLIMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAORAMOATIVMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOCLASSEVENDAMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCLOGPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"}
+]}

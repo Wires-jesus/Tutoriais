@@ -204,16 +204,18 @@ IS PRAGMA SERIALLY_REUSABLE;
   *******************************************************************************/
   PROCEDURE P_APLIC_REGRA_ALTDSCPRC_PROMO;
   PROCEDURE P_MED_OBTEM_QTCOMBOVIRTUAL(pi_nCodPromocaoMed      in  NUMBER,
-                                      pi_nNumRegiao           IN  NUMBER,
-                                      pi_nCodPraca            IN  NUMBER, 
-                                      pi_nCodRede             IN  NUMBER,                                             
-                                      pi_nCodCli              IN  NUMBER,
-                                      pi_nRamoAtv             IN  NUMBER, 
-                                      pi_vCLASSE              IN  VARCHAR2,
-                                      pi_codgrupo             IN  NUMBER,
-                                      pi_vUfCliente           IN  VARCHAR2,
-                                      po_qtcombovirtual       OUT NUMBER,
-                                      po_qtcombovirtual_vendidos  OUT NUMBER,
-                                      pi_vNumped              IN FLOAT DEFAULT NULL);  
+                                       pi_nNumRegiao           IN  NUMBER,
+                                       pi_nCodPraca            IN  NUMBER, 
+                                       pi_nCodRede             IN  NUMBER,                                             
+                                       pi_nCodCli              IN  NUMBER,
+                                       pi_nRamoAtv             IN  NUMBER, 
+                                       pi_vCLASSE              IN  VARCHAR2,
+                                       pi_codgrupo             IN  NUMBER,
+                                       pi_vUfCliente           IN  VARCHAR2,
+                                       po_qtcombovirtual       OUT NUMBER,
+                                       po_qtcombovirtual_vendidos  OUT NUMBER,
+                                       po_vTipoLimitador          OUT VARCHAR,
+                                       pi_vNumped                 IN FLOAT DEFAULT NULL,
+                                       pi_vTipoFv                 IN VARCHAR2 DEFAULT NULL);
                                        
 END PKG_PROMOCAO_MED;

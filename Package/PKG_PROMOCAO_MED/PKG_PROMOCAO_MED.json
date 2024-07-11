@@ -1,4 +1,5 @@
-{"nome":"PKG_PROMOCAO_MED","tipoPLSQL":"PACKAGE","dependencias":[
+{"nome":"PKG_PROMOCAO_MED","tipoPLSQL":"PACKAGE","dependencias":
+[
   {"nome": "PKG_FUNCOESVENDAS_MED", "tipo":"OBJETO_PLSQL", "versao":"3.0.02.000"},
   {"nome": "PCCLIUSURFILIALLINHAPROD", "tipo":"TABELA", "versao":"5.0.01.000"},
   {"nome": "PCMED_PROMOCAOINICIAL", "tipo": "TABELA", "versao": "6.0.02.000"},
