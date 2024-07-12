@@ -1,9 +1,9 @@
 CREATE OR REPLACE VIEW VW_INT_C5_VALES AS
 (
 SELECT  ferramentas.f_buscarparametro_num('CODBANCOINTEGRACAOPDV',a.nroempresa,0) codbanco,
-        TO_CHAR(a.dtahorinclusao,'YYYY-MM-DD') dtlanc,
+        TO_CHAR(a.dtahoremissao,'YYYY-MM-DD') dtlanc,
         a.nrocheckout numcaixa,
-        TO_CHAR(a.dtahorinclusao,'YYYY-MM-DD') dtmovimentocx,
+        TO_CHAR(a.dtahoremissao,'YYYY-MM-DD') dtmovimentocx,
         a.seqturno numfechamentomovcx,
         a.especie,
         'NOTAFISCAL' numserieequip,
