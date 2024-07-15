@@ -2,5 +2,10 @@
     "nome": "DICIONARIO_3314_AJUSTE_MODERNIZACAO",
     "tipoPLSQL": "MIGRATION",
     "dependencias":[
+		{
+		  "nome": "DICIONARIO.3314",
+		  "tipo": "DICIONARIO",
+		  "versao": "5.0.01.000"
+		}
     ]
   }
