@@ -6314,7 +6314,25 @@ IS PRAGMA SERIALLY_REUSABLE;
                                               vnIva,
                                               vnPercBaseRedSt
                                             );
-                                                                      
+                                               
+                        -- Calcula o Repasse
+                        PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_RegiaoFilial.CODFILIALST,
+                                                     vc_RegiaoFilial.CODCLIST,
+                                                     vc_RegiaoFilial.NUMREGIAO,
+                                                     1,    -- pi_nCondVenda,
+                                                     vc_Produto.CODPROD,
+                                                     NULL, --pi_nCodSt
+                                                     vnPrecoFabrica,
+                                                     vnPrecoLiquido,
+                                                     NULL, --pi_vTipoAplicRepasseFilial
+                                                     'N',  --pi_vCriticaObrigatorio
+                                                     vnIntegradora,
+                                                     'F',
+                                                     vvTipoFv,
+                                                     vvMensagemRepasse,
+                                                     vvTipoRepasse,
+                                                     vnValorRepasse); 
+                                                             
                         INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                                   ( CODSISTEMA
                                   , NUMREGIAO
@@ -6332,7 +6350,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   , TIPOPRECODESCONTO
                                   , CODFILIALST
                                   , PRECOFABRICA
-                                  , VLST )
+                                  , VLST
+                                  , VLREPASSE)
                            VALUES ( pi_vCodSistema
                                   , vc_RegiaoFilial.NUMREGIAO
                                   , vnCodCondicaoVenda
@@ -6349,7 +6368,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   , vvTipoPrecoDescFaixaQtde
                                   , vc_RegiaoFilial.CODFILIALST
                                   , vnPrecoFabrica
-                                  , vnValorSt );
+                                  , vnValorSt 
+                                  , vnValorRepasse);
                                           
                         -- Insere Restrição do Produto - DDMEDICA-5511
                         P_INSERE_RESTRICAO_PRODUTO(pi_vCodSistema,
