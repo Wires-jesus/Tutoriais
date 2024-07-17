@@ -27,4 +27,18 @@ BEGIN
      execute immediate vscript;  
   END IF;
   
+  
+  BEGIN
+    SELECT COUNT(1)
+    INTO vnContSeq
+    FROM ALL_SEQUENCES A
+    WHERE A.SEQUENCE_NAME = 'DFSEQ_INT_C5_NROEMPRESA';
+  END;
+     
+  IF vnContSeq = 0  THEN
+     vScript := ' CREATE SEQUENCE DFSEQ_INT_C5_NROEMPRESA MINVALUE 100 MAXVALUE 999 START WITH 100 INCREMENT BY 1 NOCACHE';
+     EXECUTE IMMEDIATE vScript;  
+  END IF;
+  
+  
 END;                
