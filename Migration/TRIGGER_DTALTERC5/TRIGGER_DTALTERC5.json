@@ -170,4 +170,10 @@
     "nome": "PCPROMI",
     "tipo": "TABELA",
     "versao": "4.0.02.000"
-  }]}
+  },
+  {
+    "nome": "PCDESCONTOFIDELIDADE",
+    "tipo": "TABELA",
+    "versao": "6.0.01.000"
+  }
+]}
