@@ -642,7 +642,7 @@ VALUES (63, 63, 'Sincronização de tabela TB_PRECOAPARTIRPERIODO', TRUNC(SYSDAT
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-VALUES (64, 64, 'Sincronização de tabela TB_PRECOAPARTIRSEGMENTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirsegmento', 64, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+VALUES (64, 64, 'Sincronização de tabela TB_PRECOAPARTIRSEGMENTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirsegment', 64, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
 
 \
 
