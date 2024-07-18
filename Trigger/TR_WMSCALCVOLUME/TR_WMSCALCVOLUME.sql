@@ -260,7 +260,7 @@ begin
               /* Soma os volumes calculados no select abaixo baseado no peso (para frios) ou caixa, dos produtos que não variam peso */
               select nvl(sum(nvl(vol, 0)), 0)
                 into vQtVolTipo13
-                from (select sum(ceil(case
+                from (select ceil(sum(case
                                         when pcprodut.tipoEstoque = 'FR' then
                                          pcmovendpend.qt / pcprodut.pesoBrutoMaster
                                         else
