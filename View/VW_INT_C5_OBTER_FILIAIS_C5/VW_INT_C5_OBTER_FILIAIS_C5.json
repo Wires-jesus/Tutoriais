@@ -1,5 +1,5 @@
 {
        "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
        "tipoPLSQL": "VIEW",
-       "dependencias": ""
+       "dependencias": [ {  "nome": "PROCESSO_CARGA_INT_C5_SEQUENCE", "tipo": "MIGRATION", "versao": "6.0.01.000" } ]
 }
