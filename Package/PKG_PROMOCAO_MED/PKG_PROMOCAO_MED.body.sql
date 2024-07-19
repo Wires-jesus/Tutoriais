@@ -7583,7 +7583,8 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     viQtItensPed              INTEGER; -- DDVENDAS-41697
     
-    vnQtComboVirtual          NUMBER;
+    vsTipoLimitador           VARCHAR2(50);
+	vnQtComboVirtual          NUMBER;
     vnQtCombovirtual_vendidos NUMBER;   
     vnQtCombovirtual_disponivel NUMBER;
     
@@ -24680,13 +24681,13 @@ BEGIN
         IF nvl(pi_vNumped,0) > 0 THEN   
           vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
         END IF;
-
+        
         vSQL := vSQL || '    and nvl(i.qtcombovirtual,0) > 0
                              and c.posicao <> ''C''
                              and i.codpromocaomed = :pi_nCodPromocaoMed
                           group by i.numped, i.codpromocaomed, c.numtransvenda) a
                   where a.existe_devolucao = ''N'' ';
-		  
+        
         IF nvl(pi_vNumped,0) > 0 THEN   
           EXECUTE IMMEDIATE vSQL
              INTO po_qtcombovirtual_vendidos
@@ -24700,7 +24701,7 @@ BEGIN
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           NULL;
-      END;
+      END; 
     END IF;
     
     IF vTipoLimitador = 'R' THEN
@@ -24859,9 +24860,9 @@ BEGIN
                            where c.numped = i.numped ';
                                         
         IF nvl(pi_vNumped,0) > 0 THEN   
-          vSQL := vSQL || '  and i.numped <> :pi_vNumped';
+          vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
         END IF;
-        					 
+        
         vSQL := vSQL || '    and nvl(i.qtcombovirtual,0) > 0
                              and c.posicao <> ''C''
                              and i.codpromocaomed = :pi_nCodPromocaoMed
@@ -24953,7 +24954,7 @@ BEGIN
           WHEN NO_DATA_FOUND THEN
             vQTMAXCOMBOMED := 0;
         END;
-        	
+        
         IF (vQTMAXCOMBOMED > 0) THEN
           po_qtcombovirtual := vQTMAXCOMBOMED;
           
@@ -24981,14 +24982,14 @@ BEGIN
         IF nvl(pi_vNumped,0) > 0 THEN   
           vSQL := vSQL || '  and i.numped <> :pi_vNumped'; 
         END IF;
-        			 
+        
         vSQL := vSQL || '    and c.codpraca = nvl(:pi_nCodPraca, :vnCodPraca)
                              and nvl(i.qtcombovirtual,0) > 0
                              and c.posicao <> ''C''
                              and i.codpromocaomed = :pi_nCodPromocaoMed
                            group by i.numped, i.codpromocaomed, c.numtransvenda) a
                     where a.existe_devolucao = ''N'' ';
-            		  
+            
             IF nvl(pi_vNumped,0) > 0 THEN           
               EXECUTE IMMEDIATE vSQL
                  INTO po_qtcombovirtual_vendidos
@@ -25126,6 +25127,7 @@ BEGIN
                              and i.codpromocaomed = :pi_nCodPromocaoMed
                            group by i.numped, i.codpromocaomed, c.numtransvenda) a
                     where a.existe_devolucao = ''N'' ';
+            
             IF nvl(pi_vNumped,0) > 0 THEN
               EXECUTE IMMEDIATE vSQL
                  INTO po_qtcombovirtual_vendidos
