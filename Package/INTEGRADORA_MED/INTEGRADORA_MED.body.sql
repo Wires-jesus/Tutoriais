@@ -31534,7 +31534,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                             vvPodeGravarComboPrm,
                                             vvMotivoNaoPodeGravarComboPrm,
                                             gvet_regpedido(i).codfilialnf,
-                                            gvet_regpedido(i).codcob
+                                            gvet_regpedido(i).codcob,
 											Null, -- CodEdital
 										    Null, -- NumEmpenho
 										    Null, -- CodMatricula
