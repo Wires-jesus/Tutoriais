@@ -14363,13 +14363,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                 P_INSERE_LOG(viLacoValidar, 'numverbacampanha: '     || vrItemPedido.nNUMVERBACAMPANHA);
                 --                                         
               ELSE
-                IF (vbUsaVerbaPromocao) AND nvl(vrItemPedido.nNUMVERBAREBCMV,0) = 0  THEN
-                  P_INSERE_LOG(viLacoValidar, 'Removendo OLD VLVERBACMV: ' || vrItemPedido.nVLVERBACMV);
-                  vrItemPedido.nVLVERBACMV := NULL;
-                END IF;
-                vrItemPedido.nNUMVERBACAMPANHA     := NULL;
-                vrItemPedido.nVLDESCCMVPROMOCAOMED := NULL;
-                vrItemPedido.nPERCCUSTFORNEC       := NULL;                
+                IF NOT pi_nTipoChamada in (11) THEN
+                  IF (vbUsaVerbaPromocao) AND nvl(vrItemPedido.nNUMVERBAREBCMV,0) = 0 THEN
+                    P_INSERE_LOG(viLacoValidar, 'Removendo OLD VLVERBACMV: ' || vrItemPedido.nVLVERBACMV);
+                    vrItemPedido.nVLVERBACMV := NULL;
+                  END IF;                
+                  vrItemPedido.nNUMVERBACAMPANHA     := NULL;
+                  vrItemPedido.nVLDESCCMVPROMOCAOMED := NULL;
+                  vrItemPedido.nPERCCUSTFORNEC       := NULL;
+                END IF;     
               END IF;
 
               --// PCNIL - MERGE: 2316 - Tarefa 118427
@@ -15003,6 +15005,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , FATORCONVERSAOPEDLICIT
                               , PRODDESCRICAODANFE
                               , PRODDESCRICAOCONTRATO
+                              , NUMVERBAREBCMV
                               , NUMITEMPED
                               , QTCOMBOVIRTUAL
                               )
@@ -15151,7 +15154,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrItemPedido.nFATORCONVERSAOPEDLICIT
                               , vrItemPedido.vPRODDESCRICAODANFE
                               , vrItemPedido.vPRODDESCRICAOCONTRATO
-                              , vrItemPedido.nNUMITEMPED
+                              , vrItemPedido.nNUMVERBAREBCMV
+							  , vrItemPedido.nNUMITEMPED
                               , vrItemPedido.nQTCOMBOVIRTUAL
                               );
 
