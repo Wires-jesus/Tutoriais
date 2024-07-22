@@ -2,6 +2,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 (
     SELECT
             e.codfilial,
+			c5.codfilialintegracao,
             e.dtulalterintegra,
             e.dtcadastro,
             e.dtinativo,
@@ -140,6 +141,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                      NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO
     UNION ALL
     SELECT E.CODFILIAL,
+	    FC5.codfilialintegracao,
         E.DTULALTERINTEGRA,
         E.DTCADASTRO,
         E.DTINATIVO,

@@ -1,6 +1,6 @@
 CREATE OR REPLACE VIEW VW_INT_C5_EMPRESA AS
 (
-SELECT f.codigo nroempresa,
+SELECT c5.CODFILIALINTEGRACAO nroempresa,
        NVL(f.codcli,1) seqpessoa,
 
        (CASE
@@ -17,7 +17,7 @@ SELECT f.codigo nroempresa,
        --ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,
        1 nrosegmento,
        SUBSTR(COALESCE(f.fantasia, F.RAZAOSOCIAL, ' '), 1, 20) nomereduzido,
-       f.codigo nroempresamatriz,
+       c5.CODFILIALINTEGRACAO nroempresamatriz,
        0 nroempresaseguranca,
        f.dtultalter,
        f.dtcadastro,
@@ -42,8 +42,7 @@ SELECT f.codigo nroempresa,
         where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESA'
         or upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_EMPRESASEGMENTO') DTPADRAO,
         VW_INT_C5_OBTER_FILIAIS_C5 c5
- WHERE f.codigo >= '0'
-   AND f.codigo < '99'
+ WHERE f.codigo <> '99'
    AND f.codigo = c5.codfilial
    AND NVL(F.Dtalterc5, DTPADRAO.ULTIMAEXECUCAO)  >= DTPADRAO.ULTIMAEXECUCAO
 )
