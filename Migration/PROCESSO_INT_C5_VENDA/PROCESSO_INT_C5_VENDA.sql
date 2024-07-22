@@ -1998,7 +1998,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         v.codcest,
         NVL(c.seqpessoa,1) codcli,
         0 codcontrolevasilhame,
-        d.nroempresa codfilial,
+        C5.CODFILIAL codfilial,
         NULL codfilialretira,
         (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A')) codecf,
         i.cfop codfiscal,
@@ -2156,7 +2156,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NULL versaoservicopartilha,
         (SELECT valorultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) valorultent,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
@@ -2812,7 +2812,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
             and seqtipotributacao = 1) CODECF,
-    D.NROEMPRESA CODFILIAL,
+    C5.CODFILIAL CODFILIAL,
     D.SEQUSUARIO CODFUNCCX,
     NULL NUMPED,
     P_ACAB.CODPROD CODPROD,
@@ -2848,19 +2848,19 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLDESCSUFRAMA,
 	(SELECT vlcustorep
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOREP,
 	(SELECT VLCUSTOCONT
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOCONT,
 	(SELECT VLCUSTOREAL
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOREAL,
 	(SELECT VLCUSTOFIN
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOFIN,		
 	0 VLDESCCUSTOCMV,
 	0 PERDESCTAB,
@@ -2869,7 +2869,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 PERCBASERED,
 	(SELECT vlcustofin
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) CUSTOFINEST,
 	0 PERCBASEREDSTFONTE,
 	0 PERCBASEREDST,
@@ -2993,24 +2993,32 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	VW_INT_C5_PCPRODUT              P_ACAB,
 	VW_INT_C5_OBTER_FILIAIS_C5      C5
   WHERE  I.SEQDOCTO = D.SEQDOCTO
+    AND  C5.CODFILIALINTEGRACAO = I.NROEMPRESA
+    AND  C5.CODFILIALINTEGRACAO = D.NROEMPRESA
+	AND  C5.CODFILIALINTEGRACAO = C.NROEMPRESA
+	AND  C5.CODFILIALINTEGRACAO = E.NROEMPRESA
+	AND  C5.CODFILIALINTEGRACAO = V.NROEMPRESA
+	AND  C5.CODFILIAL = V.CODFILIAL
     AND  I.NROEMPRESA = D.NROEMPRESA
     AND  I.NROCHECKOUT = D.NROCHECKOUT
     AND  I.SEQPRODUTO = P.SEQPRODUTO
     AND  D.SEQDOCTO = C.SEQDOCTO
     AND  D.NROEMPRESA = C.NROEMPRESA
     AND  D.NROCHECKOUT = C.NROCHECKOUT
-    AND  I.NROEMPRESA = V.CODFILIAL
+    AND  I.NROEMPRESA = V.NROEMPRESA
     AND  I.CODACESSO = V.CODAUXILIAR
     AND  I.SEQPRODUTO = V.SEQPRODUTO
 	AND  I.NROEMPRESA = P_ACAB.NROEMPRESA
     AND  I.SEQPRODCOMPOSTO = P_ACAB.SEQPRODUTO
+	AND  P_ACAB.CODFILIAL = C5.CODFILIAL
+	AND  P_ACAB.NROEMPRESA = C5.CODFILIALINTEGRACAO
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
     AND  I.CODACESSO = H.CODAUXILIAR(+)
-    AND  I.NROEMPRESA = H.CODFILIAL(+)
+    AND  C5.CODFILIAL = H.CODFILAL(+)
     AND  E.NROEMPRESA = D.NROEMPRESA
     AND  I.NROEMPRESA = E.NROEMPRESA
-    AND  TO_CHAR(E.NROEMPRESA) = EA.CODIGO
+    AND  C5.CODFILIAL = EA.CODIGO
     AND  EA.UF = A.UFDESTINO
     AND  TO_CHAR(A.NUMREGIAO) = EA.CODIGO
     AND  C.STATUS IN ('V', 'C')
@@ -3033,7 +3041,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
             and seqtipotributacao = 1) CODECF,
-    D.NROEMPRESA CODFILIAL,
+    C5.CODFILIAL CODFILIAL,
     D.SEQUSUARIO CODFUNCCX,
     NULL NUMPED,
     P_ACAB.CODPROD CODPROD,
@@ -3069,19 +3077,19 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLDESCSUFRAMA,
 	(SELECT vlcustorep
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOREP,
 	(SELECT VLCUSTOCONT
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOCONT,
 	(SELECT VLCUSTOREAL
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOREAL,
 	(SELECT VLCUSTOFIN
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) VLCUSTOFIN,		
 	0 VLDESCCUSTOCMV,
 	0 PERDESCTAB,
@@ -3212,26 +3220,33 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     MONITORPDVMIDDLE.TB_EMPRESA     E,
     PCFILIAL                        EA,
 	PCDEPARAREGIAOC5                div,
-	VW_INT_C5_PCPRODUT              P_ACAB
+	VW_INT_C5_PCPRODUT              P_ACAB,
+	VW_INT_C5_OBTER_FILIAIS_C5 C5
   WHERE  I.SEQDOCTO = D.SEQDOCTO
+    AND C5.CODFILIALINTEGRACAO = I.NROEMPRESA
+	AND C5.CODFILIALINTEGRACAO = D.NROEMPRESA
+	AND C5.CODFILIALINTEGRACAO = C.NROEMPRESA
+	AND C5.CODFILIALINTEGRACAO = V.NROEMPRESA
+	AND C5.CODFILIALINTEGRACAO = E.NROEMPRESA
+	AND C5.CODFILIALINTEGRACAO = P_ACAB.NROEMPRESA
     AND  I.NROEMPRESA = D.NROEMPRESA
     AND  I.NROCHECKOUT = D.NROCHECKOUT
     AND  I.SEQPRODUTO = P.SEQPRODUTO
     AND  D.SEQDOCTO = C.SEQDOCTO
     AND  D.NROEMPRESA = C.NROEMPRESA
     AND  D.NROCHECKOUT = C.NROCHECKOUT
-    AND  I.NROEMPRESA = V.CODFILIAL
+    AND  C5.CODFILIAL = V.CODFILIAL
     AND  I.CODACESSO = V.CODAUXILIAR
     AND  I.SEQPRODUTO = V.SEQPRODUTO
-	AND  I.NROEMPRESA = P_ACAB.CODFILIAL
+	AND  C5.CODFILIAL = P_ACAB.CODFILIAL
     AND  I.SEQPRODCOMPOSTO = P_ACAB.SEQPRODUTO
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
     AND  I.CODACESSO = H.CODAUXILIAR(+)
-    AND  I.NROEMPRESA = H.CODFILIAL(+)
+    AND  C5.CODFILIAL = H.CODFILIAL(+)
     AND  E.NROEMPRESA = D.NROEMPRESA
     AND  I.NROEMPRESA = E.NROEMPRESA
-    AND  TO_CHAR(E.NROEMPRESA) = EA.CODIGO
+    AND  C5.CODFILIAL = EA.CODIGO
     AND  EA.UF = A.UFDESTINO
     AND  div.nrodivisao = e.nrodivisao
     AND  a.numregiao = div.numregiao
