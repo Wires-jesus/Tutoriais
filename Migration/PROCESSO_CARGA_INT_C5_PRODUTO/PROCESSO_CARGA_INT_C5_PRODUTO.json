@@ -1,5 +1,5 @@
 {"nome":"PROCESSO_CARGA_INT_C5_PRODUTO","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"6.0.02.000"}, 
+    {"nome":"VW_INT_C5_EMBPROD","tipo":"OBJETO_PLSQL","versao":"6.0.03.000"}, 
     {"nome":"FNC_REMOVE_CHAR_ESP","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},
     {"nome":"PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
     {"nome":"PCMARCA","tipo": "TABELA","versao": "4.0.01.000"},
@@ -8,6 +8,9 @@
     {"nome":"VW_INT_C5_EMB_DESMEMBRADAS","tipo": "OBJETO_PLSQL","versao": "6.0.02.000"},
     {"nome":"PCDEPARAPRODC5","tipo": "TABELA","versao": "5.0.03.000"},
     {"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO", "tipo": "MIGRATION", "versao": "6.0.02.000"},
-	{"nome": "PROCESSO_AJUSTE_INT_C5_PCDEPARAPRODC5","tipo": "MIGRATION","versao": "5.0.01.000"}
+	{"nome": "PROCESSO_AJUSTE_INT_C5_PCDEPARAPRODC5","tipo": "MIGRATION","versao": "5.0.01.000"},
+	{"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE","tipo": "MIGRATION","versao": "6.0.01.000"},
+	{"nome":"VW_INT_C5_OBTER_FILIAIS_C5","tipo":"OBJETO_PLSQL","versao":"6.0.01.000"} 
+	
 ]}
 

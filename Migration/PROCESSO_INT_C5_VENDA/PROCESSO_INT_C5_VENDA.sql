@@ -75,7 +75,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
        0 numpedecf,
        d.sequsuario codfunccheckout,
        d.nrocheckout numcaixa,
-       d.nroempresa codfilial,
+       C5.CODFILIAL codfilial,
+	   d.NROEMPRESA NROEMPRESA,
        'NOTAFISCAL' numserieequip,
        c.nronotafiscal numcupom,
        NVL(c.nomecliente, 'CONSUMIDOR FINAL') cliente,
@@ -88,72 +89,76 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) TELENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) TELENT,
        NVL(F.MUNICENT,
            (SELECT CLI.MUNICENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) MUNICENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) MUNICENT,
        NVL(F.ESTENT,
            (SELECT CLI.ESTENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) ESTENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) ESTENT,
        NVL(F.CEPENT,
            (SELECT CLI.CEPENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) CEPENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) CEPENT,
        NVL(F.IEENT,
            (SELECT CLI.IEENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) IEENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) IEENT,
        NVL(F.CODCIDADE,
            (SELECT CLI.CODCIDADE
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) CODCIDADE,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) CODCIDADE,
        NVL(F.NUMEROENT,
            (SELECT CLI.NUMEROENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) NUMEROENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) NUMEROENT,
        NVL(F.BAIRROENT,
            (SELECT CLI.BAIRROENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) BAIRROENT,
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) BAIRROENT,
        NVL(F.ENDERENT,
            (SELECT CLI.ENDERENT
               FROM PCCLIENT CLI
              WHERE CLI.CODCLI =
                    (SELECT PCFILIAL.CODCLI
                       FROM PCFILIAL
-                     WHERE PCFILIAL.CODIGO = TO_CHAR(d.nroempresa)))) ENDERENT
+                     WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) ENDERENT
   FROM monitorpdvmiddle.tb_docto      d,
        monitorpdvmiddle.tb_doctocupom c,
        monitorpdvmiddle.tb_doctonfe   e,
-       PCCLIENT                       F
+       PCCLIENT                       F,
+	   VW_INT_C5_OBTER_FILIAIS_C5    C5,
  WHERE d.nroempresa = c.nroempresa
    AND d.nrocheckout = c.nrocheckout
    AND d.seqdocto = c.seqdocto
    AND d.nroempresa = e.nroempresa
    AND d.nrocheckout = e.nrocheckout
+   AND C5.CODFILIALINTEGRACAO = d.nroempresa
+   AND C5.CODFILIALINTEGRACAO = e.NROEMPRESA
+   AND C5.CODFILIALINTEGRACAO = c.nroempresa
    AND d.seqdocto = e.seqdocto
    AND d.especie = 'NF'
    AND NVL(c.seqpessoa,1) IN (1,2,3)
@@ -167,6 +172,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
         e.codauxiliar,
         c.seqproduto,
         e.codfilial,
+		C5.codfilialintegracao nroempresa,
         p.codepto,
         p.codsec,
         p.codcategoria,
@@ -397,7 +403,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FINALIZ_VENDA AS
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS 
-( SELECT  a.nroempresa codfilial,
+( SELECT  C5.codfilial codfilial,
         a.sequsuario codfunccx,
         TO_CHAR(a.dtamovimento,'YYYY-MM-DD') data,
         NULL dtexportacao,
@@ -408,10 +414,13 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         x.xmlcanc xmlnfcecancelamento,
         a.seqdocto
   FROM  monitorpdvmiddle.tb_docto a,
-        monitorpdvmiddle.tb_doctonfexml x
+        monitorpdvmiddle.tb_doctonfexml x,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  a.nroempresa = x.nroempresa
    AND  a.nrocheckout = x.nrocheckout
    AND  a.seqdocto = x.seqdocto
+   AND  C5.CODFILIALINTEGRACAO = a.nroempresa
+   AND  C5.CODFILIALINTEGRACAO = x.nroempresa
 )
 
 \
@@ -441,7 +450,7 @@ SELECT  e.codauxiliar,
 
 CREATE OR REPLACE FUNCTION FNC_INT_C5_ESPECIE_COB_VENDAS (pSeqDocto    IN NUMBER,
                                                           pNumeroCaixa IN NUMBER,
-                                                          pCodigoFilial IN NUMBER,
+                                                          pNroCheckout IN NUMBER,
                                                           pSeqItem IN NUMBER)
     RETURN VARCHAR2
 IS
@@ -454,12 +463,14 @@ BEGIN
       INTO  vEspecie, vCodCobF
       FROM  monitorpdvmiddle.tb_doctopagto p,
             monitorpdvmiddle.tb_formapagto f,
-            VW_INT_C5_FINALIZ_VENDA a
+            VW_INT_C5_FINALIZ_VENDA a,
+			VW_INT_C5_OBTER_FILIAIS_C5 C5
      WHERE  p.nroformapagto = f.nroformapagto
        AND  f.nroformapagto = a.NROFORMAPAGTO
+	   AND  C5.CODFILIALINTEGRACAO = p.nroempresa
        AND  p.seqitem = pSeqItem
        AND  p.seqdocto = pSeqDocto
-       AND  p.nroempresa = pCodigoFilial
+       AND  p.nroempresa = pNroCheckout
        AND  p.nrocheckout = pNumeroCaixa;
   end;
 
@@ -475,7 +486,7 @@ BEGIN
        AND  f.ESPECIE = a.ESPECIE
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
-         AND  p.nroempresa = pCodigoFilial
+         AND  p.nroempresa = pNroCheckout
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
@@ -494,7 +505,7 @@ BEGIN
          AND  f.ESPECIE = a.ESPECIE
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
-         AND  p.nroempresa = pCodigoFilial
+         AND  p.nroempresa = pNroCheckout
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
@@ -523,7 +534,7 @@ BEGIN
          AND  f.ESPECIE = a.ESPECIE
          AND  p.seqitem = pSeqItem
          AND  p.seqdocto = pSeqDocto
-         AND  p.nroempresa = pCodigoFilial
+         AND  p.nroempresa = pNroCheckout
          AND  p.idcarteira = a.idcarteira(+)
          AND  p.nrocheckout = pNumeroCaixa
          AND  ROWNUM = 1;
@@ -543,7 +554,7 @@ BEGIN
        AND  f.nroformapagto = a.NROFORMAPAGTO
        AND  p.seqitem = pSeqItem
        AND  p.seqdocto = pSeqDocto
-       AND  p.nroempresa = pCodigoFilial
+       AND  p.nroempresa = pNroCheckout
        AND  p.nrocheckout = pNumeroCaixa;
     exception
       when others then
@@ -582,8 +593,8 @@ END;
 \
 
 CREATE OR REPLACE FUNCTION FNC_INT_C5_FINALIZADORA_CAB (pSeqDocto NUMBER,
-                                      pNumeroCaixa NUMBER,
-                                      pCodigoFilial VARCHAR2)
+                                      pNroCheckout NUMBER,
+                                      pNroEmpresa NUMBER)
     RETURN VARCHAR2
 IS
     vFinalizadora VARCHAR2(4);
@@ -602,16 +613,16 @@ SELECT  CASE
         monitorpdvmiddle.tb_docto a
  WHERE  p.seqdocto = a.seqdocto
    AND  a.seqdocto = pSeqDocto
-   AND  a.nroempresa = pCodigoFilial
-   AND  a.nrocheckout = pNumeroCaixa
+   AND  a.nroempresa = pNroEmpresa
+   AND  a.nrocheckout = pNroCheckout
    AND  ROWNUM = 1;
  RETURN(vFinalizadora);
 END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_BUSCATRIB(pCodFilial  NUMBER,
-                                                pNumCaixa    NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_BUSCATRIB(pNroEmpresa  NUMBER,
+                                                pNroCheckout    NUMBER,
                                                 pSeqdocto    NUMBER,
                                                 pSeqItem     NUMBER,
 												pSeqTipoTrib NUMBER,
@@ -637,8 +648,8 @@ SELECT  CASE pCampo
   INTO  vReturn
   FROM  monitorpdvmiddle.tb_doctotributacaoitem t
  WHERE  t.SEQDOCTO = pSeqdocto
-   AND  t.NROCHECKOUT = pNumCaixa
-   AND  t.NROEMPRESA = pCodFilial
+   AND  t.NROCHECKOUT = pNroCheckout
+   AND  t.NROEMPRESA = pNroEmpresa
    AND  t.SEQITEM = pSeqItem
    AND  t.SEQTIPOTRIBUTACAO = pSeqTipoTrib;
  RETURN(vReturn);
@@ -679,10 +690,16 @@ BEGIN
       INTO  vCodPlPag
       FROM  VW_INT_C5_FINALIZ_VENDA a,
             monitorpdvmiddle.tb_doctopagto p,
-            monitorpdvmiddle.tb_docto a
+            monitorpdvmiddle.tb_docto d,
+			VW_INT_C5_OBTER_FILIAIS_C5 C5
      WHERE  p.nroformapagto = a.nroformapagto
-       AND  p.nroempresa = a.codfilial
+       AND  p.nroempresa = d.nroempresa
+	   AND  p.seqdocto = d.seqdocto
+	   AND  p.nrocheckout = d.nrocheckout
        AND  a.nroformapagto = pNroFormaPagto
+	   AND  C5.codfilialintegracao = d.NROEMPRESA
+	   AND  C5.codfilialintegracao = p.NROEMPRESA
+	   AND  a.codfilial = c5.codfilial
        AND  a.codfilial = pCodFilial
        AND  ROWNUM = 1;
     RETURN(vCodPlPag);
@@ -691,8 +708,8 @@ END;
 \
 
 CREATE OR REPLACE FUNCTION FNC_INT_C5_VLTOTAL (pSeqDocto number,
-                                                   pNumeroCaixa NUMBER,
-                                                   pCodigoFilial VARCHAR2)
+                                                   pNroCheckout NUMBER,
+                                                   pNroEmpresa NUMBER)
     RETURN NUMBER
 IS
     vTotal NUMBER;
@@ -702,8 +719,8 @@ BEGIN
       INTO  vTotal
       FROM  monitorpdvmiddle.tb_doctopagto p
      WHERE  p.seqdocto = pSeqDocto
-       AND  p.nroempresa = pCodigoFilial
-       AND  p.nrocheckout = pNumeroCaixa;
+       AND  p.nroempresa = pNroEmpresa
+       AND  p.nrocheckout = pNroCheckout;
     RETURN(vTotal);
 END;
 
@@ -732,12 +749,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_PLANOP_VENDA AS
         NVL(p.tipovenda,'VV') tipovenda
   FROM  pcplpag p,
         monitorpdvmiddle.tb_doctopagto g,
-        monitorpdvmiddle.tb_docto a
+        monitorpdvmiddle.tb_docto a,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  g.seqdocto = a.seqdocto
    AND  g.nroempresa = a.nroempresa
    AND  g.nrocheckout = a.nrocheckout
+   AND  g.nroempresa = C5.CODFILIALINTEGRACAO
+   AND  a.nroempresa = C5.codfilialintegracao
    AND  a.especie = 'NF'
-   AND  p.codplpag = NVL(fnc_int_c5_codplpag_venda(g.nroformapagto,g.nroempresa),1)
+   AND  p.codplpag = NVL(fnc_int_c5_codplpag_venda(g.nroformapagto,C5.codfilial),1)
    AND  p.codplpag > 0)
 
 \
@@ -753,7 +773,7 @@ SELECT  SUM(NVL(a.volume_prod,0))
   INTO  vTotalVol
   FROM  monitorpdvmiddle.tb_doctoitem i,
         VW_INT_C5_PCPRODUT a
- WHERE  i.nroempresa = a.codfilial
+ WHERE  i.nroempresa = a.nroempresa
    AND  i.codacesso = a.codauxiliar
    AND  i.seqproduto = a.seqproduto
    AND  i.seqdocto = pSeqDocto
@@ -766,7 +786,7 @@ END;
 \
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_tipovenda_pag_venda(pNroFormaPagto NUMBER,
-                                                          pCodFilial     VARCHAR2,
+                                                          pnroempresa    NUMBER,
                                                           pNumcheckout   NUMBER)
     RETURN CHAR
 IS
@@ -780,7 +800,7 @@ BEGIN
        AND  p.nroempresa = a.nroempresa
         AND p.nrocheckout = a.nrocheckout 
        AND  a.nroformapagto = pNroFormaPagto
-       AND  a.nroempresa = pCodFilial
+       AND  a.nroempresa = pnroempresa
        AND  ROWNUM = 1;
   
     RETURN(vTipoVenda);
@@ -821,7 +841,7 @@ END;
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_tot_custofin (pSeqDocto IN NUMBER,
                                   pNumeroCaixa IN NUMBER,
-                                  pCodigoFilial IN NUMBER)
+                                  pNroEmpresa IN NUMBER)
     RETURN NUMBER
 IS
     vTotalCustoFin NUMBER;
@@ -829,11 +849,13 @@ BEGIN
     SELECT  SUM(s.vlcustofin)
       INTO  vTotalCustoFin
       FROM  vw_int_c5_custos s,
-            monitorpdvmiddle.tb_doctoitem i
-     WHERE  TO_CHAR(i.nroempresa) = s.codfilial
+            monitorpdvmiddle.tb_doctoitem i,
+			VW_INT_C5_OBTER_FILIAIS_C5 C5
+     WHERE  i.nroempresa = C5.CODFILIALINTEGRACAO
+	   AND  C5.CODFILIAL = s.codfilial
        AND  i.codacesso = s.codauxiliar
        AND  i.seqdocto = pSeqDocto
-       AND  TO_CHAR(I.nroempresa) = pCodigoFilial
+       AND  I.nroempresa = pNroEmpresa
 	   AND  i.STATUS = 'V'
        AND  i.nrocheckout = pNumeroCaixa;
     RETURN(vTotalCustoFin);
@@ -843,7 +865,7 @@ END;
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_numitens (pSeqDocto IN NUMBER,
                               pNumeroCaixa IN NUMBER,
-                              pCodigoFilial IN NUMBER)
+                              pNroEmpresa IN NUMBER)
     RETURN NUMBER
 IS
     vNumItens NUMBER;
@@ -854,15 +876,15 @@ BEGIN
      WHERE  i.seqdocto = pSeqDocto
        AND  i.nrocheckout = pNumeroCaixa
 	   AND  i.STATUS = 'V'
-       AND  i.nroempresa = pCodigoFilial;
+       AND  i.nroempresa = pNroEmpresa;
     RETURN(vNumItens);
 END;
 
 \
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_acresc_r(pCodFilial   NUMBER,
-                                                       pNumCaixa    NUMBER,
-                                                       pSeqDocto    NUMBER)
+                                                       pNroCheckout    NUMBER,
+                                                       pNroEmpresa    NUMBER)
   RETURN NUMBER
 IS
   vPerAcrescimoRodape NUMBER;
@@ -893,8 +915,8 @@ SELECT
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
    AND  d.replicacao = 'P'
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto
    AND  ROWNUM = 1;
@@ -907,8 +929,8 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_desc_r(pCodFilial   NUMBER,
-                                                     pNumCaixa    NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_desc_r(pNroEmpresa   NUMBER,
+                                                     pNroCheckout    NUMBER,
                                                      pSeqDocto    NUMBER)
   RETURN NUMBER
 IS
@@ -938,8 +960,8 @@ BEGIN
    AND  a.SEQTIPOACRESCDESCTO = 1
    AND  d.especie = 'NF'
    AND  d.replicacao = 'P'
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto
    AND  ROWNUM = 1;
@@ -952,8 +974,8 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_total_acresc_r(pCodFilial   NUMBER,
-                                                     pNumCaixa    NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_total_acresc_r(pNroEmpresa   NUMBER,
+                                                     pNroCheckout    NUMBER,
                                                      pSeqDocto    NUMBER)
   RETURN NUMBER
 IS
@@ -985,8 +1007,8 @@ SELECT  SUM(
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
    AND  d.replicacao = 'P'
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
    AND  i.seqdocto = pSeqDocto;
   RETURN(vTotalAcrescimoRodape);
@@ -1018,8 +1040,8 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_total_ptabela(pCodFilial   NUMBER,
-                                                     pNumCaixa    NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_total_ptabela(pNroEmpresa   NUMBER,
+                                                     pNroCheckout    NUMBER,
                                                      pSeqDocto    NUMBER)
   RETURN NUMBER
 IS
@@ -1040,16 +1062,16 @@ SELECT  SUM(i.VLRUNITARIO*i.quantidade)
    AND  d.especie = 'NF'
    AND  d.replicacao = 'P'
    AND  i.STATUS = 'V'
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.seqdocto = pSeqDocto;
   RETURN(vTotalPTabela);
 END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_vlacrescimofcp(pCodFilial  NUMBER,
-                                                     pNumCaixa   NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_vlacrescimofcp(pNroEmpresa  NUMBER,
+                                                     pNroCheckout   NUMBER,
                                                      pSeqdocto   NUMBER,
                                                      pSeqItem    NUMBER)
     RETURN NUMBER
@@ -1084,8 +1106,8 @@ SELECT  CASE
    AND  t.seqtipotributacao = 11
    AND  i.status = 'V'
    and  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',i.nroempresa,1)
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.seqdocto = pSeqdocto
    AND  i.STATUS = 'V'
    AND  i.seqitem = pSeqItem;
@@ -1097,8 +1119,8 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_vldescitem(pCodFilial NUMBER,
-                                                 pNumCaixa  NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_vldescitem(pNroEmpresa NUMBER,
+                                                 pNroCheckout  NUMBER,
                                                  pSeqdocto  NUMBER,
                                                  pNumSeq    NUMBER)
     RETURN NUMBER
@@ -1120,8 +1142,8 @@ SELECT  i.vlrdesconto
    and  ia.nroempresa = a.nroempresa
    and  ia.seqacrescdescto = a.seqacrescdescto
    AND  i.seqdocto = pSeqdocto
-   AND  i.nroempresa = pCodFilial
-   AND  i.nrocheckout = pNumCaixa
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
    AND  i.seqitem = pNumSeq
    AND  a.seqtipoacrescdescto = 2
@@ -1131,7 +1153,7 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_vldesoneracao(pCodFilial  NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_vldesoneracao(pNroEmpresa  NUMBER,
                                                     pNumCaixa   NUMBER,
                                                     pSeqdocto   NUMBER,
                                                     pSeqItem    NUMBER)
@@ -1184,13 +1206,13 @@ SELECT  (CASE
    AND  i.seqdocto = t.seqdocto
    AND  i.seqitem = t.seqitem
    AND  i.nrotributacao = a.codst
-   AND  i.nroempresa = v.codfilial
+   AND  i.nroempresa = v.nroempresa
    AND  i.seqproduto = v.seqproduto
    AND  i.codacesso = v.codauxiliar
    AND  t.seqtipotributacao = 15
    AND  a.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',i.nroempresa,1)
    AND  i.status = 'V'
-   AND  i.nroempresa = pCodFilial
+   AND  i.nroempresa = pNroEmpresa
    AND  i.nrocheckout = pNumCaixa
    AND  i.seqdocto = pSeqdocto
    AND  i.seqitem = pSeqItem;
@@ -1271,7 +1293,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NVL(c.seqpessoa,1) codcli,
         'NOTAFISCAL' numserieequip,
         a.sequsuario codemitente,
-        a.nroempresa codfilial,
+        C5.CODFILIAL codfilial,
         a.sequsuario codfunccx,
         NVL(FNC_INT_C5_ESPECIE_COB_VENDAS(a.seqdocto, a.nrocheckout, a.nroempresa, 1),'D') codcob,
         NVL(
@@ -1523,10 +1545,15 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_doctonfe    e,
-        monitorpdvmiddle.tb_doctonfexml x
+        monitorpdvmiddle.tb_doctonfexml x,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  c.nroempresa = a.nroempresa
    AND  c.nrocheckout = a.nrocheckout
    AND  c.seqdocto = a.seqdocto
+   AND  C5.CODFILIALINTEGRACAO = a.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = x.NROEMPRESA
    AND  a.especie IN ('NF', 'CF')
    AND  c.nroempresa = e.nroempresa
    AND  c.nrocheckout = e.nrocheckout
@@ -1593,7 +1620,7 @@ AS
         v.codcest,
         NVL(c.seqpessoa,1) codcli,
         0 codcontrolevasilhame,
-        d.nroempresa codfilial,
+        C5.CODFILIAL codfilial,
         NULL codfilialretira,
         fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A') codecf,
         i.cfop codfiscal,
@@ -1801,19 +1828,19 @@ AS
         0 vlcredpis,
         (SELECT vlcustocont
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustocont,
         (SELECT vlcustofin
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustofin,
         (SELECT vlcustoreal
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustoreal,
         (SELECT vlcustorep
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustorep,
         0 vldescfin,
         0 vldescicmisencao,
@@ -1888,7 +1915,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         pcconsolidatributacao           a,
         monitorpdvmiddle.tb_empresa     e,
         pcfilial ea,
-        PCDEPARAREGIAOC5 div
+        PCDEPARAREGIAOC5 div,
+		VW_INT_C5_OBTER_FILIAIS_C5  C5
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
@@ -1902,14 +1930,19 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
-   AND  i.nroempresa = v.codfilial
+   AND  C5.CODFILIAL = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END 
-   and  i.nroempresa = h.codfilial(+)
+   and  C5.codfilial = h.codfilial(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
-   AND  to_char(e.nroempresa) = ea.codigo
+   AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = tp.NROEMPRESA
+   AND  C5.codfilialintegracao = e.nroempresa
+   AND  C5.codfilialintegracao = i.nroempresa
+   AND  C5.codfilial = ea.codigo
    AND  ea.uf = a.ufdestino
    AND  div.nrodivisao = e.nrodivisao
    AND  a.numregiao = div.numregiao
@@ -2248,7 +2281,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
         monitorpdvmiddle.tb_empresa     e,
-        pcfilial ea
+        pcfilial ea,
+		VW_INT_C5_OBTER_FILIAIS_C5  C5
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
@@ -2261,15 +2295,20 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
-   AND  i.nroempresa = v.codfilial
+   AND  C5.CODFILIALINTEGRACAO = i.nroempresa
+   AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = tp.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = v.NROEMPRESA
    AND  tp.codacesso = v.codauxiliar
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
-   and  i.nroempresa = h.codfilial(+)
+   and  c5.codfilial = h.codfilial(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
-   AND  to_char(e.nroempresa) = ea.codigo
+   AND  c5.codfilial = ea.codigo
    AND  ea.uf = a.ufdestino
    AND  ea.codigo = to_char(e.nrodivisao)
    AND  to_char(a.numregiao) = ea.codigo
@@ -2364,7 +2403,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
-        p.nroempresa codfilial,
+        c5.codfilial codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(NVL(r.dtvenc,
@@ -2386,7 +2425,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcoborig,
        0 vltxboleto,
-       p.nroempresa codfilialnf,
+       c5.codfilial codfilialnf,
        NULL numcontacorrente,
        0 numcar,
        NULL numtransvenda,
@@ -2487,6 +2526,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5,
         vw_int_c5_cobranca_winthor v,
     TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto, p.nrocheckout, p.nroempresa, FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))))) r
  WHERE  p.seqdocto = d.seqdocto
@@ -2500,6 +2540,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  p.nroformapagto = f.nroformapagto
+   AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF')
    AND p.Seqdocto = r.seqdocto(+)
@@ -2526,7 +2569,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
-        p.nroempresa codfilial,
+        c5.codfilial codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
@@ -2547,7 +2590,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcoborig,
        0 vltxboleto,
-       p.nroempresa codfilialnf,
+       c5.codfilial codfilialnf,
        NULL numcontacorrente,
        0 numcar,
        NULL numtransvenda,
@@ -2612,7 +2655,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
-        vw_int_c5_cobranca_winthor v
+        vw_int_c5_cobranca_winthor v,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
@@ -2620,6 +2664,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  p.nroformapagto = f.nroformapagto
+   AND  C5.codfilialintegracao = d.NROEMPRESA
+   AND  C5.codfilialintegracao = p.NROEMPRESA
+   AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF')
    UNION ALL
@@ -2642,7 +2689,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
-        p.nroempresa codfilial,
+        c5.codfilial codfilial,
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
@@ -2663,7 +2710,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))
           END),'D') codcoborig,
        0 vltxboleto,
-       p.nroempresa codfilialnf,
+       c5.codfilial codfilialnf,
        NULL numcontacorrente,
        0 numcar,
        NULL numtransvenda,
@@ -2728,7 +2775,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
-        vw_int_c5_cobranca_winthor v
+        vw_int_c5_cobranca_winthor v,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
@@ -2736,6 +2784,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  p.nroformapagto = f.nroformapagto
+   AND  C5.codfilialintegracao = d.NROEMPRESA
+   AND  C5.codfilialintegracao = p.NROEMPRESA
+   AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF')
 )
@@ -2939,7 +2990,8 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     PCCONSOLIDATRIBUTACAO           A,
     MONITORPDVMIDDLE.TB_EMPRESA     E,
     PCFILIAL                        EA,
-	VW_INT_C5_PCPRODUT              P_ACAB
+	VW_INT_C5_PCPRODUT              P_ACAB,
+	VW_INT_C5_OBTER_FILIAIS_C5      C5
   WHERE  I.SEQDOCTO = D.SEQDOCTO
     AND  I.NROEMPRESA = D.NROEMPRESA
     AND  I.NROCHECKOUT = D.NROCHECKOUT
@@ -2950,7 +3002,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  I.NROEMPRESA = V.CODFILIAL
     AND  I.CODACESSO = V.CODAUXILIAR
     AND  I.SEQPRODUTO = V.SEQPRODUTO
-	AND  I.NROEMPRESA = P_ACAB.CODFILIAL
+	AND  I.NROEMPRESA = P_ACAB.NROEMPRESA
     AND  I.SEQPRODCOMPOSTO = P_ACAB.SEQPRODUTO
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
