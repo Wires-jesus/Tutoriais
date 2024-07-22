@@ -48,14 +48,17 @@ SELECT  ferramentas.f_buscarparametro_num('CODBANCOINTEGRACAOPDV',a.nroempresa,0
             ELSE
               NULL
           END) tipo,
-        a.nroempresa codfilial,
+        c5.codfilial codfilial,
         a.ROWID rowid_tb_docto
   FROM  monitorpdvmiddle.tb_docto a,
-        monitorpdvmiddle.tb_doctopagto b
+        monitorpdvmiddle.tb_doctopagto b,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  a.nroempresa = b.nroempresa
    AND  a.seqdocto = b.seqdocto
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
    AND  a.especie IN ('SG','SP')
    AND  a.replicacao = 'P'
+   AND  C5.CODFILIALINTEGRACAO = a.nroempresa
+   AND  C5.CODFILIALINTEGRACAO = b.nroempresa
 )
