@@ -882,9 +882,9 @@ END;
 
 \
 
-CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_acresc_r(pCodFilial   NUMBER,
+CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_acresc_r(pNroEmpresa   NUMBER,
                                                        pNroCheckout    NUMBER,
-                                                       pNroEmpresa    NUMBER)
+                                                       pSeqDocto    NUMBER)
   RETURN NUMBER
 IS
   vPerAcrescimoRodape NUMBER;
