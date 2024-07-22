@@ -6849,7 +6849,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     TYPE TRecIncluiItens               IS RECORD(
          vnCodProd                     PCDESCONTO.CODPROD%TYPE,
          vnQtde                        PCPEDI.QT%TYPE,
-         vnPercDesc                    PCDESCONTO.PERCDESC%TYPE,
+         vnPercDesc                    PCPEDI.PERDESC%TYPE,
          vnPerDescBoleto               PCDESCONTO.PERCDESCFIN%TYPE,
          vnCodDesconto                 PCDESCONTO.CODDESCONTO%TYPE,
          vnCodPromocaoMed              PCDESCONTO.CODPROMOCAOMED%TYPE,
