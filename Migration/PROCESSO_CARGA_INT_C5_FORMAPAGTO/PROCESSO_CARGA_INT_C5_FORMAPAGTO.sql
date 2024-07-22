@@ -106,13 +106,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codplpag = p.codplpag(+)
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
-   AND   E.codigo >= '0'
    AND   E.codigo < '99'
-   AND   E.CODIGO = TO_CHAR(TBEMP.NROEMPRESA)
-   AND   F.CODFILIAL = TO_CHAR(TBEMP.NROEMPRESA)
+   AND   C5.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
    AND   F.CODFILIAL = C5.CODFILIAL
    AND   E.CODIGO = C5.CODFILIAL
-   AND   TO_CHAR(TBEMP.NROEMPRESA) = C5.CODFILIAL
    AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
@@ -121,7 +118,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    UNION ALL
 
    SELECT DISTINCT
-     E.codigofilialintegracao nroempresa,
+     E.CODFILIALINTEGRACAO nroempresa,
      1 nrosegmento,
      f.codfinalizadora nroformapagto,
      0 percjuromensal,
@@ -161,7 +158,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
      f.valorminimoparcela VLRMINIMOPARCELA
    FROM PCFINALIZADORA F,
         --PCFILIAL E,
-        (SELECT FIL.*
+        (SELECT c5.CODFILIALINTEGRACAO ,FIL.*
          FROM PCFILIAL FIL,
               VW_INT_C5_OBTER_FILIAIS_C5 c5
          WHERE FIL.CODIGO = C5.CODFILIAL) E,

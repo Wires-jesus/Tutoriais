@@ -150,7 +150,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
        monitorpdvmiddle.tb_doctocupom c,
        monitorpdvmiddle.tb_doctonfe   e,
        PCCLIENT                       F,
-	   VW_INT_C5_OBTER_FILIAIS_C5    C5,
+	   VW_INT_C5_OBTER_FILIAIS_C5    C5
  WHERE d.nroempresa = c.nroempresa
    AND d.nrocheckout = c.nrocheckout
    AND d.seqdocto = c.seqdocto
