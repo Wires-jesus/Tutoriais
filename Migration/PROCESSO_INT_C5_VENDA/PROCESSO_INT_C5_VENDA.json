@@ -6,6 +6,11 @@
 			"nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
 			"tipo": "MIGRATION",
 			"versao": "4.0.04.000"
+		},	
+		{
+			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
+			"tipo": "MIGRATION",
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "FNC_INT_C5_CODUSUR",
@@ -15,7 +20,7 @@
 		{
 			"nome": "FNC_INT_C5_PRESTS_TEF",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "5.0.01.000"
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "PCPEDCECF",
@@ -26,6 +31,11 @@
 			"nome": "P_PC_CALCULARCMV_INTEGRACAO",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "4.0.01.000"
+		},
+		{
+			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "6.0.01.000"
 		},
 		{
 		   "nome": "PCDEPARAPRODC5",
