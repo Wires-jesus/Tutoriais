@@ -132,7 +132,7 @@ FROM (
                    NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
                    p.codncmsh,
                    p.aceitavendafracao permitedecimal,
-                   p.permitemultiplicacao,
+                   'N' permitemultiplicacao,
                    (SELECT nvl(CODCEST, 0) codcest
                     FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
                     WHERE PCCESTPRODUTO.CODPROD = p.codprod
