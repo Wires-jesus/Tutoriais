@@ -50,15 +50,26 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             t.mensagem || ' - TRIBUTACAO' tributacao,
             t.mensagem || ' - TRIBUTACAO' descaplicacao,
             COALESCE(t.codecf, '0000') codecf,
-            GREATEST(
+            /*GREATEST(
                      NVL(t.DTALTERC5, d.datapadrao),
-                     NVL(c.DTALTERC5, d.datapadrao)) data,
+                     NVL(c.DTALTERC5, d.datapadrao)) data,*/
+
+            GREATEST(NVL(t.DTALTERC5, d.datapadrao),
+                         d.datapadrao
+                    ) data,
 
             COALESCE(c.aliqicms1,0) aliqicms1,
             COALESCE(c.aliqicms2,0) aliqicms2
 FROM pctribut t,
      PCCONSOLIDATRIBUTACAO c,
-     (SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d
+     /*(SELECT MIN(s.ultimaexecucao) datapadrao FROM pccontroleconsinco s) d*/
+     (SELECT MIN(S.ULTIMAEXECUCAO)  datapadrao
+      FROM PCCONTROLECONSINCO S
+      WHERE (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_TRIBUTACAOUF')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBS')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPED')
+                or    (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CADOBSSPEDFAMILIA')
+      )d
 
 WHERE t.codst = c.codst
 AND t.codecf IS NOT NULL
