@@ -149,6 +149,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   procedure carrega_tb_precoapartirperiodo(p_id in pccontroleconsinco.id%type);
 
+  procedure carrega_tb_precoapartirproduto(p_id in pccontroleconsinco.id%type);
+
   PROCEDURE exec_sinc;
 
   --PROCEDURE exec_sinc_PRECO;
