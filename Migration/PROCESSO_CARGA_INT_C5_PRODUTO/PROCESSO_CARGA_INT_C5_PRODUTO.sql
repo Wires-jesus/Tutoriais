@@ -81,7 +81,6 @@ FROM (
                           'N'
                    END PERMITEMULTIPLICACAO,
 
-
                    (SELECT nvl(CODCEST, 0) codcest
                     FROM PCCEST INNER JOIN PCCESTPRODUTO ON PCCEST.CODIGO = PCCESTPRODUTO.CODSEQCEST
                     WHERE PCCESTPRODUTO.CODPROD = p.codprod
