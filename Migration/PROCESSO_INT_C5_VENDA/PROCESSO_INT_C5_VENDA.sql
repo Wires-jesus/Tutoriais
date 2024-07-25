@@ -1541,7 +1541,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         null fretedespacho,
         null fichasimportadas,
         e.chavenf chavenfce,
-		c.status
+		c.status,
+		a.NROEMPRESA,
+		a.nrocheckout
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_doctonfe    e,
@@ -1636,7 +1638,7 @@ AS
         0 custofinest,
         (SELECT vlcustoultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) custoultent,
         TO_CHAR(d.dtamovimento,'YYYY-MM-DD') data,
         NULL dtexportacao,
@@ -1789,7 +1791,7 @@ AS
         NULL versaoservicopartilha,
         (SELECT valorultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) valorultent,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),0) vlacrescimofuncep,
         (CASE
@@ -1810,7 +1812,7 @@ AS
         NVL(
         (SELECT vlbaseefet
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso),0) vlbaseefet,
         (CASE
             WHEN a.SITTRIBUT IN ('00','20','90')
@@ -1904,7 +1906,9 @@ AS
         0 VLCREDFCPICMSSN,
         0 VLFECP,
         0 VLICMSEFET,
-        0 VLDESCSUFRAMA
+        0 VLDESCSUFRAMA,
+		d.NROEMPRESA,
+		d.nrocheckout
 FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
@@ -2014,7 +2018,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 custofinest,
         (SELECT vlcustoultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) custoultent,
         TO_CHAR(d.dtamovimento,'YYYY-MM-DD') data,
         NULL dtexportacao,
@@ -2177,7 +2181,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NVL(
         (SELECT vlbaseefet
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso),0) vlbaseefet,
         (CASE
             WHEN a.SITTRIBUT IN ('00','20','90')
@@ -2195,19 +2199,19 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 vlcredpis,
         (SELECT vlcustocont
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustocont,
         (SELECT vlcustofin
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustofin,
         (SELECT vlcustoreal
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustoreal,
         (SELECT vlcustorep
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.codfilial
             AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustorep,
         0 vldescfin,
         0 vldescicmisencao,
@@ -2271,7 +2275,9 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 VLCREDFCPICMSSN,
         0 VLFECP,
         0 VLICMSEFET,
-        0 VLDESCSUFRAMA
+        0 VLDESCSUFRAMA,
+		d.NROEMPRESA,
+		d.nrocheckout
 FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
@@ -2521,7 +2527,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
                 THEN 'S'
             ELSE 'N'
          END) carteiradigital,
-        NVL(r.valor, p.valor) valor
+        NVL(r.valor, p.valor) valor,
+		d.nroempresa,
+		d.nrocheckout
   FROM  monitorpdvmiddle.tb_doctopagto p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -2650,7 +2658,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 	   NULL nsupagdigital,
 	   NULL nomecarteiradigital,
 	   NULL carteiradigital,
-	   p.valor valor
+	   p.valor valor,
+	   d.NROEMPRESA,
+	   d.nrocheckout
   FROM  vw_int_c5_agrup_dinheiro p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -2770,7 +2780,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 	   NULL nsupagdigital,
 	   NULL nomecarteiradigital,
 	   NULL carteiradigital,
-	   p.valor valor
+	   p.valor valor,
+	   d.NROEMPRESA,
+	   d.nrocheckout
   FROM  vw_int_c5_agrup_troco p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -2957,12 +2969,12 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 PERDIFEREIMENTOICMS,
 	(SELECT vlcustoultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = c5.CODFILIAL
             AND codauxiliar = i.codacesso) CUSTOULTENT,
 	0 PERCREDBASEEFET,
 	NVL((SELECT vlbaseefet
        FROM vw_int_c5_custos
-      WHERE codfilial = i.nroempresa
+      WHERE codfilial = c5.CODFILIAL
 	    AND codauxiliar = i.codacesso),0) vlbaseefet,
 	0 PERCICMSEFET,
 	0 VLICMSEFET,
@@ -2979,7 +2991,9 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	fnc_int_c5_vldescitem(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vldescitem,
 	0 VLICMSMONORET,
 	0 QBCMONIRET,
-	0 ADREMICMSRET
+	0 ADREMICMSRET,
+	d.nroempresa,
+	d.nrocheckout
   FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,
@@ -3208,7 +3222,9 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	fnc_int_c5_vldescitem(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vldescitem,
 	0 VLICMSMONORET,
 	0 QBCMONIRET,
-	0 ADREMICMSRET
+	0 ADREMICMSRET,
+	d.NROEMPRESA,
+	d.nrocheckout
   FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,

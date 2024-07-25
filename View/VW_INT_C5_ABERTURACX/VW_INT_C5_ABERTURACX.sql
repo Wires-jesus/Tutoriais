@@ -51,7 +51,8 @@ SELECT a.nrocheckout numcaixa,
           ELSE
              NULL
           END) MINUTOFECHAMENTO,
-        a.ROWID rowid_tb_docto
+        a.ROWID rowid_tb_docto,
+		a.nrocheckout
   FROM  monitorpdvmiddle.tb_docto a
  WHERE  a.replicacao = 'P'
    AND  a.especie IN ('AC','CX','FC','FM')
