@@ -15,29 +15,31 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
              a.codcli,
              a.numnota,
              a.ROWID,
-             a.rowid_tb_docto
-        FROM vw_int_c5_aberturacx a
+             a.rowid_tb_docto,
+			 c5.codfilial
+        FROM vw_int_c5_aberturacx a, VW_INT_C5_OBTER_FILIAIS_C5 c5
        WHERE a.especie = 'AC'
+	     AND c5.codfiliaintegracao = a.nroempresa
          AND a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
-		 AND a.numcaixa = DECODE(p_nrocheckout, 0, a.seqdocto, p_nrocheckout)
-		 AND a.nroempresa = DECODE(p_nroempresa, 0, a.seqdocto, p_nroempresa)
+		 AND a.numcaixa = DECODE(p_nrocheckout, 0, a.nrocheckout, p_nrocheckout)
+		 AND a.nroempresa = DECODE(p_nroempresa, 0, a.nroempresa, p_nroempresa)
 		 AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
 								WHERE M.SEQDOCTO = a.seqdocto
 								  AND M.NUMCAIXA = a.numcaixa
-								  AND M.CODFILIAL = a.nroempresa
+								  AND M.CODFILIAL = c5.codfilial
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMHISTORICO MH
 								WHERE MH.SEQDOCTO = a.seqdocto
 								  AND MH.NUMCAIXA = TO_CHAR(a.numcaixa)
-								  AND MH.CODFILIAL = a.nroempresa
+								  AND MH.CODFILIAL = c5.codfilial
 								UNION ALL
 							   SELECT 1
 								 FROM PCFILAMENSAGEMERRO ME
 								WHERE ME.SEQDOCTO = a.seqdocto
 								  AND ME.NUMCAIXA = a.numcaixa
-								  AND ME.CODFILIAL = a.nroempresa);
+								  AND ME.CODFILIAL = c5.codfilial);
 
     r_logaberturacx      c_logaberturacx%ROWTYPE;
     l_xmltype            XMLTYPE;
@@ -142,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
                                                       '0' AS "Numseqitem",
                                                       a.numnota AS "Numcupom",
                                                       a.seqdocto AS "Numseq",
-                                                      a.nroempresa AS "Codfilial",
+                                                      a.codfilial AS "Codfilial",
                                                       NULL AS "Motivocancelamento",
                                                       NULL AS "Dtexportacao",
                                                       NULL AS "Exportado"))))
@@ -212,7 +214,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
       dados_pcfilamensagem.rowpcfilamensagem.pdvorigem           := 'PDV SUPERMERCADOS';
       dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado      := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.seqdocto            := r_logaberturacx.seqdocto;
-
+      dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO       := TO_DATE(r_logaberturacx.Dtabertura, 'YYYY-MM-DD');
       RETURN dados_pcfilamensagem;
     END retornar_pcfilamensagem;
   BEGIN

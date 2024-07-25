@@ -10,7 +10,7 @@ IS
               FROM vw_int_c5_pcpedccancecf a
              WHERE a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
 			   AND a.NUMCAIXA = DECODE(p_nrocheckout, 0, a.numcaixa, p_nrocheckout)
-			   AND a.CODFILIAL = DECODE(p_nroempresa, 0, a.codfilial, p_nroempresa)
+			   AND a.nroempresa = DECODE(p_nroempresa, 0, a.nroempresa, p_nroempresa)
 			   AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
 								WHERE M.SEQDOCTO = a.seqdocto
@@ -217,7 +217,7 @@ IS
               INTO l_xmltypeitens
               FROM vw_int_c5_pcpedicancecf v
 			  WHERE v.SEQDOCTO = p_r_canc_cabecalho.seqdocto
-                AND v.CODFILIAL = p_r_canc_cabecalho.codfilial
+                AND v.nroempresa = p_r_canc_cabecalho.nroempresa
                 AND v.NUMCAIXA = p_r_canc_cabecalho.numcaixa;
 
             RETURN l_xmltypeitens;
@@ -288,6 +288,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
 			dados_pcfilamensagem.rowpcfilamensagem.seqdocto         := p_r_canc_cabecalho.seqdocto;
+			dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(p_r_canc_cabecalho.data, 'YYYY-MM-DD');
 
             RETURN dados_pcfilamensagem;
         END retornar_pcfilamensagem_canc;
