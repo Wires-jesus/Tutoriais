@@ -436,7 +436,8 @@ SELECT  e.codauxiliar,
         p.sittribut,
         NVL(p.percpis,0) percpis,
         NVL(p.perccofins,0) perccofins,
-        p.excluiricmsbasepiscofins
+        p.excluiricmsbasepiscofins,
+		e.nroempresa
   FROM  vw_int_c5_pcprodut E,
         pctabpr r,
         pctribpiscofins p
@@ -1938,7 +1939,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END 
-   and  C5.codfilial = h.codfilial(+)
+   and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
@@ -2311,7 +2312,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
-   and  c5.codfilial = h.codfilial(+)
+   and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
    AND  c5.codfilial = ea.codigo
@@ -3029,7 +3030,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
     AND  I.CODACESSO = H.CODAUXILIAR(+)
-    AND  C5.CODFILIAL = H.CODFILIAL(+)
+    AND  I.NROEMPRESA = H.NROEMPRESA(+)
     AND  E.NROEMPRESA = D.NROEMPRESA
     AND  I.NROEMPRESA = E.NROEMPRESA
     AND  C5.CODFILIAL = EA.CODIGO
@@ -3259,7 +3260,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
     AND  I.CODACESSO = H.CODAUXILIAR(+)
-    AND  C5.CODFILIAL = H.CODFILIAL(+)
+    AND  I.nroempresa = H.nroempresa(+)
     AND  E.NROEMPRESA = D.NROEMPRESA
     AND  I.NROEMPRESA = E.NROEMPRESA
     AND  C5.CODFILIAL = EA.CODIGO
