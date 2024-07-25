@@ -28,6 +28,7 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.pdvorigem            := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
         dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
+		dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO        := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
 		dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
         ----
 		
@@ -85,6 +86,7 @@ IS
         rowpcfilamensagemerro.pdvorigem             := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         rowpcfilamensagemerro.qtreprocessado        := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
 		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
+		rowpcfilamensagemerro.DATADOCUMENTO         := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
 		rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
         
@@ -121,7 +123,7 @@ IS
               FROM vw_int_c5_pcpedcecf c
              WHERE c.seqdocto  = DECODE(p_seqdocto,0,c.seqdocto,p_seqdocto)
                AND c.NUMCAIXA  = DECODE(p_nrocheckout,0,c.NUMCAIXA ,p_nrocheckout)
-               AND c.codfilial = DECODE(p_nroempresa,0,c.codfilial,p_nroempresa)
+               AND c.nroempresa = DECODE(p_nroempresa,0,c.nroempresa,p_nroempresa)
 			   AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
 								WHERE M.SEQDOCTO = c.seqdocto
@@ -398,7 +400,7 @@ IS
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
                  WHERE rowvw_pcpediecf.seqdocto = p_pedido.seqdocto
-                   AND rowvw_pcpediecf.codfilial = p_pedido.codfilial
+                   AND rowvw_pcpediecf.nroempresa = p_pedido.nroempresa
                    AND rowvw_pcpediecf.numcaixa = p_pedido.numcaixa;
 
                 --END LOOP;
@@ -690,7 +692,7 @@ IS
                   FROM vw_int_c5_pcprestecf p
                  WHERE p.seqdocto = p_seqdocto
 				   AND p.numcheckout = p_numcheckout
-                   AND P.codfilial = p_codfilial;
+                   AND P.nroempresa = p_codfilial;
 
                 RETURN l_xmltypeparcela;
             END retornar_xmlparcelas;
@@ -893,7 +895,7 @@ IS
               FROM VW_INT_C5_PCPEDIECFCESTA VW
               WHERE VW.SEQDOCTO = p_pedido.SEQDOCTO
                 AND VW.NUMCAIXA = p_pedido.NUMCAIXA
-                AND VW.CODFILIAL = p_pedido.CODFILIAL;
+                AND VW.nroempresa = p_pedido.nroempresa;
 
               RETURN l_xmlItensCesta;
 
@@ -990,6 +992,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
+			dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(r_pedido.data, 'YYYY-MM-DD');
 
             RETURN dados_pcfilamensagem;
         END retornar_pcfilamensagem;
