@@ -19,7 +19,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
 			 c5.codfilial
         FROM vw_int_c5_aberturacx a, VW_INT_C5_OBTER_FILIAIS_C5 c5
        WHERE a.especie = 'AC'
-	     AND c5.codfiliaintegracao = a.nroempresa
+	     AND c5.CODFILIALINTEGRACAO = a.nroempresa
          AND a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
 		 AND a.numcaixa = DECODE(p_nrocheckout, 0, a.nrocheckout, p_nrocheckout)
 		 AND a.nroempresa = DECODE(p_nroempresa, 0, a.nroempresa, p_nroempresa)
