@@ -144,13 +144,14 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
                                                       '0' AS "Numseqitem",
                                                       a.numnota AS "Numcupom",
                                                       a.seqdocto AS "Numseq",
-                                                      a.codfilial AS "Codfilial",
+                                                      c5.codfilial AS "Codfilial",
                                                       NULL AS "Motivocancelamento",
                                                       NULL AS "Dtexportacao",
                                                       NULL AS "Exportado"))))
           INTO l_xmltypepclogcaixa
-          FROM vw_int_c5_aberturacx a
+          FROM vw_int_c5_aberturacx a, VW_INT_C5_OBTER_FILIAIS_C5 c5
          WHERE a.especie IN ('AC','FC','CX','FM')
+		   AND c5.CODFILIALINTEGRACAO = a.nroempresa
            AND numcaixa = p_logaberturacx.numcaixa
            AND a.dtabertura = p_logaberturacx.dtabertura
            AND a.seqturno = p_logaberturacx.seqturno
