@@ -106,7 +106,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codplpag = p.codplpag(+)
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
-   AND   E.codigo < '99'
+   AND   E.codigo <> '99'
    AND   C5.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
    AND   F.CODFILIAL = C5.CODFILIAL
    AND   E.CODIGO = C5.CODFILIAL
@@ -182,8 +182,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codplpag = p.codplpag(+)
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
-   AND   E.codigo >= '0'
-   AND   E.CODIGO = TO_CHAR(TBEMP.NROEMPRESA)
+   AND   E.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or

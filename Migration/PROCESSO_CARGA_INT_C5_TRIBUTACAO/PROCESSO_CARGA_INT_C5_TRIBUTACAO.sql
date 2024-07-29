@@ -167,7 +167,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMDIVISAO AS
                             FROM PCPARAMFILIAL
                             WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                             AND VALOR <> '99'
-                            AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                             AND VALOR IS NOT NULL)
       AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
       --GROUP BY R.CODPROD, R.CODST, D.NRODIVISAO, D.NUMREGIAO
