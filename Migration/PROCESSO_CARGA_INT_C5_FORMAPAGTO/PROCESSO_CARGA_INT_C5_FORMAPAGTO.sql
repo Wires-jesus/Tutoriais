@@ -182,7 +182,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
    AND   f.codplpag = p.codplpag(+)
    AND   f.codfilial IS NOT NULL
    and   f.codfinalizadora is not null
-   AND   F.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
+   AND   E.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
           NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
           NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
