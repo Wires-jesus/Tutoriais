@@ -5,7 +5,7 @@ SELECT c5.CODFILIALINTEGRACAO nroempresa,
 
        (CASE
          WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
-              (SELECT TO_CHAR(R.NRODIVISAO) NRODIVISAO
+              (SELECT R.NRODIVISAO NRODIVISAO
                FROM   PCDEPARAREGIAOC5 R
                WHERE  R.NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',
                                                                        F.CODIGO,
