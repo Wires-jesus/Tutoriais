@@ -60,7 +60,7 @@
 		{
 			"nome": "VW_INT_C5_EMPRESA",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.01.000"
+			"versao": "6.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMBPROD",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.04.000"
+			"versao": "6.0.05.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
