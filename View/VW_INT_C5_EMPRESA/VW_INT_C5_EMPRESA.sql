@@ -11,7 +11,7 @@ SELECT c5.CODFILIALINTEGRACAO nroempresa,
                                                                        F.CODIGO,
                                                                        '1')
               )
-         ELSE f.codigo     
+         ELSE c5.CODFILIALINTEGRACAO     
        END) NRODIVISAO,
 
        --ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO',f.codigo, '1') nrodivisao,

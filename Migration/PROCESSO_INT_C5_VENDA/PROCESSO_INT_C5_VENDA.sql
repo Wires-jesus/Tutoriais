@@ -2317,8 +2317,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nroempresa = e.nroempresa
    AND  c5.codfilial = ea.codigo
    AND  ea.uf = a.ufdestino
-   AND  ea.codigo = to_char(e.nrodivisao)
-   AND  to_char(a.numregiao) = ea.codigo
+   AND  C5.CODFILIALINTEGRACAO = e.nrodivisao
+   AND  a.numregiao = C5.CODFILIALINTEGRACAO
    AND  c.status in ('V', 'C')
    AND  i.status = 'V'
    AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
