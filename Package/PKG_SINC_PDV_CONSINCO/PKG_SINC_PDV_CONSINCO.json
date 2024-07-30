@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "6.0.03.000"
+			"versao": "6.0.04.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -70,7 +70,7 @@
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.02.000"
+			"versao": "6.0.03.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -100,12 +100,12 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.09.000"
+			"versao": "6.0.10.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.02.000"
+			"versao": "6.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.03.000"
+			"versao": "6.0.04.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
@@ -180,7 +180,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESCONTO_CLIENTE",
 			"tipo": "MIGRATION",
-			"versao": "6.0.14.000"
+			"versao": "6.0.15.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
