@@ -991,7 +991,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.codigoerro       := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
-            dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
+            dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL; 
 			dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(r_pedido.data, 'YYYY-MM-DD');
 
             RETURN dados_pcfilamensagem;

@@ -24,7 +24,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     SELECT ultimaexecucao
       INTO l_ultima_execucao
       FROM pccontroleconsinco
-     WHERE id = p_id;
+     WHERE id = p_id; 
 
     g_inicio_execucao := l_ultima_execucao;
 
