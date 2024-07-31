@@ -412,7 +412,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         'NOTAFISCAL' numserieequip,
         x.xml xmlnfce,
         x.xmlcanc xmlnfcecancelamento,
-        a.seqdocto
+        a.seqdocto,
+		a.nroempresa
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctonfexml x,
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
