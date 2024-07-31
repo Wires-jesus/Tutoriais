@@ -159,7 +159,7 @@ IS
           INTO n_countcreditocliente
           FROM vw_int_c5_pcprestecf
           WHERE vw_int_c5_pcprestecf.seqdocto = p_seqdocto
-           AND vw_int_c5_pcprestecf.codfilial = p_codempresa
+           AND vw_int_c5_pcprestecf.nroempresa = p_codempresa
            AND vw_int_c5_pcprestecf.numcheckout = p_numcheckout
            AND vw_int_c5_pcprestecf.codcob = 'CRED';
                     
@@ -726,7 +726,7 @@ IS
                   FROM vw_int_c5_pcdoceletronico a
                  WHERE a.seqdocto = p_seqdocto
 				   AND a.numcaixa = p_numcaixa
-                   AND a.codfilial = p_codfilial;
+                   AND a.nroempresa = p_codfilial;
 
                 RETURN l_xmltypedoceletronico;
             END retornar_xmldoceletronico;
@@ -772,7 +772,7 @@ IS
                   FROM vw_int_c5_pcvendaconsumecf a
                  WHERE a.seqdocto = p_seqdocto
 				   AND a.numcaixa = p_numcaixa
-                   AND a.codfilial = p_codfilial;
+                   AND a.nroempresa = p_codfilial;
 
                 RETURN l_xmltypeconsumidorfinal;
             END retornar_xmlconsumidorfinal;
@@ -1110,8 +1110,8 @@ IS
                 adicionarregrascabecalhonf (r_pedido);
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
+				atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.codfilial);
                 inserir_pcfilamensagem(dados_pcfilamensagem);
-                atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.codfilial);
 				if r_pedido.status = 'C'  then
                   PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
                 end if;
