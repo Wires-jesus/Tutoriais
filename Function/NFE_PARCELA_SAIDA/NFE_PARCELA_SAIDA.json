@@ -30,7 +30,7 @@
   {
    "nome":"SQL_NFE_PARCELA_SAIDA_CARTAO",
    "tipo":"OBJETO_PLSQL",
-   "versao":"5.0.04.000"
+   "versao":"6.0.01.000"
   }
  ]
 }
