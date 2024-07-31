@@ -26,11 +26,13 @@ BEGIN
              END TOTCUSTO 
       INTO  vTotalCusto
       FROM  vw_int_c5_custos s,
-            monitorpdvmiddle.tb_doctoitem i
+            monitorpdvmiddle.tb_doctoitem i,
+			VW_INT_C5_OBTER_FILIAIS_C5 C5
      WHERE  i.nroempresa = s.codfilial
        AND  i.codacesso = s.codauxiliar
        AND  i.seqdocto = pSeqDocto
        AND  I.nroempresa = pCodigoFilial
-       AND  i.nrocheckout = pNumeroCaixa;
+       AND  i.nrocheckout = C5.CODFILIALINTEGRACAO
+	   AND  C5.CODFILIAL = s.CODFILIAL;
     RETURN vTotalCusto;
 END;
