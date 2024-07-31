@@ -1,3 +1,33 @@
+DECLARE
+  vnContSeq NUMBER;
+  vScript VARCHAR2(4000);
+BEGIN
+  BEGIN
+    SELECT COUNT(1)
+    INTO vnContSeq
+    FROM all_triggers A
+    WHERE trigger_name = 'TRG_C5_DT_DESC561LOG';
+  END;
+     
+  IF vnContSeq > 0  THEN
+     vScript := ' DROP TRIGGER TRG_C5_DT_DESC561LOG';
+     execute immediate vscript;  
+  END IF;
+  BEGIN
+    SELECT COUNT(1)
+    INTO vnContSeq
+    FROM all_triggers A
+    WHERE trigger_name = 'TRG_C5_DT_PRECOPROMLOG';
+  END;
+     
+  IF vnContSeq > 0  THEN
+     vScript := ' DROP TRIGGER TRG_C5_DT_PRECOPROMLOG';
+     execute immediate vscript;  
+  END IF;
+END;
+
+\
+
 CREATE OR REPLACE TRIGGER trg_c5_dt_tribut
  BEFORE INSERT OR UPDATE
         ON pctribut
