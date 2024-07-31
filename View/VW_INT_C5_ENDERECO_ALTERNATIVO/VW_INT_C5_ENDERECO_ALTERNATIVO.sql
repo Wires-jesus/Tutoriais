@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_ENDERECO_ALTERNATIVO AS(
   SELECT
     f.codigo codfilial,
     f.codcli seqpessoa,
-    f.codcli || f.codigo seqlogradouro,
+    f.codcli || f.codfilialintegracao seqlogradouro,
     'P' tipo,
     UPPER(
       SUBSTR(

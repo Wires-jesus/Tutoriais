@@ -104,7 +104,6 @@ SELECT CATEG.NRODIVISAO,
              FROM pcparamfilial
              WHERE nome = 'NUMREGIAOPADRAOVAREJO'
              AND valor <> '99'
-             AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
              AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
              UNION ALL
@@ -172,7 +171,6 @@ SELECT
               WHERE D.NUMREGIAO = pcparamfilial.valor
                 AND nome = 'NUMREGIAOPADRAOVAREJO'
                 AND valor <> '99'
-                AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
                 AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
                 UNION ALL
