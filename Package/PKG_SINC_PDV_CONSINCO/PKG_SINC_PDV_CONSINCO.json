@@ -80,7 +80,7 @@
 		{
 			"nome": "VW_INT_C5_DIVISAO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.01.000"
+			"versao": "6.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
@@ -110,7 +110,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "6.0.07.000"
+			"versao": "6.0.09.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -140,7 +140,7 @@
 		{
 			"nome": "VW_INT_C5_ENDERECO_ALTERNATIVO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "5.0.01.000"
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
