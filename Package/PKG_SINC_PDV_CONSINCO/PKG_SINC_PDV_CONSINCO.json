@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "6.0.05.000"
+			"versao": "6.0.06.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
