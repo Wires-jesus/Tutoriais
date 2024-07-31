@@ -1,0 +1,6 @@
+{
+    "nome": "ATIVAR_CAMPO_INATIVO_202",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
