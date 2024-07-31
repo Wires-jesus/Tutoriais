@@ -50,10 +50,10 @@ BEGIN
     WHERE CODPROD = :OLD.CODPROD;
   END IF;
 
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :OLD.CODPROD));
+                                                                          WHERE CODPRODMP = :OLD.CODPROD));*/
     
   /*IF (UPDATING) AND (:NEW.CODTRIBPISCOFINS <> :OLD.CODTRIBPISCOFINS) THEN
 
@@ -146,14 +146,14 @@ BEGIN
     UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
     WHERE CODPROD = :OLD.CODPROD;
 
-    UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+    /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
     WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                             FROM PCFORMPROD 
                                                                             WHERE CODPRODMP = :OLD.CODPROD));
     UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
     WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                             FROM PCFORMPROD 
-                                                                            WHERE CODPRODMP = :OLD.CODPROD));                                                                            
+                                                                            WHERE CODPRODMP = :OLD.CODPROD));  */                                                                          
 END; 
   
 \
@@ -300,11 +300,11 @@ BEGIN
   :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
 
   /*Trazer todos os registros de cesta porque na 561 a politica pode ser criado sem ser informado um produto*/
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
 
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
+  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 END; 
 
 \
@@ -318,11 +318,11 @@ BEGIN
   --:NEW.DTALTERC5 := CURRENT_TIMESTAMP;
 
   /*Trazer todos os registros de cesta porque na 561 a politica pode ser criado sem ser informado um produto*/
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
 
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
+  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 END; 
 
 \
@@ -338,14 +338,14 @@ BEGIN
   /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
                                                                           WHERE CODPRODMP = :OLD.CODPROD));
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :OLD.CODPROD));                                                                          
+                                                                          WHERE CODPRODMP = :OLD.CODPROD));*/                                                                          
 END; 
 
 \
@@ -361,10 +361,10 @@ BEGIN
   /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :NEW.CODPROD));
+                                                                          WHERE CODPRODMP = :NEW.CODPROD));*/
 END; 
 
 \
@@ -381,11 +381,11 @@ BEGIN
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 
   /*Trazer todos os registros de cesta porque nao existe referencia de produto nessa tabela*/
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
 
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
+  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 END; 
 
 \
@@ -401,14 +401,14 @@ BEGIN
   /*UPDATE PCEMBALAGEM SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODAUXILIAR = :OLD.CODAUXILIAR;*/
 
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
                                                                           WHERE CODPRODMP = :OLD.CODPROD));
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :OLD.CODPROD));                                                                          
+                                                                          WHERE CODPRODMP = :OLD.CODPROD)); */                                                                         
 END; 
 
 \
@@ -444,11 +444,11 @@ BEGIN
   :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
 
   /*Trazer todos os registros de cesta porque nao existe referencia de produto nessa tabela*/
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
 
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
+  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
 END; 
 
 \
@@ -461,7 +461,7 @@ REFERENCING NEW AS NEW OLD AS OLD
 BEGIN
   :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
 
-  UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
+ /* UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
                                                                           WHERE CODPRODMP = :OLD.CODPROD));
@@ -469,7 +469,7 @@ BEGIN
   UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :OLD.CODPROD));                                                                          
+                                                                          WHERE CODPRODMP = :OLD.CODPROD));*/                                                                          
 END;
 
 \
