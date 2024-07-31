@@ -769,7 +769,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                       DECODE(NVL(PCNFSAID.FINALIDADENFE, 'N'), 'C', NVL(PCMOV.VLIPI,0), ((ROUND(NVL(PCMOV.VLIPI,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT))
                 END -
                 --Na nfe 4.0 o ipiDevol compoe o valor total da nota, e por isso deve ser subtraido do valor do produto
-                CASE WHEN ((PCMOV.CODOPER = 'SD') AND ((SELECT SUBSTR(VERSAO,1,3) FROM PCVERSAOBD WHERE UPPER(ROTINA) = 'SERVIDORNFE310') = '1.3')) THEN
+                CASE WHEN (PCMOV.CODOPER = 'SD') THEN
                      (NVL(PCMOV.VLDESPDENTRONF,0) -
                       DECODE(NVL(PCMOVCOMPLE.VLIPIDEVFORNEC, 0),
                             0,
@@ -2614,7 +2614,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                       DECODE(NVL(PCNFSAIDPREFAT.FINALIDADENFE, 'N'), 'C', NVL(PCMOVPREFAT.VLIPI,0), ((ROUND(NVL(PCMOVPREFAT.VLIPI,0) * PCMOVPREFAT.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOVPREFAT.QTCONT))
                 END -
                  --Na nfe 4.0 o ipiDevol compoe o valor total da nota, e por isso deve ser subtraido do valor do produto
-                CASE WHEN ((PCMOVPREFAT.CODOPER = 'SD') AND ((SELECT SUBSTR(VERSAO,1,3) FROM PCVERSAOBD WHERE UPPER(ROTINA) = 'SERVIDORNFE310') = '1.3')) THEN
+                CASE WHEN (PCMOVPREFAT.CODOPER = 'SD') THEN
                      (NVL(PCMOVPREFAT.VLDESPDENTRONF,0) -
                       DECODE(NVL(PCMOVCOMPLEPREFAT.VLIPIDEVFORNEC, 0),
                             0,
