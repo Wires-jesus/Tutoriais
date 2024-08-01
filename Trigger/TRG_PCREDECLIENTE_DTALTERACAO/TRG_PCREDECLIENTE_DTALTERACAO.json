@@ -1,6 +1,5 @@
 {
   "nome":"TRG_PCREDECLIENTE_DTALTERACAO",
   "tipoPLSQL":"TRIGGER",
-  "dependencias":{
-  }
+  "dependencias":""
 }
