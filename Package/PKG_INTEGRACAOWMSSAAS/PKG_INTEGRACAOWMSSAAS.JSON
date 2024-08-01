@@ -1,0 +1,17 @@
+{
+	"nome":"PKG_INTEGRACAOWMSSAAS",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias":
+	[
+	   {
+		  "nome": "PCINTEGRACAOWMSSAAS",
+		  "tipo": "TABELA",
+		  "versao": "6.0.01.000"
+	   },
+	   {
+		  "nome": "PCINTEGRACAOWMSSAASITEM",
+		  "tipo": "TABELA",
+		  "versao": "6.0.01.000"
+	   }
+	]
+}
