@@ -2,8 +2,5 @@
   "nome":"TRG_PCREDECLIENTE_DTALTERACAO",
   "tipoPLSQL":"TRIGGER",
   "dependencias":{
-    "nome": "PCREDECLIENTE",
-    "tipo": "TABELA",
-    "versao": "6.0.01.000"
   }
 }
