@@ -171,6 +171,11 @@
       "nome": "VIEW_MED_PROMOCAO_DESC_HYPER",
       "tipo": "OBJETO_PLSQL",
       "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCCONFIGSISTCONDOPERLOG",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
     }
   ]
 }
