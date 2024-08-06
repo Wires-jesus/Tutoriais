@@ -16380,7 +16380,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          nVALORCOTAMED                 PCDESCONTO.VALORCOTAMED%TYPE,
          vCODIGOINTEGRACAOWMS          PCDESCONTO.CODIGOINTEGRACAOWMS%TYPE,
          nVLDESCCMVPROMOCAOMED         PCDESCONTO.VLDESCCMVPROMOCAOMED%TYPE,
-         nREGRAALTERARDESCONTO         PCDESCONTO.REGRAALTERARDESCONTO%TYPE
+         nREGRAALTERARDESCONTO         PCDESCONTO.REGRAALTERARDESCONTO%TYPE,
+         nQTCOMBOMED                   PCDESCONTO.QTCOMBOMED%TYPE
          );
     vrDESCONTO                         TRecDESCONTO;
     -- Dados da Promoção
@@ -16992,6 +16993,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
+                          , QTCOMBOMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -17047,6 +17049,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
+                          , vrDESCONTO.nQTCOMBOMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Depto - EDTPRM
@@ -17079,6 +17082,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                       , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODEPTO                           = vrDESCONTO.nCODEPTO)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -17260,6 +17264,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               --
                               , TIPOVENDA
                               , REGRAALTERARDESCONTO
+                              , QTCOMBOMED
                               )
                        VALUES ( vnNovoCodDesconto
                               , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -17316,6 +17321,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               --
                               , vrDESCONTO.vTIPOVENDA
                               , vrDESCONTO.nREGRAALTERARDESCONTO
+                              , vrDESCONTO.nQTCOMBOMED
                               );
 
                   -- Altera na PCDESCONTO o Desconto da Seção - EDTPRM
@@ -17348,6 +17354,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                          , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO                         
+                         , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (NVL(CODEPTO,0)                    = NVL(vrDESCONTO.nCODEPTO,0))
                        AND (CODSEC                            = vrDESCONTO.nCODSEC)
@@ -17543,6 +17550,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               --
                               , TIPOVENDA
                               , REGRAALTERARDESCONTO
+                              , QTCOMBOMED
                               )
                        VALUES ( vnNovoCodDesconto
                               , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -17599,6 +17607,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               --
                               , vrDESCONTO.vTIPOVENDA
                               , vrDESCONTO.nREGRAALTERARDESCONTO
+                              , vrDESCONTO.nQTCOMBOMED
                               );
 
                   -- Altera na PCDESCONTO o Desconto da Categoria - EDTPRM
@@ -17631,6 +17640,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                          , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                         , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (NVL(CODSEC,0)                     = NVL(vrDESCONTO.nCODSEC,0))
                        AND (CODCATEGORIA                      = vrDESCONTO.nCODCATEGORIA)
@@ -17797,6 +17807,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
+                          , QTCOMBOMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -17852,6 +17863,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
+                          , vrDESCONTO.nQTCOMBOMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Fornecedor - EDTPRM
@@ -17884,6 +17896,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                       , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODFORNEC                         = vrDESCONTO.nCODFORNEC)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -18043,6 +18056,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
+                          , QTCOMBOMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18098,6 +18112,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
+                          , vrDESCONTO.nQTCOMBOMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto da Marca - EDTPRM
@@ -18130,6 +18145,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                       , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODMARCA                          = vrDESCONTO.nCODMARCA)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -18232,9 +18248,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- Insere na PCDESCONTO o Desconto da Linha
                 IF    (vrEditarPromocao.vvAcaoEditaLinha = 'I') THEN
 
-                -- Insere na PCDESCONTO o Desconto da Linha de Produto
-                vnNovoCodDesconto := FOBTEM_PROX_CODDESCONTO;
-                INSERT INTO PCDESCONTO
+                  -- Insere na PCDESCONTO o Desconto da Linha de Produto
+                  vnNovoCodDesconto := FOBTEM_PROX_CODDESCONTO;
+                  INSERT INTO PCDESCONTO
                           ( CODDESCONTO
                           , CODPROMOCAOMED
                           , DTINICIO
@@ -18289,6 +18305,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
+                          , QTCOMBOMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18344,6 +18361,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           --
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
+                          , vrDESCONTO.nQTCOMBOMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto da Linha - EDTPRM
@@ -18376,6 +18394,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                       , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODLINHAPROD                      = vrDESCONTO.nCODLINHAPROD)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -18541,6 +18560,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , TIPOVENDA
                           , VLDESCCMVPROMOCAOMED
                           , REGRAALTERARDESCONTO
+                          , QTCOMBOMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18598,6 +18618,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nVLDESCCMVPROMOCAOMED
                           , vrDESCONTO.nREGRAALTERARDESCONTO
+                          , vrDESCONTO.nQTCOMBOMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Grupo de Produtos - EDTPRM
@@ -18630,6 +18651,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , CODIGOINTEGRACAOWMS        = vrDESCONTO.vCODIGOINTEGRACAOWMS
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                       , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (TIPOGRUPOREST                     = vrDESCONTO.vTIPOGRUPOREST)
                      AND (CODGRUPOREST                      = vrDESCONTO.nCODGRUPOREST)
@@ -18717,10 +18739,16 @@ IS PRAGMA SERIALLY_REUSABLE;
                 FROM PCMED_PROMOCAOPRODUTO_FAIXA
                WHERE (CODPRODREF = vrDESCONTO.nCODPROD);
               -- Sem Campo de Controle de Item Obrigatório
-              vvObrigatorio     := NULL;
-              vnQtdeObrigatorio := NULL;
-              -- Sem Campo de Controle de Qtde KIT
-              vnQtdeKit         := NULL;
+              
+              vnQtdeObrigatorio              := NULL;
+              IF vvTipoPromocao = 'K' THEN 
+                vvPermitirAumentarQtdeKit_Prod := vtPCMED_PROMOCAOPRODUTO(idxProduto).PERMITIRAUMENTARQTDEKIT;
+                vvObrigatorio                  := vtPCMED_PROMOCAOPRODUTO(idxProduto).OBRIGATORIO;
+                vnQtdeKit                      := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTKIT;
+              ELSE
+                vvObrigatorio     := NULL;
+                vnQtdeKit         := NULL;
+              END IF;
 
             END IF;
 
@@ -18778,13 +18806,20 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := NULL;
                   END IF;
                 -- Se Controla Qtde. KIT  (Promoção por Combo Virtual - KIT) ou Promo Casadinha [HIS.01151.2015]
-                ELSIF (vvTipoPromocao in ('K','S')) THEN
+                ELSIF (vvTipoPromocao in ('K')) THEN
+                  vrDESCONTO.vOBRIGATORIO                := vvObrigatorio;
+                  if (vvTipoPolitica in ('Q', 'V')) then
+                    vrDESCONTO.nQTCOMBOMED := vnQtdeKit;  
+                    --vrDESCONTO.nINICIOINTERVALOPROMOCAOMED := null;
+                    --vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := null;
+                  else
+                    vrDESCONTO.nQTCOMBOMED := null;
+                    vrDESCONTO.nINICIOINTERVALOPROMOCAOMED := vnQtdeKit;
+                    vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := vnQtdeKit;
+                  end if;
+                ELSIF (vvTipoPromocao in ('S')) THEN
                   vrDESCONTO.nINICIOINTERVALOPROMOCAOMED := vnQtdeKit;
                   vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := vnQtdeKit;
-                  -- Se Kit, grava o campo OBRIGATORIO HIS.04456.2015
-                  IF (vvTipoPromocao = 'K') THEN
-                    vrDESCONTO.vOBRIGATORIO                := vvObrigatorio;
-                  END IF;
                 -- Promoção por Lote não terá Inicio e Fim do Intervalo, ignora valores usados somente como indexadores na 2323
                 ELSIF (vvTipoPromocao IN ('L')) THEN
                   vrDESCONTO.nINICIOINTERVALOPROMOCAOMED  := NULL;
@@ -18886,6 +18921,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             --
                             , VLDESCCMVPROMOCAOMED
                             , REGRAALTERARDESCONTO                            
+                            , QTCOMBOMED
                             )
                      VALUES ( vnNovoCodDesconto
                             , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18950,6 +18986,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             --
                             , vrDESCONTO.nVLDESCCMVPROMOCAOMED
                             , vrDESCONTO.nREGRAALTERARDESCONTO
+                            , vrDESCONTO.nQTCOMBOMED
                             );
 
                 -- Altera na PCDESCONTO o Desconto do Produto - EDTPRM
@@ -18987,6 +19024,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , PERMITIRAUMENTARQTDEKITMED = vvPermitirAumentarQtdeKit_Prod
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                         , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD);                  
                   -- Promoções de Lote
@@ -19021,6 +19059,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , PERMITIRAUMENTARQTDEKITMED = vvPermitirAumentarQtdeKit_Prod
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
+                         , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD)
                        AND (NUMLOTE                           = vrDESCONTO.vNUMLOTE); 
@@ -19055,6 +19094,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , PERMITIRAUMENTARQTDEKITMED = vvPermitirAumentarQtdeKit_Prod
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO                         
+                         , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD)
                        AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -19466,6 +19506,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , CODIGOINTEGRACAOWMS
                 , VLDESCCMVPROMOCAOMED
                 , REGRAALTERARDESCONTO
+                , QTCOMBOMED
                 )
            SELECT CODDESCONTO
                 , CODCLI
@@ -19537,6 +19578,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , CODIGOINTEGRACAOWMS
                 , VLDESCCMVPROMOCAOMED
                 , REGRAALTERARDESCONTO
+                , QTCOMBOMED
              FROM PCDESCONTO
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
