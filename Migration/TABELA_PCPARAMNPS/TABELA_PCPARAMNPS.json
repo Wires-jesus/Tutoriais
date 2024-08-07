@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_PCPARAMNPS",
+ "tipoPLSQL":"MIGRATION",
+  "dependencias":[
+    {
+      "nome": "PCPARAMNPS",
+      "tipo": "TABELA",
+      "versao": "XX.XX.XX.XX"
+    }
+  ]
+}
