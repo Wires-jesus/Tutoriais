@@ -339,24 +339,6 @@ END;
 
 \
 
-CREATE OR REPLACE TRIGGER trg_c5_dt_desc561LOG
- BEFORE INSERT OR UPDATE
-        ON pcdescontolog
-REFERENCING NEW AS NEW OLD AS OLD
- FOR EACH ROW
-BEGIN
-  --:NEW.DTALTERC5 := CURRENT_TIMESTAMP;
-
-  /*Trazer todos os registros de cesta porque na 561 a politica pode ser criado sem ser informado um produto*/
-  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);
-
-  UPDATE PCTABPR SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
-END; 
-
-\
-
 CREATE OR REPLACE TRIGGER trg_c5_dt_pcprecoprom
  BEFORE INSERT OR UPDATE
         ON pcprecoprom
@@ -376,25 +358,6 @@ BEGIN
   WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
                                                                           FROM PCFORMPROD 
                                                                           WHERE CODPRODMP = :OLD.CODPROD));*/                                                                          
-END; 
-
-\
-
-CREATE OR REPLACE TRIGGER trg_c5_dt_precopromLOG
- BEFORE INSERT OR UPDATE
-        ON pcprecopromlog
-REFERENCING NEW AS NEW OLD AS OLD
- FOR EACH ROW
-BEGIN
- -- :NEW.DTALTERC5 := CURRENT_TIMESTAMP;
-
-  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD);*/
-
-  /*UPDATE PCPRODUT SET DTALTERC5 = CURRENT_TIMESTAMP
-  WHERE CODPROD IN (SELECT CODPRODMP FROM PCFORMPROD WHERE CODPRODACAB IN(SELECT CODPRODACAB 
-                                                                          FROM PCFORMPROD 
-                                                                          WHERE CODPRODMP = :NEW.CODPROD));*/
 END; 
 
 \
