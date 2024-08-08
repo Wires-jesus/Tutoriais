@@ -170,7 +170,7 @@
     {
       "nome": "VIEW_MED_PROMOCAO_DESC_HYPER",
       "tipo": "OBJETO_PLSQL",
-      "versao": "6.0.01.000"
+      "versao": "6.0.02.000"
     },
     {
       "nome": "PCCONFIGSISTCONDOPERLOG",
