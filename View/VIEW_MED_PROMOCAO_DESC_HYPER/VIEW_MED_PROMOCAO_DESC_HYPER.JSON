@@ -10,7 +10,7 @@
     {
       "nome": "PCDESCONTO",
       "tipo": "TABELA",
-      "versao": "5.0.01.000"
+      "versao": "6.0.01.000"
     },
     {
       "nome": "VIEW_MED_PROMOCAO",
