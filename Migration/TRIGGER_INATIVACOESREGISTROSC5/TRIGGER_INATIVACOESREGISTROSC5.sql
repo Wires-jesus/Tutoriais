@@ -61,12 +61,13 @@ BEGIN
           MERGE INTO PCINATIVACAOEMBALAGEMC5 P 
           USING (
               SELECT
-                :OLD.CODFILIAL                                  NROEMPRESA,
+                F.CODFILIALINTEGRACAO                           NROEMPRESA,
                 1                                               NROSEGMENTO,
                 VSEQPRODUTO                                     SEQPRODUTO,
                 LEAST(NVL(:OLD.QTMINIMAATACADO, 1), 999999.999) QTDEMBALAGEM
               FROM
-                DUAL
+                PCFILIAL F
+			  WHERE F.CODIGO = :OLD.CODFILIAL
           ) T 
           ON ( P.NROEMPRESA = T.NROEMPRESA
             AND P.NROSEGMENTO = T.NROSEGMENTO
@@ -130,7 +131,7 @@ BEGIN
                         VSEQPRODUTO SEQPRODUTO,
                         LEAST(NVL(:OLD.QTMINIMAATACADO, 1), 999999.999) QTDEMBALAGEM
                    FROM PCFILIAL F
-				   WHERE F.CODFILIAL = :OLD.CODFILIAL) T
+				   WHERE F.CODIGO = :OLD.CODFILIAL) T
           ON (P.NROEMPRESA = T.NROEMPRESA AND P.NROSEGMENTO = T.NROSEGMENTO AND P.SEQPRODUTO = T.SEQPRODUTO AND P.QTDEMBALAGEM = T.QTDEMBALAGEM)
           WHEN NOT MATCHED THEN
             INSERT
