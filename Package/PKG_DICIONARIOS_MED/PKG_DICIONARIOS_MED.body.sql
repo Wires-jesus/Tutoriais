@@ -17254,6 +17254,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtQTMAXCOMBOMED_AUX          TT_NUMBER;
     vtCODLIBERACAOCANAIS_AUX     TT_NUMBER;
     vtCODREFERENCIA_AUX          TT_VARCHAR2;
+    vtQTCOMBOMED_AUX             TT_NUMBER;
     --
     vtCODPROMOCAOMED             TT_NUMBER;
     vtDESCRICAORESUMIDA          TT_VARCHAR2;
@@ -17294,6 +17295,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtNUMREGIAO                  TT_NUMBER;
     vtUF_REGIAO                  TT_VARCHAR2;
     vtQTMAXCOMBOMED_REGIAO       TT_NUMBER;
+    vtQTCOMBOMED                 TT_NUMBER;
     -- Campanha
     vnQtdeMinima                 NUMBER;
     vnFaixaInicial               NUMBER;
@@ -17570,6 +17572,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
                       , VIEW_MED_PROMOCAO.CODLIBERACAOCANAIS
                       , VIEW_MED_PROMOCAO.CODREFERENCIA
+                      , VIEW_MED_PROMOCAO_DESC_HYPER.QTCOMBOMED
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17650,6 +17653,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , VIEW_MED_PROMOCAO.QTMAXCOMBOMED
                       , VIEW_MED_PROMOCAO.CODLIBERACAOCANAIS
                       , VIEW_MED_PROMOCAO.CODREFERENCIA
+                      , VIEW_MED_PROMOCAO_DESC_HYPER.QTCOMBOMED
                    FROM PCCONFIGSISTMARCAOPERLOG
                       , VIEW_MED_PROMOCAO
                       , VIEW_MED_PROMOCAO_FILIAL
@@ -17718,7 +17722,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , vtQTMINCOMBOLIBMED_AUX
                         , vtQTMAXCOMBOMED_AUX
                         , vtCODLIBERACAOCANAIS_AUX
-                        , vtCODREFERENCIA_AUX;
+                        , vtCODREFERENCIA_AUX
+                        , vtQTCOMBOMED_AUX;
     EXCEPTION
       WHEN OTHERS THEN
         RAISE e_View;
@@ -17775,6 +17780,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
               vtCODLIBERACAOCANAIS(viIdxProxItem)         := vtCODLIBERACAOCANAIS_AUX(viIdxPromocao);
               vtCODREFERENCIA(viIdxProxItem)              := vtCODREFERENCIA_AUX(viIdxPromocao);
+              vtQTCOMBOMED(viIdxProxItem)                 := vtQTCOMBOMED_AUX(viIdxPromocao);
             -- Se a primeira faixa iniciar no valor 1, somente puxa a quantidade inicial para zero
             ELSE
 
@@ -17821,7 +17827,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vtQTMAXCOMBOMED(viIdxProxItem)              := vtQTMAXCOMBOMED_AUX(viIdxPromocao);
         vtCODLIBERACAOCANAIS(viIdxProxItem)         := vtCODLIBERACAOCANAIS_AUX(viIdxPromocao);
         vtCODREFERENCIA(viIdxProxItem)              := vtCODREFERENCIA_AUX(viIdxPromocao);
-              
+        vtQTCOMBOMED(viIdxProxItem)                 := vtQTCOMBOMED_AUX(viIdxPromocao);      
       END LOOP;
 
     END IF;
@@ -18465,8 +18471,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   
             -- Registro de Produtos da Campanha - Promoção de Kit/Mix/Valor e Faixa de Quantidade
             IF (vvArquivoCondicao = 'CAMPANHA') THEN
-              IF (vtTIPOPROMOCAO(viIdxPromocao) IN ('K','M','V')) THEN
+              
+              IF (vtTIPOPROMOCAO(viIdxPromocao) IN ('M','V')) THEN                
                 vnQtdeMinima := vtINICIOINTERVALOPROMOCAOMED(viIdxPromocao);
+              ELSIF (vtTIPOPROMOCAO(viIdxPromocao) IN ('K')) THEN
+                IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','V')) THEN  
+                  vnQtdeMinima := vtQTCOMBOMED(viIdxPromocao);
+                ELSE
+                  vnQtdeMinima := vtINICIOINTERVALOPROMOCAOMED(viIdxPromocao);
+                END IF;
               ELSE
                 vnQtdeMinima := 0;
               END IF;
