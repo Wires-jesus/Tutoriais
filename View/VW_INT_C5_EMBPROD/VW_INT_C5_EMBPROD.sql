@@ -97,7 +97,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             f.cnpjfabricante,
             e.dtalterc5,
             p.codauxiliartrib,
-            0 CODCEST 
+            0 CODCEST,
+            e.QTMAXVENDA,			
        FROM pcembalagem e,
             pcprodut p
             LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'),    
@@ -117,6 +118,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
+			 or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA')
              ) DTPADRAO
       WHERE p.codprod = e.codprod
         AND e.codprod = f.codprod
@@ -224,7 +226,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         PF.CNPJFABRICANTE,
         TPR.DTALTERC5,
         P.CODAUXILIARTRIB,
-        0 CODCEST --PROVISORIO  
+        0 CODCEST, --PROVISORIO,
+        E.QTMAXVENDA,		
    FROM PCTABPR TPR
   INNER JOIN PCEMBALAGEM E
      ON (E.CODPROD = TPR.CODPROD)
@@ -259,7 +262,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')   
              OR (UPPER(S.OBJETOREFERENCIA) =
-                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR'))
+                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
+			 OR (UPPER(S.OBJETOREFERENCIA) =
+                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA')	)
   DTPADRAO, (SELECT VALOR MARCAPADRAO
            FROM PCPARAMFILIAL
           WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
