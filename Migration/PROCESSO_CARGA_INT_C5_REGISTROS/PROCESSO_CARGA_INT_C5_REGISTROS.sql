@@ -327,6 +327,27 @@ values (64, 'tb_precoapartirsegmento')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (65, 'tb_precoapartirproduto')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (66, 'tb_limitevenda')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (67, 'tb_limitevendaperiodo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (68, 'tb_limitevendaempresa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (69, 'tb_limitevendafamilia')
+
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -648,3 +669,23 @@ VALUES (64, 64, 'Sincronização de tabela TB_PRECOAPARTIRSEGMENTO', TRUNC(SYSDA
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 VALUES (65, 65, 'Sincronização de tabela TB_PRECOAPARTIRPRODUTO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precoapartirproduto', 65, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (66, 66, 'Sincronização de tabela TB_LIMITEVENDA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_LIMITEVENDA', 66, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (67, 67, 'Sincronização de tabela TB_LIMITEVENDAPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_LIMITEVENDAPERIODO', 67, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (68, 68, 'Sincronização de tabela TB_LIMITEVENDAEMPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_LIMITEVENDAEMPRESA', 68, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (69, 69, 'Sincronização de tabela TB_LIMITEVENDAFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_LIMITEVENDAFAMILIA', 69, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
