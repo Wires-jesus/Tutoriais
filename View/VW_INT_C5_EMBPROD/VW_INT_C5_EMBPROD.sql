@@ -98,7 +98,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.dtalterc5,
             p.codauxiliartrib,
             0 CODCEST,
-            e.QTMAXVENDA,			
+            e.QTMAXVENDA			
        FROM pcembalagem e,
             pcprodut p
             LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'),    
@@ -227,7 +227,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         TPR.DTALTERC5,
         P.CODAUXILIARTRIB,
         0 CODCEST, --PROVISORIO,
-        E.QTMAXVENDA,		
+        E.QTMAXVENDA		
    FROM PCTABPR TPR
   INNER JOIN PCEMBALAGEM E
      ON (E.CODPROD = TPR.CODPROD)
