@@ -4903,6 +4903,8 @@ BEGIN
   END;
 END;
 
+
+
 PROCEDURE CARREGA_TB_PRECOAPARTIRPRODUTO(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
 BEGIN
   UPDATE MONITORPDVMIDDLE.TB_PRECOAPARTIRPRODUTO 
@@ -4967,6 +4969,256 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_TB_PRECOAPARTIRPRODUTO',
            'carrega_TB_PRECOAPARTIRPRODUTO ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+
+
+
+
+PROCEDURE carrega_tb_limitevenda(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+
+  MERGE INTO MONITORPDVMIDDLE.TB_LIMITEVENDA TB_LIMITEVENDA
+    USING (SELECT SEQLIMITEVENDA , DESCRICAO , ATIVO  FROM VW_INT_C5_LIMITEVENDA WHERE ROWNUM = 1 ) T
+    ON (TB_LIMITEVENDA.SEQLIMITEVENDA = T.SEQLIMITEVENDA)
+  WHEN MATCHED THEN
+    UPDATE SET
+      TB_LIMITEVENDA.DESCRICAO = T.DESCRICAO,
+      TB_LIMITEVENDA.ATIVO = T.ATIVO
+
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_LIMITEVENDA.SEQLIMITEVENDA,
+      TB_LIMITEVENDA.DESCRICAO,
+      TB_LIMITEVENDA.ATIVO
+    )
+    VALUES(
+      T.SEQLIMITEVENDA,
+      T.DESCRICAO,
+      T.ATIVO
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_LIMITEVENDA', 'TB_LIMITEVENDA OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDA',
+           'carrega_TB_LIMITEVENDA ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDA',
+           'carrega_TB_LIMITEVENDA ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_limitevendaperiodo(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+
+  MERGE INTO MONITORPDVMIDDLE.TB_LIMITEVENDAPERIODO TB_LIMITEVENDAPERIODO
+    USING (SELECT SEQLIMITEVENDA , DTAHORINICIO , DTAHORFIM ,ATIVO  FROM VW_INT_C5_LIMITEVENDA WHERE ROWNUM = 1) T
+    ON (TB_LIMITEVENDAPERIODO.SEQLIMITEVENDA = T.SEQLIMITEVENDA)
+  WHEN MATCHED THEN
+    UPDATE SET
+      TB_LIMITEVENDAPERIODO.DTAHORINICIO = T.DTAHORINICIO, 
+      TB_LIMITEVENDAPERIODO.DTAHORFIM = T.DTAHORFIM,
+      TB_LIMITEVENDAPERIODO.ATIVO = T.ATIVO
+
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_LIMITEVENDAPERIODO.SEQLIMITEVENDA,
+      TB_LIMITEVENDAPERIODO.DTAHORINICIO,
+      TB_LIMITEVENDAPERIODO.DTAHORFIM,
+      TB_LIMITEVENDAPERIODO.ATIVO
+    )
+    VALUES(
+      T.SEQLIMITEVENDA,
+      T.DTAHORINICIO,
+      T.DTAHORFIM,
+      T.ATIVO
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_LIMITEVENDAPERIODO', 'TB_LIMITEVENDAPERIODO OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAPERIODO',
+           'carrega_TB_LIMITEVENDAPERIODO ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAPERIODO',
+           'carrega_TB_LIMITEVENDAPERIODO ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_limitevendaempresa(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+
+
+  MERGE INTO MONITORPDVMIDDLE.TB_LIMITEVENDAEMPRESA TB_LIMITEVENDAEMPRESA
+    USING (SELECT SEQLIMITEVENDA , NROEMPRESA ,ATIVO  FROM VW_INT_C5_LIMITEVENDA) T
+    ON (TB_LIMITEVENDAEMPRESA.SEQLIMITEVENDA = T.SEQLIMITEVENDA AND TB_LIMITEVENDAEMPRESA.NROEMPRESA = T.NROEMPRESA)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      TB_LIMITEVENDAEMPRESA.NROEMPRESA = T.NROEMPRESA,
+      TB_LIMITEVENDAEMPRESA.ATIVO = T.ATIVO
+
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_LIMITEVENDAEMPRESA.SEQLIMITEVENDA,
+      TB_LIMITEVENDAEMPRESA.NROEMPRESA,
+      TB_LIMITEVENDAEMPRESA.ATIVO
+    )
+    VALUES(
+      T.SEQLIMITEVENDA,
+      T.NROEMPRESA,
+      T.ATIVO
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_LIMITEVENDAEMPRESA', 'TB_LIMITEVENDAEMPRESA OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAEMPRESA',
+           'carrega_TB_LIMITEVENDAEMPRESA ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAEMPRESA',
+           'carrega_TB_LIMITEVENDAEMPRESA ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_limitevendafamilia(P_ID IN PCCONTROLECONSINCO.ID%TYPE) AS
+BEGIN
+
+  MERGE INTO MONITORPDVMIDDLE.TB_LIMITEVENDAFAMILIA TB_LIMITEVENDAFAMILIA
+    USING (SELECT SEQLIMITEVENDA, SEQFAMILIA, QTDLIMITE, ATIVO FROM VW_INT_C5_LIMITEVENDAFAMILIA) T
+    ON (TB_LIMITEVENDAFAMILIA.SEQLIMITEVENDA = T.SEQLIMITEVENDA AND TB_LIMITEVENDAFAMILIA.SEQFAMILIA = T.SEQFAMILIA)
+  WHEN MATCHED THEN
+    UPDATE SET
+      TB_LIMITEVENDAFAMILIA.QTDLIMITE = T.QTDLIMITE, 
+      TB_LIMITEVENDAFAMILIA.ATIVO = T.ATIVO
+
+  WHEN NOT MATCHED THEN
+    INSERT(
+      TB_LIMITEVENDAFAMILIA.SEQLIMITEVENDA,
+      TB_LIMITEVENDAFAMILIA.SEQFAMILIA,
+      TB_LIMITEVENDAFAMILIA.QTDLIMITE,
+      TB_LIMITEVENDAFAMILIA.ATIVO
+    )
+    VALUES(
+      T.SEQLIMITEVENDA,
+      T.SEQFAMILIA,
+      T.QTDLIMITE,
+      T.ATIVO
+    );
+   
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_TB_LIMITEVENDAFAMILIA', 'TB_LIMITEVENDAFAMILIA OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAFAMILIA',
+           'carrega_TB_LIMITEVENDAFAMILIA ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_TB_LIMITEVENDAFAMILIA',
+           'carrega_TB_LIMITEVENDAFAMILIA ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;

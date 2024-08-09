@@ -65,7 +65,7 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.03.000"
+			"versao": "6.0.04.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
@@ -376,6 +376,16 @@
 		  "nome": "PROCESSO_INT_C5_INDICES",
 		  "tipo": "MIGRATION",
 		  "versao": "4.0.01.000"
-		}		
+		},
+        {
+		  "nome": "VW_INT_C5_LIMITEVENDAFAMILIA",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "VW_INT_C5_LIMITEVENDA",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "6.0.01.000"
+		}
 	]
 }
