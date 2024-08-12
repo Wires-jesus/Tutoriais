@@ -1,9 +1,9 @@
 {
-  "nome":"TRG_PCREDECLIENTE_DTALTERACAO",
+  "nome":"TRG_PCATIVI_DTALTERACAO",
   "tipoPLSQL":"TRIGGER",
-  "dependencias": [
+  "dependencias":[
     {
-      "nome": "PCREDECLIENTE",
+      "nome": "PCATIVI",
       "tipo": "TABELA",
       "versao": "6.0.01.000"
     }
