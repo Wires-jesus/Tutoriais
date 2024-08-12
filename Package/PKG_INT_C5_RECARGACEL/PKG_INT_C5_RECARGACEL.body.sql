@@ -104,30 +104,37 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
              p.nomecarteiradigital AS "Nomecarteiradigital",
              p.carteiradigital AS "Carteiradigital"
        FROM VW_INT_C5_RECARGACEL a,
-            vw_int_c5_pcprestecf p
-       WHERE a.seqdocto = p.seqdocto
+            vw_int_c5_pcprestecf p,
+            VW_INT_C5_OBTER_FILIAIS_C5 C5
+       WHERE a.NROEMPRESA = C5.CODFILIALINTEGRACAO
+       AND   p.codfilial = C5.CODFILIALINTEGRACAO
+       AND   a.seqdocto = p.seqdocto
        AND   a.NROCHECKOUT = p.numcheckout
        AND   a.NROEMPRESA = p.codfilial 
-       AND  a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
-       AND  a.NROCHECKOUT = DECODE(p_nrocheckout, 0, a.seqdocto, p_nrocheckout)
-       AND  a.nroempresa = DECODE(p_nroempresa, 0, a.seqdocto, p_nroempresa)
+       AND   a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
+       AND   a.NROCHECKOUT = DECODE(p_nrocheckout, 0, a.seqdocto, p_nrocheckout)
+       AND   a.nroempresa = DECODE(p_nroempresa, 0, a.seqdocto, p_nroempresa)
        AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
                 WHERE M.SEQDOCTO = a.seqdocto
                   AND M.NUMCAIXA = a.NROCHECKOUT
-                  AND M.CODFILIAL = a.nroempresa
+                  --AND M.CODFILIAL = a.nroempresa
+                  AND M.CODFILIAL = c5.codfilial
                 UNION ALL
                  SELECT 1
                  FROM PCFILAMENSAGEMHISTORICO MH
                 WHERE MH.SEQDOCTO = a.seqdocto
                   AND MH.NUMCAIXA = TO_CHAR(a.NROCHECKOUT)
-                  AND MH.CODFILIAL = a.nroempresa
+                  --AND MH.CODFILIAL = a.nroempresa
+                  AND MH.CODFILIAL = c5.codfilial
                 UNION ALL
                  SELECT 1
                  FROM PCFILAMENSAGEMERRO ME
                 WHERE ME.SEQDOCTO = a.seqdocto
                   AND ME.NUMCAIXA = a.NROCHECKOUT
-                  AND ME.CODFILIAL = a.nroempresa);
+                  --AND ME.CODFILIAL = a.nroempresa
+                  AND ME.CODFILIAL = c5.codfilial
+                  );
 
     r_recargacel         c_recargacel%ROWTYPE;
     l_xmltype            XMLTYPE;
@@ -148,7 +155,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
         SELECT XMLELEMENT("DefinicaoRecarga",
                           XMLAGG(XMLELEMENT("Recarga",
                                             XMLFOREST(a.DTAHOREMISSAO AS "Data",
-                                                      a.NROEMPRESA AS "Codfilial",
+                                                      --a.NROEMPRESA AS "Codfilial",
+                                                      C5.CODFILIAL AS "Codfilial",
                                                       a.SEQUSUARIO AS "Codfunccx",
                                                       a.NROCHECKOUT AS "Numcaixa",
                                                       NULL AS "Codoperrecargacel",
@@ -186,7 +194,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                        p.dtvenc AS "Dtvenc",
                                        p.codcob AS "Codcob",
                                        p.dtemissao AS "Dtemissao",
-                                       p.codfilial AS "Codfilial",
+                                       --p.codfilial AS "Codfilial",
+                                       C5.codfilial AS "Codfilial",
                                        p.status AS "Status",
                                        p.codusur AS "Codusur",
                                        p.dtvencorig AS "Dtvencorig",
@@ -200,7 +209,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                        p.valororig AS "Valororig",
                                        p.codcoborig AS "Codcoborig",
                                        p.vltxboleto AS "Vltxboleto",
-                                       p.codfilialnf AS "Codfilialnf",
+                                       --p.codfilialnf AS "Codfilialnf",
+                                       C5.codfilial AS "Codfilialnf",
                                        p.numcontacorrente AS "Numcontacorrente",
                                        p.prest AS "Prest",
                                        p.numcar AS "Numcar",
@@ -264,8 +274,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                          --  )
            INTO l_xmltyperecarga
          FROM VW_INT_C5_RECARGACEL a,
-              vw_int_c5_pcprestecf p
-         WHERE a.seqdocto = p.seqdocto
+              vw_int_c5_pcprestecf p,
+              VW_INT_C5_OBTER_FILIAIS_C5 C5
+         WHERE a.NROEMPRESA = C5.CODFILIALINTEGRACAO
+         AND   p.codfilial = C5.CODFILIALINTEGRACAO
+         AND   a.seqdocto = p.seqdocto
          AND   a.NROCHECKOUT = p.numcheckout
          AND   a.NROEMPRESA = p.codfilial 
          AND   a.seqdocto  = p_recargacel.seqdocto
