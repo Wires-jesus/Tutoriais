@@ -496,8 +496,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                    NVL(PCMOV.PUNITCONT, 0)
                  END
                END AS VALOR_COMERCIAL
-              ,PCMOV.PUNITCONT - NVL(PCMOV.VLDESCONTO,
-                                     0) AS VALOR_LIQUIDO
+              ,PCMOV.PUNITCONT - NVL(PCMOV.VLDESCONTO, 0) +
+               --utilizado somente para equipe de medicamentos
+               (CASE WHEN PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO) = 'L' THEN
+                  NVL(PCMOVCOMPLE.VLDESCCOMERCIALICMISENCAO, 0)
+                ELSE 0 END) AS VALOR_LIQUIDO
               /*,CASE WHEN LENGTH(NVL(PCPRODUT.CODAUXILIARTRIB, '')) IN (NVL(PCPRODUT.GTINCODAUXILIARTRIB,0)) THEN
                       TO_CHAR(PCPRODUT.CODAUXILIARTRIB)
                     WHEN (LENGTH(PCPRODUT.CODAUXILIARTRIB) < NVL(PCPRODUT.GTINCODAUXILIARTRIB,0)) THEN
@@ -629,7 +632,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                           0,
                                                         NVL(PCMOV.PTABELA, 0) - DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT))), PCMOV.VLDESCONTO)) * PCMOV.QTCONT, 2)
                 ELSE
-                  ROUND((NVL(PCMOV.VLDESCONTO, 0) + DECODE(NVL(PCNFENT.TIPODESCARGA, ''), 'R', NVL(PCMOV.VLSUFRAMA, 0), 0)) * PCMOV.QTCONT,2)
+                  ROUND((NVL(PCMOV.VLDESCONTO, 0) + DECODE(NVL(PCNFENT.TIPODESCARGA, ''), 'R', NVL(PCMOV.VLSUFRAMA, 0), 0)) * PCMOV.QTCONT,2) +
+                  --utilizado somente para equipe de medicamentos
+                  ROUND(
+                    (CASE WHEN PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO) = 'L' THEN
+                      NVL(PCMOVCOMPLE.VLDESCCOMERCIALICMISENCAO, 0) * PCMOV.QTCONT
+                    ELSE 0 END), 2)
                 END AS VALOR_DESCONTO
               ,(NVL(PCMOV.PESOBRUTO,
                     0) * PCMOV.QTCONT) AS PESO_BRUTO
@@ -1507,8 +1515,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                 0))) +
                NVL(PCMOV.VLDESCPISSUFRAMA,
                     0) + NVL(PCMOV.VLDESCSUFRAMA,
-                              0) + NVL(PCMOV.VLDESCICMISENCAO,
-                                        0)) AS VALOR_LIQUIDO
+                              0) + NVL(PCMOV.VLDESCICMISENCAO, 0) +
+               --utilizado somente para equipe de medicamentos
+               (CASE WHEN PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO) = 'L' THEN
+                  NVL(PCMOVCOMPLE.VLDESCCOMERCIALICMISENCAO, 0)
+                ELSE 0 END) ) AS VALOR_LIQUIDO
               /*,CASE
                  WHEN LENGTH(NVL(PCPRODUT.CODAUXILIAR,
                                  '')) IN (8,
@@ -1725,7 +1736,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                  END
                             ELSE
                                  0
-                            END)
+                            END) +
+                          --utilizado somente para equipe de medicamentos
+                          (CASE WHEN PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO) = 'L' THEN
+                            NVL(PCMOVCOMPLE.VLDESCCOMERCIALICMISENCAO,0) * PCMOV.QTCONT
+                           ELSE 0 END)
                      ,2) AS VALOR_DESCONTO
               ,(NVL(PCMOV.PESOBRUTO,
                     0) * PCMOV.QTCONT) AS PESO_BRUTO
