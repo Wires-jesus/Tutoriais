@@ -4,8 +4,16 @@ SELECT
         D.SEQDOCTO,
         D.NROEMPRESA,
         D.NROCHECKOUT,
-        'R' TIPOOPERACAO,
-        'Recarga Celular '|| P.OPERADORA INFPRODUTO,
+        
+        CASE
+          WHEN D.ESPECIE = 'RP' THEN
+               'R' TIPOOPERACAO,
+               'Recarga Celular '|| P.OPERADORA 
+          ELSE     
+               'V' TIPOOPERACAO,
+               'Vale Gas '|| P.OPERADORA 
+        END) INFPRODUTO,
+
         PG.NSUTEF,
         P.VALOR,
         TO_CHAR(P.DTAHOREMISSAO, 'YYYY-MM-DD') DTAHOREMISSAO,
@@ -26,5 +34,5 @@ SELECT
  AND    PG.NROEMPRESA = P.NROEMPRESA
  AND    PG.NROCHECKOUT = P.NROCHECKOUT
  AND    D.REPLICACAO = 'P'
- AND    D.ESPECIE IN ('RP')
+ AND    D.ESPECIE IN ('RP', 'VG')
 )
