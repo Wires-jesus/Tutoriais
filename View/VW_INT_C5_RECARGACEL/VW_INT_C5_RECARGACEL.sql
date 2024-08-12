@@ -7,13 +7,16 @@ SELECT
         
         CASE
           WHEN D.ESPECIE = 'RP' THEN
-               'R' TIPOOPERACAO,
-               'Recarga Celular '|| P.OPERADORA 
-          ELSE     
-               'V' TIPOOPERACAO,
-               'Vale Gas '|| P.OPERADORA 
-        END) INFPRODUTO,
+               'R' 
+          ELSE 'V' 
+        END TIPOOPERACAO,
 
+        CASE
+          WHEN D.ESPECIE = 'RP' THEN
+               'Recarga Celular '|| P.OPERADORA 
+          ELSE 'Vale Gas '|| P.OPERADORA 
+        END INFPRODUTO,
+        
         PG.NSUTEF,
         P.VALOR,
         TO_CHAR(P.DTAHOREMISSAO, 'YYYY-MM-DD') DTAHOREMISSAO,
