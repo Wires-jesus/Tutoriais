@@ -5,6 +5,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
       SELECT defseq_numpedecf.NEXTVAL numpedecf,
              a.SEQDOCTO,
              a.NROEMPRESA,
+             C5.CODFILIAL CODFILIALWINTHOR,
              a.NROCHECKOUT,
              a.TIPOOPERACAO,
              'RP' ESPECIEPDV,
@@ -315,7 +316,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
 
       dados_pcfilamensagem.rowpcfilamensagem.idmensagem          := dfseq_pcfilamensagem.NEXTVAL;
       dados_pcfilamensagem.rowpcfilamensagem.datatransacao       := SYSDATE;
-      dados_pcfilamensagem.rowpcfilamensagem.codfilial           := r_recargacel.nroempresa;
+      dados_pcfilamensagem.rowpcfilamensagem.codfilial           := r_recargacel.CODFILIALWINTHOR;
       dados_pcfilamensagem.rowpcfilamensagem.numcaixa            := r_recargacel.NROCHECKOUT;
       dados_pcfilamensagem.rowpcfilamensagem.numnota             := r_recargacel.coo;
       dados_pcfilamensagem.rowpcfilamensagem.serie               := NULL;
