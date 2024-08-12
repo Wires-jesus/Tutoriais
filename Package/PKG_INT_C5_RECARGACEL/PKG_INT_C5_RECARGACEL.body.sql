@@ -8,7 +8,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
              C5.CODFILIAL CODFILIALWINTHOR,
              a.NROCHECKOUT,
              a.TIPOOPERACAO,
-             'RP' ESPECIEPDV,
+             
+             CASE
+               WHEN A.TIPOOPERACAO = 'R' THEN
+                    'RP' 
+               ELSE 'VG'
+             END ESPECIEPDV,
+             
              a.INFPRODUTO,
              a.NSUTEF,
              a.VALOR,
@@ -142,13 +148,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
     mensagemerro         VARCHAR2(1000);
     dados_pcfilamensagem PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM;
 
-    -- PROCESSAR_RECARGAS ( RETORNAR_XML_RECARGAS )
+    -- PROCESSAR_RECARGAS E VALE GAS ( RETORNAR_XML_RECARGAS )
     FUNCTION retornar_xml_recargas(r_recargacel c_recargacel%ROWTYPE)
       RETURN XMLTYPE IS
       l_xmlesquema      XMLTYPE;
       l_recargacel   XMLTYPE;
 
-      -- Recarga celular
+      -- Recarga celular e Vale Gás
       FUNCTION retornar_xmlRecargaCel(p_recargacel c_recargacel%ROWTYPE)
         RETURN XMLTYPE IS
         l_xmltyperecarga XMLTYPE;
@@ -331,6 +337,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
       dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento     := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.tipodocumento       := 'RC';
       dados_pcfilamensagem.rowpcfilamensagem.tipooperacao        := 'RECC';
+
       l_xmltype := retornar_xml_recargas(r_recargacel);
 
       dados_pcfilamensagem.rowpcfilamensagem.mensagem            := REPLACE(l_xmltype.getclobval(),

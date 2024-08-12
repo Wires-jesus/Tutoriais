@@ -16,6 +16,12 @@ SELECT
                'Recarga Celular '|| P.OPERADORA 
           ELSE 'Vale Gas '|| P.OPERADORA 
         END INFPRODUTO,
+
+        CASE
+          WHEN D.ESPECIE = 'RP' THEN
+               NULL
+          ELSE 137
+        END CodOperRecargaCel,
         
         PG.NSUTEF,
         P.VALOR,
