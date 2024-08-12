@@ -2546,15 +2546,15 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
          and fp.formapagto LIKE '%DINHEIRO%')
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
+   AND  d.seqdocto = c.seqdocto(+)
+   AND  d.nroempresa = c.nroempresa(+)
+   AND  d.nrocheckout = c.nrocheckout(+)
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
    AND p.Seqdocto = r.seqdocto(+)
    AND p.seqitem = r.seqitem(+)
    AND p.nroempresa = r.nroempresa(+)
@@ -2672,15 +2672,15 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
+   AND  d.seqdocto = c.seqdocto(+)
+   AND  d.nroempresa = c.nroempresa(+)
+   AND  d.nrocheckout = c.nrocheckout(+)
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
    AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
    UNION ALL
       SELECT  d.seqdocto,
         NULL numgiftcard,
@@ -2794,15 +2794,15 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
    AND  p.nrocheckout = d.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
+   AND  d.seqdocto = c.seqdocto(+)
+   AND  d.nroempresa = c.nroempresa(+)
+   AND  d.nrocheckout = c.nrocheckout(+)
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
    AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
 )
 
 
