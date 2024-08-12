@@ -19,4 +19,3 @@
       COMMIT;
     END IF;
   END;
-END;
