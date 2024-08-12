@@ -8,6 +8,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
              C5.CODFILIAL CODFILIALWINTHOR,
              a.NROCHECKOUT,
              a.TIPOOPERACAO,
+             a.CODOPERRECARGACEL,
              
              CASE
                WHEN A.TIPOOPERACAO = 'R' THEN
@@ -166,7 +167,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                                       C5.CODFILIAL AS "Codfilial",
                                                       a.SEQUSUARIO AS "Codfunccx",
                                                       a.NROCHECKOUT AS "Numcaixa",
-                                                      NULL AS "Codoperrecargacel",
+                                                      a.CODOPERRECARGACEL AS "Codoperrecargacel",
                                                       NULL AS "Exportado",
                                                       NULL AS "Dtexportacao",
                                                       'NotaFiscal' AS "Numserieequip",
