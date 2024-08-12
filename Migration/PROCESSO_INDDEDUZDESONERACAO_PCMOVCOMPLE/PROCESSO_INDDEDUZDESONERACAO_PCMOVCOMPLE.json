@@ -1,0 +1,9 @@
+{
+  "nome": "PROCESSO_INDDEDUZDESONERACAO_PCMOVCOMPLE",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [{
+  "nome": "PCMOVCOMPLE",
+  "tipo": "TABELA",
+  "versao": "6.0.01.000"
+}]
+}
