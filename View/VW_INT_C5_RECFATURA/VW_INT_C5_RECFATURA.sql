@@ -4,24 +4,15 @@ SELECT
         D.SEQDOCTO,
         D.NROEMPRESA,
         D.NROCHECKOUT,
-        PG.NSUTEF,
+        MAX(PG.NSUTEF) NSUTEF,
         SUM(PG.VLRTOTAL) VLRTOTAL,
         TO_CHAR(D.DTAHOREMISSAO, 'YYYY-MM-DD') DTAHOREMISSAO,
         D.SEQUSUARIO,
         D.COO,
         'C' ORIGEMFATURA,
         'E' STATUS,
-        PG.CODREDETEF CODOPERRECARGACEL,
-        
-        CASE
-          WHEN PG.CODREDETEF = 52 THEN
-               'T'
-          WHEN PG.CODREDETEF = 269 THEN
-               'B'     
-          WHEN PG.CODREDETEF = 266 THEN
-               'D'
-          ELSE NULL
-        END TIPOFATURA
+        52 CODOPERRECARGACEL,
+        'T'TIPOFATURA
 
  FROM  MONITORPDVMIDDLE.TB_DOCTO D,
        MONITORPDVMIDDLE.TB_DOCTOPAGTO PG
@@ -34,9 +25,7 @@ SELECT
         D.SEQDOCTO,
         D.NROEMPRESA,
         D.NROCHECKOUT,
-        PG.NSUTEF,
         D.SEQUSUARIO,
         D.DTAHOREMISSAO,
-        D.COO,
-        PG.CODREDETEF 
+        D.COO
 )
