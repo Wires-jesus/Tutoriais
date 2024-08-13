@@ -365,7 +365,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECFATURA IS
           PKG_SINC_PDV_CONSINCO_UTIL.inserir_pcfilamensagem_erro(dados_pcfilamensagem, mensagemerro);
       END;
 
-
     END LOOP;
   END processar_rec_faturas;
 END PKG_INT_C5_RECFATURA;
