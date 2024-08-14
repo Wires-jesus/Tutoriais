@@ -2496,7 +2496,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN 
-    UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
+   -- UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
 
     MERGE INTO monitorpdvmiddle.tb_enderecoalternativo TB_ENDERECOALTERNATIVO
     USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) VW_INT_C5_ENDERECO_ALTERNATIVO
