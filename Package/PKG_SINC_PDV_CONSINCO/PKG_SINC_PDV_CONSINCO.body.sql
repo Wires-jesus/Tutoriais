@@ -1788,14 +1788,19 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 				   MIN(v.promocao) promocao,
 				   MIN(v.ativo) ativo,
 				   MIN(v.preconormal) preconormal
-			  FROM vw_int_c5_promocoes_vigentes v, VW_INT_C5_OBTER_FILIAIS_C5 C5
-			 WHERE FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',C5.CODFILIAL,'N') = 'S'
-			   AND v.PRIORIDADE = (SELECT min(PRIORIDADE)
+			 FROM vw_int_c5_promocoes_vigentes v, 
+             monitorpdvmiddle.tb_prodempresa e,
+             VW_INT_C5_OBTER_FILIAIS_C5 C5
+			 WHERE V.NROEMPRESA = E.NROEMPRESA
+       AND V.SEQPRODUTO = E.SEQPRODUTO
+			 AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',C5.CODFILIAL,'N') = 'S'
+			 AND v.PRIORIDADE = (SELECT min(PRIORIDADE)
 								   FROM VW_INT_C5_PROMOCOES_VIGENTES vw
 								  WHERE vw.seqproduto = v.SEQPRODUTO
 									AND vw.nroempresa = v.NROEMPRESA
 									AND vw.qtdembalagem = v.QTDEMBALAGEM)
-			   AND v.NROEMPRESA = C5.CODFILIALINTEGRACAO
+			 AND v.NROEMPRESA = C5.CODFILIALINTEGRACAO
+       AND E.NROEMPRESA = C5.CODFILIALINTEGRACAO
 			 GROUP BY v.seqproduto, v.nroempresa, v.qtdembalagem, v.nrosegmento           
     ) VW_INT_C5_PROMOCOES_VIGENTES 
     on(
