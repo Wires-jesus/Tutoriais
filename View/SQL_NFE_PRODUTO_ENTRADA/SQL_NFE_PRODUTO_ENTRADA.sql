@@ -1709,6 +1709,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                     ), 2) / PCMOV.QTCONT))
                             ) * PCMOV.QTCONT) +
+                            /*
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
                                    DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
                                      NVL(PCMOV.VLDESCSUFRAMA,0) * QTCONT, 
@@ -1716,6 +1717,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                  ELSE
                                    0
                             END) +                            
+                            */
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8','T')) THEN
                                  CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                        ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  PCNFENT.DTENT))) THEN
