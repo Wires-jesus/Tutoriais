@@ -201,5 +201,7 @@ SELECT
         D.NROCHECKOUT,
         D.SEQUSUARIO,
         D.DTAHOREMISSAO,
-        D.COO
+        D.COO,
+		C5.CODFILIAL,
+		D.dtamovimento
 )
