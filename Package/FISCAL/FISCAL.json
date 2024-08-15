@@ -1,5 +1,14 @@
 {
     "nome": "FISCAL",
     "tipoPLSQL": "PACKAGE",
-    "dependencias": ""
+    "dependencias": [{
+            "nome": "PCTRIBPISCOFINS",
+            "tipo": "TABELA",
+            "versao": "6.0.01.000"
+        }, {
+            "nome": "PCTRIBPISCOFINSVIGENCIA",
+            "tipo": "TABELA",
+            "versao": "6.0.01.000"
+        }
+	]
 }
