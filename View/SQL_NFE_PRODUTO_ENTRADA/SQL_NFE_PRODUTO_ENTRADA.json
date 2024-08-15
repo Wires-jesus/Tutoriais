@@ -15,11 +15,6 @@
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
    "versao": "6.0.01.000"
-  },
-  {
-   "nome": "PROCESSO_INDDEDUZDESONERACAO_PCMOVCOMPLE",
-   "tipo":"Migration",
-   "versao": "6.0.01.000"
   }
  ]
 }
