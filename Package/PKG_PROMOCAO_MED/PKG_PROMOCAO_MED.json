@@ -29,7 +29,7 @@
   {"nome": "PCLOGPROMOCAOCLASSEVENDAMED", "tipo": "TABELA", "versao": "6.0.01.000"},
   {"nome": "PCLOGPROMOCAOGRUPOCOMERCMED", "tipo": "TABELA", "versao": "6.0.01.000"},
   {"nome": "PCDESCONTO", "tipo": "TABELA", "versao": "6.0.01.000"},
-  {"nome": "PCLOGPROMOCAODESCONTOMED", "tipo": "TABELA", "versao": "6.0.01.000"}
-  {"nome": "PCPEDI", "tipo": "TABELA", "versao": "6.0.01.000"}
+  {"nome": "PCLOGPROMOCAODESCONTOMED", "tipo": "TABELA", "versao": "6.0.01.000"},
+  {"nome": "PCPEDI", "tipo": "TABELA", "versao": "6.0.01.000"},
   {"nome": "PCORCAVENDAI", "tipo": "TABELA", "versao": "6.0.01.000"}
 ]}
