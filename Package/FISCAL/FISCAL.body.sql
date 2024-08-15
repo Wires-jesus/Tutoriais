@@ -915,7 +915,8 @@ create or replace package body FISCAL is
                                    ,PVLFCPST          in number
                                    ,PVLFCPICMS        in number
                                    ,PVLICMSDESONERACAO in number
-                                   ,PDATAOPER         in date
+                                   ,PDATAOPER          in date
+                                   ,PVLSTBCR           in number
                                    ,PVLBASEPISCOFINS_ATUAL in number
                                    ,PPERPIS_ATUAL          in number
                                    ,PPERCOFINS_ATUAL       in number
@@ -1107,6 +1108,12 @@ create or replace package body FISCAL is
                            else
                                0
                            end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDUÇÃO DO ICMS DIFAL DA BASE
+                                - case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
+                                            (T.EXCLUIRICMSSTBCRBASEPISCOFINS  = 'S') then
+                                       PVLSTBCR
+                                     else
+                                       0
+                                  end
                            AS VLBASEPISCOFINS
                            ------------------
                            ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
@@ -1255,6 +1262,12 @@ create or replace package body FISCAL is
                       else
                           0
                       end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDUÇÃO DO ICMS DIFAL DA BASE
+                           - case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
+                                       (T.EXCLUIRICMSSTBCRBASEPISCOFINS  = 'S') then
+                                 PVLSTBCR
+                               else
+                                 0
+                             end
                       as VLBASEPISCOFINS
                       ------------------
                      ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
@@ -1731,6 +1744,7 @@ create or replace package body FISCAL is
                           ,NVL(MC.VLFECP, 0) AS VLFCPST
                           ,'N' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0)  VLICMSDESONERACAO
+                          ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR
                           ,NVL(M.VLBASEPISCOFINS,0)     VLBASEPISCOFINS_ATUAL
                           ,NVL(M.PERPIS,0)              PERPIS_ATUAL
                           ,NVL(M.PERCOFINS,0)           PERCOFINS_ATUAL
@@ -1854,6 +1868,7 @@ create or replace package body FISCAL is
                           ,NVL(MC.VLFECP, 0) AS VLFCPST
                           ,'S' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0) VLICMSDESONERACAO
+                          ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR
                           ,NVL(M.VLBASEPISCOFINS,0)     VLBASEPISCOFINS_ATUAL
                           ,NVL(M.PERPIS,0)              PERPIS_ATUAL
                           ,NVL(M.PERCOFINS,0)           PERCOFINS_ATUAL
@@ -1937,6 +1952,7 @@ create or replace package body FISCAL is
                                        ,DADOS.VLFCPICMS
                                        ,DADOS.VLICMSDESONERACAO
                                        ,DADOS.DTSAIDA
+                                       ,DADOS.VLSTBCR
                                        -- DADOS PCMOV
                                        ,DADOS.VLBASEPISCOFINS_ATUAL
                                        ,DADOS.PERPIS_ATUAL
@@ -2403,6 +2419,7 @@ create or replace package body FISCAL is
                                           ,0
                                           ,0
                                           ,0
+                                          ,0
                                           ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                           ,0
                                           ,0)
@@ -2546,6 +2563,7 @@ create or replace package body FISCAL is
                                           ,DADOS.VLFCPICMS
                                           ,DADOS.VLICMSDESONERACAO
                                           ,DADOS.DTEMISSAO
+                                          ,0
                                           ,0
                                           ,0
                                           ,0
@@ -4239,8 +4257,8 @@ create or replace package body FISCAL is
                  (VTIPOCLIENTE = 'NI') )  AND
                  (DADOS.VLDESCICMISENCAO > 0)) then
                VVALORDESONERADO := DADOS.VLDESCICMISENCAO;
-               vINDDEDUZDESONERACAO := '1';               
-            end if;           
+               vINDDEDUZDESONERACAO := '1';
+            end if;
 
             --SÓ GRAVA MOTIVO E VALOR CASO TENHA VALOR, POIS SE GRAVAR VALOR ZERO E MOTIVO, DA REJEIÇÃO
             IF (VVALORDESONERADO + VVALOR_ST_DESONERADO > 0) THEN
@@ -4249,7 +4267,7 @@ create or replace package body FISCAL is
                    set PCMOVCOMPLE.VLICMSDESONERACAO = VVALORDESONERADO,
                        PCMOVCOMPLE.VICMSSTDESON      = VVALOR_ST_DESONERADO,
                        CODMOTIVOICMSDESONERADO       = VMOTIVODESONERACAO,
-                       INDDEDUZDESONERACAO           = vINDDEDUZDESONERACAO  
+                       INDDEDUZDESONERACAO           = vINDDEDUZDESONERACAO
                  where NUMTRANSITEM = DADOS.NUMTRANSITEM;
 
                 if sql%rowcount = 0 then
