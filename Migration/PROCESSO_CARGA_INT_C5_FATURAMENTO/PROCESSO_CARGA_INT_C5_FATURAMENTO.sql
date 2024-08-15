@@ -1,30 +1,36 @@
 CREATE OR REPLACE VIEW VW_INT_C5_FAT_INUT AS
 (
-SELECT a.nroempresa codfilial,
+SELECT c5.codfilial codfilial,
        b.dtamovimento datatransacao,
        b.nrocheckout
  FROM monitorpdvmiddle.tb_doctoinutnfe a,
-      monitorpdvmiddle.tb_docto b
+      monitorpdvmiddle.tb_docto b,
+	  VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  a.nroempresa = b.nroempresa
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
+   AND C5.CODFILIALINTEGRACAO = a.nroempresa
+   AND C5.CODFILIALINTEGRACAO = b.nroempresa
    )
 
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAT_VALES AS
 (
-SELECT a.nroempresa codfilial,
+SELECT c5.codfilial codfilial,
        a.dtamovimento datatransacao,
        a.ESPECIE status,
        a.NROCHECKOUT,
        a.seqdocto
   FROM  monitorpdvmiddle.tb_docto a,
-        monitorpdvmiddle.tb_doctopagto b
+        monitorpdvmiddle.tb_doctopagto b,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  a.nroempresa = b.nroempresa
    AND  a.nrocheckout = b.nrocheckout
    AND  a.seqdocto = b.seqdocto
    AND  a.especie IN ('SG','SP')
+   AND C5.CODFILIALINTEGRACAO = a.nroempresa
+   AND C5.CODFILIALINTEGRACAO = b.nroempresa
   -- AND  a.replicacao = 'F'
 )
 
@@ -32,14 +38,15 @@ SELECT a.nroempresa codfilial,
 
 create or replace view vw_int_c5_fat_vendas as
 (
-select  c.nroempresa codfilial,
+select  c5.codfilial codfilial,
 		 m.dtahoremissao datatransacao,
 		 c.status,
 		 m.NROCHECKOUT,
 		 c.seqdocto
   from monitorpdvmiddle.tb_docto      m,
        monitorpdvmiddle.tb_doctocupom c, 
-       monitorpdvmiddle.tb_doctonfe    e
+       monitorpdvmiddle.tb_doctonfe    e,
+	   VW_INT_C5_OBTER_FILIAIS_C5 C5
  where m.seqdocto = c.seqdocto
    and m.nroempresa =  c.nroempresa
    and m.NROCHECKOUT = c.NROCHECKOUT
@@ -47,6 +54,9 @@ select  c.nroempresa codfilial,
    and e.nrocheckout = c.nrocheckout
    and e.seqdocto = c.seqdocto
    and e.protocoloenvio is not null
+   AND C5.CODFILIALINTEGRACAO = m.nroempresa
+   AND C5.CODFILIALINTEGRACAO = c.nroempresa
+   AND C5.CODFILIALINTEGRACAO = e.nroempresa
    AND not exists (select 1
                      from monitorpdvmiddle.tb_doctoinutnfe i
 					where i.seqdocto = m.seqdocto
@@ -79,14 +89,15 @@ SELECT P.NUMCAIXA,
 
 CREATE OR REPLACE VIEW VW_INT_C5_FAT_CANCELAMENTO AS
 (
-select  c.nroempresa codfilial,
+select  c5.codfilial codfilial,
 		 m.dtahoremissao datatransacao,
 		 c.status,
 		 m.NROCHECKOUT,
 		 c.seqdocto
   from monitorpdvmiddle.tb_docto      m,
        monitorpdvmiddle.tb_doctocupom c, 
-       monitorpdvmiddle.tb_doctonfe    e
+       monitorpdvmiddle.tb_doctonfe    e,
+	   VW_INT_C5_OBTER_FILIAIS_C5 C5
  where m.seqdocto = c.seqdocto
    and m.nroempresa =  c.nroempresa
    and m.NROCHECKOUT = c.NROCHECKOUT
@@ -95,6 +106,9 @@ select  c.nroempresa codfilial,
    and e.seqdocto = c.seqdocto
    and e.protocoloenvio is not null
    and e.protocolocancelamento is not null
+   AND C5.CODFILIALINTEGRACAO = m.nroempresa
+   AND C5.CODFILIALINTEGRACAO = c.nroempresa
+   AND C5.CODFILIALINTEGRACAO = e.nroempresa
    AND M.ESPECIE IN ('NF', 'CF')
 )
 
@@ -131,10 +145,13 @@ SELECT
         P.CODIGO,
         D.SEQUSUARIO,
         D.COO,
-        P.OPERADORA
+        P.OPERADORA,
+		c5.codfilial,
+		D.dtamovimento datatransacao
   FROM  MONITORPDVMIDDLE.TB_DOCTO D,
         MONITORPDVMIDDLE.TB_DOCTOPREPAGO P,
-        MONITORPDVMIDDLE.TB_DOCTOPAGTO PG
+        MONITORPDVMIDDLE.TB_DOCTOPAGTO PG,
+		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  D.SEQDOCTO = P.SEQDOCTO
  AND    D.NROEMPRESA = P.NROEMPRESA
  AND    D.NROCHECKOUT = P.NROCHECKOUT
@@ -144,7 +161,10 @@ SELECT
  AND    PG.SEQDOCTO = P.SEQDOCTO
  AND    PG.NROEMPRESA = P.NROEMPRESA
  AND    PG.NROCHECKOUT = P.NROCHECKOUT
-  AND    D.ESPECIE IN ('RP', 'VG')
+ AND    C5.CODFILIALINTEGRACAO = D.nroempresa
+ AND    C5.CODFILIALINTEGRACAO = P.nroempresa
+ AND    C5.CODFILIALINTEGRACAO = PG.nroempresa
+ AND    D.ESPECIE IN ('RP', 'VG')
 )
 
 \
@@ -163,13 +183,18 @@ SELECT
         'C' ORIGEMFATURA,
         'E' STATUS,
         52 CODOPERRECARGACEL,
-        'T'TIPOFATURA
+        'T'TIPOFATURA,
+		c5.codfilial,
+		D.dtamovimento datatransacao
  FROM  MONITORPDVMIDDLE.TB_DOCTO D,
-       MONITORPDVMIDDLE.TB_DOCTOPAGTO PG
+       MONITORPDVMIDDLE.TB_DOCTOPAGTO PG,
+	   VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  D.SEQDOCTO = PG.SEQDOCTO
  AND    D.NROEMPRESA = PG.NROEMPRESA
  AND    D.NROCHECKOUT = PG.NROCHECKOUT
  AND    D.ESPECIE IN ('PL')
+ AND    C5.CODFILIALINTEGRACAO = D.nroempresa
+ AND    C5.CODFILIALINTEGRACAO = PG.nroempresa
  GROUP BY 
         D.SEQDOCTO,
         D.NROEMPRESA,
