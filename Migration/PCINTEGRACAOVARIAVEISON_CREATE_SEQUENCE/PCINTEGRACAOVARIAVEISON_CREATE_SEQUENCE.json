@@ -1,0 +1,5 @@
+{
+	"nome": "PCINTEGRACAOVARIAVEISON_CREATE_SEQUENCE",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": []
+}
