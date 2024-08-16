@@ -380,7 +380,7 @@
         {
 		  "nome": "VW_INT_C5_LIMITEVENDAFAMILIA",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "6.0.01.000"
+		  "versao": "6.0.02.000"
 		},
 		{
 		  "nome": "VW_INT_C5_LIMITEVENDA",
