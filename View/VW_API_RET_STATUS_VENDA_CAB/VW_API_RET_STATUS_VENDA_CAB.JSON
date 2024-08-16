@@ -1,1 +1,16 @@
-{"nome":"VW_API_RET_STATUS_VENDA_CAB","tipoPLSQL":"VIEW","dependencias":""}
+{
+	"nome":"VW_API_RET_STATUS_VENDA_CAB",
+	"tipoPLSQL":"VIEW",
+	"dependencias":[
+    {
+      "nome":"PCPEDCFV",
+      "tipo":"TABELA",
+      "versao":"5.0.01.000"
+    },
+    {
+      "nome": "PCPEDIFV",
+      "tipo": "TABELA",
+      "versao": "5.0.01.000"
+    }
+  ]
+ }
