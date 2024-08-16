@@ -22782,9 +22782,30 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSIF (vvTipoPolitica IN ('Q','F','B','V')) THEN -->> POR PRODUTOS É O ÚNICO QUE TEM PREÇO FIXO POR FAIXA DE QUANTIDADE
             INSERT INTO PCMED_PROMOCAOPRODUTO(
                         CODPROD
+                      , OBRIGATORIO
+                      , PERMITIRAUMENTARQTDEKIT
+                      , QTKIT
                       )
                  SELECT DISTINCT
                         CODPROD
+                      , CASE
+                          WHEN vvTipoPromocao = 'K' AND vvTipoPolitica IN ('Q','V') THEN
+                            PROMOCAOMEDOBRIGATORIO
+                          ELSE
+                            NULL
+                        END
+                      , CASE
+                          WHEN vvTipoPromocao = 'K' AND vvTipoPolitica IN ('Q','V') THEN
+                            PERMITIRAUMENTARQTDEKITMED
+                          ELSE
+                            NULL
+                        END
+                      , CASE
+                          WHEN vvTipoPromocao = 'K' AND vvTipoPolitica IN ('Q','V') THEN
+                            QTCOMBOMED
+                          ELSE
+                            NULL
+                        END
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODPROD        IS NOT NULL);
