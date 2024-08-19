@@ -166,7 +166,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECFATURA IS
                                                       a.COO AS "Numcupom",
                                                       p_recfatura.numpedecf AS "Numpedecf",
                                                       a.NSUTEF AS "Nsu",
-                                                      a.VALOR AS "Valor",
+                                                      a.VLRTOTAL AS "Valor",
                                                       'N' AS "Exportado",
                                                       NULL AS "Dtexportacao",
                                                       a.ORIGEMFATURA AS "OrigemFatura",
