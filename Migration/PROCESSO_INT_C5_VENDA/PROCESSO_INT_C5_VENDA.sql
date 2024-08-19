@@ -1130,7 +1130,7 @@ IS
     vVlDesc NUMBER;
 BEGIN
  vVlDesc := 0;
-SELECT  i.vlrdesconto
+SELECT  i.vlrdesconto/NVL(i.quantidade,1)
  INTO   vVlDesc
  FROM   monitorpdvmiddle.tb_doctoitem i,
         monitorpdvmiddle.tb_doctoacrescdesctoitem ia,
