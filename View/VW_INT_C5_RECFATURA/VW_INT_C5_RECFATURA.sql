@@ -11,8 +11,17 @@ SELECT
         D.COO,
         'C' ORIGEMFATURA,
         'E' STATUS,
-        52 CODOPERRECARGACEL,
-        'T'TIPOFATURA
+        PG.CODREDETEF CODOPERRECARGACEL,
+        
+        CASE
+          WHEN TO_NUMBER(PG.CODREDETEF) = 266 THEN
+               'D'
+          WHEN TO_NUMBER(PG.CODREDETEF) = 269 THEN 
+               'B'    
+          WHEN TO_NUMBER(PG.CODREDETEF) = 52 THEN      
+               'T'
+          ELSE ''
+       END TIPOFATURA
 
  FROM  MONITORPDVMIDDLE.TB_DOCTO D,
        MONITORPDVMIDDLE.TB_DOCTOPAGTO PG
@@ -27,5 +36,6 @@ SELECT
         D.NROCHECKOUT,
         D.SEQUSUARIO,
         D.DTAHOREMISSAO,
-        D.COO
+        D.COO,
+        PG.CODREDETEF
 )
