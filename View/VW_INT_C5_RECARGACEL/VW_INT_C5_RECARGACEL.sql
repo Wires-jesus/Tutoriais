@@ -19,8 +19,8 @@ SELECT
 
         CASE
           WHEN D.ESPECIE = 'RP' THEN
-               NULL
-          ELSE 137
+               '101000000'
+          ELSE '137'
         END CodOperRecargaCel,
         
         PG.NSUTEF,
