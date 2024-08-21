@@ -1797,6 +1797,25 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
+  21/08/2024     Davi Bernado        DDESTOQUE-18838     CRIAÇÃO DE FUNCTION PARA TESTE UNITARIO
+  /***********************************************************************************************************************/
+  FUNCTION F_ARMAZENARSALDOSESTOQUE_TST(vsCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL)
+  RETURN NUMBER
+  IS
+  BEGIN
+    BEGIN  
+      PRC_ARMAZENARSALDOSESTOQUE(vsCODFILIAL);
+      RETURN 1;
+    EXCEPTION
+      WHEN OTHERS THEN        
+        RETURN 0;  
+    END;  
+  END;
+  
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor               Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
   28/06/2024     Davi Bernado        DDESTOQUE-18448     Criar procedure para criar pchistest pela rotina 504
   /***********************************************************************************************************************/
   PROCEDURE PRC_ARMAZENARSALDOSESTOQUE_504
@@ -2030,6 +2049,25 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     COMMIT;
   -- Fim da procedure */
   END PRC_ARMAZENARSALDOSESTOQUE_504;
+  
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor               Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
+  21/08/2024     Davi Bernado        DDESTOQUE-18838     CRIAÇÃO DE FUNCTION PARA TESTE UNITARIO
+  /***********************************************************************************************************************/
+  FUNCTION F_ARMAZENARSALDOSESTOQUE_504_T(vsCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL)
+  RETURN NUMBER
+  IS
+  BEGIN
+    BEGIN  
+      PRC_ARMAZENARSALDOSESTOQUE_504;
+      RETURN 1;
+    EXCEPTION
+      WHEN OTHERS THEN        
+        RETURN 0;  
+    END;  
+  END;
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
