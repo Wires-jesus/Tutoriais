@@ -10,7 +10,7 @@
 	{
 		"nome": "PKG_INT_C5_VENDAS",
 		"tipo": "OBJETO_PLSQL",
-		"versao": "6.0.13.000"
+		"versao": "6.0.14.000"
 	  },
 	{
 		"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
