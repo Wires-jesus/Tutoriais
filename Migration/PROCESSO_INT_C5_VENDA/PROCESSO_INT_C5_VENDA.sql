@@ -2536,7 +2536,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
-		VW_INT_C5_OBTER_FILIAIS_C5 C5,
+		    VW_INT_C5_OBTER_FILIAIS_C5 C5,
         vw_int_c5_cobranca_winthor v,
     TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto, p.nrocheckout, p.nroempresa, FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))))) r
  WHERE  p.seqdocto = d.seqdocto
@@ -2552,7 +2552,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
+  -- AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
    AND p.Seqdocto = r.seqdocto(+)
@@ -2678,7 +2678,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  C5.codfilialintegracao = c.NROEMPRESA
+  -- AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
    UNION ALL
@@ -2800,7 +2800,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  C5.codfilialintegracao = c.NROEMPRESA
+   --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
 )
