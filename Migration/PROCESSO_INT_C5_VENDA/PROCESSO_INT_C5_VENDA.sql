@@ -2412,6 +2412,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         c5.codfilial codfilial,
+        c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(NVL(r.dtvenc,
@@ -2580,6 +2581,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         c5.codfilial codfilial,
+        c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
@@ -2702,6 +2704,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
           END),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         c5.codfilial codfilial,
+        c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))

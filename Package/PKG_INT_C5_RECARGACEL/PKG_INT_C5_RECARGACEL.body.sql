@@ -115,10 +115,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
             vw_int_c5_pcprestecf p,
             VW_INT_C5_OBTER_FILIAIS_C5 C5
        WHERE a.NROEMPRESA = C5.CODFILIALINTEGRACAO
-       AND   p.codfilial = C5.CODFILIALINTEGRACAO
+       --AND   p.codfilial = C5.CODFILIALINTEGRACAO
+       AND   p.CODFILIALINTEGRACAO = C5.CODFILIALINTEGRACAO
        AND   a.seqdocto = p.seqdocto
        AND   a.NROCHECKOUT = p.numcheckout
-       AND   a.NROEMPRESA = p.codfilial 
+       --AND   a.NROEMPRESA = p.codfilial 
+       AND   a.NROEMPRESA = p.CODFILIALINTEGRACAO 
        AND   a.seqdocto = DECODE(p_seqdocto, 0, a.seqdocto, p_seqdocto)
        AND   a.NROCHECKOUT = DECODE(p_nrocheckout, 0, a.seqdocto, p_nrocheckout)
        AND   a.nroempresa = DECODE(p_nroempresa, 0, a.seqdocto, p_nroempresa)
@@ -285,10 +287,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
               vw_int_c5_pcprestecf p,
               VW_INT_C5_OBTER_FILIAIS_C5 C5
          WHERE a.NROEMPRESA = C5.CODFILIALINTEGRACAO
-         AND   p.codfilial = C5.CODFILIALINTEGRACAO
+         --AND   p.codfilial = C5.CODFILIALINTEGRACAO
+         AND   p.CODFILIALINTEGRACAO = C5.CODFILIALINTEGRACAO
          AND   a.seqdocto = p.seqdocto
          AND   a.NROCHECKOUT = p.numcheckout
-         AND   a.NROEMPRESA = p.codfilial 
+        --AND   a.NROEMPRESA = p.codfilial
+        AND    a.NROEMPRESA = p.CODFILIALINTEGRACAO
          AND   a.seqdocto  = p_recargacel.seqdocto
          AND   a.NROCHECKOUT = p_recargacel.NROCHECKOUT
          AND   a.nroempresa  = p_recargacel.nroempresa;
