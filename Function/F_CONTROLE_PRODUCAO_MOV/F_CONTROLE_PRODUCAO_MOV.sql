@@ -211,8 +211,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                         AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                         AND PCMOV.CODOPER NOT in ('EP','EA', 'EX')
-                        AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                             (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                        AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                         AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                   WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                   WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -444,8 +443,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND ((PDESCONSIDERANFEDENEGADA = 'N') OR
                                        ((PDESCONSIDERANFEDENEGADA = 'S') AND NVL(PCNFENT.SITUACAONFE,'0') NOT IN (110,205,301,302)))
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -642,8 +640,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND DECODE(PATIVIOMOBULIZADO,'N',NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -837,8 +834,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -1038,8 +1034,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -1233,8 +1228,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND PMOSTRARAJUSTESCUSTO = 'S'
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -1369,8 +1363,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND NVL(PCMOV.NUMPED,0) = NVL(P.NUMPED,0)
                                 AND NVL(P.NUMNOTACONSIG,0) > 0
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((PCMOV.CODFISCAL BETWEEN 1116 AND 1123) OR
-		                                     (PCMOV.CODFISCAL BETWEEN 2116 AND 2123))
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -1517,7 +1510,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                         AND PCNFSAID.ESPECIE in ('NF', 'CF', 'CP','NE','TP')
                         AND PCMOV.STATUS in ('A', 'AB')
                         AND NVL(PCNFSAID.CONDVENDA, 0) not in (3, 6, DECODE(PCNFSAID.FORNECENTREGA, 'S', -1, 7), 12, DECODE(PVENDAMANIF_COMTV14, 'S', 13, 14))
-                        AND PCMOV.CODFISCAL not in (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)
+                        AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                         AND NVL(PCNFSAID.FINALIDADENFE, 'O') <> 'C'
                         AND DECODE(PUSOCONSUMO,'N',NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'CI'
                         AND DECODE(PATIVIOMOBULIZADO,'N', NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
@@ -1677,7 +1670,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) = PCODFILIAL
                                 AND PCMOV.QTCONT < 0
                                 AND NVL(PCNFSAID.CONDVENDA, 0) not in (3, 6, DECODE(PCNFSAID.FORNECENTREGA, 'S', -1, 7), 12, DECODE(PVENDAMANIF_COMTV14, 'S', 13, 14))
-                                AND PCMOV.CODFISCAL not in (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND PCNFSAID.ESPECIE IN ('NF', 'CF', 'CP','NE','TP')
                                 AND PCMOV.DTCANCEL is not null
                                 AND PGERA_NF_SAIDA_CANC = 'S' --- PARAMETRO EXTERNO
@@ -1865,9 +1858,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.STATUS in ('A', 'AB')
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((NVL(PCMOV.CODFISCAL,0) BETWEEN 1116 AND 1123) OR
-                                         (NVL(PCMOV.CODFISCAL,0) BETWEEN 2116 AND 2123) OR
-                                         (NVL(PCMOV.CODFISCAL,0) IN (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)))        
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'        
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -2029,9 +2020,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PGERACANCPRODUCAO = 'S'
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NOT ((NVL(PCMOV.CODFISCAL,0) BETWEEN 1116 AND 1123) OR
-                                         (NVL(PCMOV.CODFISCAL,0) BETWEEN 2116 AND 2123) OR
-                                         (NVL(PCMOV.CODFISCAL,0) IN (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)))        
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'        
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -2180,7 +2169,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PGERACODOPERSMKARDEX = 'S'
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.CODFISCAL,0) NOT IN (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
@@ -2326,7 +2315,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PGERA_SM_KARDEX_CANC = 'S'
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.CODFISCAL,0) NOT IN (5929, 6929, 5116, 5117, 5118, 5119, 5120, 5122, 5123, 6116, 6117, 6118, 6119, 6120, 6122, 6123)
+                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
                                           WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
                                           WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
