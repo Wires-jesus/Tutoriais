@@ -13,6 +13,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECFATURA IS
              a.NSUTEF,
              a.VLRTOTAL,
              a.DTAHOREMISSAO,
+             a.DTAMOVIMENTO,
              a.SEQUSUARIO,
              a.COO,
              a.ORIGEMFATURA,
@@ -192,7 +193,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECFATURA IS
                                        p.codfunccheckout AS "Codfunccheckout",
                                        p.numcheckout AS "Numcheckout",
                                        p.numserieequip AS "Numserieequip",
-                                       p.duplic AS "Duplic",
+                                       a.COO AS "Duplic",
                                        p.codcli AS "Codcli",
                                        p.valor AS "Valor",
                                        p.dtvenc AS "Dtvenc",
@@ -346,6 +347,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECFATURA IS
       dados_pcfilamensagem.rowpcfilamensagem.pdvorigem           := 'PDV SUPERMERCADOS';
       dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado      := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.seqdocto            := r_recfatura.seqdocto;
+      dados_pcfilamensagem.rowpcfilamensagem.datadocumento       := TO_DATE(r_recfatura.DTAMOVIMENTO, 'YYYY-MM-DD');
 
       RETURN dados_pcfilamensagem;
     END retornar_pcfilamensagem;
