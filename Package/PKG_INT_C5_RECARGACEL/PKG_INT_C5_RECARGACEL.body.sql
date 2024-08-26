@@ -20,6 +20,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
              a.NSUTEF,
              a.VALOR,
              a.DTAHOREMISSAO,
+             a.DTAMOVIMENTO,
              a.CODIGO,
              a.SEQUSUARIO,
              a.COO,
@@ -198,7 +199,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                        p.codfunccheckout AS "Codfunccheckout",
                                        p.numcheckout AS "Numcheckout",
                                        p.numserieequip AS "Numserieequip",
-                                       p.duplic AS "Duplic",
+                                       a.COO AS "Duplic",
                                        p.codcli AS "Codcli",
                                        p.valor AS "Valor",
                                        p.dtvenc AS "Dtvenc",
@@ -354,6 +355,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
       dados_pcfilamensagem.rowpcfilamensagem.pdvorigem           := 'PDV SUPERMERCADOS';
       dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado      := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.seqdocto            := r_recargacel.seqdocto;
+      dados_pcfilamensagem.rowpcfilamensagem.datadocumento       := TO_DATE(r_recargacel.DTAMOVIMENTO, 'YYYY-MM-DD');
 
       RETURN dados_pcfilamensagem;
     END retornar_pcfilamensagem;

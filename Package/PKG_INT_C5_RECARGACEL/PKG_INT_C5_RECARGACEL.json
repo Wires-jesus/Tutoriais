@@ -20,7 +20,7 @@
 	{
 		"nome": "VW_INT_C5_RECARGACEL",
 		"tipo": "OBJETO_PLSQL",
-		"versao": "6.0.04.000"
+		"versao": "6.0.05.000"
 	},
 	{
 	  "nome": "PCFILAMENSAGEM",
