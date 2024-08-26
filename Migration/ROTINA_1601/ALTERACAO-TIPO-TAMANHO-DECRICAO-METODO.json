@@ -1,0 +1,6 @@
+{
+    "nome": "ALTERACAO-TIPO-TAMANHO-DECRICAO-METODO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
