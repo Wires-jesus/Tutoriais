@@ -22,7 +22,7 @@ BEGIN
                              3
                              ELSE
                              2 END DOCUMENTO_ORIGINARIO,
-                             '' CNPJ,
+                             PCNFSAID.CGC AS CNPJ,
                              PCNFSAID.CHAVENFE,
                              '' AS PIN_SUFRAMA,
                              'NF' AS DESCRICAO_OUTROS,
@@ -68,7 +68,7 @@ BEGIN
                              3
                              ELSE
                              2 END DOCUMENTO_ORIGINARIO,
-                             '' CNPJ,
+                             PCNFSAID.CGC AS CNPJ,
                              PCNFSAID.CHAVECTE,
                              '' AS PIN_SUFRAMA,
                              'CT' AS DESCRICAO_OUTROS,
