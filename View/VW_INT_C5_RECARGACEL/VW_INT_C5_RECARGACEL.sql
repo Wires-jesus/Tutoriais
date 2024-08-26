@@ -21,7 +21,6 @@ SELECT  D.SEQDOCTO,
                P.CODIGOFILIAL
           ELSE '137'
         END CodOperRecargaCel,
- 
         
         CASE
           WHEN  D.ESPECIE = 'RP' THEN
