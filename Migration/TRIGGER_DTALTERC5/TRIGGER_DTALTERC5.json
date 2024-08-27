@@ -185,5 +185,10 @@
     "nome": "PCDESCONTOFIDELIDADE",
     "tipo": "TABELA",
     "versao": "6.0.01.000"
-  }
+  },
+  {
+  "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "6.0.01.000"
+}
 ]}
