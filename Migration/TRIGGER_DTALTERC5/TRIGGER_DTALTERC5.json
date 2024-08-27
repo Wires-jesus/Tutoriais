@@ -7,6 +7,11 @@
     "versao": "4.0.01.000"
   },
   {
+    "nome": "MANUNTECAO_PCPARAMETROS2651",
+    "tipo": "MIGRATION",
+    "versao": "6.0.01.000"
+  },
+  {
     "nome": "PCPARAMETROS2651",
     "tipo": "TABELA",
     "versao": "6.0.01.000"
