@@ -1,5 +1,5 @@
 {"nome":"VW_INT_C5_LIMITEVENDAFAMILIA","tipoPLSQL":"VIEW","dependencias":[{
   "nome": "VW_INT_C5_EMBPROD",
   "tipo": "OBJETO_PLSQL",
-  "versao": "6.0.05.000"
+  "versao": "6.0.06.000"
 }]}
