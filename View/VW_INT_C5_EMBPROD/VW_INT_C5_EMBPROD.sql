@@ -103,7 +103,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.QTMAXVENDA			
        FROM pcembalagem e,
             pcprodut p
-            LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'),    
+            --LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'), 
+            LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S' AND P.CODMARCA > 0),   
             pcprodfilial f,
             VW_INT_C5_OBTER_FILIAIS_C5 c5,
             (select VALOR MARCAPADRAO FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO' AND CODFILIAL = 99) PCPARAMFILIAL,
@@ -140,9 +141,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 		AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   c5.CODFILIAL,
                                                                   'N') = 'S'
-        AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+      /*  AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO
+                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO*/
+      AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                   NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                   NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN DTPADRAO.ULTIMAEXECUCAO AND (SELECT PAR.VALOR_DATA 
+                                                                                                   FROM PCPARAMETROS2651 PAR
+                                                                                                   WHERE PAR.NOME = 'DTFIMCARGA')               
+
+
     UNION ALL
     SELECT E.CODFILIAL,
 	    FC5.codfilialintegracao,
@@ -241,8 +249,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
      ON (PF.CODPROD = P.CODPROD AND E.CODFILIAL = PF.CODFILIAL)
   INNER JOIN VW_INT_C5_OBTER_FILIAIS_C5 FC5
      ON (FC5.CODFILIAL = PF.CODFILIAL AND FC5.CODFILIAL = E.CODFILIAL)
-   LEFT JOIN PCMARCA M
-     ON (M.CODMARCA = P.CODMARCA),
+   --LEFT JOIN PCMARCA M ON (M.CODMARCA = P.CODMARCA),
+   LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S' AND P.CODMARCA > 0),
   (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
            FROM PCCONTROLECONSINCO S
           WHERE (UPPER(S.OBJETOREFERENCIA) =
@@ -290,9 +298,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   FC5.CODFILIAL,
                                                                   'N') = 'N'
-    AND GREATEST(NVL(E.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
+    /*AND GREATEST(NVL(E.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(PF.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(TPR.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO)) >=
-        DTPADRAO.ULTIMAEXECUCAO	
+        DTPADRAO.ULTIMAEXECUCAO*/
+    AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                 NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                 NVL(TPR.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+                 NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN DTPADRAO.ULTIMAEXECUCAO AND (SELECT PAR.VALOR_DATA 
+                                                                                                  FROM PCPARAMETROS2651 PAR
+                                                                                                  WHERE PAR.NOME = 'DTFIMCARGA')    	
 )
