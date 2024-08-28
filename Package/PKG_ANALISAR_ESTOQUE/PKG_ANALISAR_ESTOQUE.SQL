@@ -274,6 +274,9 @@ CREATE OR REPLACE PACKAGE PKG_ANALISAR_ESTOQUE
   
   FUNCTION F_ARMAZENARSALDOSESTOQUE_504_T(vsCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL)
   RETURN NUMBER;
+  
+  FUNCTION F_VALIDA_DTPRIMERIAMOV_TESTE(VSCODFILIAL IN VARCHAR2)   
+  RETURN NUMBER;
 
   -- Procedure para corrigir as fotos do PCHISTEST com base nas movimentações
   PROCEDURE PRC_CORRIGIR_PCHISTEST (P_ENTRADA IN TP_ENTRADA);
@@ -375,6 +378,12 @@ CREATE OR REPLACE PACKAGE PKG_ANALISAR_ESTOQUE
                                   ,pdDATA_BASE  IN DATE
                                   ,pdDTINICIAL  IN DATE
                                   ,pdDTFINAL    IN DATE);
+
+  FUNCTION F_RECRIAR_PCHISTEST (VSCODFILIAL  IN VARCHAR2
+                                ,VDDATA_BASE  IN DATE
+                                ,VDDTINICIAL  IN DATE
+                                ,VDDTFINAL    IN DATE)
+  RETURN NUMBER;                                  
 
   -- Procedure para validar se existe erros no estoque
   PROCEDURE PRC_VALIDAR_ESTOQUE_GERAL (psCODFILIAL   IN PCMOV.CODFILIAL%TYPE
