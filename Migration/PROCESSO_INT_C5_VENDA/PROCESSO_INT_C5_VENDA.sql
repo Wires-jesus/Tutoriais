@@ -1,5 +1,5 @@
 CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS 
- ( SELECT t.codst,
+ ( SELECT DISTINCT t.codst,
        t.mensagem,
        '0'||t.sittribut cst,
        (CASE
