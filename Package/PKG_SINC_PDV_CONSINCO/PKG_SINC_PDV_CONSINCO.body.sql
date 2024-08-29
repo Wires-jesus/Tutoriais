@@ -1631,7 +1631,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     e.pesoaferido,
                     e.ativo,
                     e.pesobruto,
-                    e.pesoliq pesoliquido,
+                    e.pesoliquido,
                     0 nrocarga
       FROM VW_INT_C5_FAMEMBALAGEM e) b
 
