@@ -5714,53 +5714,55 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
     end loop;
   end;
   
---------------------------------------------------------------------------------
-procedure DELETAR_REGISTROS_PCNFBASESAID (pDATA1      IN DATE,
-                             pDATA2      IN DATE,
-                             pPCODFILIAL IN VARCHAR2,
-                             pNUMNOTA1   IN NUMBER,
-                             pNUMNOTA2   IN NUMBER) IS
-begin 
-   V_SQLERRO := 'EXCLUINDO REGISTROS ANTERIORES';
-  begin
-    -- Deletando nfs no processo do DF DTENTREGA. Onde o Dtsaida esta menor que o DTENTREGA
-    if vnGeraDTENTREGA = 'S' then
-        -- Deletando Doc.onde o DTENTREGA esta maior que DTSAIDA e o livro foi gerado com esse DTENTREGA.
-       FOR DADOSNF IN (SELECT S.NUMTRANSVENDA
-                         FROM PCNFSAID S
-                        WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = pPCODFILIAL
-                          AND S.DTSAIDA BETWEEN pDATA1 and pDATA2
-                          AND S.DTENTREGA > S.DTSAIDA
-                          AND S.NUMNOTA BETWEEN pNUMNOTA1 AND pNUMNOTA2
-                          AND S.NUMTRANSVENDA IN (SELECT DISTINCT S2.NUMTRANSVENDA
-                                                    FROM PCNFBASESAID S2
-                                                   WHERE S2.CODFILIALNF = pPCODFILIAL
-                                                     AND S2.NUMTRANSVENDA = S.NUMTRANSVENDA
-                                                     AND S2.DTSAIDA = S.DTENTREGA)
-                        )
-       LOOP
-          delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */
-           from PCNFBASESAID S
-          where S.NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
-        COMMIT;
-       END LOOP;
-    end if;
+  --------------------------------------------------------------------------------
+  procedure DELETAR_REGISTROS_PCNFBASESAID (pDATA1      IN DATE,
+                                            pDATA2      IN DATE,
+                                            pPCODFILIAL IN VARCHAR2,
+                                            pNUMNOTA1   IN NUMBER,
+                                            pNUMNOTA2   IN NUMBER,
+                                            pNUMTRANSVENDA IN NUMBER := 0) IS
+  begin 
+     V_SQLERRO := 'EXCLUINDO REGISTROS ANTERIORES';
+    begin
+      -- Deletando nfs no processo do DF DTENTREGA. Onde o Dtsaida esta menor que o DTENTREGA
+      if vnGeraDTENTREGA = 'S' then
+          -- Deletando Doc.onde o DTENTREGA esta maior que DTSAIDA e o livro foi gerado com esse DTENTREGA.
+         FOR DADOSNF IN (SELECT S.NUMTRANSVENDA
+                           FROM PCNFSAID S
+                          WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = pPCODFILIAL
+                            AND S.DTSAIDA BETWEEN pDATA1 and pDATA2
+                            AND S.DTENTREGA > S.DTSAIDA
+                            AND S.NUMNOTA BETWEEN pNUMNOTA1 AND pNUMNOTA2
+                            AND S.NUMTRANSVENDA IN (SELECT DISTINCT S2.NUMTRANSVENDA
+                                                      FROM PCNFBASESAID S2
+                                                     WHERE S2.CODFILIALNF = pPCODFILIAL
+                                                       AND S2.NUMTRANSVENDA = S.NUMTRANSVENDA
+                                                       AND S2.DTSAIDA = S.DTENTREGA)
+                          )
+         LOOP
+            delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */
+             from PCNFBASESAID S
+            where S.NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
+          COMMIT;
+         END LOOP;
+      end if;
 
-    delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
-     where DTSAIDA between pDATA1 and pDATA2
-       and CODFILIALNF = pPCODFILIAL
-       and NUMNOTA between pNUMNOTA1 and pNUMNOTA2
-       and ESPECIE not in ('CF', 'MR');
+      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+       where DTSAIDA between pDATA1 and pDATA2
+         and CODFILIALNF = pPCODFILIAL
+         and NUMNOTA between pNUMNOTA1 and pNUMNOTA2
+         AND DECODE(pNUMTRANSVENDA,0,0,NUMTRANSVENDA) = DECODE(pNUMTRANSVENDA,0,0,pNUMTRANSVENDA)
+         and ESPECIE not in ('CF', 'MR');
+      COMMIT;
+      ---------------------------------------------------------------------------------
+      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+       where DTSAIDA between pDATA1 and pDATA2
+         and CODFILIALNF = pPCODFILIAL
+         and ESPECIE in ('CF', 'MR');
+    end;
     COMMIT;
-    ---------------------------------------------------------------------------------
-    delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
-     where DTSAIDA between pDATA1 and pDATA2
-       and CODFILIALNF = pPCODFILIAL
-       and ESPECIE in ('CF', 'MR');
-  end;
-  COMMIT;
 
-end; 
+  end; 
 
   procedure GERAR_MAPARESUMO(P_CODFILIAL in varchar2,
                              P_DATA1     in date,
@@ -8204,7 +8206,8 @@ END;
                                                 V_LISTA_NOTAS(I).DATA,
                                                 V_LISTA_NOTAS(I).CODFILIAL,
                                                 V_LISTA_NOTAS(I).NUMNOTA,
-                                                V_LISTA_NOTAS(I).NUMNOTA); 
+                                                V_LISTA_NOTAS(I).NUMNOTA,
+                                                V_LISTA_NOTAS(I).NUMTRANSVENDA); 
             END IF;                                     
            V_NF_CONTABILIZADA:= 0;    
         END IF;
@@ -8738,6 +8741,7 @@ begin
      COMMIT;
      V_CONTADORREGISTRO := 0;
   END IF;
+    
   ---------------------------------------------------------------------------------
   IF vPARAM_VALIDA_NF_CONTABILIZADA = 'N' THEN
     DELETAR_REGISTROS_PCNFBASESAID(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2); 
