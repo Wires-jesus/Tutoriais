@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "6.0.11.000"
+			"versao": "6.0.12.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -166,6 +166,11 @@
 			"nome": "MANUNTECAO_PCDEPARAPLPAGC5",
 			"tipo": "MIGRATION",
 			"versao": "4.0.02.000"
+		},
+		{
+			"nome": "MANUNTECAO_PCPARAMETROS2651",
+			"tipo": "MIGRATION",
+			"versao": "6.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
