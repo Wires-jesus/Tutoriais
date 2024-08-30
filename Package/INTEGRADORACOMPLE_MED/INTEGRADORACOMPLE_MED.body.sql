@@ -4619,6 +4619,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Parametro da Empresa Tipo de Prazo de Medicamentos
     vvTipoPrazoMedicam          PCPARAMFILIAL.VALOR%TYPE;
+    vvAcrescimoPlPagPrecoFixoMed PCPARAMFILIAL.VALOR%TYPE;
     -- Dados da Filial
     vvCodFilial                 PCFILIAL.CODIGO%TYPE;
     -- Informações da Condição de Venda
@@ -4649,6 +4650,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Dados do Plano de Pagamento
     vnCodPlPag                  PCPLPAG.CODPLPAG%TYPE;
     vnNumDias                   PCPLPAG.NUMDIAS%TYPE;
+    vnPerTxFim                  PCPLPAG.PERTXFIM%TYPE;
     -- Dados do Pedido para Teste
     vvOrigemPed                 PCPEDCFV.ORIGEMPED%TYPE;
     vvTipoFv                    PCPEDCFV.TIPOFV%TYPE;
@@ -5099,12 +5101,26 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Obtém a Qtde. de Dias do Plano de Pagamento
     BEGIN
       SELECT PCPLPAG.NUMDIAS
+           , PCPLPAG.PERTXFIM
         INTO vnNumDias
+           , vnPerTxFim
         FROM PCPLPAG
        WHERE (PCPLPAG.CODPLPAG = vnCodPlPag);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vnNumDias := 0;
+        vnPerTxFim := 0;
+    END;
+    
+    BEGIN
+      SELECT VALOR
+        INTO vvAcrescimoPlPagPrecoFixoMed
+        FROM PCPARAMFILIAL
+       WHERE (PCPARAMFILIAL.NOME = 'ACRESCIMOPLPAGPRECOFIXOMED')
+         AND (PCPARAMFILIAL.CODFILIAL = pi_vCodFilial);
+    EXCEPTION
+      WHEN OTHERS THEN
+        vvAcrescimoPlPagPrecoFixoMed := 'N';
     END;
 
     -- Regra Específica - Dias a Mais na Vigência - FV
@@ -5344,7 +5360,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vvTipoPromoPrecoOuDesconto := 'P';
                   vnCodDesconto              := vc_Promocoes.CODDESCONTO;
                   vnCodPromocaoMed           := vc_Promocoes.CODPROMOCAOMED;
-                  vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
+                  
+                  IF (vc_Promocoes.TIPOPOLITICA = 'P' OR vc_Promocoes.TIPOPOLITICA = 'F') AND (vvAcrescimoPlPagPrecoFixoMed = 'S') THEN
+                    vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 + vnPerTxFim / 100);
+                  ELSE
+                    vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
+                  END IF;
+                  
                   vnPercDescFin              := NVL(vc_Promocoes.PERCDESCFIN,0);
                   vnInicioIntervaloQt        := vc_Promocoes.INICIOINTERVALOPROMOCAOMED;
                   vnMenorPrecoEncontrado     := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100));
@@ -5398,7 +5420,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vvTipoPromoPrecoOuDesconto := 'P';
                   vnCodDesconto              := vc_Promocoes.CODDESCONTO;
                   vnCodPromocaoMed           := vc_Promocoes.CODPROMOCAOMED;
-                  vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
+                  
+                  IF (vc_Promocoes.TIPOPOLITICA = 'P' OR vc_Promocoes.TIPOPOLITICA = 'F') AND (vvAcrescimoPlPagPrecoFixoMed = 'S') THEN
+                    vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 + vnPerTxFim / 100);
+                  ELSE
+                    vnPrecoFixo                := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0);
+                  END IF;
+                  
                   vnPercDescFin              := NVL(vc_Promocoes.PERCDESCFIN,0);
                   vnInicioIntervaloQt        := vc_Promocoes.INICIOINTERVALOPROMOCAOMED;
                   vnMenorPrecoEncontrado     := NVL(vc_Promocoes.PRECOFIXOPROMOCAOMED,0) * (1 - (NVL(vc_Promocoes.PERCDESCFIN,0)/100));
@@ -6166,6 +6194,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Parametro da Empresa Tipo de Prazo de Medicamentos
     vvTipoPrazoMedicam       PCPARAMFILIAL.valor%TYPE;
+    vvAcrescimoPlPagPrecoFixoMed PCPARAMFILIAL.valor%TYPE;
 
     vcPermiteDescBoleto      pcclient.usadescfinseparadodesccom%type;
 
@@ -6212,6 +6241,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnPerComerc              PCPEDI.perdesccom%TYPE;
     -- Percentual de Desconto do Produto que será Concedido no Boleto
     vnPerBoleto              PCPEDI.perdescboleto%TYPE;
+    
+    -- Dados do Plano de Pagamento 
+    vnPerTxFim                 PCPLPAG.PERTXFIM%TYPE;
 
     -- HIS.03080.2016  - Variáveis para Implementação de Promoção com Preço Fixo
     vnCodDescontoPolitica        NUMBER;      -- HIS.03080.2016
@@ -6568,6 +6600,28 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     --Buscar dados do cliente
     SELECT COUNT(*) INTO vicont FROM pcclient WHERE codcli = p_codcli;
+    
+    BEGIN
+      SELECT VALOR
+        INTO vvAcrescimoPlPagPrecoFixoMed
+        FROM PCPARAMFILIAL
+       WHERE (PCPARAMFILIAL.NOME = 'ACRESCIMOPLPAGPRECOFIXOMED')
+         AND (PCPARAMFILIAL.CODFILIAL = pi_sCodFilial);
+    EXCEPTION
+      WHEN OTHERS THEN
+        vvAcrescimoPlPagPrecoFixoMed := 'N';
+    END;
+    
+    BEGIN
+      SELECT PERTXFIM
+        INTO vnPerTxFim
+        FROM PCPLPAG
+       WHERE (CODPLPAG = p_codplpag);
+    EXCEPTION
+      WHEN OTHERS THEN
+        vnPerTxFim := 0;
+    END;
+    
     IF vicont <> 0 THEN
       SELECT nvl(codcliprinc, codcli) codcliprinc,
              codatv1,
@@ -6673,7 +6727,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                -- HIS.03080.2016  - Variáveis da Implementação de Promoção com Preço Fixo
                vncoddesconto          := reg_pdescontos.coddesconto;          -- HIS.03080.2016
                vncodpromocaomed       := reg_pdescontos.codpromocaomed;       -- HIS.03080.2016
-               vnprecofixo            := reg_pdescontos.precofixopromocaomed; -- HIS.03080.2016
+               
+               IF (reg_pdescontos.tipopolitica = 'P' OR reg_pdescontos.tipopolitica = 'F') AND (vvAcrescimoPlPagPrecoFixoMed = 'S') THEN
+                 vnprecofixo            := reg_pdescontos.precofixopromocaomed * (1 + vnPerTxFim / 100);
+               ELSE
+                 vnprecofixo            := reg_pdescontos.precofixopromocaomed; -- HIS.03080.2016
+               END IF;
+               
                IF (NVL(reg_pdescontos.precofixopromocaomed,0) > 0) THEN
                  vvtipoprecodesc      := 'P'; -- HIS.03080.2016
                ELSE
