@@ -916,7 +916,7 @@ create or replace package body FISCAL is
                                    ,PVLFCPICMS        in number
                                    ,PVLICMSDESONERACAO in number
                                    ,PDATAOPER          in date
-                                   ,PVLSTBCR           in number
+                                   ,PVLSTBCR           in number                                   
                                    ,PVLBASEPISCOFINS_ATUAL in number
                                    ,PPERPIS_ATUAL          in number
                                    ,PPERCOFINS_ATUAL       in number
@@ -1113,7 +1113,7 @@ create or replace package body FISCAL is
                                        PVLSTBCR
                                      else
                                        0
-                                  end
+                                  end    
                            AS VLBASEPISCOFINS
                            ------------------
                            ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
@@ -1267,7 +1267,7 @@ create or replace package body FISCAL is
                                  PVLSTBCR
                                else
                                  0
-                             end
+                             end                      
                       as VLBASEPISCOFINS
                       ------------------
                      ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
@@ -1744,7 +1744,7 @@ create or replace package body FISCAL is
                           ,NVL(MC.VLFECP, 0) AS VLFCPST
                           ,'N' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0)  VLICMSDESONERACAO
-                          ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR
+                          ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR                          
                           ,NVL(M.VLBASEPISCOFINS,0)     VLBASEPISCOFINS_ATUAL
                           ,NVL(M.PERPIS,0)              PERPIS_ATUAL
                           ,NVL(M.PERCOFINS,0)           PERCOFINS_ATUAL
@@ -2410,7 +2410,7 @@ create or replace package body FISCAL is
                                           ,0
                                           ,0
                                           ,0
-                                          ,0
+                                          ,0                                          
                                           ,0
                                           ,0
                                           ,0
@@ -2570,7 +2570,7 @@ create or replace package body FISCAL is
                                           ,0
                                           ,0
                                           ,0
-                                          ,0
+                                          ,0                                          
                                           ,0
                                           ,0
                                           ,0
@@ -4257,8 +4257,8 @@ create or replace package body FISCAL is
                  (VTIPOCLIENTE = 'NI') )  AND
                  (DADOS.VLDESCICMISENCAO > 0)) then
                VVALORDESONERADO := DADOS.VLDESCICMISENCAO;
-               vINDDEDUZDESONERACAO := '1';
-            end if;
+               vINDDEDUZDESONERACAO := '1';               
+            end if;           
 
             --SÓ GRAVA MOTIVO E VALOR CASO TENHA VALOR, POIS SE GRAVAR VALOR ZERO E MOTIVO, DA REJEIÇÃO
             IF (VVALORDESONERADO + VVALOR_ST_DESONERADO > 0) THEN
@@ -4267,7 +4267,7 @@ create or replace package body FISCAL is
                    set PCMOVCOMPLE.VLICMSDESONERACAO = VVALORDESONERADO,
                        PCMOVCOMPLE.VICMSSTDESON      = VVALOR_ST_DESONERADO,
                        CODMOTIVOICMSDESONERADO       = VMOTIVODESONERACAO,
-                       INDDEDUZDESONERACAO           = vINDDEDUZDESONERACAO
+                       INDDEDUZDESONERACAO           = vINDDEDUZDESONERACAO  
                  where NUMTRANSITEM = DADOS.NUMTRANSITEM;
 
                 if sql%rowcount = 0 then
@@ -5425,23 +5425,59 @@ create or replace package body FISCAL is
     RETURN TRUE;
 
   END;
+  
+  FUNCTION GET_VIGENCIANTSEFAZ(P_IDENTIFICADORNT IN VARCHAR2) RETURN VARCHAR2 IS
+    vDATAINICIALVIGENCIA DATE;
+    vDATAFINALVIGENCIA   DATE;  
+    vRESULTADO           VARCHAR2(1);
+  BEGIN
+    BEGIN
+      SELECT DATAINICIALVIGENCIA,
+             NVL(DATAFINALVIGENCIA,TO_DATE('01/01/2999','DD/MM/YYYY'))
+        INTO vDATAINICIALVIGENCIA,
+             vDATAFINALVIGENCIA             
+        FROM PCVIGENCIANTSEFAZ
+       WHERE UPPER(IDENTIFICADOR_NT) = UPPER(P_IDENTIFICADORNT);
+              
+       IF vDATAINICIALVIGENCIA <= TRUNC(SYSDATE) AND
+          vDATAFINALVIGENCIA >= TRUNC(SYSDATE) THEN
+          vRESULTADO := 'S';
+       ELSE
+         vRESULTADO := 'N';         
+       END IF;         
+    EXCEPTION         
+      WHEN NO_DATA_FOUND THEN
+        vRESULTADO := 'N';        
+    END;       
+    
+    RETURN  vRESULTADO;
+  END;
 
   FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2) RETURN VARCHAR2 IS
+  vRetorno VARCHAR2(1);
   BEGIN
     BEGIN
       IF (P_SITUACAONFE IS NOT NULL) THEN
-        IF (P_SITUACAONFE IN ('110','205','301','302','303','307')) THEN
-          RETURN 'S';
+        vRetorno := 'N';        
+
+        IF GET_VIGENCIANTSEFAZ('NFE-NT2024.001-CRT-MEIv1.10') = 'N' THEN
+          IF (P_SITUACAONFE IN ('110','205','301','302','303','307')) THEN
+            vRetorno := 'S';
+          END IF;
         ELSE
-          RETURN 'N';
-        END IF;
+          IF (P_SITUACAONFE IN ('110','205')) THEN
+            vRetorno := 'S';
+          END IF;
+        END IF;  
       ELSE
-        RETURN 'N';
+        vRetorno := 'N';
       END IF;
     EXCEPTION
       WHEN OTHERS THEN
-        RETURN 'N';
+        vRetorno := 'N';
     END;
+    
+    RETURN vRetorno;
   END;
 
   FUNCTION CTE_DENEGADO(P_SITUACAOCTE IN VARCHAR2) RETURN VARCHAR2 IS
