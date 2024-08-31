@@ -146,9 +146,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                      NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO*/
       AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                    NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                   NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN DTPADRAO.ULTIMAEXECUCAO AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP) 
-                                                                                                   FROM PCPARAMETROS2651 PAR
-                                                                                                   WHERE PAR.NOME = 'DTFIMCARGA')               
+                   NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP) 
+                                                                                                                FROM PCPARAMETROS2651 PAR
+                                                                                                                WHERE PAR.NOME = 'DTFIMCARGA')               
 
 
     UNION ALL
@@ -306,7 +306,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(TPR.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN DTPADRAO.ULTIMAEXECUCAO AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP) 
-                                                                                                  FROM PCPARAMETROS2651 PAR
-                                                                                                  WHERE PAR.NOME = 'DTFIMCARGA')    	
+                 NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP) 
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA')    	
 )

@@ -5318,7 +5318,8 @@ PROCEDURE exec_sinc AS
   BEGIN
     EXECUTE IMMEDIATE ('BEGIN delete from PCERRORLOGCONSINCO; end;');
     EXECUTE IMMEDIATE ('BEGIN update pccontroleconsinco set processando = ''S''; end;');
-
+    EXECUTE IMMEDIATE ('BEGIN UPDATE PCPARAMETROS2651 SET VALOR_DATA = CURRENT_TIMESTAMP WHERE NOME = ''DTFIMCARGA'' ; end;');
+    
     OPEN c_processo;
 
     LOOP
