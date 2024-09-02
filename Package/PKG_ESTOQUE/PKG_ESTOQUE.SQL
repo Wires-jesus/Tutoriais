@@ -313,7 +313,8 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
   /**********************************************************************************************/
   /* Função padrão para consultar dados anteriores (processo de refatoração da PKG_ESTOQUE)*/
   /**********************************************************************************************/
-  FUNCTION PRIV_CONS_OP_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE)
+  FUNCTION PRIV_CONS_OP_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
+                                   ,pnCODPROD         IN PCPRODUT.CODPROD%TYPE)
   RETURN TB_DADOS_PEDIDO PIPELINED;
 
   /**********************************************************************************************/

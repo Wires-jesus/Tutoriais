@@ -1748,7 +1748,7 @@ IS
             INTO vnNUMTRANSVENDA
             FROM PCNFENT
         WHERE NUMTRANSENT = pnNUMTRANSACAO
-		  AND ESPECIE IN ('NF', 'NE');
+      AND ESPECIE IN ('NF', 'NE');
         EXCEPTION
         WHEN OTHERS THEN
             vnNUMTRANSVENDA := NULL;
@@ -1779,7 +1779,7 @@ IS
             WHEN NO_DATA_FOUND THEN
             vsCODFILIALORIGEM := NULL;
             P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_COMPRAS_TERCEIRO): O fornecedor informado não pertence a nenhuma filial';
-			WHEN TOO_MANY_ROWS THEN
+      WHEN TOO_MANY_ROWS THEN
             P_INTERNO.MSG_RETORNO := 'Erro 2 (PRIV_COMPRAS_TERCEIRO): O fornecedor da nota fiscal está vinculado em mais de uma filial.' || CHR(13) ||
                                     'Favor, realizar o ajuste na rotina 535.' || CHR(13) ||
                                     'Transação: ' || TO_CHAR(pnNUMTRANSACAO);
@@ -1787,8 +1787,8 @@ IS
         END;
 
         IF pnCODPROD IS NOT NULL THEN
-		
-		IF psCODFILIAL IS NOT NULL AND
+    
+    IF psCODFILIAL IS NOT NULL AND
             vsCODFILIALORIGEM IS NOT NULL AND
             psCNPJ IS NOT NULL THEN
 
@@ -2090,7 +2090,8 @@ IS
   Esta função deve ser chamada sempre que houver a necessidade de validar a quantidade contida na transação antes da execução da PKG_ESTOQUE
   Esta função NUNCA PODE FAZER COMANDO DE ALTERAÇÃO
   /**********************************************************************************************************************************************************/
-  FUNCTION PRIV_CONS_OP_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE)
+  FUNCTION PRIV_CONS_OP_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE,
+                                    pnCODPROD         IN PCPRODUT.CODPROD%TYPE)
   RETURN TB_DADOS_PEDIDO PIPELINED
   IS-- Declaração das variáveis internas
     PRAGMA AUTONOMOUS_TRANSACTION;
@@ -2106,6 +2107,7 @@ IS
                        WHERE P.NUMOP = L.NUMOP
                          AND P.NUMOP = pnIDENTIFICADOR
                          AND P.FINALIZAPRODUCAO = 'N'
+                         AND L.CODPROD = pnCODPROD
                          AND NVL(P.QTPRODUZIDA,0) < NVL(P.QTPRODUZIR,0)
                          AND NVL(L.QTREQUISITADO,0) < NVL(L.QT,0)
                     GROUP BY P.NUMOP, L.NUMLOTE, P.CODFILIAL, L.CODPROD)
@@ -2118,7 +2120,7 @@ IS
       PIPE ROW (vrDADOS);
     END LOOP;
   -- Procedure
-  END PRIV_CONS_OP_ANTERIORES;
+  END PRIV_CONS_OP_ANTERIORES; 
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
@@ -3692,7 +3694,7 @@ IS
       vtESTOQUE_DEPOSITO.CODPROD       := P_INTERNO.CODPROD;
       vtESTOQUE_DEPOSITO.QTESTOQUE     := P_INTERNO.QTESTGER;
       vtESTOQUE_DEPOSITO.TIPO_OPERACAO := P_INTERNO.TIPO_OPERACAO;
-	  vtESTOQUE_DEPOSITO.QTINDENIZADA  := P_INTERNO.QTINDENIZ;
+    vtESTOQUE_DEPOSITO.QTINDENIZADA  := P_INTERNO.QTINDENIZ;
       vtESTOQUE_DEPOSITO.QTBLOQUEADA   := P_INTERNO.QTBLOQUEADA;
       -- Atualizar estoque do depósito
       PRIV_CALCULAR_DEPOSITO (vtESTOQUE_DEPOSITO,P_INTERNO.MSG_RETORNO);
@@ -4887,7 +4889,7 @@ IS
                             ,OLD_NUMLOTE
                             ,OLD_CODFILIAL
                             ,OLD_CODPROD
-                        FROM TABLE(PRIV_CONS_OP_ANTERIORES(pnIDENTIFICADOR)))
+                        FROM TABLE(PRIV_CONS_OP_ANTERIORES(pnIDENTIFICADOR, pnCODPROD)))
     LOOP
       -- Atualizar variáveis
       P_INTERNO.vtLOTE               := NULL;
@@ -7746,9 +7748,9 @@ IS
                 -- Atualizar pendente na PCEST */
                 IF LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)) > 0 THEN 
                   P_INTERNO.CALCULA_ESTOQUE             := 'S';
-				ELSE
-				  P_INTERNO.CALCULA_ESTOQUE             := 'N';
-				END IF;
+        ELSE
+          P_INTERNO.CALCULA_ESTOQUE             := 'N';
+        END IF;
                 P_INTERNO.vtESTOQUE                   := NULL;
                 P_INTERNO.TIPO_OPERACAO               := 'B';
                 P_INTERNO.vtESTOQUE.CODFILIAL         := ESTOQUE.CODFILIAL;
@@ -7878,15 +7880,15 @@ IS
               P_INTERNO.vtESTOQUE.CODPROD    := pnCODPROD;
               PRIV_CONS_ESTOQUE_ATUAL (P_INTERNO.vtESTOQUE);
               QTANTERIOR := P_INTERNO.VTESTOQUE.QTBLOQUEADA;
-			  
+        
               QTDEVOLVWSM := 0;
-			  
+        
               /*IF (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_USAWMS', psCODFILIAL), 'N') = 'S') THEN
                 QTDEVOLVWSM := NVL(WMS_QTFALTAAVARAIASEMDEVPEND(pnCODPROD, psCODFILIAL, 'B'), 0); 
               END IF;*/
               
               P_INTERNO.VTESTOQUE.QTBLOQUEADA := (P_INTERNO.VTESTOQUE.QTBLOQUEADA - QTDEVOLVWSM) - QTBONUS_ABERTO;
-			  
+        
               -- Validar quantidade
               IF NVL(pnQTDE, 0) > 0 THEN
                 IF pnQTDE >= P_INTERNO.vtESTOQUE.QTBLOQUEADA THEN
@@ -9613,7 +9615,7 @@ IS
                                               WHERE NUMTRANSENT IN(SELECT NUMTRANSENT 
                                                                      FROM PCDEVFORNEC 
                                                                     WHERE NUMTRANSVENDA = PCNFENT.NUMTRANSVENDAORIG)
-												AND ROWNUM = 1
+                        AND ROWNUM = 1
                                              ), 'X') <> 'H')) OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'S') OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'A') OR
@@ -9635,7 +9637,7 @@ IS
                                               WHERE NUMTRANSENT IN(SELECT NUMTRANSENT 
                                                                      FROM PCDEVFORNEC 
                                                                     WHERE NUMTRANSVENDA = PCNFENT.NUMTRANSVENDAORIG)
-												AND ROWNUM = 1
+                        AND ROWNUM = 1
                                              ), 'X') <> 'H')) Or
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'S') OR
                                        (NVL(PCNFENT.TIPODESCARGA, 'X') = 'A') OR
@@ -9893,8 +9895,8 @@ IS
                                      ELSE
                                        REGISTROS.NOTA_QTBLOQUEADA
                                      END;
-		  ELSE 
-		    vnESTOQUE_QTBLOQUEADA := 0;
+      ELSE 
+        vnESTOQUE_QTBLOQUEADA := 0;
           END IF;
           -- Atualizar quantidade Indenizada
           IF (REGISTROS.NOTA_QTAVARIA > 0 AND REGISTROS.CODOPER = 'ET' AND (vsROTINA LIKE '%1124%' OR vsROTINA LIKE '%1301%')) THEN
@@ -13130,7 +13132,7 @@ END IF;
     END LOOP;
 
     PRIV_ATUALIZAR_CUSTO (pnNUMTRANSACAO,'S');
-	-- Validando se tem registros
+  -- Validando se tem registros
     IF vnCONTADORREGISTROS > 0 THEN
       IF (psECANCELAMENTO = 'S') THEN
         UPDATE PCNFSAID
@@ -13358,7 +13360,7 @@ END IF;
     END LOOP;
 
     PRIV_ATUALIZAR_CUSTO (pnNUMTRANSACAO,'E');
-	-- Validando se tem registros
+  -- Validando se tem registros
   IF vnCONTADORREGISTROS > 0 THEN
        IF (psECANCELAMENTO = 'S') THEN
          UPDATE PCNFENT
@@ -16120,8 +16122,8 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
           END IF;
 
           IF (psOPERACAO IN ('BQ')) AND 
-		     (P_INTERNO.NUMLOTE IS NOT NULL) AND 
-			 ((vsROTINA LIKE '%PCSIS1409%') OR (vsROTINA LIKE '%PCSIS4109%')) THEN
+         (P_INTERNO.NUMLOTE IS NOT NULL) AND 
+       ((vsROTINA LIKE '%PCSIS1409%') OR (vsROTINA LIKE '%PCSIS4109%')) THEN
             -- Atualizar Variáveis
             P_INTERNO.vtLOTE               := NULL;
             P_INTERNO.vtLOTE.IDENTIFICADOR := pnIDENTIFICADOR;
@@ -17089,19 +17091,19 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
 
     IF psECANCELAMENTO = 'S' THEN
       BEGIN
-		SELECT CONDVENDA 
-		  INTO vnCONDVENDA
-		  FROM PCPEDC 
-		 WHERE NUMPED IN (SELECT NUMPED 
-							  FROM PCMOV 
-							 WHERE NUMTRANSVENDA IN (SELECT PCESTCOM.NUMTRANSVENDA 
-													   FROM PCESTCOM 
-	  												  WHERE PCESTCOM.NUMTRANSENT = pnNUMTRANSACAO)); 
+    SELECT CONDVENDA 
+      INTO vnCONDVENDA
+      FROM PCPEDC 
+     WHERE NUMPED IN (SELECT NUMPED 
+                FROM PCMOV 
+               WHERE NUMTRANSVENDA IN (SELECT PCESTCOM.NUMTRANSVENDA 
+                             FROM PCESTCOM 
+                              WHERE PCESTCOM.NUMTRANSENT = pnNUMTRANSACAO)); 
       EXCEPTION
-	    WHEN OTHERS THEN
-		  vnCONDVENDA := 0;
-	  END;
-	END IF; 
+      WHEN OTHERS THEN
+      vnCONDVENDA := 0;
+    END;
+  END IF; 
 
     -- Lista produtos a serem alterados
     FOR REGISTROS IN (SELECT PCMOV.CODPROD -- Dados do estoque
@@ -18563,7 +18565,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     P_INTERNO.CODPROD         := pnCODPROD;
     P_INTERNO.CANCELAMENTO    := psECANCELAMENTO;
     P_INTERNO.MSG_RETORNO     := psMSG_RETORNO;
-	P_INTERNO.CODDEPOSITORESERVA := 0;
+  P_INTERNO.CODDEPOSITORESERVA := 0;
     PRIV_GERARLOG;
 
     BEGIN
@@ -19542,9 +19544,9 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         P_INTERNO.CODPROD        := REGISTROS.CODPROD;
         P_INTERNO.QTESTGER       := REGISTROS.NOTA_QT;
         P_INTERNO.QTRESERV       := vnDEPOSITO_QTRESERVADA;
-		P_INTERNO.QTINDENIZ      := REGISTROS.NOTA_QTAVARIA;
+    P_INTERNO.QTINDENIZ      := REGISTROS.NOTA_QTAVARIA;
         P_INTERNO.QTBLOQUEADA    := REGISTROS.NOTA_QTBLOQUEADA;
-		
+    
         -- Administrar estoque do depósito
         IF REGISTROS.CODOPER <> 'SI' AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('UTILIZAESTOQUEDEPOSITO',P_INTERNO.CODFILIAL,'N') = 'S' THEN
 
