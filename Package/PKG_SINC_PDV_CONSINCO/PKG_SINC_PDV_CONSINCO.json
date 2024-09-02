@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "6.0.12.000"
+			"versao": "6.0.13.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -65,7 +65,7 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.07.000"
+			"versao": "6.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
