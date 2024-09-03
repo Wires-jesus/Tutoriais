@@ -5369,6 +5369,49 @@ IS
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
+  03/09/2024     DAVI BERNADO        DDESTOQUE-18956     Alteração 
+  /***********************************************************************************************************************/
+  
+  PROCEDURE PRIV_DEVOLUCAO_AVARIA(pnCODPROD       IN PCPRODUT.CODPROD%TYPE
+                                 ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
+                                 ,pnNUMTRANSACAO  IN PCNFSAID.NUMTRANSVENDA%TYPE                                 
+                                 ,psCODFILIAL     IN PCFILIAL.CODIGO%TYPE)
+  IS    
+  BEGIN
+    FOR DADOS IN (SELECT GA.QT, GA.CODAVARIA, GA.CODPROD, GA.CODFILIAL 
+                    FROM PCDEVAVARIAC DC, PCDEVAVARIAI DI, PCGRUPOAVARIA GA, PCNFSAID S
+                   WHERE DC.CODGRUPOAVARIA = GA.CODGRUPO
+                     AND S.NUMTRANSVENDA = DC.NUMTRANSVENDA       
+                     AND DI.NUMTRANSVENDA = DC.NUMTRANSVENDA       
+                     AND DI.CODPROD = GA.CODPROD
+                     AND DC.CODFILIAL = DI.CODFILIAL
+                     AND GA.CODFILIAL = DC.CODFILIAL 
+                     AND GA.STATUS IN ('F', 'P')
+                     AND S.TIPODEVOL = 7
+                     AND GA.CODPROD = pnCODPROD
+                     AND GA.CODFILIAL = psCODFILIAL
+                     AND S.NUMTRANSVENDA = pnNUMTRANSACAO)
+    LOOP
+      IF psECANCELAMENTO = 'N' THEN 
+        UPDATE PCPRODAVARIA
+           SET QT = GREATEST(QT - DADOS.QT, 0)
+         WHERE CODPROD = DADOS.CODPROD
+           AND CODFILIAL = DADOS.CODFILIAL
+           AND CODAVARIA = DADOS.CODAVARIA;
+      ELSE
+        UPDATE PCPRODAVARIA
+           SET QT = GREATEST(QT + DADOS.QT, 0)
+         WHERE CODPROD = DADOS.CODPROD
+           AND CODFILIAL = DADOS.CODFILIAL
+           AND CODAVARIA = DADOS.CODAVARIA;
+      END IF;
+    END LOOP;  
+  END;
+
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor               Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
   03/02/2021     Fernandes Brito     0                   Criada procedure que executa a reserva item a item.
   /***********************************************************************************************************************/
   PROCEDURE PROT_PROCESSAR_ESTOQUE (ptFATURAR IN OUT TYPE_FATURAR)
@@ -10785,7 +10828,12 @@ IS
       -- Administração depósito
       END IF;
 
-      -- Inserindo informações de debug (LOG)
+      --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302
+      IF vsROTINA LIKE '%1302%' AND REGISTROS.CODOPER = 'SD' THEN      
+        PRIV_DEVOLUCAO_AVARIA(REGISTROS.CODPROD, psECANCELAMENTO, pnNUMTRANSACAO, REGISTROS.CODFILIAL);
+      END IF;
+	  
+	  -- Inserindo informações de debug (LOG)
       P_INTERNO.INFORMACOES_LOG := 'Finalizou a lista de produtos';
       P_INTERNO.MSG_RETORNO     := psMSG_RETORNO;
       PRIV_GERARLOG;
