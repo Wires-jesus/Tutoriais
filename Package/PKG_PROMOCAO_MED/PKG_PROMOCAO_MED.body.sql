@@ -16381,7 +16381,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vCODIGOINTEGRACAOWMS          PCDESCONTO.CODIGOINTEGRACAOWMS%TYPE,
          nVLDESCCMVPROMOCAOMED         PCDESCONTO.VLDESCCMVPROMOCAOMED%TYPE,
          nREGRAALTERARDESCONTO         PCDESCONTO.REGRAALTERARDESCONTO%TYPE,
-         nQTCOMBOMED                   PCDESCONTO.QTCOMBOMED%TYPE
+         nQTCOMBOMED                   PCDESCONTO.QTCOMBOMED%TYPE,
+         nQTMINIMAMED                  PCDESCONTO.QTMINIMAMED%TYPE
          );
     vrDESCONTO                         TRecDESCONTO;
     -- Dados da Promoção
@@ -18749,7 +18750,17 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vvObrigatorio     := NULL;
                 vnQtdeKit         := NULL;
               END IF;
-
+              
+              IF vvTipoPromocao = 'M' THEN
+                IF vvTipoPolitica IN ('Q','V') THEN
+                  vvObrigatorio     := vtPCMED_PROMOCAOPRODUTO(idxProduto).OBRIGATORIO;
+                  vnQtdeObrigatorio := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTOBRIGATORIO; 
+                ELSE
+                  vvObrigatorio     := NULL;
+                  vnQtdeObrigatorio := NULL;
+                END IF;
+              END IF;
+              
             END IF;
 
             -- Se gerou as Faixas
@@ -18793,7 +18804,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- HIS.01889.2017 - Promoção de Campanha tem Controle de Obrigatório no Produto
                 IF    (vvTipoPromocao IN ('V','M','N')) THEN
                   -- Se permite Qt Mínima S/ Obrigatoriedade do Produto no Pedido e Qt. Mínima informada  [HIS.04779.2014]
-                  IF (NVL(vvPermiteQtMinimaSemObrig,'N') = 'S') AND (vnQtdeObrigatorio > 0) THEN
+                  IF (vvTipoPromocao = 'M') AND (vvTipoPolitica IN ('Q','V')) THEN
+                    vrDESCONTO.vOBRIGATORIO                := vvObrigatorio;
+                    vrDESCONTO.nQTMINIMAMED                := vnQtdeObrigatorio;                  
+                  ELSIF (NVL(vvPermiteQtMinimaSemObrig,'N') = 'S') AND (vnQtdeObrigatorio > 0) THEN
                     vrDESCONTO.nINICIOINTERVALOPROMOCAOMED := vnQtdeObrigatorio;
                     vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := 999999;
                     vrDESCONTO.vOBRIGATORIO                := vvObrigatorio;
@@ -18922,6 +18936,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , VLDESCCMVPROMOCAOMED
                             , REGRAALTERARDESCONTO                            
                             , QTCOMBOMED
+                            , QTMINIMAMED
                             )
                      VALUES ( vnNovoCodDesconto
                             , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18987,13 +19002,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , vrDESCONTO.nVLDESCCMVPROMOCAOMED
                             , vrDESCONTO.nREGRAALTERARDESCONTO
                             , vrDESCONTO.nQTCOMBOMED
+                            , vrDESCONTO.nQTMINIMAMED
                             );
 
                 -- Altera na PCDESCONTO o Desconto do Produto - EDTPRM
                 ELSIF (vrEditarPromocao.vvAcaoEditaProduto = 'A') THEN
 
                   -- Promoções de Valor e Combo e Campanha usam o Inicio do Intervalo para Quantidade Mínima
-                  IF (vvTipoPromocao IN ('M','V','K','N')) THEN
+                  IF (vvTipoPromocao IN ('V','K','N')) OR ((vvTipoPromocao = 'M') AND (vvTipoPolitica NOT IN ('Q','V'))) THEN
                     UPDATE PCDESCONTO
                        SET DTINICIO                   = vdDataInicial
                          , DTFIM                      = vdDataFinal
@@ -19025,6 +19041,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                         , QTMINIMAMED                = vrDESCONTO.nQTMINIMAMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD);                  
                   -- Promoções de Lote
@@ -22785,11 +22802,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , OBRIGATORIO
                       , PERMITIRAUMENTARQTDEKIT
                       , QTKIT
+                      , QTOBRIGATORIO
                       )
                  SELECT DISTINCT
                         CODPROD
                       , CASE
-                          WHEN vvTipoPromocao = 'K' AND vvTipoPolitica IN ('Q','V') THEN
+                          WHEN vvTipoPromocao IN ('K','M') AND vvTipoPolitica IN ('Q','V') THEN
                             PROMOCAOMEDOBRIGATORIO
                           ELSE
                             NULL
@@ -22806,9 +22824,16 @@ IS PRAGMA SERIALLY_REUSABLE;
                           ELSE
                             NULL
                         END
+                      , CASE
+                          WHEN vvTipoPromocao = 'M' AND vvTipoPolitica IN ('Q','V') THEN
+                            QTMINIMAMED
+                          ELSE
+                            NULL
+                        END                      
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODPROD        IS NOT NULL);
+                    
             INSERT INTO PCMED_PROMOCAOPRODUTO_FAIXA(
                         CODPRODREF
                       , PERCDESC
