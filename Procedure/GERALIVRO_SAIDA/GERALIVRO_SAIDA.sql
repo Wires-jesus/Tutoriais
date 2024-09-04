@@ -70,6 +70,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   V_NF_CONTABILIZADA number;
   vPARAM_VALIDA_NF_CONTABILIZADA    varchar2(1);
   V_NUMNOTA    number;
+  V_NUMTRANSVENDA number;
   -------------------------------------------------------------------------------------------
   cursor C_NOTAS_NF(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
   -- 01 - NOTAS FISCAIS DE VENDA
@@ -8190,6 +8191,7 @@ END;
     V_LISTA_NOTAS_TEMP.VLFRETE       := 0;
     V_NF_CONTABILIZADA               := 0;
     V_NUMNOTA                        := 0;
+    V_NUMTRANSVENDA                  := 0;    
     
     for I in 1 .. V_LISTA_NOTAS.count
     loop
@@ -8201,7 +8203,8 @@ END;
            V_NF_CONTABILIZADA:= 1;
         ELSE
            --DELETA LIVRO DA NF
-           IF V_NUMNOTA <> V_LISTA_NOTAS(I).NUMNOTA THEN
+           IF V_NUMNOTA <> V_LISTA_NOTAS(I).NUMNOTA OR
+              V_NUMTRANSVENDA <> V_LISTA_NOTAS(I).NUMTRANSVENDA THEN
                 DELETAR_REGISTROS_PCNFBASESAID(V_LISTA_NOTAS(I).DATA,
                                                 V_LISTA_NOTAS(I).DATA,
                                                 V_LISTA_NOTAS(I).CODFILIAL,
@@ -8211,7 +8214,8 @@ END;
             END IF;                                     
            V_NF_CONTABILIZADA:= 0;    
         END IF;
-        V_NUMNOTA := V_LISTA_NOTAS(I).NUMNOTA;
+        V_NUMNOTA       := V_LISTA_NOTAS(I).NUMNOTA;
+        V_NUMTRANSVENDA := V_LISTA_NOTAS(I).NUMTRANSVENDA;
       END IF;
       IF V_NF_CONTABILIZADA = 0 THEN 
       -- CONDICIONAL CRIADA PARA NÏ GERAR O LIVRO PARA ESPECIE = NS, POR? A MESMA PRECISA TER A CONTA CONTABIL GERADA MAIS A BAIXO.
