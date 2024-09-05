@@ -15,7 +15,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
    ,TIPOCHAMADA       VARCHAR2(50) DEFAULT NULL
    ,ID_LISTA          VARCHAR2(50) DEFAULT NULL
    ,GERAR_LOG         VARCHAR2(1) DEFAULT 'N'
-   ,USA_FUNCAO_1070   VARCHAR2(1) DEFAULT 'N'); 
+   ,USA_FUNCAO_1070   VARCHAR2(1) DEFAULT 'N');
 
   -- Type para armazenar os dados
   TYPE T_DADOS IS RECORD
@@ -486,7 +486,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar função para analisar problemas de estoque
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   FUNCTION F_ANALISAR_ESTOQUE (psCODFILIAL   IN PCFILIAL.CODIGO%TYPE
                               ,pnCODPRODUTO  IN PCPRODUT.CODPROD%TYPE)
     RETURN TB_ANALISAR_ESTOQUE
@@ -754,7 +754,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   28/02/2020     Fernandes Brito     0                   Criar função para analisar dados de venda assistida
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   FUNCTION F_ANALISAR_VENDA_ASSISTIDA (psCODFILIAL     IN PCFILIAL.CODIGO%TYPE
                                       ,pdDATAINICIAL   IN PCPEDI.DATA%TYPE
                                       ,pdDATAFINAL     IN PCPEDI.DATA%TYPE)
@@ -818,7 +818,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   19/02/2018    Fernandes Brito    0                   Função criada para buscar a data base para inicio do recalculo
-  /**********************************************************************************************************************************************************/
+  **********************************************************************************************************************************************************/
   FUNCTION F_BUSCAR_DTBASE RETURN DATE
   IS
     -- Declaração das variáveis internas */
@@ -856,7 +856,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   22/08/2017    Fernandes Brito    0                   Consultar informações do histórico do produto na PCHISTEST
-  /**********************************************************************************************************************************************************/
+  **********************************************************************************************************************************************************/
   FUNCTION F_CONS_HIST (psOPERACAO IN VARCHAR2) RETURN VARCHAR2
   IS-- Declaração das variáveis internas
   BEGIN
@@ -955,7 +955,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   22/08/2017    Fernandes Brito    0                   Consultar informações do histórico do produto na PCHISTEST
-  /**********************************************************************************************************************************************************/
+  **********************************************************************************************************************************************************/
   FUNCTION F_CONS_HIST_LOTE (psOPERACAO IN VARCHAR2) RETURN VARCHAR2
   IS
     -- Declaração das variáveis internas */
@@ -1055,7 +1055,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   02/09/2017    Fernandes Brito    0                   Criada função para consultar o histórico do produto no WMS
-  /**********************************************************************************************************************************************************/
+  **********************************************************************************************************************************************************/
   FUNCTION F_CONS_HIST_WMS (psOPERACAO IN VARCHAR2) RETURN VARCHAR2
   IS
     -- Declaração das variáveis internas */
@@ -1110,7 +1110,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   21/08/2017    Fernandes Brito    0                   Consultar informações e parâmetros do produto
-  /**********************************************************************************************************************************************************/
+  **********************************************************************************************************************************************************/
   FUNCTION F_CONS_PRODUTO (psOPERACAO IN VARCHAR2) RETURN VARCHAR2
   IS-- Declaração das variáveis internas
   BEGIN
@@ -1438,7 +1438,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     SELECT 
       COUNT(*) QTD_REGISTROS 
       INTO vnULTIMA_ITERACAO
-    FROM PCRECALCULOPROD      
+    FROM PCRECALCULOPROD
     -- FILTRO DE REGISTROS A SEREM PROCESSADOS      
     WHERE (P_ENTRADA.CODFILIAL IS NULL OR PCRECALCULOPROD.CODFILIAL = P_ENTRADA.CODFILIAL);    
   
@@ -1494,7 +1494,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
         vnCODPROD_ANTERIOR := DADOS.CODPROD;
         vnDTRECALCULO_ANTERIOR := DADOS.DTRECALCULO;
       END IF;      
-    
+
       -- REALIZAR CHAMADA DO FINANCEIRO APENAS QUANDO OS REGISTROS FOREM DIFERENTES
       -- UM REGISTRO É DIFERENTE QUANDO QUALQUER UM DE SEUS DADOS DE FILIAL/DATA/PRODUTO MUDAR
       -- O QUE SIGNIFICA QUE TODOS OS REGISTROS REPETIDOS DAQUELA INFORMAÇÃO TIVERAM SEU PROCESSAMENTO FINALIZADO                  
@@ -1509,7 +1509,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
       IF (vnITERACAO_ATUAL = vnULTIMA_ITERACAO) THEN
         P_RECALCULA_PCFINANC_ESTOQUE(DADOS.DTRECALCULO, DADOS.CODFILIAL, DADOS.CODPROD);              
       END IF;  
-          
+
       -- Marcar registro atualizado
       DELETE PCRECALCULOPROD
       WHERE ROWID = DADOS.ID_LINHA;
@@ -1518,10 +1518,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
       vnCODFILIAL_ANTERIOR := DADOS.CODFILIAL;  
       vnCODPROD_ANTERIOR := DADOS.CODPROD;  
       vnDTRECALCULO_ANTERIOR := DADOS.DTRECALCULO;    
-           
+
       -- Incrementando iteração dos itens filtrados em processamento
-      vnITERACAO_ATUAL := vnITERACAO_ATUAL + 1;      
-    
+      vnITERACAO_ATUAL := vnITERACAO_ATUAL + 1;
+
     -- Listsa de produtos
     END LOOP;
   -- Procedure
@@ -1545,7 +1545,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
         vsVALORPARAMETRO := '';
     END;
   END;
-  
+
   /************************************************************************************************************
   ---------------------------------- Historico ----------------------------------------------------------------
       Data        Responsavel    Comentarios
@@ -1682,7 +1682,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          QTESTOQUEDETERCEIRO,
          QTTRANSITOTV10,
          CUSTOFISCAL,
-         CUSTOULTENTFISCAL)
+         CUSTOULTENTFISCAL,
+         RECALCULO)
       VALUES
         (TROW(NX).CODFILIAL,
          TROW(NX).CODPROD,
@@ -1772,7 +1773,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          TROW(NX).QTESTOQUEDETERCEIRO,
          TROW(NX).QTTRANSITOTV10,
          TROW(NX).CUSTOFISCAL,
-         TROW(NX).CUSTOULTENTFISCAL);
+         TROW(NX).CUSTOULTENTFISCAL,
+         'N');
       EXCEPTION
           WHEN DUP_VAL_ON_INDEX THEN
             DELETE PCHISTEST 
@@ -1869,7 +1871,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          QTESTOQUEDETERCEIRO,
          QTTRANSITOTV10,
          CUSTOFISCAL,
-         CUSTOULTENTFISCAL)
+         CUSTOULTENTFISCAL,
+         RECALCULO)
       VALUES
         (TROW(NX).CODFILIAL,
          TROW(NX).CODPROD,
@@ -1959,7 +1962,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          TROW(NX).QTESTOQUEDETERCEIRO,
          TROW(NX).QTTRANSITOTV10,
          TROW(NX).CUSTOFISCAL,
-         TROW(NX).CUSTOULTENTFISCAL);
+         TROW(NX).CUSTOULTENTFISCAL,
+         'N');
         END;  
       -- DELETA A FILA PARA NÃO OCORRER ERRO DE CHAVE PRIMÁRIA
       DELETE
@@ -2436,7 +2440,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar dados da ordem de produção
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ATUALIZAR_ORDEM_PRODUCAO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
   BEGIN
@@ -2571,7 +2575,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar parâmetros.
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_BUSCAR_PARAMETROS (pENTRADA IN TP_ENTRADA)
   IS
   BEGIN
@@ -3280,7 +3284,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor               Solicitação         Descrição
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar os dados pendencias na tabela do depósito (PCESTOQUEDEPOSITOPROD)
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_DEPOSITO_PENDENTE (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCodDeposito PCESTOQUEDEPOSITOPROD.CODDEPOSITO%TYPE;
@@ -3333,7 +3337,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar os dados reservados na tabela do depósito (PCESTOQUEDEPOSITOPROD)
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_DEPOSITO_RESERVADO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCodDeposito PCESTOQUEDEPOSITOPROD.CODDEPOSITO%TYPE;
@@ -3386,7 +3390,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar os dados em pendencia na tabela de estoque (PCEST)
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ESTOQUE_PENDENTE (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
   BEGIN
@@ -3413,7 +3417,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar os dados reservado na tabela de estoque (PCEST)
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ESTOQUE_RESERVADO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
   BEGIN
@@ -3599,6 +3603,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     P_INTERNOS.DTBASE := P_INTERNOS.DTATUAL;
     -- Criar registro caso o mesmo nao exista para o dia
     IF F_CONS_HIST('CONTAR') = '0' THEN
+      -- Definindo que o registro é proveniente de um recálculo
+      vrPCHISTEST.RECALCULO := 'S';    
       -- Alterando a data do ultimo PCHISTEST para a data da lista
       vrPCHISTEST.DATA      := P_INTERNOS.DTATUAL;
       vrPCHISTEST.DTGERACAO := SYSDATE;
@@ -3620,7 +3626,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
       IF P_INTERNOS.ID_LISTA = 'GERENCIAL' THEN
         IF NVL(P_INTERNOS.TIPOCHAMADA,'NORMAL') <> 'CONTABIL' THEN
           UPDATE PCHISTEST
-             SET QTESTGER = (vrPCHISTEST.QTESTGER + NVL(P_INTERNOS.SALDO,0))
+             SET QTESTGER = (vrPCHISTEST.QTESTGER + NVL(P_INTERNOS.SALDO,0)),
+                 RECALCULO = 'S'
            WHERE CODFILIAL = P_INTERNOS.CODFILIAL
              AND CODPROD = P_INTERNOS.CODPROD
              AND DATA = P_INTERNOS.DTATUAL;
@@ -3628,7 +3635,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
       ELSIF P_INTERNOS.ID_LISTA = 'CONTABIL' THEN
         IF NVL(P_INTERNOS.TIPOCHAMADA,'NORMAL') <> 'GERENCIAL' THEN
           UPDATE PCHISTEST
-             SET QTEST = (vrPCHISTEST.QTEST + NVL(P_INTERNOS.SALDO,0))
+             SET QTEST = (vrPCHISTEST.QTEST + NVL(P_INTERNOS.SALDO,0)),
+                 RECALCULO = 'S'
            WHERE CODFILIAL = P_INTERNOS.CODFILIAL
              AND CODPROD = P_INTERNOS.CODPROD
              AND DATA = P_INTERNOS.DTATUAL;
@@ -3959,7 +3967,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para atualizar os dados reservado do lote (PCLOTE)
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_LOTE_RESERVADO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
   BEGIN
@@ -5470,7 +5478,7 @@ END IF;
                             AND PCMOV.STATUS IN (''B'', ''AB'')
                             AND (NOT EXISTS (SELECT NUMPED
                                                FROM PCPEDC
-                                              WHERE NUMPED = DECODE(PCMOV.CODOPER, ''EP'', -1, ''SP'',-1, PCMOV.NUMPED)'||CHR(13);                        
+                                              WHERE NUMPED = DECODE(PCMOV.CODOPER, ''EP'', -1, ''SP'',-1, PCMOV.NUMPED)'||CHR(13);
 IF psCODFILIAL IS NOT NULL THEN
   vsSQL := vsSQL||'                             AND PCPEDC.CODFILIAL = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
 END IF;                        
@@ -5643,7 +5651,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados pre requisição de consumo
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ORDEM_PRODUCAO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
   
@@ -5795,7 +5803,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados ordem de produção avulso
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ORDEM_PRODUCAO_AVULSA (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -5896,7 +5904,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados ordem de produção
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ORDEM_SERVICO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -6051,7 +6059,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados dos pedidos reservados
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_PEDIDOS_DE_VENDA (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -6219,7 +6227,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados do pré faturamento dos pedidos
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_PREFAT (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -6353,7 +6361,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados pre requisição de consumo
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_PREREQUISICAO_CONSUMO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -7210,7 +7218,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para buscar dados pre requisição de consumo
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_REQUISICAO_DEPOSITO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vCURSOR_PEDIDOS SYS_REFCURSOR;
@@ -7697,7 +7705,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para zerar valores das quantidade reservada e pendente
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ZERAR_SALDOS (pENTRADA IN TP_ENTRADA)
   IS
   BEGIN
@@ -7837,7 +7845,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   10/02/2020     Fernandes Brito     0                   Criar procedure para orquestrar as procedures de recalculo do reservado
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_RESERVADO (pENTRADA IN TP_ENTRADA)
   IS-- Variáveis internas
     vENTRADA TP_ENTRADA;
@@ -8125,8 +8133,29 @@ END IF;
     vtREGISTROS     TROW_HISTEST;
     vtMOV_GERENCIAL TROW_MOV_GERENCIAL;
     vtMOV_CONTABIL  TROW_MOV_CONTABIL;
-  
+
+    vtROTINA_ATIVA  VARCHAR2(10);
+    vENTRADA        TP_ENTRADA;
+
   BEGIN
+
+    SELECT
+      CASE WHEN COUNT(1) = 1 THEN '820' ELSE '504' END
+    INTO
+      vtROTINA_ATIVA
+    FROM PCROTDESCONTINUADAS
+    WHERE CODIGO = '504';
+
+    -- Caso utilize a rotina 820, processar a tabela PCRECALCULOPROD antes de recriar a PCHISTEST
+    IF vtROTINA_ATIVA = '820' THEN
+      PRC_LIMPAR_PRODNAORECALCULADO;
+      
+      vENTRADA.TIPOCHAMADA := 'EXTERNA';
+      vENTRADA.CODFILIAL := psCODFILIAL;
+      
+      PRC_EXECUTAR_LISTA(vENTRADA);
+    END IF;
+
     FOR DADOS IN (SELECT DISTINCT H.CODFILIAL
                     FROM PCHISTEST H
                    WHERE H.DATA = pdDATA_BASE
@@ -8142,7 +8171,7 @@ END IF;
                     FROM DUAL
                  CONNECT BY LEVEL <= ((TO_DATE(pdDTFINAL,'DD-MM-RRRR')-TO_DATE(pdDTINICIAL,'DD-MM-RRRR')) + 1))
       LOOP
-        -- Abrindo curso
+        -- Abrindo cursor
         OPEN HISTEST_BASE (DADOS.CODFILIAL,pdDATA_BASE);
         LOOP
           FETCH HISTEST_BASE BULK COLLECT INTO vtREGISTROS LIMIT 10000;
@@ -8150,6 +8179,8 @@ END IF;
             FOR I IN 1 ..vtREGISTROS.COUNT
       LOOP
         vtREGISTROS(I).DATA := DIAS.DIA;
+        vtREGISTROS(I).RECALCULO := 'S';
+
               -- Confirmando os registros
               INSERT INTO PCHISTEST VALUES vtREGISTROS(I);
               COMMIT;
@@ -8234,6 +8265,13 @@ END IF;
   
       END LOOP;
     END LOOP;
+
+    -- Limpando PCHISTESTFILA do período processado para que os dados gerados não sejam sobrescritos na próxima execução automática do fechamento
+    DELETE
+    FROM PCHISTESTFILA
+    WHERE CODFILIAL = psCODFILIAL
+    AND DATA BETWEEN pdDTINICIAL AND pdDTFINAL;
+
     -- Confirmando registros
     COMMIT;
   -- Procedure
