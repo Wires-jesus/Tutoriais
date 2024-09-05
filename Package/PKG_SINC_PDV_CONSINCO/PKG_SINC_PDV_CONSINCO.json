@@ -65,12 +65,12 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.08.000"
+			"versao": "6.0.09.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.07.000"
+			"versao": "6.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -110,7 +110,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "6.0.18.000"
+			"versao": "6.0.20.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
