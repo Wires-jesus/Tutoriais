@@ -383,15 +383,19 @@ BEGIN
                                           AND DECODE(PUSOCONSUMO,      'N',NVL(PCHISTEST.TIPOMERCDEPTO, 'X'),'XX') <> 'CI'
                                           AND DECODE(PATIVIOMOBULIZADO,'N',NVL(PCHISTEST.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
                                           AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCHISTEST.TIPOMERC, 'X'),'XX') <> 'BD'
+
                                           AND (CASE
                                                    WHEN PSTATUSPROD = 'T'
-                                                      THEN 1
-                                                   WHEN PSTATUSPROD = 'A' AND PCHISTEST.DTEXCLUSAOPROD IS NULL
-                                                      THEN 1
-                                                   WHEN PSTATUSPROD = 'I' AND PCHISTEST.DTEXCLUSAOPROD IS NOT NULL
-                                                      THEN 1
-                                                   ELSE 0
-                                               END = 1)                                                 
+                                                      THEN 'S'
+                                                   WHEN PSTATUSPROD = 'A'
+                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO) 
+                                                      THEN 'S'
+                                                   WHEN PSTATUSPROD = 'I'
+                                                         AND (PCHISTEST.DTEXCLUSAOPROD IS NOT NULL AND DTEXCLUSAOPROD <= V_DATA_INVENTARIO)
+                                                      THEN 'N'
+                                                   ELSE 'N'
+                                               END = 'S')
+											   
                                           ) HISTEST,
                                              PCPRODUT
                                         WHERE PCPRODUT.CODPROD = HISTEST.CODPROD(+)
@@ -863,15 +867,17 @@ BEGIN
                                       AND DECODE(PUSOCONSUMO,      'N',NVL(PCHISTEST.TIPOMERCDEPTO, 'X'),'XX') <> 'CI'
                                       AND DECODE(PATIVIOMOBULIZADO,'N',NVL(PCHISTEST.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
                                       AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCHISTEST.TIPOMERC, 'X'),'XX') <> 'BD'
-                                      AND (CASE
-                                               WHEN PSTATUSPROD = 'T'
-                                                  THEN 1
-                                               WHEN PSTATUSPROD = 'A' AND PCHISTEST.DTEXCLUSAOPROD IS NULL
-                                                  THEN 1
-                                               WHEN PSTATUSPROD = 'I' AND PCHISTEST.DTEXCLUSAOPROD IS NOT NULL
-                                                  THEN 1
-                                               ELSE 0
-                                           END = 1)  
+                                          AND (CASE
+                                                   WHEN PSTATUSPROD = 'T'
+                                                      THEN 'S'
+                                                   WHEN PSTATUSPROD = 'A'
+                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO) 
+                                                      THEN 'S'
+                                                   WHEN PSTATUSPROD = 'I'
+                                                         AND (PCHISTEST.DTEXCLUSAOPROD IS NOT NULL AND DTEXCLUSAOPROD <= V_DATA_INVENTARIO)
+                                                      THEN 'N'
+                                                   ELSE 'N'
+                                               END = 'S') 
                                       ) HISTEST,
                                    PCPRODUT
                               WHERE PCPRODUT.CODPROD = HISTEST.CODPROD(+)
@@ -1163,8 +1169,7 @@ EXCEPTION
 END;
 ----------------------------------------------//----------------------------------------------//----------------------------------------------//----------------------------------------------//
 -- Últimas Alterações: 
--- Alteração em 17/01/2023 no SQl SF retirando as colunas de quantidade por se tratar de um CT de ajuste de custo. 
--- Alteração em 02/10/2023 - Implementado parametro 26 "PCONS_CUSTO_ZERO" para considerar entradas com custo zero
--- Alteração em 18/12/2023 - Implementação do custo fiscal
--- Alteração em 22/01/2024 - Voltando a lista de custos de 1 a 6 e acrescentando o custo fiscal na posição 7
+
+-- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
+-- Alt.: 22/01/2024 - Voltando a lista de custos de 1 a 6 e acrescentando o custo fiscal na posição 7
 ----------------------------------------------//----------------------------------------------//----------------------------------------------//----------------------------------------------//
