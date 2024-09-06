@@ -10828,7 +10828,7 @@ IS
       -- Administração depósito
       END IF;
 
-      --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302
+      --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302 e 1327
       IF (((vsROTINA LIKE '%1302%') OR 
 	     (vsROTINA LIKE '%1327%' AND psECANCELAMENTO = 'S')) AND 
 		 REGISTROS.CODOPER = 'SD') THEN       
