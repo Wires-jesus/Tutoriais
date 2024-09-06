@@ -8152,9 +8152,19 @@ END IF;
       
       vENTRADA.TIPOCHAMADA := 'EXTERNA';
       vENTRADA.CODFILIAL := psCODFILIAL;
-      
       PRC_EXECUTAR_LISTA(vENTRADA);
+
+      -- Confirmando processamento de registros de PCRECALCULOPROD
+      COMMIT;
     END IF;
+    
+    -- Limpando PCHISTESTFILA do período processado para que os dados gerados não sejam sobrescritos na próxima execução automática do fechamento
+    DELETE
+    FROM PCHISTESTFILA
+    WHERE CODFILIAL = psCODFILIAL
+    AND DATA BETWEEN pdDTINICIAL AND pdDTFINAL;
+    -- Confirmando limpeza de registros pendentes de PCHISTESTFILA
+    COMMIT;
 
     FOR DADOS IN (SELECT DISTINCT H.CODFILIAL
                     FROM PCHISTEST H
@@ -8266,13 +8276,7 @@ END IF;
       END LOOP;
     END LOOP;
 
-    -- Limpando PCHISTESTFILA do período processado para que os dados gerados não sejam sobrescritos na próxima execução automática do fechamento
-    DELETE
-    FROM PCHISTESTFILA
-    WHERE CODFILIAL = psCODFILIAL
-    AND DATA BETWEEN pdDTINICIAL AND pdDTFINAL;
-
-    -- Confirmando registros
+    -- Confirmando registros de criação de PCHISTEST
     COMMIT;
   -- Procedure
   END;
