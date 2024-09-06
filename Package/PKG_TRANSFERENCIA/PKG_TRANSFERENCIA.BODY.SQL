@@ -509,6 +509,7 @@ BEGIN
     ROWPCLANC.Codconta    := VNCodConta;
     ROWPCLANC.Duplic      := '1';
     ROWPCLANC.Numnota     := VNNUMNOTA;
+	ROWPCLANC.TIPOPARCEIRO := 'F';
 
     INSERT INTO PCLANC VALUES ROWPCLANC;
   end if;
@@ -1801,6 +1802,7 @@ END;
       voPCLANC.Numtransent := voPCNFENT.NUMTRANSENT;
       voPCLANC.Codconta    := voPCNFENT.CODCONTFOR;
       voPCLANC.Numnota     := voPCNFENT.NUMNOTA;
+	  voPCLANC.TIPOPARCEIRO := 'F';
 
       INSERT INTO PCLANC
            VALUES voPCLANC;  
