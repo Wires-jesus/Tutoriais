@@ -1990,7 +1990,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   21/08/2024     Davi Bernado        DDESTOQUE-18838     CRIAÇÃO DE FUNCTION PARA TESTE UNITARIO
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   FUNCTION F_ARMAZENARSALDOSESTOQUE_TST(vsCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL)
   RETURN NUMBER
   IS
@@ -2009,7 +2009,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   28/06/2024     Davi Bernado        DDESTOQUE-18448     Criar procedure para criar pchistest pela rotina 504
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   PROCEDURE PRC_ARMAZENARSALDOSESTOQUE_504
   IS
     -- Declaração do cursor usado na gravação do PCHISTEST */
@@ -2124,7 +2124,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          QTESTOQUEDETERCEIRO,
          QTTRANSITOTV10,
          CUSTOFISCAL,
-         CUSTOULTENTFISCAL)
+         CUSTOULTENTFISCAL,
+         RECALCULO)
       VALUES
         (TROW(NX).CODFILIAL,
          TROW(NX).CODPROD,
@@ -2214,7 +2215,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
          TROW(NX).QTESTOQUEDETERCEIRO,
          TROW(NX).QTTRANSITOTV10,
          TROW(NX).CUSTOFISCAL,
-         TROW(NX).CUSTOULTENTFISCAL);
+         TROW(NX).CUSTOULTENTFISCAL,
+         'N');
       EXCEPTION
           WHEN DUP_VAL_ON_INDEX THEN
             DELETE PCHISTEST 
