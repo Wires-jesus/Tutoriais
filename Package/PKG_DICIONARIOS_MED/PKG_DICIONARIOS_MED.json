@@ -165,12 +165,12 @@
     {
       "nome": "VIEW_MED_PROMOCAO_DESCONTO_OL",
       "tipo": "OBJETO_PLSQL",
-      "versao": "6.0.01.000"
+      "versao": "6.0.02.000"
     },
     {
       "nome": "VIEW_MED_PROMOCAO_DESC_HYPER",
       "tipo": "OBJETO_PLSQL",
-      "versao": "6.0.02.000"
+      "versao": "6.0.03.000"
     },
     {
       "nome": "PCCONFIGSISTCONDOPERLOG",
