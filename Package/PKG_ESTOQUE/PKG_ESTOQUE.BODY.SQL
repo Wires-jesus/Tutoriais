@@ -10829,7 +10829,9 @@ IS
       END IF;
 
       --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302
-      IF vsROTINA LIKE '%1302%' AND REGISTROS.CODOPER = 'SD' THEN      
+      IF (((vsROTINA LIKE '%1302%') OR 
+	     (vsROTINA LIKE '%1327%' AND psECANCELAMENTO = 'S')) AND 
+		 REGISTROS.CODOPER = 'SD') THEN       
         PRIV_DEVOLUCAO_AVARIA(REGISTROS.CODPROD, psECANCELAMENTO, pnNUMTRANSACAO, REGISTROS.CODFILIAL);
       END IF;
 	  
