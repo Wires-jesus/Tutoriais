@@ -329,10 +329,14 @@ BEGIN
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                         AND PCMOV.CODOPER NOT in ('EP','EA', 'EX')
                         AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                        AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                  WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                  WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                  ELSE 0 END = 1)  
+                        AND (CASE WHEN PSTATUSPROD = 'T' 
+                                  THEN 'S'
+                                  WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                  THEN 'S'
+                                  WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                  THEN 'N'
+                                  ELSE 'N'
+                              END = 'S')  
                       )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -563,10 +567,14 @@ COMMIT;
                                 AND ((PDESCONSIDERANFEDENEGADA = 'N') OR
                                        ((PDESCONSIDERANFEDENEGADA = 'S') AND NVL(PCNFENT.SITUACAONFE,'0') NOT IN (110,205,301,302)))
                                 AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)  
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   
                      ) TAB WHERE TAB.DTCANCEL_ORIG BETWEEN PDTINICIO AND PDTFIM
 
 )
@@ -764,10 +772,14 @@ COMMIT;
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)    
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')      
             )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -961,10 +973,14 @@ COMMIT;
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)  
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')    
 )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -1170,10 +1186,14 @@ COMMIT;
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   
                                           )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -1367,10 +1387,14 @@ COMMIT;
                                 AND PMOSTRARAJUSTESCUSTO = 'S'
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)  
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')    
                                      )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -1505,10 +1529,14 @@ COMMIT;
                       AND NVL(P.NUMNOTACONSIG,0) > 0
                       AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD' 
                       AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)) 
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   ) 
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
                   REGISTROS.SEQMOV            ,
@@ -1669,10 +1697,14 @@ COMMIT;
                                                                      AND F.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA)                                
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCNFSAID.NFBRINDE,'N'),'N') <> 'S'
-                        AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                  WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                  WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                  ELSE 0 END = 1))
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
                   REGISTROS.SEQMOV            ,
@@ -1833,10 +1865,14 @@ COMMIT;
                                                                              AND F.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA)                                
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCNFSAID.NFBRINDE,'N'),'N') <> 'S' 
-                                AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                          WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                          WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                          ELSE 0 END = 1)
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   
                                      )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -2006,10 +2042,14 @@ COMMIT;
                         AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                         AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                        AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                  WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                  WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                  ELSE 0 END = 1))
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
                   REGISTROS.SEQMOV            ,
@@ -2167,10 +2207,14 @@ COMMIT;
                         AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                         AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                         AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                        AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                  WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                  WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                  ELSE 0 END = 1)
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   
                       )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -2318,10 +2362,14 @@ COMMIT;
                       AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                       AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                       AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                      AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                ELSE 0 END = 1)
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')   
                     )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -2466,10 +2514,14 @@ COMMIT;
                       AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                       AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
                       AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
-                      AND (CASE WHEN PSTATUSPROD = 'T' THEN 1
-                                WHEN PSTATUSPROD = 'A' AND PCPRODUT.DTEXCLUSAO IS NULL THEN 1
-                                WHEN PSTATUSPROD = 'I' AND PCPRODUT.DTEXCLUSAO IS NOT NULL THEN 1
-                                ELSE 0 END = 1)  
+                                AND (CASE WHEN PSTATUSPROD = 'T' 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
+                                          THEN 'S'
+                                          WHEN PSTATUSPROD = 'I' AND (PCPRODUT.DTEXCLUSAO IS NOT NULL AND PCPRODUT.DTEXCLUSAO <= PDTFIM)
+                                          THEN 'N'
+                                          ELSE 'N'
+                                     END = 'S')    
                     )
     LOOP
     INSERIR_DADOS(REGISTROS.TIPO              ,
@@ -2524,6 +2576,7 @@ COMMIT;
 */-- GerarLogP2   
 END;
 ----------------------------------------------------------------------------
+-- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
 -- Alt.: 08/08/2024 - Implementado ajuste nos sqls AC na coluna CUSTOULTENT
 -- Alt.: 26/07/2024 - Implementado ajuste nos sqls AE e SM para considerar NVL no campo PCMOV.CODFISCAL 
 ----------------------------------------------------------------------------
