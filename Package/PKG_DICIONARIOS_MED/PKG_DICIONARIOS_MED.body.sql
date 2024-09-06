@@ -17964,11 +17964,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                 IF vtVALORMINIMO(viIdxPromocao) <> 0 THEN
                   viQtdMinimaPedido := vtVALORMINIMO(viIdxPromocao);
                 ELSE
-                  viQtdMinimaPedido := 0;
+                  viQtdMinimaPedido := NULL;
                 END IF;
               ELSE
                 vsMixProduto      := 'N';
-                viQtdMinimaPedido := 0;
+                viQtdMinimaPedido := NULL;
               END IF;
               
               viLiberacaoDeCanais := vtCODLIBERACAOCANAIS(viIdxPromocao);
@@ -18003,7 +18003,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                  CASE WHEN viQtdCompraColetiva IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viQtdCompraColetiva, 5) END ||
                                  CASE WHEN viLimitador IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viLimitador, 5) END ||
                                  RPAD_BRANCOS(viLiberacaoDeCanais,1)                     ||
-                                 LPAD_ZEROS_DEC(viQtdMinimaPedido, 5, 0)                 ||
+                                 CASE WHEN viQtdMinimaPedido IS NULL THEN RPAD_BRANCOS('', 5) ELSE LPAD_ZEROS(viQtdMinimaPedido, 5) END ||
                                  RPAD_BRANCOS(vsCodigoReferencia, 1000);
             ELSE
               vvConteudoCondicao := '1'                                                  ||
