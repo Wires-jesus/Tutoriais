@@ -8286,7 +8286,7 @@ END IF;
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   28/08/2024     Davi Bernado        DDESTOQUE-18882     Criado para teste da função PRC_RECRIAR_PCHISTEST
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   FUNCTION F_RECRIAR_PCHISTEST (VSCODFILIAL  IN VARCHAR2
                                 ,VDDATA_BASE  IN DATE
                                 ,VDDTINICIAL  IN DATE
@@ -8302,5 +8302,5 @@ END IF;
   END;
   
   
--- Pakager PKG_ANALISAR_ESTOQUE
+-- Package PKG_ANALISAR_ESTOQUE
 END PKG_ANALISAR_ESTOQUE;
