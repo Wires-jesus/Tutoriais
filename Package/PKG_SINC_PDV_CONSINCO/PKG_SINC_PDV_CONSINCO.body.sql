@@ -882,7 +882,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABTRIB R, 
                         PCTRIBPISCOFINS T,
-                        VW_INT_C5_OBTER_FILIAIS_C5 C5,
+                        (SELECT * FROM VW_INT_C5_OBTER_FILIAIS_C5 WHERE ROWNUM = 1) C5,
                                                 
                         (SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
