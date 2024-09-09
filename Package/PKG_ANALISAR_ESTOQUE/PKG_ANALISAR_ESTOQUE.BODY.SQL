@@ -2423,7 +2423,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   21/08/2024     Davi Bernado        DDESTOQUE-18838     CRIAÇÃO DE FUNCTION PARA TESTE UNITARIO
-  /***********************************************************************************************************************/
+  ***********************************************************************************************************************/
   FUNCTION F_ARMAZENARSALDOSESTOQUE_504_T(vsCODFILIAL IN PCMOV.CODFILIAL%TYPE DEFAULT NULL)
   RETURN NUMBER
   IS
@@ -8303,6 +8303,32 @@ END IF;
     RETURN 1;
   END;
   
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor               Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
+  28/08/2024     Davi Bernado        DDESTOQUE-18882     Criado para teste da função PRC_RECRIAR_PCHISTEST
+  ***********************************************************************************************************************/
+  FUNCTION F_PRC_CORRIGIR_PCHISTEST (VSCODFILIAL IN VARCHAR2
+                                ,VSCODPROD  IN NUMBER
+                                ,VDDTINICIAL  IN DATE
+                                ,VDDTFINAL    IN DATE
+                                ,VSGERAR_LOG  IN VARCHAR2
+                                ,VSUSA_FUNCAO_1070  IN VARCHAR2)
+  RETURN NUMBER
+  IS
+    vPARAMETROS_ENTRADA TP_ENTRADA;
+  BEGIN
+    vPARAMETROS_ENTRADA.CODFILIAL := VSCODFILIAL;
+    vPARAMETROS_ENTRADA.CODPROD := VSCODPROD;
+    vPARAMETROS_ENTRADA.DTINICIAL := VDDTINICIAL;
+    vPARAMETROS_ENTRADA.DTFINAL := VDDTFINAL;
+    vPARAMETROS_ENTRADA.GERAR_LOG := VSGERAR_LOG;
+    vPARAMETROS_ENTRADA.USA_FUNCAO_1070 := VSUSA_FUNCAO_1070;
+
+    PRC_CORRIGIR_PCHISTEST(vPARAMETROS_ENTRADA);
+    RETURN 1;
+  END;
   
 -- Package PKG_ANALISAR_ESTOQUE
 END PKG_ANALISAR_ESTOQUE;
