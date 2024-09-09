@@ -1985,7 +1985,20 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 aliqreducaopis,
         p.codanp anp,
         0 basebcr,
-        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'B'), 0) baseicms,
+        NVL((select 
+              (CASE 
+                 WHEN doctribitem.percbasecalculo < 100 AND doctribitem.percbasecalculo > 0.001 THEN
+                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
+                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
+               END) vlrbase             
+                            
+             from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
+             where doctribitem.nroempresa = i.nroempresa
+             and doctribitem.nrocheckout = i.nrocheckout
+             and doctribitem.seqdocto = i.seqdocto
+             and doctribitem.seqitem = i.seqitem
+             and doctribitem.seqtipotributacao = 1
+             ), 0) baseicms,
         0 baseicmsbcr,
         0 baseicst,
         0 baseipiecf,
