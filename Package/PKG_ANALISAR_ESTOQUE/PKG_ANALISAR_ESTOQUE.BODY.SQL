@@ -8294,14 +8294,36 @@ END IF;
   FUNCTION F_RECRIAR_PCHISTEST (VSCODFILIAL  IN VARCHAR2
                                 ,VDDATA_BASE  IN DATE
                                 ,VDDTINICIAL  IN DATE
-                                ,VDDTFINAL    IN DATE)
+                                ,VDDTFINAL    IN DATE
+                                ,VSVALIDA_DELETE IN VARCHAR2
+                                ,VSLIMPOU_PCRECALCULOPROD OUT VARCHAR2
+                                ,VSLIMPOU_PCHISTESTFILA OUT VARCHAR2)
   RETURN NUMBER
   IS
+    
   BEGIN
     PRC_RECRIAR_PCHISTEST(VSCODFILIAL 
                           ,VDDATA_BASE
                           ,VDDTINICIAL
                           ,VDDTFINAL);
+
+    IF VSVALIDA_DELETE THEN
+      SELECT
+        CASE WHEN COUNT(1) = 1 THEN 'N' ELSE 'S' END
+        INTO 
+        VSLIMPOU_PCRECALCULOPROD
+      FROM PCRECALCULOPROD;
+
+
+      SELECT
+        CASE WHEN COUNT(1) = 1 THEN 'N' ELSE 'S' END
+        INTO 
+        VSLIMPOU_PCHISTESTFILA
+      FROM PCHISTESTFILA
+      WHERE CODFILIAL = VSCODFILIAL
+      AND DATA BETWEEN VDDTINICIAL AND VDDTFINAL;    
+    END IF;
+
     RETURN 1;
   END;
   
