@@ -18842,11 +18842,16 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         IF (REGISTROS.CODOPER NOT IN('ST','SA','SI','SV','SR')
            OR (vbEH_TV10 AND (REGISTROS.ROTINACAD NOT LIKE '%PCSIS1124%'))
            OR vsUTILIZOUCFAT = 'S'
-       OR vnCONDVENDA = 13)
+           OR vnCONDVENDA = 13)
            AND (NOT vbEH_PED_AVARIA_CROSSDOCK)
         THEN -- Pedido de Avaria e CrossDocking nao baixa a reserva - DDMEDICA-620
           -- Autosserviço?
-          IF vsORIGEMPED <> 'A' THEN
+          IF (vsORIGEMPED <> 'A') AND 
+             NOT((NVL(vsPEDIDOAVARIA,'N') = 'S') AND 
+             (vnCONDVENDA = 10) AND 
+             (vsORIGEMPED = 'B') AND 
+             (REGISTROS.CODOPER = 'ST')) THEN
+			 
             IF (REGISTROS.CODOPER = 'SP' AND REGISTROS.NUMOP = 0 AND REGISTROS.NUMTRANSAVULSA = 0) THEN
               vnESTOQUE_QTRESERV                  := GREATEST(vnESTOQUE_QTRESERV, 0);
               vnDEPOSITO_QTRESERVADA              := 0;
