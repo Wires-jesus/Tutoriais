@@ -8307,7 +8307,7 @@ END IF;
                           ,VDDTINICIAL
                           ,VDDTFINAL);
 
-    IF VSVALIDA_DELETE THEN
+    IF VSVALIDA_DELETE = 'S' THEN
       SELECT
         CASE WHEN COUNT(1) = 1 THEN 'N' ELSE 'S' END
         INTO 
