@@ -42,6 +42,8 @@ DECLARE
   VDEVSIMBOLICA              PCNFENT.DEVSIMBOLICA%TYPE := 'N';
   VSUSACENTRALFATURAMENTO    VARCHAR2(1) := 'N';
   VSFILIALRESERVALOTE        PCFILIAL.CODIGO%TYPE := '';
+  VSORIGEMPED                PCPEDC.ORIGEMPED%TYPE := '';
+  VSPEDIDOAVARIA             PCPEDC.PEDIDOAVARIA%TYPE := '';
 BEGIN
   BEGIN
     SELECT NVL(ESTOQUEPORLOTE, 'N')
@@ -131,8 +133,10 @@ BEGIN
         IF VICONTADOR > 0 THEN
           SELECT PCPEDC.CONDVENDA, 
                  PCPEDC.POSICAO, 
-                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('UTILIZACENTRALFATURAMENTO',PCPEDC.CODFILIAL,'N')          
-            INTO VNCONDVENDA, VNPOSICAOPEDIDO, VSUSACENTRALFATURAMENTO 
+                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('UTILIZACENTRALFATURAMENTO',PCPEDC.CODFILIAL,'N'),
+                 ORIGEMPED,
+                 NVL(PEDIDOAVARIA, 'N')				 
+            INTO VNCONDVENDA, VNPOSICAOPEDIDO, VSUSACENTRALFATURAMENTO, VSORIGEMPED, VSPEDIDOAVARIA 
             FROM PCPEDC
            WHERE PCPEDC.NUMPED = NVL(:OLD.NUMPED, :NEW.NUMPED);
            
@@ -328,6 +332,8 @@ BEGIN
                                                 WHEN ((:NEW.CODOPER = 'ST') AND (VNCONDVENDA IN (1, 5, 9, 8)) AND (:NEW.STATUS = 'B') 
                                                        AND ((:NEW.NUMTRANSDEV IS NOT NULL) OR (:NEW.NUMTRANSDEVFOR IS NOT NULL))) THEN
                                                        NVL(QTRESERV, 0)
+											    WHEN (VSPEDIDOAVARIA = 'S' AND VSORIGEMPED = 'B' AND VNCONDVENDA = 10 AND :NEW.CODOPER = 'ST') THEN
+												      NVL(QTRESERV, 0)
                                                 ELSE GREATEST((NVL(QTRESERV, 0) - NVL(:NEW.QT, 0)), 0) END,
                              DTULTMOVSAI = TRUNC(SYSDATE)
                        WHERE NUMLOTE = :NEW.NUMLOTE
@@ -376,7 +382,9 @@ BEGIN
                                                     ELSE GREATEST((NVL(QTRESERV, 0) - NVL(:NEW.QT, 0)), 0) END)
                                             WHEN ((:NEW.CODOPER = 'ST') AND (VNCONDVENDA IN (1, 5, 9, 8)) AND (:NEW.STATUS = 'B') AND (:NEW.NUMTRANSDEV IS NOT NULL)) THEN
                                                     NVL(QTRESERV, 0)     
-                                            ELSE GREATEST(((NVL(QTRESERV, 0) + NVL(:OLD.QT, 0)) - NVL(:NEW.QT, 0)), 0) END),
+                                            WHEN (VSPEDIDOAVARIA = 'S' AND VSORIGEMPED = 'B' AND VNCONDVENDA = 10 AND :NEW.CODOPER = 'ST') THEN
+												 NVL(QTRESERV, 0)
+											ELSE GREATEST(((NVL(QTRESERV, 0) + NVL(:OLD.QT, 0)) - NVL(:NEW.QT, 0)), 0) END),
                                             
                              DTULTMOVSAI = TRUNC(SYSDATE)
                        WHERE NUMLOTE = :NEW.NUMLOTE
@@ -453,7 +461,8 @@ BEGIN
                             NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
                           
                   ----RESERVA LOTE CASO USE CFAT E SEJA SAIDA DE TRANSFERENCIA        
-                  IF (VSUSACENTRALFATURAMENTO = 'S') AND (:NEW.CODOPER = 'ST') AND (VSFILIALRESERVALOTE <> '') THEN
+                  IF ((VSUSACENTRALFATURAMENTO = 'S') AND (:NEW.CODOPER = 'ST') AND (VSFILIALRESERVALOTE <> '')) AND
+      				 NOT((VSPEDIDOAVARIA = 'S') AND (VSORIGEMPED = 'B') AND (VNCONDVENDA = 10) AND (:NEW.CODOPER = 'ST')) THEN
                     UPDATE PCLOTE
                        SET QTRESERV = NVL(QTRESERV, 0) + NVL(:NEW.QT, 0)
                     WHERE CODPROD = :NEW.CODPROD
