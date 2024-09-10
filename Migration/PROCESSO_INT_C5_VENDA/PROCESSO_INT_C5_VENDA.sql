@@ -1364,7 +1364,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL numexecucao,
         NULL numlista,
         NULL numorca,
-        FNC_INT_C5_OBTERNUMPED(a.seqdocto, a.nrocheckout, a.nroempresa) numped,
+        FNC_INT_C5_OBTERNUMPED(a.seqdocto, a.nroempresa, a.nrocheckout) numped,
         NULL numpedcanc,
         NULL numpedrca,
         NULL numserieplacamae,
