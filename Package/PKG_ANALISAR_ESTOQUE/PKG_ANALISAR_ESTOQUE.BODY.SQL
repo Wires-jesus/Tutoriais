@@ -8302,6 +8302,9 @@ END IF;
   IS
     
   BEGIN
+    VSLIMPOU_PCRECALCULOPROD := 'X';
+    VSLIMPOU_PCHISTESTFILA := 'X';
+
     PRC_RECRIAR_PCHISTEST(VSCODFILIAL 
                           ,VDDATA_BASE
                           ,VDDTINICIAL
