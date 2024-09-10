@@ -2370,7 +2370,19 @@ CREATE OR REPLACE VIEW vw_int_c5_agrup_dinheiro AS
 			  FROM monitorpdvmiddle.tb_formapagto fp
 			 where fp.especie = 'D'
                and fp.formapagto LIKE '%DINHEIRO%')
-	   AND P.VLRTOTAL > 0
+	   --AND P.VLRTOTAL > 0
+     AND ( (case when FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S' THEN
+             P.VLRTOTAL
+         end > 0
+         )
+
+         OR
+
+         (case when FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') <> 'S' THEN
+             P.VLRTOTAL
+          end = P.VLRTOTAL
+         )
+       )
 	 GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto
 )
 
@@ -2655,7 +2667,14 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL retornocrm1via,
        NULL retornocrm2via,
        NULL numprotocolochq,
-       p.valor  valorcomtroco,
+       --p.valor  valorcomtroco,
+       (p.valor + NVL((SELECT ABS(VALOR) 
+                   FROM vw_int_c5_agrup_troco 
+                   WHERE SEQDOCTO = P.SEQDOCTO 
+                   AND NROEMPRESA = P.NROEMPRESA 
+                   AND NROCHECKOUT = P.NROCHECKOUT 
+                   AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') <> 'S'),0)
+       )  valorcomtroco,
        0 idpagamento,
        NULL serialpos,
        NULL idrespfiscal,
@@ -2818,6 +2837,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  C5.codfilialintegracao = p.NROEMPRESA
    --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
+   AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
 )
 
