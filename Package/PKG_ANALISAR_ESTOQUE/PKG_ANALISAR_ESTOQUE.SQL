@@ -390,5 +390,13 @@ CREATE OR REPLACE PACKAGE PKG_ANALISAR_ESTOQUE
                                       ,pnCODPROD     IN PCMOV.CODPROD%TYPE DEFAULT NULL
                                       ,pdDATA        IN PCMOV.DTMOV%TYPE DEFAULT NULL
                                       ,psTIPOCHAMADA IN VARCHAR2 /* EXTERNA ou INTERNA */);
+  
+  FUNCTION F_PRC_CORRIGIR_PCHISTEST (VSCODFILIAL IN VARCHAR2
+                                    ,VSCODPROD  IN NUMBER
+                                    ,VDDTINICIAL  IN DATE
+                                    ,VDDTFINAL    IN DATE
+                                    ,VSGERAR_LOG  IN VARCHAR2
+                                    ,VSUSA_FUNCAO_1070  IN VARCHAR2)
+  RETURN NUMBER;                     
 
 END PKG_ANALISAR_ESTOQUE;
