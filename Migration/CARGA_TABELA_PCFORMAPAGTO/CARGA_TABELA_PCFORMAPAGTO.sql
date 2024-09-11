@@ -4,7 +4,7 @@ BEGIN
 ------------------------------------------------------Carga de Forma de Pagamento------------------------------------------------------------
     FOR DADOS IN (
         SELECT 45 AS CODIGO, 'Pix Transferência' AS DESCRICAO, 'SIST' AS ORIGEM FROM DUAL UNION
-        SELECT 47 AS CODIGO, 'Pix QR-CODE' AS DESCRICAO, 'SIST' AS ORIGEM FROM DUAL
+        SELECT 47 AS CODIGO, 'QR-CODE PIX' AS DESCRICAO, 'SIST' AS ORIGEM FROM DUAL
     ) LOOP
 
         SELECT COUNT(*) INTO iCOUNT FROM PCFORMAPAGTO WHERE CODIGO = DADOS.CODIGO;
