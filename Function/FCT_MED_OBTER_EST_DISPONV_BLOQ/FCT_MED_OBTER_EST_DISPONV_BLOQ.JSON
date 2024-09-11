@@ -1,4 +1,4 @@
-﻿{ 
+{ 
     "nome": "FCT_MED_OBTER_EST_DISPONV_BLOQ",
     "tipoPLSQL": "FUNCTION",
     "dependencias": [{

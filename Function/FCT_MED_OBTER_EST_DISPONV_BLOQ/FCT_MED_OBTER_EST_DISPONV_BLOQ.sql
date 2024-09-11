@@ -7,7 +7,7 @@ IS
 BEGIN
   vnSaldoRetorno := 0;
   
-  -- Força a Recompilação da Package (Evita Erro de Objeto Descartado)
+  -- ForÃ§a a RecompilaÃ§Ã£o da Package (Evita Erro de Objeto Descartado)
   BEGIN
     vvVersao := PKG_ESTOQUE.VERSAO;
   EXCEPTION
@@ -20,8 +20,8 @@ BEGIN
        END;
   END;  
   
-  -- Obtém Estoque Disponível
-  vnSaldoRetorno := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(pi_vCodProd, pi_vCodFilial); -->> Pedido de Avaria Transferência
+  -- ObtÃ©m Estoque DisponÃ­vel
+  vnSaldoRetorno := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(pi_vCodProd, pi_vCodFilial); -->> Pedido de Avaria TransferÃªncia
 
   -- Retorno
   RETURN vnSaldoRetorno;
