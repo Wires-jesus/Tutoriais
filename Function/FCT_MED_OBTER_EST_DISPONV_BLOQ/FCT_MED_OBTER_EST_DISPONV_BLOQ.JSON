@@ -1,0 +1,9 @@
+﻿{ 
+    "nome": "FCT_MED_OBTER_EST_DISPONV_BLOQ",
+    "tipoPLSQL": "FUNCTION",
+    "dependencias": [{
+        "nome": "PKG_ESTOQUE",
+        "tipo": "OBJETO_PLSQL",
+        "versao": "4.0.14.000"
+    }]
+}
