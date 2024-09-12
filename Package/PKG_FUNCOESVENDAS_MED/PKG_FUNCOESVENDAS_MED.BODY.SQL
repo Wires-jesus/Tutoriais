@@ -1642,33 +1642,6 @@ IS
           IF (vvObs IS NOT NULL) THEN
             vvRestricao := '*';
           END IF;
-      
-          -----------------------
-          -- Observações do Bonus
-          -----------------------
-          IF (NVL(vFIL_USAINTEGRACAOWMS,'N') = 'S') AND
-             (NVL(vFIL_INTEGRADORAWMS,'0')   = '7') THEN
-             
-            IF (vvObs IS NULL) THEN
-              -- Verifica Status do Bonus
-              BEGIN
-                SELECT PCBONUSC.DATAFECHACOMPLETA
-                  INTO dDATAFECHACOMPLETA
-                  FROM PCBONUSC
-                 WHERE (NUMBONUS = vnNumBonus);
-              EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                  dDATAFECHACOMPLETA := NULL;
-              END;
-              
-              IF (dDATAFECHACOMPLETA IS NULL) THEN
-                vvObs       := 'Bônus não processado';
-                vvRestricao := '*';
-              END IF;
-              
-            END IF;
-            
-          END IF;
 
           ----------------------
           -- Se aceita o Produto
