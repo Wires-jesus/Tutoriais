@@ -3174,7 +3174,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 PERCBASERED,
 	(SELECT vlcustofin
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) CUSTOFINEST,
 	0 PERCBASEREDSTFONTE,
 	0 PERCBASEREDST,
@@ -3262,12 +3262,12 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 PERDIFEREIMENTOICMS,
 	(SELECT vlcustoultent
            FROM vw_int_c5_custos
-          WHERE codfilial = i.nroempresa
+          WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) CUSTOULTENT,
 	0 PERCREDBASEEFET,
 	NVL((SELECT vlbaseefet
        FROM vw_int_c5_custos
-      WHERE codfilial = i.nroempresa
+      WHERE codfilial = C5.CODFILIAL
 	    AND codauxiliar = i.codacesso),0) vlbaseefet,
 	0 PERCICMSEFET,
 	0 VLICMSEFET,
