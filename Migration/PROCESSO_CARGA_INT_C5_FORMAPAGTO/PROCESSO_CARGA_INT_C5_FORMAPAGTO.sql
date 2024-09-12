@@ -38,224 +38,215 @@ from    (SELECT 'D' especie, 'DINHEIRO' descricao, 'D' winthor FROM DUAL
 
 CREATE OR REPLACE VIEW VW_INT_C5_FORMAPAGTOEMPRESA AS
 (
-  SELECT
-     FORMAPAG."NROEMPRESA",FORMAPAG."NROSEGMENTO",FORMAPAG."NROFORMAPAGTO",FORMAPAG."PERCJUROMENSAL",FORMAPAG."PERCTAXAADM",FORMAPAG."NRODIASVENCTO",FORMAPAG."SOLICITAVENCTO",FORMAPAG."PERMITETROCO",FORMAPAG."VLRMINIMO",FORMAPAG."VLRMAXIMO",FORMAPAG."GERASANGRIA",FORMAPAG."PRAZOMAXIMO",FORMAPAG."USATEF",FORMAPAG."TIPOCALCULOJUROS",FORMAPAG."EMITEVALETROCO",FORMAPAG."EMITECOMPROVANTE",FORMAPAG."ABREGAVETA",FORMAPAG."ALTERNATIVA",FORMAPAG."FATURAMENTO",FORMAPAG."CODCOB",FORMAPAG."ATIVO",FORMAPAG."NROPARCELAJURO",FORMAPAG."VLRMINIMOPARCELA",FORMAPAG."QTMAXPARCELAS"
+  SELECT DISTINCT
+    C5.CODFILIALINTEGRACAO NROEMPRESA,
+    1 NROSEGMENTO,
+    F.CODFINALIZADORA NROFORMAPAGTO,
+    0 PERCJUROMENSAL,
+    NVL(F.PERTXFIN, 0) PERCTAXAADM,
+    LEAST(P.NUMDIAS, 999) NRODIASVENCTO,
+    'N' SOLICITAVENCTO,
+    COALESCE(F.PERMITETROCO, 'N') PERMITETROCO,
+    LEAST(NVL(F.VLMINIMO, 0), 999999) VLRMINIMO,
+    LEAST(NVL(F.VLMAXIMO, 0), 999999) VLRMAXIMO,
+    (CASE
+      WHEN F.ESPECIE IN ('D', 'BK', 'CHV', 'CHP', 'CTD', 'CTC', 'CRE') THEN
+      'S'
+      WHEN F.ESPECIE LIKE 'POS%' THEN
+      'S'
+      ELSE
+      'N'
+    END) GERASANGRIA,
+    LEAST(O.PRAZOMAXIMOVENDA, 999) PRAZOMAXIMO,
+    (CASE
+      WHEN COALESCE(O.CARTAO, 'N') = 'S' THEN
+      'S'
+      ELSE
+      'N'
+    END) USATEF,
+    NVL(F.TIPOJUROS, 'S')  TIPOCALCULOJUROS,
+    NVL(O.PERMITECONTRAVALE, 'N') EMITEVALETROCO,
+    NVL(F.IMPRIMEVINCULADO, 'N') EMITECOMPROVANTE,
+    'S' ABREGAVETA,
+    'N' ALTERNATIVA,
+    'T' FATURAMENTO,
+    NVL(F.CODCOBINTEGRACAO,F.CODCOB) CODCOB,
+    (CASE
+      WHEN F.DTINATIVACAO IS NULL THEN
+      'S'
+      ELSE
+      'N'
+    END) ATIVO,
+    NVL(F.PARCELAINICIOJUROS, 0) NROPARCELAJURO,
+    F.VALORMINIMOPARCELA VLRMINIMOPARCELA,
+    NVL(F.QTMAXPARCELAS,1) QTMAXPARCELAS,
+    F.VERIFICALIMITE CONTROLELIMITE
   FROM
-  (SELECT DISTINCT
-     c5.codfilialintegracao nroempresa,
-     1 nrosegmento,
-     f.codfinalizadora nroformapagto,
-     0 percjuromensal,
-     NVL(f.pertxfin, 0) perctaxaadm,
-     LEAST(p.numdias, 999) nrodiasvencto,
-     'N' solicitavencto,
-     COALESCE(f.permitetroco, 'N') permitetroco,
-     LEAST(NVL(f.vlminimo, 0), 999999) vlrminimo,
-     LEAST(NVL(f.vlmaximo, 0), 999999) vlrmaximo,
-     (CASE
-      WHEN f.especie IN ('D', 'BK', 'CHV', 'CHP', 'CTD', 'CTC', 'CRE') THEN
-      'S'
-      WHEN f.especie LIKE 'POS%' THEN
-      'S'
-      ELSE
-      'N'
-     END) gerasangria,
-     LEAST(o.prazomaximovenda, 999) prazomaximo,
-     (CASE
-      WHEN COALESCE(o.cartao, 'N') = 'S' THEN
-      'S'
-      ELSE
-      'N'
-     END) usatef,
-     NVL(f.tipojuros, 'S')  TIPOCALCULOJUROS,
-     NVL(o.permitecontravale, 'N') emitevaletroco,
-     NVL(f.imprimevinculado, 'N') emitecomprovante,
-     'S' abregaveta,
-     'N' alternativa,
-     'T' faturamento,
-     NVL(f.codcobintegracao,f.codcob) codCob,
-     (CASE
-      WHEN f.dtinativacao IS NULL THEN
-      'S'
-      ELSE
-      'N'
-     END) ativo,
-     nvl(f.PARCELAINICIOJUROS, 0) NROPARCELAJURO,
-     f.valorminimoparcela VLRMINIMOPARCELA,
-	 NVL(f.QTMAXPARCELAS,1) QTMAXPARCELAS
-   FROM
-      VW_INT_C5_ESPECIE_FORMAPGTO vef,
-      MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
-      pcfilial e,
-      pcfinalizadora   f,
-      pccob            o,
-      pcplpag          p,
-      VW_INT_C5_OBTER_FILIAIS_C5 c5,
-      (select min(s.ultimaexecucao) ultimaexecucao
-        from pccontroleconsinco s
-        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
-      ) D
-      /*(
-        SELECT s.ultimaexecucao
-        FROM pccontroleconsinco s
-        WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-      ) D*/
-   WHERE f.especie = vef.winthor(+)
-   AND   F.CODFILIAL = E.codigo
-   AND   f.codcob = o.codcob(+)
-   AND   f.codplpag = p.codplpag(+)
-   AND   f.codfilial IS NOT NULL
-   and   f.codfinalizadora is not null
-   AND   E.codigo <> '99'
-   AND   C5.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
-   AND   F.CODFILIAL = C5.CODFILIAL
-   AND   E.CODIGO = C5.CODFILIAL
-   AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
-   AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
-          NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(p.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
-   UNION ALL
+    VW_INT_C5_ESPECIE_FORMAPGTO VEF,
+    MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
+    PCFILIAL E,
+    PCFINALIZADORA   F,
+    PCCOB            O,
+    PCPLPAG          P,
+    VW_INT_C5_OBTER_FILIAIS_C5 C5,
+    (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO  
+      FROM PCCONTROLECONSINCO S
+      WHERE (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
+             OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
+    ) D
+  WHERE F.ESPECIE = VEF.WINTHOR(+)
+    AND   F.CODFILIAL = E.CODIGO
+    AND   F.CODCOB = O.CODCOB(+)
+    AND   F.CODPLPAG = P.CODPLPAG(+)
+    AND   F.CODFILIAL IS NOT NULL
+    AND   F.CODFINALIZADORA IS NOT NULL
+    AND   E.CODIGO <> '99'
+    AND   C5.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
+    AND   F.CODFILIAL = C5.CODFILIAL
+    AND   E.CODIGO = C5.CODFILIAL
+    AND   LENGTH(TRIM(TRANSLATE(E.CODIGO, '0123456789',' '))) IS NULL
+    AND  (NVL(F.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(O.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(E.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(P.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO)
 
-   SELECT DISTINCT
-     E.CODFILIALINTEGRACAO nroempresa,
-     1 nrosegmento,
-     f.codfinalizadora nroformapagto,
-     0 percjuromensal,
-     NVL(f.pertxfin, 0) perctaxaadm,
-     LEAST(p.numdias, 999) nrodiasvencto,
-     'N' solicitavencto,
-     COALESCE(f.permitetroco, 'N') permitetroco,
-     LEAST(NVL(f.vlminimo, 0), 999999) vlrminimo,
-     LEAST(NVL(f.vlmaximo, 0), 999999) vlrmaximo,
-     (CASE
-      WHEN f.especie IN ('D', 'CHV', 'CHP') THEN
-      'S'
-      ELSE
-      'N'
-     END) gerasangria,
-     LEAST(o.prazomaximovenda, 999) prazomaximo,
-     (CASE
-      WHEN COALESCE(o.cartao, 'N') = 'S' THEN
-      'S'
-      ELSE
-      'N'
-     END) usatef,
-     NVL(f.tipojuros, 'S')  TIPOCALCULOJUROS,
-     NVL(o.permitecontravale, 'N') emitevaletroco,
-     NVL(f.imprimevinculado, 'N') emitecomprovante,
-     'S' abregaveta,
-     'N' alternativa,
-     'T' faturamento,
-     NVL(f.codcobintegracao,f.codcob) codCob,
-     (CASE
-      WHEN f.dtinativacao IS NULL THEN
-      'S'
-      ELSE
-      'N'
-     END) ativo,
-     nvl(f.PARCELAINICIOJUROS, 0) NROPARCELAJURO,
-     f.valorminimoparcela VLRMINIMOPARCELA,
-	 NVL(f.QTMAXPARCELAS,1) QTMAXPARCELAS
-   FROM PCFINALIZADORA F,
-        --PCFILIAL E,
-        (SELECT FIL.*
-         FROM PCFILIAL FIL,
-              VW_INT_C5_OBTER_FILIAIS_C5 c5
-         WHERE FIL.CODIGO = C5.CODFILIAL) E,
-        VW_INT_C5_ESPECIE_FORMAPGTO vef,
-        MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
-        pccob            o,
-        pcplpag          p,
-        (select min(s.ultimaexecucao) ultimaexecucao
-        from pccontroleconsinco s
-        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
-        ) D
-        /*(
-         SELECT s.ultimaexecucao
-         FROM pccontroleconsinco s
-         WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-        ) D*/
-   WHERE F.CODFILIAL = '99'
-   AND   E.CODIGO <> '99'
-   AND   f.codcob = o.codcob(+)
-   AND   f.codplpag = p.codplpag(+)
-   AND   f.codfilial IS NOT NULL
-   and   f.codfinalizadora is not null
-   AND   E.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
-   AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
-          NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(p.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)
-)FORMAPAG
+  UNION ALL
 
-  
+  SELECT DISTINCT
+    E.CODFILIALINTEGRACAO NROEMPRESA,
+    1 NROSEGMENTO,
+    F.CODFINALIZADORA NROFORMAPAGTO,
+    0 PERCJUROMENSAL,
+    NVL(F.PERTXFIN, 0) PERCTAXAADM,
+    LEAST(P.NUMDIAS, 999) NRODIASVENCTO,
+    'N' SOLICITAVENCTO,
+    COALESCE(F.PERMITETROCO, 'N') PERMITETROCO,
+    LEAST(NVL(F.VLMINIMO, 0), 999999) VLRMINIMO,
+    LEAST(NVL(F.VLMAXIMO, 0), 999999) VLRMAXIMO,
+    (CASE
+      WHEN F.ESPECIE IN ('D', 'CHV', 'CHP') THEN
+      'S'
+      ELSE
+      'N'
+    END) GERASANGRIA,
+    LEAST(O.PRAZOMAXIMOVENDA, 999) PRAZOMAXIMO,
+    (CASE
+      WHEN COALESCE(O.CARTAO, 'N') = 'S' THEN
+      'S'
+      ELSE
+      'N'
+    END) USATEF,
+    NVL(F.TIPOJUROS, 'S')  TIPOCALCULOJUROS,
+    NVL(O.PERMITECONTRAVALE, 'N') EMITEVALETROCO,
+    NVL(F.IMPRIMEVINCULADO, 'N') EMITECOMPROVANTE,
+    'S' ABREGAVETA,
+    'N' ALTERNATIVA,
+    'T' FATURAMENTO,
+    NVL(F.CODCOBINTEGRACAO,F.CODCOB) CODCOB,
+    (CASE
+      WHEN F.DTINATIVACAO IS NULL THEN
+      'S'
+      ELSE
+      'N'
+    END) ATIVO,
+    NVL(F.PARCELAINICIOJUROS, 0) NROPARCELAJURO,
+    F.VALORMINIMOPARCELA VLRMINIMOPARCELA,
+    NVL(F.QTMAXPARCELAS,1) QTMAXPARCELAS,
+    F.VERIFICALIMITE CONTROLELIMITE
+  FROM PCFINALIZADORA F,
+    --PCFILIAL E,
+    (SELECT FIL.*
+      FROM PCFILIAL FIL,
+      VW_INT_C5_OBTER_FILIAIS_C5 C5
+      WHERE FIL.CODIGO = C5.CODFILIAL
+    ) E,
+    VW_INT_C5_ESPECIE_FORMAPGTO VEF,
+    MONITORPDVMIDDLE.TB_EMPRESA TBEMP,
+    PCCOB            O,
+    PCPLPAG          P,
+    (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
+      FROM PCCONTROLECONSINCO S
+      WHERE (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA')
+            OR (UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTO')
+    ) D
+
+  WHERE F.CODFILIAL = '99'
+    AND   E.CODIGO <> '99'
+    AND   F.CODCOB = O.CODCOB(+)
+    AND   F.CODPLPAG = P.CODPLPAG(+)
+    AND   F.CODFILIAL IS NOT NULL
+    AND   F.CODFINALIZADORA IS NOT NULL
+    AND   E.CODFILIALINTEGRACAO = TBEMP.NROEMPRESA
+    AND  (NVL(F.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(O.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(E.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+          NVL(P.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO)
+
+
   /*SELECT
-    f.codfilial nroempresa,
-    1 nrosegmento,
-    f.codfinalizadora nroformapagto,
-    0 percjuromensal,
-    NVL(f.pertxfin, 0) perctaxaadm,
-    LEAST(p.numdias, 999) nrodiasvencto,
-    'N' solicitavencto,
-    COALESCE(f.permitetroco, 'N') permitetroco,
-    LEAST(NVL(f.vlminimo, 0), 999999) vlrminimo,
-    LEAST(NVL(f.vlmaximo, 0), 999999) vlrmaximo,
-    (CASE
-      WHEN f.especie IN ('D', 'BK', 'CHV', 'CHP', 'CTD', 'CTC', 'CRE') THEN
-      'S'
-      WHEN f.especie LIKE 'POS%' THEN
-      'S'
-      ELSE
-      'N'
-    END) gerasangria,
-    LEAST(o.prazomaximovenda, 999) prazomaximo,
-    (CASE
-      WHEN COALESCE(o.cartao, 'N') = 'S' THEN
-      'S'
-      ELSE
-      'N'
-    END) usatef,
-    NVL(f.tipojuros, 'S')  TIPOCALCULOJUROS,
-    NVL(o.permitecontravale, 'N') emitevaletroco,
-    NVL(f.imprimevinculado, 'N') emitecomprovante,
-    'S' abregaveta,
-    'N' alternativa,
-    'T' faturamento,
-    NVL(f.codcobintegracao,f.codcob) codCob,
-    (CASE
-      WHEN f.dtinativacao IS NULL THEN
-      'S'
-      ELSE
-      'N'
-    END) ativo,
-    nvl(f.PARCELAINICIOJUROS, 0) NROPARCELAJURO
-  FROM VW_INT_C5_ESPECIE_FORMAPGTO vef,
-      pcfilial e,
-      pcfinalizadora   f,
-      pccob            o,
-      pcplpag          p,
-      (
-        SELECT s.ultimaexecucao
-        FROM pccontroleconsinco s
-        WHERE upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
-      ) D,
-      VW_INT_C5_OBTER_FILIAIS_C5 c5
-    WHERE f.especie = vef.winthor(+)
-    AND   F.CODFILIAL = E.codigo
-    AND   f.codcob = o.codcob(+)
-    AND   f.codplpag = p.codplpag(+)
-    AND   f.codfilial IS NOT NULL
-    and   f.codfinalizadora is not null
-    AND   E.codigo >= '0'
-    AND   E.codigo < '99'
-    and   e.codigo = c5.codfilial
-    AND   LENGTH(TRIM(TRANSLATE(e.codigo, '0123456789',' '))) IS null
-    AND  (NVL(f.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao OR
-          NVL(o.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(e.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao or
-          NVL(p.dtalterc5, D.ultimaexecucao) >= D.ultimaexecucao)*/
+  F.CODFILIAL NROEMPRESA,
+  1 NROSEGMENTO,
+  F.CODFINALIZADORA NROFORMAPAGTO,
+  0 PERCJUROMENSAL,
+  NVL(F.PERTXFIN, 0) PERCTAXAADM,
+  LEAST(P.NUMDIAS, 999) NRODIASVENCTO,
+  'N' SOLICITAVENCTO,
+  COALESCE(F.PERMITETROCO, 'N') PERMITETROCO,
+  LEAST(NVL(F.VLMINIMO, 0), 999999) VLRMINIMO,
+  LEAST(NVL(F.VLMAXIMO, 0), 999999) VLRMAXIMO,
+  (CASE
+  WHEN F.ESPECIE IN ('D', 'BK', 'CHV', 'CHP', 'CTD', 'CTC', 'CRE') THEN
+  'S'
+  WHEN F.ESPECIE LIKE 'POS%' THEN
+  'S'
+  ELSE
+  'N'
+  END) GERASANGRIA,
+  LEAST(O.PRAZOMAXIMOVENDA, 999) PRAZOMAXIMO,
+  (CASE
+  WHEN COALESCE(O.CARTAO, 'N') = 'S' THEN
+  'S'
+  ELSE
+  'N'
+  END) USATEF,
+  NVL(F.TIPOJUROS, 'S')  TIPOCALCULOJUROS,
+  NVL(O.PERMITECONTRAVALE, 'N') EMITEVALETROCO,
+  NVL(F.IMPRIMEVINCULADO, 'N') EMITECOMPROVANTE,
+  'S' ABREGAVETA,
+  'N' ALTERNATIVA,
+  'T' FATURAMENTO,
+  NVL(F.CODCOBINTEGRACAO,F.CODCOB) CODCOB,
+  (CASE
+  WHEN F.DTINATIVACAO IS NULL THEN
+  'S'
+  ELSE
+  'N'
+  END) ATIVO,
+  NVL(F.PARCELAINICIOJUROS, 0) NROPARCELAJURO
+  FROM VW_INT_C5_ESPECIE_FORMAPGTO VEF,
+  PCFILIAL E,
+  PCFINALIZADORA   F,
+  PCCOB            O,
+  PCPLPAG          P,
+  (
+  SELECT S.ULTIMAEXECUCAO
+  FROM PCCONTROLECONSINCO S
+  WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FORMAPAGTOEMPRESA'
+  ) D,
+  VW_INT_C5_OBTER_FILIAIS_C5 C5
+  WHERE F.ESPECIE = VEF.WINTHOR(+)
+  AND   F.CODFILIAL = E.CODIGO
+  AND   F.CODCOB = O.CODCOB(+)
+  AND   F.CODPLPAG = P.CODPLPAG(+)
+  AND   F.CODFILIAL IS NOT NULL
+  AND   F.CODFINALIZADORA IS NOT NULL
+  AND   E.CODIGO >= '0'
+  AND   E.CODIGO < '99'
+  AND   E.CODIGO = C5.CODFILIAL
+  AND   LENGTH(TRIM(TRANSLATE(E.CODIGO, '0123456789',' '))) IS NULL
+  AND  (NVL(F.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+  NVL(O.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+  NVL(E.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR
+  NVL(P.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO)*/
 )
 
