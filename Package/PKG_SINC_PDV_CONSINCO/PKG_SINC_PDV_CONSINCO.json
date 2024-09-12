@@ -195,7 +195,7 @@
 		{
 			"nome": "VW_INT_C5_ABERTURACX",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.02.000"
+			"versao": "6.0.01.000"
 		},
 		{
 			"nome": "PRC_RECORD_ALERTA",
