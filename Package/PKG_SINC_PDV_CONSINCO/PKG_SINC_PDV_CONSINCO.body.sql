@@ -1238,7 +1238,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.ativo            = b.ativo,
                s.nroParcelaJuro   = b.nroParcelaJuro,
                s.VLRMINIMOPARCELA = b.VLRMINIMOPARCELA,
-			   s.NROMAXIMOPARCELA = b.QTMAXPARCELAS
+  			       s.NROMAXIMOPARCELA = b.QTMAXPARCELAS,
+               s.CONTROLELIMITE   = b.CONTROLELIMITE
       WHEN NOT MATCHED THEN
         INSERT
             (s.percjuromensal,
@@ -1264,7 +1265,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ativo,
              s.nroParcelaJuro,
              s.VLRMINIMOPARCELA,
-			 s.NROMAXIMOPARCELA
+			       s.NROMAXIMOPARCELA,
+             s.CONTROLELIMITE
              )
           VALUES
             (b.percjuromensal,
@@ -1290,7 +1292,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ativo,
              b.nroParcelaJuro,
              b.VLRMINIMOPARCELA,
-			 b.QTMAXPARCELAS);
+			       b.QTMAXPARCELAS
+             b.CONTROLELIMITE);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
