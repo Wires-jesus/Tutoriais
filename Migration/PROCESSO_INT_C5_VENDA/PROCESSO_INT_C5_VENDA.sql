@@ -878,7 +878,21 @@ BEGIN
      WHERE  i.seqdocto = pSeqDocto
        AND  i.nrocheckout = pNumeroCaixa
 	   AND  i.STATUS = 'V'
-       AND  i.nroempresa = pNroEmpresa;
+       AND  i.nroempresa = pNroEmpresa
+	   AND (
+			  i.SEQPRODCOMPOSTO IS NOT NULL 
+			  AND i.seqitem = (
+								SELECT min(x.seqitem) 
+								FROM monitorpdvmiddle.tb_doctoitem X 
+								WHERE x.seqdocto = i.seqdocto 
+									AND x.nroempresa = i.nroempresa
+									AND x.nrocheckout = i.nrocheckout
+									AND x.seqprodcomposto = i.seqprodcomposto
+									AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO
+							  )
+			  OR 
+				i.SEQPRODCOMPOSTO IS NULL 
+    );
     RETURN(vNumItens);
 END;
 
@@ -1672,7 +1686,11 @@ AS
         NULL origemitem,
         v.origmerctrib,
         0 pauta,
-        0 pbaserca,
+        NVL((select pedidoi.pbaserca
+		       from pcpedi pedidoi
+			  where pedidoi.numped = i.NROPREVENDA
+			    and pedidoi.numseq = i.seqitem
+                and pedidoi.codprod = v.codprod	) ,0) pbaserca,
         0 peracrescimocusto,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
@@ -1939,7 +1957,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  C5.CODFILIAL = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
-   AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END 
+   AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END
+   AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
@@ -2065,7 +2084,11 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NULL origemitem,
         v.origmerctrib,
         0 pauta,
-        0 pbaserca,
+        NVL((select pedidoi.pbaserca
+		       from pcpedi pedidoi
+			  where pedidoi.numped = i.NROPREVENDA
+			    and pedidoi.numseq = i.seqitem
+                and pedidoi.codprod = v.codprod	) ,0) pbaserca,
         0 peracrescimocusto,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
@@ -2326,6 +2349,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
+   AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
