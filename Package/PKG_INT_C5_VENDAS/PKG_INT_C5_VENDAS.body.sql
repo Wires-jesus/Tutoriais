@@ -541,7 +541,7 @@ IS
                                    p_pedido.taxaentrega AS "Taxaentrega",
                                    p_pedido.tipoemissao AS "Tipoemissao",
                                    p_pedido.tipodoc AS "Tipodoc",
-                                   p_pedido.tipomovrca AS "Tipomovrca",
+                                   p_pedido.tipomovrca AS "Tipomovccrca",
                                    p_pedido.tipovenda AS "Tipovenda",
                                    p_pedido.totpeso AS "Totpeso",
                                    p_pedido.totvolume AS "Totvolume",
