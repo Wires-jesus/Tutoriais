@@ -794,14 +794,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
 					          FROM PCEMBALAGEM e1
 					         WHERE e1.codprod = v.codprod
-							   AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
+                     AND E1.CODFILIAL = FILIAL.CODFILIAL
+							       AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
 					           AND tipoembalagem IN ('U', 'P')) > 1 THEN
 					  'N'
 					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
 					          FROM PCEMBALAGEM e1
 					         WHERE e1.codprod = v.codprod
-							   AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
-					           AND tipoembalagem IN ('P')) = 1 THEN
+                    AND E1.CODFILIAL = FILIAL.CODFILIAL
+							      AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
+					          AND tipoembalagem IN ('P')) = 1 THEN
 					  'S'
 					  ELSE
 					  'N'
@@ -810,8 +812,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
 					          FROM PCEMBALAGEM e1
 					         WHERE e1.codprod = v.codprod
-							   AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
-					           AND tipoembalagem IN ('U', 'P')) > 1 THEN
+                    AND E1.CODFILIAL = FILIAL.CODFILIAL
+							      AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
+					          AND tipoembalagem IN ('U', 'P')) > 1 THEN
 					  'S'
 					  ELSE
 					  'N'
@@ -842,7 +845,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     END)  PERCBASECOFINS
 
              FROM VW_INT_C5_FAMILIA v, 
-                  
+              VW_INT_C5_OBTER_FILIAIS_C5 FILIAL,                  
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
                     que as triggers da PCTABPR e PCTRIBPISCOFINS passassem a atualizar o
                     campo DTALTERC5 da PCPRODUT, pois a mesma é a base para alimentar
