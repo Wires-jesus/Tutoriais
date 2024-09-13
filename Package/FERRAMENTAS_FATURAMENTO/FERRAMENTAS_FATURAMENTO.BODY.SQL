@@ -4,7 +4,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                 pMensagemRetorno OUT VARCHAR2)
     RETURN VARCHAR2 IS
   BEGIN
-    --Este método já recebe todos os campos e valores calculados, apenas atualiza no banco de dados      
+    --Este método já recebe todos os campos e valores calculados, apenas atualiza no banco de dados
     pMensagemRetorno := 'OK';
     BEGIN
       UPDATE pcest
@@ -33,7 +33,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                             pParametros.codigoProduto || ', filial: ' ||
                             pParametros.CodigoFilial || '). Erro orignal: ' ||
                             SQLERRM;
-        RETURN 'N';                    
+        RETURN 'N';
     END;
     RETURN 'S';
   END;
@@ -50,20 +50,14 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
       pMensagemRetorno := 'Parâmetro pNumtransvenda não foi informado!';
       RETURN 'N';
     END IF;
-  
+   
     BEGIN
-      for movimentacao in (select pcmov.numtransvenda,
-                                  pcmov.numtransitem,
-                                  pcmov.codprod,
+      for movimentacao in (select pcmov.codprod,
                                   pcmov.codfilial,
                                   pcmov.numnota,
-                                  pcmov.custocont,
                                   pcmov.custoreal,
-                                  pcmov.custorep,
                                   pcmov.custofin,
-                                  coalesce(pcmov.punit, 0) punit,
-                                  coalesce(pcmov.qt, 0) qt,
-                                  coalesce(pcmov.qtcont, 0) qtcont,
+                                  nvl(pcmov.qtcont, 0) qtcont,
                                   (DECODE(NVL(pcmov.tipoitem, 'C'),
                                           'C',
                                           DECODE(pcmov.codoper,
@@ -123,32 +117,26 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                                       NVL(pcmov.vloutros, 0) -
                                                       NVL(pcmov.vlrepasse, 0)),
                                                0)))),
-                                        2) vlvenda,
-                                  NVL(pcmov.vlfrete, 0) vlfrete,
-                                  NVL(pcmov.vloutrasdesp, 0) vloutrasdesp,
-                                  NVL(pcmov.vlfrete_rateio, 0) vlfrete_rateio,
-                                  NVL(pcmov.vloutros, 0) vloutros,
-                                  NVL(pcmov.vlrepasse, 0) vlrepasse
+                                        2) vlvenda
                              from pcmov, pcnfsaid, pcmovcomple
                             where pcmov.numtransvenda = pNumtransvenda
-                              and pcmov.numtransvenda =
-                                  pcnfsaid.numtransvenda
+                              and pcmov.numtransvenda = pcnfsaid.numtransvenda
                               and pcmov.dtmov = pcnfsaid.dtsaida
-                              and pcmovcomple.numtransitem(+) =
-                                  pcmov.numtransitem) LOOP
-      
+                              and pcmovcomple.numtransitem(+) = pcmov.numtransitem
+                              and pcnfsaid.numped > 0) LOOP
+
         BEGIN
-          select coalesce(pcest.qtvenddia, 0) qtvenddia,
-                 coalesce(pcest.qtvendsemana, 0) qtvendsemana,
-                 coalesce(pcest.qtvendmes, 0) qtvendmes,
-                 coalesce(pcest.vlvenddia, 0) vlvenddia,
-                 coalesce(pcest.vlvendmes, 0) vlvendmes,
-                 coalesce(pcest.vlvenddiareal, 0) vlvenddiareal,
-                 coalesce(pcest.vlvendmesreal, 0) vlvendmesreal,
-                 coalesce(pcest.vlcustodiareal, 0) vlcustodiareal,
-                 coalesce(pcest.vlcustomesreal, 0) vlcustomesreal,
-                 coalesce(pcest.vlcustodiafin, 0) vlcustodiafin,
-                 coalesce(pcest.vlcustomesfin, 0) vlcustomesfin
+          select nvl(pcest.qtvenddia, 0) qtvenddia,
+                 nvl(pcest.qtvendsemana, 0) qtvendsemana,
+                 nvl(pcest.qtvendmes, 0) qtvendmes,
+                 nvl(pcest.vlvenddia, 0) vlvenddia,
+                 nvl(pcest.vlvendmes, 0) vlvendmes,
+                 nvl(pcest.vlvenddiareal, 0) vlvenddiareal,
+                 nvl(pcest.vlvendmesreal, 0) vlvendmesreal,
+                 nvl(pcest.vlcustodiareal, 0) vlcustodiareal,
+                 nvl(pcest.vlcustomesreal, 0) vlcustomesreal,
+                 nvl(pcest.vlcustodiafin, 0) vlcustodiafin,
+                 nvl(pcest.vlcustomesfin, 0) vlcustomesfin
             into vAtualizarTotaisVenda.QuantidadeVendaDia,
                  vAtualizarTotaisVenda.QuantidadeVendaSemana,
                  vAtualizarTotaisVenda.QuantidadeVendaMes,
@@ -176,7 +164,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                 '). Erro orignal: ' || SQLERRM;
             RETURN 'N';
         END;
-      
+
         vAtualizarTotaisVenda.QuantidadeVendaDia      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaSemana   := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaMes      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
