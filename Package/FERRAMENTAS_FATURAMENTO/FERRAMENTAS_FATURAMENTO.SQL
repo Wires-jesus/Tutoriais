@@ -42,8 +42,8 @@ CREATE OR REPLACE PACKAGE FERRAMENTAS_FATURAMENTO IS
 
   /*****************************************************************************************/
   
-  PROCEDURE atualizarTotaisVenda(pParametros IN T_ATUALIZAR_TOTAIS_VENDA);
+  PROCEDURE atualizarTotaisVenda(pParametros IN T_ATUALIZAR_TOTAIS_VENDA, pMensagemRetorno OUT VARCHAR2);
   
-  PROCEDURE buscarEatualizarTotaisVenda(pNumtransvenda in pcnfsaid.numtransvenda%type);
+  PROCEDURE buscarEatualizarTotaisVenda(pNumtransvenda in pcnfsaid.numtransvenda%type, pMensagemRetorno OUT VARCHAR2);
 
 END FERRAMENTAS_FATURAMENTO;
