@@ -10830,12 +10830,12 @@ IS
 
       --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302 e 1327
       IF (((vsROTINA LIKE '%1302%') OR 
-	     (vsROTINA LIKE '%1327%' AND psECANCELAMENTO = 'S')) AND 
-		 REGISTROS.CODOPER = 'SD') THEN       
+       (vsROTINA LIKE '%1327%' AND psECANCELAMENTO = 'S')) AND 
+     REGISTROS.CODOPER = 'SD') THEN       
         PRIV_DEVOLUCAO_AVARIA(REGISTROS.CODPROD, psECANCELAMENTO, pnNUMTRANSACAO, REGISTROS.CODFILIAL);
       END IF;
-	  
-	  -- Inserindo informações de debug (LOG)
+    
+    -- Inserindo informações de debug (LOG)
       P_INTERNO.INFORMACOES_LOG := 'Finalizou a lista de produtos';
       P_INTERNO.MSG_RETORNO     := psMSG_RETORNO;
       PRIV_GERARLOG;
@@ -18601,6 +18601,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     vsCODFILIAL_CFAT             PCEST.CODFILIAL%TYPE;
     vsUTILIZOUCFAT               VARCHAR2(2);
     vnUTILIZOUCFAT               NUMBER;
+    vnNUMPED                     PCPEDC.NUMPED%TYPE;
   BEGIN
     -- Limpar variável P_INTERNO
     PRIV_LIMPAR_P_INTERNO;
@@ -18615,7 +18616,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     P_INTERNO.CODPROD         := pnCODPROD;
     P_INTERNO.CANCELAMENTO    := psECANCELAMENTO;
     P_INTERNO.MSG_RETORNO     := psMSG_RETORNO;
-  P_INTERNO.CODDEPOSITORESERVA := 0;
+    P_INTERNO.CODDEPOSITORESERVA := 0;
     PRIV_GERARLOG;
 
     BEGIN
@@ -18649,11 +18650,13 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
             ,NVL(PCPEDC.NUMTRANSENTCROSSDOCK,0) NUMTRANSENTCROSSDOCK -- DDMEDICA-620
             ,PCPEDC.CONDVENDA
             ,PCPEDC.NUMCAIXA
+            ,PCPEDC.NUMPED
         INTO vsORIGEMPED
             ,vsPEDIDOAVARIA -- DDMEDICA-620
             ,vnNUMTRANSENTCROSSDOCK -- DDMEDICA-620
             ,vnCONDVENDA
             ,vnNUMCAIXA
+            ,vnNUMPED
         FROM PCPEDC
        WHERE NUMTRANSVENDA = pnNUMTRANSACAO;
     EXCEPTION
@@ -18662,6 +18665,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         vnCONDVENDA            := NULL;
         vsPEDIDOAVARIA         := 'N'; -- DDMEDICA-620
         vnNUMTRANSENTCROSSDOCK := NULL; -- DDMEDICA-620
+        vnNUMPED               := 0;
     END;
     -- Zerando retorno
     vnCONTADORREGISTROS := 0;
@@ -18846,12 +18850,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
            AND (NOT vbEH_PED_AVARIA_CROSSDOCK)
         THEN -- Pedido de Avaria e CrossDocking nao baixa a reserva - DDMEDICA-620
           -- Autosserviço?
-          IF (vsORIGEMPED <> 'A') AND 
-             NOT((NVL(vsPEDIDOAVARIA,'N') = 'S') AND 
-             (vnCONDVENDA = 10) AND 
-             (vsORIGEMPED = 'B') AND 
-             (REGISTROS.CODOPER = 'ST')) THEN
-			 
+          IF (vsORIGEMPED <> 'A') THEN       
             IF (REGISTROS.CODOPER = 'SP' AND REGISTROS.NUMOP = 0 AND REGISTROS.NUMTRANSAVULSA = 0) THEN
               vnESTOQUE_QTRESERV                  := GREATEST(vnESTOQUE_QTRESERV, 0);
               vnDEPOSITO_QTRESERVADA              := 0;
@@ -19599,7 +19598,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         P_INTERNO.CODPROD        := REGISTROS.CODPROD;
         P_INTERNO.QTESTGER       := REGISTROS.NOTA_QT;
         P_INTERNO.QTRESERV       := vnDEPOSITO_QTRESERVADA;
-    P_INTERNO.QTINDENIZ      := REGISTROS.NOTA_QTAVARIA;
+        P_INTERNO.QTINDENIZ      := REGISTROS.NOTA_QTAVARIA;
         P_INTERNO.QTBLOQUEADA    := REGISTROS.NOTA_QTBLOQUEADA;
     
         -- Administrar estoque do depósito
@@ -19673,7 +19672,18 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     -- Lista de produtos
     END LOOP;
     -- Gravar estoque na movimentação
-    PRIV_ATUALIZAR_CUSTO (pnNUMTRANSACAO,'S');
+    PRIV_ATUALIZAR_CUSTO(pnNUMTRANSACAO,'S');
+  
+    IF (vnNUMPED > 0) AND (psECANCELAMENTO = 'N') THEN  
+      vnRETORNO := FERRAMENTAS_FATURAMENTO.buscarEatualizarTotaisVenda(pnNUMTRANSACAO, psMSG_RETORNO);
+  
+      IF (vnRETORNO = 'N') OR (psMSG_RETORNO <> 'OK') THEN  
+        P_INTERNO.MSG_RETORNO := 'Erro 8 (Vendas Saída Prod): ' ||psMSG_RETORNO ||CHR(13)|| 'Msg. original: '||SQLERRM;
+        PRIV_GERARLOG;
+        RETURN 0;
+      END IF;
+    END IF;
+  
     -- Marcar no cabeçalho a utilização da package
     IF vnCONTADORREGISTROS > 0 THEN
       IF (psECANCELAMENTO = 'S') THEN
@@ -19704,7 +19714,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
           vsTransfDep := 'N';
       END;
       IF vsTransfDep = 'N' THEN
-        psMSG_RETORNO := 'Erro 7 (Vendas Saída Prod): A transação repassada para a PKG_ESTOQUE não tem registros validos.'||CHR(13)||
+        psMSG_RETORNO := 'Erro 8 (Vendas Saída Prod): A transação repassada para a PKG_ESTOQUE não tem registros validos.'||CHR(13)||
                          'Transação: '||TO_CHAR(pnNUMTRANSACAO);
       END IF;
       PRIV_GERARLOG;
@@ -19718,7 +19728,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     RETURN vnCONTADORREGISTROS;
   EXCEPTION
     WHEN OTHERS THEN
-      psMSG_RETORNO := 'Erro 8 (Vendas Saída Prod): '||CHR(13)||
+      psMSG_RETORNO := 'Erro 9 (Vendas Saída Prod): '||CHR(13)||
                        'Msg. original: '||SQLERRM;
       P_INTERNO.MSG_RETORNO := psMSG_RETORNO;
       PRIV_GERARLOG;

@@ -7,6 +7,11 @@
 		  "nome": "PCEST",
 		  "tipo": "TABELA",
 		  "versao": "3.0.02.000"
+	   },
+	   {
+		  "nome": "FERRAMENTAS_FATURAMENTO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "6.0.03.000"
 	   }
 	]
 }
