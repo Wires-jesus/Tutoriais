@@ -1295,7 +1295,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ativo,
              b.nroParcelaJuro,
              b.VLRMINIMOPARCELA,
-			       b.QTMAXPARCELAS
+			       b.QTMAXPARCELAS,
              b.CONTROLELIMITE);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
