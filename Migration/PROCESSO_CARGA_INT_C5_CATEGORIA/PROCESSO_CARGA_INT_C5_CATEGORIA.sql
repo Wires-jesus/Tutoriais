@@ -1,9 +1,12 @@
 CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
 (
-SELECT CATEG.NRODIVISAO, 
+ SELECT CATEG.NRODIVISAO, 
             C.seqcategoriac5 seqcategoria,
             CATEG.seqcategoriawinthor,
-            CATEG.seqcategoriapai,
+            (SELECT C5.seqcategoriac5 
+             FROM   pcdeparacategoriac5 C5
+             WHERE  C5.Seqcategoriawinthor = CATEG.seqcategoriapai
+            )seqcategoriapai,
             CATEG.NIVELHIERARQUIA,
             CATEG.CATEGORIA,
             CATEG.ATIVO,
@@ -12,11 +15,7 @@ SELECT CATEG.NRODIVISAO,
             CATEG.IDREF
  FROM 
     (SELECT DISTINCT
-            /*(SELECT r.nrodivisao
-               FROM pcdepararegiaoc5 r
-              WHERE r.numregiao = regparaovarejo.valor
-            ) nrodivisao,*/
-     
+
             (CASE
               WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S' THEN
                    (SELECT TO_CHAR(r.nrodivisao) FROM pcdepararegiaoc5 r WHERE r.numregiao = regparaovarejo.valor)
@@ -24,7 +23,8 @@ SELECT CATEG.NRODIVISAO,
             END)nrodivisao,
 
             TO_NUMBER(regparaovarejo.valor) || TO_NUMBER(dadosclassific.seqcategoria) seqcategoriawinthor,
-            dadosclassific.seqcategoriapai,
+            TO_NUMBER(regparaovarejo.valor) || TO_NUMBER(dadosclassific.seqcategoriapai) seqcategoriapai,
+            --dadosclassific.seqcategoriapai,
             dadosclassific.nivelhierarquia,
             dadosclassific.categoria,
             dadosclassific.ativo,
@@ -62,7 +62,8 @@ SELECT CATEG.NRODIVISAO,
              -----------------
              UNION ALL
              SELECT b.codsec||'0'|| c.codcategoria||'0'|| 3 seqcategoria,
-                    b.codsec || 2 seqcategoriapai,
+                    --b.codsec || 2 seqcategoriapai,
+                    b.codsec || '0' || 2 seqcategoriapai,
                     3 nivelhierarquia,
                     SUBSTR (UPPER (c.categoria), 0, 25) categoria,
                     'S' ativo,
@@ -80,7 +81,8 @@ SELECT CATEG.NRODIVISAO,
              -----------------------
              UNION ALL
              SELECT b.codsec ||'0'|| c.codcategoria||'0'|| d.codsubcategoria||'0'|| 4 seqcategoria,
-                    c.codcategoria || 3 seqcategoriapai,
+                    --c.codcategoria || 3 seqcategoriapai,
+                    b.codsec||'0'|| c.codcategoria||'0'|| 3 seqcategoriapai,                    
                     4 nivelhierarquia,
                     SUBSTR (UPPER (d.subcategoria), 0, 25) categoria,
                     'S' ativo,
@@ -104,6 +106,7 @@ SELECT CATEG.NRODIVISAO,
              FROM pcparamfilial
              WHERE nome = 'NUMREGIAOPADRAOVAREJO'
              AND valor <> '99'
+             AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
              AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
              UNION ALL
@@ -115,6 +118,7 @@ SELECT CATEG.NRODIVISAO,
     WHERE regparaovarejo.valor IS NOT NULL) CATEG,
           pcdeparacategoriac5 c
  WHERE CATEG.seqcategoriawinthor = c.seqcategoriawinthor(+)
+
 )
 
 \
