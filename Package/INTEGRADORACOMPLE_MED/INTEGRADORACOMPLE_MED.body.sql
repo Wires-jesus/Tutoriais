@@ -5405,8 +5405,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               (vbPodePesquisarPrecoFixo)        THEN -- 5685.084449.2016
 			  
           -- Se a Quantidade Pedida estiver dentro da Faixa
-          IF ((NVL(pi_nQtde,0) >= NVL(vc_Promocoes.INICIOINTERVALOPROMOCAOMED,0)) AND
-              (NVL(pi_nQtde,0) <= NVL(vc_Promocoes.FIMINTERVALOPROMOCAOMED,999999))) THEN
+          IF (NVL(pi_nQtde,0) >= NVL(vc_Promocoes.INICIOINTERVALOPROMOCAOMED,0)) THEN
 
             -- Se não achou a Promoção do Item do Pedido
             IF (NOT vbAchouPromocaoItemPedido) THEN
