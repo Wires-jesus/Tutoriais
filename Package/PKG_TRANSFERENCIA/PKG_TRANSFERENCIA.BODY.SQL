@@ -781,7 +781,8 @@ END;
 
     VSCODFILIAL   := P_CODFILIAL;
     VSCODFILIALNF := P_CODFILIALNF;
-
+    IF VENDAS.TIPO_TRANSFERENCIA(P_CODFILIAL,P_CODFILIAL,P_CODFILIALNF) IN ('V', 'VR', 'R') THEN
+    
     --- BUSCA O CODIGO DO FORNECEDOR DA FILIAL ORIGEM
     BEGIN
       SELECT CODFORNEC, UF
@@ -1334,7 +1335,7 @@ END;
 
      -- GERAR_PCLANC(P_NUMTRANSENT, P_CODFILIAL);
     END IF;
-
+   END IF;   
   END PROCESSAR_ET_VIRT;
 
   ------------------ Método gerenciado principal ------------------------------------
@@ -1348,6 +1349,7 @@ END;
                            P_MSG                 OUT VARCHAR2) IS
   BEGIN
     BEGIN
+    IF VENDAS.TIPO_TRANSFERENCIA(P_CODFILIAL,P_CODFILIAL,P_CODFILIALNF) IN ('V', 'VR', 'R') THEN  	
       IF NOT NOTA_EXISTE(P_NUMTRANSVENDA, 'ET') THEN -- Validar se a nota de entrada(ET) já existe
         -- PARÂMETROS
         TRANSF.PARAMETRO := BUSCAR_PARAMETROS(P_CODFILIAL, 'ET');
@@ -1365,7 +1367,7 @@ END;
         P_NUMTRANSENT := TRANSF.PARAMETRO.PROXNUMTRANSENT;
 
       END IF;
-
+    END IF;
     EXCEPTION
       WHEN OTHERS THEN
         P_MSG := P_MSG ||dbms_utility.format_error_stack|| ' ERRO. Linha: ' ||
@@ -2138,6 +2140,7 @@ BEGIN
                                      WHERE PCMOV.NUMTRANSITEM    = PCMOVCOMPLE.NUMTRANSITEM
                                        AND PCMOVCOMPLE.ORIGMERCTRIB = '1'
                                        AND PCMOV.CODFILIALRETIRA IS NOT NULL
+									   AND VENDAS.TIPO_TRANSFERENCIA(PCMOV.CODFILIAL, PCMOV.CODFILIALRETIRA, PCMOV.CODFILIALNF) IN ('V','VR','R')
                                        AND PCMOV.QT > 0
                                        AND NVL(PARAMFILIAL.obtercomovarchar2('CDVIRTUALIMPORTACAO', PCMOV.CODFILIALRETIRA),'N') = 'S'
                                        AND PCMOV.NUMTRANSVENDA = P_NUMTRANSVENDA
@@ -2149,8 +2152,7 @@ BEGIN
                                                      FROM PCMOV A
                                                     WHERE A.CODPROD       = PCMOV.CODPROD
                                                       AND A.NUMTRANSENT   = P_NUMTRANSENT
-                                                      AND A.QT            > 0/*
-                                                      AND A.DTCANCEL      IS NULL*/)))
+                                                      AND A.QT            > 0)))
                                      GROUP
                                         BY PCMOV.CODFILIALRETIRA
                                          , PCMOV.CODFILIAL
