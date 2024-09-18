@@ -1,5 +1,11 @@
 {
   "nome":"TRG_PCGRUPOSCAMPNHAC_DTALTERAC",
   "tipoPLSQL":"TRIGGER",
-  "dependencias":""
+  "dependencias":[
+    {
+      "nome": "PCGRUPOSCAMPANHAC",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    }
+  ]
 }
