@@ -346,7 +346,11 @@ SELECT ALIQUOTA_COFINS
               ,ROUND(NVL(PCMOVCIAP.VLIPI ,0), 2) AS VALOR_IPI_UNIDADE
               ,NVL(PCMOVCIAP.PERCIPI,0) AS ALIQUOTA_IPI
               ,CASE WHEN PCMOVCIAP.SITTRIBUT in ('20', '70') THEN
-                    ROUND(100 - (((PCMOVCIAP.BASEICMS / (PCMOVCIAP.VLITEM)) * 100)),2)
+                    CASE WHEN NVL(PCMOVCIAP.VLITEM,0) <> 0 THEN
+                       ROUND(100 - (((PCMOVCIAP.BASEICMS / (PCMOVCIAP.VLITEM)) * 100)),2)
+                    ELSE
+                       0
+                    END
                 ELSE
                     NVL(PCMOVCIAP.PERCBASERED,0)
                 END AS PERCENTUAL_REDUCAO_BC
@@ -380,7 +384,11 @@ SELECT ALIQUOTA_COFINS
               ,0 AS NUMORIGINAL
               ,NULL AS MARCA
               ,NULL AS PRINCIPIOATIVO
-              ,(PCMOVCIAP.VLDESCONTO / (PCMOVCIAP.VLITEM / PCMOVCIAP.QTCONT)) * 100 AS PERCDESC
+              ,CASE WHEN (NVL(PCMOVCIAP.VLITEM,0) <> 0) AND (NVL(PCMOVCIAP.QTCONT,0) <> 0) THEN 
+                   (PCMOVCIAP.VLDESCONTO / (PCMOVCIAP.VLITEM / PCMOVCIAP.QTCONT)) * 100 
+               ELSE
+                   0    
+               END AS PERCDESC
               ,0 AS PESOCX
               ,0 AS QTCX
               ,0 AS QTPECAS
