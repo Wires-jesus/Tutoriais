@@ -1,0 +1,3 @@
+{"nome":"PROCESSO_CONTROLE_PCSSERVFATATIVO","tipoPLSQL":"MIGRATION","dependencias":[
+      {"nome": "PCSSERVFATATIVO", "tipo": "TABELA", "versao": "6.0.01.000"}
+]}
