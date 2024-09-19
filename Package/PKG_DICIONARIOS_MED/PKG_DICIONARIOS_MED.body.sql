@@ -17945,11 +17945,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vvProgressivoCondicao := 'N';
               
               IF (vtTIPOPROMOCAO(viIdxPromocao) = 'M') AND (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','V')) THEN
-                IF vtTIPOPOLITICA(viIdxPromocao) = 'V' THEN
-                  vsTipoFaixaProgressivo := 'V';
-                ELSE
-                  vsTipoFaixaProgressivo := 'Q';
-                END IF;
+                vsTipoFaixaProgressivo := vtTIPOPOLITICA(viIdxPromocao);
               ELSE
                 vsTipoFaixaProgressivo := '';
               END IF;
@@ -18505,7 +18501,11 @@ IS PRAGMA SERIALLY_REUSABLE;
 
               IF (vtTIPOPROMOCAO(viIdxPromocao) IN ('M','V')) THEN
                 IF (vtTIPOPROMOCAO(viIdxPromocao) = 'M') AND (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','V')) THEN
-                  vnQtdeMinima := vtQTMINIMAMED(viIdxPromocao);
+                  IF vtQTMINIMAMED(viIdxPromocao) <> 0 THEN
+                    vnQtdeMinima := vtQTMINIMAMED(viIdxPromocao);
+                  ELSE
+                    vnQtdeMinima := NULL;
+                  END IF;
                 ELSE
                   vnQtdeMinima := vtINICIOINTERVALOPROMOCAOMED(viIdxPromocao);
                 END IF;
@@ -18518,6 +18518,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               ELSE
                 vnQtdeMinima := 0;
               END IF;
+
               IF (vtTIPOPOLITICA(viIdxPromocao) IN ('Q','F','V')) THEN
                 vnFaixaInicial := vtINICIOINTERVALOPROMOCAOMED(viIdxPromocao);
                 vnFaixaFinal   := vtFIMINTERVALOPROMOCAOMED(viIdxPromocao);
@@ -18525,12 +18526,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vnFaixaInicial := 0;
                 vnFaixaFinal   := 0;
               END IF;
+              
               vvTipoRegistroProduto := '5';
               vvConteudo := vvTipoRegistroProduto                             ||
                             RPAD_BRANCOS(vvCodigoPromocao, 20)                ||
                             GET_CHR_OP                                        ||
                             RPAD_BRANCOS(vtCODAUXILIAR(viIdxPromocao), 13)    ||
-                            LPAD_ZEROS_DEC(vnQtdeMinima, 10, 0)               ||
+                            CASE WHEN vnQtdeMinima IS NULL THEN RPAD_BRANCOS('', 10) ELSE LPAD_ZEROS_DEC(vnQtdeMinima, 10, 0) END ||
                             LPAD_ZEROS_DEC(vnFaixaInicial, 9, 2)              ||
                             LPAD_ZEROS_DEC(vnFaixaFinal, 9, 2)                ||
                             LPAD_ZEROS_DEC(vnPercDesc, 5, 2)                  ||
