@@ -1642,29 +1642,6 @@ IS
                                  ORDER BY PCMOV.CODPROD,
                                           PCMOV.NUMLOTE) LOOP
           
-          -------------------------------
-          -- Verifica se aceita o Produto
-          -------------------------------
-          vbAceitaPrduto := FALSE;
-          -- Se carrega todos os produtos da entrada/pedido
-          IF    (pi_nOrigemChamada IN (1,4)) THEN
-            vbAceitaPrduto := TRUE;
-          -- Se Valida Saldo do Produto e Lote
-          ELSIF (pi_nOrigemChamada = 2) THEN
-            IF (vc_Movimentacao.CODPROD          = pi_nCodProd)          AND
-               (NVL(vc_Movimentacao.NUMLOTE,' ') = NVL(pi_vNumLote,' ')) THEN
-              vbAceitaPrduto := TRUE;
-            END IF;
-          -- Se Exibir Lotes para Seleção
-          ELSIF (pi_nOrigemChamada = 3) THEN
-            IF (vc_Movimentacao.CODPROD = pi_nCodProd) THEN
-              vbAceitaPrduto := TRUE;
-            END IF;
-          END IF;  
-          ----------------------
-          -- Se aceita o Produto
-          ----------------------
-          IF (vbAceitaPrduto) THEN
             ----------------------------
             -- Pesquisa Dados do Produto
             ----------------------------
@@ -1736,145 +1713,16 @@ IS
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;
             END IF;
-          END IF; -- Fim Condição: Se aceita o Produto                 
+            
         END LOOP; -- Fim Laço de Movimentações
         
       ELSE -- (pi_nOrigemChamada <> 1)
-        
-        -- Verifica se tem dados na tabela de Integração
-        vvUsaLoteIntegracao := 'N';
-        IF (NVL(vFIL_USAINTEGRACAOWMS,'N') = 'S') AND
-           (NVL(vFIL_INTEGRADORAWMS,'0')   = '7') THEN
-          BEGIN
-            SELECT 'S'
-              INTO vvUsaLoteIntegracao
-              FROM PCINT_ESTOQUE_LOTE_DEPOSITO
-             WHERE (ROWNUM = 1);
-          EXCEPTION
-            WHEN NO_DATA_FOUND THEN
-              vvUsaLoteIntegracao := 'N';
-          END;
-        END IF;      
-        -- Integração WMS - Usa Tabela por Lote do WMS -----------------------------
-        -- SOMENTE DELAGE
-        IF (NVL(vvUsaLoteIntegracao,'N') = 'S') THEN
-          -- Inicializa o Contador de ID
-          viContaID := 0;
-          -- Laço de Movimentações
-          FOR vc_Movimentacao IN (SELECT L.CODIGODEPOSITOWMS
-                                       , L.CODPROD
-                                       , L.NUMLOTE
-                                       , L.DTVALIDADE
-                                       , SUBSTR(R.DESCRICAODEPOSITOWMS,1,40) DESCRICAODEPOSITOWMS
-                                    FROM PCINT_ESTOQUE_LOTE_DEPOSITO    L
-                                       , PCINT_RELACIONA_DEPOSITO_ESTOQ R
-                                   WHERE (L.CODIGODEPOSITOWMS = R.CODIGODEPOSITOWMS)
-                                     AND (R.TIPOESTOQUEERP    = 'I')
-                                     AND (L.CODFILIAL         = vvCodFilial)
-                                     AND (L.CODPROD           = pi_nCodProd)) LOOP
-            -------------------------------
-            -- Verifica se aceita o Produto
-            -------------------------------
-            vbAceitaPrduto := FALSE;
-            -- Se carrega todos os produtos da entrada/pedido
-            IF    (pi_nOrigemChamada IN (1,4)) THEN
-              vbAceitaPrduto := TRUE;
-            -- Se Valida Saldo do Produto e Lote
-            ELSIF (pi_nOrigemChamada = 2) THEN
-              IF (vc_Movimentacao.CODPROD          = pi_nCodProd)          AND
-                 (NVL(vc_Movimentacao.NUMLOTE,' ') = NVL(pi_vNumLote,' ')) THEN
-                vbAceitaPrduto := TRUE;
-              END IF;
-            -- Se Exibir Lotes para Seleção
-            ELSIF (pi_nOrigemChamada = 3) THEN
-              IF (vc_Movimentacao.CODPROD = pi_nCodProd) THEN
-                vbAceitaPrduto := TRUE;
-              END IF;
-            END IF;
-            ----------------------
-            -- Se aceita o Produto
-            ----------------------
-            IF (vbAceitaPrduto) THEN
-              ----------------------------
-              -- Pesquisa Dados do Produto
-              ----------------------------
-              BEGIN
-                SELECT ESTOQUEPORLOTE
-                  INTO vvEstoquePorLote
-                  FROM PCPRODUT
-                 WHERE (CODPROD = vc_Movimentacao.CODPROD); 
-              EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                  vvEstoquePorLote := 'N';
-              END;
-              --------------
-              -- Observações
-              --------------
-              vvRestricao  := NULL;
-              vvObs        := NULL;
-              vdDtValidade := NULL;
-              -- Verifica se tem o Lote na PCLOTE
-              IF (vvEstoquePorLote = 'S') THEN
-                BEGIN
-                  SELECT NULL
-                       , DTVALIDADE
-                    INTO vvObs
-                       , vdDtValidade
-                    FROM PCLOTE
-                   WHERE (CODFILIAL = vvCodFilial)
-                     AND (CODPROD   = vc_Movimentacao.CODPROD)
-                     AND (NUMLOTE   = vc_Movimentacao.NUMLOTE);
-                EXCEPTION
-                  WHEN NO_DATA_FOUND THEN
-                    vvObs        := 'Sem Estoque por Lote (PCLOTE)';
-                    vdDtValidade := NULL;
-                END;
-              END IF;
-              
-              -- Flag de Restrição
-              IF (vvObs IS NOT NULL) THEN
-                vvRestricao := '*';
-              END IF;
-              
-              -- Pesquisa as qtdes Bloqueadas Disponíveis para Venda de Avaria Transferência
-              vnQtDisponivelBloqueado := 0;
-              BEGIN
-                  IF (vvEstoquePorLote = 'S') THEN
-                    vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(vc_Movimentacao.CODPROD, vvCodFilial, vc_Movimentacao.NUMLOTE);
-                  ELSE
-                    vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(vc_Movimentacao.CODPROD, vvCodFilial);
-                  END IF;
-              EXCEPTION
-                WHEN OTHERS THEN
-                  vnQtDisponivelBloqueado := 0;
-              END;
-              
-              -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
-              IF (NVL(vnQtDisponivelBloqueado, 0) > 0) THEN
-                -- Incrementa o Contador de ID
-                viContaID := NVL(viContaID,0) + 1;
-                
-                -- Insere Produto no Array da Entrada
-                vtEntrada(viContaID).nCODIGODEPOSITOWMS    := vc_Movimentacao.CODIGODEPOSITOWMS;
-                vtEntrada(viContaID).vDESCRICAODEPOSITOWMS := vc_Movimentacao.DESCRICAODEPOSITOWMS;
-                vtEntrada(viContaID).nID                   := viContaID; 
-                vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
-                vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
-                vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
-                vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado;
-                vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
-                vtEntrada(viContaID).vOBS                  := vvObs;
-              END IF; -- Fim NVL(vnQtFaltaAvaria, 0) > 0
-            END IF; -- Fim Condição: Se aceita o Produto
-          END LOOP;
-        ELSE -- vvUsaLoteIntegracao == 'N'
           -- Inicializa o Contador de ID
           viContaID := 0;  
           -- Laço de Lotes Indenizados
           FOR vc_Movimentacao IN (SELECT L.CODPROD
                                        , L.NUMLOTE
                                        , L.DTVALIDADE
-                                       , PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(L.CODPROD, L.CODFILIAL, L.NUMLOTE) QUANTIDADE
                                     FROM PCLOTE L
                                    WHERE (L.CODPROD   = pi_nCodProd)
                                      AND (L.CODFILIAL = vvCodFilial)
@@ -1919,21 +1767,46 @@ IS
                                      vvDescDepositoPadraoAvaria);
               END IF;
               
-              -- Insere Produto no Array da Entrada
-              vtEntrada(viContaID).nCODIGODEPOSITOWMS    := vnDepositoPadraoAvaria;
-              vtEntrada(viContaID).vDESCRICAODEPOSITOWMS := vvDescDepositoPadraoAvaria;
+              ----------------------------
+              -- Pesquisa Dados do Produto
+              ----------------------------
+              BEGIN
+                SELECT ESTOQUEPORLOTE
+                  INTO vvEstoquePorLote
+                  FROM PCPRODUT
+                 WHERE (CODPROD = vc_Movimentacao.CODPROD); 
+              EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                  vvEstoquePorLote := 'N';
+              END; 
               
-              vtEntrada(viContaID).nID                   := viContaID; 
-              vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
-              vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
-              vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
-              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QUANTIDADE; 
-              vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
-              vtEntrada(viContaID).vOBS                  := vvObs;    
+              vnQtDisponivelBloqueado := 0;
+              BEGIN
+                  IF (vvEstoquePorLote = 'S') THEN
+                    vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(vc_Movimentacao.CODPROD, vvCodFilial, vc_Movimentacao.NUMLOTE);
+                  ELSE
+                    vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(vc_Movimentacao.CODPROD, vvCodFilial);
+                  END IF;
+              EXCEPTION
+                WHEN OTHERS THEN
+                  vnQtDisponivelBloqueado := 0;
+              END;
+              
+              IF vnQtDisponivelBloqueado > 0 THEN
+                -- Insere Produto no Array da Entrada
+                vtEntrada(viContaID).nCODIGODEPOSITOWMS    := vnDepositoPadraoAvaria;
+                vtEntrada(viContaID).vDESCRICAODEPOSITOWMS := vvDescDepositoPadraoAvaria;
+                vtEntrada(viContaID).nID                   := viContaID; 
+                vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
+                vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
+                vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
+                vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; 
+                vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
+                vtEntrada(viContaID).vOBS                  := vvObs;
+              END IF;
             END IF; -- Fim Condição: Se aceita o Produto  
           END LOOP; -- Fim 
-        END IF; -- Fim (NVL(vvUsaLoteIntegracao,'N') = 'S') THEN
-      END IF;
+      END IF; -- Fim Else (pi_nOrigemChamada <> 1)
     END IF;
   
    /******************************************************************************  
