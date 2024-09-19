@@ -1716,22 +1716,8 @@ IS
                                    vvDescDepositoPadraoCrossdock);
             END IF;        
             
-            -- Pesquisa as quantidades disponiveis bloqueadas
-            vnQtDisponivelBloqueado := 0;
-            IF (NVL(vFIL_USAINTEGRACAOWMS,'N') = 'S') AND
-               (NVL(vFIL_INTEGRADORAWMS,'0')   = '7') THEN
-              BEGIN
-                IF (vvEstoquePorLote = 'S') THEN
-                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(vc_Movimentacao.CODPROD, vvCodFilial, vc_Movimentacao.NUMLOTE);
-                ELSE
-                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(vc_Movimentacao.CODPROD, vvCodFilial);
-                END IF;
-              EXCEPTION
-                WHEN OTHERS THEN
-                  vnQtDisponivelBloqueado := 0;
-              END;
-            END IF;
-
+            vnQtDisponivelBloqueado := vc_Movimentacao.QTCONT;
+            
             -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
             IF (NVL(vnQtDisponivelBloqueado,0) > 0) THEN
                  
