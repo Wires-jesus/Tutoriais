@@ -1,0 +1,5 @@
+{
+	"nome": "TRG_INTEGRA_PRECEDENCIA",
+	"tipoPLSQL": "TRIGGER",
+	"dependencias": ""
+}
