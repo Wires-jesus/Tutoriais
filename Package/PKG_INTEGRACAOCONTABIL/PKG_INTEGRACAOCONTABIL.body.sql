@@ -12314,7 +12314,7 @@ IS
             V_SQLFATO :=
                 REPLACE (V_SQLFATO, '/*ROTINALANCVALE*/', '''614'',');
             V_SQLFATO := REPLACE (V_SQLFATO, '/*CONTABESTORNO*/', '--');
-        ELSIF V_CODFATOGERADOR IN (16)
+        ELSIF V_CODFATOGERADOR = 16
         THEN
             SELECT SQLFATOGERADOR
               INTO V_SQLFATO
@@ -12323,12 +12323,12 @@ IS
 
             V_SQLFATO :=
                 REPLACE (V_SQLFATO,
-                         'AND P.DTESTORNO IS NULL',
-                         'AND P.DTESTORNO IS NOT NULL');
+                         'AND C.DTESTORNO IS NULL',
+                         'AND C.DTESTORNO IS NOT NULL');
             V_SQLFATO :=
                 REPLACE (V_SQLFATO,
-                         'AND P.CODFUNCESTORNO IS NULL',
-                         'AND P.CODFUNCESTORNO IS NOT NULL');
+                         'AND R.DTESTORNO IS NULL',
+                         'AND R.DTESTORNO IS NOT NULL');						 
         ELSIF V_CODFATOGERADOR = 13
         THEN
             SELECT SQLFATOGERADOR
