@@ -131,7 +131,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND NVL(P.REVENDA,'S') = 'S'
         --AND NVL(P.TIPOMERC, 'L') = 'L'
         AND P.DTEXCLUSAO IS NULL
-        AND LENGTH(p.nbm) >= 2
+        AND (LENGTH(p.nbm) >= 2 OR p.TIPOMERC in ('KT', 'CB'))
         AND e.codprod >= 0
         AND f.codprod >= 0
         AND NVL(e.enviafrentecaixa,'S') = 'S'
@@ -301,7 +301,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 	AND FC5.CODFILIAL = PF.CODFILIAL 
 	AND FC5.CODFILIAL = E.CODFILIAL
 	AND E.CODFILIAL = PF.CODFILIAL
-    AND LENGTH(P.NBM) >= 2
+    AND (LENGTH(P.NBM) >= 2 OR P.TIPOMERC IN ('KT', 'CB'))
     AND E.CODPROD >= 0
     AND PF.CODPROD >= 0
     AND NVL(E.ENVIAFRENTECAIXA, 'S') = 'S'
