@@ -1295,6 +1295,56 @@ END;
 
 \
 
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_OBTERNUMCAR(pSeqDocto NUMBER,
+                                                  pNroEmpresa NUMBER,
+                                                  pNroCheckout NUMBER)
+RETURN NUMBER
+IS 
+	vNUMCAR NUMBER;
+BEGIN
+  vNUMCAR := 0;
+  BEGIN
+	SELECT 
+		NUMCAR
+	INTO vNUMCAR
+	FROM 
+		PCPEDC
+	WHERE NUMPED = FNC_INT_C5_OBTERNUMPED(pSeqDocto, pNroEmpresa, pNroCheckout);
+  EXCEPTION
+  WHEN OTHERS THEN
+   vNUMCAR := 0;
+  END;	
+	RETURN vNUMCAR;
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_CODAUXPRODCOMPOSTO(pseqprodcomposto NUMBER,
+                                                                   pnroempresa NUMBER)
+RETURN NUMBER
+IS 
+	vCODAUXILIAR NUMBER;
+BEGIN
+  vCODAUXILIAR := 0;
+  BEGIN
+	SELECT 
+		P.CODACESSO
+	INTO vCODAUXILIAR
+	FROM 
+		MONITORPDVMIDDLE.TB_PRODCODIGO P
+	WHERE P.SEQPRODUTO = pseqprodcomposto
+	AND P.NROEMPRESA = pnroempresa
+	AND P.QTDEMBALAGEM = 1;
+  EXCEPTION
+  WHEN OTHERS THEN
+   vCODAUXILIAR := 0;
+  END;	
+	RETURN vCODAUXILIAR;
+END;
+
+\
+
 CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
 (SELECT  a.seqdocto,
         e.chavenf chavenfe,
@@ -1370,7 +1420,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL logerro,
         NULL notadupliquesvc,
         NULL naturezanfce,
-        0 numcar,
+        FNC_INT_C5_OBTERNUMCAR(a.seqdocto, a.nroempresa, a.nrocheckout) numcar,
         NULL numecf,
         NULL md5listaarq,
         NULL md5paf,
@@ -1629,7 +1679,7 @@ AS
         v.cnpjfabricante,
         NULL codagregacao,
         (case WHEN i.seqprodcomposto IS NOT null
-          THEN tp.CODACESSO
+          THEN FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto, i.nroempresa)
           ELSE i.codacesso 
           END) codauxiliar,
         NULL codbarrabalanca,
@@ -1686,11 +1736,17 @@ AS
         NULL origemitem,
         v.origmerctrib,
         0 pauta,
-        NVL((select pedidoi.pbaserca
-		       from pcpedi pedidoi
-			  where pedidoi.numped = i.NROPREVENDA
-			    and pedidoi.numseq = i.seqitem
-                and pedidoi.codprod = v.codprod	) ,0) pbaserca,
+        NVL((select pedidoi.pbaserca 
+			  from pcpedi pedidoi, pcembalagem emb
+			 where pedidoi.numped = i.NROPREVENDA
+			   and emb.codprod = pedidoi.codprod
+			   and emb.codprod = v.codprod
+			   and emb.codfilial = v.codfilial
+			   and emb.codauxiliar = pedidoi.codauxiliar
+			   and emb.qtunit = i.QTDEMBALAGEM
+			   and pedidoi.codprod = v.codprod
+			   and pedidoi.qt = i.quantidade
+			   and rownum = 1	) ,0) pbaserca,
         0 peracrescimocusto,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
@@ -1851,19 +1907,19 @@ AS
         (SELECT vlcustocont
            FROM vw_int_c5_custos
           WHERE codfilial = C5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustocont,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustocont,
         (SELECT vlcustofin
            FROM vw_int_c5_custos
           WHERE codfilial = C5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustofin,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustofin,
         (SELECT vlcustoreal
            FROM vw_int_c5_custos
           WHERE codfilial = C5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustoreal,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustoreal,
         (SELECT vlcustorep
            FROM vw_int_c5_custos
           WHERE codfilial = C5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustorep,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustorep,
         0 vldescfin,
         0 vldescicmisencao,
         fnc_int_c5_vldescitem(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vldescitem,
@@ -1933,7 +1989,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
-        monitorpdvmiddle.TB_PRODCODIGO tp,
         vw_int_c5_trib_pis h,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
@@ -1944,12 +1999,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
-   AND tp.seqproduto = case when i.seqprodcomposto is null then i.seqproduto else i.seqprodcomposto end
-   AND tp.nroempresa = i.nroempresa
-   AND tp.qtdembalagem = i.qtdembalagem
-   AND  v.codauxiliar = tp.codacesso
-   AND  p.seqproduto = tp.seqproduto
-   AND  v.seqproduto = tp.seqproduto
+   AND  v.seqproduto = i.seqproduto
+   and  v.seqproduto = p.seqproduto
    AND  v.codfilial = ea.codigo
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
@@ -1957,14 +2008,13 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  C5.CODFILIAL = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
-   AND  h.codauxiliar(+) = case when i.seqprodcomposto is null then i.codacesso else NULL END
-   AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
+   AND  h.codauxiliar(+) = i.codacesso
+   AND  v.codauxiliar = i.codacesso 
    and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = tp.NROEMPRESA
    AND  C5.codfilialintegracao = e.nroempresa
    AND  C5.codfilialintegracao = i.nroempresa
    AND  C5.codfilial = ea.codigo
@@ -2027,7 +2077,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         v.cnpjfabricante,
         NULL codagregacao,
         (case WHEN i.seqprodcomposto IS NOT null
-          THEN tp.CODACESSO
+          THEN FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa)
           ELSE i.codacesso
         END) CODAUXILIAR,
         NULL codbarrabalanca,
@@ -2084,11 +2134,17 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         NULL origemitem,
         v.origmerctrib,
         0 pauta,
-        NVL((select pedidoi.pbaserca
-		       from pcpedi pedidoi
-			  where pedidoi.numped = i.NROPREVENDA
-			    and pedidoi.numseq = i.seqitem
-                and pedidoi.codprod = v.codprod	) ,0) pbaserca,
+        NVL((select pedidoi.pbaserca 
+			  from pcpedi pedidoi, pcembalagem emb
+			 where pedidoi.numped = i.NROPREVENDA
+			   and emb.codprod = pedidoi.codprod
+			   and emb.codprod = v.codprod
+			   and emb.codfilial = v.codfilial
+			   and emb.codauxiliar = pedidoi.codauxiliar
+			   and emb.qtunit = i.QTDEMBALAGEM
+			   and pedidoi.codprod = v.codprod
+			   and pedidoi.qt = i.quantidade
+			   and rownum = 1) ,0) pbaserca,
         0 peracrescimocusto,
         NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'A'),0) peracrescimofuncep,
         (SELECT percbasered
@@ -2238,19 +2294,19 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         (SELECT vlcustocont
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustocont,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustocont,
         (SELECT vlcustofin
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustofin,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustofin,
         (SELECT vlcustoreal
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustoreal,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustoreal,
         (SELECT vlcustorep
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
-            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else tp.codacesso end) vlcustorep,
+            AND codauxiliar = case when i.seqprodcomposto is null then i.codacesso else FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa) end) vlcustorep,
         0 vldescfin,
         0 vldescicmisencao,
         fnc_int_c5_vldescitem(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM) vldescitem,
