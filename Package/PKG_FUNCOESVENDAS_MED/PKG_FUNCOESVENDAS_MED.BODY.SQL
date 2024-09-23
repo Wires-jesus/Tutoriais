@@ -1832,7 +1832,7 @@ IS
                                     FROM PCLOTE L
                                    WHERE (L.CODPROD   = pi_nCodProd)
                                      AND (L.CODFILIAL = vvCodFilial)
-                                     AND (L.QTINDENIZ > 0)) LOOP                                
+                                     AND (L.QTBLOQUEADA > 0)) LOOP                                
             -------------------------------
             -- Verifica se aceita o Produto
             -------------------------------
