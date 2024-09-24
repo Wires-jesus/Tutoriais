@@ -5426,41 +5426,49 @@ create or replace package body FISCAL is
 
   END;
   
-  FUNCTION GET_VIGENCIANTSEFAZ(P_IDENTIFICADORNT IN VARCHAR2) RETURN VARCHAR2 IS
+  FUNCTION GET_VIGENCIANTSEFAZ(P_IDENTIFICADORNT IN VARCHAR2,
+                               P_DATADOCUMENTO IN DATE) RETURN VARCHAR2 IS
     vDATAINICIALVIGENCIA DATE;
-    vDATAFINALVIGENCIA   DATE;  
+    vDATAFINALVIGENCIA   DATE;
     vRESULTADO           VARCHAR2(1);
   BEGIN
     BEGIN
       SELECT DATAINICIALVIGENCIA,
              NVL(DATAFINALVIGENCIA,TO_DATE('01/01/2999','DD/MM/YYYY'))
         INTO vDATAINICIALVIGENCIA,
-             vDATAFINALVIGENCIA             
+             vDATAFINALVIGENCIA
         FROM PCVIGENCIANTSEFAZ
        WHERE UPPER(IDENTIFICADOR_NT) = UPPER(P_IDENTIFICADORNT);
-              
-       IF vDATAINICIALVIGENCIA <= TRUNC(SYSDATE) AND
-          vDATAFINALVIGENCIA >= TRUNC(SYSDATE) THEN
+
+       IF vDATAINICIALVIGENCIA <= P_DATADOCUMENTO AND
+          vDATAFINALVIGENCIA >= P_DATADOCUMENTO THEN
           vRESULTADO := 'S';
        ELSE
-         vRESULTADO := 'N';         
-       END IF;         
-    EXCEPTION         
+         vRESULTADO := 'N';
+       END IF;
+    EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        vRESULTADO := 'N';        
-    END;       
-    
+        vRESULTADO := 'N';
+    END;
+
     RETURN  vRESULTADO;
   END;
 
-  FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2) RETURN VARCHAR2 IS
+  FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
+                        P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2 IS
   vRetorno VARCHAR2(1);
+  vDataDocumentos DATE;
   BEGIN
-    BEGIN
+    BEGIN   
+     
+      IF P_DATADOCUMENTOS IS NULL THEN
+        vDataDocumentos := TRUNC(SYSDATE); /*Em alguns casos o valor default não está sendo passado para o parâmetro*/
+      END IF;
+    
       IF (P_SITUACAONFE IS NOT NULL) THEN
-        vRetorno := 'N';        
+        vRetorno := 'N';
 
-        IF GET_VIGENCIANTSEFAZ('NFE-NT2024.001-CRT-MEIv1.10') = 'N' THEN
+        IF GET_VIGENCIANTSEFAZ('NFE-NT2024.001-CRT-MEIv1.10', vDataDocumentos) = 'N' THEN
           IF (P_SITUACAONFE IN ('110','205','301','302','303','307')) THEN
             vRetorno := 'S';
           END IF;
@@ -5468,7 +5476,7 @@ create or replace package body FISCAL is
           IF (P_SITUACAONFE IN ('110','205')) THEN
             vRetorno := 'S';
           END IF;
-        END IF;  
+        END IF;
       ELSE
         vRetorno := 'N';
       END IF;
@@ -5476,7 +5484,7 @@ create or replace package body FISCAL is
       WHEN OTHERS THEN
         vRetorno := 'N';
     END;
-    
+
     RETURN vRetorno;
   END;
 
