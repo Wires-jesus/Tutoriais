@@ -74,7 +74,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   -------------------------------------------------------------------------------------------
   cursor C_NOTAS_NF(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
   -- 01 - NOTAS FISCAIS DE VENDA
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '1' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
            A.NUMTRANSVENDAORIGEM,
@@ -737,7 +738,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   -------------------------------------------------------------------------------------------
   -- 02 - NFCe
     cursor C_NOTAS_NFCE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-        select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '2' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
            A.NUMTRANSVENDAORIGEM,
@@ -1207,7 +1209,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 03 - CUPONS FISCAIS
     cursor C_NOTAS_CUPOM_FISCAL(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select CODFILIAL,
+    select NUMSQL, 
+           CODFILIAL,
            NUMTRANSVENDA,
            null CHAVENFE,
            NUMTRANSVENDAORIGEM,
@@ -1299,7 +1302,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            SUM(VLOUTROS) VLOUTROS,
            0 VL_DESCONTO,
            0 VL_PRODUTO
-      from (select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+      from (select '3' NUMSQL, 
+                   NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
                    ------------------------------------------------------------------
                    A.NUMTRANSVENDA,
                    ------------------------------------------------------------------
@@ -1663,7 +1667,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 04 - DEVOLUCAO A FORNECEDOR
     cursor C_NOTAS_DEV_FORNEC(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '4' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
            ------------------------------------------------------------------
@@ -2231,7 +2236,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 05 - NOTAS FISCAIS SEM ITENS E CONHECIMENTO DE FRETE
     cursor C_NOTAS_SEM_ITENS_E_FRETE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '5' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
            ------------------------------------------------------------------
@@ -2570,7 +2576,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 06 - REZU??ES Z (TRIBUTADAS)
     cursor C_NOTAS_REDZ_TRIBUT(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select A.CODFILIAL,
+    select '6' NUMSQL, 
+           A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
                      SUBSTR(TO_CHAR(A.NUMREDUCAOZ, 'FM000000'), 2, 5) ||
@@ -2774,7 +2781,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 07 - REDU??ES Z (CANCELADAS)
     cursor C_NOTAS_REDZ_CANC(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-           select A.CODFILIAL,
+   select '7' NUMSQL, 
+           A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
                      SUBSTR(TO_CHAR(A.NUMREDUCAOZ, 'FM000000'), 2, 5) ||
@@ -2965,7 +2973,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 08 - REDU??ES Z (N?O TRIBUTADAS)
     cursor C_NOTAS_REDZ_N_TRIB(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select A.CODFILIAL,
+    select '8' NUMSQL, 
+           A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
                      SUBSTR(TO_CHAR(A.NUMREDUCAOZ, 'FM000000'), 2, 5) ||
@@ -3172,7 +3181,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
 
 cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
     -- 09 - NOTAS FISCAIS COMPLEMENTARES COM ITEM
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '9' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
            ------------------------------------------------------------------
@@ -3794,7 +3804,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
     -------------------------------------------------------------------------------------------
     cursor C_NOTAS_SAT(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
     -- 10 - LAN?MENTOS NOTAS - SAT
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '10' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
            A.NUMTRANSVENDAORIGEM,
@@ -4491,7 +4502,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
   -------------------------------------------------------------------------------------------
     cursor C_NOTAS_MFE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
     -- 11 - LAN?MENTOS NOTAS - MFE
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '11' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
            A.NUMTRANSVENDAORIGEM,
@@ -5490,7 +5502,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
                  TO_CHAR(P_NOTA.DTSAIDA, 'DD/MM/YYYY') || ')';
     ---------------------------------------------------------------------------------
     insert into PCNFBASESAID
-      (CODFILIALNF,
+      (NUMSQL,
+       CODFILIALNF,
        NUMTRANSVENDA,
        ESPECIE,
        SERIE,
@@ -5567,7 +5580,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
        VLDESCONTO,
        VLPRODUTO)
     values
-      (P_NOTA.CODFILIAL,
+      (P_NOTA.NUMSQL,
+       P_NOTA.CODFILIAL,
        P_NOTA.NUMTRANSVENDA,
        P_NOTA.ESPECIE,
        P_NOTA.SERIE,
@@ -5770,7 +5784,7 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
                              P_DATA2     in date) is
   begin
     for MAPA in (-- MAPA RESUMO
-                 select A.CODFILIALNF,
+                 select '12' NUMSQL, A.CODFILIALNF,
                          ------------------------------------------------------------------
                          TO_NUMBER(TO_CHAR(NVL((select max(NUMMAPA)
                                                  from PCCUPOMFISCALZ
@@ -5945,7 +5959,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
                    TO_CHAR(MAPA.DTSAIDA, 'DD/MM/YYYY') || ')';
       ---------------------------------------------------------------------------------
       insert into PCNFBASESAID
-        (CODFILIALNF,
+        (NUMSQL,
+         CODFILIALNF,
          NUMTRANSVENDA,
          ESPECIE,
          SERIE,
@@ -6002,7 +6017,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
          VLDESCREDUCAOCOFINS,
          VLIPIDEVFORNEC)
       values
-        (P_CODFILIAL,
+        (MAPA.NUMSQL,
+         P_CODFILIAL,
          MAPA.NUMTRANSVENDA,
          MAPA.ESPECIE,
          MAPA.SERIE,
@@ -6076,7 +6092,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
     V_ULTIMO_CFOP        number;
   begin
     for REDUCAO in (-- REDU??O RESUMO CFOP ZERO
-                     select A.CODFILIALNF,
+                     select '13' NUMSQL, 
+                            A.CODFILIALNF,
                             A.NUMTRANSVENDA,
                             A.ESPECIE,
                             A.SERIE,
@@ -6202,7 +6219,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
         ---------------------------------------------------------------------------------
         -- INSERIR NOVO REGISTRO DE CFOP DE CUPOM
         insert into PCNFBASESAID
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSVENDA,
            ESPECIE,
            SERIE,
@@ -6259,7 +6277,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
            VLDESCREDUCAOCOFINS,
            VLIPIDEVFORNEC)
         values
-          (REDUCAO.CODFILIALNF,
+          (REDUCAO.NUMSQL, 
+           REDUCAO.CODFILIALNF,
            REDUCAO.NUMTRANSVENDA,
            REDUCAO.ESPECIE,
            REDUCAO.SERIE,
@@ -6425,7 +6444,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
       if sql%rowcount = 0
       then
         insert into PCNFBASESAID
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSVENDA,
            ESPECIE,
            SERIE,
@@ -6468,7 +6488,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
            VLDESCREDUCAOPIS,
            VLDESCREDUCAOCOFINS,
            VLIPIDEVFORNEC)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSVENDA,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -6550,7 +6571,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
       if sql%rowcount = 0
       then
         insert into PCNFBASESAID
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSVENDA,
            ESPECIE,
            SERIE,
@@ -6593,7 +6615,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
            VLDESCREDUCAOPIS,
            VLDESCREDUCAOCOFINS,
            VLIPIDEVFORNEC)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSVENDA,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -6675,7 +6698,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
       if sql%rowcount = 0
       then
         insert into PCNFBASESAID
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSVENDA,
            ESPECIE,
            SERIE,
@@ -6717,7 +6741,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
            TIPOREGISTRO,
            VLDESCREDUCAOPIS,
            VLDESCREDUCAOCOFINS)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSVENDA,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -6822,7 +6847,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
       -------------------------------------------------------------------------------------------
       -- INCLUIR SE N?O EXISTIR CFOP/ALIQUOTA
       insert into PCNFBASESAID
-        (CODFILIALNF,
+        (NUMSQL, 
+         CODFILIALNF,
          NUMTRANSVENDA,
          ESPECIE,
          SERIE,
@@ -6864,7 +6890,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
          TIPOREGISTRO,
          VLDESCREDUCAOPIS,
          VLDESCREDUCAOCOFINS)
-        select P_NOTA.CODFILIAL,
+        select P_NOTA.NUMSQL,
+               P_NOTA.CODFILIAL,
                P_NOTA.NUMTRANSVENDA,
                P_NOTA.ESPECIE,
                P_NOTA.SERIE,
@@ -6970,7 +6997,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
         if sql%rowcount = 0
         then
           insert into PCNFBASESAID
-            (CODFILIALNF,
+            (NUMSQL, 
+             CODFILIALNF,
              NUMTRANSVENDA,
              ESPECIE,
              SERIE,
@@ -7011,7 +7039,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
              TIPOREGISTRO,
              VLDESCREDUCAOPIS,
              VLDESCREDUCAOCOFINS)
-            select P_NOTA.CODFILIAL,
+            select P_NOTA.NUMSQL,
+                   P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSVENDA,
                    P_NOTA.ESPECIE,
                    P_NOTA.SERIE,
@@ -7088,7 +7117,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
         if sql%rowcount = 0
         then
           insert into PCNFBASESAID
-            (CODFILIALNF,
+            (NUMSQL, 
+             CODFILIALNF,
              NUMTRANSVENDA,
              ESPECIE,
              SERIE,
@@ -7129,7 +7159,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
              TIPOREGISTRO,
              VLDESCREDUCAOPIS,
              VLDESCREDUCAOCOFINS)
-            select P_NOTA.CODFILIAL,
+            select P_NOTA.NUMSQL,
+                   P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSVENDA,
                    P_NOTA.ESPECIE,
                    P_NOTA.SERIE,
@@ -7202,7 +7233,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
           if sql%rowcount = 0
           then
             insert into PCNFBASESAID
-              (CODFILIALNF,
+              (NUMSQL,
+               CODFILIALNF,
                NUMTRANSVENDA,
                ESPECIE,
                SERIE,
@@ -7243,7 +7275,8 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
                TIPOREGISTRO,
                VLDESCREDUCAOPIS,
                VLDESCREDUCAOCOFINS)
-              select P_NOTA.CODFILIAL,
+              select P_NOTA.NUMSQL,
+                     P_NOTA.CODFILIAL,
                      P_NOTA.NUMTRANSVENDA,
                      P_NOTA.ESPECIE,
                      P_NOTA.SERIE,
@@ -8296,7 +8329,6 @@ END;
      FROM DUAL;
   END;
 
-
   PROCEDURE CODCONTASPED_NOTA_SEM_ITEM IS
     CURSOR CR_DADOS_PCNFBASE IS
             SELECT 'S' TIPO,--SA?A
@@ -8925,5 +8957,5 @@ exception
       DESATIVAR_SESSAO;
     end;
 end;
--- 27/02/2024 - Gam -- Performance.
--- 05/03/2024 - Gam -- Performance.
+-- Última Alteração : 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
+-- V 001 --
