@@ -43,7 +43,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
   ---------------------------------------------------------------------------------
   cursor C_NOTAS_NF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
   -- 01 - NOTAS FISCAIS DE COMPRA COM ITENS (NF CONVENCIONAL)
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '1' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -505,7 +506,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
 
 cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 02 - NOTAS FISCAIS DE COMPRA COM ITENS (NF-e)
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '2' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -608,8 +610,6 @@ cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_
            ----------------------------------------------------------------
            0 PERBASEREDOUTRASDESP,
            ----------------------------------------------------------------
---           sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'NFE', B.ROWID,'', a.chavenfe),0)) VLICMS,
-
            CASE WHEN SUM(NVL(XML.VICMS,0)) > 0 THEN
                 SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'),'S', XML.VICMS,0))
            ELSE
@@ -950,7 +950,8 @@ cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_
 cursor C_NOTAS_IMPORTACAO(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 03 - NOTAS FISCAIS DE IMPORTACAO
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '3' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -1323,7 +1324,8 @@ cursor C_NOTAS_IMPORTACAO(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in d
 cursor C_NOTAS_DEVOLNF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 04 - NOTAS FISCAIS DE DEVOLUCAO e COMODATO (NF CONVENCIONAL)
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '4' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -1800,7 +1802,8 @@ cursor C_NOTAS_DEVOLNF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date
 cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 05 - NOTAS FISCAIS DE DEVOLUCAO e COMODATO (NF-e)
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '5' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -2223,7 +2226,8 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
 cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 06 - NOTAS FISCAIS SEM ITENS E CONHECIMENTO DE FRETE SEM RATEIO (tipo = 1)
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '6' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -2674,7 +2678,8 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
 cursor C_NOTAS_PCNFBASE_TIPO2(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 07 - NOTAS FISCAIS SEM ITENS E CONHECIMENTO DE FRETE SEM RATEIO (tipo = 2)
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '7' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -2995,7 +3000,8 @@ cursor C_NOTAS_PCNFBASE_TIPO2(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
 cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
     -- 08 - CONHECIMENTOS DE FRETE COM RATEIO
     ----------------------------------------------------------------
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '8' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -3277,7 +3283,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
 
  cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
 -- 09 - NOTAS FISCAIS COMPLEMENTAR COM ITENS
-    select NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+    select '9' AS NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ----------------------------------------------------------------
            A.NUMTRANSENT,
            ----------------------------------------------------------------
@@ -3753,7 +3760,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
     ---------------------------------------------------------------------------------
     insert into PCNFBASEENT
-      (CODFILIALNF,
+      (NUMSQL,
+       CODFILIALNF,
        NUMTRANSENT,
        DTENTRADA,
        DTEMISSAO,
@@ -3836,7 +3844,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
        VLSUFRAMA,
        VLBASESUFRAMA)
     values
-      (P_NOTA.CODFILIAL,
+      (P_NOTA.NUMSQL,
+       P_NOTA.CODFILIAL,
        P_NOTA.NUMTRANSENT,
        P_NOTA.DTENT,
        P_NOTA.DTEMISSAO,
@@ -3973,7 +3982,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
         then
           -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
           insert into PCNFBASEENT
-            (CODFILIALNF,
+            (NUMSQL, 
+             CODFILIALNF,
              NUMTRANSENT,
              DTENTRADA,
              DTEMISSAO,
@@ -4011,7 +4021,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
              ALIQUOTA,
              DTGERA,
              TIPOREGISTRO)
-            select P_NOTA.CODFILIAL,
+            select P_NOTA.NUMSQL,
+                   P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSENT,
                    P_NOTA.DTENT,
                    P_NOTA.DTEMISSAO,
@@ -4092,7 +4103,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            DTENTRADA,
            DTEMISSAO,
@@ -4130,7 +4142,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQUOTA,
            DTGERA,
            TIPOREGISTRO)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.DTENT,
                  P_NOTA.DTEMISSAO,
@@ -4219,7 +4232,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            DTENTRADA,
            DTEMISSAO,
@@ -4257,7 +4271,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQUOTA,
            DTGERA,
            TIPOREGISTRO)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.DTENT,
                  P_NOTA.DTEMISSAO,
@@ -4390,7 +4405,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            DTENTRADA,
            DTEMISSAO,
@@ -4428,7 +4444,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQUOTA,
            DTGERA,
            TIPOREGISTRO)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.DTENT,
                  P_NOTA.DTEMISSAO,
@@ -4527,7 +4544,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
         then
           -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
           insert into PCNFBASEENT
-            (CODFILIALNF,
+            (NUMSQL, 
+             CODFILIALNF,
              NUMTRANSENT,
              ESPECIE,
              SERIE,
@@ -4562,7 +4580,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
              DTGERA,
              TIPOREGISTRO,
              PERCREDBASEPISCOFINSFRETE)
-            select P_NOTA.CODFILIAL,
+            select P_NOTA.NUMSQL,
+                   P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSENT,
                    P_NOTA.ESPECIE,
                    P_NOTA.SERIE,
@@ -4635,7 +4654,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            ESPECIE,
            SERIE,
@@ -4670,7 +4690,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            DTGERA,
            TIPOREGISTRO,
            PERCREDBASEPISCOFINSFRETE)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -4746,7 +4767,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            ESPECIE,
            SERIE,
@@ -4781,7 +4803,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            DTGERA,
            TIPOREGISTRO,
            PERCREDBASEPISCOFINSFRETE)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -4858,7 +4881,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
       then
         -- INCLUIR SE NAO EXISTIR CFOP/ALIQUOTA
         insert into PCNFBASEENT
-          (CODFILIALNF,
+          (NUMSQL, 
+           CODFILIALNF,
            NUMTRANSENT,
            ESPECIE,
            SERIE,
@@ -4893,7 +4917,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            DTGERA,
            TIPOREGISTRO,
            PERCREDBASEPISCOFINSFRETE)
-          select P_NOTA.CODFILIAL,
+          select P_NOTA.NUMSQL,
+                 P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
                  P_NOTA.ESPECIE,
                  P_NOTA.SERIE,
@@ -5022,16 +5047,6 @@ PROCEDURE GERAR_DESPESA_IMPORTACAO(P_NOTA IN OUT C_NOTAS_NF%ROWTYPE) IS
       V_SQLERRO := 'CALCULANDO VALOR DO ICMS (NOTA ' || P_NOTA.NUMNOTA ||
                    ' EM ' || TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
       ---------------------------------------------------------------------------------
-/*N?O EXISTE A NECESSIDADE DE RECALCULAR O VLICMS POIS TODOS OS SQL DEVEM CHAMAR A FISCAL.GET_DADOS_ICMS
-
-       update PCNFBASEENT
-         set VLICMS = VLBASE * NVL(PERCICM, 0) / 100
-       where NUMTRANSENT = P_NOTA.NUMTRANSENT
-         and NUMNOTA = P_NOTA.NUMNOTA
-         and VLICMS = 0;
-
-*/
-
       update PCNFBASEENT
          set VLICMSNAOTRIB = VLBASENAOTRIB * NVL(PERCICMNAOTRIB, 0) / 100
        where NUMTRANSENT = P_NOTA.NUMTRANSENT
@@ -5092,7 +5107,6 @@ END;
   /*********************************************************************************/
   procedure GERAR_INFORMACOES_FINAIS(P_NOTA in C_NOTAS_NF%rowtype) is
   begin
-
     ---------------------------------------------------------------------------------
     V_SQLERRO := 'RECALCULANDO VLOUTRAS (NOTA ' || P_NOTA.NUMNOTA || ' EM ' ||
                  TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
@@ -6242,6 +6256,19 @@ begin
        and CODFILIALNF = PCODFILIAL
        and NUMNOTA between NUMNOTA1 and NUMNOTA2;
      COMMIT;
+  ELSE 
+    delete from PCNFBASEENT E
+     where E.DTENTRADA between DATA1 and DATA2
+       and E.CODFILIALNF = PCODFILIAL
+       and E.NUMNOTA between NUMNOTA1 and NUMNOTA2
+       AND E.VLTOTAL >= 0
+       AND E.NUMTRANSENT IN (SELECT EE.NUMTRANSENT 
+                               FROM PCNFENT EE
+                              WHERE EE.NUMTRANSENT = E.NUMTRANSENT 
+                                AND EE.NUMNOTA = E.NUMNOTA 
+                                AND NVL(EE.CODFILIALNF, EE.CODFILIAL) = PCODFILIAL
+                                AND EE.ESPECIE = 'OE');
+     COMMIT;  
   END IF;
   ---------------------------------------------------------------------------------
   V_SQLERRO := 'BUSCANDO NOTAS FISCAIS';
@@ -6378,8 +6405,5 @@ exception
       RESULTADO := 'ERRO: ' || V_SQLERRO || ' -> ' || sqlerrm;
     end;
 end;
--- 1 - Alteração 11/09/2024 
--- 1.1 - Alterado o metodo GERALIVRO_FISCAL acrescento o parametro numtransent para excluir lançamento.
--- 2 - Alteração 03/06/2024
--- 2.1 - Implementado ajuste no sql NFE para considerar nas coluans vlbase e vlcims os dados do pcdadosxml
--- V 004 --
+-- Última Alteração : 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
+-- V 005 --
