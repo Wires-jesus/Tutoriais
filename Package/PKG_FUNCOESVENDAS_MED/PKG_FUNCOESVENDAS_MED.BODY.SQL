@@ -1674,7 +1674,7 @@ IS
                    AND (NUMLOTE   = vc_Movimentacao.NUMLOTE);
               EXCEPTION
                 WHEN NO_DATA_FOUND THEN
-                  vvObs        := 'Sem Estoque por Lote (PCLOTE)';
+                  vvObs        := 'Sem Estoque por Lote (PCLOTE).';
                   vdDtValidade := NULL;
               END;
             END IF;
@@ -1707,8 +1707,13 @@ IS
                 vnQtDisponivelBloqueado := 0;
             END;
             
+            IF (vnQtDisponivelBloqueado <= 0) THEN
+              vvObs       := NVL(vvObs, '') || 'Produto sem estoque disponível bloqueado.'; 
+              vvRestricao := '*';
+            END IF;
+            
             -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
-            IF (NVL(vnQtDisponivelBloqueado,0) > 0) THEN
+            IF (NVL(vc_Movimentacao.QTCONT, 0) > 0) THEN
                  
               -- Incrementa o Contador de ID
               viContaID := NVL(viContaID,0) + 1;
