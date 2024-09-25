@@ -1693,8 +1693,19 @@ IS
                                    vnDepositoPadraoCrossdock,
                                    vvDescDepositoPadraoCrossdock);
             END IF;        
-            
-            vnQtDisponivelBloqueado := vc_Movimentacao.QTCONT;
+             
+              
+            vnQtDisponivelBloqueado := 0;
+            BEGIN
+                IF (vvEstoquePorLote = 'S') THEN
+                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(vc_Movimentacao.CODPROD, vvCodFilial, vc_Movimentacao.NUMLOTE);
+                ELSE
+                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(vc_Movimentacao.CODPROD, vvCodFilial);
+                END IF;
+            EXCEPTION
+              WHEN OTHERS THEN
+                vnQtDisponivelBloqueado := 0;
+            END;
             
             -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
             IF (NVL(vnQtDisponivelBloqueado,0) > 0) THEN
@@ -1709,7 +1720,7 @@ IS
               vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
               vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
               vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
-              vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; -- DDMEDICA-1769 
+              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QTCONT; -- DDMEDICA-1769 
               vtEntrada(viContaID).nCUSTOFIN             := vc_Movimentacao.CUSTOULTENTCONT; 
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;
