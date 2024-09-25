@@ -1674,7 +1674,7 @@ IS
                    AND (NUMLOTE   = vc_Movimentacao.NUMLOTE);
               EXCEPTION
                 WHEN NO_DATA_FOUND THEN
-                  vvObs        := 'Sem Estoque por Lote (PCLOTE)';
+                  vvObs        := 'Sem Estoque por Lote (PCLOTE).';
                   vdDtValidade := NULL;
               END;
             END IF;
@@ -1693,11 +1693,27 @@ IS
                                    vnDepositoPadraoCrossdock,
                                    vvDescDepositoPadraoCrossdock);
             END IF;        
+             
+              
+            vnQtDisponivelBloqueado := 0;
+            BEGIN
+                IF (vvEstoquePorLote = 'S') THEN
+                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(vc_Movimentacao.CODPROD, vvCodFilial, vc_Movimentacao.NUMLOTE);
+                ELSE
+                  vnQtDisponivelBloqueado := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(vc_Movimentacao.CODPROD, vvCodFilial);
+                END IF;
+            EXCEPTION
+              WHEN OTHERS THEN
+                vnQtDisponivelBloqueado := 0;
+            END;
             
-            vnQtDisponivelBloqueado := vc_Movimentacao.QTCONT;
+            IF (vnQtDisponivelBloqueado <= 0) THEN
+              vvObs       := NVL(vvObs, '') || 'Produto sem estoque disponível bloqueado.'; 
+              vvRestricao := '*';
+            END IF;
             
             -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
-            IF (NVL(vnQtDisponivelBloqueado,0) > 0) THEN
+            IF (NVL(vc_Movimentacao.QTCONT, 0) > 0) THEN
                  
               -- Incrementa o Contador de ID
               viContaID := NVL(viContaID,0) + 1;
@@ -1709,7 +1725,7 @@ IS
               vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
               vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
               vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
-              vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; -- DDMEDICA-1769 
+              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QTCONT; -- DDMEDICA-1769 
               vtEntrada(viContaID).nCUSTOFIN             := vc_Movimentacao.CUSTOULTENTCONT; 
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;
