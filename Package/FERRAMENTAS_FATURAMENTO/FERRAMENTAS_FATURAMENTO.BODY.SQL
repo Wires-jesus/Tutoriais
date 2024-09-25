@@ -1,8 +1,7 @@
 CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
 
-  FUNCTION atualizarTotaisVenda(pParametros      IN T_ATUALIZAR_TOTAIS_VENDA,
-                                pMensagemRetorno OUT VARCHAR2)
-    RETURN VARCHAR2 IS
+  PROCEDURE atualizarTotaisVenda(pParametros      IN T_ATUALIZAR_TOTAIS_VENDA,
+                                pMensagemRetorno OUT VARCHAR2) IS
   BEGIN
     --Este método já recebe todos os campos e valores calculados, apenas atualiza no banco de dados
     pMensagemRetorno := 'OK';
@@ -27,15 +26,14 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         pMensagemRetorno := 'Erro ao atualizar totais de venda na tabela PCEST. Dados não encontrados para o produto ' ||
                             pParametros.codigoProduto || ' e filial ' ||
                             pParametros.CodigoFilial;
-        RETURN 'N';
+        RAISE;
       WHEN OTHERS THEN
         pMensagemRetorno := 'Erro ao atualizar totais de venda na tabela PCEST (Produto: ' ||
                             pParametros.codigoProduto || ', filial: ' ||
                             pParametros.CodigoFilial || '). Erro orignal: ' ||
                             SQLERRM;
-        RETURN 'N';
+        RAISE;
     END;
-    RETURN 'S';
   END;
 
   FUNCTION buscarEatualizarTotaisVenda(pNumtransvenda   in pcnfsaid.numtransvenda%type,
@@ -165,6 +163,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
             RETURN 'N';
         END;
 
+        vAtualizarTotaisVenda.codigoProduto           := movimentacao.codprod;
+        vAtualizarTotaisVenda.codigoFilial            := movimentacao.codfilial;
         vAtualizarTotaisVenda.QuantidadeVendaDia      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaSemana   := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaMes      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
@@ -176,7 +176,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         vAtualizarTotaisVenda.ValorCustoRealMes       := (movimentacao.qtvenda * movimentacao.custoreal);
         vAtualizarTotaisVenda.ValorCustoFinanceiroDia := (movimentacao.qtvenda * movimentacao.custofin);
         vAtualizarTotaisVenda.ValorCustoFinanceiroMes := (movimentacao.qtvenda * movimentacao.custofin);
-        RETURN atualizarTotaisVenda(vAtualizarTotaisVenda, pMensagemRetorno);
+        atualizarTotaisVenda(vAtualizarTotaisVenda, pMensagemRetorno);
       END LOOP;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
@@ -188,6 +188,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                             pNumtransvenda || '. Erro orignal: ' || SQLERRM;
         RETURN 'N';
     END;
-  end;
+    
+    RETURN 'S';
+  END;
 
 END FERRAMENTAS_FATURAMENTO;
