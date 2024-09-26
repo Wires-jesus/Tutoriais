@@ -41,6 +41,11 @@
 		   "nome": "PCDEPARAPRODC5",
 		   "tipo": "TABELA",
 		   "versao": "5.0.03.000"
+		},
+		{
+		  "nome": "VW_INT_C5_NFESAT",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "6.0.01.000"
 		}
 	]
 }

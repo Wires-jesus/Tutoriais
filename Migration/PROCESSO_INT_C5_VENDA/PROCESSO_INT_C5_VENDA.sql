@@ -410,12 +410,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         'N' exportado,
         a.nrocheckout numcaixa,
         'NOTAFISCAL' numserieequip,
-        x.xml xmlnfce,
-        x.xmlcanc xmlnfcecancelamento,
+        case when x.docemissao = 'CE' then x.xmlnf else x.XMLSAT end xmlnfce,
+        case when x.docemissao = 'CE' then x.XMLCANCNF else x.XMLCANCSAT end xmlnfcecancelamento,
         a.seqdocto,
 		a.nroempresa
   FROM  monitorpdvmiddle.tb_docto a,
-        monitorpdvmiddle.tb_doctonfexml x,
+        VW_INT_C5_NFESAT x,
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  a.nroempresa = x.nroempresa
    AND  a.nrocheckout = x.nrocheckout
@@ -1347,15 +1347,15 @@ END;
 
 CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
 (SELECT  a.seqdocto,
-        e.chavenf chavenfe,
-        e.protocoloenvio,
+        nf.chavenf chavenfe,
+        nf.protocoloenvio,
         c.seriedocto serie,
         a.especie,
         a.ROWID rowid_tb_docto,
         0 numpedecf,
         'X' serieecf,
         'N' exportado,
-        e.ambiente ambientenfce,
+        nf.ambiente ambientenfce,
         NVL(c.seqpessoa,1) codcli,
         'NOTAFISCAL' numserieequip,
         a.sequsuario codemitente,
@@ -1388,22 +1388,19 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         'N' contingenciaservidor,
         fnc_int_c5_tot_custofin(a.seqdocto, a.nrocheckout, a.nroempresa) custofinest,
         TO_CHAR(a.DTAHOREMISSAO,'YYYY-MM-DD') DATA,
-        'CE' docemissao,
+        nf.docemissao docemissao,
         TO_CHAR(a.DTAHOREMISSAO,'YYYY-MM-DD') dtentrega,
-        TO_CHAR(e.dtahorrecebimento,'YYYY-MM-DD') dthoraautorizacaosefaz,
+        TO_CHAR(nf.dtahorrecebimento,'YYYY-MM-DD') dthoraautorizacaosefaz,
         TO_CHAR(a.DTAHOREMISSAO,'YYYY-MM-DD') dtmovimentocx,
         NULL cartaocrm,
         NULL cgcfrete,
         NULL dtahoraentradacontigencia,
-        NULL chavesat,
         NULL cnpjintermediador,
         NULL dtcancel,
         NULL codfornecfrete,
         NULL codprofissional,
         NULL codretornosat,
-        NULL codsefazsat,
-        NULL codstatussat,
-        NULL datahoraemissaosat,
+        nf.DTAHORRECEBIMENTO datahoraemissaosat,
         NULL descintermediador,
         NULL crmconfirmado,
         NULL dtexportacao,
@@ -1432,8 +1429,6 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL numpedcanc,
         NULL numpedrca,
         NULL numserieplacamae,
-        NULL numseriesat,
-        NULL numsessaosat,
         NULL numtransvenda,
         NULL obsnf1,
         NULL obsnf2,
@@ -1466,8 +1461,6 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         fnc_int_c5_numitens(a.seqdocto, a.nrocheckout, a.nroempresa) numitens,
         ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',a.nroempresa,1) numregiao,
         1 numviasmapasep,
-        NULL qrcodesat,
-        NULL situacaosat,
         0 taxaentrega,
         1 tipoemissao,
         0 totvolume,
@@ -1494,7 +1487,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
               0
           END) perdesc,
         'L' posicao,
-        DBMS_LOB.SUBSTR(x.qrcode,4000,1) qrcodenfce,
+        DBMS_LOB.SUBSTR(nf.qrcodenf,4000,1) qrcodenfce,
         100 situacaonfce,
         ferramentas.F_BUSCARPARAMETRO_ALFA('CON_TIPOMOVRCA','99','FF') tipomovrca,
         ferramentas.F_BUSCARPARAMETRO_ALFA('CON_USACREDRCA','99','F') usacredrca,
@@ -1597,41 +1590,49 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         0 Vlpis,
         0 Vloutrasdesp,
         0 vlacrescrodape,
-        x.xml xmlnfce,
+        nf.xmlnf xmlnfce,
         0 totpeso,
-        e.protocoloenvio protocolonfce,
+        nf.protocoloenvio protocolonfce,
         a.nrocheckout numcheckout,
         null minutofat,
         a.nrocheckout numcaixa,
         null horacontingencia,
         null fretedespacho,
         null fichasimportadas,
-        e.chavenf chavenfce,
+        nf.chavenf chavenfce,
 		c.status,
 		a.NROEMPRESA,
-		a.nrocheckout
+		a.nrocheckout,
+		nf.CHAVESAT,
+		nf.NUMSERIESAT,
+		nf.NUMSESSAOSAT,
+		nf.SITUACAOSAT,
+		nf.CODSEFAZSAT,
+		nf.CODSTATUSSAT,
+		nf.XMLSAT,
+		nf.QRCODESAT
   FROM  monitorpdvmiddle.tb_docto a,
         monitorpdvmiddle.tb_doctocupom  c,
-        monitorpdvmiddle.tb_doctonfe    e,
-        monitorpdvmiddle.tb_doctonfexml x,
+        /*monitorpdvmiddle.tb_doctonfe    e,
+        monitorpdvmiddle.tb_doctonfexml x*/
+		VW_INT_C5_NFESAT nf
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  c.nroempresa = a.nroempresa
    AND  c.nrocheckout = a.nrocheckout
    AND  c.seqdocto = a.seqdocto
    AND  C5.CODFILIALINTEGRACAO = a.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = x.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = nf.NROEMPRESA
    AND  a.especie IN ('NF', 'CF')
-   AND  c.nroempresa = e.nroempresa
-   AND  c.nrocheckout = e.nrocheckout
-   AND  c.seqdocto = e.seqdocto
-   AND  e.nroempresa = x.nroempresa
-   AND  e.nrocheckout = x.nrocheckout
-   AND  e.seqdocto = x.seqdocto
+   AND  c.nroempresa = nf.nroempresa
+   AND  c.nrocheckout = nf.nrocheckout
+   AND  c.seqdocto = nf.seqdocto
+   AND  a.seqdocto = nf.Seqdocto
+   AND  a.NROEMPRESA = nf.NROEMPRESA
+   AND  a.nrocheckout = nf.NROCHECKOUT
    AND  c.status IN ('V', 'C')
    AND  a.replicacao = 'P'
-   AND  e.protocoloenvio IS NOT NULL
+   /*AND  e.protocoloenvio IS NOT NULL*/
    AND  NVL(fnc_int_c5_vltotal(a.seqdocto, a.nrocheckout, a.nroempresa), 0) > 0
    AND  fnc_int_c5_finalizadora_cab(a.seqdocto,a.nrocheckout,a.nroempresa) > 0
 )
@@ -2376,7 +2377,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
-        monitorpdvmiddle.TB_PRODCODIGO tp,
         vw_int_c5_trib_pis h,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
@@ -2386,22 +2386,17 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
-   AND tp.seqproduto = case when i.seqprodcomposto is null then i.seqproduto else i.seqprodcomposto end
-   AND tp.nroempresa = i.nroempresa
-   AND tp.qtdembalagem = i.qtdembalagem
    AND  v.codfilial = ea.codigo
-   AND  p.seqproduto = tp.seqproduto
-   AND  v.seqproduto = tp.seqproduto
+   AND  p.seqproduto = v.seqproduto
+   AND  i.CODACESSO = v.codauxiliar
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
    AND  C5.CODFILIALINTEGRACAO = i.nroempresa
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = tp.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = v.NROEMPRESA
-   AND  tp.codacesso = v.codauxiliar
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
