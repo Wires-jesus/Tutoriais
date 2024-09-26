@@ -1667,6 +1667,51 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.ativo,
                   b.nrocarga);
 
+    COMMIT;              
+
+    /*Carga das embalagens dos produtos filhos para seus reespectivos pais(CODPRODPRINC)*/              
+
+    MERGE INTO monitorpdvmiddle.tb_famembalagem s
+      USING (SELECT DISTINCT e.seqfamilia,
+                    e.qtdembalagem,
+                    e.embalagem,
+                    e.pesoaferido,
+                    e.ativo,
+                    e.pesobruto,
+                    e.pesoliquido,
+                    0 nrocarga
+      FROM VW_INT_C5_EMBFAMILIA e) b
+
+    ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
+    WHEN MATCHED THEN
+    UPDATE SET
+      s.embalagem = b.embalagem,
+      s.pesoaferido = b.pesoaferido,
+      s.pesobruto = b.pesobruto,
+      s.pesoliquido = b.pesoliquido,
+      s.ativo = b.ativo,
+      s.nrocarga = b.nrocarga
+
+    WHEN NOT MATCHED THEN
+      INSERT (s.seqfamilia,
+                  s.qtdembalagem,
+                  s.embalagem,
+                  s.pesoaferido,
+                  s.pesobruto,
+                  s.pesoliquido,
+                  s.ativo,
+                  s.nrocarga)
+              VALUES
+                (b.seqfamilia,
+                  b.qtdembalagem,
+                  b.embalagem,
+                  b.pesoaferido,
+                  b.pesobruto,
+                  b.pesoliquido,
+                  b.ativo,
+                  b.nrocarga);
+
+
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
     COMMIT;
