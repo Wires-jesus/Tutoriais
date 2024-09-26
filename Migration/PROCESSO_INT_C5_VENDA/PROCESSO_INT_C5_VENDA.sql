@@ -1615,7 +1615,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         monitorpdvmiddle.tb_doctocupom  c,
         /*monitorpdvmiddle.tb_doctonfe    e,
         monitorpdvmiddle.tb_doctonfexml x*/
-		VW_INT_C5_NFESAT nf
+		VW_INT_C5_NFESAT nf,
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  c.nroempresa = a.nroempresa
    AND  c.nrocheckout = a.nrocheckout
