@@ -275,7 +275,7 @@ IS
                                                                       ;
             dados_pcfilamensagem.rowpcfilamensagem.status           := 0;
             dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento  := NULL;
-            dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := 'CE';
+            dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := p_r_canc_cabecalho.Docemissao;
             dados_pcfilamensagem.rowpcfilamensagem.tipooperacao     := CASE
                                                                             WHEN p_r_canc_cabecalho.tipocancel = 'P' 
                                                                                 THEN 'CANP'

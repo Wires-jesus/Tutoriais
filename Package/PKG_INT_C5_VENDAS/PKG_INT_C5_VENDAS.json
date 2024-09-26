@@ -5,7 +5,7 @@
     {
       "nome": "PROCESSO_INT_C5_VENDA",
       "tipo": "MIGRATION",
-      "versao": "6.0.21.000"
+      "versao": "6.0.22.000"
     },
     {
       "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
@@ -31,6 +31,11 @@
       "nome": "PCCRECLI",
       "tipo": "TABELA",
       "versao": "5.0.01.000"
-    }
+    },
+	{
+	  "nome": "VW_INT_C5_NFESAT",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.01.000"
+	}
   ]
 }

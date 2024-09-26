@@ -981,7 +981,7 @@ IS
                                                                     || r_pedido.especie;
             dados_pcfilamensagem.rowpcfilamensagem.status           := 0;
             dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento  := NULL;
-            dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := 'CE';
+            dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := r_pedido.docemissao;
             dados_pcfilamensagem.rowpcfilamensagem.tipooperacao     := 'VEND';
             dados_pcfilamensagem.rowpcfilamensagem.mensagem         :=  REPLACE (l_xmltype.getclobval (),
                                                                                  '<EsquemaExportacao>',
