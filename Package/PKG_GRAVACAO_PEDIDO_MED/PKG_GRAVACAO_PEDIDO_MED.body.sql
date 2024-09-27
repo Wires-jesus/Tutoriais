@@ -7598,7 +7598,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     TYPE TT_EST_CODPROD                 IS TABLE OF PCEST.CODPROD%TYPE INDEX BY BINARY_INTEGER;     
     TYPE TT_EST_CODFILIAL               IS TABLE OF PCEST.CODFILIAL%TYPE INDEX BY BINARY_INTEGER;     
     TYPE TT_EST_QTRESERV_PEDIDO         IS TABLE OF PCEST.QTRESERV%TYPE INDEX BY BINARY_INTEGER;     
-    TYPE TT_EST_QTDISPONIVEL            IS TABLE OF PCEST.QTESTGER%TYPE INDEX BY BINARY_INTEGER;     
+    TYPE TT_EST_QTDISPONIVEL            IS TABLE OF PCEST.QTESTGER%TYPE INDEX BY BINARY_INTEGER;
+    TYPE TT_PED_NUMLOTE                 IS TABLE OF PCPEDI.NUMLOTE%TYPE INDEX BY BINARY_INTEGER;    
     -- Declaração de Variáveis
     vtPED_NUMPED                        TT_PED_NUMPED;
     vtPED_CODPROD                       TT_PED_CODPROD;
@@ -7641,7 +7642,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtEST_QTRESERV_PEDIDO               TT_EST_QTRESERV_PEDIDO;
     vtEST_QTDISPONIVEL                  TT_EST_QTDISPONIVEL;
     --
-    vtEST_LOCK_CODPROD                  TT_EST_CODPROD; 
+    vtEST_LOCK_CODPROD                  TT_EST_CODPROD;
+    vtPEDNUMLOTE                        TT_PED_NUMLOTE;
     
     -- Número do Pedido dos Itens Faltantes
     vnNumPedItensFaltantes              PCPEDC.NUMPED%TYPE;
@@ -7683,7 +7685,9 @@ IS PRAGMA SERIALLY_REUSABLE;
          -- Para apoio ao cálculo do estorno do saldo do conta corrente do rca
          vvCorte                        VARCHAR2(1),
          vnQtdeCorte                    PCPEDI.QT%TYPE,
-         vvCorteCombo                   VARCHAR(1));
+         vvCorteCombo                   VARCHAR(1),
+         vnNUMLOTE                      PCPEDI.NUMLOTE%TYPE);
+         
     vrItemPedido                        TRecItemPedido;      
     vrLimpaItemPedido                   TRecItemPedido;      
     TYPE TTvItensPedido                 IS TABLE OF TRecItemPedido INDEX BY BINARY_INTEGER;
@@ -16802,7 +16806,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtPEDVLMIN_CODMOTIVOPOSICAOMED.DELETE;
     vtPEDVLMIN_MOTIVOPOSICAOMED.DELETE;
     vtPEDVLMIN_VLCUSTOFIN.DELETE;
-         
+    vtPEDNUMLOTE.DELETE;
+    
     -- Prepara Sql
     vvSql := ' SELECT PCPEDI.NUMPED
                     , PCPEDI.CODPROD
@@ -16837,6 +16842,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , PCPEDI.CODMOTIVOPOSICAOMED                                                          CODMOTIVOPOSICAOMED
                     , PCPEDI.MOTIVOPOSICAOMED                                                             MOTIVOPOSICAOMED
                     , PCPEDI.VLCUSTOFIN                                                                   VLCUSTOFIN
+                    , PCPEDI.NUMLOTE
                  FROM PCPEDI
                 WHERE (NUMPED = ' || pi_nNumPed || ') ' || vvWhereConformeProcesso ||
               ' ORDER BY NUMSEQ ';
@@ -16875,7 +16881,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , vtPEDVLMIN_BONIFIC
                        , vtPEDVLMIN_CODMOTIVOPOSICAOMED
                        , vtPEDVLMIN_MOTIVOPOSICAOMED
-                       , vtPEDVLMIN_VLCUSTOFIN;
+                       , vtPEDVLMIN_VLCUSTOFIN
+                       , vtPEDNUMLOTE;
                
     -- Se não Achou os Itens do Pedido
     IF (NVL(vtPED_NUMPED.COUNT,0) = 0) THEN
@@ -17002,8 +17009,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtEST_QTDISPONIVEL.DELETE;
     
     -- Nome da Função a ser chamada
-    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
-      vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_AVARIA(CODPROD,CODFILIAL) QTDISPONIVEL';
+    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') AND (vrPedido.vnCondVenda = 10) THEN                  
+      vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_DISP_BLOQ(CODPROD, CODFILIAL) QTDISPONIVEL';      
+    ELSIF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
+      vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_AVARIA(CODPROD,CODFILIAL) QTDISPONIVEL';      
     ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN -- DDMEDICA-619
       vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_BLOQ(CODPROD,CODFILIAL) QTDISPONIVEL';
     ELSIF (NVL(pi_nCodRotina,0) = 2336)                THEN
@@ -18035,6 +18044,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vrItemPedido.vnStPBaseRca            := NVL(vtPED_STPBASERCA(viSeqItemPed),0);
         vrItemPedido.vnVlSaldoRca            := NVL(vtPED_VLSALDORCA(viSeqItemPed),0);
         vrItemPedido.vnCodPromocaoMed        := NVL(vtPED_CODPROMOCAOMED(viSeqItemPed),0);
+        vrItemPedido.vnNUMLOTE               := vtPEDNUMLOTE(viSeqItemPed);
   
         -- Inicializa Filial para Baixa do Estoque
         vrItemPedido.vvCodFilialBaixaEstoque := NVL(vrItemPedido.vvCodFilialRetira, vrPedido.vvCodFilial);
@@ -18431,7 +18441,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                     -------------------------------------------
                     
                     -- Chama Função da Logística para Obter o Estoque Disponível
-                    IF     (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
+                    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') AND (vrPedido.vnCondVenda = 10) THEN
+                      BEGIN
+                        IF (vrItemPedido.vnNUMLOTE IS NOT NULL) THEN
+                          vnEstoqueDisponivel := PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_DISP_BLOQ(vrItemPedido.vnCodProd, vrItemPedido.vvCodFilialBaixaEstoque, vrItemPedido.vnNUMLOTE);
+                        ELSE
+                          vnEstoqueDisponivel := PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_DISP_BLOQ(vrItemPedido.vnCodProd, vrItemPedido.vvCodFilialBaixaEstoque);                                                
+                        END IF;
+                      EXCEPTION
+                        WHEN OTHERS THEN
+                          vnEstoqueDisponivel := 0;
+                      END;
+                    ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
                       BEGIN
                         SELECT PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_AVARIA(CODPROD,
                                                                             CODFILIAL) QTDISPONIVEL
@@ -23849,7 +23870,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            vrDadosItens.OLD_POSICAO);
       
       -- Somente se o Produto não existia no Produto (Negociação já fechada não pode travar)
-      IF (NVL(vrDadosItens.OLD_QT,0) = 0) THEN
+      IF (NVL(vrDadosItens.OLD_QT, 0) = 0) THEN
         vrDadosItens.CODPROD            := vc_Itens.CODPROD;
         vrDadosItens.NUMSEQ             := vc_Itens.NUMSEQ;
         vrDadosItens.QT                 := vc_Itens.QT;
@@ -23866,6 +23887,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vrDadosItens.NEW_ST             := vc_Itens.ST;
         vrDadosItens.NEW_VLFECP         := vc_Itens.VLFECP;
         vrDadosItens.NEW_VLREPASSE      := vc_Itens.VLREPASSE;
+        vrDadosItens.NUMLOTE            := vc_Itens.NUMLOTE;
       END IF;
 
       viIdx := NVL(viIdx,0) + 1;
