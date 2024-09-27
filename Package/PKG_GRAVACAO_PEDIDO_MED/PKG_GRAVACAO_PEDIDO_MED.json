@@ -1,13 +1,23 @@
-{"nome":"PKG_GRAVACAO_PEDIDO_MED","tipoPLSQL":"PACKAGE","dependencias":[{
-  "nome": "PCPEDCOMPRAOPERLOGCAB",
-  "tipo": "TABELA",
-  "versao": "3.0.03.000"
-},{
-  "nome": "PCLAYOUTINTEGRAVERSOPERLOG",
-  "tipo": "TABELA",
-  "versao": "3.0.01.000"
-},{
-  "nome": "PCFILIALRETIRAFORNEC",
-  "tipo": "TABELA",
-  "versao": "5.0.01.000"
-}]}
+{
+  "nome":"PKG_GRAVACAO_PEDIDO_MED",
+  "tipoPLSQL":"PACKAGE",
+  "dependencias":[
+    {
+      "nome": "PCPEDCOMPRAOPERLOGCAB",
+      "tipo": "TABELA",
+      "versao": "3.0.03.000"
+    },{
+      "nome": "PCLAYOUTINTEGRAVERSOPERLOG",
+      "tipo": "TABELA",
+      "versao": "3.0.01.000"
+    },{
+      "nome": "PCFILIALRETIRAFORNEC",
+      "tipo": "TABELA",
+      "versao": "5.0.01.000"
+    },{
+      "nome": "PKG_FUNCOESVENDAS_MED",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "6.0.07.000"
+    }
+  ]
+}

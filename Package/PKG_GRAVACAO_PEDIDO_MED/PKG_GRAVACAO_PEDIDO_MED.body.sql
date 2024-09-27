@@ -17002,8 +17002,12 @@ IS PRAGMA SERIALLY_REUSABLE;
     vtEST_QTDISPONIVEL.DELETE;
     
     -- Nome da Função a ser chamada
-    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
+    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') AND (vrPedido.vnCondVenda = 10) THEN 
+      vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_DISP_BLOQ(CODPROD, CODFILIAL) QTDISPONIVEL';
+      
+    ELSIF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
       vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_AVARIA(CODPROD,CODFILIAL) QTDISPONIVEL';
+      
     ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN -- DDMEDICA-619
       vvNomeFCT_MED_OBTER_ESTOQUE := 'PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_BLOQ(CODPROD,CODFILIAL) QTDISPONIVEL';
     ELSIF (NVL(pi_nCodRotina,0) = 2336)                THEN
@@ -18431,7 +18435,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                     -------------------------------------------
                     
                     -- Chama Função da Logística para Obter o Estoque Disponível
-                    IF     (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
+                    IF    (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') AND (vrPedido.vnCondVenda = 10) THEN
+                      BEGIN
+                        SELECT PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_DISP_BLOQ(CODPROD, CODFILIAL) QTDISPONIVEL
+                          INTO vnEstoqueDisponivel
+                          FROM PCEST
+                         WHERE (CODPROD   = vrItemPedido.vnCodProd)
+                           AND (CODFILIAL = vrItemPedido.vvCodFilialBaixaEstoque);
+                      EXCEPTION
+                        WHEN NO_DATA_FOUND THEN
+                          vnEstoqueDisponivel := 0;
+                      END;
+                    ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S')     THEN -- DDMEDICA-619
                       BEGIN
                         SELECT PKG_FUNCOESVENDAS_MED.F_OBTER_ESTOQUE_AVARIA(CODPROD,
                                                                             CODFILIAL) QTDISPONIVEL
