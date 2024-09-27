@@ -4509,6 +4509,49 @@ IS
   
   END F_OBTER_ESTOQUE_BLOQ;
   
+  
+  
+/*******************************************************************************
+ Nome         : F_OBTER_ESTOQUE_DISP_BLOQ
+ Descricão    : Função para obter o Saldo de Estoque Disponivel Bloqueado
+********************************************************************************/
+FUNCTION F_OBTER_ESTOQUE_DISP_BLOQ(pi_vCodProd   IN NUMBER,
+                                   pi_vCodFilial IN VARCHAR2,
+                                   pi_vNumLote   IN VARCHAR2 DEFAULT NULL) 
+RETURN NUMBER
+IS
+  -- Versão
+  vvVersao       VARCHAR2(250);   
+  -- Saldo Retorno
+  vnSaldoRetorno NUMBER;
+BEGIN
+  -- Inicializa Retorno
+  vnSaldoRetorno := 0;
+  
+  -- Força a Recompilação da Package (Evita Erro de Objeto Descartado)
+  BEGIN
+    vvVersao := PKG_ESTOQUE.VERSAO;
+  EXCEPTION
+   WHEN OTHERS THEN
+      BEGIN
+        vvVersao := PKG_ESTOQUE.VERSAO;
+      EXCEPTION
+        WHEN OTHERS THEN
+          vvVersao := PKG_ESTOQUE.VERSAO;
+       END;
+  END;  
+  
+  IF (pi_vNumLote IS NULL) THEN
+    vnSaldoRetorno := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_BLOQUEADO(pi_vCodProd, pi_vCodFilial);
+  ELSE
+    vnSaldoRetorno := PKG_ESTOQUE.ESTOQUE_DISPONIVEL_LOTE_BLOQ(pi_vCodProd, pi_vCodFilial, pi_vNumLote);
+  END IF;
+
+  -- Retorno
+  RETURN vnSaldoRetorno;
+
+END F_OBTER_ESTOQUE_DISP_BLOQ;           
+  
   /*******************************************************************************
    Nome         : F_OBTER_EST_CONTAB_DISP
    Descricão    : Função para obter o Saldo de Estoque Contábil Disponivel
