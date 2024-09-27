@@ -199,6 +199,14 @@ IS
                                 pi_vCodFilial IN VARCHAR2) RETURN NUMBER;
 
   /*******************************************************************************
+   Nome         : F_OBTER_ESTOQUE_DISP_BLOQ
+   Descricão    : Função para obter o Saldo de Estoque Disponivel Bloqueado
+  ********************************************************************************/
+  FUNCTION F_OBTER_ESTOQUE_DISP_BLOQ(pi_vCodProd   IN NUMBER,
+                                     pi_vCodFilial IN VARCHAR2,
+                                     pi_vNumLote   IN VARCHAR2 DEFAULT NULL) RETURN NUMBER;
+
+  /*******************************************************************************
    Nome         : F_OBTER_EST_CONTAB_DISP
    Descricão    : Função para obter o Saldo de Estoque Contábil Disponivel
   ********************************************************************************/
