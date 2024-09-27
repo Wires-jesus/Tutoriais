@@ -11343,7 +11343,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrItemPedido.nNUMVERBACAMPANHA       := vtIncluiItens(viNumSeq).vnNumVerbaCampanha;
             vrItemPedido.nVLVERBACMV             := vtIncluiItens(viNumSeq).vnVlVerbaCmv;
             vrItemPedido.nPERCCUSTFORNEC         := vtIncluiItens(viNumSeq).vnPercCustFornec;
-			vrItemPedido.nNUMVERBAREBCMV         := vtIncluiItens(viNumSeq).vnNumverbarebcmv;
+            vrItemPedido.nNUMVERBAREBCMV         := vtIncluiItens(viNumSeq).vnNumverbarebcmv;
 
             -- EAN do Produto - DDMEDICA-7318
             vrItemPedido.nCODAUXILIAR            := vtIncluiItens(viNumSeq).vnCodAuxiliar;
@@ -12169,10 +12169,13 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF (pi_nCondVenda = 9) THEN
                 vvTipoCustoTransf := NVL(vrProduto_O.vTIPOCUSTOTRANSF,vrClienteDestino.vTIPOCUSTOTRANSFTV9);
               END IF;
+
               IF (pi_nCondVenda = 10) THEN
                 vvTipoCustoTransf := NVL(vrProduto_O.vTIPOCUSTOTRANSF,vrClienteDestino.vTIPOCUSTOTRANSF);
               END IF;
-              IF (pi_nTipoChamada = 17) THEN
+              
+              --> Importação 17 deve respeitar a transf. TV10
+              IF (pi_nTipoChamada = 17) AND (pi_nCondVenda <> 10) THEN
                 vvTipoCustoTransf := 'C'; -->> Perda de Avaria - Custo Contábil
               END IF;
 
