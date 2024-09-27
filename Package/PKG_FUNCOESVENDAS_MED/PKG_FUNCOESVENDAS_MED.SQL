@@ -158,7 +158,8 @@ IS
   PROCEDURE P_OBTER_DEPOSITO_WMS(pi_nCodFilialPedido       IN VARCHAR2,
                                  pi_vCampo                 IN VARCHAR2,
                                  po_nCodigoDepositoWms    OUT NUMBER,
-                                 po_vDescricaoDepositoWms OUT VARCHAR2);
+                                 po_vDescricaoDepositoWms OUT VARCHAR2,
+                                 pi_vTipoPedido     IN VARCHAR2 DEFAULT '');
      
  /*******************************************************************************
    Nome         : P_OBTER_DADOS_DEPOSITO_WMS - DDVENDAS-33636

@@ -294,11 +294,19 @@ IS
   PROCEDURE P_OBTER_DEPOSITO_WMS(pi_nCodFilialPedido       IN VARCHAR2,
                                  pi_vCampo                 IN VARCHAR2,
                                  po_nCodigoDepositoWms    OUT NUMBER,
-                                 po_vDescricaoDepositoWms OUT VARCHAR2) IS
+                                 po_vDescricaoDepositoWms OUT VARCHAR2,
+                                 pi_vTipoPedido     IN VARCHAR2 DEFAULT '') IS
     vvSqlSemFilial VARCHAR2(4000);
-    vvSqlComFilial VARCHAR2(4000);                                  
+    vvSqlComFilial VARCHAR2(4000);
+    vvSqlTipoEstoqueERP VARCHAR2(100);    
   BEGIN
-  
+    vvSqlTipoEstoqueERP := '';
+    IF pi_vTipoPedido = 'PAT' THEN
+      vvSqlTipoEstoqueERP := 'AND R.TIPOESTOQUEERP = ''B'' ';
+    ELSIF pi_vTipoPedido = 'PA' THEN
+      vvSqlTipoEstoqueERP := 'AND R.TIPOESTOQUEERP = ''I'' ';
+    END IF;
+    
     vvSqlComFilial := 'SELECT R.CODIGODEPOSITOWMS
                             , SUBSTR(R.DESCRICAODEPOSITOWMS,1,40)
                          FROM PCINT_RELACIONA_DEPOSITO_ESTOQ R
@@ -306,12 +314,14 @@ IS
                         WHERE (R.' || pi_vCampo || ' = ''S'')
                           AND (F.CODIGO = ' || '''' || pi_nCodFilialPedido || '''' || ')
                           AND (F.CODFILIALWMSDELAGE = R.CODFILIAL) 
+                          '|| vvSqlTipoEstoqueERP ||'
                           AND (ROWNUM = 1)';
 
     vvSqlSemFilial := 'SELECT R.CODIGODEPOSITOWMS
                             , SUBSTR(R.DESCRICAODEPOSITOWMS,1,40)
                          FROM PCINT_RELACIONA_DEPOSITO_ESTOQ R
                         WHERE (R.' || pi_vCampo || ' = ''S'')
+                        '|| vvSqlTipoEstoqueERP ||'
                           AND (ROWNUM = 1)';
 
     -- Pesquisa Valores
@@ -1604,7 +1614,8 @@ IS
               P_OBTER_DEPOSITO_WMS(vvCodFilial,
                                    'PADRAOAVARIASAIDA',
                                    vnDepositoPadraoAvaria,
-                                   vvDescDepositoPadraoAvaria);
+                                   vvDescDepositoPadraoAvaria,
+                                   pi_vTipoPedido);
             END IF;
             
             -- Insere Produto no Array da Entrada
@@ -1691,7 +1702,8 @@ IS
               P_OBTER_DEPOSITO_WMS(vvCodFilial,
                                    'PADRAOAVARIASAIDA',
                                    vnDepositoPadraoCrossdock,
-                                   vvDescDepositoPadraoCrossdock);
+                                   vvDescDepositoPadraoCrossdock,
+                                   pi_vTipoPedido);
             END IF;        
              
               
@@ -1886,7 +1898,8 @@ IS
                 P_OBTER_DEPOSITO_WMS(vvCodFilial,
                                      'PADRAOAVARIASAIDA',
                                      vnDepositoPadraoAvaria,
-                                     vvDescDepositoPadraoAvaria);
+                                     vvDescDepositoPadraoAvaria,
+                                     pi_vTipoPedido);
               END IF;              
               ----------------------------
               -- Pesquisa Dados do Produto
