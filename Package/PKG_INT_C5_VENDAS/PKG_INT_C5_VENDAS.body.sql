@@ -65,11 +65,7 @@ IS
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
 	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
-		IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
-		BEGIN
-		 p_pcfilamensagem.rowpcfilamensagem.idmensagem := dfseq_pcfilamensagem.NEXTVAL;
-		END;
-        rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
+        rowpcfilamensagemerro.idmensagem            := (case when p_pcfilamensagem.rowpcfilamensagem.idmensagem is null then dfseq_pcfilamensagem.NEXTVAL else p_pcfilamensagem.rowpcfilamensagem.idmensagem is null  end);
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
         rowpcfilamensagemerro.numcaixa              := p_pcfilamensagem.rowpcfilamensagem.numcaixa;
