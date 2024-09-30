@@ -355,7 +355,7 @@ IS
 			END IF;
             r_canc_cabecalho.codpraca       := NVL(fnc_int_c5_praca_cli(r_canc_cabecalho.codcli),0);
             r_canc_cabecalho.codsupervisor  := NVL(fnc_int_c5_codsuperv(r_canc_cabecalho.codemitente),1);
-            r_canc_cabecalho.vltotal        := fnc_int_c5_cab_total(r_canc_cabecalho.seqdocto,r_canc_cabecalho.numcaixa,r_canc_cabecalho.codfilial);
+            r_canc_cabecalho.vltotal        := fnc_int_c5_cab_total(r_canc_cabecalho.seqdocto,r_canc_cabecalho.numcaixa,r_canc_cabecalho.nroempresa);
             r_canc_cabecalho.vlatend        := r_canc_cabecalho.vltotal;
             r_canc_cabecalho.vltabela       := r_canc_cabecalho.vltotal;
         END;
