@@ -10,7 +10,7 @@
 	{
 	  "nome": "PROCESSO_CARGA_INT_C5_CANCELAMENTO",
 	  "tipo": "MIGRATION",
-	  "versao": "6.0.04.000"
+	  "versao": "6.0.05.000"
 	},
 	{
 	  "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
@@ -35,7 +35,7 @@
 	{
 	  "nome": "VW_INT_C5_NFESAT",
 	  "tipo": "OBJETO_PLSQL",
-	  "versao": "6.0.01.000"
+	  "versao": "6.0.02.000"
 	}	
   ]
 }
