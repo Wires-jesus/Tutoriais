@@ -672,7 +672,7 @@ IS
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI2', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM2', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI3', P_DATAINI);
-        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAINI);
+        DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM3', P_DATAFIM);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAINI', P_DATAINI);
         DBMS_SQL.BIND_VARIABLE(v_cursor_dbmsql, ':DATAFIM', P_DATAFIM);
 
@@ -24496,6 +24496,12 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
     V_SQL := V_SQL || ') TIPOVENDA 
          WHERE TOTAL.CONDVENDA = TIPOVENDA.CONDVENDA(+)
          GROUP BY TIPOVENDA.CONDVENDA ORDER BY VLVENDA DESC ';
+		 
+ --Gravar do Debug - Inicio
+ --  INSERT INTO SQL_GERADO (DATA, TEXTO_SQL, CODREGRA) VALUES (SYSDATE, V_SQL, P_TIPOPESQUISA);
+ --  COMMIT;
+ --Gravar do Debug - Fim 
+
   WHEN P_TIPOPESQUISA = 12
   THEN
    -- Consulta por emitente
