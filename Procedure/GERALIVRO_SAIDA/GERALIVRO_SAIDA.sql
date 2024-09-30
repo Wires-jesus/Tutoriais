@@ -1809,13 +1809,13 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                                        (B.QTCONT * (NVL(B.BASEICMS,0)+ NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0))))),2))
            END) VLBASE,
            ------------------------------------------------------------------
-           -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
-           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
-                      (B.CODFISCAL IN (5929, 6929)) THEN
-               SUM(FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'DF', B.ROWID, C.ESTENT, A.CHAVENFE))
-            ELSE
-               SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'DF', B.ROWID, C.ESTENT, A.CHAVENFE), 0))
-            END) VLICMS,
+           SUM(NVL(DXML.VICMS,           
+             (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                        (B.CODFISCAL IN (5929, 6929)) THEN
+                 (FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'DF', B.ROWID, C.ESTENT, A.CHAVENFE))
+              ELSE
+                 (DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'DF', B.ROWID, C.ESTENT, A.CHAVENFE), 0))
+              END))) VLICMS,
            ------------------------------------------------------------------
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
