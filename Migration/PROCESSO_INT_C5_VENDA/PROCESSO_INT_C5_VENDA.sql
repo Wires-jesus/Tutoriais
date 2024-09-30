@@ -78,7 +78,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
        C5.CODFILIAL codfilial,
 	   d.NROEMPRESA NROEMPRESA,
        'NOTAFISCAL' numserieequip,
-       CASE NF.DOCEMISSAO = 'SF' THEN NF.NUMCUPOMSAT ELSE c.nronotafiscal END numcupom,
+       CASE WHEN NF.DOCEMISSAO = 'SF' THEN NF.NUMCUPOMSAT ELSE c.nronotafiscal END numcupom,
        NVL(c.nomecliente, 'CONSUMIDOR FINAL') cliente,
        c.cnpjcpf cgcent,
        c.idestrangeiro identificacao_estrangeiro,
