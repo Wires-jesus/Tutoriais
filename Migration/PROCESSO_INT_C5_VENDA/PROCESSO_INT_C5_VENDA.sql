@@ -78,7 +78,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
        C5.CODFILIAL codfilial,
 	   d.NROEMPRESA NROEMPRESA,
        'NOTAFISCAL' numserieequip,
-       c.nronotafiscal numcupom,
+       CASE NF.DOCEMISSAO = 'SF' THEN NF.NUMCUPOMSAT ELSE c.nronotafiscal END numcupom,
        NVL(c.nomecliente, 'CONSUMIDOR FINAL') cliente,
        c.cnpjcpf cgcent,
        c.idestrangeiro identificacao_estrangeiro,
@@ -148,18 +148,19 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
                      WHERE PCFILIAL.CODIGO = C5.CODFILIAL))) ENDERENT
   FROM monitorpdvmiddle.tb_docto      d,
        monitorpdvmiddle.tb_doctocupom c,
-       monitorpdvmiddle.tb_doctonfe   e,
+       /*monitorpdvmiddle.tb_doctonfe   e,*/
+	   VW_INT_C5_NFESAT NF,
        PCCLIENT                       F,
 	   VW_INT_C5_OBTER_FILIAIS_C5    C5
  WHERE d.nroempresa = c.nroempresa
    AND d.nrocheckout = c.nrocheckout
    AND d.seqdocto = c.seqdocto
-   AND d.nroempresa = e.nroempresa
-   AND d.nrocheckout = e.nrocheckout
+   AND d.nroempresa = NF.nroempresa
+   AND d.nrocheckout = NF.nrocheckout
    AND C5.CODFILIALINTEGRACAO = d.nroempresa
-   AND C5.CODFILIALINTEGRACAO = e.NROEMPRESA
+   AND C5.CODFILIALINTEGRACAO = NF.NROEMPRESA
    AND C5.CODFILIALINTEGRACAO = c.nroempresa
-   AND d.seqdocto = e.seqdocto
+   AND d.seqdocto = NF.seqdocto
    AND d.especie = 'NF'
    AND NVL(c.seqpessoa,1) IN (1,2,3)
    AND c.cnpjcpf IS NOT NULL
@@ -1457,7 +1458,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL justificativacontingencia,
         c.seriedocto numcaixafiscal,
         0 numfechamentomovcx,
-        c.nronotafiscal numcupom,
+        case when nf.docemissao = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end numcupom,
         fnc_int_c5_numitens(a.seqdocto, a.nrocheckout, a.nroempresa) numitens,
         ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',a.nroempresa,1) numregiao,
         1 numviasmapasep,
@@ -1605,7 +1606,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
 		a.nrocheckout,
 		nf.CHAVESAT,
 		nf.NUMSERIESAT,
-		nf.NUMSESSAOSAT,
+		NULL NUMSESSAOSAT,
 		nf.SITUACAOSAT,
 		nf.CODSEFAZSAT,
 		nf.CODSTATUSSAT,
@@ -2498,7 +2499,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        c.nronotafiscal duplic,
+        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(c.seqpessoa,1) codcli,
         TO_CHAR(NVL(r.dtvenc,
             		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
@@ -2570,7 +2571,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL vlmexiva,
        NULL assinatura,
        NULL numgnf,
-       NULL numseriesat,
+       nf.numseriesat,
        p.codcredenciadoratef cnpjcredenccartao,
        NULL numcartaocrm,
        (CASE
@@ -2639,6 +2640,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         vw_int_c5_finaliz_venda f,
 		    VW_INT_C5_OBTER_FILIAIS_C5 C5,
         vw_int_c5_cobranca_winthor v,
+		VW_INT_C5_NFESAT NF ,
     TABLE(FNC_INT_C5_PRESTS_TEF(p.seqdocto, p.nrocheckout, p.nroempresa, FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))))) r
  WHERE  p.seqdocto = d.seqdocto
    AND p.nroformapagto not in (SELECT fp.nroformapagto
@@ -2653,6 +2655,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
+   AND  d.seqdocto = nf.seqdocto
+   and  d.NROCHECKOUT = nf.NROCHECKOUT
+   and  d.nroempresa = nf.nroempresa
+   and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
@@ -2668,7 +2674,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        c.nronotafiscal duplic,
+        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(c.seqpessoa,1) codcli,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 		        ,'YYYY-MM-DD') dtvenc,
@@ -2777,6 +2783,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
         vw_int_c5_cobranca_winthor v,
+		VW_INT_C5_NFESAT NF ,
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
@@ -2787,6 +2794,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
+   AND  d.seqdocto = nf.seqdocto
+   and  d.NROCHECKOUT = nf.NROCHECKOUT
+   and  d.nroempresa = nf.nroempresa
+   and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
@@ -2798,7 +2809,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        c.nronotafiscal duplic,
+        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(c.seqpessoa,1) codcli,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 		        ,'YYYY-MM-DD') dtvenc,
@@ -2900,6 +2911,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         monitorpdvmiddle.tb_doctocupom c,
         vw_int_c5_finaliz_venda f,
         vw_int_c5_cobranca_winthor v,
+		VW_INT_C5_NFESAT NF,
 		VW_INT_C5_OBTER_FILIAIS_C5 C5
  WHERE  p.seqdocto = d.seqdocto
    AND  p.nroempresa = d.nroempresa
@@ -2910,6 +2922,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
+   AND  d.seqdocto = nf.seqdocto
+   and  d.NROCHECKOUT = nf.NROCHECKOUT
+   and  d.nroempresa = nf.nroempresa
+   and  c5.codfilialintegracao = nf.nroempresa
    --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
