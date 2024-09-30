@@ -65,6 +65,10 @@ IS
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
 	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+		IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
+		BEGIN
+		 p_pcfilamensagem.rowpcfilamensagem.idmensagem := dfseq_pcfilamensagem.NEXTVAL;
+		END;
         rowpcfilamensagemerro.idmensagem            := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -589,7 +593,7 @@ IS
             FUNCTION retornar_xmlparcelas(p_numpedecf NUMBER,
                                           p_seqdocto  NUMBER,
 										  p_numcheckout NUMBER,
-										  p_codfilial NUMBER)
+										  p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeparcela   XMLTYPE;
@@ -692,7 +696,7 @@ IS
                   FROM vw_int_c5_pcprestecf p
                  WHERE p.seqdocto = p_seqdocto
 				   AND p.numcheckout = p_numcheckout
-                   AND P.nroempresa = p_codfilial;
+                   AND P.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypeparcela;
             END retornar_xmlparcelas;
@@ -701,7 +705,7 @@ IS
             FUNCTION retornar_xmldoceletronico(p_numpedecf NUMBER,
                                                p_seqdocto  NUMBER,
 											   p_numcaixa NUMBER,
-											   p_codfilial NUMBER)
+											   p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypedoceletronico   XMLTYPE;
@@ -726,7 +730,7 @@ IS
                   FROM vw_int_c5_pcdoceletronico a
                  WHERE a.seqdocto = p_seqdocto
 				   AND a.numcaixa = p_numcaixa
-                   AND a.nroempresa = p_codfilial;
+                   AND a.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypedoceletronico;
             END retornar_xmldoceletronico;
@@ -735,7 +739,7 @@ IS
             FUNCTION retornar_xmlconsumidorfinal(p_numpedecf NUMBER,
                                                  p_seqdocto NUMBER,
 												 p_numcaixa NUMBER,
-												 p_codfilial NUMBER)
+												 p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeconsumidorfinal   XMLTYPE;
@@ -772,7 +776,7 @@ IS
                   FROM vw_int_c5_pcvendaconsumecf a
                  WHERE a.seqdocto = p_seqdocto
 				   AND a.numcaixa = p_numcaixa
-                   AND a.nroempresa = p_codfilial;
+                   AND a.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypeconsumidorfinal;
             END retornar_xmlconsumidorfinal;
@@ -924,9 +928,9 @@ IS
             l_xmlcabecalho := retornar_xmlcabecalho(r_pedido,
                                                     v_numpedecf,
                                                     r_pedido.seqdocto);
-            l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
-            l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
-            l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial );
+            l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa);
+            l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa );
+            l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa );
 			l_xmlitenscesta         := retornar_xmlitenscesta(v_numpedecf, r_pedido);
 
             --L_XMLLOGDADOSPESSOAS := RETORNAR_XMLLOGDADOSPESSOAS(V_NUMPEDECF, R_PEDIDO.SEQDOCTO);
@@ -1057,7 +1061,7 @@ IS
                  END); */
             p_r_pedido.totvolume := fnc_int_c5_cab_total_vol(p_r_pedido.seqdocto,
                                                              p_r_pedido.numcaixa,
-                                                             p_r_pedido.codfilial);
+                                                             p_r_pedido.nroempresa);
             /*  (CASE
                      WHEN rowvw_peso.totvolume < 1
                      THEN
@@ -1084,13 +1088,13 @@ IS
         */
             p_r_pedido.vlacrescrodape   := fnc_int_c5_cab_total_acresc(p_r_pedido.seqdocto,
                                                                        p_r_pedido.numcaixa,
-                                                                       p_r_pedido.codfilial);
+                                                                       p_r_pedido.nroempresa);
                 /*get_acresc_cupom (p_r_pedido.seqdocto,
                                   p_r_pedido.numcaixa,
                                   p_r_pedido.codfilial);*/
             p_r_pedido.vltotal          := fnc_int_c5_cab_total(p_r_pedido.seqdocto,
                                                                 p_r_pedido.numcaixa,
-                                                                p_r_pedido.codfilial);
+                                                                p_r_pedido.nroempresa);
                 /*get_cab_total (p_r_pedido.seqdocto,
                                p_r_pedido.numcaixa,
                                p_r_pedido.codfilial);*/
@@ -1110,10 +1114,10 @@ IS
                 adicionarregrascabecalhonf (r_pedido);
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
-				atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.codfilial);
+				atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
                 inserir_pcfilamensagem(dados_pcfilamensagem);
 				if r_pedido.status = 'C'  then
-                  PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.codfilial);
+                  PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa);
                 end if;
 
                 --ATUALIZA O REGISTRO na tabela consinco
