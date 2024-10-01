@@ -66,7 +66,6 @@ IS
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
-		BEGIN
 		 vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
 		ELSE 
 		 vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
