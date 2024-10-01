@@ -3,6 +3,11 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
+   "nome": "NFE_PRODUTO_ENTRADA",
+   "tipo":"OBJETO_PLSQL",
+   "versao": "6.0.06.000"
+  },
+  {
    "nome": "TABELA_NFE_RODAPE",
    "tipo":"OBJETO_PLSQL",
    "versao": "5.0.01.000"
