@@ -5,7 +5,7 @@
   {
     "nome":"NFE_PRODUTO_SAIDA",
     "tipo":"OBJETO_PLSQL",
-    "versao":"4.0.18.000"
+    "versao":"6.0.06.000"
   },
   {
    "nome": "TABELA_NFE_RODAPE",
