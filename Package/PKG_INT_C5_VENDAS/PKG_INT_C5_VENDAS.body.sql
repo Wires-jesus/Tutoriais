@@ -62,10 +62,17 @@ IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
 		VCONT NUMBER;
 		vTERMINAL VARCHAR2(100) ;
+		vIDMENSAGEM NUMBER;
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
+        IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
+		BEGIN
+		 vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
+		ELSE 
+		 vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
+		END IF;
 	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
-        rowpcfilamensagemerro.idmensagem            := (case when p_pcfilamensagem.rowpcfilamensagem.idmensagem is null then dfseq_pcfilamensagem.NEXTVAL else p_pcfilamensagem.rowpcfilamensagem.idmensagem is null  end);
+        rowpcfilamensagemerro.idmensagem            := vIDMENSAGEM;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
         rowpcfilamensagemerro.numcaixa              := p_pcfilamensagem.rowpcfilamensagem.numcaixa;
