@@ -409,7 +409,8 @@ BEGIN
                                                QBCMONORET               => NULL,
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
-                                               INDDEDUZDESONERACAO      => NULL
+                                               INDDEDUZDESONERACAO      => NULL,
+                                               NUMTRANSITEM             => NULL
                                                );
 
      RETORNO(RETORNO.COUNT).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -681,6 +682,7 @@ BEGIN
      RETORNO(RETORNO.COUNT).ADREMICMSRET               := PRODUTO.ADREMICMSRET;
      RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
      RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := PRODUTO.INDDEDUZDESONERACAO;
+     RETORNO(RETORNO.COUNT).NUMTRANSITEM               := PRODUTO.NUMTRANSITEM;
   END LOOP;
 
 FOR PRODUTO IN CR_PRODUTOS_CIAP
@@ -953,7 +955,8 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
                                                QBCMONORET               => NULL,
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
-                                               INDDEDUZDESONERACAO      => NULL
+                                               INDDEDUZDESONERACAO      => NULL,
+                                               NUMTRANSITEM             => NULL
                                                );
 
     RETORNO(RETORNO.COUNT).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -1214,6 +1217,7 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
     RETORNO(RETORNO.COUNT).ADREMICMSRET               := PRODUTO.ADREMICMSRET;
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
+    RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
   END LOOP;
   IF RETORNO.COUNT = 0 THEN
     INFO_ADICIONAL := '';
@@ -1514,7 +1518,8 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
                                                QBCMONORET               => NULL,
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
-                                               INDDEDUZDESONERACAO      => NULL
+                                               INDDEDUZDESONERACAO      => NULL,
+                                               NUMTRANSITEM             => NULL
                                                );
 
 
@@ -1777,6 +1782,7 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
       RETORNO(RETORNO.COUNT).ADREMICMSRET               := 0;
       RETORNO(RETORNO.COUNT).VICMSMONORET               := 0;       
       RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
+      RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
     END LOOP;
   END IF;
 

@@ -381,7 +381,8 @@ begin
                                                QBCMONORET               => NULL,
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
-                                               INDDEDUZDESONERACAO      => NULL
+                                               INDDEDUZDESONERACAO      => NULL,
+                                               NUMTRANSITEM             => NULL
                                                );
 
     RETORNO(RETORNO.count).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -656,6 +657,7 @@ begin
     RETORNO(RETORNO.COUNT).ADREMICMSRET               := PRODUTO.ADREMICMSRET;
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := PRODUTO.INDDEDUZDESONERACAO;
+    RETORNO(RETORNO.COUNT).NUMTRANSITEM               := PRODUTO.NUMTRANSITEM;
   end loop;
 
   --inicio processo de gera??o do item de notas complementares ou notas de ajustes.
@@ -939,7 +941,8 @@ begin
                                            QBCMONORET               => NULL,
                                            ADREMICMSRET             => NULL,
                                            VICMSMONORET             => NULL,
-                                           INDDEDUZDESONERACAO      => NULL
+                                           INDDEDUZDESONERACAO      => NULL,
+                                           NUMTRANSITEM             => NULL
                                           );
 
     RETORNO(RETORNO.count).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -1203,6 +1206,7 @@ begin
     RETORNO(RETORNO.COUNT).ADREMICMSRET               := PRODUTO.ADREMICMSRET;
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
+    RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
   END LOOP;
 
   ELSE
@@ -1501,7 +1505,8 @@ begin
                                                QBCMONORET               => NULL,
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
-                                               INDDEDUZDESONERACAO      => NULL
+                                               INDDEDUZDESONERACAO      => NULL,
+                                               NUMTRANSITEM             => NULL
                                              );
 
       RETORNO(RETORNO.count).ALIQUOTA_COFINS         := 0;
@@ -1760,6 +1765,7 @@ begin
       RETORNO(RETORNO.COUNT).ADREMICMSRET               := 0;
       RETORNO(RETORNO.COUNT).VICMSMONORET               := 0;
       RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
+      RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
     end loop;
   end if;
   --fim processo de geração do item de notas complementares ou notas de ajustes
