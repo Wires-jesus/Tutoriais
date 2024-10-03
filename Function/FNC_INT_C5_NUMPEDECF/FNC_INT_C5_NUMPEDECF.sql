@@ -42,6 +42,5 @@ BEGIN
     vNumpedecf := TO_NUMBER(vXMLDoc.extract('/EsquemaExportacao/Pedido/Pedido/Numpedecf/text()').getStringVal());
   END IF; 
 
-    
  RETURN(vNumpedecf);
 END;
