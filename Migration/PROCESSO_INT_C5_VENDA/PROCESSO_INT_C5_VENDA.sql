@@ -223,7 +223,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCPRODUT  AS
    AND  e.codfilial = C5.codfilial
    AND  f.codfilial = C5.codfilial
    AND  c.codprod = e.codprod
-   AND  LENGTH (p.nbm) >= 2
+   AND  (CASE WHEN P.tipomerc IN ('CB', 'KT') THEN 1 ELSE LENGTH (p.nbm)  END ) >= (CASE WHEN P.tipomerc IN ('CB', 'KT') THEN  1  ELSE 2 END )
    AND  e.codprod >= 0
    AND  f.codprod >= 0 )
    
@@ -410,7 +410,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         NULL dtexportacao,
         'N' exportado,
         a.nrocheckout numcaixa,
-        'NOTAFISCAL' numserieequip,
+        case when x.docemissao = 'CE' then 'NOTAFISCAL' else x.NUMSERIESAT end  numserieequip,
         case when x.docemissao = 'CE' then x.xmlnf else x.XMLSAT end xmlnfce,
         case when x.docemissao = 'CE' then x.XMLCANCNF else x.XMLCANCSAT end xmlnfcecancelamento,
         a.seqdocto,
@@ -1358,7 +1358,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         'N' exportado,
         nf.ambiente ambientenfce,
         NVL(c.seqpessoa,1) codcli,
-        'NOTAFISCAL' numserieequip,
+        CASE WHEN NF.DOCEMISSAO = 'CE' THEN 'NOTAFISCAL' ELSE TO_CHAR(NF.NUMSERIESAT) END  numserieequip,
         a.sequsuario codemitente,
         C5.CODFILIAL codfilial,
         a.sequsuario codfunccx,
@@ -1991,7 +1991,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
         monitorpdvmiddle.tb_produto     p,
-        vw_int_c5_trib_pis h,
+        vw_int_c5_trib_pis              h,
         vw_int_c5_pcprodut              v,
         pcconsolidatributacao           a,
         monitorpdvmiddle.tb_empresa     e,
@@ -2001,8 +2001,9 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
-   AND  v.seqproduto = i.seqproduto
+   AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
    and  v.seqproduto = p.seqproduto
+   and  p.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END
    AND  v.codfilial = ea.codigo
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
@@ -2388,7 +2389,9 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
    AND  v.codfilial = ea.codigo
-   AND  p.seqproduto = v.seqproduto
+   AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
+   AND  v.seqproduto = p.seqproduto
+   AND  p.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END
    AND  i.CODACESSO = v.codauxiliar
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
