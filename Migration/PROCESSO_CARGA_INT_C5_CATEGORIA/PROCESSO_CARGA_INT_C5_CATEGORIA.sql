@@ -106,7 +106,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
              FROM pcparamfilial
              WHERE nome = 'NUMREGIAOPADRAOVAREJO'
              AND valor <> '99'
-             AND REGEXP_LIKE (codfilial, '^[[:digit:]]+$')
              AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
 
              UNION ALL

@@ -864,7 +864,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                          FROM PCPARAMFILIAL
                                          WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                                          AND VALOR <> '99'
-                                         AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                                          AND VALOR IS NOT NULL
                                          AND ROWNUM = 1)-- somente os dados de 1 região
                    AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR

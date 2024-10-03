@@ -56,7 +56,6 @@ FROM
                                         FROM PCPARAMFILIAL
                                         WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                                         AND VALOR <> '99'
-                                        AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                                         AND VALOR IS NOT NULL)
            --AND   NVL(PCNCM.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
      )NCMFILIAL,
@@ -75,7 +74,6 @@ FROM
            )DTPADRAO*/
      WHERE PCTRIBNCMFILIAL.CODFILIAL = PCFILIAL.CODIGO
      AND   PCTRIBNCMFILIAL.CODFILIAL <> '99'
-     AND   REGEXP_LIKE(PCTRIBNCMFILIAL.CODFILIAL, '^[[:digit:]]+$')
      --AND   NVL(PCTRIBNCMFILIAL.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
      )TRIBNCMFILIAL,
 
@@ -99,7 +97,6 @@ FROM
                             FROM PCPARAMFILIAL
                             WHERE NOME = 'NUMREGIAOPADRAOVAREJO'
                             AND VALOR <> '99'
-                            AND REGEXP_LIKE(CODFILIAL, '^[[:digit:]]+$')
                             AND VALOR IS NOT NULL)
 
       AND   N.CODNCMEX IS NOT NULL
