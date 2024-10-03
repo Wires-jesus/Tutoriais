@@ -1,6 +1,6 @@
 CREATE OR REPLACE FUNCTION FNC_INT_C5_NUMPEDECF(pSEQDOCTO NUMBER,
                                                 pNroCheckout NUMBER,
-                                                pNroEmpresa NUMBER) 
+                                                pCodFilial VARCHAR2) 
   RETURN NUMBER
 IS
     vNumpedecf NUMBER;
@@ -16,21 +16,21 @@ BEGIN
      FROM PCFILAMENSAGEM M
     WHERE M.SEQDOCTO = pSEQDOCTO
       AND M.NUMCAIXA = pNroCheckout
-      AND M.CODFILIAL = pNroEmpresa
+      AND M.CODFILIAL = pCodFilial
       AND M.TIPOOPERACAO = 'VEND'
     UNION ALL
      SELECT MH.MENSAGEM as MENSAGEM
      FROM PCFILAMENSAGEMHISTORICO MH
     WHERE MH.SEQDOCTO = pSEQDOCTO
       AND MH.NUMCAIXA = TO_CHAR(pNroCheckout)
-      AND MH.CODFILIAL = pNroEmpresa
+      AND MH.CODFILIAL = pCodFilial
       AND MH.TIPOOPERACAO = 'VEND'
     UNION ALL
      SELECT ME.MENSAGEM as MENSAGEM
      FROM PCFILAMENSAGEMERRO ME
     WHERE ME.SEQDOCTO = pSEQDOCTO
       AND ME.NUMCAIXA = pNroCheckout
-      AND ME.CODFILIAL = pNroEmpresa
+      AND ME.CODFILIAL = pCodFilial
       AND ME.TIPOOPERACAO = 'VEND') A;
   EXCEPTION
     WHEN OTHERS THEN
