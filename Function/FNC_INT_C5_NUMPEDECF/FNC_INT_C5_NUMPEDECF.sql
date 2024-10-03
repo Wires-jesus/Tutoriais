@@ -8,6 +8,7 @@ IS
     vXMLDoc XMLTYPE;
 BEGIN
   vNumpedecf := -1;
+  
   BEGIN
    SELECT A.MENSAGEM
    INTO vClob
