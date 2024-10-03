@@ -18331,16 +18331,20 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vnOrigemChamadaReservaEst := 8;
                   END IF;
         
-                  -- Se a Posição anterior do Item estiver como Montado/Liberado
-                  IF    (NVL(vrItemPedido.OLD_vPOSICAO,' ') IN ('L','M')) THEN
-                    vvOperacaoReservaEst   := 'BR'; -- 'BR' - Baixar Reserva
-                  -- Se a Posição anterior do Item estiver como Bloqueado/Pendente
-                  ELSIF (NVL(vrItemPedido.OLD_vPOSICAO,' ') IN ('B','P')) THEN
-                    vvOperacaoReservaEst   := 'BP'; -- 'BP' - Baixar Pendente
+                  IF (vrPedido.vvOrigemPed = 'B') AND (vrPedido.vnCondVenda = 10) AND (vrPedido.vvPedidoAvaria = 'S') THEN
+                    vvOperacaoReservaEst   := NULL;
                   ELSE
-                    -- Aqui como é Estorno, pode ser que não tinha Posição Anterior (Item novo).
-                    -- Por isso aqui não tem exceção no ELSE
-                    vvOperacaoReservaEst   := NULL; 
+                    -- Se a Posição anterior do Item estiver como Montado/Liberado
+                    IF    (NVL(vrItemPedido.OLD_vPOSICAO,' ') IN ('L','M')) THEN
+                      vvOperacaoReservaEst   := 'BR'; -- 'BR' - Baixar Reserva
+                    -- Se a Posição anterior do Item estiver como Bloqueado/Pendente
+                    ELSIF (NVL(vrItemPedido.OLD_vPOSICAO,' ') IN ('B','P')) THEN
+                      vvOperacaoReservaEst   := 'BP'; -- 'BP' - Baixar Pendente
+                    ELSE
+                      -- Aqui como é Estorno, pode ser que não tinha Posição Anterior (Item novo).
+                      -- Por isso aqui não tem exceção no ELSE
+                      vvOperacaoReservaEst   := NULL; 
+                    END IF;                     
                   END IF;        
                           
                   -- Se vai Atualizar o Estoque (Se achou Posição Anterior)
@@ -19184,7 +19188,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                       END IF;                
                     
                     END IF; -- FIM CONDIÇÃO: TIPO DE OPERAÇÃO DO ESTOQUE
-                                        
+                    
+                    IF (vrPedido.vvOrigemPed = 'B') AND (vrPedido.vnCondVenda = 10) AND (vrPedido.vvPedidoAvaria = 'S') THEN
+                      vvOperacaoReservaEst   := NULL;
+                    END IF;
+                    
                     -- Se precisa Atualizar o Estoque
                     IF (vvOperacaoReservaEst IS NOT NULL) THEN
                     
