@@ -90,7 +90,8 @@ FROM
            from pccontroleconsinco s
            where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CARGATRIBUTARIA')
           )DTPADRAO*/
-      WHERE R.CODST = T.CODST
+      WHERE 
+      R.CODST = T.CODST
       AND   P.CODPROD = R.CODPROD
       AND   G.NUMREGIAO = R.NUMREGIAO
       AND   G.NUMREGIAO IN (SELECT DISTINCT(VALOR)
@@ -115,4 +116,5 @@ FROM
 GROUP BY CARGATRIB.CODNCMSH,
          CARGATRIB.EX,
          CARGATRIB.UFDESTINO
+
 )
