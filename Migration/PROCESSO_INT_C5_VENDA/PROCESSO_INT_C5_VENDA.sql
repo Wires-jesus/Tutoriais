@@ -410,7 +410,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
         NULL dtexportacao,
         'N' exportado,
         a.nrocheckout numcaixa,
-        case when x.docemissao = 'CE' then 'NOTAFISCAL' else x.NUMSERIESAT end  numserieequip,
+        case when x.docemissao = 'CE' then 'NOTAFISCAL' else TO_CHAR(x.NUMSERIESAT) end  numserieequip,
         case when x.docemissao = 'CE' then x.xmlnf else x.XMLSAT end xmlnfce,
         case when x.docemissao = 'CE' then x.XMLCANCNF else x.XMLCANCSAT end xmlnfcecancelamento,
         a.seqdocto,
