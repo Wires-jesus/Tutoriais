@@ -151,8 +151,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
 
   --CALCULA MÃ¿DULO 10 DV2 CODBARRAS SANTANDER/BANESPA ********************************
   FUNCTION F_CALCULA_MODULO_10_DV2_033(PS_PALAVRA IN VARCHAR2,
-                                       PN_BASE    IN NUMBER) RETURN VARCHAR2 IS
-    I NUMBER(6);
+                                       PN_BASE    IN NUMBER) RETURN VARCHAR2 IS    
     VN_MULTIPLICADOR NUMBER(6);
     VN_SOMA          NUMBER(6);
     VN_POSICAO       NUMBER(6);
@@ -218,7 +217,6 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
   FUNCTION F_CALCULA_MODULO_10(PS_PALAVRA IN VARCHAR2,
                                PN_BASE    IN NUMBER,
                                PS_TIPO    IN VARCHAR2 DEFAULT 'L') RETURN VARCHAR2 IS
-    I NUMBER(6);
     VN_MULTIPLICADOR NUMBER(6);
     VN_SOMA          NUMBER(6);
     VN_POSICAO       NUMBER(6);
@@ -608,7 +606,6 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                PN_BASE         IN NUMBER,
                                PN_TIPO         IN VARCHAR2,
                                PS_NOVODIGMOD10 OUT VARCHAR2) RETURN VARCHAR2 IS
-    I NUMBER(6);
     VN_MULTIPLICADOR NUMBER(6);
     VN_SOMA          NUMBER(6);
     VN_POSICAO       NUMBER(6);
@@ -933,7 +930,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       VDATA := '07101997';
     ELSE
       VDATA := '29052022';
-    END IF
+    END IF;
     /*06 a 09*/ -- FATOR VENCIMENTO
     VS_CODBARRA_TEMP := VS_CODBARRA_TEMP || LPAD(PD_DTVENC - TO_DATE(VDATA, 'DDMMYYYY'), 4, '0');
 
