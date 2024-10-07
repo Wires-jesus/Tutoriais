@@ -2002,7 +2002,6 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
    AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
-   and  v.seqproduto = p.seqproduto
    and  p.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END
    AND  v.codfilial = ea.codigo
    AND  d.seqdocto = c.seqdocto
@@ -2011,8 +2010,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  C5.CODFILIAL = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
-   AND  h.codauxiliar(+) = i.codacesso
-   AND  v.codauxiliar = i.codacesso 
+   AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
+   AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
@@ -2390,9 +2389,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nrocheckout = d.nrocheckout
    AND  v.codfilial = ea.codigo
    AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
-   AND  v.seqproduto = p.seqproduto
    AND  p.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END
-   AND  i.CODACESSO = v.codauxiliar
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
    AND  d.nrocheckout = c.nrocheckout
