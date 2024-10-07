@@ -1,0 +1,14 @@
+{"nome":"PKG_MONITOR_TRIBUTARIO",
+ "tipoPLSQL":"PACKAGE",
+ "dependencias":[
+     {
+	  "nome": "GET_NOTAS_CODIGO_FISCAL",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.01.000"
+	 },
+	 {
+	  "nome": "GET_VALORES_FATURAMENTO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.01.000"
+	}
+    ]}
