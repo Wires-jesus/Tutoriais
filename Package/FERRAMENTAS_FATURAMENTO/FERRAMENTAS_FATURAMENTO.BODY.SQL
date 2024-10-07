@@ -124,28 +124,10 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                               and pcnfsaid.numped > 0) LOOP
 
         BEGIN
-          select nvl(pcest.qtvenddia, 0) qtvenddia,
-                 nvl(pcest.qtvendsemana, 0) qtvendsemana,
-                 nvl(pcest.qtvendmes, 0) qtvendmes,
-                 nvl(pcest.vlvenddia, 0) vlvenddia,
-                 nvl(pcest.vlvendmes, 0) vlvendmes,
-                 nvl(pcest.vlvenddiareal, 0) vlvenddiareal,
-                 nvl(pcest.vlvendmesreal, 0) vlvendmesreal,
-                 nvl(pcest.vlcustodiareal, 0) vlcustodiareal,
-                 nvl(pcest.vlcustomesreal, 0) vlcustomesreal,
-                 nvl(pcest.vlcustodiafin, 0) vlcustodiafin,
-                 nvl(pcest.vlcustomesfin, 0) vlcustomesfin
-            into vAtualizarTotaisVenda.QuantidadeVendaDia,
-                 vAtualizarTotaisVenda.QuantidadeVendaSemana,
-                 vAtualizarTotaisVenda.QuantidadeVendaMes,
-                 vAtualizarTotaisVenda.ValorVendaDia,
-                 vAtualizarTotaisVenda.ValorVendaMes,
-                 vAtualizarTotaisVenda.ValorVendaRealDia,
-                 vAtualizarTotaisVenda.ValorVendaRealMes,
-                 vAtualizarTotaisVenda.ValorCustoRealDia,
-                 vAtualizarTotaisVenda.ValorCustoRealMes,
-                 vAtualizarTotaisVenda.ValorCustoFinanceiroDia,
-                 vAtualizarTotaisVenda.ValorCustoFinanceiroMes
+          select pcest.codprod,
+                 pcest.codfilial
+            into vAtualizarTotaisVenda.codigoProduto,
+                 vAtualizarTotaisVenda.codigoFilial
             from pcest
            where pcest.codprod = movimentacao.codprod
              and pcest.codfilial = movimentacao.codfilial;
@@ -163,8 +145,6 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
             RETURN 'N';
         END;
 
-        vAtualizarTotaisVenda.codigoProduto           := movimentacao.codprod;
-        vAtualizarTotaisVenda.codigoFilial            := movimentacao.codfilial;
         vAtualizarTotaisVenda.QuantidadeVendaDia      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaSemana   := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
         vAtualizarTotaisVenda.QuantidadeVendaMes      := GREATEST(movimentacao.qtvenda, movimentacao.qtcont);
@@ -191,5 +171,185 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
     
     RETURN 'S';
   END;
+  
+  FUNCTION SINC_INFOXML_SAIDA_ENTRADA(pNumtransvenda IN pcnfsaid.numtransvenda%type, pMensagemRetorno OUT VARCHAR2) 
+    RETURN VARCHAR2 IS
+    PINFOXML T_INFOXML;
+    vRetono VARCHAR2(1) := 'S';
+  BEGIN
+     pMensagemRetorno := 'OK';
+     BEGIN
+     FOR REG IN (SELECT NF.*
+                   FROM (SELECT PCNFENT.NUMTRANSENT
+                              , PCNFSAID.CHAVENFE
+                              , PCNFSAID.NUMNOTA
+                              , PCNFSAID.ESPECIE
+                              , PCNFSAID.SERIE
+                              , TO_CHAR(PCNFSAID.OBSNFE) OBSNFE
+                              , PCNFSAID.NUMTRANSVENDA
+                           FROM PCNFENT
+                              , PCNFSAID
+                          WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
+                            AND PCNFSAID.NUMTRANSENTORIGEM > 0
+                            AND PCNFENT.NUMTRANSENT = PCNFSAID.NUMTRANSENTORIGEM
+                            AND PCNFSAID.NUMTRANSVENDA = pNumtransvenda
+                         UNION
+                         SELECT PCNFENT.NUMTRANSENT
+                              , PCNFSAID.CHAVENFE
+                              , PCNFSAID.NUMNOTA
+                              , PCNFSAID.ESPECIE
+                              , PCNFSAID.SERIE
+                              , TO_CHAR(PCNFSAID.OBSNFE) OBSNFE
+                              , PCNFSAID.NUMTRANSVENDA
+                           FROM PCNFENT
+                              , PCNFSAIDPREFAT PCNFSAID
+                          WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
+                            AND PCNFSAID.NUMTRANSENTORIGEM > 0
+                            AND PCNFENT.NUMTRANSENT = PCNFSAID.NUMTRANSENTORIGEM
+                            AND PCNFSAID.NUMTRANSVENDA = pNumtransvenda) NF
+                  WHERE ROWNUM = 1)
+     LOOP
+        UPDATE PCNFENT
+           SET CHAVENFE = REG.CHAVENFE
+             , ESPECIE = REG.ESPECIE
+             , SERIE = REG.SERIE
+             , MODELO = DECODE(NVL(REG.CHAVENFE, '0'), '0', '01', '55')
+             , NUMNOTA = REG.NUMNOTA
+             , OBSNFE = REG.OBSNFE
+         WHERE NUMTRANSENT = REG.NUMTRANSENT;
+
+        FOR ORIGEM IN (SELECT NFI.*
+                         FROM (SELECT PCMOV.CODPROD
+                                    , PCMOV.NUMSEQ
+                                    , PCMOV.NUMTRANSITEM
+                                    , PCMOVCOMPLE.DESCRICAONFE
+                                    , PCMOVCOMPLE.NITEMXML
+                                    , PCMOVCOMPLE.UNIDADECOMERCIAL
+                                    , PCMOVCOMPLE.XML_QCOM
+                                    , PCMOVCOMPLE.XML_QTRIB
+                                 FROM PCMOVCOMPLE
+                                    , PCMOV
+                                WHERE PCMOVCOMPLE.NUMTRANSITEM = PCMOV.NUMTRANSITEM
+                                  AND PCMOV.NUMTRANSVENDA = REG.NUMTRANSVENDA
+                               UNION
+                               SELECT PCMOV.CODPROD
+                                    , PCMOV.NUMSEQ
+                                    , PCMOV.NUMTRANSITEM
+                                    , PCMOVCOMPLE.DESCRICAONFE
+                                    , PCMOVCOMPLE.NITEMXML
+                                    , PCMOVCOMPLE.UNIDADECOMERCIAL
+                                    , PCMOVCOMPLE.XML_QCOM
+                                    , PCMOVCOMPLE.XML_QTRIB
+                                 FROM PCMOVCOMPLEPREFAT PCMOVCOMPLE
+                                    , PCMOVPREFAT PCMOV
+                                WHERE PCMOVCOMPLE.NUMTRANSITEM = PCMOV.NUMTRANSITEM
+                                  AND PCMOV.NUMTRANSVENDA = REG.NUMTRANSVENDA) NFI)
+        LOOP
+           PINFOXML.DESCRICAONFE := ORIGEM.DESCRICAONFE;
+           PINFOXML.NITEMXML := ORIGEM.NITEMXML;
+           PINFOXML.NUMSEQENT := ORIGEM.NITEMXML;
+           PINFOXML.UNIDADECOMERCIAL := ORIGEM.UNIDADECOMERCIAL;
+           PINFOXML.XML_QCOM := ORIGEM.XML_QCOM;
+           PINFOXML.XML_QTRIB := ORIGEM.XML_QTRIB;
+           
+           BEGIN
+             SELECT NUMTRANSITEM
+               INTO PINFOXML.NUMTRANSITEM
+               FROM PCMOV
+              WHERE NUMTRANSENT = REG.NUMTRANSENT
+                AND CODPROD = ORIGEM.CODPROD
+                AND NUMSEQ = ORIGEM.NUMSEQ;
+                
+             IF (GRAVAR_INFOXML(PINFOXML, pMensagemRetorno) = 'N') THEN
+               pMensagemRetorno := pMensagemRetorno ||' Transação de entrada: '|| REG.NUMTRANSENT 
+                 ||' Produto: '|| ORIGEM.CODPROD ||' Sequencia: '||ORIGEM.NUMSEQ;
+               vRetono := 'N';
+             END IF;            
+             
+             FOR DADOSXML IN (SELECT PCDADOSXML.*
+                                FROM PCDADOSXML
+                               WHERE PCDADOSXML.NUMTRANSITEM = ORIGEM.NUMTRANSITEM)
+             LOOP
+                DADOSXML.NUMTRANSITEM := PINFOXML.NUMTRANSITEM;
+                IF (GRAVAR_DADOSXML(DADOSXML, pMensagemRetorno) = 'N') THEN
+                   pMensagemRetorno := pMensagemRetorno ||' Transação de entrada: '|| REG.NUMTRANSENT 
+                     ||' Produto: '|| ORIGEM.CODPROD ||' Sequencia: '|| ORIGEM.NUMSEQ ||' TransItem: '|| PINFOXML.NUMTRANSITEM;
+                   vRetono := 'N';
+                END IF;               
+             END LOOP;
+           EXCEPTION
+              WHEN NO_DATA_FOUND THEN
+                pMensagemRetorno := 'Não encontramos vinculo no destino para transação de entrada: '
+                  || REG.NUMTRANSENT ||' Produto: '|| ORIGEM.CODPROD ||' Sequencia: '||ORIGEM.NUMSEQ;
+                vRetono := 'N';
+           END;
+        END LOOP;
+     END LOOP;    
+     EXCEPTION
+        WHEN OTHERS THEN
+          pMensagemRetorno := 'Erro buscar dados da movimentação da nota com transação ' ||
+                              pNumtransvenda || '. Erro orignal: ' || SQLERRM;
+         vRetono := 'N';
+     END;
+    
+     RETURN vRetono;
+  END;
+  
+  FUNCTION GRAVAR_INFOXML(PINFOXML IN T_INFOXML, pMensagemRetorno OUT VARCHAR2)
+    RETURN VARCHAR2 IS
+  BEGIN
+    pMensagemRetorno := 'OK';
+    BEGIN
+       UPDATE PCMOVCOMPLE
+          SET DESCRICAONFE = PINFOXML.DESCRICAONFE
+            , NITEMXML = PINFOXML.NITEMXML
+            , NUMSEQENT = PINFOXML.NITEMXML
+            , UNIDADECOMERCIAL = PINFOXML.UNIDADECOMERCIAL
+            , XML_QCOM = PINFOXML.XML_QCOM
+            , XML_QTRIB = PINFOXML.XML_QTRIB
+        WHERE NUMTRANSITEM = PINFOXML.NUMTRANSITEM;
+       
+       IF (SQL%ROWCOUNT = 0) THEN
+         UPDATE PCMOVCOMPLEPREFAT
+            SET DESCRICAONFE = PINFOXML.DESCRICAONFE
+              , NITEMXML = PINFOXML.NITEMXML
+              , NUMSEQENT = PINFOXML.NITEMXML
+              , UNIDADECOMERCIAL = PINFOXML.UNIDADECOMERCIAL
+              , XML_QCOM = PINFOXML.XML_QCOM
+              , XML_QTRIB = PINFOXML.XML_QTRIB
+          WHERE NUMTRANSITEM = PINFOXML.NUMTRANSITEM;         
+       END IF;   
+    EXCEPTION
+       WHEN OTHERS THEN
+         pMensagemRetorno := 'Erro ao gravar dados do xml na movimentação. ' ||
+                             PINFOXML.NUMTRANSITEM || '. Erro orignal: ' || SQLERRM;
+        RETURN 'N';
+    END;
+    
+    RETURN 'S';    
+  END;
+  
+  FUNCTION GRAVAR_DADOSXML(PDADOSXML IN PCDADOSXML%ROWTYPE, pMensagemRetorno OUT VARCHAR2)
+    RETURN VARCHAR2 IS
+  BEGIN
+    pMensagemRetorno := 'OK';
+    BEGIN
+      UPDATE PCDADOSXML
+         SET ROW = PDADOSXML
+       WHERE NUMTRANSITEM = PDADOSXML.NUMTRANSITEM;
+
+      IF (SQL%ROWCOUNT = 0) THEN
+         INSERT INTO PCDADOSXML
+              VALUES PDADOSXML;
+      END IF;  
+    EXCEPTION
+       WHEN OTHERS THEN
+         pMensagemRetorno := 'Erro ao gravar dados do xml na PCDADOSXML. ' ||
+                             PDADOSXML.NUMTRANSITEM || '. Erro orignal: ' || SQLERRM;
+        RETURN 'N';
+    END;
+    
+    RETURN 'S';
+  END;  
 
 END FERRAMENTAS_FATURAMENTO;
