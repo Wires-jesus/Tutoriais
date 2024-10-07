@@ -1685,7 +1685,7 @@ IS
                    AND (NUMLOTE   = vc_Movimentacao.NUMLOTE);
               EXCEPTION
                 WHEN NO_DATA_FOUND THEN
-                  vvObs        := 'Sem Estoque por Lote (PCLOTE).';
+                  vvObs        := 'Sem Estoque por Lote.';
                   vdDtValidade := NULL;
               END;
             END IF;
@@ -1720,7 +1720,7 @@ IS
             END;
             
             IF (vnQtDisponivelBloqueado <= 0) THEN
-              vvObs       := NVL(vvObs, '') || 'Produto sem estoque disponível bloqueado.'; 
+              vvObs       := NVL(vvObs, '') || 'Sem estoque disp. bloqueado.'; 
               vvRestricao := '*';
             END IF;
             
