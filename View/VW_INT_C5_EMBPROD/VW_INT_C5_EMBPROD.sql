@@ -110,7 +110,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             (select VALOR MARCAPADRAO FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO' AND CODFILIAL = 99) PCPARAMFILIAL,
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
-             where s.ativo = 'S'
+             where s.ativo = 'A'
              and  ((upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODUTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMEMBALAGEM')
