@@ -103,23 +103,22 @@ VGRECNUMNOVO  NUMBER;
    Data.....: 20/02/2013
    Autor....: Fernando.Carmo
    *****************************************************************************/
-   PROCEDURE BAIXAR
-    ( PSFORMAPAGAMENTO   IN VARCHAR  --(B)order?, (C)heque, Cai(X)a/Banco
-    , PSHISTORICO        IN VARCHAR  --Hist?rico a ser informado no t?tulos
-    , PSNOMEFUNCIONARIO  IN VARCHAR  --Nome do funcion?rio da baixa
-    , PNNUMERARIO        IN NUMBER   --C?digo da transa??o: N?m. border?, N?m. cheque2 ou N?m. Transa??o, conforme a forma pagto
-    , PNNUMBANCO         IN NUMBER   --N?mero do banco da baixa
-    , PSMOEDA            IN VARCHAR  --Moeda
-    , PNCODFUNCIONARIO   IN NUMBER   --C?digo do funcion?rio que esta baixando o t?tulo
-    , PNCODROTINA        IN NUMBER   --C?digo da rotina que esta executando a baixa
-    , PNNUMTRANS         IN NUMBER   --N?mero de transa??o da baixa
-    , PNNUMNOTA          IN NUMBER   --N?mero da nota fiscal
-    , PNNUMCARR          IN NUMBER
-    , PNCODCONTA         IN NUMBER
-    , PNCODPROJETO       IN NUMBER
-    , PSMENSAGEM        OUT VARCHAR
-    , PDDTCOMPENSACAO    IN DATE default null
-    )
+   PROCEDURE BAIXAR( PSFORMAPAGAMENTO   IN VARCHAR  --(B)order?, (C)heque, Cai(X)a/Banco
+                   , PSHISTORICO        IN VARCHAR  --Hist?rico a ser informado no t?tulos
+                   , PSNOMEFUNCIONARIO  IN VARCHAR  --Nome do funcion?rio da baixa
+                   , PNNUMERARIO        IN NUMBER   --C?digo da transa??o: N?m. border?, N?m. cheque2 ou N?m. Transa??o, conforme a forma pagto
+                   , PNNUMBANCO         IN NUMBER   --N?mero do banco da baixa
+                   , PSMOEDA            IN VARCHAR  --Moeda
+                   , PNCODFUNCIONARIO   IN NUMBER   --C?digo do funcion?rio que esta baixando o t?tulo
+                   , PNCODROTINA        IN NUMBER   --C?digo da rotina que esta executando a baixa
+                   , PNNUMTRANS         IN NUMBER   --N?mero de transa??o da baixa
+                   , PNNUMNOTA          IN NUMBER   --N?mero da nota fiscal
+                   , PNNUMCARR          IN NUMBER
+                   , PNCODCONTA         IN NUMBER
+                   , PNCODPROJETO       IN NUMBER
+                   , PRECNUM            IN NUMBER
+                   , PSMENSAGEM        OUT VARCHAR
+                   , PDDTCOMPENSACAO    IN DATE default null)
    IS
      VNVALORPAGAMENTO       NUMBER;
      VNCODCONTABIL          NUMBER;
@@ -155,7 +154,8 @@ VGRECNUMNOVO  NUMBER;
           AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
            OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
            OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
-           AND PCLANC.DTESTORNOBAIXA IS NULL;
+           AND PCLANC.DTESTORNOBAIXA IS NULL
+           AND PCLANC.RECNUM     = PRECNUM;
 
        --Efetuando a baixa dos titulos selecionados
        UPDATE PCLANC
@@ -184,7 +184,8 @@ VGRECNUMNOVO  NUMBER;
          AND PCLANC.NUMBANCO    = PNNUMBANCO
          AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
           OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
-          OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO));
+          OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
+         AND PCLANC.RECNUM      = PRECNUM;
 
        IF SQL%ROWCOUNT = 0 THEN --VALIDA??O PARA QUE ENTRAR NA EXCESS?O SE N?O TIVER CONSEGUIDO FAZER A BAIXA DO BORDER?!
          RAISE NO_DATA_FOUND;
@@ -204,6 +205,7 @@ VGRECNUMNOVO  NUMBER;
                             AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
+                            AND PCLANC.RECNUM      = PRECNUM 
                        GROUP BY CODFILIAL)
        LOOP
          IF REGISTROS.MAXDIAS > 0 AND
@@ -230,7 +232,8 @@ VGRECNUMNOVO  NUMBER;
                              OR  (PCLANC.VALORDEV <> 0))
                             AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
-                             OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO)))
+                             OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
+                            AND PCLANC.RECNUM      = PRECNUM)
        LOOP
          --Valor de devolucao
          IF (REGISTROS.VLDEVOLUCAO > 0) THEN
