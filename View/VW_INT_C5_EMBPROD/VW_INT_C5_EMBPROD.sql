@@ -110,7 +110,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             (select VALOR MARCAPADRAO FROM PCPARAMFILIAL WHERE NOME = 'MARCAINTEGRACAOCONSINCO' AND CODFILIAL = 99) PCPARAMFILIAL,
             (select min(s.ultimaexecucao) ultimaexecucao
              from pccontroleconsinco s
-             where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
+             where s.ativo = 'S'
+             and  ((upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODUTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMEMBALAGEM')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODEMPRESA')
@@ -121,7 +122,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
-			 or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA')
+			    or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))
              ) DTPADRAO
       WHERE p.codprod = e.codprod
         AND e.codprod = f.codprod
@@ -149,18 +150,31 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
            (EXISTS(SELECT 1
                    FROM PCFORMPROD CESTA
                    WHERE (CESTA.CODPRODMP = E.CODPROD OR CESTA.CODPRODACAB = E.CODPROD)
-                   AND   TRUNC(CESTA.DTCADASTRO) >= TRUNC(SYSDATE - 1000)
-                   AND   CESTA.CODFILIAL = E.CODFILIAL
                   )
            )
           
           OR
 
-           (GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+          (NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+         OR
+
+         (NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+         OR
+
+         (NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+ 
+           
+           /*(GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                      NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
                                                                                                                   FROM PCPARAMETROS2651 PAR
-                                                                                                                  WHERE PAR.NOME = 'DTFIMCARGA'))
+                                                                                                                  WHERE PAR.NOME = 'DTFIMCARGA'))*/
          )
 
 
@@ -261,7 +275,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         VW_INT_C5_OBTER_FILIAIS_C5 FC5,
   (SELECT MIN(S.ULTIMAEXECUCAO) ULTIMAEXECUCAO
            FROM PCCONTROLECONSINCO S
-          WHERE (UPPER(S.OBJETOREFERENCIA) =
+          WHERE S.ATIVO = 'A'
+          AND   ((UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA')
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODUTO')
@@ -284,7 +299,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
 			 OR (UPPER(S.OBJETOREFERENCIA) =
-                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA')	)
+                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))	)
   DTPADRAO, (SELECT VALOR MARCAPADRAO
            FROM PCPARAMFILIAL
           WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
@@ -324,18 +339,37 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
          (EXISTS(SELECT 1
                  FROM PCFORMPROD CESTA
                  WHERE (CESTA.CODPRODMP = E.CODPROD OR CESTA.CODPRODACAB = E.CODPROD)
-                 AND   TRUNC(CESTA.DTCADASTRO) >= TRUNC(SYSDATE - 1000)
-                 AND   CESTA.CODFILIAL = E.CODFILIAL
                 )
          )
          
          OR
 
-         (GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
+         (NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+         OR
+
+         (NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+         OR
+
+         (NVL(TPR.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+
+         OR
+
+         (NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO) BETWEEN (DTPADRAO.ULTIMAEXECUCAO -1440/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
+                                                                                                               FROM PCPARAMETROS2651 PAR
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+
+         
+         /*(GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(TPR.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
                  NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
                                                                                                                FROM PCPARAMETROS2651 PAR
-                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))
+                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))*/
        )
 )
