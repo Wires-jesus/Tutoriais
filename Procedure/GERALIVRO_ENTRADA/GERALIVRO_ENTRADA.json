@@ -1,5 +1,10 @@
 {
     "nome": "GERALIVRO_ENTRADA",
     "tipoPLSQL": "PROCEDURE",
-    "dependencias": ""
+    "dependencias": [{
+            "nome": "PCNFBASEENT",
+            "tipo": "TABELA",
+            "versao": "6.0.02.000"
+        }
+    ]
 }
