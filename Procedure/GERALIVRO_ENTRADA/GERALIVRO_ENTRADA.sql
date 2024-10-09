@@ -433,14 +433,30 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA, 
+          -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT + DECODE(B.CALCCREDIPI, 'S', 0, NVL(B.VLIPI,0)) 
+                                                      - NVL(B.VLDESCONTO, 0)  
+                                                      - (NVL(B.VLSUFRAMA,0) + NVL(MC.VLICMSDESONERACAO,0)) 
+                                                      + (CASE WHEN A.ROTINACAD LIKE '%PCSIS1419%' THEN B.VLDESCSUFRAMA ELSE 0 END) 
+                                                      + DECODE(A.AGREGASTVLMERC, 'S', NVL(B.ST,0), 0) 
+                                                      + DECODE(NVL(MC.VLBASEFCPST,0), 0, 0, NVL(MC.VLFECP,0)) 
+                                                      + DECODE(A.TIPODESCARGA, '1', NVL(B.VLOUTRASDESP, 0), 0)),2)) END VLPRODUTO,
+          -- VLR DESCONTO --
+          CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE 
+              SUM(ROUND(B.QTCONT * NVL(B.VLDESCONTO,0),2)) END VLDESCONTO
       from PCNFENT      A,
            PCMOV        B,
            PCFORNEC     F,
            PCCFO        CF,
            PCMOVCOMPLE  MC,
            PCPRODUT     P,
-           PCPRODFILIAL PF
+           PCPRODFILIAL PF,
+           PCDADOSXML XML
      where NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
        and NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
        and A.DTENT between P_DATA1 and P_DATA2
@@ -450,6 +466,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
        and B.CODPROD = PF.CODPROD(+)
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
        and B.NUMTRANSITEM = MC.NUMTRANSITEM
+       and B.NUMTRANSITEM = XML.NUMTRANSITEM(+)
        and CF.CODFISCAL(+) = B.CODFISCAL
        and NVL(A.CODEXPORTADOR, NVL(A.CODFORNECNF, A.CODFORNEC)) = F.CODFORNEC
        and P.CODPROD = B.CODPROD
@@ -459,7 +476,6 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
        and (A.CHAVENFE is null or NVL(A.GERANFVENDA, 'N') = 'N')
        and B.STATUS in ('A', 'AB')
        and A.ESPECIE in ('NF', 'DA', 'NS') --ADICIONADO NS PARA ATUALIAR A CONTA CONTABIL, PORÉM, FOI CRIADA CONDICIONAL PARA NÃO GERAR O LIVRO PARA ESSA ESPECIE
-       --and A.DTENT >= (SELECT MIN(DTENT) FROM PCNFENT)
      group by NVL(A.CODFILIALNF, A.CODFILIAL),
               A.NUMTRANSENT,
               A.DTENT,
@@ -874,7 +890,22 @@ cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA,
+          -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT + DECODE(B.CALCCREDIPI, 'S', 0, NVL(B.VLIPI,0)) 
+                                                      - NVL(B.VLDESCONTO, 0)  
+                                                      - (NVL(B.VLSUFRAMA,0) + NVL(MC.VLICMSDESONERACAO,0)) 
+                                                      + (CASE WHEN A.ROTINACAD LIKE '%PCSIS1419%' THEN B.VLDESCSUFRAMA ELSE 0 END) 
+                                                      + DECODE(A.AGREGASTVLMERC, 'S', NVL(B.ST,0), 0) 
+                                                      + DECODE(NVL(MC.VLBASEFCPST,0), 0, 0, NVL(MC.VLFECP,0)) 
+                                                      + DECODE(A.TIPODESCARGA, '1', NVL(B.VLOUTRASDESP, 0), 0)),2)) END VLPRODUTO,
+          -- VLR DESCONTO --
+          CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE 
+              SUM(ROUND(B.QTCONT * NVL(B.VLDESCONTO,0),2)) END VLDESCONTO               
       from PCNFENT      A,
            PCMOV        B,
            PCFORNEC     F,
@@ -901,7 +932,6 @@ cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_
        and (A.CHAVENFE is not null and A.GERANFVENDA = 'S')
        and B.STATUS in ('A', 'AB')
        and A.ESPECIE in ('NF', 'DA')
-       --and A.DTENT >= (SELECT MIN(DTENT) FROM PCNFENT)
      group by NVL(A.CODFILIALNF, A.CODFILIAL),
               A.NUMTRANSENT,
               A.DTENT,
@@ -1257,14 +1287,30 @@ cursor C_NOTAS_IMPORTACAO(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in d
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA,
+          -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT + NVL(B.VLDESCONTO, 0) 
+                                                      - NVL(B.VLOUTRASDESP, 0)  
+                                                      - NVL(B.VLFRETE, 0) 
+                                                      - (NVL(B.VLSUFRAMA,0) + 
+                                                         NVL(MC.VLICMSDESONERACAO,0)) 
+                                                      - DECODE(A.AGREGASTVLMERC, 'S', 0, NVL(B.ST,0)) 
+                                                      + NVL(B.VLOUTRASDESP,0)),2)) END VLPRODUTO,
+          -- VLR DESCONTO --
+          CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE 
+              SUM(ROUND(B.QTCONT * NVL(B.VLDESCONTO,0),2)) END VLDESCONTO
       from PCNFENT      A,
            PCMOV        B,
            PCFORNEC     F,
            PCCFO        CF,
            PCPRODUT     P,
            PCMOVCOMPLE  MC,
-           PCPRODFILIAL PF
+           PCPRODFILIAL PF, 
+           PCDADOSXML XML
      where NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
        and NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
        and A.DTENT between P_DATA1 and P_DATA2
@@ -1277,6 +1323,7 @@ cursor C_NOTAS_IMPORTACAO(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in d
        and NVL(A.CODEXPORTADOR, A.CODFORNEC) = F.CODFORNEC
        and P.CODPROD = B.CODPROD
        and MC.NUMTRANSITEM = B.NUMTRANSITEM
+       and B.NUMTRANSITEM = XML.NUMTRANSITEM(+)
        and A.TIPODESCARGA in ('F', 'N','P')
        and B.QTCONT > 0
        and B.STATUS in ('A', 'AB')
@@ -1717,7 +1764,29 @@ cursor C_NOTAS_DEVOLNF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA,
+          -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT - (NVL(B.VLSUFRAMA,0) 
+                                          + NVL(MC.VLICMSDESONERACAO,0))
+                                          - NVL(B.VLIPI, 0) 
+                                          - NVL(B.ST, 0) 
+                                          + NVL(B.VLOUTRASDESP,0)),2)
+                                          + ROUND(B.QTCONT * (GREATEST(NVL(B.VLDESCONTO,0) 
+                                                              - (DECODE( NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
+                                                                          'B',
+                                                                           0,
+                                                                           NVL(B.VLDESCONTO,0))),0)),2)) END VLPRODUTO,           
+           -- VLR DESCONTO -- 
+           CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE 
+              SUM(GREATEST( (B.QTCONT * ( NVL(B.VLDESCONTO,0) - 
+                                              DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
+                                                    'B',
+                                                     0,
+                                                     NVL(B.VLDESCONTO,0)))),0)) END VLDESCONTO     
       from PCNFENT      A,
            PCMOV        B,
            PCMOVCOMPLE  MC,
@@ -1725,22 +1794,24 @@ cursor C_NOTAS_DEVOLNF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date
            PCDEVCONSUM  D,
            PCCFO        CF,
            PCPRODUT     P,
-           PCPRODFILIAL PF
+           PCPRODFILIAL PF, 
+           PCDADOSXML XML
      where NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
-     and NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
+       and NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
        and A.DTENT between P_DATA1 and P_DATA2
        and A.NUMNOTA between P_NOTA1 and P_NOTA2
        and A.NUMTRANSENT = B.NUMTRANSENT
        and A.NUMNOTA = B.NUMNOTA
        and MC.NUMTRANSITEM = B.NUMTRANSITEM
+       and B.NUMTRANSITEM = XML.NUMTRANSITEM(+)
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
        and B.CODPROD = PF.CODPROD(+)
-
        and CF.CODFISCAL = B.CODFISCAL
        and NVL(A.CODEXPORTADOR, NVL(A.CODFORNECNF, A.CODFORNEC)) = C.CODCLI(+)
        and A.NUMTRANSENT = D.NUMTRANSENT(+)
        and P.CODPROD = B.CODPROD
-       and (A.TIPODESCARGA in ('6', '7', '8', 'C', 'T') or ((a.notadupliquesvc = 'S' and a.tipodescarga = '2')))
+       and (A.TIPODESCARGA in ('6', '7', '8', 'C', 'T') or 
+                              ((a.notadupliquesvc = 'S' and a.tipodescarga = '2')))
        and B.QTCONT > 0
        and ((A.CHAVENFE is null) or
             ((a.notadupliquesvc = 'S' and a.tipodescarga = '2')))
@@ -2141,7 +2212,31 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA,
+           -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT 
+                                          - (NVL(B.VLSUFRAMA,0) 
+                                          + NVL(MC.VLICMSDESONERACAO,0))
+                                          - NVL(B.VLIPI, 0) 
+                                          - NVL(B.ST, 0) 
+                                          + NVL(B.VLOUTRASDESP,0)),2)
+                                          + ROUND(B.QTCONT * 
+                                                 (GREATEST(NVL(B.VLDESCONTO,0) 
+                                                    - (DECODE( NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
+                                                               'B',
+                                                                0,
+                                                                NVL(B.VLDESCONTO,0))),0)),2)) END VLPRODUTO, 
+          -- VLR DESCONTO --
+          CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE                                                                               
+              SUM(GREATEST((B.QTCONT * (NVL(B.VLDESCONTO,0) 
+                                      - DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
+                                               'B',
+                                                0,
+                                                NVL(B.VLDESCONTO,0)))),0)) END VLDESCONTO                
       from PCNFENT      A,
            PCMOV        B,
            PCMOVCOMPLE  MC,
@@ -2149,13 +2244,15 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
            PCDEVCONSUM  D,
            PCCFO        CF,
            PCPRODUT     P,
-           PCPRODFILIAL PF
+           PCPRODFILIAL PF, 
+           PCDADOSXML XML 
      where NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
      and NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
        and A.DTENT between P_DATA1 and P_DATA2
        and A.NUMNOTA between P_NOTA1 and P_NOTA2
        and A.NUMTRANSENT = B.NUMTRANSENT
        and MC.NUMTRANSITEM = B.NUMTRANSITEM
+       and B.NUMTRANSITEM = XML.NUMTRANSITEM(+)
        and A.NUMNOTA = B.NUMNOTA
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
        and B.CODPROD = PF.CODPROD(+)
@@ -2168,7 +2265,6 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
        and A.CHAVENFE is not null
        and B.STATUS in ('A', 'AB')
        and A.ESPECIE in ('NF', 'DA')
-       --and A.DTENT >= (SELECT MIN(DTENT) FROM PCNFENT)
      group by NVL(A.CODFILIALNF, A.CODFILIAL),
               A.NUMTRANSENT,
               A.CHAVENFE,
@@ -2439,7 +2535,7 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
              WHEN (SELECT COUNT(*)
                      FROM PCMOVCIAP C1
                     WHERE C1.NUMTRANSENT = B.NUMTRANSENT) > 0 THEN
-----------------------------------------------------------------
+           ----------------------------------------------------------------
          (SUM((SELECT SUM(ROUND(CI.QTCONT * CI.Vlpis,2))
              FROM PCMOVCIAP CI
             WHERE CI.NUMTRANSENT = A.NUMTRANSENT
@@ -2447,7 +2543,7 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
               AND CI.SITTRIBUT = B.SITTRIBUT
               AND NVL(CI.PERCICM,0) = NVL(B.ALIQUOTA,0)
               AND CI.CODFILIAL = NVL(A.CODFILIALNF, A.CODFILIAL))))
-----------------------------------------------------------------
+           ----------------------------------------------------------------
              ELSE
               case
              when (select count(*)
@@ -2609,7 +2705,9 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
           , 0 AS VLICMSBCR
           , 0 AS VLFECPSTGUIA
           , 0 AS VLSUFRAMA
-          , 0 AS VLBSESUFRAMA
+          , 0 AS VLBSESUFRAMA 
+          , 0 VLPRODUTO
+          , 0 VLDESCONTO
       from PCNFENT  A,
            PCNFBASE B,
            PCFORNEC F,
@@ -2926,7 +3024,9 @@ cursor C_NOTAS_PCNFBASE_TIPO2(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
            ,0 AS VLICMSBCR
            ,0 AS VLFECPSTGUIA
            ,0 AS VLSUFRAMA
-          , 0 AS VLBSESUFRAMA
+           ,0 AS VLBSESUFRAMA
+           ,0 VLPRODUTO
+           ,0 VLDESCONTO          
       from PCNFENT  A,
            PCNFBASE B,
            PCFORNEC F,
@@ -3046,11 +3146,6 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            DECODE(B.TIPO, '1', 0, B.ALIQUOTA) PERCICMNAOTRIB,
            ----------------------------------------------------------------
            NVL(B.VLBASE,0) VLBASE,
-           -- Foi alterado em 07/12/2015 pois como ? frete deveria pegar direto da tabela PCNFBASE e n?o dos itens (1812.116739).
-           -- Isso foi necess?rio porque nos itens estava tendo diverg?ncia de valores em centavos por causa do arredondamento dos itens.
---           LEAST(ROUND(SUM(DECODE(NVL(M.GERAICMSLIVROFISCAL,'S'), 'S',
---                       M.QTCONT * NVL(M.VLFRETECONHEC, 0), 0)),2),
---                 ROUND(SUM(M.QTCONT *  NVL(M.BASEICMS, 0)),2)) VLBASE,
            ----------------------------------------------------------------
            0 VLBASENAOTRIB,
            ----------------------------------------------------------------
@@ -3202,6 +3297,8 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ,0 AS VLFECPSTGUIA
            ,0 AS VLSUFRAMA
            ,0 AS VLBASESUFRAMA
+           ,0 VLPRODUTO
+           ,0 VLDESCONTO           
       from PCNFENT      A,
            PCNFENTFRETE EF,
            PCNFENT      N,
@@ -3667,19 +3764,36 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            CASE WHEN SUBSTR(FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO), NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTENT),2,2) = '00'
                      AND SUM(NVL(B.VLSUFRAMA,0)) > 0
                      AND SUM(NVL(B.BASEICMS,0)) = 0 THEN
-                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA
+                SUM(ROUND(B.QTCONT * NVL(B.PUNITCONT,0),2)) ELSE 0 END VLBASESUFRAMA,
+          -- VLR PRODUTO -- 
+          CASE WHEN SUM(NVL(XML.VPROD,0)) > 0 THEN SUM(NVL(XML.VPROD,0))
+               ELSE SUM(ROUND(B.QTCONT * (B.PUNITCONT + DECODE(B.CALCCREDIPI, 'S', 0, NVL(B.VLIPI,0)) 
+                                                      - NVL(B.VLDESCONTO, 0)  
+                                                      - (NVL(B.VLSUFRAMA,0) + NVL(MC.VLICMSDESONERACAO,0)) 
+                                                      + (CASE WHEN A.ROTINACAD LIKE '%PCSIS1419%' THEN B.VLDESCSUFRAMA ELSE 0 END) 
+                                                      + DECODE(A.AGREGASTVLMERC, 'S', NVL(B.ST,0), 0) 
+                                                      + DECODE(NVL(MC.VLBASEFCPST,0), 0, 0, NVL(MC.VLFECP,0)) 
+                                                      + DECODE(A.TIPODESCARGA, '1', NVL(B.VLOUTRASDESP, 0), 0)),2)) END VLPRODUTO,
+          -- VLR DESCONTO --
+          CASE 
+            WHEN 
+              SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
+            ELSE 
+              SUM(ROUND(B.QTCONT * NVL(B.VLDESCONTO,0),2)) END VLDESCONTO
       from PCNFENT      A,
            PCMOV        B,
            PCFORNEC     F,
            PCCFO        CF,
            PCMOVCOMPLE  MC,
            PCPRODUT     P,
-           PCPRODFILIAL PF
+           PCPRODFILIAL PF,
+           PCDADOSXML XML
      where NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
      AND NVL(B.CODFILIALNF, B.CODFILIAL) = NVL(A.CODFILIALNF, A.CODFILIAL)
        and A.DTENT between P_DATA1 and P_DATA2
        and A.NUMNOTA between P_NOTA1 and P_NOTA2
        and A.NUMTRANSENT = B.NUMTRANSENT
+       and B.NUMTRANSITEM = XML.NUMTRANSITEM(+)
        and A.NUMNOTA = B.NUMNOTA
        and B.CODPROD = PF.CODPROD(+)
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
@@ -3694,7 +3808,6 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
        and (A.CHAVENFE is null or NVL(A.GERANFVENDA, 'N') = 'N')
        and B.STATUS in ('A', 'AB')
        and A.ESPECIE in ('NF', 'DA')
-       --and A.DTENT >= (SELECT MIN(DTENT) FROM PCNFENT)
      group by NVL(A.CODFILIALNF, A.CODFILIAL),
               A.NUMTRANSENT,
               A.DTENT,
@@ -3735,7 +3848,7 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
      order by DTENT,
               NUMTRANSENT,
               NUMNOTA;
- ------------------------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------------------------
 
 
   ---------------------------------------------------------------------------------
@@ -3842,7 +3955,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
        VLICMSBCR,
        VLFECPSTGUIA,
        VLSUFRAMA,
-       VLBASESUFRAMA)
+       VLBASESUFRAMA, 
+       VLPRODUTO,
+       VLDESCONTO)
     values
       (P_NOTA.NUMSQL,
        P_NOTA.CODFILIAL,
@@ -3931,7 +4046,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
        P_NOTA.VLICMSBCR,
        P_NOTA.VLFECPSTGUIA,
        P_NOTA.VLSUFRAMA,
-       P_NOTA.VLBASESUFRAMA);
+       P_NOTA.VLBASESUFRAMA, 
+       P_NOTA.VLPRODUTO,
+       P_NOTA.VLDESCONTO);
   end;
 
   /*********************************************************************************/
@@ -4020,7 +4137,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
              ALIQDIF,
              ALIQUOTA,
              DTGERA,
-             TIPOREGISTRO)
+             TIPOREGISTRO, 
+             VLPRODUTO,
+             VLDESCONTO)
             select P_NOTA.NUMSQL,
                    P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSENT,
@@ -4061,7 +4180,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                    0 ALIQDIF,
                    0 ALIQUOTA,
                    sysdate DTGERA,
-                   'D' TIPOREGISTRO
+                   'D' TIPOREGISTRO, 
+                   P_NOTA.VLPRODUTO,
+                   P_NOTA.VLDESCONTO
               from DUAL
              where not exists (select NUMNOTA
                       from PCNFBASEENT
@@ -4141,7 +4262,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQDIF,
            ALIQUOTA,
            DTGERA,
-           TIPOREGISTRO)
+           TIPOREGISTRO, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4181,7 +4304,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 ALIQDIF,
                  0 ALIQUOTA,
                  sysdate DTGERA,
-                 'D' TIPOREGISTRO
+                 'D' TIPOREGISTRO, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from DUAL
            where not exists
            (select B.NUMNOTA
@@ -4270,7 +4395,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQDIF,
            ALIQUOTA,
            DTGERA,
-           TIPOREGISTRO)
+           TIPOREGISTRO, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4330,7 +4457,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 ALIQDIF,
                  0 ALIQUOTA,
                  sysdate DTGERA,
-                 'D' TIPOREGISTRO
+                 'D' TIPOREGISTRO, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from PCTRIBOUTROS T
            where T.UFDESTINO = P_NOTA.UF
              and T.CODFILIALNF = P_NOTA.CODFILIAL
@@ -4443,7 +4572,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            ALIQDIF,
            ALIQUOTA,
            DTGERA,
-           TIPOREGISTRO)
+           TIPOREGISTRO, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4483,7 +4614,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 ALIQDIF,
                  0 ALIQUOTA,
                  sysdate DTGERA,
-                 'D' TIPOREGISTRO
+                 'D' TIPOREGISTRO, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from PCNFBASEENT A
            where NUMTRANSENT = P_NOTA.NUMTRANSENT
              and NUMNOTA = P_NOTA.NUMNOTA
@@ -4579,7 +4712,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
              PERCIPI,
              DTGERA,
              TIPOREGISTRO,
-             PERCREDBASEPISCOFINSFRETE)
+             PERCREDBASEPISCOFINSFRETE, 
+             VLPRODUTO,
+             VLDESCONTO)
             select P_NOTA.NUMSQL,
                    P_NOTA.CODFILIAL,
                    P_NOTA.NUMTRANSENT,
@@ -4615,7 +4750,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                    0 PERCIPI,
                    P_NOTA.DTGERA,
                    'F',
-                   P_NOTA.PERCREDBASEPISCOFINSFRETE
+                   P_NOTA.PERCREDBASEPISCOFINSFRETE, 
+                   P_NOTA.VLPRODUTO,
+                   P_NOTA.VLDESCONTO
               from DUAL
              where not exists (select NUMNOTA
                       from PCNFBASEENT
@@ -4689,7 +4826,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            PERCIPI,
            DTGERA,
            TIPOREGISTRO,
-           PERCREDBASEPISCOFINSFRETE)
+           PERCREDBASEPISCOFINSFRETE, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4725,7 +4864,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 PERCIPI,
                  P_NOTA.DTGERA,
                  'F',
-                 P_NOTA.PERCREDBASEPISCOFINSFRETE
+                 P_NOTA.PERCREDBASEPISCOFINSFRETE, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from DUAL
            where not exists
            (select NUMNOTA
@@ -4802,7 +4943,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            PERCIPI,
            DTGERA,
            TIPOREGISTRO,
-           PERCREDBASEPISCOFINSFRETE)
+           PERCREDBASEPISCOFINSFRETE, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4838,7 +4981,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 PERCIPI,
                  P_NOTA.DTGERA,
                  'F',
-                 P_NOTA.PERCREDBASEPISCOFINSFRETE
+                 P_NOTA.PERCREDBASEPISCOFINSFRETE, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from PCTRIBOUTROS T
            where V_TRIBUTAFRETERATEADO = 'N'
              and T.UFDESTINO = P_NOTA.UF
@@ -4916,7 +5061,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
            PERCIPI,
            DTGERA,
            TIPOREGISTRO,
-           PERCREDBASEPISCOFINSFRETE)
+           PERCREDBASEPISCOFINSFRETE, 
+           VLPRODUTO,
+           VLDESCONTO)
           select P_NOTA.NUMSQL,
                  P_NOTA.CODFILIAL,
                  P_NOTA.NUMTRANSENT,
@@ -4952,7 +5099,9 @@ cursor C_NOTAS_CONHECIMENTOFRETE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DAT
                  0 PERCIPI,
                  P_NOTA.DTGERA,
                  'F',
-                 P_NOTA.PERCREDBASEPISCOFINSFRETE
+                 P_NOTA.PERCREDBASEPISCOFINSFRETE, 
+                 P_NOTA.VLPRODUTO,
+                 P_NOTA.VLDESCONTO
             from PCNFBASEENT A
            where NUMTRANSENT = P_NOTA.NUMTRANSENT
              and NUMNOTA = P_NOTA.NUMNOTA
@@ -5552,6 +5701,8 @@ END;
              VLBASEFCPST      = 0,
              VLBASEFCPICMS    = 0,
              ALIQICMSFECP     = 0,
+             VLPRODUTO        = 0,
+             VLDESCONTO       = 0,
              PERACRESCIMOFUNCEP = 0,
              VLFECP           = 0,
              OBS              = NVL( DECODE( P_NOTA.SITUACAONFE, 101,
@@ -5616,6 +5767,8 @@ update PCNFBASEENT
              ALIQICMSFECP     = 0,
              PERACRESCIMOFUNCEP = 0,
              VLFECP           = 0,
+             VLPRODUTO        = 0,
+             VLDESCONTO       = 0,
              OBS              = NVL( DECODE( P_NOTA.SITUACAONFE, 101,
                                                              DECODE( NVL(P_NOTA.OBS, 'X'),
                                                                      'X',
@@ -5680,9 +5833,11 @@ update PCNFBASEENT
              VLIPI = 0,
              VLFRETE = 0,
              VLOUTRASDESP = 0,
-            VLOUTRAS = 0,
+             VLOUTRAS = 0,
              VLBASEOUTRASIPI = 0,
              VLISENTAS = 0,
+             VLPRODUTO = 0,
+             VLDESCONTO= 0,
              VLISENTASIPI = 0
        where NUMTRANSENT = P_NOTA.NUMTRANSENT
          and NUMNOTA = P_NOTA.NUMNOTA
@@ -5999,13 +6154,13 @@ BEGIN
                  TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
   ---------------------------------------------------------------------------------
     UPDATE PCMOVTEMP
-    SET DATAENT = P_NOTA.DTENT,
-        NUMNOTA = P_NOTA.NUMNOTA
-    WHERE CODFILIAL = P_NOTA.CODFILIAL
-      AND NUMTRANSENT = P_NOTA.NUMTRANSENT
-      AND DATAENT = P_NOTA.DTENT
-      AND NUMNOTA  = P_NOTA.NUMNOTA
-      AND TIPOREGISTRO = 'NF_CONTABE';
+       SET DATAENT = P_NOTA.DTENT,
+           NUMNOTA = P_NOTA.NUMNOTA
+     WHERE CODFILIAL = P_NOTA.CODFILIAL
+       AND NUMTRANSENT = P_NOTA.NUMTRANSENT
+       AND DATAENT = P_NOTA.DTENT
+       AND NUMNOTA  = P_NOTA.NUMNOTA
+       AND TIPOREGISTRO = 'NF_CONTABE';
 
     IF SQL%ROWCOUNT = 0 THEN
         INSERT INTO PCMOVTEMP
@@ -6405,5 +6560,6 @@ exception
       RESULTADO := 'ERRO: ' || V_SQLERRO || ' -> ' || sqlerrm;
     end;
 end;
--- Última Alteração : 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
--- V 005 --
+-- 001 - 09/10/2024 - Gravação dos campos VLPRODUTO e VLDESCONTO.
+-- 002 - 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
+-- V07 -
