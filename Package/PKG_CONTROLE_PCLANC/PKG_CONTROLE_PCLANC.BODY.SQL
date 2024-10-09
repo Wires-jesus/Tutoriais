@@ -103,22 +103,24 @@ VGRECNUMNOVO  NUMBER;
    Data.....: 20/02/2013
    Autor....: Fernando.Carmo
    *****************************************************************************/
-   PROCEDURE BAIXAR( PSFORMAPAGAMENTO   IN VARCHAR  --(B)order?, (C)heque, Cai(X)a/Banco
-                   , PSHISTORICO        IN VARCHAR  --Hist?rico a ser informado no t?tulos
-                   , PSNOMEFUNCIONARIO  IN VARCHAR  --Nome do funcion?rio da baixa
-                   , PNNUMERARIO        IN NUMBER   --C?digo da transa??o: N?m. border?, N?m. cheque2 ou N?m. Transa??o, conforme a forma pagto
-                   , PNNUMBANCO         IN NUMBER   --N?mero do banco da baixa
-                   , PSMOEDA            IN VARCHAR  --Moeda
-                   , PNCODFUNCIONARIO   IN NUMBER   --C?digo do funcion?rio que esta baixando o t?tulo
-                   , PNCODROTINA        IN NUMBER   --C?digo da rotina que esta executando a baixa
-                   , PNNUMTRANS         IN NUMBER   --N?mero de transa??o da baixa
-                   , PNNUMNOTA          IN NUMBER   --N?mero da nota fiscal
-                   , PNNUMCARR          IN NUMBER
-                   , PNCODCONTA         IN NUMBER
-                   , PNCODPROJETO       IN NUMBER
-                   , PRECNUM            IN NUMBER
-                   , PSMENSAGEM        OUT VARCHAR
-                   , PDDTCOMPENSACAO    IN DATE default null)
+   PROCEDURE BAIXAR
+    ( PSFORMAPAGAMENTO   IN VARCHAR  --(B)order?, (C)heque, Cai(X)a/Banco
+    , PSHISTORICO        IN VARCHAR  --Hist?rico a ser informado no t?tulos
+    , PSNOMEFUNCIONARIO  IN VARCHAR  --Nome do funcion?rio da baixa
+    , PNNUMERARIO        IN NUMBER   --C?digo da transa??o: N?m. border?, N?m. cheque2 ou N?m. Transa??o, conforme a forma pagto
+    , PNNUMBANCO         IN NUMBER   --N?mero do banco da baixa
+    , PSMOEDA            IN VARCHAR  --Moeda
+    , PNCODFUNCIONARIO   IN NUMBER   --C?digo do funcion?rio que esta baixando o t?tulo
+    , PNCODROTINA        IN NUMBER   --C?digo da rotina que esta executando a baixa
+    , PNNUMTRANS         IN NUMBER   --N?mero de transa??o da baixa
+    , PNNUMNOTA          IN NUMBER   --N?mero da nota fiscal
+    , PNNUMCARR          IN NUMBER
+    , PNCODCONTA         IN NUMBER
+    , PNCODPROJETO       IN NUMBER
+	, PRECNUM			 IN NUMBER
+    , PSMENSAGEM        OUT VARCHAR
+    , PDDTCOMPENSACAO    IN DATE default null
+    )
    IS
      VNVALORPAGAMENTO       NUMBER;
      VNCODCONTABIL          NUMBER;
@@ -155,7 +157,7 @@ VGRECNUMNOVO  NUMBER;
            OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
            OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
            AND PCLANC.DTESTORNOBAIXA IS NULL
-           AND PCLANC.RECNUM     = PRECNUM;
+		   AND PCLANC.RECNUM     = PRECNUM;
 
        --Efetuando a baixa dos titulos selecionados
        UPDATE PCLANC
@@ -185,7 +187,7 @@ VGRECNUMNOVO  NUMBER;
          AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
           OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
           OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
-         AND PCLANC.RECNUM      = PRECNUM;
+		 AND PCLANC.RECNUM      = PRECNUM;
 
        IF SQL%ROWCOUNT = 0 THEN --VALIDA??O PARA QUE ENTRAR NA EXCESS?O SE N?O TIVER CONSEGUIDO FAZER A BAIXA DO BORDER?!
          RAISE NO_DATA_FOUND;
@@ -205,7 +207,7 @@ VGRECNUMNOVO  NUMBER;
                             AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
-                            AND PCLANC.RECNUM      = PRECNUM 
+							AND PCLANC.RECNUM      = PRECNUM 
                        GROUP BY CODFILIAL)
        LOOP
          IF REGISTROS.MAXDIAS > 0 AND
@@ -233,7 +235,7 @@ VGRECNUMNOVO  NUMBER;
                             AND ((PSFORMAPAGAMENTO = 'B' AND PCLANC.NUMBORDERO = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'C' AND PCLANC.NUMCHEQUE2 = PNNUMERARIO)
                              OR  (PSFORMAPAGAMENTO = 'X' AND PCLANC.NUMTRANS = PNNUMERARIO))
-                            AND PCLANC.RECNUM      = PRECNUM)
+							AND PCLANC.RECNUM      = PRECNUM)
        LOOP
          --Valor de devolucao
          IF (REGISTROS.VLDEVOLUCAO > 0) THEN
@@ -261,8 +263,8 @@ VGRECNUMNOVO  NUMBER;
 
          --Gerando lan?amentos de desconto em verbas com base no recnum informado
          IF (REGISTROS.VLDESCONTOS > 0) THEN
+         BEGIN
            VNDESCONTO_FINANCEIRO := REGISTROS.VLDESCONTOS;
-         END IF;
 
            IF (REGISTROS.VLDEVOLUCAO > 0) THEN
              VNDESCONTO_FINANCEIRO := VNDESCONTO_FINANCEIRO + VNDESCONTO_DEV_VERBA;
@@ -273,10 +275,10 @@ VGRECNUMNOVO  NUMBER;
                                      SUM(DECODE(PCMOVCRFOR.TIPO, 'C', PCMOVCRFOR.VALOR, PCMOVCRFOR.VALOR * (-1))) AS VLDESCVERBA --Deve ser gerado negativo
                                 FROM PCMOVCRFOR
                                WHERE PCMOVCRFOR.NUMLANC = REGISTROS.RECNUM
-             VNDESCONTO_VERBA := VNDESCONTO_VERBA + DEVOLUCOES.VLDESCVERBA;
                                  AND PCMOVCRFOR.DTESTORNO IS NULL
                                GROUP BY PCMOVCRFOR.CODCONTA)LOOP
              --Totalizando o total do desconto utilizado em verbas
+             VNDESCONTO_VERBA := VNDESCONTO_VERBA + DEVOLUCOES.VLDESCVERBA;
 
              VNDESCONTO_FINANCEIRO := VNDESCONTO_FINANCEIRO - ROUND(DEVOLUCOES.VLDESCVERBA, 2);
 
@@ -291,6 +293,8 @@ VGRECNUMNOVO  NUMBER;
                EXECUTE IMMEDIATE VSSCRIPT;
              END IF;
            END LOOP; --Fim do la?o DEVOLUCOES
+         END;
+         END IF;
 
          --Totalizando o saldo do desconto que N?O foi utilizado na verba para ser aplicado junto com o desconto financeiro
          VNDESCONTO_FINANCEIRO := ABS(VNDESCONTO_FINANCEIRO) * -1;
@@ -383,10 +387,10 @@ VGRECNUMNOVO  NUMBER;
    END; --Procedure Baixar
    /******************************************************** Baixa de t?tulos **/
 
-   Autor....: Fernando.Carmo
    /*****************************************************************************
    Descri??o: Lan?amentos de juros durante a baixa de t?tulos
    Data.....: 20/02/2013
+   Autor....: Fernando.Carmo
    *****************************************************************************/
    PROCEDURE LANCAMENTOS_ADICIONAIS( PSHISTORICO IN VARCHAR
                                    , PNRECNUM    IN NUMBER
@@ -504,9 +508,9 @@ VGRECNUMNOVO  NUMBER;
       -- Se calcular variação cambial automaticamente = SIM, insere Moeda = R
       IF NVL(VPARAMVARIACAOCAMBIAL,'N') = 'S' THEN
          VSSCRIPTINSERT := VSSCRIPTINSERT || ', MOEDA ';
-         VSSCRIPTINSERT := VSSCRIPTINSERT || ', MOEDA ';
          VSSCRIPTSELECT := VSSCRIPTSELECT || ', ''R'' ';
       ELSE
+         VSSCRIPTINSERT := VSSCRIPTINSERT || ', MOEDA ';
          VSSCRIPTSELECT := VSSCRIPTSELECT || ', MOEDA ';
       END IF;
       --Fechando os script
@@ -632,10 +636,10 @@ VGRECNUMNOVO  NUMBER;
 
       VNNOVORECNUM   := GERAR_RECNUM();
       VGRECNUMNOVO   := VNNOVORECNUM; -- Atribuindo RECNUM novo ? vari?vel global para ser usado no estorno caso necess?rio.
-      VSSCRIPTSELECT := VSSCRIPTSELECT || VNNOVORECNUM;
 
       --Novo Recnum
       VSSCRIPTINSERT := VSSCRIPTINSERT || 'RECNUM';
+      VSSCRIPTSELECT := VSSCRIPTSELECT || VNNOVORECNUM;
 
       --Valor da baixa
       VSSCRIPTINSERT := VSSCRIPTINSERT || ', VALOR';
@@ -761,10 +765,10 @@ VGRECNUMNOVO  NUMBER;
           VSSCRIPTINSERT := VSSCRIPTINSERT || ', DTESTORNOBAIXA';
           VSSCRIPTSELECT := VSSCRIPTSELECT || ', DTESTORNOBAIXA';
           VSSCRIPTINSERT := VSSCRIPTINSERT || ', CODFUNCESTORNOBAIXA';
-      END IF;
           VSSCRIPTSELECT := VSSCRIPTSELECT || ', CODFUNCESTORNOBAIXA';
         END IF;
 
+      END IF;
 
       -- Assinatura e Data Assinatura s?o clonadas para Lan?amento de contra partida.
       -- Para a pclanc em aberto ? NULL
@@ -899,10 +903,10 @@ VGRECNUMNOVO  NUMBER;
          WHERE RECNUM = PNRECNUM
            AND IDCONTROLEEMBARQUE = VSIDCONTROLEEMBARQUE;
       END IF;
-
       --Fim - Atualizando o novo RECNUM na tabela PCDESPESAIMPCE, caso houver
 
     END;
+
     PROCEDURE LANCAR_CONTRAPARTIDA_CC( PNRECNUMORIG IN NUMBER
                                      , PNRECNUMDEST IN NUMBER
                                      , PNTIPO       IN VARCHAR2)
@@ -1032,10 +1036,10 @@ VGRECNUMNOVO  NUMBER;
                              || ', '
                              || TO_CHAR(REGISTROS.RECNUM)
                              || ', '
-
                              || TO_CHAR(VGRECNUMNOVO)
                              || ')';
          end if;
+
          VSSCRIPT := 'begin PKG_CONTROLE_PCLANC.LANCAR_CONTRAPARTIDA('
                       || TO_CHAR(REGISTROS.RECNUM)
                       || ', '
@@ -1164,10 +1168,10 @@ VGRECNUMNOVO  NUMBER;
      -- Quita??o do titulo a ser estornado
      BEGIN
 
-         VNNEWRECNUM := PKG_CONTROLE_PCLANC.LANCAR_NOVAPCLANC(TO_CHAR(PNRECNUM)
        --VALIDACAO DO ESTORNO DE ADIANTAMENTO DA ROTINA 782. ONDE NAO PODE GERAR O  LANCAMENTO DO ESTORNO EM ABERTO
        IF NOT (PNCODROTINA = 782) THEN
          --Gerando o lan?amento em aberto
+         VNNEWRECNUM := PKG_CONTROLE_PCLANC.LANCAR_NOVAPCLANC(TO_CHAR(PNRECNUM)
                                                              ,TO_CHAR(PNNUMERARIO)
                                                              ,TO_CHAR(PSFORMAPAGAMENTO)
                                                              ,TO_CHAR(PNCODFUNCIONARIO));
@@ -1290,10 +1294,10 @@ VGRECNUMNOVO  NUMBER;
                    , PNCODROTINA
                    , VNCODCONTABIL
                    , VNVALORPCMOVCR * (-1)
-     EXCEPTION --Caso n?o tenha alterado nenhum registro
                    , 0
                    , 0
                    , null);
+     EXCEPTION --Caso n?o tenha alterado nenhum registro
        WHEN NO_DATA_FOUND THEN
          RAISE_APPLICATION_ERROR(-20016,'Erro: N?o foi poss?vel gerar a movimenta??o de numer?rios.'|| SQLERRM);
          PSMENSAGEM := 'Erro:' || SQLERRM;
@@ -1433,10 +1437,10 @@ VGRECNUMNOVO  NUMBER;
     ( PSFORMAPAGAMENTO IN VARCHAR
     , PSHISTORICO      IN VARCHAR
     , PNNUMERARIO      IN NUMBER
-    , PNCODFUNCIONARIO IN NUMBER
     , PNNUMBANCO       IN NUMBER
     , PSMOEDA          IN VARCHAR
     , PNNUMTRANS       IN NUMBER
+    , PNCODFUNCIONARIO IN NUMBER
     , PNCODROTINA      IN NUMBER
     , PNRECNUM         IN NUMBER
     , PSMENSAGEM       OUT VARCHAR
@@ -1547,10 +1551,10 @@ VGRECNUMNOVO  NUMBER;
             PSMENSAGEM := 'Erro:' || SQLERRM;
          END;
 
-     PROCEDURE ESTRONAR_ITEM_DESC_DEV(PSFORMAPAGAMENTO IN VARCHAR,
        PSMENSAGEM := 'Estorno realizado com sucesso!';
     END;
 
+     PROCEDURE ESTRONAR_ITEM_DESC_DEV(PSFORMAPAGAMENTO IN VARCHAR,
                                    PSHISTORICO      IN VARCHAR,
                                    PNNUMERARIO      IN NUMBER,
                                    PNNUMBANCO       IN NUMBER,
