@@ -1469,7 +1469,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL uffrete,
         NULL ufveiculo,
         NULL uidregistro,
-        NULL usadebcredrca,
+        NVL((SELECT Usadebcredrca
+               FROM PCPEDC
+              WHERE NUMPED = NVL(FNC_INT_C5_OBTERNUMPED(a.seqdocto, a.nroempresa, a.nrocheckout), -1)), 'X') Usadebcredrca,
         NULL validadoestacionamento,
         NULL vendaassistida,
         NULL vendanfseried,
