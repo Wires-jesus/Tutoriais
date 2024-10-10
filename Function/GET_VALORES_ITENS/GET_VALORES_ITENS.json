@@ -1,0 +1,5 @@
+{
+ "nome":"GET_VALORES_ITENS",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": []
+}
