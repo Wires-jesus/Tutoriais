@@ -12,7 +12,7 @@ BEGIN
                 N.CODFILIALNF
             FROM PCNFSAID N
             WHERE N.DTSAIDA >= TRUNC(SYSDATE-90)
-            AND N.DTSAIDA < TRUNC(SYSDATE)
+            AND N.DTSAIDA < :DATAFINAL
             AND N.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
             AND N.CONDVENDA IN (1, 5, 7, 9, 11, 14)';
 
