@@ -4,10 +4,15 @@
      {
 	  "nome": "GET_NOTAS_CODIGO_FISCAL",
 	  "tipo": "OBJETO_PLSQL",
-	  "versao": "6.0.01.000"
+	  "versao": "6.0.02.000"
 	 },
 	 {
 	  "nome": "GET_VALORES_FATURAMENTO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.02.000"
+	},
+	{
+	  "nome": "GET_VALORES_ITENS",
 	  "tipo": "OBJETO_PLSQL",
 	  "versao": "6.0.01.000"
 	}
