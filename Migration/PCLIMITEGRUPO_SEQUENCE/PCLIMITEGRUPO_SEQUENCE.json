@@ -1,0 +1,5 @@
+{
+	"nome": "PCLIMITEGRUPO_SEQUENCE",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": []
+}
