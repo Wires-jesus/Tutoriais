@@ -1,0 +1,5 @@
+{
+ "nome":"GET_SQL_LIVRO_SAIDA",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": []
+}
