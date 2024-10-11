@@ -8252,7 +8252,7 @@ END;
       END IF;
       IF V_NF_CONTABILIZADA = 0 THEN 
       -- CONDICIONAL CRIADA PARA NÏ GERAR O LIVRO PARA ESPECIE = NS, POR? A MESMA PRECISA TER A CONTA CONTABIL GERADA MAIS A BAIXO.
-      IF ((V_LISTA_NOTAS(I).ESPECIE = 'NS') OR ((V_IMPEDETIPO14_LIVROFISCAL = 'S') AND (V_LISTA_NOTAS(I).CONDVENDA = 14))) THEN
+      IF (((V_IMPEDETIPO14_LIVROFISCAL = 'S') AND (V_LISTA_NOTAS(I).CONDVENDA = 14))) THEN
          FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL,
                                            V_LISTA_NOTAS(I).DATA,
                                            V_LISTA_NOTAS(I).DATA,
@@ -8277,23 +8277,15 @@ END;
         ---------------------------------------------------------------------------
         -- GERAR INFORMA??ES FINAIS (RECALCULO E ATRIBUI??ES DA LEGISLA??O)
         ---------------------------------------------------------------------------
-        /* Replica? realizada no final da gera? do livro fiscal. N desconsiderar esse c??o
-        FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL,
-                                          V_LISTA_NOTAS(I).DATA,
-                                          V_LISTA_NOTAS(I).DATA,
-                                          V_LISTA_NOTAS(I).NUMTRANSVENDA,
+        if (V_LISTA_NOTAS(I).ESPECIE = 'NS') then
+          FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL,
+                                            V_LISTA_NOTAS(I).DATA,
+                                            V_LISTA_NOTAS(I).DATA,
+                                            V_LISTA_NOTAS(I).NUMTRANSVENDA,
                                           'S');
+        end if;                                  
         -----------------------------------------------
-        --ATUALIZA NATUREZA DE RECEITA PARA MODELO 65 -
-        -----------------------------------------------
-        IF (NVL(SUBSTR(V_LISTA_NOTAS(I).CHAVENFE, 21,2),'XX') = '65')  THEN
-           FISCAL.GERA_NATUREZA_RECEITA(V_LISTA_NOTAS(I).CODFILIAL,
-                                        V_LISTA_NOTAS(I).DATA,
-                                        V_LISTA_NOTAS(I).DATA,
-                                        V_LISTA_NOTAS(I).NUMTRANSVENDA,
-                                        'N');
-        END IF;
-        */
+    
 
         V_CONTADORREGISTRO := V_CONTADORREGISTRO + 1;
         IF V_CONTADORREGISTRO >= V_QUANTIDADECOMMIT THEN

@@ -6239,13 +6239,13 @@ BEGIN
       
       IF V_NF_CONTABILIZADA = 0 THEN
       -- CONDICIONAL CRIADA PARA NÃO GERAR O LIVRO PARA ESPECIE = NS, PORÉM A MESMA PRECISA TER A CONTA CONTABIL GERADA MAIS A BAIXO.
-      IF (V_LISTA_NOTAS(I).ESPECIE = 'NS') THEN
-         FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL, 
-                                           V_LISTA_NOTAS(I).DTENT, 
-                                           V_LISTA_NOTAS(I).DTENT, 
-                                           V_LISTA_NOTAS(I).NUMTRANSENT, 
-                                           'E');
-      ELSE
+     -- IF (V_LISTA_NOTAS(I).ESPECIE = 'NS') THEN
+     --    FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL, 
+    --                                       V_LISTA_NOTAS(I).DTENT, 
+    --                                       V_LISTA_NOTAS(I).DTENT, 
+    --                                       V_LISTA_NOTAS(I).NUMTRANSENT, 
+    --                                       'E');
+    --  ELSE
         -- INSERIR REGISTRO DA NOTA FISCAL
         INSERIR_REGISTRO_NOTA(V_LISTA_NOTAS(I));
         -- REGISTRO DE DESPESA ACESSORIA E FRETE (GERAR SOMENTE NO ULTIMO REGISTRO DE CADA NOTA FISCAL)
@@ -6280,7 +6280,7 @@ BEGIN
           V_CONTADORREGISTRO := 0;
           COMMIT;
         END IF;
-      END IF;
+     -- END IF;
      END IF;
 
     END LOOP;
