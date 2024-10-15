@@ -39,8 +39,8 @@ create or replace procedure GERAR_CIAP(PCODFILIAL               in varchar2, -- 
    V_TOTALTRIBUTADAS          number;
    V_ENTRADATRIBUTADA         number;
    V_ENTRADATOTAL             number;
-   V_SQL                      varchar2(16000);
-   V_SQLETRI                  varchar2(16000);
+   V_SQL                      varchar2(32000);
+   V_SQLETRI                  varchar2(32000);
    V_CFOP_SAIDA_TRIB          varchar2(6000);
    V_DESCONSCFOPSAITRIB       varchar2(1);
    V_CFOP_SAIDA               varchar2(6000);
@@ -49,8 +49,8 @@ create or replace procedure GERAR_CIAP(PCODFILIAL               in varchar2, -- 
    V_GEROU_CIAPITEM           boolean;
    V_EXISTEFILTRO3403TOTSAI   VARCHAR2(1);
    V_EXISTEFILTRO3403SAITRIB  VARCHAR2(1);
-   V_CONDICAOCFOPTOTSAI       VARCHAR2(16000);
-   V_CONDICAOCFOPSAITRIB      VARCHAR2(16000);
+   V_CONDICAOCFOPTOTSAI       VARCHAR2(32000);
+   V_CONDICAOCFOPSAITRIB      VARCHAR2(32000);
    V_EXECUTAR                 VARCHAR2(1);
    V_TODOSPARAMETROS          VARCHAR2(1);
    V_ENCONTROU_CFOP_GRID      VARCHAR2(1);
