@@ -9075,6 +9075,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrItemPedido.nST       := NVL(vrItemPedido.nST,0)            / NVL(vnQtUnitEmbalagem,0);
                   vrItemPedido.nBASEFECP := NVL(vrItemPedido.nBASEFECP,0)      / NVL(vnQtUnitEmbalagem,0);
                   vrItemPedido.nVLFECP   := NVL(vrItemPedido.nVLFECP,0)        / NVL(vnQtUnitEmbalagem,0);
+                  vrItemPedido.nVLIPI    := NVL(vrItemPedido.nVLIPI,0)         / NVL(vnQtUnitEmbalagem,0);
 
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; pVendaSemFator '   || vrItemPedido.nPVENDA;
                   vrItemPedido.vOBSERVACAOSTFONTE := vrItemPedido.vOBSERVACAOSTFONTE || ' ; baseIcstSemFator ' || vrItemPedido.nBASEICST;
