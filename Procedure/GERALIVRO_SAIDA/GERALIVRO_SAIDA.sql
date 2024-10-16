@@ -74,7 +74,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   -------------------------------------------------------------------------------------------
   cursor C_NOTAS_NF(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
   -- 01 - NOTAS FISCAIS DE VENDA
-    select '1' NUMSQL, 
+    select '01' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
@@ -738,7 +738,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   -------------------------------------------------------------------------------------------
   -- 02 - NFCe
     cursor C_NOTAS_NFCE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select '2' NUMSQL, 
+    select '02' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
            A.CHAVENFE,
@@ -1302,7 +1302,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            SUM(VLOUTROS) VLOUTROS,
            0 VL_DESCONTO,
            0 VL_PRODUTO
-      from (select '3' NUMSQL, 
+      from (select '03' NUMSQL, 
                    NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
                    ------------------------------------------------------------------
                    A.NUMTRANSVENDA,
@@ -1667,7 +1667,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 04 - DEVOLUCAO A FORNECEDOR
     cursor C_NOTAS_DEV_FORNEC(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select '4' NUMSQL, 
+    select '04' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
@@ -2236,7 +2236,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 05 - NOTAS FISCAIS SEM ITENS E CONHECIMENTO DE FRETE
     cursor C_NOTAS_SEM_ITENS_E_FRETE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select '5' NUMSQL, 
+    select '05' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
@@ -2576,7 +2576,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 06 - REZU??ES Z (TRIBUTADAS)
     cursor C_NOTAS_REDZ_TRIBUT(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select '6' NUMSQL, 
+    select '06' NUMSQL, 
            A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
@@ -2781,7 +2781,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 07 - REDU??ES Z (CANCELADAS)
     cursor C_NOTAS_REDZ_CANC(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-   select '7' NUMSQL, 
+   select '07' NUMSQL, 
            A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
@@ -2973,7 +2973,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
     -------------------------------------------------------------------------------------------
     -- 08 - REDU??ES Z (N?O TRIBUTADAS)
     cursor C_NOTAS_REDZ_N_TRIB(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
-    select '8' NUMSQL, 
+    select '08' NUMSQL, 
            A.CODFILIAL,
            ------------------------------------------------------------------
            TO_NUMBER('1' ||
@@ -3181,7 +3181,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
 
 cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
     -- 09 - NOTAS FISCAIS COMPLEMENTARES COM ITEM
-    select '9' NUMSQL, 
+    select '09' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            ------------------------------------------------------------------
            A.NUMTRANSVENDA,
