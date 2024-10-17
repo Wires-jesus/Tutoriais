@@ -1,0 +1,5 @@
+{
+  "nome": "TABELA_PCMED_IMPORTARPROMOCAO",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": ""
+ }
