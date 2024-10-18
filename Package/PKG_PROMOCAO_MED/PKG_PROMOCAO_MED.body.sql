@@ -9377,185 +9377,364 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- ITENS DO COMBO - KIT
         -----------------------
         IF    (pi_nTipoChamada = 2) THEN
+			IF ((NVL(vvTipoPromocaoPedido,' ') in ('K')) AND (NVL(vvTipoPoliticaPedido,' ') IN ('Q'))) THEN
+			
+				viQtOcorrenciasOutrasPromo  := 0;
+				vvMsgOcorrenciasOutrasPromo := NULL;
+				FOR vc_Promo IN (SELECT DISTINCT
+										PCDESCONTO.CODPROD
+									  , PCDESCONTO.INICIOINTERVALOPROMOCAOMED
+									  , PCDESCONTO.PERCDESC
+									  , PCDESCONTO.PERCDESCFIN
+									  , MIN(PCDESCONTO.CODDESCONTO) CODDESCONTO -->> Pra não dar Duplicidade
+									  , PCDESCONTO.CODPROMOCAOMED
+									  , PCDESCONTO.PERCOMMINT
+									  , PCDESCONTO.PERCOMEXT
+									  , PCDESCONTO.PERCOMREP
+									  , PCDESCONTO.CONSIDERACALCGIROMEDIC
+									  , PCDESCONTO.PRECOFIXOPROMOCAOMED
+									  , PCPRODUT.DESCRICAO
+									  , PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
+									  , PCPRODUT.CODFORNEC -- DDMEDICA-5009
+									  , PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
+									  , PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
+									  , PCDESCONTO.QTCOMBOMED
+								   FROM PCDESCONTO
+									  , PCPRODUT
+									  , PCPROMOCAOMED
+								  WHERE (PCDESCONTO.CODPROD        = PCPRODUT.CODPROD)
+									AND (PCDESCONTO.CODPROMOCAOMED = pi_nCodPromocaoMedPedido)
+									AND (PCDESCONTO.CODPROMOCAOMED = PCPROMOCAOMED.CODPROMOCAOMED)
+									AND (PCDESCONTO.INICIOINTERVALOPROMOCAOMED > 0) -->> GARANTIR SOMENTE COM QTDE > 0
+									AND (PCDESCONTO.QTCOMBOMED * pi_nQtCombos BETWEEN PCDESCONTO.INICIOINTERVALOPROMOCAOMED AND PCDESCONTO.FIMINTERVALOPROMOCAOMED)
+								  GROUP BY PCDESCONTO.CODPROD
+										 , PCDESCONTO.INICIOINTERVALOPROMOCAOMED
+										 , PCDESCONTO.PERCDESC
+										 , PCDESCONTO.PERCDESCFIN
+										 , PCDESCONTO.CODPROMOCAOMED
+										 , PCDESCONTO.PERCOMMINT
+										 , PCDESCONTO.PERCOMEXT
+										 , PCDESCONTO.PERCOMREP
+										 , PCDESCONTO.CONSIDERACALCGIROMEDIC
+										 , PCDESCONTO.PRECOFIXOPROMOCAOMED
+										 , PCPRODUT.DESCRICAO
+										 , PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
+										 , PCPRODUT.CODFORNEC -- DDMEDICA-5009
+										 , PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
+										 , PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
+										 ,PCDESCONTO.QTCOMBOMED
+										 ) LOOP
 
-          -- Controle de Ocorrências dos Produtos noutras Promoções
-          viQtOcorrenciasOutrasPromo  := 0;
-          vvMsgOcorrenciasOutrasPromo := NULL;
+				  -- Pesquisa ocorrências do Produto em Promoções diferentes
+				  -- (SE NÃO USA CHAVE TRIPLA CRITICA O PRODUTO JÁ INSERIDO)
+				  IF (NVL(vrParamFilial.vUSACHAVETRIPLAPCPEDI,'N') = 'N') THEN
+					BEGIN
+					  SELECT 'S'
+						INTO vvAchouProduto
+						FROM PCPEDI
+					   WHERE (PCPEDI.NUMPED                 = pi_nNumPed)
+						 AND (PCPEDI.CODPROD                = vc_Promo.CODPROD)
+						 AND (NVL(PCPEDI.CODPROMOCAOMED,0) <> NVL(vc_Promo.CODPROMOCAOMED,0))
+						 AND (ROWNUM                        = 1);
+					 EXCEPTION
+					   WHEN NO_DATA_FOUND THEN
+						 vvAchouProduto := 'N';
+					END;
+					IF (vvAchouProduto = 'S') THEN
+					  -- Incrementa Controle de Ocorrências dos Produtos noutras Promoções
+					  viQtOcorrenciasOutrasPromo := NVL(viQtOcorrenciasOutrasPromo,0) + 1;
+					  -- Concatena Produtos
+					  IF (vvMsgOcorrenciasOutrasPromo IS NULL) THEN
+						vvMsgOcorrenciasOutrasPromo := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
+					  ELSE
+						vvMsgOcorrenciasOutrasPromo := vvMsgOcorrenciasOutrasPromo || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
+					  END IF;
+					END IF;
+				  END IF;
 
-          -- Carrega Array com Itens da Promoção
-          FOR vc_Promo IN (SELECT DISTINCT
-                                  PCDESCONTO.CODPROD
-                                , PCDESCONTO.INICIOINTERVALOPROMOCAOMED
-                                , PCDESCONTO.PERCDESC
-                                , PCDESCONTO.PERCDESCFIN
-                                , MIN(PCDESCONTO.CODDESCONTO) CODDESCONTO -->> Pra não dar Duplicidade
-                                , PCDESCONTO.CODPROMOCAOMED
-                                , PCDESCONTO.PERCOMMINT
-                                , PCDESCONTO.PERCOMEXT
-                                , PCDESCONTO.PERCOMREP
-                                , PCDESCONTO.CONSIDERACALCGIROMEDIC
-                                , PCDESCONTO.PRECOFIXOPROMOCAOMED
-                                , PCPRODUT.DESCRICAO
-                                , PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
-                                , PCPRODUT.CODFORNEC -- DDMEDICA-5009
-                                , PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
-                                , PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
-                             FROM PCDESCONTO
-                                , PCPRODUT
-                                , PCPROMOCAOMED
-                            WHERE (PCDESCONTO.CODPROD        = PCPRODUT.CODPROD)
-                              AND (PCDESCONTO.CODPROMOCAOMED = pi_nCodPromocaoMedPedido)
-                              AND (PCDESCONTO.CODPROMOCAOMED = PCPROMOCAOMED.CODPROMOCAOMED)
-                              AND (PCDESCONTO.INICIOINTERVALOPROMOCAOMED > 0) -->> GARANTIR SOMENTE COM QTDE > 0
-                            GROUP BY PCDESCONTO.CODPROD
-                                   , PCDESCONTO.INICIOINTERVALOPROMOCAOMED
-                                   , PCDESCONTO.PERCDESC
-                                   , PCDESCONTO.PERCDESCFIN
-                                   , PCDESCONTO.CODPROMOCAOMED
-                                   , PCDESCONTO.PERCOMMINT
-                                   , PCDESCONTO.PERCOMEXT
-                                   , PCDESCONTO.PERCOMREP
-                                   , PCDESCONTO.CONSIDERACALCGIROMEDIC
-                                   , PCDESCONTO.PRECOFIXOPROMOCAOMED
-                                   , PCPRODUT.DESCRICAO
-                                   , PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
-                                   , PCPRODUT.CODFORNEC -- DDMEDICA-5009
-                                   , PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
-                                   , PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
-                                   ) LOOP
+				  -- Validação Controlados Combo - DDMEDICA-735
+				  PKG_FUNCOESVENDAS_MED.P_VALIDACAO_FINAL_PROD_01('C',
+											   'I',
+											   'N',
+											   vrDadosPedidoAtual.vORIGEMPED,
+											   vrDadosPedidoAtual.vTIPOFV,
+											   NULL, -- pi_nIntegradora
+											   pi_vCodFilial,
+											   pi_vCodFilialNf,
+											   pi_vCodFilialRetira,
+											   pi_nCodCli,
+											   pi_nNumRegiao,
+											   pi_nCodUsur,
+											   pi_nCodPlPag,
+											   NULL, -- pi_nCodPromocaoMed,
+											   vc_Promo.CODPROD,
+											   (NVL(vc_Promo.QTCOMBOMED,0) * NVL(pi_nQtCombos,0)),
+											   NULL, -- pi_nPercDesc
+											   NULL, -- pi_nPUnitario
+											   NULL, -- pi_nNumPed
+											   NULL, -- pi_nNumSeq
+											   0.01, -- pi_nPrecoMaxConsum
+											   vrRetValidaProd.vTipoRejeicaoProduto,
+											   vrRetValidaProd.vMotivoNaoPodeComprar,
+											   vrRetValidaProd.nQtdeLimite,
+											   NULL, -- pi_nCodDesconto
+											   NULL, -- pi_vNumLote
+											   NULL, -- pi_vNumLotePromocaoMed
+											   NULL, -- pi_nPTabela
+											   NULL, -- pi_nPTabelaMarkup
+											   NULL  -- pi_nCustoFin
+											   );
+				  IF (vrRetValidaProd.vTipoRejeicaoProduto = 'R') THEN
+					-- Incrementa Controle de Ocorrências dos Controlados
+					viQtOcorrenciasControlados := NVL(viQtOcorrenciasControlados,0) + 1;
+					-- Concatena Produtos
+					IF (vvMsgOcorrenciasControlados IS NULL) THEN
+					  vvMsgOcorrenciasControlados := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
+					ELSE
+					  vvMsgOcorrenciasControlados := vvMsgOcorrenciasControlados || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
+					END IF;
+				  END IF;
 
-            -- Pesquisa ocorrências do Produto em Promoções diferentes
-            -- (SE NÃO USA CHAVE TRIPLA CRITICA O PRODUTO JÁ INSERIDO)
-            IF (NVL(vrParamFilial.vUSACHAVETRIPLAPCPEDI,'N') = 'N') THEN
-              BEGIN
-                SELECT 'S'
-                  INTO vvAchouProduto
-                  FROM PCPEDI
-                 WHERE (PCPEDI.NUMPED                 = pi_nNumPed)
-                   AND (PCPEDI.CODPROD                = vc_Promo.CODPROD)
-                   AND (NVL(PCPEDI.CODPROMOCAOMED,0) <> NVL(vc_Promo.CODPROMOCAOMED,0))
-                   AND (ROWNUM                        = 1);
-               EXCEPTION
-                 WHEN NO_DATA_FOUND THEN
-                   vvAchouProduto := 'N';
-              END;
-              IF (vvAchouProduto = 'S') THEN
-                -- Incrementa Controle de Ocorrências dos Produtos noutras Promoções
-                viQtOcorrenciasOutrasPromo := NVL(viQtOcorrenciasOutrasPromo,0) + 1;
-                -- Concatena Produtos
-                IF (vvMsgOcorrenciasOutrasPromo IS NULL) THEN
-                  vvMsgOcorrenciasOutrasPromo := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
-                ELSE
-                  vvMsgOcorrenciasOutrasPromo := vvMsgOcorrenciasOutrasPromo || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
-                END IF;
-              END IF;
-            END IF;
+				  -- Insere Item no Array
+				  viIdxNew                                           := NVL(vtIncluiItens.COUNT,0) + 1;
+				  vtIncluiItens(viIdxNew).vnCodProd                  := vc_Promo.CODPROD;
+				  vtIncluiItens(viIdxNew).vnQtde                     := (NVL(vc_Promo.QTCOMBOMED,0) * NVL(pi_nQtCombos,0)); -->> MULTIPLICA PELA QUANTIDADE DE COMBOS
+				  vtIncluiItens(viIdxNew).vnPercDesc                 := NVL(vc_Promo.PERCDESC,0);
+				  vtIncluiItens(viIdxNew).vnPerDescBoleto            := NVL(vc_Promo.PERCDESCFIN,0);
+				  vtIncluiItens(viIdxNew).vnCodDesconto              := vc_Promo.CODDESCONTO;
+				  vtIncluiItens(viIdxNew).vnCodPromocaoMed           := vc_Promo.CODPROMOCAOMED;
+				  vtIncluiItens(viIdxNew).vnInicioIntervaloDescQuant := vc_Promo.INICIOINTERVALOPROMOCAOMED; -->> AQUI NÃO PODE COLOCAR NVL()
+				  -- Comissão por Grupo vinculado na PCPROMOCAOMED - DDVENDAS-35939
+				  IF (NVL(vc_Promo.PRIORIZACOMISSAO,'N') = 'S') AND
+					 (NVL(vc_Promo.CODGRUPOCOMISSAO,0) > 0)     THEN
+					vtIncluiItens(viIdxNew).vnPerComInt              := F_OBTER_COMISS_GRUPO_PROMOCAO(pi_nCodPromocaoMedPedido,
+																									  vc_Promo.CODGRUPOCOMISSAO,
+																									  vc_Promo.CODPROD);
+					vtIncluiItens(viIdxNew).vnPerComExt              := vtIncluiItens(viIdxNew).vnPerComInt;
+					vtIncluiItens(viIdxNew).vnPerComRep              := vtIncluiItens(viIdxNew).vnPerComInt;
+				  -- Comissão da PCDESCONTO              
+				  ELSE
+					vtIncluiItens(viIdxNew).vnPerComInt              := NVL(vc_Promo.PERCOMMINT,0);
+					vtIncluiItens(viIdxNew).vnPerComExt              := NVL(vc_Promo.PERCOMEXT,0);
+					vtIncluiItens(viIdxNew).vnPerComRep              := NVL(vc_Promo.PERCOMREP,0);
+				  END IF;              
+				  vtIncluiItens(viIdxNew).vvParticipaGiro            := NVL(vc_Promo.CONSIDERACALCGIROMEDIC,'S');
+				  vtIncluiItens(viIdxNew).vnPrecoFixo                := NVL(vc_Promo.PRECOFIXOPROMOCAOMED,0);
+				  vtIncluiItens(viIdxNew).vvBonific                  := 'N';
+				  vtIncluiItens(viIdxNew).vnPBonific                 := NULL;
+				  vtIncluiItens(viIdxNew).vnCodSt                    := NULL;
+				  -- Verba para Rebaixa de CMV da Promoção - DDMEDICA-5009
+				  vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed     := vc_Promo.VLDESCCMVPROMOCAOMED;
+				  -- Obter Verba Relacionada com o Valor da Verba para Rebaixa de CMV da Promoção da PCDESCONTO - DDMEDICA-5009
+				  P_OBTER_VERBA_PROMOCAO(vc_Promo.CODPROMOCAOMED,
+										 vc_Promo.CODFORNEC,
+										 vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed,
+										 vtIncluiItens(viIdxNew).vnNumVerbaCampanha,
+										 vtIncluiItens(viIdxNew).vnValorCotaNumVerba,
+										 vtIncluiItens(viIdxNew).vvSemVerbaVlDescCmv);
 
-            -- Validação Controlados Combo - DDMEDICA-735
-            PKG_FUNCOESVENDAS_MED.P_VALIDACAO_FINAL_PROD_01('C',
-                                         'I',
-                                         'N',
-                                         vrDadosPedidoAtual.vORIGEMPED,
-                                         vrDadosPedidoAtual.vTIPOFV,
-                                         NULL, -- pi_nIntegradora
-                                         pi_vCodFilial,
-                                         pi_vCodFilialNf,
-                                         pi_vCodFilialRetira,
-                                         pi_nCodCli,
-                                         pi_nNumRegiao,
-                                         pi_nCodUsur,
-                                         pi_nCodPlPag,
-                                         NULL, -- pi_nCodPromocaoMed,
-                                         vc_Promo.CODPROD,
-                                         (NVL(vc_Promo.INICIOINTERVALOPROMOCAOMED,0) * NVL(pi_nQtCombos,0)),
-                                         NULL, -- pi_nPercDesc
-                                         NULL, -- pi_nPUnitario
-                                         NULL, -- pi_nNumPed
-                                         NULL, -- pi_nNumSeq
-                                         0.01, -- pi_nPrecoMaxConsum
-                                         vrRetValidaProd.vTipoRejeicaoProduto,
-                                         vrRetValidaProd.vMotivoNaoPodeComprar,
-                                         vrRetValidaProd.nQtdeLimite,
-                                         NULL, -- pi_nCodDesconto
-                                         NULL, -- pi_vNumLote
-                                         NULL, -- pi_vNumLotePromocaoMed
-                                         NULL, -- pi_nPTabela
-                                         NULL, -- pi_nPTabelaMarkup
-                                         NULL  -- pi_nCustoFin
-                                         );
-            IF (vrRetValidaProd.vTipoRejeicaoProduto = 'R') THEN
-              -- Incrementa Controle de Ocorrências dos Controlados
-              viQtOcorrenciasControlados := NVL(viQtOcorrenciasControlados,0) + 1;
-              -- Concatena Produtos
-              IF (vvMsgOcorrenciasControlados IS NULL) THEN
-                vvMsgOcorrenciasControlados := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
-              ELSE
-                vvMsgOcorrenciasControlados := vvMsgOcorrenciasControlados || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
-              END IF;
-            END IF;
+				END LOOP; -- Fim Laço Itens da Promoção
 
-            -- Insere Item no Array
-            viIdxNew                                           := NVL(vtIncluiItens.COUNT,0) + 1;
-            vtIncluiItens(viIdxNew).vnCodProd                  := vc_Promo.CODPROD;
-            vtIncluiItens(viIdxNew).vnQtde                     := (NVL(vc_Promo.INICIOINTERVALOPROMOCAOMED,0) * NVL(pi_nQtCombos,0)); -->> MULTIPLICA PELA QUANTIDADE DE COMBOS
-            vtIncluiItens(viIdxNew).vnPercDesc                 := NVL(vc_Promo.PERCDESC,0);
-            vtIncluiItens(viIdxNew).vnPerDescBoleto            := NVL(vc_Promo.PERCDESCFIN,0);
-            vtIncluiItens(viIdxNew).vnCodDesconto              := vc_Promo.CODDESCONTO;
-            vtIncluiItens(viIdxNew).vnCodPromocaoMed           := vc_Promo.CODPROMOCAOMED;
-            vtIncluiItens(viIdxNew).vnInicioIntervaloDescQuant := vc_Promo.INICIOINTERVALOPROMOCAOMED; -->> AQUI NÃO PODE COLOCAR NVL()
-            -- Comissão por Grupo vinculado na PCPROMOCAOMED - DDVENDAS-35939
-            IF (NVL(vc_Promo.PRIORIZACOMISSAO,'N') = 'S') AND
-               (NVL(vc_Promo.CODGRUPOCOMISSAO,0) > 0)     THEN
-              vtIncluiItens(viIdxNew).vnPerComInt              := F_OBTER_COMISS_GRUPO_PROMOCAO(pi_nCodPromocaoMedPedido,
-                                                                                                vc_Promo.CODGRUPOCOMISSAO,
-                                                                                                vc_Promo.CODPROD);
-              vtIncluiItens(viIdxNew).vnPerComExt              := vtIncluiItens(viIdxNew).vnPerComInt;
-              vtIncluiItens(viIdxNew).vnPerComRep              := vtIncluiItens(viIdxNew).vnPerComInt;
-            -- Comissão da PCDESCONTO              
-            ELSE
-              vtIncluiItens(viIdxNew).vnPerComInt              := NVL(vc_Promo.PERCOMMINT,0);
-              vtIncluiItens(viIdxNew).vnPerComExt              := NVL(vc_Promo.PERCOMEXT,0);
-              vtIncluiItens(viIdxNew).vnPerComRep              := NVL(vc_Promo.PERCOMREP,0);
-            END IF;              
-            vtIncluiItens(viIdxNew).vvParticipaGiro            := NVL(vc_Promo.CONSIDERACALCGIROMEDIC,'S');
-            vtIncluiItens(viIdxNew).vnPrecoFixo                := NVL(vc_Promo.PRECOFIXOPROMOCAOMED,0);
-            vtIncluiItens(viIdxNew).vvBonific                  := 'N';
-            vtIncluiItens(viIdxNew).vnPBonific                 := NULL;
-            vtIncluiItens(viIdxNew).vnCodSt                    := NULL;
-            -- Verba para Rebaixa de CMV da Promoção - DDMEDICA-5009
-            vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed     := vc_Promo.VLDESCCMVPROMOCAOMED;
-            -- Obter Verba Relacionada com o Valor da Verba para Rebaixa de CMV da Promoção da PCDESCONTO - DDMEDICA-5009
-            P_OBTER_VERBA_PROMOCAO(vc_Promo.CODPROMOCAOMED,
-                                   vc_Promo.CODFORNEC,
-                                   vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed,
-                                   vtIncluiItens(viIdxNew).vnNumVerbaCampanha,
-                                   vtIncluiItens(viIdxNew).vnValorCotaNumVerba,
-                                   vtIncluiItens(viIdxNew).vvSemVerbaVlDescCmv);
+				-- Se Ocorrências dos Produtos noutras Promoções
+				IF (viQtOcorrenciasOutrasPromo > 0) THEN
+				  IF    (viQtOcorrenciasOutrasPromo = 1) THEN
+					vvMsgOcorrenciasOutrasPromo := 'Produto encontrado no Pedido para outra Promoção: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
+				  ELSIF (viQtOcorrenciasOutrasPromo > 1) THEN
+					vvMsgOcorrenciasOutrasPromo := 'Produtos encontrados no Pedido para outras Promoções: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
+				  END IF;
+				  po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasOutrasPromo,1,2000);
+				  RAISE e_Tratado;
+				END IF;
 
-          END LOOP; -- Fim Laço Itens da Promoção
+				-- Se Ocorrências dos Produtos Controlados
+				IF (viQtOcorrenciasControlados > 0) THEN
+				  IF    (viQtOcorrenciasControlados = 1) THEN
+					vvMsgOcorrenciasControlados := 'Produto Controlado não permitido no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
+				  ELSIF (viQtOcorrenciasControlados > 1) THEN
+					vvMsgOcorrenciasControlados := 'Produtos Controlados não permitidos no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
+				  END IF;
+				  po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasControlados,1,2000);
+				  RAISE e_Tratado;
+				END IF;
+			ELSE
+			  -- Controle de Ocorrências dos Produtos noutras Promoções
+			  viQtOcorrenciasOutrasPromo  := 0;
+			  vvMsgOcorrenciasOutrasPromo := NULL;
 
-          -- Se Ocorrências dos Produtos noutras Promoções
-          IF (viQtOcorrenciasOutrasPromo > 0) THEN
-            IF    (viQtOcorrenciasOutrasPromo = 1) THEN
-              vvMsgOcorrenciasOutrasPromo := 'Produto encontrado no Pedido para outra Promoção: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
-            ELSIF (viQtOcorrenciasOutrasPromo > 1) THEN
-              vvMsgOcorrenciasOutrasPromo := 'Produtos encontrados no Pedido para outras Promoções: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
-            END IF;
-            po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasOutrasPromo,1,2000);
-            RAISE e_Tratado;
-          END IF;
+			  -- Carrega Array com Itens da Promoção
+			  FOR vc_Promo IN (SELECT DISTINCT
+									  PCDESCONTO.CODPROD
+									, PCDESCONTO.INICIOINTERVALOPROMOCAOMED
+									, PCDESCONTO.PERCDESC
+									, PCDESCONTO.PERCDESCFIN
+									, MIN(PCDESCONTO.CODDESCONTO) CODDESCONTO -->> Pra não dar Duplicidade
+									, PCDESCONTO.CODPROMOCAOMED
+									, PCDESCONTO.PERCOMMINT
+									, PCDESCONTO.PERCOMEXT
+									, PCDESCONTO.PERCOMREP
+									, PCDESCONTO.CONSIDERACALCGIROMEDIC
+									, PCDESCONTO.PRECOFIXOPROMOCAOMED
+									, PCPRODUT.DESCRICAO
+									, PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
+									, PCPRODUT.CODFORNEC -- DDMEDICA-5009
+									, PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
+									, PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
+								 FROM PCDESCONTO
+									, PCPRODUT
+									, PCPROMOCAOMED
+								WHERE (PCDESCONTO.CODPROD        = PCPRODUT.CODPROD)
+								  AND (PCDESCONTO.CODPROMOCAOMED = pi_nCodPromocaoMedPedido)
+								  AND (PCDESCONTO.CODPROMOCAOMED = PCPROMOCAOMED.CODPROMOCAOMED)
+								  AND (PCDESCONTO.INICIOINTERVALOPROMOCAOMED > 0) -->> GARANTIR SOMENTE COM QTDE > 0
+								GROUP BY PCDESCONTO.CODPROD
+									   , PCDESCONTO.INICIOINTERVALOPROMOCAOMED
+									   , PCDESCONTO.PERCDESC
+									   , PCDESCONTO.PERCDESCFIN
+									   , PCDESCONTO.CODPROMOCAOMED
+									   , PCDESCONTO.PERCOMMINT
+									   , PCDESCONTO.PERCOMEXT
+									   , PCDESCONTO.PERCOMREP
+									   , PCDESCONTO.CONSIDERACALCGIROMEDIC
+									   , PCDESCONTO.PRECOFIXOPROMOCAOMED
+									   , PCPRODUT.DESCRICAO
+									   , PCDESCONTO.VLDESCCMVPROMOCAOMED -- DDMEDICA-5009
+									   , PCPRODUT.CODFORNEC -- DDMEDICA-5009
+									   , PCPROMOCAOMED.PRIORIZACOMISSAO -- DDVENDAS-35939
+									   , PCPROMOCAOMED.CODGRUPOCOMISSAO -- DDVENDAS-35939
+									   ) LOOP
 
-          -- Se Ocorrências dos Produtos Controlados
-          IF (viQtOcorrenciasControlados > 0) THEN
-            IF    (viQtOcorrenciasControlados = 1) THEN
-              vvMsgOcorrenciasControlados := 'Produto Controlado não permitido no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
-            ELSIF (viQtOcorrenciasControlados > 1) THEN
-              vvMsgOcorrenciasControlados := 'Produtos Controlados não permitidos no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
-            END IF;
-            po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasControlados,1,2000);
-            RAISE e_Tratado;
-          END IF;
+				-- Pesquisa ocorrências do Produto em Promoções diferentes
+				-- (SE NÃO USA CHAVE TRIPLA CRITICA O PRODUTO JÁ INSERIDO)
+				IF (NVL(vrParamFilial.vUSACHAVETRIPLAPCPEDI,'N') = 'N') THEN
+				  BEGIN
+					SELECT 'S'
+					  INTO vvAchouProduto
+					  FROM PCPEDI
+					 WHERE (PCPEDI.NUMPED                 = pi_nNumPed)
+					   AND (PCPEDI.CODPROD                = vc_Promo.CODPROD)
+					   AND (NVL(PCPEDI.CODPROMOCAOMED,0) <> NVL(vc_Promo.CODPROMOCAOMED,0))
+					   AND (ROWNUM                        = 1);
+				   EXCEPTION
+					 WHEN NO_DATA_FOUND THEN
+					   vvAchouProduto := 'N';
+				  END;
+				  IF (vvAchouProduto = 'S') THEN
+					-- Incrementa Controle de Ocorrências dos Produtos noutras Promoções
+					viQtOcorrenciasOutrasPromo := NVL(viQtOcorrenciasOutrasPromo,0) + 1;
+					-- Concatena Produtos
+					IF (vvMsgOcorrenciasOutrasPromo IS NULL) THEN
+					  vvMsgOcorrenciasOutrasPromo := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
+					ELSE
+					  vvMsgOcorrenciasOutrasPromo := vvMsgOcorrenciasOutrasPromo || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO;
+					END IF;
+				  END IF;
+				END IF;
 
+				-- Validação Controlados Combo - DDMEDICA-735
+				PKG_FUNCOESVENDAS_MED.P_VALIDACAO_FINAL_PROD_01('C',
+											 'I',
+											 'N',
+											 vrDadosPedidoAtual.vORIGEMPED,
+											 vrDadosPedidoAtual.vTIPOFV,
+											 NULL, -- pi_nIntegradora
+											 pi_vCodFilial,
+											 pi_vCodFilialNf,
+											 pi_vCodFilialRetira,
+											 pi_nCodCli,
+											 pi_nNumRegiao,
+											 pi_nCodUsur,
+											 pi_nCodPlPag,
+											 NULL, -- pi_nCodPromocaoMed,
+											 vc_Promo.CODPROD,
+											 (NVL(vc_Promo.INICIOINTERVALOPROMOCAOMED,0) * NVL(pi_nQtCombos,0)),
+											 NULL, -- pi_nPercDesc
+											 NULL, -- pi_nPUnitario
+											 NULL, -- pi_nNumPed
+											 NULL, -- pi_nNumSeq
+											 0.01, -- pi_nPrecoMaxConsum
+											 vrRetValidaProd.vTipoRejeicaoProduto,
+											 vrRetValidaProd.vMotivoNaoPodeComprar,
+											 vrRetValidaProd.nQtdeLimite,
+											 NULL, -- pi_nCodDesconto
+											 NULL, -- pi_vNumLote
+											 NULL, -- pi_vNumLotePromocaoMed
+											 NULL, -- pi_nPTabela
+											 NULL, -- pi_nPTabelaMarkup
+											 NULL  -- pi_nCustoFin
+											 );
+				IF (vrRetValidaProd.vTipoRejeicaoProduto = 'R') THEN
+				  -- Incrementa Controle de Ocorrências dos Controlados
+				  viQtOcorrenciasControlados := NVL(viQtOcorrenciasControlados,0) + 1;
+				  -- Concatena Produtos
+				  IF (vvMsgOcorrenciasControlados IS NULL) THEN
+					vvMsgOcorrenciasControlados := vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
+				  ELSE
+					vvMsgOcorrenciasControlados := vvMsgOcorrenciasControlados || CHR(13) || vc_Promo.CODPROD || ' - ' || vc_Promo.DESCRICAO || ': ' || vrRetValidaProd.vMotivoNaoPodeComprar;
+				  END IF;
+				END IF;
+
+				-- Insere Item no Array
+				viIdxNew                                           := NVL(vtIncluiItens.COUNT,0) + 1;
+				vtIncluiItens(viIdxNew).vnCodProd                  := vc_Promo.CODPROD;
+				vtIncluiItens(viIdxNew).vnQtde                     := (NVL(vc_Promo.INICIOINTERVALOPROMOCAOMED,0) * NVL(pi_nQtCombos,0)); -->> MULTIPLICA PELA QUANTIDADE DE COMBOS
+				vtIncluiItens(viIdxNew).vnPercDesc                 := NVL(vc_Promo.PERCDESC,0);
+				vtIncluiItens(viIdxNew).vnPerDescBoleto            := NVL(vc_Promo.PERCDESCFIN,0);
+				vtIncluiItens(viIdxNew).vnCodDesconto              := vc_Promo.CODDESCONTO;
+				vtIncluiItens(viIdxNew).vnCodPromocaoMed           := vc_Promo.CODPROMOCAOMED;
+				vtIncluiItens(viIdxNew).vnInicioIntervaloDescQuant := vc_Promo.INICIOINTERVALOPROMOCAOMED; -->> AQUI NÃO PODE COLOCAR NVL()
+				-- Comissão por Grupo vinculado na PCPROMOCAOMED - DDVENDAS-35939
+				IF (NVL(vc_Promo.PRIORIZACOMISSAO,'N') = 'S') AND
+				   (NVL(vc_Promo.CODGRUPOCOMISSAO,0) > 0)     THEN
+				  vtIncluiItens(viIdxNew).vnPerComInt              := F_OBTER_COMISS_GRUPO_PROMOCAO(pi_nCodPromocaoMedPedido,
+																									vc_Promo.CODGRUPOCOMISSAO,
+																									vc_Promo.CODPROD);
+				  vtIncluiItens(viIdxNew).vnPerComExt              := vtIncluiItens(viIdxNew).vnPerComInt;
+				  vtIncluiItens(viIdxNew).vnPerComRep              := vtIncluiItens(viIdxNew).vnPerComInt;
+				-- Comissão da PCDESCONTO              
+				ELSE
+				  vtIncluiItens(viIdxNew).vnPerComInt              := NVL(vc_Promo.PERCOMMINT,0);
+				  vtIncluiItens(viIdxNew).vnPerComExt              := NVL(vc_Promo.PERCOMEXT,0);
+				  vtIncluiItens(viIdxNew).vnPerComRep              := NVL(vc_Promo.PERCOMREP,0);
+				END IF;              
+				vtIncluiItens(viIdxNew).vvParticipaGiro            := NVL(vc_Promo.CONSIDERACALCGIROMEDIC,'S');
+				vtIncluiItens(viIdxNew).vnPrecoFixo                := NVL(vc_Promo.PRECOFIXOPROMOCAOMED,0);
+				vtIncluiItens(viIdxNew).vvBonific                  := 'N';
+				vtIncluiItens(viIdxNew).vnPBonific                 := NULL;
+				vtIncluiItens(viIdxNew).vnCodSt                    := NULL;
+				-- Verba para Rebaixa de CMV da Promoção - DDMEDICA-5009
+				vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed     := vc_Promo.VLDESCCMVPROMOCAOMED;
+				-- Obter Verba Relacionada com o Valor da Verba para Rebaixa de CMV da Promoção da PCDESCONTO - DDMEDICA-5009
+				P_OBTER_VERBA_PROMOCAO(vc_Promo.CODPROMOCAOMED,
+									   vc_Promo.CODFORNEC,
+									   vtIncluiItens(viIdxNew).vnVlDescCmvPromocaoMed,
+									   vtIncluiItens(viIdxNew).vnNumVerbaCampanha,
+									   vtIncluiItens(viIdxNew).vnValorCotaNumVerba,
+									   vtIncluiItens(viIdxNew).vvSemVerbaVlDescCmv);
+
+			  END LOOP; -- Fim Laço Itens da Promoção
+
+			  -- Se Ocorrências dos Produtos noutras Promoções
+			  IF (viQtOcorrenciasOutrasPromo > 0) THEN
+				IF    (viQtOcorrenciasOutrasPromo = 1) THEN
+				  vvMsgOcorrenciasOutrasPromo := 'Produto encontrado no Pedido para outra Promoção: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
+				ELSIF (viQtOcorrenciasOutrasPromo > 1) THEN
+				  vvMsgOcorrenciasOutrasPromo := 'Produtos encontrados no Pedido para outras Promoções: ' || CHR(13) || vvMsgOcorrenciasOutrasPromo;
+				END IF;
+				po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasOutrasPromo,1,2000);
+				RAISE e_Tratado;
+			  END IF;
+
+			  -- Se Ocorrências dos Produtos Controlados
+			  IF (viQtOcorrenciasControlados > 0) THEN
+				IF    (viQtOcorrenciasControlados = 1) THEN
+				  vvMsgOcorrenciasControlados := 'Produto Controlado não permitido no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
+				ELSIF (viQtOcorrenciasControlados > 1) THEN
+				  vvMsgOcorrenciasControlados := 'Produtos Controlados não permitidos no Combo: ' || CHR(13) || vvMsgOcorrenciasControlados;
+				END IF;
+				po_vMotivoNaoPodeGravar := SUBSTR(vvMsgOcorrenciasControlados,1,2000);
+				RAISE e_Tratado;
+			  END IF;
+			END IF;
         --------------------------------
         -- ITENS DO EMPENHO DA LICITAÇÃO
         --------------------------------
@@ -14787,24 +14966,247 @@ IS PRAGMA SERIALLY_REUSABLE;
                     -- ATUALIZAÇÃO DO KIT
                     -- *** Inclusive BONIFICAÇÃO EM MERCADORIA DE PROMOÇÃO
                     ELSE
-
-                      -- Atualiza
-                      IF (vvCodFilialRetira IS NULL) THEN
-                        UPDATE PCPEDI
-                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
-                               QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
-                         WHERE (NUMPED         = pi_nNumPed)
-                           AND (CODPROD        = vrItemPedido.nCODPROD)
-                           AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
+						IF ((NVL(vvTipoPromocaoPedido,' ') in ('K')) AND (NVL(vvTipoPoliticaPedido,' ') IN ('Q'))) THEN
+							 IF (vvCodFilialRetira IS NULL) THEN
+								  UPDATE PCPEDI
+									 SET QT = NVL(vrItemPedido.nQT,0)
+										 , QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
+										 , BASEICST                  = vrItemPedido.nBASEICST
+										 , ST                        = vrItemPedido.nST
+										 , PERFRETECMV               = vrItemPedido.nPERFRETECMV
+										 , CUSTOFINEST               = vrItemPedido.nCUSTOFINEST
+										 , TXVENDA                   = vrItemPedido.nTXVENDA
+										 , PERDESCCUSTO              = vrItemPedido.nPERDESCCUSTO
+										 , CODICMTAB                 = vrItemPedido.nCODICMTAB
+										 , VLCUSTOFIN                = vrItemPedido.nVLCUSTOFIN
+										 , VLCUSTOREAL               = vrItemPedido.nVLCUSTOREAL
+										 , VLDESCCUSTOCMV            = vrItemPedido.nVLDESCCUSTOCMV
+										   --
+										 , PVENDA                   = vrItemPedido.nPVENDA
+										 , PTABELA                  = vrItemPedido.nPTABELA
+										 , PBASERCA                 = vrItemPedido.nPBASERCA
+										 , STPBASERCA               = vrItemPedido.nSTPBASERCA
+										 , STPTABELA                = vrItemPedido.nSTPTABELA
+										 , REGIMEESPISENSTFONTE     = vrItemPedido.nREGIMEESPISENSTFONTE
+										 , ALIQICMS1                = vrItemPedido.nALIQICMS1
+										 , ALIQICMS2                = vrItemPedido.nALIQICMS2
+										 , IVA                      = vrItemPedido.nIVA
+										 , PERCBASEREDSTFONTE       = vrItemPedido.nPERCBASEREDSTFONTE
+										   --
+										 , PERDESC                  = vrItemPedido.nPERDESC
+										 , PERDESCBOLETO            = vrItemPedido.nPERDESCBOLETO
+										 , VLDESCBOLETO             = vrItemPedido.nPERDESCBOLETO
+										 , CODDESCONTO              = vrItemPedido.nCODDESCONTO
+										 , CODPROMOCAOMED           = vrItemPedido.nCODPROMOCAOMED
+										 , INICIOINTERVALODESCQUANT = vrItemPedido.nINICIOINTERVALODESCQUANT
+										 , PERCOM                   = vrItemPedido.nPERCOM
+										 , PARTICIPAGIRO            = vrItemPedido.vPARTICIPAGIRO
+										 --
+										 , PERBONIFIC               = vrItemPedido.nPERBONIFIC
+										 , VLBONIFIC                = vrItemPedido.nVLBONIFIC
+										 --
+										 , VLREDPVENDASIMPLESNA     = vrItemPedido.nVLREDPVENDASIMPLESNA
+										 , VLREDCMVSIMPLESNAC       = vrItemPedido.nVLREDCMVSIMPLESNAC
+										 --
+										 , PRAZOMEDIO               = vrItemPedido.nPRAZOMEDIO          -- HIS.01240.2016
+										 , VLTAXAPRAZOMEDCMV        = vrItemPedido.nVLTAXAPRAZOMEDCMV   -- HIS.01240.2016
+										 , PERCTAXAPRAZOMEDCMV      = vrItemPedido.nPERCTAXAPRAZOMEDCMV -- HIS.01240.2016
+										 , VLDESCBOLETOCMV          = vrItemPedido.nVLDESCBOLETOCMV     -- HIS.01240.2016
+										 --
+										 , VLBASEPARTDEST           = vrItemPedido.nVLBASEPARTDEST
+										 , ALIQFCP                  = vrItemPedido.nALIQFCP
+										 , VLFCPPART                = vrItemPedido.nVLFCPPART
+										 , VLICMSPARTDEST           = vrItemPedido.nVLICMSPARTDEST
+										 , VLICMSPART               = vrItemPedido.nVLICMSPART
+										 , VLICMSDIFALIQPART        = vrItemPedido.nVLICMSDIFALIQPART
+										 , PERCBASEREDPART          = vrItemPedido.nPERCBASEREDPART
+										 , PERCPROVPART             = vrItemPedido.nPERCPROVPART
+										 , VLICMSPARTREM            = vrItemPedido.nVLICMSPARTREM
+										 , ALIQINTERNADEST          = vrItemPedido.nALIQINTERNADEST
+										 , ALIQINTERORIGPART        = vrItemPedido.nALIQINTERORIGPART
+										 , CODFISCAL                = vrItemPedido.nCODFISCAL -- HIS.03261.2016
+										 , SITTRIBUT                = vrItemPedido.vSITTRIBUT -- HIS.03261.2016
+										 -->> Somente Grava na Inclusão (Log Combo) - CAMPO TIPOCOMISSAOMED não atualiza aqui
+										 , PAUTA                    = vrItemPedido.nPAUTA -- HIS.03376.2017
+										 , OBSERVACAOSTFONTE        = vrItemPedido.vOBSERVACAOSTFONTE  -- HIS.03376.2017
+										 , INDESCALARELEVANTE       = vrItemPedido.vINDESCALARELEVANTE -- HIS.03376.2017
+										 , CNPJFABRICANTE           = vrItemPedido.vCNPJFABRICANTE -- HIS.03376.2017
+										 , FABRICANTE               = vrItemPedido.vFABRICANTE -- HIS.03376.2017
+										 -- MED-1090 - Valores FCP
+										 , VLFECP                   = vrItemPedido.nVLFECP
+										 , VLBASEFCPST              = vrItemPedido.nVLBASEFCPST
+										 , ALIQICMSFECP             = vrItemPedido.nALIQICMSFECP
+										 -- MED-2453
+										 , VLVERBACMVCLI            = vrItemPedido.nVLVERBACMVCLI
+										 -- DDMEDICA-1172
+										 , VLDESCSUFRAMA            = vrItemPedido.nVLDESCSUFRAMA
+										 , VLDESCPISSUFRAMA         = vrItemPedido.nVLDESCPISSUFRAMA
+										 , VLDESCREDUCAOPIS         = vrItemPedido.nVLDESCREDUCAOPIS
+										 , PERCDESCPIS              = vrItemPedido.nPERCDESCPIS
+										 , VLDESCREDUCAOCOFINS      = vrItemPedido.nVLDESCREDUCAOCOFINS
+										 , PERCDESCCOFINS           = vrItemPedido.nPERCDESCCOFINS
+										 --
+										 , CODIGOINTEGRACAOWMS      = vrItemPedido.vCODIGOINTEGRACAOWMS
+										 -- DDMEDICA-5009
+										 , VLDESCCMVPROMOCAOMED     = vrItemPedido.nVLDESCCMVPROMOCAOMED
+										 , NUMVERBACAMPANHA         = vrItemPedido.nNUMVERBACAMPANHA
+										 , VLVERBACMV               = vrItemPedido.nVLVERBACMV
+										 , PERCCUSTFORNEC           = vrItemPedido.nPERCCUSTFORNEC
+										 --
+										 , VLDESCICMISENCAO         = vrItemPedido.nVLDESCICMISENCAO  -- DDMEDICA-6874
+										 , PERDESCISENTOICMS        = vrItemPedido.nPERDESCISENTOICMS -- DDMEDICA-6874
+										 -- DDMEDICA-7697
+										 , BCSTRETANTERIOR          = vrItemPedido.nBCSTRETANTERIOR
+										 , VLICMSSUBSTITUTOANTERIOR = vrItemPedido.nVLICMSSUBSTITUTOANTERIOR
+										 , VLICMSSTRETANTERIOR      = vrItemPedido.nVLICMSSTRETANTERIOR                           
+										 , STCLIENTEGNRE            = vrItemPedido.nSTCLIENTEGNRE
+										 , PMPFMEDICAMENTO          = vrItemPedido.nPMPFMEDICAMENTO
+								   WHERE (NUMPED         = pi_nNumPed)
+									 AND (CODPROD        = vrItemPedido.nCODPROD)
+									 AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
+								ELSE
+								  UPDATE PCPEDI
+									 SET QT = NVL(vrItemPedido.nQT,0)
+										 , QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
+										 , BASEICST                  = vrItemPedido.nBASEICST
+										 , ST                        = vrItemPedido.nST
+										 , PERFRETECMV               = vrItemPedido.nPERFRETECMV
+										 , CUSTOFINEST               = vrItemPedido.nCUSTOFINEST
+										 , TXVENDA                   = vrItemPedido.nTXVENDA
+										 , PERDESCCUSTO              = vrItemPedido.nPERDESCCUSTO
+										 , CODICMTAB                 = vrItemPedido.nCODICMTAB
+										 , VLCUSTOFIN                = vrItemPedido.nVLCUSTOFIN
+										 , VLCUSTOREAL               = vrItemPedido.nVLCUSTOREAL
+										 , VLDESCCUSTOCMV            = vrItemPedido.nVLDESCCUSTOCMV
+										   --
+										 , PVENDA                   = vrItemPedido.nPVENDA
+										 , PTABELA                  = vrItemPedido.nPTABELA
+										 , PBASERCA                 = vrItemPedido.nPBASERCA
+										 , STPBASERCA               = vrItemPedido.nSTPBASERCA
+										 , STPTABELA                = vrItemPedido.nSTPTABELA
+										 , REGIMEESPISENSTFONTE     = vrItemPedido.nREGIMEESPISENSTFONTE
+										 , ALIQICMS1                = vrItemPedido.nALIQICMS1
+										 , ALIQICMS2                = vrItemPedido.nALIQICMS2
+										 , IVA                      = vrItemPedido.nIVA
+										 , PERCBASEREDSTFONTE       = vrItemPedido.nPERCBASEREDSTFONTE
+										   --
+										 , PERDESC                  = vrItemPedido.nPERDESC
+										 , PERDESCBOLETO            = vrItemPedido.nPERDESCBOLETO
+										 , VLDESCBOLETO             = vrItemPedido.nPERDESCBOLETO
+										 , CODDESCONTO              = vrItemPedido.nCODDESCONTO
+										 , CODPROMOCAOMED           = vrItemPedido.nCODPROMOCAOMED
+										 , INICIOINTERVALODESCQUANT = vrItemPedido.nINICIOINTERVALODESCQUANT
+										 , PERCOM                   = vrItemPedido.nPERCOM
+										 , PARTICIPAGIRO            = vrItemPedido.vPARTICIPAGIRO
+										 --
+										 , PERBONIFIC               = vrItemPedido.nPERBONIFIC
+										 , VLBONIFIC                = vrItemPedido.nVLBONIFIC
+										 --
+										 , VLREDPVENDASIMPLESNA     = vrItemPedido.nVLREDPVENDASIMPLESNA
+										 , VLREDCMVSIMPLESNAC       = vrItemPedido.nVLREDCMVSIMPLESNAC
+										 --
+										 , PRAZOMEDIO               = vrItemPedido.nPRAZOMEDIO          -- HIS.01240.2016
+										 , VLTAXAPRAZOMEDCMV        = vrItemPedido.nVLTAXAPRAZOMEDCMV   -- HIS.01240.2016
+										 , PERCTAXAPRAZOMEDCMV      = vrItemPedido.nPERCTAXAPRAZOMEDCMV -- HIS.01240.2016
+										 , VLDESCBOLETOCMV          = vrItemPedido.nVLDESCBOLETOCMV     -- HIS.01240.2016
+										 --
+										 , VLBASEPARTDEST           = vrItemPedido.nVLBASEPARTDEST
+										 , ALIQFCP                  = vrItemPedido.nALIQFCP
+										 , VLFCPPART                = vrItemPedido.nVLFCPPART
+										 , VLICMSPARTDEST           = vrItemPedido.nVLICMSPARTDEST
+										 , VLICMSPART               = vrItemPedido.nVLICMSPART
+										 , VLICMSDIFALIQPART        = vrItemPedido.nVLICMSDIFALIQPART
+										 , PERCBASEREDPART          = vrItemPedido.nPERCBASEREDPART
+										 , PERCPROVPART             = vrItemPedido.nPERCPROVPART
+										 , VLICMSPARTREM            = vrItemPedido.nVLICMSPARTREM
+										 , ALIQINTERNADEST          = vrItemPedido.nALIQINTERNADEST
+										 , ALIQINTERORIGPART        = vrItemPedido.nALIQINTERORIGPART
+										 , CODFISCAL                = vrItemPedido.nCODFISCAL -- HIS.03261.2016
+										 , SITTRIBUT                = vrItemPedido.vSITTRIBUT -- HIS.03261.2016
+										 -->> Somente Grava na Inclusão (Log Combo) - CAMPO TIPOCOMISSAOMED não atualiza aqui
+										 , PAUTA                    = vrItemPedido.nPAUTA -- HIS.03376.2017
+										 , OBSERVACAOSTFONTE        = vrItemPedido.vOBSERVACAOSTFONTE  -- HIS.03376.2017
+										 , INDESCALARELEVANTE       = vrItemPedido.vINDESCALARELEVANTE -- HIS.03376.2017
+										 , CNPJFABRICANTE           = vrItemPedido.vCNPJFABRICANTE -- HIS.03376.2017
+										 , FABRICANTE               = vrItemPedido.vFABRICANTE -- HIS.03376.2017
+										 -- MED-1090 - Valores FCP
+										 , VLFECP                   = vrItemPedido.nVLFECP
+										 , VLBASEFCPST              = vrItemPedido.nVLBASEFCPST
+										 , ALIQICMSFECP             = vrItemPedido.nALIQICMSFECP
+										 -- MED-2453
+										 , VLVERBACMVCLI            = vrItemPedido.nVLVERBACMVCLI
+										 -- DDMEDICA-1172
+										 , VLDESCSUFRAMA            = vrItemPedido.nVLDESCSUFRAMA
+										 , VLDESCPISSUFRAMA         = vrItemPedido.nVLDESCPISSUFRAMA
+										 , VLDESCREDUCAOPIS         = vrItemPedido.nVLDESCREDUCAOPIS
+										 , PERCDESCPIS              = vrItemPedido.nPERCDESCPIS
+										 , VLDESCREDUCAOCOFINS      = vrItemPedido.nVLDESCREDUCAOCOFINS
+										 , PERCDESCCOFINS           = vrItemPedido.nPERCDESCCOFINS
+										 --
+										 , CODIGOINTEGRACAOWMS      = vrItemPedido.vCODIGOINTEGRACAOWMS
+										 -- DDMEDICA-5009
+										 , VLDESCCMVPROMOCAOMED     = vrItemPedido.nVLDESCCMVPROMOCAOMED
+										 , NUMVERBACAMPANHA         = vrItemPedido.nNUMVERBACAMPANHA
+										 , VLVERBACMV               = vrItemPedido.nVLVERBACMV
+										 , PERCCUSTFORNEC           = vrItemPedido.nPERCCUSTFORNEC
+										 --
+										 , VLDESCICMISENCAO         = vrItemPedido.nVLDESCICMISENCAO  -- DDMEDICA-6874
+										 , PERDESCISENTOICMS        = vrItemPedido.nPERDESCISENTOICMS -- DDMEDICA-6874
+										 -- DDMEDICA-7697
+										 , BCSTRETANTERIOR          = vrItemPedido.nBCSTRETANTERIOR
+										 , VLICMSSUBSTITUTOANTERIOR = vrItemPedido.nVLICMSSUBSTITUTOANTERIOR
+										 , VLICMSSTRETANTERIOR      = vrItemPedido.nVLICMSSTRETANTERIOR                           
+										 , STCLIENTEGNRE            = vrItemPedido.nSTCLIENTEGNRE
+										 , PMPFMEDICAMENTO          = vrItemPedido.nPMPFMEDICAMENTO
+								   WHERE (NUMPED          = pi_nNumPed)
+									 AND (CODPROD         = vrItemPedido.nCODPROD)
+									 AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
+									 AND (CODFILIALRETIRA = NVL(vvCodFilialRetira,pi_vCodFilial));
+								END IF;
+							-- Atualiza Origem do Preço
+							  UPDATE PCORIGEMPRECO
+								 SET USATRIBUTPORUF         = vrPcConsum.vUSATRIBUTACAOPORUF
+								   , ORIGEMPRECO            = vrItemPedido.vORIGEMPRECO
+								   , COLUNAPRECO            = vrPlanoPag.nNUMPR
+								   , ORIGEMPED              = pi_vOrigemPed
+								   , CODFILIAL              = pi_vCodFilial
+								   , CODFILIALNF            = pi_vCodFilialNF
+								   , PERBONIFIC             = vrItemPedido.nPERBONIFIC
+								   , VLBONIFIC              = vrItemPedido.nVLBONIFIC
+								   , VLREPASSE              = vrItemPedido.nVLREPASSE
+								   , VLICMSPARTILHA         = vrItemPedido.nVLICMSPART
+								   , VLDESCICMS             = vrItemPedido.nVLDESCICMISENCAO
+								   , PERCPLPAG              = vrPlanoPag.nPERTXFIM
+								   , PERCRAMOATIV           = vrItemPedido.nPERCRAMOATIV
+								   , TIPODESCFLEX           = vrItemPedido.vTIPODESCFLEX
+								   , PERCDESCFLEX           = vrItemPedido.nPERCDESCFLEX
+								   , NUMREGIAO              = vrRegiao.nNUMREGIAO
+								   , VLREDPVENDASIMPLESNA   = vrItemPedido.nVLREDPVENDASIMPLESNA
+								   , CODACORDOPARCERIA      = vrItemPedido.nCODACORDOPARCERIA
+								   , PERCDESCACORDOPARCERIA = vrItemPedido.nPERCDESCACORDOPARCERIA
+								   , VLICMSSTRETANTERIOR    = vrItemPedido.nVLICMSSTRETANTERIOR
+							   WHERE (NUMPED  = pi_nNumPed)
+								 AND (CODPROD = vrItemPedido.nCODPROD)
+								 AND (NUMSEQ  = vrItemPedido.nNUMSEQ);
                       ELSE
-                        UPDATE PCPEDI
-                           SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
-                               QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
-                         WHERE (NUMPED          = pi_nNumPed)
-                           AND (CODPROD         = vrItemPedido.nCODPROD)
-                           AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
-                           AND (CODFILIALRETIRA = NVL(vvCodFilialRetira,pi_vCodFilial));
-                      END IF;
+                          -- Atualiza
+						  IF (vvCodFilialRetira IS NULL) THEN
+							UPDATE PCPEDI
+							   SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
+								   QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
+							 WHERE (NUMPED         = pi_nNumPed)
+							   AND (CODPROD        = vrItemPedido.nCODPROD)
+							   AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
+						  ELSE
+							UPDATE PCPEDI
+							   SET QT = NVL(QT,0) + NVL(vrItemPedido.nQT,0),
+								   QTCOMBOVIRTUAL = NVL(QTCOMBOVIRTUAL,0) + NVL(vrItemPedido.nQTCOMBOVIRTUAL,0)
+							 WHERE (NUMPED          = pi_nNumPed)
+							   AND (CODPROD         = vrItemPedido.nCODPROD)
+							   AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
+							   AND (CODFILIALRETIRA = NVL(vvCodFilialRetira,pi_vCodFilial));
+						  END IF;
+					   END IF;
 
                     END IF;
 
