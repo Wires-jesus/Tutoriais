@@ -165,10 +165,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMEMBALAGEM AS
 WITH CTE_EMBALAGEM AS (
   SELECT
     DEPARA.SEQFAMILIA,
-    CASE 
-      WHEN E.qtunit <> E.qtminimaatacado THEN NVL(e.qtunit, 1)
-      WHEN E.qtminimaatacado > 1 THEN NVL(e.qtminimaatacado, 1)
-    END AS QTDEMBALAGEM,
+    NVL(e.qtunit, 1) AS QTDEMBALAGEM,
     NVL(MAX(e.unidade), '1') AS EMBALAGEM,
     NVL(MAX(e.pesobruto), 0) AS PESOBRUTO,
     NVL(MAX(e.pesoliq), 0) AS PESOLIQ,
@@ -180,13 +177,29 @@ WITH CTE_EMBALAGEM AS (
    AND DEPARA.ATIVO = 'S'
    AND (DEPARA.CODAUXILIAR = E.CODAUXILIAR OR DEPARA.CODAUXILIAR = 0)
   WHERE 
-    (E.qtunit <> E.qtminimaatacado OR E.qtminimaatacado > 1)
+    (E.qtunit <> E.qtminimaatacado)
   GROUP BY 
     DEPARA.SEQFAMILIA,
-    CASE 
-      WHEN E.qtunit <> E.qtminimaatacado THEN NVL(e.qtunit, 1)
-      WHEN E.qtminimaatacado > 1 THEN NVL(e.qtminimaatacado, 1)
-    END
+    NVL(e.qtunit, 1)
+  UNION ALL
+  SELECT
+    DEPARA.SEQFAMILIA,
+    NVL(e.qtminimaatacado, 1) QTDEMBALAGEM,
+    NVL(MAX(e.unidade), '1') AS EMBALAGEM,
+    NVL(MAX(e.pesobruto), 0) AS PESOBRUTO,
+    NVL(MAX(e.pesoliq), 0) AS PESOLIQ,
+    'N' AS PESOAFERIDO,
+    'S' AS ATIVO
+  FROM VW_INT_C5_EMBPROD e
+  JOIN PCDEPARAPRODC5 DEPARA 
+    ON DEPARA.CODPROD = E.CODPROD 
+   AND DEPARA.ATIVO = 'S'
+   AND (DEPARA.CODAUXILIAR = E.CODAUXILIAR OR DEPARA.CODAUXILIAR = 0)
+  WHERE 
+    (E.qtminimaatacado > 1)
+  GROUP BY 
+    DEPARA.SEQFAMILIA,
+    NVL(e.qtminimaatacado, 1)  
 )
 SELECT
   SEQFAMILIA,
