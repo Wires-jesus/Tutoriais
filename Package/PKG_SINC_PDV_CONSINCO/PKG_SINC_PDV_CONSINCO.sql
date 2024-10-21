@@ -138,6 +138,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_especiefinanceira(p_id in pccontroleconsinco.id%TYPE);  
 
   PROCEDURE carrega_tb_prodcomposto(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_grupopessoa(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_pessoagrupo(p_id IN pccontroleconsinco.id%TYPE);
 
   procedure carrega_tb_precoapartir(p_id in pccontroleconsinco.id%type);
     
@@ -150,6 +154,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   procedure carrega_tb_precoapartirperiodo(p_id in pccontroleconsinco.id%type);
 
   procedure carrega_tb_precoapartirproduto(p_id in pccontroleconsinco.id%type);
+  
+  procedure carrega_tb_precoapartirgrupopessoa(p_id in pccontroleconsinco.id%type);
 
   procedure carrega_tb_limitevenda(p_id in pccontroleconsinco.id%type);
   
