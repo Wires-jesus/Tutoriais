@@ -28,6 +28,13 @@ CREATE OR REPLACE PACKAGE FERRAMENTAS_FATURAMENTO IS
     valorCustoFinanceiroMes pcest.vlcustomesfin%type,
     dataUltimoFaturamento   pcest.dtultfat%type
     );
+    
+  FUNCTION TRANSF_CARREGAMENTO(PNUMCARORIGEM IN PCCARREG.NUMCAR%TYPE,
+                               PNUMCARDESTINO IN PCCARREG.NUMCAR%TYPE,
+                               PMSGRETORNO OUT VARCHAR2,
+                               PCODFUNCTRANSF IN PCLOGTRANSFNFCARREG.CODFUNCTRANSF%TYPE DEFAULT NULL,
+                               PCODMOTIVO IN PCLOGTRANSFNFCARREG.CODMOTIVO%TYPE DEFAULT NULL,
+                               PMOTIVOTRANSF IN PCLOGTRANSFNFCARREG.MOTIVOTRANSF%TYPE DEFAULT '') RETURN VARCHAR2;
 
   FUNCTION buscarEatualizarTotaisVenda(pNumtransvenda in pcnfsaid.numtransvenda%type, pMensagemRetorno OUT VARCHAR2) RETURN VARCHAR2;
   

@@ -172,6 +172,135 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
     RETURN 'S';
   END;
   
+  FUNCTION TRANSF_CARREGAMENTO(PNUMCARORIGEM IN PCCARREG.NUMCAR%TYPE,
+                               PNUMCARDESTINO IN PCCARREG.NUMCAR%TYPE,
+                               PMSGRETORNO OUT VARCHAR2,
+                               PCODFUNCTRANSF IN PCLOGTRANSFNFCARREG.CODFUNCTRANSF%TYPE DEFAULT NULL,
+                               PCODMOTIVO IN PCLOGTRANSFNFCARREG.CODMOTIVO%TYPE DEFAULT NULL,
+                               PMOTIVOTRANSF IN PCLOGTRANSFNFCARREG.MOTIVOTRANSF%TYPE DEFAULT '')
+    RETURN VARCHAR2 IS
+    VRET VARCHAR2(1) := 'N';
+    VTIPOTRANSF VARCHAR2(2);
+    
+    VLOG PCLOGTRANSFNFCARREG%ROWTYPE;
+    TYPE TCARREGAMENTO IS RECORD(
+       ORIGEM VARCHAR2(60),
+       DESTINO VARCHAR2(60),
+       DIFERENTES VARCHAR2(60));
+    CARREGAMENTOS TCARREGAMENTO;
+    
+    TYPE TRECTRANSACAO IS RECORD(
+       NUMTRANSVENDA PCNFSAID.NUMTRANSVENDA%TYPE,
+       NUMNOTA PCNFSAID.NUMNOTA%TYPE,
+       CODFILIAL PCMOV.CODFILIAL%TYPE,
+       CODFILIALNF PCMOV.CODFILIALNF%TYPE,
+       CODFILIALRETIRA PCMOV.CODFILIALRETIRA%TYPE);
+    TYPE TTRANSACAO IS TABLE OF TRECTRANSACAO INDEX BY BINARY_INTEGER;
+    TRANSACOES TTRANSACAO;
+        
+    PROCEDURE GRAVARLOG(PPARAMS IN OUT PCLOGTRANSFNFCARREG%ROWTYPE)
+    IS
+      PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+      PPARAMS.CODFUNCTRANSF := PCODFUNCTRANSF;
+      PPARAMS.NUMCARANTERIOR := PNUMCARORIGEM;
+      PPARAMS.NUMCARATUAL := PNUMCARDESTINO;
+      PPARAMS.DTTRANSF := SYSDATE;
+      PPARAMS.CODMOTIVO := PCODMOTIVO;
+      PPARAMS.MOTIVOTRANSF := PMOTIVOTRANSF;
+      PPARAMS.MAQUINA := ('TRANSF_CARREGAMENTO:'||SYS_CONTEXT('USERENV', 'MODULE'));
+      INSERT INTO PCLOGTRANSFNFCARREG VALUES PPARAMS;
+      COMMIT;
+    END;  
+  BEGIN
+    PMSGRETORNO := 'OK';   
+    BEGIN
+      SELECT NVL((SELECT 'S'
+                    FROM PCCARREG
+                   WHERE NUMCAR = PNUMCARORIGEM), ('CARREGAMENTO DE ORIGEM: '||PNUMCARORIGEM||' INEXISTENTE.')) ORIGEM
+           , NVL((SELECT 'S'
+                    FROM PCCARREG
+                   WHERE NUMCAR = PNUMCARDESTINO), ('CARREGAMENTO DESTINO: '||PNUMCARDESTINO||' INEXISTENTE.')) DESTINO
+           , DECODE(NVL(PNUMCARORIGEM, 0), NVL(PNUMCARDESTINO, 0), 'CARREGAMENTO DE ORIGEM E DESTINO DEVE SER DIFERENTES.', 'S') DIFERENTES
+      INTO CARREGAMENTOS.ORIGEM
+         , CARREGAMENTOS.DESTINO
+         , CARREGAMENTOS.DIFERENTES
+      FROM DUAL;
+      
+      IF ((CARREGAMENTOS.ORIGEM = 'S') AND (CARREGAMENTOS.DESTINO = 'S') AND (CARREGAMENTOS.DIFERENTES = 'S')) THEN
+         SELECT NOTAS.*
+           BULK COLLECT INTO TRANSACOES
+           FROM (SELECT DISTINCT S.NUMTRANSVENDA
+                               , S.NUMNOTA
+                               , M.CODFILIAL
+                               , M.CODFILIALNF
+                               , M.CODFILIALRETIRA
+                            FROM PCNFSAID S
+                               , PCMOV M
+                           WHERE S.NUMCAR = PNUMCARORIGEM
+                             AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
+                             AND S.CODFILIAL = M.CODFILIAL
+                             AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
+                                                         , M.CODFILIALRETIRA
+                                                         , M.CODFILIALNF) IN('V', 'R', 'VR')
+                 UNION
+                 SELECT DISTINCT S.NUMTRANSVENDA
+                               , S.NUMNOTA
+                               , M.CODFILIAL
+                               , M.CODFILIALNF
+                               , M.CODFILIALRETIRA
+                            FROM PCNFSAIDPREFAT S
+                               , PCMOVPREFAT M
+                           WHERE S.NUMCAR = PNUMCARORIGEM
+                             AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
+                             AND S.CODFILIAL = M.CODFILIAL
+                             AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
+                                                         , M.CODFILIALRETIRA
+                                                         , M.CODFILIALNF) IN('V', 'R', 'VR')) NOTAS;
+                                
+         IF TRANSACOES.COUNT > 0 THEN                          
+           FOR NOTA IN TRANSACOES.FIRST..TRANSACOES.LAST                                                 
+           LOOP
+              VTIPOTRANSF := VENDAS.TIPO_TRANSFERENCIA(TRANSACOES(NOTA).CODFILIAL
+                                                     , TRANSACOES(NOTA).CODFILIALRETIRA
+                                                     , TRANSACOES(NOTA).CODFILIALNF);
+              IF (VTIPOTRANSF IN('V', 'VR')) THEN 
+                 VRET := 'S';
+                 
+                 UPDATE PCTRANSFVIRT
+                    SET NUMCAR = PNUMCARDESTINO
+                  WHERE NUMCAR = PNUMCARORIGEM;
+                   
+                 UPDATE PCTRANSFVIRTDEV
+                    SET NUMCAR = PNUMCARDESTINO
+                  WHERE NUMCAR = PNUMCARORIGEM;
+                  
+                 UPDATE PCTRANSFVIRTFAT
+                    SET NUMCAR = PNUMCARDESTINO
+                  WHERE NUMCAR = PNUMCARORIGEM;               
+                  
+                 VLOG.NUMNOTA := TRANSACOES(NOTA).NUMNOTA;
+                 VLOG.NUMTRANSVENDA := TRANSACOES(NOTA).NUMTRANSVENDA;
+                 GRAVARLOG(VLOG);
+              ELSE
+                VRET := 'S';
+              END IF; 
+           END LOOP;
+         ELSE       
+           VRET := 'S';
+         END IF;
+      ELSE
+        PMSGRETORNO := CARREGAMENTOS.ORIGEM ||' - '|| CARREGAMENTOS.DESTINO ||' - '|| CARREGAMENTOS.DIFERENTES;
+      END IF;
+    EXCEPTION
+      WHEN OTHERS THEN
+        PMSGRETORNO := 'EXCEÇÃO AO ATUALIZAR O CARREGAMENTO: ' || SQLERRM;
+        VRET := 'N';
+    END;
+
+    RETURN VRET;
+  END;  
+  
   FUNCTION SINC_INFOXML_SAIDA_ENTRADA(pNumtransvenda IN pcnfsaid.numtransvenda%type, pMensagemRetorno OUT VARCHAR2) 
     RETURN VARCHAR2 IS
     PINFOXML T_INFOXML;
