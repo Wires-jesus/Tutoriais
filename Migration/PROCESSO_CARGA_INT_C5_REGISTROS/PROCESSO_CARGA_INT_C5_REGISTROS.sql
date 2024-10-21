@@ -347,6 +347,20 @@ values (68, 'tb_limitevendaempresa')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (69, 'tb_limitevendafamilia')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (70, 'tb_grupopessoa')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (71, 'tb_pessoagrupo')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (72, 'tb_precoapartirgrupopessoa')
 
 /* Popular tabela PCCONTROLECONSINCO */
 
@@ -689,3 +703,18 @@ VALUES (68, 68, 'Sincronização de tabela TB_LIMITEVENDAEMPRESA', TRUNC(SYSDATE
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 VALUES (69, 69, 'Sincronização de tabela TB_LIMITEVENDAFAMILIA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_LIMITEVENDAFAMILIA', 69, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (70, 70, 'Sincronização de tabela TB_GRUPOPESSOA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_GRUPOPESSOA', 70, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (71, 71, 'Sincronização de tabela TB_PESSOAGRUPO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_PESSOAGRUPO', 71, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+VALUES (72, 72, 'Sincronização de tabela tb_precoapartirgrupopessoa', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_PRECOAPARTIRGRUPOPESSOA', 72, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
