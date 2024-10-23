@@ -717,4 +717,4 @@ VALUES (71, 71, 'Sincronização de tabela TB_PESSOAGRUPO', TRUNC(SYSDATE), 'D',
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-VALUES (72, 72, 'Sincronização de tabela tb_precoapartirgrupopessoa', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_PRECOAPARTIRGRUPOPESSOA', 72, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+VALUES (72, 72, 'Sincronização de tabela tb_precoapartirgrupopessoa', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precogrupopessoa', 72, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
