@@ -140,6 +140,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND NVL(f.proibidavenda, 'N') = 'N'
         --AND p.codprod >= 0
         AND LENGTH(e.codauxiliar) <= 14
+        AND NOT EXISTS (SELECT 1
+                        FROM PCEMBALAGEM PCEMB
+                        WHERE PCEMB.CODAUXILIAR = E.CODAUXILIAR
+                        AND   E.CODPROD <> PCEMB.CODPROD)
 		AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   c5.CODFILIAL,
                                                                   'N') = 'S'
@@ -323,6 +327,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND E.DTINATIVO IS NULL
     AND NVL(PF.PROIBIDAVENDA, 'N') = 'N'
     AND LENGTH(E.CODAUXILIAR) <= 14
+    AND NOT EXISTS (SELECT 1
+                        FROM PCEMBALAGEM PCEMB
+                        WHERE PCEMB.CODAUXILIAR = E.CODAUXILIAR
+                        AND   E.CODPROD <> PCEMB.CODPROD)
     AND TPR.NUMREGIAO = (SELECT FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
                                                                   FC5.CODFILIAL,
                                                                   1)
