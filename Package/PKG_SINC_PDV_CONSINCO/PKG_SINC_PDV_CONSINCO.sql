@@ -155,7 +155,7 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   procedure carrega_tb_precoapartirproduto(p_id in pccontroleconsinco.id%type);
   
-  procedure carrega_tb_precoapartirgrupopessoa(p_id in pccontroleconsinco.id%type);
+  procedure carrega_tb_precogrupopessoa(p_id in pccontroleconsinco.id%type);
 
   procedure carrega_tb_limitevenda(p_id in pccontroleconsinco.id%type);
   
