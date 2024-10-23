@@ -184,6 +184,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.DTAEXPIRAR = b.DTAEXPIRAR,
                s.PERCDESCMAXIMO = b.PERCDESCMAXIMO,
                s.ATIVO = b.ATIVO
+      WHERE s.NOME <> b.NOME
+	     OR s.APELIDO <> b.APELIDO
+		 OR s.SEQPESSOA <> b.SEQPESSOA
+		 OR s.NIVEL <> b.NIVEL
+         OR s.DTAEXPIRAR <> b.DTAEXPIRAR
+         OR s.PERCDESCMAXIMO <> b.PERCDESCMAXIMO
+         OR s.ATIVO <> b.ATIVO
 
       WHEN NOT MATCHED THEN
         INSERT (s.sequsuario,
@@ -257,7 +264,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.sexo             = b.sexo,
                s.email            = b.email,
                s.ativo            = b.ativo
-
+       WHERE s.nomerazao <> b.nomerazao
+          OR s.nomefantasia <> b.nomefantasia
+          OR s.fisicajuridica <> b.fisicajuridica
+          OR s.cnpjcpf <> b.cnpjcpf
+          OR s.inscrestadualrg <> b.inscrestadualrg
+          OR s.dtanascimento <> b.dtanascimento
+          OR s.contribuinteicms <> b.contribuinteicms
+          OR s.orgexp <> b.orgexp
+          OR s.sexo <> b.sexo
+          OR s.email <> b.email
+          OR s.ativo <> b.ativo
+		  
       WHEN NOT MATCHED THEN
         INSERT (s.seqpessoa,
                 s.nomerazao,
@@ -324,6 +342,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
         s.ativo    = b.ATIVO,
         s.segmento = b.SEGMENTO
+	  WHERE s.ativo <> b.ATIVO
+         OR s.segmento <> b.SEGMENTO
 
       WHEN NOT MATCHED THEN
         INSERT (s.ativo,
@@ -370,6 +390,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         t.nroempresamatriz    = s.nroempresamatriz,
         t.nroempresaseguranca = s.nroempresaseguranca,
         t.ativo               = s.ativo
+	  WHERE t.seqpessoa <> s.seqpessoa
+         OR t.nrodivisao <> s.nrodivisao
+         OR t.nomereduzido <> s.nomereduzido
+         OR t.nroempresamatriz <> s.nroempresamatriz
+         OR t.nroempresaseguranca <> s.nroempresaseguranca
+         OR t.ativo <> s.ativo
+		 
     WHEN NOT MATCHED THEN
       INSERT (t.nroempresa,
               t.seqpessoa,
@@ -431,7 +458,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.situacaocredito    = b.situacaocredito,
         s.situacaocomercial  = b.situacaocomercial,
         s.ativo              = b.ativo
-
+      WHERE s.vlrlimiteglobal <> b.vlrlimiteglobal
+         OR s.prazomaximo <> b.prazomaximo
+         OR s.dtahorultrestricao <> b.dtahorultrestricao
+         OR s.observacao <> b.observacao
+         OR s.situacaocredito <> b.situacaocredito
+         OR s.situacaocomercial <> b.situacaocomercial
+         OR s.ativo <> b.ativo
       WHEN NOT MATCHED THEN
         INSERT (s.seqpessoa,
                 s.vlrlimiteglobal,
@@ -482,9 +515,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
       ON (s.nroempresa = b.nroempresa and s.nrosegmento = b.NROSEGMENTO)
       WHEN MATCHED THEN
-      UPDATE
-             SET s.ativo    = b.ativo,
-                 s.nrocarga = b.nrocarga
+      UPDATE SET
+             s.ativo    = b.ativo,
+             s.nrocarga = b.nrocarga
+	   WHERE s.ativo <> b.ativo
+          OR s.nrocarga <> b.nrocarga
+		  
       WHEN NOT MATCHED THEN
         INSERT
             (s.nroempresa,
@@ -548,6 +584,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.seqfamilia      = b.SEQFAMILIA,
                  s.codproduto      = b.codproduto
                 -- s.idref           = b.idref
+	   WHERE s.descreduzida <> NVL(b.DESCREDUZIDA, '-')
+          OR s.desccompleta <> NVL(b.DESCCOMPLETA, '-')
+          OR s.ativo <> b.ATIVO
+          OR s.produtocomposto <> b.PRODUTOCOMPOSTO
+          OR s.seqfamilia <> b.SEQFAMILIA
+          OR s.codproduto <> b.codproduto
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODUTO,
@@ -628,6 +670,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              SET s.QUANTIDADE  = b.QUANTIDADE,
                  s.PRECO       = b.PRECO,
                  s.ATIVO       = b.ATIVO
+	   WHERE s.QUANTIDADE <> b.QUANTIDADE
+          OR s.PRECO <> b.PRECO
+          OR s.ATIVO <> b.ATIVO
+		  
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODCOMPOSTO,
@@ -689,10 +735,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
       ON (s.seqfamgrupo = b.seqfamgrupo)
       WHEN MATCHED THEN
-      UPDATE
-             SET s.grupofamilia = b.grupofamilia,
+      UPDATE SET s.grupofamilia = b.grupofamilia,
                  s.ativo        = b.ativo,
                  s.nrocarga     = b.nrocarga
+	   WHERE s.grupofamilia <> b.grupofamilia
+          OR s.ativo <> b.ativo
+          OR s.nrocarga <> b.nrocarga
+		  
       WHEN NOT MATCHED THEN
         INSERT
             (s.grupofamilia,
@@ -706,8 +755,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrocarga,
              b.seqfamgrupo);
 
-
-    
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
     
     COMMIT;
@@ -740,6 +787,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE
              SET s.marca = b.marca,
                  s.ativo = b.ativo
+	   WHERE s.marca <> b.marca
+          OR s.ativo <> b.ativo
       WHEN NOT MATCHED THEN
         INSERT
             (s.marca,
@@ -923,6 +972,27 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      --S.seqfamiliaprinc = B.seqfamiliaprinc,
                      S.gerareducaobasepiscofins = B.gerareducaobasepiscofins,
                      S.idref = B.idref
+		WHERE S.familia <> B.familia
+           OR S.permitedecimal <> B.permitedecimal
+           OR S.permitemultiplicacao <> B.permitemultiplicacao
+           OR S.codnbmsh <> B.codncmsh
+           OR S.codcest <> B.codcest
+           OR S.ativo <> B.ativo
+           OR S.seqmarca <> B.seqmarca
+           OR S.seqfamgrupo <> B.seqfamgrupo
+           OR S.pesavel <> B.pesavel
+           OR S.situacaopis <> B.SITUACAOPIS
+           OR S.situacaocofins <> B.SITUACAOCOFINS
+           OR S.percbasepis <> PERCBASEPIS
+           OR S.percbasecofins <> PERCBASECOFINS
+           OR S.percpis <> B.PERCPIS
+           OR S.perccofins <> B.PERCCOFINS
+           OR S.indescala <> B.indescala
+           OR S.cnpjfabricante <> B.cnpjfabricante
+           OR S.eantrib <> B.eantrib
+           OR S.gerareducaobasepiscofins <> B.gerareducaobasepiscofins
+           OR S.idref <> B.idref
+		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
                      S.permitedecimal,
@@ -1003,6 +1073,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              SET s.descricao = b.descricao,
                  s.ativo     = b.ativo,
                  s.nrocarga  = b.nrocarga
+		WHERE s.descricao <> b.descricao
+           OR s.ativo <> b.ativo
+           OR s.nrocarga <> b.nrocarga
+		   
       WHEN NOT MATCHED THEN
         INSERT
             (s.descricao,
@@ -1052,8 +1126,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
       ON (s.seqpessoa = b.seqpessoa and s.nrosegmento = b.nrosegmento)
       WHEN MATCHED THEN
-      UPDATE
-             SET s.ativo = b.ativo
+      UPDATE SET s.ativo = b.ativo
+	   WHERE s.ativo <> b.ativo
+	   
       WHEN NOT MATCHED THEN
         INSERT
             (s.nrosegmento,
@@ -1165,6 +1240,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.idref      = b.codfilial,
                  s.ativo      = b.ativo,
                  s.nrocarga   = b.nrocarga
+		WHERE s.especie <> b.especie
+           OR s.formapagto <> b.formapagto
+           OR s.idref <> b.codfilial
+           OR s.ativo <> b.ativo
+           OR s.nrocarga <> b.nrocarga
+		   
       WHEN NOT MATCHED THEN
         INSERT
             (s.especie,
@@ -1234,8 +1315,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.ativo            = b.ativo,
                s.nroParcelaJuro   = b.nroParcelaJuro,
                s.VLRMINIMOPARCELA = b.VLRMINIMOPARCELA,
-  			       s.NROMAXIMOPARCELA = b.QTMAXPARCELAS,
+  			   s.NROMAXIMOPARCELA = b.QTMAXPARCELAS,
                s.CONTROLELIMITE   = b.CONTROLELIMITE
+	  WHERE s.percjuromensal   <> b.percjuromensal
+         OR s.perctaxaadm      <> b.perctaxaadm
+         OR s.nrodiasvencto    <> b.nrodiasvencto
+         OR s.solicitavencto   <> b.solicitavencto
+         OR s.permitetroco     <> b.permitetroco
+         OR s.vlrminimo        <> b.vlrminimo
+         OR s.vlrmaximo        <> b.vlrmaximo
+         OR s.gerasangria      <> b.gerasangria
+         OR s.prazomaximo      <> b.prazomaximo
+         OR s.usatef           <> b.usatef
+         OR s.tipocalculojuros <> b.tipocalculojuros
+         OR s.emitevaletroco   <> b.emitevaletroco
+         OR s.emitecomprovante <> b.emitecomprovante
+         OR s.abregaveta       <> b.abregaveta
+         OR s.alternativa      <> b.alternativa
+         OR s.faturamento      <> b.faturamento
+         OR s.idref            <> b.codCob
+         OR s.ativo            <> b.ativo
+         OR s.nroParcelaJuro   <> b.nroParcelaJuro
+         OR s.VLRMINIMOPARCELA <> b.VLRMINIMOPARCELA
+  		 OR s.NROMAXIMOPARCELA <> b.QTMAXPARCELAS
+         OR s.CONTROLELIMITE   <> b.CONTROLELIMITE
+		 
       WHEN NOT MATCHED THEN
         INSERT
             (s.percjuromensal,
@@ -1433,6 +1537,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.lerpeso         = b.lerpeso,
                s.NIVELHIERARQUIA = b.nivelhierarquia,
                s.idref           = b.idref
+	   WHERE s.seqcategoriapai <> b.seqcategoriapai
+          OR s.categoria       <> b.categoria
+          OR s.tipo            <> b.tipo
+          OR s.ativo           <> b.ativo
+          OR s.lerpeso         <> b.lerpeso
+          OR s.NIVELHIERARQUIA <> b.nivelhierarquia
+          OR s.idref           <> b.idref
+		  
       WHEN NOT MATCHED THEN
         INSERT (s.seqcategoriapai,
                 s.categoria,
@@ -1494,6 +1606,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
         s.ativo = b.ativo,
         s.idref = b.idref
+	   WHERE s.ativo <> b.ativo
+          OR s.idref <> b.idref
       WHEN NOT MATCHED THEN
         INSERT (s.seqfamilia,
                 s.seqcategoria,
@@ -1569,9 +1683,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       ON (s.seqproduto = b.seqproduto and s.nroempresa  = b.nroempresa)
       WHEN MATCHED THEN
       UPDATE SET
-        estqloja = b.estqloja,
-        ativo    = b.ativo,
-        idref    = b.idref
+        s.estqloja = b.estqloja,
+        s.ativo    = b.ativo,
+        s.idref    = b.idref
+		WHERE s.estqloja <> b.estqloja
+           OR s.ativo    <> b.ativo
+           OR s.idref    <> b.idref
+		   
       WHEN NOT MATCHED THEN
         INSERT (s.seqproduto,
                 s.nroempresa,
@@ -1646,6 +1764,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       s.pesoliquido = b.pesoliquido,
       s.ativo = b.ativo,
       s.nrocarga = b.nrocarga
+	  WHERE s.embalagem <> b.embalagem
+		 OR s.pesoaferido <> b.pesoaferido
+		 OR s.pesobruto <> b.pesobruto
+		 OR s.pesoliquido <> b.pesoliquido
+		 OR s.ativo <> b.ativo
+		 OR s.nrocarga <> b.nrocarga
 
     WHEN NOT MATCHED THEN
       INSERT (s.seqfamilia,
@@ -1690,6 +1814,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       s.pesoliquido = b.pesoliquido,
       s.ativo = b.ativo,
       s.nrocarga = b.nrocarga
+	WHERE s.embalagem <> b.embalagem
+       OR s.pesoaferido <> b.pesoaferido
+       OR s.pesobruto <> b.pesobruto
+       OR s.pesoliquido <> b.pesoliquido
+       OR s.ativo <> b.ativo
+       OR s.nrocarga <> b.nrocarga
 
     WHEN NOT MATCHED THEN
       INSERT (s.seqfamilia,
@@ -1758,6 +1888,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.qtdembalagem = b.qtdembalagem,
         s.tipo = b.tipo,
         s.ativo = b.ativo
+		WHERE s.seqproduto <> b.seqproduto
+		   OR s.qtdembalagem <> b.qtdembalagem
+		   OR s.tipo <> b.tipo
+		   OR s.ativo <> b.ativo
+		   
       WHEN NOT MATCHED THEN
         INSERT (s.nroempresa,
                    s.codacesso,
@@ -1823,6 +1958,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         TB_PRODPRECO_C5.preco      = VIEW_TB_PRODPRECO.preco,
         TB_PRODPRECO_C5.PRECONORMAL= VIEW_TB_PRODPRECO.PRECONORMAL,
         TB_PRODPRECO_C5.idref      = VIEW_TB_PRODPRECO.idref
+	  WHERE TB_PRODPRECO_C5.ativo      <> VIEW_TB_PRODPRECO.ativo
+         OR TB_PRODPRECO_C5.promocao   <> VIEW_TB_PRODPRECO.promocao
+         OR TB_PRODPRECO_C5.preco      <> VIEW_TB_PRODPRECO.preco
+         OR TB_PRODPRECO_C5.PRECONORMAL<> VIEW_TB_PRODPRECO.PRECONORMAL
+         OR TB_PRODPRECO_C5.idref      <> VIEW_TB_PRODPRECO.idref
+		 
       WHEN NOT MATCHED THEN
       INSERT(
         TB_PRODPRECO_C5.seqproduto,
@@ -1886,6 +2027,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       TB_PRODPRECO_C5.preco      = VW_INT_C5_PROMOCOES_VIGENTES.preco,
       TB_PRODPRECO_C5.PRECONORMAL= VW_INT_C5_PROMOCOES_VIGENTES.PRECONORMAL,
       TB_PRODPRECO_C5.idref      = VW_INT_C5_PROMOCOES_VIGENTES.idref
+	  WHERE TB_PRODPRECO_C5.ativo      <> VW_INT_C5_PROMOCOES_VIGENTES.ativo
+         OR TB_PRODPRECO_C5.promocao   <> VW_INT_C5_PROMOCOES_VIGENTES.promocao
+         OR TB_PRODPRECO_C5.preco      <> VW_INT_C5_PROMOCOES_VIGENTES.preco
+         OR TB_PRODPRECO_C5.PRECONORMAL<> VW_INT_C5_PROMOCOES_VIGENTES.PRECONORMAL
+         OR TB_PRODPRECO_C5.idref      <> VW_INT_C5_PROMOCOES_VIGENTES.idref
     WHEN NOT MATCHED THEN
     INSERT(
       TB_PRODPRECO_C5.seqproduto,
@@ -2005,6 +2151,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.tributacao    = b.tributacao,
         s.descaplicacao = b.descaplicacao,
         s.ativo         = b.ativo
+	  WHERE s.tributacao    <> b.tributacao
+         OR s.descaplicacao <> b.descaplicacao
+         OR s.ativo         <> b.ativo
+		 
     WHEN NOT MATCHED THEN
       INSERT (s.nrotributacao,
               s.tributacao,
@@ -2207,6 +2357,29 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.CODBENEFICIODESONICMS = b.CODBENEFICIODESONICMS,
              s.codobservacao         = b.codobservacao,
              s.IDREF                 = b.IDREF
+	  WHERE s.percaliquota          <> b.percaliquota
+         OR s.situacaotributacao    <> b.situacaotributacao
+         OR s.percisento            <> b.percisento
+         OR s.perctributado         <> b.perctributado
+         OR s.percoutro             <> b.percoutro
+         OR s.percacrescst          <> b.percacrescst
+         OR s.percisentost          <> b.percisentost
+         OR s.tipocalcfcp           <> b.tipocalcfcp
+         OR s.percbasefcpicms       <> b.percbasefcpicms
+         OR s.percaliqfcpicms       <> b.percaliqfcpicms
+         OR s.reducaobasest         <> b.reducaobasest
+         OR s.tiporeducaoicmscalcst <> b.tiporeducaoicmscalcst
+         OR s.perctributst          <> b.perctributst
+         OR s.ativo                 <> b.ativo
+         OR s.percbasefcpst         <> b.percbasefcpst
+         OR s.percaliqfcpst         <> b.percaliqfcpst
+         OR s.CALCICMSDESON         <> b.CALCICMSDESON
+         OR s.PERCALIQICMSDESON     <> b.PERCALIQICMSDESON
+         OR s.MOTIVODESONICMS       <> b.MOTIVODESONICMS
+         OR s.CODBENEFICIODESONICMS <> b.CODBENEFICIODESONICMS
+         OR s.codobservacao         <> b.codobservacao
+         OR s.IDREF                 <> b.IDREF
+		 
       WHEN NOT MATCHED THEN
         INSERT (s.nrotributacao,
                 s.uforigem,
@@ -2303,7 +2476,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.perctributoestadual   = b.perctributoestadual, 
                s.perctributomunicipal  = b.perctributomunicipal,
                s.ativo                 = b.ativo
-        
+        WHERE s.perctributo           <> b.perctributos
+           OR s.perctributoimportado  <> b.perctributoimportado
+           OR s.perctributonacfederal <> b.perctributonacfederal
+           OR s.perctributoimpfederal <> b.perctributoimpfederal
+           OR s.perctributoestadual   <> b.perctributoestadual
+           OR s.perctributomunicipal  <> b.perctributomunicipal
+           OR s.ativo                 <> b.ativo
+		   
       WHEN NOT MATCHED THEN
         INSERT (s.codnbmsh,
                 s.ufdestino,
@@ -2378,6 +2558,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.CONSUMIDORFINAL     = b.CONSUMIDORFINAL,
                s.VENDAPRESENCIAL     = b.VENDAPRESENCIAL,
                s.TIPOTRIBUTACAO      = b.TIPOTRIBUTACAO
+	   WHERE s.DESCRICAO           <> b.DESCRICAO
+          OR s.APLICACAO           <> b.APLICACAO
+          OR s.Cfopestado          <> b.CFOPESTADO
+          OR s.CFOPFORAESTADO      <> b.CFOPFORAESTADO
+          OR s.CALCULAICMSST       <> b.CALCULAICMSST
+          OR s.GERAREDUCAOBASEST   <> b.GERAREDUCAOBASEST
+          OR s.CALCULAIPI          <> b.CALCULAIPI
+          OR s.TIPOCALCULOIPI      <> b.TIPOCALCULOIPI
+          OR s.CALCULAFECP         <> b.CALCULAFECP
+          OR s.TIPOFATURAMENTO     <> b.TIPOFATURAMENTO
+          OR s.ATIVO               <> b.ATIVO
+          OR s.CONSUMIDORFINAL     <> b.CONSUMIDORFINAL
+          OR s.VENDAPRESENCIAL     <> b.VENDAPRESENCIAL
+          OR s.TIPOTRIBUTACAO      <> b.TIPOTRIBUTACAO
                   
       WHEN NOT MATCHED THEN
         INSERT (s.CODGERALOPER,
@@ -2453,7 +2647,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.CFOPESTADO     = b.CFOPESTADO,
                s.cfopforaestado = b.cfopforaestado,
                s.ATIVO          = b.ATIVO
- 
+      WHERE s.CFOPESTADO     <> b.CFOPESTADO
+         OR s.cfopforaestado <> b.cfopforaestado
+         OR s.ATIVO          <> b.ATIVO
+		 
       WHEN NOT MATCHED THEN
          INSERT (s.CODGERALOPER,
                  s.NROTRIBUTACAO,
@@ -2530,7 +2727,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                s.UFORIGEM      = b.UFORIGEM,
                s.UFDESTINO     = b.UFDESTINO,
                s.CFOPESTADO    = b.CFOPESTADO,
-               s.ATIVO         = b.ATIVO 
+               s.ATIVO         = b.ATIVO
+	   WHERE s.NROTRIBUTACAO <> b.NROTRIBUTACAO 
+          OR s.CONTRIBICMS   <> b.CONTRIBICMS 
+          OR s.UFORIGEM      <> b.UFORIGEM
+          OR s.UFDESTINO     <> b.UFDESTINO
+          OR s.CFOPESTADO    <> b.CFOPESTADO
+          OR s.ATIVO         <> b.ATIVO
+		  
       WHEN NOT MATCHED THEN
         INSERT ( s.CODGERALOPER,
                  s.NROTRIBUTACAO,   
@@ -2601,6 +2805,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         TB_ENDERECOALTERNATIVO.cep           = VW_INT_C5_ENDERECO_ALTERNATIVO.cep,
         TB_ENDERECOALTERNATIVO.ativo         = VW_INT_C5_ENDERECO_ALTERNATIVO.ativo,
         TB_ENDERECOALTERNATIVO.codibge       = VW_INT_C5_ENDERECO_ALTERNATIVO.codibge
+	  WHERE TB_ENDERECOALTERNATIVO.tipo          <> VW_INT_C5_ENDERECO_ALTERNATIVO.tipo
+         OR TB_ENDERECOALTERNATIVO.logradouro    <> VW_INT_C5_ENDERECO_ALTERNATIVO.logradouro
+         OR TB_ENDERECOALTERNATIVO.nrologradouro <> VW_INT_C5_ENDERECO_ALTERNATIVO.nrologradouro
+         OR TB_ENDERECOALTERNATIVO.bairro        <> VW_INT_C5_ENDERECO_ALTERNATIVO.bairro
+         OR TB_ENDERECOALTERNATIVO.complemento   <> VW_INT_C5_ENDERECO_ALTERNATIVO.complemento
+         OR TB_ENDERECOALTERNATIVO.cidade        <> VW_INT_C5_ENDERECO_ALTERNATIVO.cidade
+         OR TB_ENDERECOALTERNATIVO.uf            <> VW_INT_C5_ENDERECO_ALTERNATIVO.uf
+         OR TB_ENDERECOALTERNATIVO.cep           <> VW_INT_C5_ENDERECO_ALTERNATIVO.cep
+         OR TB_ENDERECOALTERNATIVO.ativo         <> VW_INT_C5_ENDERECO_ALTERNATIVO.ativo
+         OR TB_ENDERECOALTERNATIVO.codibge       <> VW_INT_C5_ENDERECO_ALTERNATIVO.codibge
+		 
       WHEN NOT MATCHED THEN
         INSERT  
         (
@@ -2684,6 +2899,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.nrotributacao = b.nrotributacao,
         s.codorigemtrib = b.codorigemtrib,
         s.ativo = b.ativo
+	  WHERE s.nrotributacao <> b.nrotributacao
+         OR s.codorigemtrib <> b.codorigemtrib
+         OR s.ativo <> b.ativo
+		 
       WHEN NOT MATCHED THEN
         INSERT (s.seqfamilia,
                 s.nrodivisao,
@@ -2750,7 +2969,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               s.NRODIASVENCTO = b.NRODIASVENCTO,
               s.ATIVO = b.ATIVO,
               s.IDREF = b.IDREF
-
+      WHERE s.CONDICAOPAGTO <> b.CONDICAOPAGTO
+         OR s.PERCACRESCIMO <> b.PERCACRESCIMO
+         OR s.NROMAXIMOPARCELA <> b.NROMAXIMOPARCELA
+         OR s.NRODIASVENCTO <> b.NRODIASVENCTO
+         OR s.ATIVO <> b.ATIVO
+         OR s.IDREF <> b.IDREF
+		 
       WHEN NOT MATCHED THEN
         INSERT (s.NROCONDICAOPAGTO,
                 s.CONDICAOPAGTO,
@@ -2817,7 +3042,13 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraincentivo_C5.ATIVO          = VIEW_C5_INCENTIVO.ATIVO,
           tb_regraincentivo_C5.TIPOREGRA      = VIEW_C5_INCENTIVO.TIPOREGRA,
           tb_regraincentivo_C5.CUMULATIVO     = VIEW_C5_INCENTIVO.CUMULATIVO,
-          tb_regraincentivo_C5.IDREF          = VIEW_C5_INCENTIVO.IDREF          
+          tb_regraincentivo_C5.IDREF          = VIEW_C5_INCENTIVO.IDREF
+       WHERE tb_regraincentivo_C5.REGRA          <> VIEW_C5_INCENTIVO.REGRA
+          OR tb_regraincentivo_C5.SEQTIPOCREDITO <> VIEW_C5_INCENTIVO.SEQTIPOCREDITO
+          OR tb_regraincentivo_C5.ATIVO          <> VIEW_C5_INCENTIVO.ATIVO
+          OR tb_regraincentivo_C5.TIPOREGRA      <> VIEW_C5_INCENTIVO.TIPOREGRA
+          OR tb_regraincentivo_C5.CUMULATIVO     <> VIEW_C5_INCENTIVO.CUMULATIVO
+          OR tb_regraincentivo_C5.IDREF          <> VIEW_C5_INCENTIVO.IDREF          
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -2906,7 +3137,8 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
        WHEN MATCHED THEN
         UPDATE SET
           tb_regraincentivoperiodo_c5.ATIVO           = VIEW_C5_INCENTIVO.ATIVO
-          
+        WHERE tb_regraincentivoperiodo_c5.ATIVO <> VIEW_C5_INCENTIVO.ATIVO  
+		
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraincentivoperiodo_c5.SEQREGRA,
@@ -3001,6 +3233,7 @@ BEGIN
        WHEN MATCHED THEN
         UPDATE SET
           tb_regraempresa_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO
+		WHERE tb_regraempresa_c5.ATIVO <> VIEW_C5_INCENTIVO.ATIVO
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3063,7 +3296,8 @@ BEGIN
        WHEN MATCHED THEN
         UPDATE SET
           tb_regrasegmento_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO
-          
+        WHERE tb_regrasegmento_c5.ATIVO  <> VIEW_C5_INCENTIVO.ATIVO
+		
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regrasegmento_c5.SEQREGRA,
@@ -3139,7 +3373,11 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           tb_regraproduto_c5.PRECO           = vw_int_c5_regraproduto.PRECO,
           tb_regraproduto_c5.ATIVO           = vw_int_c5_regraproduto.ATIVO,
           tb_regraproduto_c5.IDREF           = vw_int_c5_regraproduto.IDREF  
-          
+        WHERE tb_regraproduto_c5.PERCDESCONTO    <> vw_int_c5_regraproduto.PERCDESCONTO
+           OR tb_regraproduto_c5.PRECO           <> vw_int_c5_regraproduto.PRECO
+           OR tb_regraproduto_c5.ATIVO           <> vw_int_c5_regraproduto.ATIVO
+           OR tb_regraproduto_c5.IDREF           <> vw_int_c5_regraproduto.IDREF
+		   
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraproduto_c5.SEQREGRA,
@@ -3216,7 +3454,10 @@ BEGIN
           D.PERCDESCONTO    = S.PERCDESCONTO,
           D.ATIVO           = S.ATIVO,
           D.IDREF           = S.IDREF 
-          
+       WHERE D.PERCDESCONTO    <> S.PERCDESCONTO
+          OR D.ATIVO           <> S.ATIVO
+          OR D.IDREF           <> S.IDREF
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           D.SEQREGRA,
@@ -3282,7 +3523,9 @@ BEGIN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
           D.ATIVO           = S.ATIVO
-           
+       WHERE D.PERCDESCONTO    <> S.PERCDESCONTO
+          OR D.ATIVO           <> S.ATIVO  
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           D.SEQREGRA,
@@ -3370,7 +3613,16 @@ BEGIN
          /* tb_prodprecoapartir_c5.IDREF           = DECODE(vw_int_c5_prodprecoapartir.ATIVO, 'N', 
                                                           'INATIVADO',
                                                           vw_int_c5_prodprecoapartir.IDREF) */
-          
+        WHERE tb_prodprecoapartir_c5.NROSEGMENTO     <> vw_int_c5_prodprecoapartir.NROSEGMENTO
+           OR tb_prodprecoapartir_c5.SEQFAMILIA      <> vw_int_c5_prodprecoapartir.SEQFAMILIA
+           OR tb_prodprecoapartir_c5.SEQPRODUTO      <> vw_int_c5_prodprecoapartir.SEQPRODUTO
+           OR tb_prodprecoapartir_c5.QTDE            <> vw_int_c5_prodprecoapartir.QTDE
+           OR tb_prodprecoapartir_c5.PERCDESCONTO    <> vw_int_c5_prodprecoapartir.PERCDESCONTO
+           OR tb_prodprecoapartir_c5.PRECO           <> vw_int_c5_prodprecoapartir.PRECO
+           OR tb_prodprecoapartir_c5.DTAINICIO       <> vw_int_c5_prodprecoapartir.DTAINICIO
+           OR tb_prodprecoapartir_c5.DTAFIM          <> vw_int_c5_prodprecoapartir.DTAFIM
+           OR tb_prodprecoapartir_c5.ATIVO           <> vw_int_c5_prodprecoapartir.ATIVO
+           OR tb_prodprecoapartir_c5.IDREF           <> vw_int_c5_prodprecoapartir.IDREF
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3438,7 +3690,11 @@ BEGIN
           TB_COMBO.DTAFIM    = VIEW_BRINDE_CABECALHO.DTAFIM,
           TB_COMBO.TIPO      = VIEW_BRINDE_CABECALHO.TIPO,
           TB_COMBO.ATIVO     = VIEW_BRINDE_CABECALHO.ATIVO
-
+       WHERE TB_COMBO.COMBO     <> VIEW_BRINDE_CABECALHO.DESCRICAO
+          OR TB_COMBO.DTAINICIO <> VIEW_BRINDE_CABECALHO.DTAINICIO
+          OR TB_COMBO.DTAFIM    <> VIEW_BRINDE_CABECALHO.DTAFIM
+          OR TB_COMBO.TIPO      <> VIEW_BRINDE_CABECALHO.TIPO
+          OR TB_COMBO.ATIVO     <> VIEW_BRINDE_CABECALHO.ATIVO
            
   WHEN NOT MATCHED THEN
         INSERT(
@@ -3487,7 +3743,8 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           TB_COMBOEMPRESA.ATIVO = VIEW_BRINDE_CABECALHO.ATIVO
-           
+       WHERE TB_COMBOEMPRESA.ATIVO <> VIEW_BRINDE_CABECALHO.ATIVO
+	   
   WHEN NOT MATCHED THEN
         INSERT(
           TB_COMBOEMPRESA.SEQCOMBO,
@@ -3555,6 +3812,16 @@ BEGIN
       TB_COMBOITEM.IDREF = VIEW_BRINDE_ITENS.IDREF,
       TB_COMBOITEM.TIPOITEM = VIEW_BRINDE_ITENS.TIPOITEM,
       TB_COMBOITEM.SEQGRUPO = VIEW_BRINDE_ITENS.SEQGRUPO
+	WHERE TB_COMBOITEM.SEQPRODUTO <> VIEW_BRINDE_ITENS.SEQPRODUTO
+       OR TB_COMBOITEM.ATIVO <> VIEW_BRINDE_ITENS.ATIVO
+       OR TB_COMBOITEM.QTDE <> VIEW_BRINDE_ITENS.QTDE
+	   OR TB_COMBOITEM.QTDEMBALAGEM <> VIEW_BRINDE_ITENS.QTDEMBALAGEM
+       OR TB_COMBOITEM.PRECO <> VIEW_BRINDE_ITENS.PRECO
+       OR TB_COMBOITEM.PERCDESCONTO <> VIEW_BRINDE_ITENS.PERCDESCONTO
+       OR TB_COMBOITEM.SEQFAMILIA <> VIEW_BRINDE_ITENS.SEQFAMILIA
+       OR TB_COMBOITEM.IDREF <> VIEW_BRINDE_ITENS.IDREF
+       OR TB_COMBOITEM.TIPOITEM <> VIEW_BRINDE_ITENS.TIPOITEM
+       OR TB_COMBOITEM.SEQGRUPO <> VIEW_BRINDE_ITENS.SEQGRUPO
             
   WHEN NOT MATCHED THEN
     INSERT(
@@ -3564,7 +3831,7 @@ BEGIN
       TB_COMBOITEM.TIPOITEM,
       TB_COMBOITEM.ATIVO,
       TB_COMBOITEM.QTDE,
-	    TB_COMBOITEM.QTDEMBALAGEM,
+	  TB_COMBOITEM.QTDEMBALAGEM,
       TB_COMBOITEM.PRECO,
       TB_COMBOITEM.PERCDESCONTO,
       TB_COMBOITEM.SEQFAMILIA,
@@ -3578,7 +3845,7 @@ BEGIN
       VIEW_BRINDE_ITENS.TIPOITEM,
       VIEW_BRINDE_ITENS.ATIVO,
       VIEW_BRINDE_ITENS.QTDE,
-	    VIEW_BRINDE_ITENS.QTDEMBALAGEM,
+	  VIEW_BRINDE_ITENS.QTDEMBALAGEM,
       VIEW_BRINDE_ITENS.PRECO,
       VIEW_BRINDE_ITENS.PERCDESCONTO,
       VIEW_BRINDE_ITENS.SEQFAMILIA,
@@ -3640,7 +3907,11 @@ BEGIN
     T.GRUPO = V.GRUPO,
     T.ATIVO = V.ATIVO,
     T.IDREF = V.IDREF
-
+  WHERE T.QTDE <> V.QTDE
+     OR T.GRUPO <> V.GRUPO
+     OR T.ATIVO <> V.ATIVO
+     OR T.IDREF <> V.IDREF
+	 
   WHEN NOT MATCHED THEN 
   INSERT (
     T.SEQCOMBO,
@@ -3708,7 +3979,10 @@ BEGIN
           T.DESCRICAO = S.DESCRICAO,
           T.TIPO      = S.TIPO,
           T.ATIVO     = S.ATIVO
-          
+       WHERE T.DESCRICAO <> S.DESCRICAO
+          OR T.TIPO      <> S.TIPO
+          OR T.ATIVO     <> S.ATIVO   
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQPARCELA,
@@ -3755,7 +4029,8 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           T.ATIVO = S.ATIVO
-          
+       WHERE T.ATIVO <> S.ATIVO
+	   
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQPARCELA,
@@ -3816,7 +4091,8 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           T.ATIVO = S.ATIVO
-          
+       WHERE T.ATIVO <> S.ATIVO
+	   
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQPARCELA,
@@ -3886,7 +4162,9 @@ BEGIN
        UPDATE SET
           T.NROMAXIMOPARCELA = S.NROMAXIMOPARCELA,
           T.ATIVO            = S.ATIVO
-          
+       WHERE T.NROMAXIMOPARCELA <> S.NROMAXIMOPARCELA
+          OR T.ATIVO            <> S.ATIVO   
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQPARCELA,
@@ -3951,7 +4229,10 @@ END;
                s.NOME           = b.NOMEGRUPO,
                s.PERCDESCMAXIMO = b.PERCDESCMAX,
                s.ATIVO          = b.ATIVO
-
+      WHERE s.NOME           <> b.NOMEGRUPO
+         OR s.PERCDESCMAXIMO <> b.PERCDESCMAX
+         OR s.ATIVO          <> b.ATIVO
+		 
       WHEN NOT MATCHED THEN
         INSERT (s.SEQGRUPO,
                 s.NOME,
@@ -4023,6 +4304,8 @@ END;
     WHEN MATCHED THEN
     UPDATE SET
       s.ATIVO = b.ATIVO
+	WHERE s.ATIVO <> b.ATIVO
+	
     WHEN NOT MATCHED THEN
       INSERT (
         s.SEQGRUPO,
@@ -4078,7 +4361,11 @@ END;
         TB_PROMSURPRESA.TIPOSURPRESA  = VW_INT_C5_BRINDE_CABECALHO_AUT.TIPOSURPRESA,
         TB_PROMSURPRESA.ATIVO         = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO,
 		TB_PROMSURPRESA.CUMULATIVO    = VW_INT_C5_BRINDE_CABECALHO_AUT.CUMULATIVO
-      
+      WHERE TB_PROMSURPRESA.DESCRICAO     <> VW_INT_C5_BRINDE_CABECALHO_AUT.DESCRICAO
+         OR TB_PROMSURPRESA.TIPOSURPRESA  <> VW_INT_C5_BRINDE_CABECALHO_AUT.TIPOSURPRESA
+         OR TB_PROMSURPRESA.ATIVO         <> VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO
+		 OR TB_PROMSURPRESA.CUMULATIVO    <> VW_INT_C5_BRINDE_CABECALHO_AUT.CUMULATIVO
+		 
     WHEN NOT MATCHED THEN
       INSERT(
         TB_PROMSURPRESA.SEQPROMSURPRESA,
@@ -4132,7 +4419,8 @@ END;
     WHEN MATCHED THEN
       UPDATE SET
         TB_PROMSURPRESAEMPRESA.ATIVO = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO  
-      
+      WHERE TB_PROMSURPRESAEMPRESA.ATIVO <> VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO 
+	  
     WHEN NOT MATCHED THEN
       INSERT(
         TB_PROMSURPRESAEMPRESA.SEQPROMSURPRESA,
@@ -4195,7 +4483,8 @@ END;
     WHEN MATCHED THEN
       UPDATE SET
         TB_PROMSURPRESAEMPRESAPERIODO.ATIVO        = VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO  
-      
+      WHERE TB_PROMSURPRESAEMPRESAPERIODO.ATIVO <> VW_INT_C5_BRINDE_CABECALHO_AUT.ATIVO
+	  
     WHEN NOT MATCHED THEN
       INSERT(
         TB_PROMSURPRESAEMPRESAPERIODO.SEQPROMSURPRESA,
@@ -4281,6 +4570,14 @@ END;
         TB_PROMSURPRESAITEM.ATIVO        = VW_INT_C5_BRINDE_ITENS_AUT.ATIVO,
         TB_PROMSURPRESAITEM.SEQFAMILIA   = VW_INT_C5_BRINDE_ITENS_AUT.SEQFAMILIA,
         TB_PROMSURPRESAITEM.IDREF        = VW_INT_C5_BRINDE_ITENS_AUT.IDREF
+	  WHERE TB_PROMSURPRESAITEM.SEQGRUPO     <> VW_INT_C5_BRINDE_ITENS_AUT.SEQGRUPO
+         OR TB_PROMSURPRESAITEM.QTDE         <> VW_INT_C5_BRINDE_ITENS_AUT.QTDE
+         OR TB_PROMSURPRESAITEM.SEQPRODUTO   <> VW_INT_C5_BRINDE_ITENS_AUT.SEQPRODUTO
+         OR TB_PROMSURPRESAITEM.TIPOITEM     <> VW_INT_C5_BRINDE_ITENS_AUT.TIPOITEM
+         OR TB_PROMSURPRESAITEM.QTDEMBALAGEM <> VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM
+         OR TB_PROMSURPRESAITEM.ATIVO        <> VW_INT_C5_BRINDE_ITENS_AUT.ATIVO
+         OR TB_PROMSURPRESAITEM.SEQFAMILIA   <> VW_INT_C5_BRINDE_ITENS_AUT.SEQFAMILIA
+         OR TB_PROMSURPRESAITEM.IDREF        <> VW_INT_C5_BRINDE_ITENS_AUT.IDREF
       
     WHEN NOT MATCHED THEN
       INSERT(
@@ -4361,6 +4658,10 @@ BEGIN
     T.GRUPO = V.GRUPO,
     T.ATIVO = V.ATIVO,
     T.IDREF = V.IDREF
+  WHERE T.QTDE <> V.QTDE
+     OR T.GRUPO <> V.GRUPO
+     OR T.ATIVO <> V.ATIVO
+     OR T.IDREF <> V.IDREF
 
   WHEN NOT MATCHED THEN 
   INSERT (
@@ -4433,7 +4734,10 @@ BEGIN
           T.INFORMADOTRIBUF   = S.INFORMADOTRIBUF,
           T.GERACBENEFFAMTRIB = S.GERACBENEFFAMTRIB,
           T.ATIVO             = S.ATIVO
-          
+       WHERE T.INFORMADOTRIBUF   <> S.INFORMADOTRIBUF
+          OR T.GERACBENEFFAMTRIB <> S.GERACBENEFFAMTRIB
+          OR T.ATIVO             <> S.ATIVO   
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           T.CODOBSERVACAO,
@@ -4487,7 +4791,12 @@ BEGIN
           T.USACODAJUSTENFE  = S.USACODAJUSTENFE,
           T.REGISTRO         = S.REGISTRO,
           T.ATIVO            = S.ATIVO
-          
+       WHERE T.CODOBSERVACAO    <> S.CODOBSERVACAO
+          OR T.CODAJUSTEEFD     <> S.CODAJUSTEEFD
+          OR T.USACODAJUSTENFE  <> S.USACODAJUSTENFE
+          OR T.REGISTRO         <> S.REGISTRO
+          OR T.ATIVO            <> S.ATIVO 
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQOBSSPED,
@@ -4563,7 +4872,9 @@ BEGIN
        UPDATE SET
           T.CODAJUSTEEFD    = S.CODAJUSTEEFD,
           T.ATIVO           = S.ATIVO
-          
+       WHERE T.CODAJUSTEEFD    <> S.CODAJUSTEEFD
+          OR T.ATIVO           <> S.ATIVO   
+		  
   WHEN NOT MATCHED THEN
         INSERT(
           T.SEQFAMILIA,
@@ -4685,7 +4996,8 @@ BEGIN
     UPDATE SET
 	  TB_GRUPOPESSOA.DESCRICAO = T.DESCRICAO,
       TB_GRUPOPESSOA.ATIVO = T.ATIVO
-
+    WHERE TB_GRUPOPESSOA.DESCRICAO <> T.DESCRICAO
+       OR TB_GRUPOPESSOA.ATIVO <> T.ATIVO
   WHEN NOT MATCHED THEN
     INSERT(
       TB_GRUPOPESSOA.SEQGRUPOPESSOA,
@@ -4748,7 +5060,8 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET
       TB_PESSOAGRUPO.ATIVO = T.ATIVO
-
+    WHERE TB_PESSOAGRUPO.ATIVO <> T.ATIVO
+	
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PESSOAGRUPO.SEQGRUPOPESSOA,
@@ -4812,7 +5125,9 @@ BEGIN
     UPDATE SET
       TB_PRECOAPARTIR.DESCRICAO = T.DESCRICAO,
       TB_PRECOAPARTIR.ATIVO = T.ATIVO
-
+    WHERE TB_PRECOAPARTIR.DESCRICAO <> T.DESCRICAO
+       OR TB_PRECOAPARTIR.ATIVO <> T.ATIVO
+	   
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PRECOAPARTIR.SEQPRECOAPARTIR,
@@ -4876,7 +5191,8 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET
       TB_PRECOAPARTIRPESSOA.ATIVO = T.ATIVO
-
+    WHERE TB_PRECOAPARTIRPESSOA.ATIVO <> T.ATIVO
+	
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PRECOAPARTIRPESSOA.SEQPRECOAPARTIR,
@@ -4939,7 +5255,8 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET
       TB_PRECOAPARTIREMPRESA.ATIVO = T.ATIVO
-
+    WHERE TB_PRECOAPARTIREMPRESA.ATIVO <> T.ATIVO
+	
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PRECOAPARTIREMPRESA.SEQPRECOAPARTIR,
@@ -5003,7 +5320,8 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET
       TB_PRECOAPARTIRSEGMENTO.ATIVO = T.ATIVO
-
+    WHERE TB_PRECOAPARTIRSEGMENTO.ATIVO <> T.ATIVO
+	
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PRECOAPARTIRSEGMENTO.SEQPRECOAPARTIR,
@@ -5069,7 +5387,10 @@ BEGIN
       TB_PRECOAPARTIRPERIODO.DTAHORINICIO = T.DTAHORINICIO, 
       TB_PRECOAPARTIRPERIODO.DTAHORFIM = T.DTAHORFIM,
       TB_PRECOAPARTIRPERIODO.ATIVO = T.ATIVO
-
+    WHERE TB_PRECOAPARTIRPERIODO.DTAHORINICIO <> T.DTAHORINICIO
+       OR TB_PRECOAPARTIRPERIODO.DTAHORFIM <> T.DTAHORFIM
+       OR TB_PRECOAPARTIRPERIODO.ATIVO <> T.ATIVO
+	   
   WHEN NOT MATCHED THEN
     INSERT(
       TB_PRECOAPARTIRPERIODO.SEQPRECOAPARTIR,
@@ -5138,6 +5459,9 @@ BEGIN
       TB_PRECOAPARTIRPRODUTO.PRECO = T.PRECO, 
       TB_PRECOAPARTIRPRODUTO.PERCDESCONTO = T.PERCDESCONTO,
       TB_PRECOAPARTIRPRODUTO.ATIVO = T.ATIVO
+	WHERE TB_PRECOAPARTIRPRODUTO.PRECO <> T.PRECO
+       OR TB_PRECOAPARTIRPRODUTO.PERCDESCONTO <> T.PERCDESCONTO
+       OR TB_PRECOAPARTIRPRODUTO.ATIVO <> T.ATIVO
 
   WHEN NOT MATCHED THEN
     INSERT(
@@ -5208,6 +5532,7 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET
       TB_PRECOAPARTIRGRUPOPESSOA.ATIVO = T.ATIVO
+	WHERE TB_PRECOAPARTIRGRUPOPESSOA.ATIVO <> T.ATIVO
 
   WHEN NOT MATCHED THEN
     INSERT(
@@ -5268,6 +5593,8 @@ BEGIN
     UPDATE SET
       TB_LIMITEVENDA.DESCRICAO = T.DESCRICAO,
       TB_LIMITEVENDA.ATIVO = T.ATIVO
+	WHERE TB_LIMITEVENDA.DESCRICAO <> T.DESCRICAO
+       OR TB_LIMITEVENDA.ATIVO <> T.ATIVO
 
   WHEN NOT MATCHED THEN
     INSERT(
@@ -5329,7 +5656,10 @@ BEGIN
       TB_LIMITEVENDAPERIODO.DTAHORINICIO = T.DTAHORINICIO, 
       TB_LIMITEVENDAPERIODO.DTAHORFIM = T.DTAHORFIM,
       TB_LIMITEVENDAPERIODO.ATIVO = T.ATIVO
-
+    WHERE TB_LIMITEVENDAPERIODO.DTAHORINICIO <> T.DTAHORINICIO
+       OR TB_LIMITEVENDAPERIODO.DTAHORFIM <> T.DTAHORFIM
+       OR TB_LIMITEVENDAPERIODO.ATIVO <> T.ATIVO
+	   
   WHEN NOT MATCHED THEN
     INSERT(
       TB_LIMITEVENDAPERIODO.SEQLIMITEVENDA,
@@ -5395,7 +5725,8 @@ BEGIN
   WHEN MATCHED THEN
     UPDATE SET 
       TB_LIMITEVENDAEMPRESA.ATIVO = T.ATIVO
-
+    WHERE TB_LIMITEVENDAEMPRESA.ATIVO <> T.ATIVO
+	
   WHEN NOT MATCHED THEN
     INSERT(
       TB_LIMITEVENDAEMPRESA.SEQLIMITEVENDA,
@@ -5473,7 +5804,9 @@ BEGIN
     UPDATE SET
       TB_LIMITEVENDAFAMILIA.QTDLIMITE = T.QTDLIMITE, 
       TB_LIMITEVENDAFAMILIA.ATIVO = T.ATIVO
-
+    WHERE TB_LIMITEVENDAFAMILIA.QTDLIMITE <> T.QTDLIMITE 
+       OR TB_LIMITEVENDAFAMILIA.ATIVO <> T.ATIVO
+	   
   WHEN NOT MATCHED THEN
     INSERT(
       TB_LIMITEVENDAFAMILIA.SEQLIMITEVENDA,
