@@ -6,6 +6,21 @@
       "nome": "PCDESCONTOFIDELIDADE",
       "tipo": "TABELA",
       "versao": "6.0.02.000"
-    }
+    },
+	{
+	  "nome": "PCGRUPOFIDELIDADEDESCONTO",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCGRUPOFIDELIDADECLIENTE",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCGRUPOFIDELIDADE",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	}
   ]
 }
