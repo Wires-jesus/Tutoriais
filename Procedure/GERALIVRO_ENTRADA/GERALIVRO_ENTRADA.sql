@@ -2059,7 +2059,8 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
            NVL(A.OBSLIVROFISCAL, A.OBS) OBS,
            ----------------------------------------------------------------
            CASE
-            WHEN A.ROTINACAD NOT LIKE '%1423%'
+            WHEN (A.ROTINACAD NOT LIKE '%1423%') AND
+                 (A.ROTINACAD NOT LIKE '%1303%')
                THEN SUM(ROUND(
                              (NVL(B.QTCONT, 0) * NVL(B.PUNITCONT, 0)) -
                              (NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0)) -
