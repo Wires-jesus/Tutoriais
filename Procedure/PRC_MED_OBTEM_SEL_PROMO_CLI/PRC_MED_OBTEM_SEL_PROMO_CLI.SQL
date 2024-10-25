@@ -550,7 +550,8 @@ BEGIN
           -- o Select do ComboBox tem a condição: TipoPromocao = 'K'
           -- HIS.01152.2015 - Adicionado para não carregar para seleção na promoção principal e no combo o tipo S - Casadinha
           IF ((NVL(vvUsaPromoFaixaQtdePrincipal,'N')  = 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','Q','F','M'))) OR
-             ((NVL(vvUsaPromoFaixaQtdePrincipal,'N') <> 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','M'))) THEN
+             ((NVL(vvUsaPromoFaixaQtdePrincipal,'N') <> 'S') AND (NVL(vvTipoPolitica,' ') IN ('D','P','M'))) or 
+             ((NVL(vvTipoPromocao,' ') in ('K')) AND (NVL(vvTipoPolitica,' ') IN ('Q'))) THEN
             IF (NVL(vvTipoPromocao,' ') NOT IN ('F','S')) THEN
       
               IF (vvBloqueio = 'N') OR 
