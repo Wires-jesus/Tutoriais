@@ -56,15 +56,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_PISCOFINS AS
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_PIX AS 
-  (SELECT 'pix' nomecarteira, 3001 idcarteira FROM DUAL
+  (SELECT 'pix' nomecarteira, 3001 idcarteira FROM PCCONSUM
      UNION
-     SELECT 'mercadopago' nomecarteira, 3002 idcarteira FROM DUAL
+     SELECT 'mercadopago' nomecarteira, 3002 idcarteira FROM PCCONSUM
      UNION
-     SELECT 'picpay' nomecarteira, 3003 idcarteira FROM DUAL
+     SELECT 'picpay' nomecarteira, 3003 idcarteira FROM PCCONSUM
      UNION
-     SELECT 'ame' nomecarteira, 3004 idcarteira FROM DUAL
+     SELECT 'ame' nomecarteira, 3004 idcarteira FROM PCCONSUM
      UNION
-     SELECT 'shipaypagador' nomecarteira, 30099 idcarteira FROM DUAL
+     SELECT 'shipaypagador' nomecarteira, 30099 idcarteira FROM PCCONSUM
    )
 
 \

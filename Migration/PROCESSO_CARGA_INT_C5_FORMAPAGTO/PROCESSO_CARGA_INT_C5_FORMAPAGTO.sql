@@ -2,37 +2,37 @@ CREATE OR REPLACE VIEW VW_INT_C5_ESPECIE_FORMAPGTO AS
 select especie,
        descricao,
        winthor
-from    (SELECT 'D' especie, 'DINHEIRO' descricao, 'D' winthor FROM DUAL
+from    (SELECT 'D' especie, 'DINHEIRO' descricao, 'D' winthor FROM PCCONSUM
      UNION
-     SELECT 'B' especie, 'BOLETO' descricao, 'BK' winthor FROM DUAL
+     SELECT 'B' especie, 'BOLETO' descricao, 'BK' winthor FROM PCCONSUM
      UNION
-     SELECT 'C' especie, 'CHEQUE' descricao, 'CHP' winthor FROM DUAL
+     SELECT 'C' especie, 'CHEQUE' descricao, 'CHP' winthor FROM PCCONSUM
      UNION
-     SELECT 'C' especie, 'CHEQUE' descricao, 'CHV' winthor FROM DUAL
+     SELECT 'C' especie, 'CHEQUE' descricao, 'CHV' winthor FROM PCCONSUM
      UNION
      SELECT 'E' especie, 'CARTAO DE DEBITO' descricao, 'CTD' winthor
-       FROM DUAL
+       FROM PCCONSUM
      UNION
      SELECT 'N' especie, 'NOTA PROMISSORIA' descricao, 'NP' winthor
-       FROM dual
+       FROM PCCONSUM
      UNION
      SELECT 'R' especie, 'CARTAO DE CREDITO' descricao, 'CTC' winthor
-       FROM DUAL
+       FROM PCCONSUM
      UNION
-     SELECT 'S' especie, 'POS' descricao, 'POS' winthor FROM DUAL
+     SELECT 'S' especie, 'POS' descricao, 'POS' winthor FROM PCCONSUM
      UNION
-     SELECT 'T' especie, 'TICKET PAPEL' descricao, 'TKT' winthor FROM DUAL
+     SELECT 'T' especie, 'TICKET PAPEL' descricao, 'TKT' winthor FROM PCCONSUM
      UNION
-     SELECT 'U' especie, 'VALE CREDITO' descricao, 'U' winthor FROM DUAL
+     SELECT 'U' especie, 'VALE CREDITO' descricao, 'U' winthor FROM PCCONSUM
      UNION
-     SELECT 'V' especie, 'CONVENIO' descricao, 'CONV' winthor FROM DUAL
+     SELECT 'V' especie, 'CONVENIO' descricao, 'CONV' winthor FROM PCCONSUM
      UNION
-     SELECT 'X' especie, 'VALE CREDITO' descricao, 'X' winthor FROM DUAL
+     SELECT 'X' especie, 'VALE CREDITO' descricao, 'X' winthor FROM PCCONSUM
      UNION
      SELECT 'I' especie, 'CREDITO FINANCEIRO' descricao, 'CRED' winthor
-       FROM DUAL
+       FROM PCCONSUM
      UNION
-     SELECT 'G' especie, 'CARTEIRA DIGITAL' descricao, 'PIX' winthor FROM DUAL)
+     SELECT 'G' especie, 'CARTEIRA DIGITAL' descricao, 'PIX' winthor FROM PCCONSUM)
 
 \
 
