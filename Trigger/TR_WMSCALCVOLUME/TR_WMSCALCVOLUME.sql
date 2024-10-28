@@ -1,7 +1,9 @@
-CREATE OR REPLACE trigger TR_WMSCALCVOLUME
-  before update of posicao on pcpedc
-  referencing new as new old as old
-  for each row
+CREATE OR REPLACE TRIGGER tr_wmscalcvolume
+ BEFORE
+   UPDATE OF posicao
+ ON pcpedc
+REFERENCING NEW AS NEW OLD AS OLD
+ FOR EACH ROW
 declare
   vQtVolTipo13  integer;
   vQtVolTipo20  integer;
@@ -24,27 +26,31 @@ declare
 
   vScript varchar2(1000);
 
+  -- VariÃ¡vel para armazenar a contagem de volumes na tabela pcmovendpendvolume
+  vVolumes3724 integer;
+
+  
 begin
-  /* Início das validações de parâmetros */
+  /* InÃ­cio das validaÃ§Ãµes de parÃ¢metros */
   /* Valida se a filial do pedido utiliza WMS */
   select nvl(usawms, 'N')
       into vUsaWMS
       from pcfilial
      where codigo = :old.codfilial;
 
-    /* Somente executa os cálculos e validações abaixo caso a filial use WMS */
+    /* Somente executa os cÃ¡lculos e validaÃ§Ãµes abaixo caso a filial use WMS */
     if (vUsaWMS = 'S') then
       if :new.numvolume is null then
       :new.numvolume := 0;
     end if;
   end if;
-  /* A trigger só será executada caso a nova posicao do pedido seja 'F' */
+  /* A trigger sÃ³ serÃ¡ executada caso a nova posicao do pedido seja 'F' */
   if :new.posicao = 'F' then
 
-    /* Somente executa os cálculos e validações abaixo caso a filial use WMS */
+    /* Somente executa os cÃ¡lculos e validaÃ§Ãµes abaixo caso a filial use WMS */
     if (vUsaWMS = 'S') then
 
-      /* Validações dos parâmetros do WMS */
+      /* ValidaÃ§Ãµes dos parÃ¢metros do WMS */
       select nvl(max(decode(nome, 'ALTERARVOLUMEPORPEDIDO', nvl(valor, 'N'))),
                  'N'),
              nvl(max(decode(nome, 'INTEGRACAOWMS', nvl(valor, 'N'))), 'N'),
@@ -69,23 +75,23 @@ begin
                       'PERCTOLERANCIAVOLUMEPESOVARIAVEL',
                       'LANCEMBALAGENSPESOVAR');
 
-      /* Valida se existe algum dos produtos do pedido que não utiliza WMS */
+      /* Valida se existe algum dos produtos do pedido que nÃ£o utiliza WMS */
       select sum(decode(nvl(pcprodut.usawms, 'N'), 'S', 0, 1))
         into vQtProdSemWMS
         from pcpedi, pcprodut
        where pcpedi.codprod = pcprodut.codprod
          and pcpedi.numped = :old.numped;
 
-      /* Fim das validações de parâmetros */
+      /* Fim das validaÃ§Ãµes de parÃ¢metros */
 
-      /* Caso utilize o padrão de volumes por OS */
+      /* Caso utilize o padrÃ£o de volumes por OS */
       if (vTipoVolumePedidoVenda <> 'I') then
 
         /* Resumo do if abaixo:
           1: Caso a nova posicao do pedido seja 'F'
           2: A filial usa WMS
-          3: Não hajam produtos que não usem WMS
-          4:  WMS utiliza integração = 'N'
+          3: NÃ£o hajam produtos que nÃ£o usem WMS
+          4:  WMS utiliza integraÃ§Ã£o = 'N'
         */
         if :new.posicao = 'F' and vUsaWMS = 'S' and vQtProdSemWMS = 0 and vUsaIntegracaoWMS = 'N' then
            --(vAlterarVolumePorPedido = 'N' or vUsaIntegracaoWMS = 'S') then
@@ -100,10 +106,10 @@ begin
              and pcpedi.numped = :new.numped
              and pcprodut.tipoEstoque = 'FR';
 
-          /* Somente irá realizar os updates abaixo caso algum dos produtos seja do tipo frios */
+          /* Somente irÃ¡ realizar os updates abaixo caso algum dos produtos seja do tipo frios */
           if nvl(vQtProdFrios,0) > 0 then
 
-            /* Verifica se a filial utiliza o processo de pré faturamento */
+            /* Verifica se a filial utiliza o processo de prÃ© faturamento */
             select nvl(valor, 'N')
               into vUtilizaPreFat
               from pcparamfilial
@@ -166,9 +172,9 @@ begin
 
           end if;
 
-          /* Continuação para os tipo OS do WMS */
+          /* ContinuaÃ§Ã£o para os tipo OS do WMS */
 
-          /* Verifica se existem o.s. tipo 13 para cálculo */
+          /* Verifica se existem o.s. tipo 13 para cÃ¡lculo */
           select count(1)
             into vQtVolTipo13
             from pcmovendpend
@@ -176,15 +182,29 @@ begin
              and tipoOS = 13
              and dtEstorno is null;
 
-          /* Caso exista alguma, entra na seção de cálculos do tipo 13 e zera a contagem para o cálculo conforme parâmetros */
+          /* Caso exista alguma, entra na seÃ§Ã£o de cÃ¡lculos do tipo 13 e zera a contagem para o cÃ¡lculo conforme parÃ¢metros */
           if nvl(vQtVolTipo13,0) > 0 then
             vQtVolTipo13 := 0;
 
-            /* Caso o parâmetro de lançamento de embalagens seja 'D', realiza o cálculo dentro do if abaixo */
+
+ /* Adiciona a verificaÃ§Ã£o do select antes de realizar o cÃ¡lculo */
+           
+select  count(*) into vVolumes3724
+from pcmovendpendvolume , PCPRODUT
+where numos IN (SELECT NUMOS
+                     FROM PCMOVENDPEND
+                         WHERE NUMPED  = :NEW.NUMPED)
+                         AND PCPRODUT.TIPOESTOQUE = 'FR'
+                          AND PCMOVENDPENDVOLUME.CODPROD = PCPRODUT.CODPROD;
+                          
+            /* Realiza o cÃ¡lculo apenas se nÃ£o houver volumes na tabela pcmovendpendvolume */
+            if vVolumes3724 = 0 then
+
+            /* Caso o parÃ¢metro de lanÃ§amento de embalagens seja 'D', realiza o cÃ¡lculo dentro do if abaixo */
             if (vLancEmbalagensPesoVar = 'D') then
 
               select nvl(sum(nvl(vol, 0)), 0)
-                into vQtVolTipo13
+                into vQtVolTipo13 
                 from (select case
                                when (sum(nvl(pcmovendpend.qtPecas, 0)) > 0 and
                                     sum(nvl(pcmovendpend.qtCx, 0)) > 0) then
@@ -238,10 +258,11 @@ begin
                          and pcmovendpend.dtestorno is null
                        GROUP BY pcmovendpend.numos);
             end if;
+            end if  ;
 
-            /* Caso não tenha obtido nenhum volume no cálculo acima, continua a calcular */
+            /* Caso nÃ£o tenha obtido nenhum volume no cÃ¡lculo acima, continua a calcular */
             if (nvl(vQtVolTipo13,0) = 0) then
-              /* Obtem o máximo dos volumes que constam na PCMOVENDPEND dos produtos não variam peso e não sejam frios */
+              /* Obtem o mÃ¡ximo dos volumes que constam na PCMOVENDPEND dos produtos nÃ£o variam peso e nÃ£o sejam frios */
               select nvl(sum(nvl(vol, 0)), 0)
                 into vQtVolTipo13
                 from (select max(pcmovendpend.numVol) vol
@@ -255,12 +276,12 @@ begin
                        group by numos);
             end if;
 
-            /* Caso não tenha obtido nenhum volume no cálculo acima, continua a calcular */
+            /* Caso nÃ£o tenha obtido nenhum volume no cÃ¡lculo acima, continua a calcular */
             if (nvl(vQtVolTipo13,0) = 0) then
-              /* Soma os volumes calculados no select abaixo baseado no peso (para frios) ou caixa, dos produtos que não variam peso */
+              /* Soma os volumes calculados no select abaixo baseado no peso (para frios) ou caixa, dos produtos que nÃ£o variam peso */
               select nvl(sum(nvl(vol, 0)), 0)
                 into vQtVolTipo13
-                from (select ROUND(sum(case
+                from (select sum(ceil(case
                                         when pcprodut.tipoEstoque = 'FR' then
                                          pcmovendpend.qt / pcprodut.pesoBrutoMaster
                                         else
@@ -274,7 +295,7 @@ begin
                          and pcmovendpend.dtEstorno is null
                        group by pcmovendpend.numos);
 
-              /* E caso nenhum dos cálculos acima tenha obtido sucesso, é verificado se o lançamento de embalagens está definido como 'S' */
+              /* E caso nenhum dos cÃ¡lculos acima tenha obtido sucesso, Ã© verificado se o lanÃ§amento de embalagens estÃ¡ definido como 'S' */
               if ((vLancEmbalagensPesoVar = 'S') and (nvl(vQtVolTipo13,0) = 0)) then
                 select nvl(sum(nvl(vol, 0)), 0)
                   into vQtVolTipo13
@@ -295,11 +316,11 @@ begin
 
             end if;
 
-            /* Fim do cálculo dos tipoOS 13 */
+            /* Fim do cÃ¡lculo dos tipoOS 13 */
           end if;
 
-          /* Início dos cálculos de volume para o tipo 20 */
-          /* Verifica se existe alguma OS para o tipo 20 antes de iniciar os cálculos */
+          /* InÃ­cio dos cÃ¡lculos de volume para o tipo 20 */
+          /* Verifica se existe alguma OS para o tipo 20 antes de iniciar os cÃ¡lculos */
           select count(1)
             into vQtVolTipo20
             from pcmovendpend
@@ -307,9 +328,9 @@ begin
              and tipoOS = 20
              and dtEstorno is null;
 
-          /* Início dos cálculos do tipo 20 */
+          /* InÃ­cio dos cÃ¡lculos do tipo 20 */
           if (nvl(vQtVolTipo20,0) > 0) then
-            /* Por padrão, são somados os volumes que constam na pcmovendpend */
+            /* Por padrÃ£o, sÃ£o somados os volumes que constam na pcmovendpend */
             select sum(nvl(numVol, 0))
               into vQtVolTipo20
               from pcmovendpend
@@ -317,11 +338,11 @@ begin
                and tipoOS = 20
                and dtEstorno is null;
 
-            /* Caso não tenha obtido nenhum volume com a soma, calcula com base no peso dos produtos que geraram no tipo 20 */
+            /* Caso nÃ£o tenha obtido nenhum volume com a soma, calcula com base no peso dos produtos que geraram no tipo 20 */
             if (nvl(vQtVolTipo20,0) = 0) then
               select sum(nvl(vol, 0))
                 into vQtVolTipo20
-                from (select ROUND(sum(case
+                from (select sum(ceil(case
                                         when tipoEstoque = 'FR' then
                                          pcmovendpend.qt / pcprodut.pesoBrutoMaster
                                         else
@@ -335,10 +356,10 @@ begin
                          and pcmovendpend.dtEstorno is null
                        group by pcmovendpend.numos);
             end if;
-            /* Fim do cálculo do tipo 20 */
+            /* Fim do cÃ¡lculo do tipo 20 */
           end if;
 
-          /* Início dos cálculos do tipo 22 */
+          /* InÃ­cio dos cÃ¡lculos do tipo 22 */
           select count(1)
             into vQtVolTipo22
             from pcmovendpend
@@ -346,9 +367,9 @@ begin
              and tipoOS = 22
              and dtEstorno is null;
 
-          /* Caso tenha encontrado alguma OS, realiza o cálculo abaixo */
+          /* Caso tenha encontrado alguma OS, realiza o cÃ¡lculo abaixo */
           if (nvl(vQtVolTipo22,0) > 0) then
-            /* O cálculo é feito pela soma dos maiores números de volume do tipo 22 */
+            /* O cÃ¡lculo Ã© feito pela soma dos maiores nÃºmeros de volume do tipo 22 */
             select sum(nvl(vol, 0))
               into vQtVolTipo22
               from (select max(pcmovendpend.numVol) vol
@@ -358,7 +379,7 @@ begin
                        and pcmovendpend.dtEstorno is null
                      group by pcmovendpend.numos);
 
-            /* Fim do cálculo do tipo 22 */
+            /* Fim do cÃ¡lculo do tipo 22 */
           end if;
 
           /* Calcula o restante dos volumes baseado em suas quantidades de caixa e/ou peso */
@@ -381,25 +402,24 @@ begin
                    where pcpedi.numped = :new.numped
                      and pcpedi.codProd = pcprodut.codProd
                      and nvl(pcprodut.pesoVariavel, 'N') <> 'S'
-					 and pcprodut.tipomerc not in ('PA', 'MP')
                    group by pcpedi.codProd,
                             pcprodut.qtUnitCx,
                             pcprodut.pesoBrutoMaster,
                             pcprodut.tipoEstoque);
-          /* Fim do cálculo dos volumes restantes */
+          /* Fim do cÃ¡lculo dos volumes restantes */
 
-          /* Atribui o novo número de volumes a coluna da pcpedc.numvolume */
+          /* Atribui o novo nÃºmero de volumes a coluna da pcpedc.numvolume */
           :new.numVolume := NVL(vQtVolTipo13,0) + NVL(vQtVolTipo20,0) + NVL(vQtVolTipo22,0) +
-                            NVL(vQtVolRest,0);
+                            NVL(vQtVolRest,0) + NVL (vVolumes3724,0) ;
 
-          /* Fim do cálculo dos volumes por O.S. */
+          /* Fim do cÃ¡lculo dos volumes por O.S. */
         end if;
 
       else
-        /* Caso utilize o padrão de volumes por ID */
+        /* Caso utilize o padrÃ£o de volumes por ID */
         /* Volumes induzidos e agrupados */
 
-        /* Calcula a quantidade de volumes que não estão cortados na PCVOLUMEOS */
+        /* Calcula a quantidade de volumes que nÃ£o estÃ£o cortados na PCVOLUMEOS */
         select count(distinct(nvl(s.numVol, 0)))
           into vQtTotalVolID
           from pcmovendpend m, pcvolumeos s
@@ -409,7 +429,7 @@ begin
            and m.dtEstorno is null
            and nvl(s.volumeCortado, 'N') = 'N';
 
-        /* Realiza o cácculo dos volumes restantes que não foram obtidos no select acima */
+        /* Realiza o cÃ¡cculo dos volumes restantes que nÃ£o foram obtidos no select acima */
         select nvl(sum(nvl(qt, 0)), 0)
           into vQtVolRest
           from (select ceil((sum(pcpedi.qt) -
@@ -434,10 +454,10 @@ begin
                           pcprodut.pesoBrutoMaster,
                           pcprodut.tipoEstoque);
 
-        /* Atribui o novo número de volumes a coluna da pcpedc.numvolume */
+        /* Atribui o novo nÃºmero de volumes a coluna da pcpedc.numvolume */
         :new.numVolume := NVL(vQtTotalVolID,0) + NVL(vQtVolRest,0);
 
-        /* Fim do cálculo dos volumes por ID */
+        /* Fim do cÃ¡lculo dos volumes por ID */
       end if;
 
       /* Realiza update na PCNFSAID (NumVolume e TotVolume) conforme foi calculado para os tipos de OS */
@@ -446,8 +466,8 @@ begin
              totVolume = :new.numVolume
        where numTransVenda = :new.numTransVenda;
 
-      /* Verifica se existe a tabela PCNFSAIDPREFAT, pois caso a tenha, significa que o update acima não foi bem sucedido
-	  e tenta realizar o update nela, pois posteriormente, será replicado aos novos registros da PCNFSAID */
+      /* Verifica se existe a tabela PCNFSAIDPREFAT, pois caso a tenha, significa que o update acima nÃ£o foi bem sucedido
+      e tenta realizar o update nela, pois posteriormente, serÃ¡ replicado aos novos registros da PCNFSAID */
       select count(1)
         into vQtRegistros
         from user_tables
@@ -469,5 +489,5 @@ begin
     /* Final do if caso o pedido esteja sendo faturado */
   end if;
 
-  /* Fim da execução da trigger */
+  /* Fim da execuÃ§Ã£o da trigger */
 end;
