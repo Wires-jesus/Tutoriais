@@ -33,7 +33,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
             (SELECT 0 || codepto || 1 seqcategoria,
                     NULL seqcategoriapai,
                     1 nivelhierarquia,
-                    SUBSTR (UPPER (descricao), 0, 25) categoria,
+                    SUBSTR (UPPER (NVL(descricao, 'PADRAO')), 0, 25) categoria,
                     'S' ativo,
                     codepto idref,
                     dtalterc5
@@ -48,7 +48,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
              SELECT b.codsec||'0'|| 2 seqcategoria,
                     a.codepto || 1 seqcategoriapai,
                     2 nivelhierarquia,
-                    SUBSTR (UPPER (b.descricao), 0, 25) categoria,
+                    SUBSTR (UPPER (NVL(b.descricao,'PADRAO')), 0, 25) categoria,
                     'S' ativo,
                     b.codsec idref,
                     b.dtalterc5
@@ -65,7 +65,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
                     --b.codsec || 2 seqcategoriapai,
                     b.codsec || '0' || 2 seqcategoriapai,
                     3 nivelhierarquia,
-                    SUBSTR (UPPER (c.categoria), 0, 25) categoria,
+                    SUBSTR (UPPER (NVL(c.categoria,'NVL')), 0, 25) categoria,
                     'S' ativo,
                     c.codcategoria idref,
                     c.dtalterc5
@@ -84,7 +84,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
                     --c.codcategoria || 3 seqcategoriapai,
                     b.codsec||'0'|| c.codcategoria||'0'|| 3 seqcategoriapai,                    
                     4 nivelhierarquia,
-                    SUBSTR (UPPER (d.subcategoria), 0, 25) categoria,
+                    SUBSTR (UPPER (NVL(d.subcategoria,'PADRAO')), 0, 25) categoria,
                     'S' ativo,
                     d.codsubcategoria idref,
                     d.dtalterc5
