@@ -5858,6 +5858,85 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_clientecredito(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_clientecredito T
+    USING (SELECT * FROM VW_INT_C5_LIM_CRED_CLIENTE) S 
+    ON    (T.SEQPESSOA = S.SEQPESSOA AND T.NROFORMAPAGTO = S.NROFORMAPAGTO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.VLRLIMITE       = S.VLRLIMITE,
+          T.VLRUTILIZADO    = S.VLRUTILIZADO,
+          T.SITUACAOCREDITO = S.SITUACAOCREDITO,
+          T.COBRATAXA       = S.COBRATAXA,
+          T.ATIVO           = S.ATIVO,
+          T.VLRLIMITEPARCELADO = S.VLRLIMITEPARCELADO
+       WHERE T.VLRLIMITE       <> S.VLRLIMITE 
+       OR    T.VLRUTILIZADO    <> S.VLRUTILIZADO  
+       OR    T.SITUACAOCREDITO <> S.SITUACAOCREDITO
+       OR    T.COBRATAXA       <> S.COBRATAXA
+       OR    T.ATIVO           <> S.ATIVO
+       OR    T.VLRLIMITEPARCELADO <> S.VLRLIMITEPARCELADO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQPESSOA,
+          T.NROFORMAPAGTO,
+          T.VLRLIMITE,
+          T.VLRUTILIZADO,
+          T.SITUACAOCREDITO,
+          T.COBRATAXA,
+          T.ATIVO,
+          T.VLRLIMITEPARCELADO
+          ) 
+        VALUES(
+          S.SEQPESSOA,
+          S.NROFORMAPAGTO,
+          S.VLRLIMITE,
+          S.VLRUTILIZADO,
+          S.SITUACAOCREDITO,
+          S.COBRATAXA,
+          S.ATIVO,
+          S.VLRLIMITEPARCELADO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_clientecredito', 'carrega_tb_clientecredito OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_clientecredito',
+           'carrega_tb_clientecredito ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_clientecredito',
+           'carrega_tb_clientecredito ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
