@@ -164,6 +164,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   procedure carrega_tb_limitevendaempresa(p_id in pccontroleconsinco.id%type);
   
   procedure carrega_tb_limitevendafamilia(p_id in pccontroleconsinco.id%type);
+
+  PROCEDURE carrega_tb_clientecredito(p_id IN pccontroleconsinco.id%TYPE) ;
   
   PROCEDURE exec_sinc;
 
