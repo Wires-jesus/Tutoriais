@@ -362,6 +362,12 @@ values (71, 'tb_pessoagrupo')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (72, 'tb_precoapartirgrupopessoa')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (73, 'tb_clientecredito')
+
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -718,3 +724,8 @@ VALUES (71, 71, 'Sincronização de tabela TB_PESSOAGRUPO', TRUNC(SYSDATE), 'D',
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 VALUES (72, 72, 'Sincronização de tabela tb_precoapartirgrupopessoa', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_precogrupopessoa', 72, 'A', TRUNC(SYSDATE), TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (73, 73, 'Sincronização de tabela TB_CLIENTECREDITO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_clientecredito',  73,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
