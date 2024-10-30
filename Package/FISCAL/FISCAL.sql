@@ -222,5 +222,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
    FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
                          P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2;
    FUNCTION CTE_DENEGADO(P_SITUACAOCTE IN VARCHAR2) RETURN VARCHAR2;
+   FUNCTION GET_DESCRICAO_NATUREZA_OP(
+                                      P_CODFISCAL       NUMBER,
+                                      P_CODOPER         VARCHAR2,
+                                      P_CODROTINAORIGEM NUMBER DEFAULT 0
+                                      ) RETURN VARCHAR2;
 END;
 
