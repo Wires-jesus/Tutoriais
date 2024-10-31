@@ -546,6 +546,7 @@ IS
     vnQtFaltaAvaria               NUMBER;
     vnQtCrossDocking              NUMBER;
     vnQtDisponivelBloqueado       NUMBER;
+    vnQtSaidaDevolucao            NUMBER;
     
     -- Custo Financeiro TV10
     vnCustoFinTV10                NUMBER;
@@ -1643,6 +1644,7 @@ IS
         FOR vc_Movimentacao IN (SELECT PCMOV.CODPROD
                                      , PCMOV.NUMLOTE
                                      , SUM(PCMOV.QTBLOQUEADA) QTCONT
+                                     , NVL(SUM(PCMOV.QTDEVOL), 0) QTDEVOL
                                      , MAX(PCMOVCOMPLE.CUSTOULTENTCONT) CUSTOULTENTCONT
                                   FROM PCMOV
                                      , PCMOVCOMPLE 
@@ -1724,8 +1726,26 @@ IS
               vvRestricao := '*';
             END IF;
             
+            -- Valida se há devoluções e deduz
+            select nvl(sum(m.qtavaria), 0) into vnQtSaidaDevolucao
+            from pcmovpreent m, pcnfsaidpre s
+            where m.numtransvenda = s.numtransvenda
+            and m.numtransent = pi_nNumTransEnt 
+            and m.codfilial = vvCodFilial
+            and m.codprod = vc_Movimentacao.CODPROD
+            and m.numlote = vc_Movimentacao.NUMLOTE
+            and m.codoper = 'SD';
+            
+            vnQtDisponivelBloqueado := vc_Movimentacao.QTCONT - vc_Movimentacao.QTDEVOL - vnQtSaidaDevolucao;
+            if vnQtDisponivelBloqueado < 0 then
+              vnQtDisponivelBloqueado := 0;
+            end if;
+            
+            -- Regra do Gabriel: mostrar somente os itens que tem quantidade bloqueada disponível para
+            -- utilização, ou seja, caso tenha devolvido todos a quantidade não aparecerá.
+            
             -- Se tem Qtde. de Crossdocking - DDMEDICA-1769 
-            IF (NVL(vc_Movimentacao.QTCONT, 0) > 0) THEN
+            IF (NVL(vnQtDisponivelBloqueado, 0) > 0) THEN
                  
               -- Incrementa o Contador de ID
               viContaID := NVL(viContaID,0) + 1;
@@ -1737,7 +1757,7 @@ IS
               vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
               vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
               vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
-              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QTCONT; -- DDMEDICA-1769 
+              vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; -- DDMEDICA-1769 
               vtEntrada(viContaID).nCUSTOFIN             := vc_Movimentacao.CUSTOULTENTCONT; 
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;
