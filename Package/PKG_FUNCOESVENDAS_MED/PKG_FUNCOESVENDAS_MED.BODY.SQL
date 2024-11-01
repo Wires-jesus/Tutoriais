@@ -1726,15 +1726,20 @@ IS
               vvRestricao := '*';
             END IF;
             
-            -- Valida se há devoluções e deduz
-            select nvl(sum(m.qtavaria), 0) into vnQtSaidaDevolucao
-            from pcmovpreent m, pcnfsaidpre s
-            where m.numtransvenda = s.numtransvenda
-            and m.numtransent = pi_nNumTransEnt 
-            and m.codfilial = vvCodFilial
-            and m.codprod = vc_Movimentacao.CODPROD
-            and m.numlote = vc_Movimentacao.NUMLOTE
-            and m.codoper = 'SD';
+            BEGIN
+              -- Valida se há devoluções e deduz
+              select nvl(sum(m.qtavaria), 0) into vnQtSaidaDevolucao
+              from pcmovpreent m, pcnfsaidpre s
+              where m.numtransvenda = s.numtransvenda
+              and m.numtransent = pi_nNumTransEnt 
+              and m.codfilial = vvCodFilial
+              and m.codprod = vc_Movimentacao.CODPROD
+              and m.numlote = vc_Movimentacao.NUMLOTE
+              and m.codoper = 'SD';
+            EXCEPTION
+              WHEN OTHERS THEN
+                vnQtSaidaDevolucao := 0;
+            END;
             
             vnQtDisponivelBloqueado := vc_Movimentacao.QTCONT - vc_Movimentacao.QTDEVOL - vnQtSaidaDevolucao;
             if vnQtDisponivelBloqueado < 0 then
