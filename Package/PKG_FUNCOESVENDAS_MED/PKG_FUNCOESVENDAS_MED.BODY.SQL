@@ -1009,6 +1009,7 @@ IS
                                    , PCMOV.NUMLOTE
                                    , SUM(PCMOV.QT) QT
                                    , SUM(PCMOV.QTCONT) QTCONT
+                                   , SUM(PCMOV.QTDEVOL) QTDEVOL
                                 FROM PCMOV
                                    , PCMOVCOMPLE 
                                WHERE (PCMOV.NUMTRANSENT  = pi_nNumTransEnt)
@@ -1081,16 +1082,37 @@ IS
           vvObs       := 'Sem Custo Financeiro (PCEST) na Filial ' || vvCodFilial;
           vvRestricao := '*';
         END IF;
+       
         
         ----------------------
         -- Se aceita o Produto
         ----------------------
         IF (vbAceitaPrduto) THEN
+        
+          vnQtSaidaDevolucao := 0;
          
           -- Pesquisa o Depósito Padrão da Transferência 
           vnDepositoPadraoCrossdock := 0;
           IF (NVL(vFIL_USAINTEGRACAOWMS,'N') = 'S') AND
              (NVL(vFIL_INTEGRADORAWMS,'0')   = '7') THEN
+             
+             
+             BEGIN
+              -- Valida se há devoluções e deduz
+              select nvl(sum(m.qtavaria), 0) into vnQtSaidaDevolucao
+              from pcmovpreent m, pcnfsaidpre s
+              where m.numtransvenda = s.numtransvenda
+              and m.numtransent = pi_nNumTransEnt
+              and m.codfilial = vvCodFilial
+              and m.codprod = vc_Movimentacao.CODPROD
+              and m.numlote = vc_Movimentacao.NUMLOTE
+              and m.codoper = 'SD';
+            EXCEPTION
+              WHEN OTHERS THEN
+                vnQtSaidaDevolucao := 0;
+            END;
+            
+            vnQtSaidaDevolucao := vnQtSaidaDevolucao + NVL(vc_Movimentacao.QTDEVOL, 0 );
             
             -- Começa com o Padrão Saída
             P_OBTER_DEPOSITO_WMS(vvCodFilial,
@@ -1111,11 +1133,13 @@ IS
                         
           END IF;        
          
+          
           -- Calcula a Quantidade da Transferência
-          vnQtTV10 := NVL(vc_Movimentacao.QT,0);
+          vnQtTV10 := NVL(vc_Movimentacao.QT,0) - vnQtSaidaDevolucao;
           IF (NVL(vnQtTV10,0) = 0) THEN
-            vnQtTV10 := NVL(vc_Movimentacao.QTCONT,0);
+            vnQtTV10 := NVL(vc_Movimentacao.QTCONT,0) - vnQtSaidaDevolucao;
           END IF;
+          
         
           ----------
           -- Avarias
