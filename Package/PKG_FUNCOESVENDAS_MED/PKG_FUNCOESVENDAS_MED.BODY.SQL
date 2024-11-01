@@ -1082,13 +1082,14 @@ IS
           vvObs       := 'Sem Custo Financeiro (PCEST) na Filial ' || vvCodFilial;
           vvRestricao := '*';
         END IF;
-        
-        vnQtSaidaDevolucao := 0;
+       
         
         ----------------------
         -- Se aceita o Produto
         ----------------------
         IF (vbAceitaPrduto) THEN
+        
+          vnQtSaidaDevolucao := 0;
          
           -- Pesquisa o Depósito Padrão da Transferência 
           vnDepositoPadraoCrossdock := 0;
@@ -1132,11 +1133,13 @@ IS
                         
           END IF;        
          
+          
           -- Calcula a Quantidade da Transferência
           vnQtTV10 := NVL(vc_Movimentacao.QT,0) - vnQtSaidaDevolucao;
           IF (NVL(vnQtTV10,0) = 0) THEN
             vnQtTV10 := NVL(vc_Movimentacao.QTCONT,0) - vnQtSaidaDevolucao;
           END IF;
+          
         
           ----------
           -- Avarias
