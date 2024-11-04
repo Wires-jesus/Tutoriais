@@ -195,7 +195,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESCONTO_CLIENTE",
 			"tipo": "MIGRATION",
-			"versao": "6.0.19.000"
+			"versao": "6.0.20.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
