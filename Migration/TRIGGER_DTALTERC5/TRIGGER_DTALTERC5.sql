@@ -167,7 +167,10 @@ END;
 
 CREATE OR REPLACE TRIGGER trg_c5_dt_pcembalagem
  BEFORE INSERT OR UPDATE
-        ON pcembalagem
+	 OF codfilial, dtulalterintegra, dtcadastro, dtinativo, codprod, codauxiliar, descricaoecf, pvenda, dtultaltpvenda, poferta, pofertaatac, dtofertaini, dtofertafim,
+ dtofertaatacini, dtofertaatacfim, qtunit, prazoval, qtminimaatacado, pvendaatac, enviabalanca, unidade, pesobruto, pesoliq, tipoembalagem, pcomrep1,
+ prodsemcodbarras, enviafrentecaixa
+     ON pcembalagem
 REFERENCING NEW AS NEW OLD AS OLD
  FOR EACH ROW
 BEGIN
