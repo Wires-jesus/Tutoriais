@@ -748,6 +748,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             WHEN (VN_MULTIPLICADOR = 1) THEN VN_MULTIPLICADOR := 3;
             ELSE VN_MULTIPLICADOR := VN_MULTIPLICADOR;
           END CASE;
+       ELSE
 
           IF VN_MULTIPLICADOR = PN_BASE THEN
             VN_MULTIPLICADOR := 2;
