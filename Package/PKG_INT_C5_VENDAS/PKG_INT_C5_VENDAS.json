@@ -36,6 +36,16 @@
 	  "nome": "VW_INT_C5_NFESAT",
 	  "tipo": "OBJETO_PLSQL",
 	  "versao": "6.0.02.000"
+	},
+	{
+	  "nome": "PCPEDCECF",
+	  "tipo": "TABELA",
+	  "versao": "6.0.03.000"
+	},
+	{
+	  "nome": "PCPEDIECF",
+	  "tipo": "TABELA",
+	  "versao": "6.0.03.000"
 	}
   ]
 }
