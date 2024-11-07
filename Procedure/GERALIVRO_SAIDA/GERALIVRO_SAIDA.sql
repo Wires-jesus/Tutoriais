@@ -1809,7 +1809,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                                        (B.QTCONT * (NVL(B.BASEICMS,0)+ NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0))))),2))
            END) VLBASE,
            ------------------------------------------------------------------
-           SUM(NVL(DXML.VICMS,           
+           SUM(NVL(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'),'S',DXML.VICMS,0),           
              (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                         (B.CODFISCAL IN (5929, 6929)) THEN
                  (FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'DF', B.ROWID, C.ESTENT, A.CHAVENFE))
@@ -1884,7 +1884,13 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            A.OBS,
            ------------------------------------------------------------------
            CASE WHEN A.ROTINACAD NOT LIKE '%1302%' then
-                SUM(ROUND(B.QTCONT * (B.PUNITCONT - NVL(B.VLFRETE, 0)), 2))
+                SUM(ROUND( ROUND(B.QTCONT * (NVL(B.PUNITCONT,0) - NVL(B.VLIPI,0) - NVL(B.ST,0) - NVL(MC.VLFECP,0) ),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLIPI,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.ST,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(MC.VLFECP,0) ),2) +
+                           DECODE(A.CHAVENFE, NULL, NVL(B.QTCONT,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLFRETE,0)),2),2))
                 ELSE
                 SUM(ROUND(B.QTCONT *  B.PTABELA,2) - ROUND (B.QTCONT * NVL (B.VLDESCONTO, 0), 2)
                                                    - ROUND (B.QTCONT * NVL (B.VLSUFRAMA, 0), 2)
@@ -1901,7 +1907,13 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            VLDESDOBRADO_ARRED_POR_ITEM,
            ------------------------------------------------------------------
            CASE WHEN A.ROTINACAD NOT LIKE '%1302%' then
-                SUM(ROUND(B.QTCONT * (B.PUNITCONT - NVL(B.VLFRETE, 0)), 2)) -- Calculo anterior
+                SUM(ROUND( ROUND(B.QTCONT * (NVL(B.PUNITCONT,0) - NVL(B.VLIPI,0) - NVL(B.ST,0) - NVL(MC.VLFECP,0) ),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLIPI,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.ST,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)),2) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(MC.VLFECP,0) ),2) +
+                           DECODE(A.CHAVENFE, NULL, NVL(B.QTCONT,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+                           ROUND((NVL(B.QTCONT,0) * NVL(B.VLFRETE,0)),2),2))
                 ELSE
                 SUM(ROUND(B.QTCONT *  B.PTABELA,2) - ROUND (B.QTCONT * NVL (B.VLDESCONTO, 0), 2)
                                                    - ROUND (B.QTCONT * NVL (B.VLSUFRAMA, 0), 2)
