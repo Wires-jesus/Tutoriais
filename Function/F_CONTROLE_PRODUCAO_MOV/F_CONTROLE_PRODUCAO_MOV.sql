@@ -1549,7 +1549,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                         AND PCNFSAID.ESPECIE in ('NF', 'CF', 'CP','NE','TP')
                         AND PCMOV.STATUS in ('A', 'AB')
                         AND NVL(PCNFSAID.CONDVENDA, 0) not in (3, 6, DECODE(PCNFSAID.FORNECENTREGA, 'S', -1, 7), 12, DECODE(PVENDAMANIF_COMTV14, 'S', 13, 14))
-                        AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
+                        --AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
+                        AND ( (NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S') OR (DECODE(PVENDAMANIF_COMTV14, 'S', 'S','N') = 'S'))
                         AND NVL(PCNFSAID.FINALIDADENFE, 'O') <> 'C'
                         AND DECODE(PUSOCONSUMO,'N',NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'CI'
                         AND DECODE(PATIVIOMOBULIZADO,'N', NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
@@ -1714,7 +1715,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) = PCODFILIAL
                                 AND PCMOV.QTCONT < 0
                                 AND NVL(PCNFSAID.CONDVENDA, 0) not in (3, 6, DECODE(PCNFSAID.FORNECENTREGA, 'S', -1, 7), 12, DECODE(PVENDAMANIF_COMTV14, 'S', 13, 14))
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
+                                --AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
+                                AND ( (NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S') OR (DECODE(PVENDAMANIF_COMTV14, 'S', 'S','N') = 'S'))
                                 AND PCNFSAID.ESPECIE IN ('NF', 'CF', 'CP','NE','TP')
                                 AND PCMOV.DTCANCEL is not null
                                 AND PGERA_NF_SAIDA_CANC = 'S' --- PARAMETRO EXTERNO
