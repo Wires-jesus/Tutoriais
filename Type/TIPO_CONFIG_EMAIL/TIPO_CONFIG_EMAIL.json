@@ -1,5 +1,5 @@
 {
  "nome":"TIPO_CONFIG_EMAIL",
- "tipoPLSQL":"MIGRATION",
+ "tipoPLSQL":"TYPE",
  "dependencias":""
 }
