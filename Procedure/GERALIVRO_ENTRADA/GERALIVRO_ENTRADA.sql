@@ -5955,7 +5955,14 @@ end;
                          NVL(M.PERCIPI,0) PERCIPI,
                          DECODE(M.GERAICMSLIVROFISCAL, 'N', NVL(M.PERCICM, 0), 0) PERCICMNAOTRIB,
                          SUM(ROUND(M.QTCONT * NVL(M.VLFRETE, 0), 2)) VLFRETE,
-                         SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ET', NVL(M.VLOUTRASDESP, 0), NVL(M.VLOUTROS, 0)), 2)) VLDESPESA,
+                         SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ET', NVL(M.VLOUTRASDESP, 0), 
+                                              CASE WHEN (A.ROTINACAD NOT LIKE '%1423%') AND
+                                                        (A.ROTINACAD NOT LIKE '%1303%') AND 
+                                                         M.CODOPER = 'ED' THEN
+                                                   NVL(M.VLOUTROS, 0)
+                                              ELSE             
+                                                  DECODE(M.CODOPER, 'ED', 0, NVL(M.VLOUTROS, 0)) END  
+                                              ), 2)) VLDESPESA,
                          SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ED', 0, DECODE(M.CODOPER, 'ET', NVL(M.VLOUTRASDESP, 0), NVL(M.VLOUTROS, 0)), 2))) VLDESPESAISENTA,
                          SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ED', 0, NVL(MC.VLBASEFRETE, 0)), 2)) VLBASEFRETE,
                          SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ED', 0, NVL(MC.VLBASEOUTROS, 0)), 2)) VLBASEDESPESA,
