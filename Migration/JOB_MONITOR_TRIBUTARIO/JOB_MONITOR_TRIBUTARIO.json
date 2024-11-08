@@ -1,0 +1,10 @@
+{
+ "nome":"JOB_MONITOR_TRIBUTARIO",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias":[
+	{
+	  "nome": "PKG_MONITOR_TRIBUTARIO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.07.000"
+	}
+]}
