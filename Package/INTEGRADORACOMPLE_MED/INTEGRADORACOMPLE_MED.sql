@@ -733,6 +733,28 @@ IS PRAGMA SERIALLY_REUSABLE;
                                pi_nIntegradora       IN NUMBER,
                                pi_dDtaberturapedpalm IN DATE,
                                pi_nCodUsur           IN NUMBER,
-                               pi_nNumpedRca         IN NUMBER) RETURN boolean; 								  
+                               pi_nNumpedRca         IN NUMBER) RETURN boolean;
+                               
+  /***********************************************************************************************
+  FUNÇÃO...: F_CALCULARPERCENTUALSISTEMATICA
+  DESCRIÇÃO: Função para calcular o percentual da sistematica pernanbucana / CMV flexível 
+  ***********************************************************************************************/                             
+  FUNCTION FNC_CALCULAR_PERC_SISTEMATICA
+  (
+    P_PRECO             IN NUMBER,
+    P_CUSTO_PRECIFICADO IN NUMBER,
+    P_IMPOSTOS_CMV      IN NUMBER,
+    P_MARGEM_IDEAL      IN NUMBER,
+    P_COMISSAO          IN NUMBER,
+    P_FRETE             IN NUMBER,
+    P_FRETE_OUTROS      IN NUMBER,
+    P_PRECO_COMPRA      IN NUMBER,
+    P_ICMS              IN NUMBER,
+    P_TAXA_VENDA        IN NUMBER,
+    P_CODST             IN NUMBER,
+    P_CODIGO_PRODUTO    IN NUMBER,
+    P_CODIGO_FILIAL     IN VARCHAR,
+    P_NUMERO_REGIAO     IN NUMBER
+  ) RETURN NUMBER;
 
 END INTEGRADORACOMPLE_MED;
