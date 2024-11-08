@@ -664,6 +664,7 @@ IS PRAGMA SERIALLY_REUSABLE;
    p_pvenda                      IN NUMBER,
    p_percom                      IN NUMBER,
    p_st                          IN NUMBER,--20
+   p_vlfecp                      IN NUMBER,
    p_vlipi                       IN NUMBER,
    p_vliss                       IN NUMBER,
    p_contribuinte                IN VARCHAR2,
@@ -688,9 +689,35 @@ IS PRAGMA SERIALLY_REUSABLE;
    p_vlicmsstretanterior         IN NUMBER,    -- DDMEDICA-7697
    p_prodimportadopeds           OUT VARCHAR2, -- HIS.03510.2016
    p_numtransentpeps             OUT NUMBER,   -- HIS.03510.2016
-   p_mensagemerro                OUT VARCHAR2  -- HIS.03510.2016
+   p_mensagemerro                OUT VARCHAR2,  -- HIS.03510.2016
+   p_pLiqUltEnt                  in PCEST.PLIQULTENT%TYPE DEFAULT 0,
+   p_numregiao                   in NUMBER DEFAULT 0,
+   p_usa_impostos_cmv_flexivel    in BOOLEAN DEFAULT FALSE,
+   p_codicm                      in NUMBER DEFAULT 0,
+   p_codicmpf                    in NUMBER DEFAULT 0,
+   p_codicmsn                    in NUMBER DEFAULT 0,
+   p_codicmstabsn                IN NUMBER DEFAULT 0,
+   p_codicmtab_diferenciado      in NUMBER DEFAULT 0,
+   p_custoprecific               IN NUMBER DEFAULT 0,
+   p_codst                       IN NUMBER DEFAULT 0,
+   p_bonific                     IN BOOLEAN DEFAULT FALSE,
+   p_aplicaredtribut             IN BOOLEAN DEFAULT FALSE
    ) IS
-   vnbasecalccomissao NUMBER := 0;
+   vnbasecalccomissao             NUMBER := 0;
+   v_preco_venda_sem_impostos     PCPEDI.PVENDA%TYPE := 0;
+   v_perc_icms_tabela             NUMBER := 0;
+   v_perc_icms                    NUMBER := 0;
+   v_perc_icms_tabela_sn          NUMBER := 0;
+   v_perc_icms_tabela_pf          NUMBER := 0;
+   v_perc_icms_diferenciado       NUMBER := 0;
+   v_perc_acres_icms_tabela_bonif NUMBER := 0;
+   v_perc_icms_tabela_bonif       NUMBER := 0;
+   v_perc_icms_tabela_pf_bonif    NUMBER := 0;
+   v_tipo_empresa                 VARCHAR2(4);
+   v_cliente_eh_pessoa_fisica     BOOLEAN;
+   v_usa_cmv_diferenciado         VARCHAR2(1);
+   v_deduzir_pis_cofins_do_cmv    BOOLEAN := TRUE;
+   
   BEGIN
     -- HIS.03510.2016
     p_prodimportadopeds := NULL;
@@ -721,8 +748,14 @@ IS PRAGMA SERIALLY_REUSABLE;
 
       p_codicmtab_item := nvl(p_codicmtabpf, 0);
     END IF;*/
+    
+    v_cliente_eh_pessoa_fisica  := FERRAMENTAS.VERIFICAR_FJ(P_CODCLI) = 'PESSOA FISICA';    
+    v_deduzir_pis_cofins_do_cmv := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEDUZIRPISCOFINSICMSDOCMV', 
+                                                                      p_codfilial, 
+                                                                      'N') = 'S';
+    
     BEGIN
-      IF FERRAMENTAS.VERIFICAR_FJ(P_CODCLI) = 'PESSOA FISICA' THEN
+      IF v_cliente_eh_pessoa_fisica THEN
         p_codicmtab_item := nvl(p_codicmtabpf, 0);
       END IF;
     EXCEPTION
@@ -747,6 +780,162 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN OTHERS THEN
           NULL;
       END;
+    END IF;
+    
+    BEGIN
+      SELECT pcclient.tipoempresa
+           , NVL(pcclient.usacmvdiferenciado, 'N')
+        INTO v_tipo_empresa
+           , v_usa_cmv_diferenciado
+        FROM pcclient
+       WHERE pcclient.codcli = P_CODCLI;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        v_tipo_empresa := '';
+        v_usa_cmv_diferenciado := 'N';
+    END;
+    
+    BEGIN
+      SELECT codicmtabbonif
+           , codicmtabpfbonif
+        INTO v_perc_icms_tabela_bonif
+           , v_perc_icms_tabela_pf_bonif
+        FROM pctribut
+       WHERE codst = p_codst;
+    EXCEPTION
+      WHEN OTHERS THEN
+        v_perc_icms_tabela_bonif := 0;
+        v_perc_icms_tabela_pf_bonif := 0;
+    END;
+    
+    IF p_usa_impostos_cmv_flexivel THEN
+      v_preco_venda_sem_impostos := nvl(p_pvenda,0) -
+                                    nvl(p_st,0) - 
+                                    nvl(p_vlipi,0) -
+                                    nvl(p_vlfecp,0) - 
+                                    nvl(p_vliss,0) - 
+                                    nvl(p_vldifaliquotas,0);
+
+      v_perc_icms_tabela := INTEGRADORACOMPLE_MED.FNC_CALCULAR_PERC_SISTEMATICA(
+                              v_preco_venda_sem_impostos,
+                              p_custoprecific,
+                              p_codicmtab,
+                              0,
+                              p_percom,
+                              0,
+                              0,
+                              p_pliqultent,
+                              p_codicm,
+                              p_txvenda,
+                              p_codst,
+                              p_codprod,
+                              p_codfilial,
+                              p_numregiao);
+                       
+      v_perc_icms_tabela := v_perc_icms_tabela * 100;
+      v_perc_icms := p_codicm;
+
+      p_codicmtab_item := nvl(v_perc_icms_tabela, 0);
+
+      if (v_tipo_empresa = 'SN') and
+         (p_codicmstabsn > 0) then
+
+        v_perc_icms_tabela_sn := INTEGRADORACOMPLE_MED.FNC_CALCULAR_PERC_SISTEMATICA(
+                                   v_preco_venda_sem_impostos,
+                                   p_custoprecific,
+                                   p_codicmstabsn,
+                                   0,
+                                   p_percom,
+                                   0,
+                                   0,
+                                   p_pliqultent,
+                                   p_codicmsn,
+                                   p_txvenda,
+                                   p_codst,
+                                   p_codprod,
+                                   p_codfilial,
+                                   p_numregiao);
+
+        v_perc_icms_tabela_sn := v_perc_icms_tabela_sn * 100;
+        v_perc_icms := p_codicmsn;
+
+        p_codicmtab_item := nvl(v_perc_icms_tabela_sn, 0);
+
+      end if;
+
+      if v_cliente_eh_pessoa_fisica and not p_codicmtabpf_enulo then
+
+        v_perc_icms_tabela_pf := INTEGRADORACOMPLE_MED.FNC_CALCULAR_PERC_SISTEMATICA(
+                                   v_preco_venda_sem_impostos,
+                                   p_custoprecific,
+                                   p_codicmtabpf,
+                                   0,
+                                   p_percom,
+                                   0,
+                                   0,
+                                   p_pliqultent,
+                                   p_codicmpf,
+                                   p_txvenda,
+                                   p_codst,
+                                   p_codprod,
+                                   p_codfilial,
+                                   p_numregiao);
+
+        v_perc_icms_tabela_pf := v_perc_icms_tabela_pf * 100;
+        v_perc_icms := p_codicmpf;
+
+        p_codicmtab_item := nvl(v_perc_icms_tabela_pf, 0);
+
+      end if;
+
+      if v_usa_cmv_diferenciado = 'S' and p_codicmtab_diferenciado > 0 then
+
+        v_perc_icms_diferenciado := INTEGRADORACOMPLE_MED.FNC_CALCULAR_PERC_SISTEMATICA(
+                                      v_preco_venda_sem_impostos,
+                                      p_custoprecific,
+                                      p_codicmtab_diferenciado,
+                                      0,
+                                      p_percom,
+                                      0,
+                                      0,
+                                      p_pliqultent,
+                                      p_codicm,
+                                      p_txvenda,
+                                      p_codst,
+                                      p_codprod,
+                                      p_codfilial,
+                                      p_numregiao);
+
+        v_perc_icms_diferenciado := v_perc_icms_diferenciado * 100;
+        p_codicmtab_item := nvl(v_perc_icms_diferenciado, 0);
+      end if;
+
+      v_perc_acres_icms_tabela_bonif := 0.00;
+
+      if p_bonific and not(p_aplicaredtribut) or
+        (p_aplicaredtribut and not(v_deduzir_pis_cofins_do_cmv)) then
+
+          v_perc_acres_icms_tabela_bonif := INTEGRADORACOMPLE_MED.FNC_CALCULAR_PERC_SISTEMATICA(
+                                              v_preco_venda_sem_impostos,
+                                              p_custoprecific,
+                                              case when v_cliente_eh_pessoa_fisica then v_perc_icms_tabela_pf_bonif
+                                                   else v_perc_icms_tabela_bonif
+                                              end,
+                                              0,
+                                              p_percom,
+                                              0,
+                                              0,
+                                              p_pliqultent,
+                                              p_codicmpf,
+                                              p_txvenda,
+                                              p_codst,
+                                              p_codprod,
+                                              p_codfilial,
+                                              p_numregiao);
+                                              
+        p_codicmtab_item := nvl(v_perc_acres_icms_tabela_bonif, 0);
+
+      end if;
     END IF;
 
     --Tarefa 25188
@@ -10234,7 +10423,19 @@ end func_HoraDigitacaoPedido;
              NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
              nvl(pctabpr.vlst,0), -- MED-1510
              nvl(pctabpr.vlipi,0), -- MED-1510
-             nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+             nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+             nvl(pcest.pliqultent, 0) pliqultent,
+             nvl((select usasistematicape
+                    from pcprodfilial
+                   where codprod   = pcprodut.codprod
+                     and codfilial = pcest.codfilial), 'N') usasistematicape,
+             nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+             nvl(pctribut.codicm, 0) codicm,
+             nvl(pctribut.codicmpf, 0) codicmpf,
+             nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+             nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+             nvl(pctribut.codicmdifer, 0) codicmdifer,
+             nvl(pctabpr.custoprecific, 0) custoprecific
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -10461,7 +10662,19 @@ end func_HoraDigitacaoPedido;
                            NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                            nvl(pctabpr.vlst,0), -- MED-1510
                            nvl(pctabpr.vlipi,0), -- MED-1510
-                           nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                           nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                           nvl(pcest.pliqultent, 0) pliqultent,
+                           nvl((select usasistematicape
+                                  from pcprodfilial
+                                 where codprod   = pcembalagem.codprod
+                                   and codfilial = pcest.codfilial), 'N') usasistematicape,
+                           nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                           nvl(pctribut.codicm, 0) codicm,
+                           nvl(pctribut.codicmpf, 0) codicmpf,
+                           nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                           nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                           nvl(pctribut.codicmdifer, 0) codicmdifer,
+                           nvl(pctabpr.custoprecific, 0) custoprecific
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -10636,7 +10849,19 @@ end func_HoraDigitacaoPedido;
                          NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                          nvl(pctabpr.vlst,0), -- MED-1510
                          nvl(pctabpr.vlipi,0), -- MED-1510
-                         nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                         nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                         nvl(pcest.pliqultent, 0) pliqultent,
+                         nvl((select usasistematicape
+                                from pcprodfilial
+                               where codprod   = pcembalagem.codprod
+                                 and codfilial = pcest.codfilial), 'N') usasistematicape,
+                         nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                         nvl(pctribut.codicm, 0) codicm,
+                         nvl(pctribut.codicmpf, 0) codicmpf,
+                         nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                         nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                         nvl(pctribut.codicmdifer, 0) codicmdifer,
+                         nvl(pctabpr.custoprecific, 0) custoprecific
                     into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -10932,7 +11157,19 @@ end func_HoraDigitacaoPedido;
                        NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                        nvl(pctabpr.vlst,0), -- MED-1510
                        nvl(pctabpr.vlipi,0), -- MED-1510
-                       nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                       nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                       nvl(pcest.pliqultent, 0) pliqultent,
+                       nvl((select usasistematicape
+                              from pcprodfilial
+                             where codprod   = pcprodut.codprod
+                               and codfilial = pcest.codfilial), 'N') usasistematicape,
+                       nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                       nvl(pctribut.codicm, 0) codicm,
+                       nvl(pctribut.codicmpf, 0) codicmpf,
+                       nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                       nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                       nvl(pctribut.codicmdifer, 0) codicmdifer,
+                       nvl(pctabpr.custoprecific, 0) custoprecific
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -11196,7 +11433,19 @@ end func_HoraDigitacaoPedido;
                      NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                      nvl(pctabpr.vlst,0), -- MED-1510
                      nvl(pctabpr.vlipi,0), -- MED-1510
-                     nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                     nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                     nvl(pcest.pliqultent, 0) pliqultent,
+                     nvl((select usasistematicape
+                            from pcprodfilial
+                           where codprod   = pcprodut.codprod
+                             and codfilial = pcest.codfilial), 'N') usasistematicape,
+                     nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                     nvl(pctribut.codicm, 0) codicm,
+                     nvl(pctribut.codicmpf, 0) codicmpf,
+                     nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                     nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                     nvl(pctribut.codicmdifer, 0) codicmdifer,
+                     nvl(pctabpr.custoprecific, 0) custoprecific
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -17210,7 +17459,19 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
              NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
              nvl(pctabpr.vlst,0), -- MED-1510
              nvl(pctabpr.vlipi,0), -- MED-1510
-             nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+             nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+             nvl(pcest.pliqultent, 0) pliqultent,
+             nvl((select usasistematicape
+                    from pcprodfilial
+                   where codprod   = pcprodut.codprod
+                     and codfilial = pcest.codfilial), 'N') usasistematicape,
+             nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+             nvl(pctribut.codicm, 0) codicm,
+             nvl(pctribut.codicmpf, 0) codicmpf,
+             nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+             nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+             nvl(pctribut.codicmdifer, 0) codicmdifer,
+             nvl(pctabpr.custoprecific, 0) custoprecific
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -17437,7 +17698,19 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                            NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                            nvl(pctabpr.vlst,0), -- MED-1510
                            nvl(pctabpr.vlipi,0), -- MED-1510
-                           nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                           nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                           nvl(pcest.pliqultent, 0) pliqultent,
+                           nvl((select usasistematicape
+                                  from pcprodfilial
+                                 where codprod   = pcembalagem.codprod
+                                   and codfilial = pcest.codfilial), 'N') usasistematicape,
+                           nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                           nvl(pctribut.codicm, 0) codicm,
+                           nvl(pctribut.codicmpf, 0) codicmpf,
+                           nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                           nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                           nvl(pctribut.codicmdifer, 0) codicmdifer,
+                           nvl(pctabpr.custoprecific, 0) custoprecific
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -17659,7 +17932,19 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                          NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                          nvl(pctabpr.vlst,0), -- MED-1510
                          nvl(pctabpr.vlipi,0), -- MED-1510
-                         nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                         nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                         nvl(pcest.pliqultent, 0) pliqultent,
+                         nvl((select usasistematicape
+                                from pcprodfilial
+                               where codprod   = pcembalagem.codprod
+                                 and codfilial = pcest.codfilial), 'N') usasistematicape,
+                         nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                         nvl(pctribut.codicm, 0) codicm,
+                         nvl(pctribut.codicmpf, 0) codicmpf,
+                         nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                         nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                         nvl(pctribut.codicmdifer, 0) codicmdifer,
+                         nvl(pctabpr.custoprecific, 0) custoprecific
                      into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -18001,7 +18286,19 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                        NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                        nvl(pctabpr.vlst,0), -- MED-1510
                        nvl(pctabpr.vlipi,0), -- MED-1510
-                       nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                       nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                       nvl(pcest.pliqultent, 0) pliqultent,
+                       nvl((select usasistematicape
+                              from pcprodfilial
+                             where codprod   = pcprodut.codprod
+                               and codfilial = pcest.codfilial), 'N') usasistematicape,
+                       nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                       nvl(pctribut.codicm, 0) codicm,
+                       nvl(pctribut.codicmpf, 0) codicmpf,
+                       nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                       nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                       nvl(pctribut.codicmdifer, 0) codicmdifer,
+                       nvl(pctabpr.custoprecific, 0) custoprecific
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -18268,7 +18565,19 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                      NVL(pctribut.codicmtabinternac, 0), -- HIS.02787.2016
                      nvl(pctabpr.vlst,0), -- MED-1510
                      nvl(pctabpr.vlipi,0), -- MED-1510
-                     nvl(pctribut.destacdescicmisencaocomercial,'N') -- DDMEDICA-3065
+                     nvl(pctribut.destacdescicmisencaocomercial,'N'), -- DDMEDICA-3065
+                     nvl(pcest.pliqultent, 0) pliqultent,
+                     nvl((select usasistematicape
+                            from pcprodfilial
+                           where codprod   = pcprodut.codprod
+                             and codfilial = pcest.codfilial), 'N') usasistematicape,
+                     nvl(pctribut.utilizaicmtabflex, 'N') utilizaicmtabflex,
+                     nvl(pctribut.codicm, 0) codicm,
+                     nvl(pctribut.codicmpf, 0) codicmpf,
+                     nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
+                     nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
+                     nvl(pctribut.codicmdifer, 0) codicmdifer,
+                     nvl(pctabpr.custoprecific, 0) custoprecific
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -27459,6 +27768,7 @@ end proc_GravaLogConvEmbalagem;
                                     ----------------------------------
                                     0,
                                     vnST,
+                                    0, --fecp
                                     vnvlipi,
                                     0,
                                     p_regcliente.contribuinte,
@@ -27487,7 +27797,25 @@ end proc_GravaLogConvEmbalagem;
                                     0,                             -- DDMEDICA-7697 -- Aqui não tem O ST Recolhido Anteriormente
                                     vnPRODIMPORTADOPEPS,           -- HIS.02787.2016
                                     vnNUMTRANSENTPEPS,             -- HIS.02787.2016
-                                    vvMsgErroCalcularCMV           -- HIS.02787.2016
+                                    vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                    p_regprecos.pliqultent,
+                                    p_regregiao.numregiao,
+                                    case when p_regprecos.UTILIZAICMTABFLEX = 'S' 
+                                          and p_regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                         else FALSE
+                                    end,
+                                    p_regprecos.codicm,
+                                    p_regprecos.codicmpf,
+                                    p_regprecos.codicmsimplesnac,
+                                    p_regprecos.codicmtabsimpnasc,
+                                    p_regprecos.codicmdifer,
+                                    p_regprecos.custoprecific,
+                                    p_regprecos.codst,
+                                    case
+                                      when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
+                                      else FALSE
+                                    end,
+                                    false
                                     );
 
           -- 4493.064633.2016 - Tratamento de Erro por Divisão por Zero
@@ -27761,6 +28089,7 @@ end proc_GravaLogConvEmbalagem;
                                     ----------------------------------
                                     vnPERCOM,
                                     vnST,
+                                    0, --fecp
                                     0,
                                     0,
                                     p_regcliente.contribuinte,
@@ -27789,7 +28118,25 @@ end proc_GravaLogConvEmbalagem;
                                     0,                             -- DDMEDICA-7697 -- Aqui não tem O ST Recolhido Anteriormente
                                     vnPRODIMPORTADOPEPS,           -- HIS.02787.2016
                                     vnNUMTRANSENTPEPS,             -- HIS.02787.2016
-                                    vvMsgErroCalcularCMV           -- HIS.02787.2016
+                                    vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                    p_regprecos.pliqultent,
+                                    p_regregiao.numregiao,
+                                    case when p_regprecos.UTILIZAICMTABFLEX = 'S' 
+                                          and p_regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                         else FALSE
+                                    end,
+                                    p_regprecos.codicm,
+                                    p_regprecos.codicmpf,
+                                    p_regprecos.codicmsimplesnac,
+                                    p_regprecos.codicmtabsimpnasc,
+                                    p_regprecos.codicmdifer,
+                                    p_regprecos.custoprecific,
+                                    p_regprecos.codst,
+                                    case
+                                      when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
+                                      else FALSE
+                                    end,
+                                    false
                                     );
 
 
@@ -28523,6 +28870,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           vnpvenda  ,
                                           0,
                                           vnSTpvenda,
+                                          0, --fecp
                                           p_regitem.vlipi,
                                           0,
                                           p_regcliente.contribuinte,
@@ -28547,7 +28895,25 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           0,                             -- DDMEDICA-7697 -- Aqui não tem O ST Recolhido Anteriormente
                                           vnPRODIMPORTADOPEPS,           -- HIS.02787.2016
                                           vnNUMTRANSENTPEPS,             -- HIS.02787.2016
-                                          vvMsgErroCalcularCMV           -- HIS.02787.2016
+                                          vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                          p_regprecos.pliqultent,
+                                          p_regregiao.numregiao,
+                                          case when p_regprecos.UTILIZAICMTABFLEX = 'S' 
+                                                and p_regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                               else FALSE
+                                          end,
+                                          p_regprecos.codicm,
+                                          p_regprecos.codicmpf,
+                                          p_regprecos.codicmsimplesnac,
+                                          p_regprecos.codicmtabsimpnasc,
+                                          p_regprecos.codicmdifer,
+                                          p_regprecos.custoprecific,
+                                          p_regprecos.codst,
+                                          case
+                                            when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
+                                            else FALSE
+                                          end,
+                                          false
                                           );
 
                 -- 4493.064633.2016 - Tratamento de Erro por Divisão por Zero
@@ -28815,6 +29181,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           vnpvenda ,
                                           vnPERCOM,
                                           vnSTpvenda,
+                                          0, --fecp
                                           0,
                                           0,
                                           p_regcliente.contribuinte,
@@ -28839,7 +29206,25 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                           0,                             -- DDMEDICA-7697 -- Aqui não tem O ST Recolhido Anteriormente
                                           vnPRODIMPORTADOPEPS,           -- HIS.02787.2016
                                           vnNUMTRANSENTPEPS,             -- HIS.02787.2016
-                                          vvMsgErroCalcularCMV           -- HIS.02787.2016
+                                          vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                          p_regprecos.pliqultent,
+                                          p_regregiao.numregiao,
+                                          case when p_regprecos.UTILIZAICMTABFLEX = 'S' 
+                                                and p_regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                               else FALSE
+                                          end,
+                                          p_regprecos.codicm,
+                                          p_regprecos.codicmpf,
+                                          p_regprecos.codicmsimplesnac,
+                                          p_regprecos.codicmtabsimpnasc,
+                                          p_regprecos.codicmdifer,
+                                          p_regprecos.custoprecific,
+                                          p_regprecos.codst,
+                                          case
+                                            when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
+                                            else FALSE
+                                          end,
+                                          false
                                           );
 
 
@@ -30693,8 +31078,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regpedido(i).percvenda,
                                               gvet_regitem(j).pvenda,
                                               0,
-                                              (NVL(gvet_regitem(j).st,0)
-                                               + NVL(gvet_regitem(j).vlfecp,0)),
+                                              NVL(gvet_regitem(j).st,0),
+                                              NVL(gvet_regitem(j).vlfecp,0),                                           
                                               gvet_regitem(j).vlipi,
                                               0,
                                               regcliente.contribuinte,
@@ -30723,7 +31108,25 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regitem(j).vlicmsstretanterior, -- DDMEDICA-7697
                                               gvet_regitem(j).PRODIMPORTADOPEPS, -- HIS.02787.2016
                                               gvet_regitem(j).NUMTRANSENTPEPS,   -- HIS.02787.2016
-                                              vvMsgErroCalcularCMV               -- HIS.02787.2016
+                                              vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                              regprecos.pliqultent,
+                                              regregiao.numregiao,
+                                              case when regprecos.UTILIZAICMTABFLEX = 'S' 
+                                                    and regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                                   else FALSE
+                                              end,
+                                              regprecos.codicm,
+                                              regprecos.codicmpf,
+                                              regprecos.codicmsimplesnac,
+                                              regprecos.codicmtabsimpnasc,
+                                              regprecos.codicmdifer,
+                                              regprecos.custoprecific,
+                                              regprecos.codst,
+                                              case
+                                                when gvet_regpedido(i).condvenda = 5 or gvet_regitem(j).bonific <> 'N' then TRUE
+                                                else FALSE
+                                              end,
+                                              false
                                               );
 
                         gvet_regitem(j).logprocmed := gvet_regitem(j).logprocmed || CHR(13) || 'Msg CMV: ' || vvMsgErroCalcularCMV;
@@ -31186,8 +31589,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regpedido(i).percvenda,
                                               gvet_regitem(j).pvenda,
                                               vnpercom,
-                                              (NVL(gvet_regitem(j).st,0)
-                                               + NVL(gvet_regitem(j).vlfecp,0)),
+                                              NVL(gvet_regitem(j).st,0),
+                                              NVL(gvet_regitem(j).vlfecp,0),
                                               gvet_regitem(j).vlipi,
                                               0,
                                               regcliente.contribuinte,
@@ -31216,7 +31619,25 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                               gvet_regitem(j).vlicmsstretanterior, -- DDMEDICA-7697
                                               gvet_regitem(j).PRODIMPORTADOPEPS, -- HIS.02787.2016
                                               gvet_regitem(j).NUMTRANSENTPEPS,   -- HIS.02787.2016
-                                              vvMsgErroCalcularCMV               -- HIS.02787.2016
+                                              vvMsgErroCalcularCMV,          -- HIS.02787.2016
+                                              regprecos.pliqultent,
+                                              regregiao.numregiao,
+                                              case when regprecos.UTILIZAICMTABFLEX = 'S' 
+                                                    and regprecos.USASISTEMATICAPE = 'S' then TRUE
+                                                   else FALSE
+                                              end,
+                                              regprecos.codicm,
+                                              regprecos.codicmpf,
+                                              regprecos.codicmsimplesnac,
+                                              regprecos.codicmtabsimpnasc,
+                                              regprecos.codicmdifer,
+                                              regprecos.custoprecific,
+                                              regprecos.codst,
+                                              case
+                                                when gvet_regpedido(i).condvenda = 5 or gvet_regitem(j).bonific <> 'N' then TRUE
+                                                else FALSE
+                                              end,
+                                              false
                                               );
 
                              gvet_regitem(j).logprocmed := gvet_regitem(j).logprocmed || CHR(13) || 'Msg CMV: ' || vvMsgErroCalcularCMV;
