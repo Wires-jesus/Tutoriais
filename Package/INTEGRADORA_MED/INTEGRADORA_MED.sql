@@ -1282,7 +1282,16 @@ IS PRAGMA SERIALLY_REUSABLE;
     codicmtabinternac        pctribut.codicmtabinternac%type, --HIS.02613.2014
     vlst                     pctabpr.vlst%type, -- MED-1510
     vlipi                    pctabpr.vlipi%type, -- MED-1510
-    destacdescicmisencaocomercial pctribut.destacdescicmisencaocomercial%type -- DDMEDICA-3065
+    destacdescicmisencaocomercial pctribut.destacdescicmisencaocomercial%type, -- DDMEDICA-3065
+    pliqultent               pcest.pliqultent%type,
+    usasistematicape         pcprodfilial.usasistematicape%type,
+    utilizaicmtabflex        pctribut.utilizaicmtabflex%type,
+    codicm                   pctribut.codicm%type,
+    codicmpf                 pctribut.codicmpf%type,
+    codicmsimplesnac         pctribut.codicmsimplesnac%type,
+    codicmtabsimpnasc        pctribut.codicmtabsimpnasc%type,
+    codicmdifer              pctribut.codicmdifer%type,
+    custoprecific            pctabpr.custoprecific%type
   );
 
 

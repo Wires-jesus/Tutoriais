@@ -1,7 +1,7 @@
 {"nome":"INTEGRADORA_MED","tipoPLSQL":"PACKAGE","dependencias": 
 [
   {"nome":"PCCLIENT","tipo":"TABELA","versao":"4.0.02.000"},
-    {"nome": "INTEGRADORACOMPLE_MED","tipo": "OBJETO_PLSQL","versao": "5.0.05.000"},
+	{"nome": "INTEGRADORACOMPLE_MED","tipo": "OBJETO_PLSQL","versao": "6.0.04.000"},
 	{"nome": "PCPEDI","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCORCAVENDAI","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCPROMOCAOMED","tipo": "TABELA","versao": "6.0.01.000"},
@@ -27,5 +27,6 @@
 	{"nome": "PCLOGPROMOCAOCLIMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAORAMOATIVMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAOCLASSEVENDAMED","tipo": "TABELA","versao": "6.0.01.000"},
-	{"nome": "PCLOGPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"}
+	{"nome": "PCLOGPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"},
+	{"nome": "PCPRODFILIAL","tipo": "TABELA","versao": "6.0.02.000"}
 ]}
