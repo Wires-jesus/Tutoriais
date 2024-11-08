@@ -26,11 +26,7 @@ BEGIN
            PARAMFILIAL.OBTERCOMOVARCHAR2('ENDERECOSMTP', P_CODIGO_FILIAL),
            NVL(PARAMFILIAL.OBTERCOMONUMBER('PORTASMTP', P_CODIGO_FILIAL), 0),
            NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('ATIVARSSL', P_CODIGO_FILIAL),'N'),
-           DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('ATIVARTLS', P_CODIGO_FILIAL),'N'),
-           'N',
-           'N',
-           'S'
-           ),
+           DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('ATIVARTLS', P_CODIGO_FILIAL),'N'),'N','N','S'),
            PARAMFILIAL.OBTERCOMOVARCHAR2('EMAILRESPOSTA', P_CODIGO_FILIAL),
            PARAMFILIAL.OBTERCOMOVARCHAR2('EMAILCOPIA', P_CODIGO_FILIAL)
       INTO CONFIG_USUARIO,
@@ -53,19 +49,7 @@ BEGIN
   RETORNO := TABELA_CONFIG_EMAIL();
   IF RESULTADO = 0 THEN
     RETORNO.EXTEND;
-
-    RETORNO(RETORNO.COUNT) := TIPO_CONFIG_EMAIL(USUARIO        => NULL,
-                                                SENHA          => NULL,
-                                                DOMINIO        => NULL,
-                                                NOME_REMENTE   => NULL,
-                                                EMAIL_REMENTE  => NULL,
-                                                SERVIDOR_SMTP  => NULL,
-                                                PORTA          => NULL,
-                                                ATIVAR_SSL     => NULL,
-                                                EMAIL_RESPOSTA => NULL,
-                                                EMAIL_COPIA    => NULL,
-                                                ATIVAR_TLS     => NULL
-                                                );
+    RETORNO(RETORNO.COUNT) := TIPO_CONFIG_EMAIL();
 
     RETORNO(RETORNO.COUNT).USUARIO := CONFIG_USUARIO;
     RETORNO(RETORNO.COUNT).SENHA := CONFIG_SENHA;

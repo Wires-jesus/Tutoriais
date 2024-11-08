@@ -5,7 +5,12 @@
   {
    "nome": "TABELA_CONFIG_EMAIL",
    "tipo":"OBJETO_PLSQL",
-   "versao": "4.0.01.000"
+   "versao": "6.0.01.000"
+  },
+  {
+   "nome": "TIPO_CONFIG_EMAIL",
+   "tipo": "MIGRATION",
+   "versao": "6.0.01.000"
   }
  ]
 }
