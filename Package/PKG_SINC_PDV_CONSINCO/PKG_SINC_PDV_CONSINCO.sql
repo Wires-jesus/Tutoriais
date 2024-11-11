@@ -18,6 +18,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_grupopessoa(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_pessoagrupo(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_usuario(p_id IN pccontroleconsinco.id%TYPE);
 
@@ -100,6 +104,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_regracategoria(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_regrapessoagrupo(p_id IN pccontroleconsinco.id%TYPE)
 
   PROCEDURE carrega_tb_combo(p_id IN pccontroleconsinco.id%TYPE);
 
@@ -139,10 +145,6 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_prodcomposto(p_id IN pccontroleconsinco.id%TYPE);
   
-  PROCEDURE carrega_tb_grupopessoa(p_id IN pccontroleconsinco.id%TYPE);
-  
-  PROCEDURE carrega_tb_pessoagrupo(p_id IN pccontroleconsinco.id%TYPE);
-
   procedure carrega_tb_precoapartir(p_id in pccontroleconsinco.id%type);
     
   procedure carrega_tb_precoapartirpessoa(p_id in pccontroleconsinco.id%type);
@@ -154,8 +156,6 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   procedure carrega_tb_precoapartirperiodo(p_id in pccontroleconsinco.id%type);
 
   procedure carrega_tb_precoapartirproduto(p_id in pccontroleconsinco.id%type);
-  
-  procedure carrega_tb_precogrupopessoa(p_id in pccontroleconsinco.id%type);
 
   procedure carrega_tb_limitevenda(p_id in pccontroleconsinco.id%type);
   

@@ -135,7 +135,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.03.000"
+			"versao": "6.0.04.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
@@ -160,7 +160,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "6.0.07.000"
+			"versao": "6.0.08.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -200,7 +200,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESCONTO_CLIENTE",
 			"tipo": "MIGRATION",
-			"versao": "6.0.20.000"
+			"versao": "6.0.21.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
@@ -416,6 +416,11 @@
 		  "nome": "PROCESSO_CARGA_INT_C5_GRUPO_CLIENTE",
 		  "tipo": "MIGRATION",
 		  "versao": "6.0.02.000"
+		},
+		{
+		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
+		  "tipo": "MIGRATION",
+		  "versao": "6.0.01.000"
 		}
 	]
 }
