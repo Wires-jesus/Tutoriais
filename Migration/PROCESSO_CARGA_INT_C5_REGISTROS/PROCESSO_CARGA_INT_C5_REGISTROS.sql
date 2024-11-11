@@ -368,6 +368,11 @@ values (71, 'tb_limitevendafamilia')
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (72, 'tb_clientecredito')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (74, 'tb_clientecartao')
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -729,3 +734,8 @@ VALUES (71, 71, 'Sincronização de tabela TB_LIMITEVENDAFAMILIA', TRUNC(SYSDATE
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (72, 72, 'Sincronização de tabela TB_CLIENTECREDITO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_TB_CLIENTECREDITO',  72,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (74, 74, 'Sincronização de tabela TB_CLIENTECARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_clientecartao',  74,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
