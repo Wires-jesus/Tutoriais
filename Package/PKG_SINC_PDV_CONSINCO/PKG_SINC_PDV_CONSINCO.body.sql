@@ -3360,7 +3360,10 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
                FROM VW_INT_C5_DESC561PRODUTO
                UNION ALL
                SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
-               FROM VW_INT_C5_PRECOFIXO_R357 
+               FROM VW_INT_C5_PRECOFIXO_R357
+			   UNION ALL 
+			   SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
+               FROM VW_INT_C5_DESC2048FIDELIDADE
               ) vw_int_c5_regraproduto
       on(
             tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto.SEQPRODUTO        
@@ -3447,7 +3450,19 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regracliente D
-    USING (SELECT * FROM VW_INT_C5_DESC561CLIENTE) S 
+    USING (SELECT C.SEQPESSOA,
+                  C.SEQREGRA,
+				  C.PERCDESCONTO,
+                  C.ATIVO,
+				  C.IDREF
+				  FROM VW_INT_C5_DESC561CLIENTE C
+				  UNION ALL
+				  SELECT F.SEQPESSOA,
+                  F.SEQREGRA,
+				  F.PERCDESCONTO,
+                  F.ATIVO,
+				  F.IDREF
+				  FROM VW_INT_C5_DESC2048FIDELIDADE) S 
     ON    ( D.SEQPESSOA = S.SEQPESSOA AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
@@ -3575,6 +3590,76 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_regracategoria',
            'carrega_tb_regracategoria ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+
+PROCEDURE carrega_tb_regrapessoagrupo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_regrapessoagrupo D
+    USING (SELECT 0 PERCDESCONTO,
+	              C.SEQREGRA,
+				  C.SEQGRUPOPESSOA,
+				  C.ATIVO,
+				  C.IDREF
+    	     FROM VW_INT_C5_DESC2048GRUPOPESSOA C) S 
+    ON    ( D.SEQGRUPOPESSOA = S.SEQGRUPOPESSOA AND D.SEQREGRA = S.SEQREGRA)
+  WHEN MATCHED THEN
+       UPDATE SET
+          D.PERCDESCONTO    = S.PERCDESCONTO,
+          D.ATIVO           = S.ATIVO
+		  D.IDREF           = S.IDREF
+       WHERE D.PERCDESCONTO    <> S.PERCDESCONTO
+          OR D.ATIVO           <> S.ATIVO
+		  
+  WHEN NOT MATCHED THEN
+        INSERT(
+          D.SEQREGRA,
+          D.SEQGRUPOPESSOA,
+          D.IDREF,
+          D.PERCDESCONTO,
+          D.ATIVO) 
+        VALUES(
+          S.SEQREGRA,
+          S.SEQGRUPOPESSOA,
+          S.IDREF,
+          S.PERCDESCONTO,
+          S.ATIVO);
+
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regrapessoagrupo', 'carrega_tb_regrapessoagrupo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrapessoagrupo',
+           'carrega_tb_regrapessoagrupo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;  
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrapessoagrupo',
+           'carrega_tb_regrapessoagrupo ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
@@ -5511,71 +5596,6 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_TB_PRECOAPARTIRPRODUTO',
            'carrega_TB_PRECOAPARTIRPRODUTO ERRO',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-        RAISE;
-  END;
-END;
-
-
-PROCEDURE CARREGA_TB_PRECOGRUPOPESSOA(p_id in pccontroleconsinco.id%type) AS
-BEGIN
-  UPDATE MONITORPDVMIDDLE.TB_PRECOAPARTIRGRUPOPESSOA 
-  SET ATIVO = 'N'
-  WHERE
-    ATIVO = 'S';
-
-  MERGE INTO MONITORPDVMIDDLE.TB_PRECOAPARTIRGRUPOPESSOA TB_PRECOAPARTIRGRUPOPESSOA
-    USING (SELECT SEQPRECOAPARTIR , SEQGRUPOPESSOA, ATIVO FROM VW_INT_C5_PRECOGRUPOPESSOA) T
-    ON (TB_PRECOAPARTIRGRUPOPESSOA.SEQPRECOAPARTIR = T.SEQPRECOAPARTIR AND TB_PRECOAPARTIRGRUPOPESSOA.SEQGRUPOPESSOA = T.SEQGRUPOPESSOA)
-  WHEN MATCHED THEN
-    UPDATE SET
-      TB_PRECOAPARTIRGRUPOPESSOA.ATIVO = T.ATIVO
-	WHERE TB_PRECOAPARTIRGRUPOPESSOA.ATIVO <> T.ATIVO
-
-  WHEN NOT MATCHED THEN
-    INSERT(
-      TB_PRECOAPARTIRGRUPOPESSOA.SEQPRECOAPARTIR,
-	  TB_PRECOAPARTIRGRUPOPESSOA.SEQGRUPOPESSOA,
-      TB_PRECOAPARTIRGRUPOPESSOA.ATIVO
-    )
-    VALUES(
-      T.SEQPRECOAPARTIR,
-      T.SEQGRUPOPESSOA,
-      T.ATIVO
-    );
-   
-  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-  VALUES ('pkg_sinc_PDV_Consinco', 'CARREGA_TB_PRECOGRUPOPESSOA', 'CARREGA_TB_PRECOGRUPOPESSOA OK', SYSDATE, CURRENT_TIMESTAMP);
-
-  COMMIT;
-  
-  EXCEPTION
-    WHEN E_FK_VIOLATION THEN
-	  BEGIN
-	    PRC_RECORD_ALERTA(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'CARREGA_TB_PRECOGRUPOPESSOA',
-           'CARREGA_TB_PRECOGRUPOPESSOA ALERTA',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-	  END;
-    WHEN OTHERS THEN
-    BEGIN
-        prc_record_error(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'CARREGA_TB_PRECOAPARTIRGRUPOPESSOA',
-           'CARREGA_TB_PRECOAPARTIRGRUPOPESSOA ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
