@@ -364,13 +364,9 @@ values (71, 'tb_limitevendafamilia')
 
 \
 
-insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (72, 'tb_precoapartirgrupopessoa')
-
-\
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (73, 'tb_clientecredito')
+values (72, 'tb_clientecredito')
 
 \
 
@@ -637,7 +633,7 @@ values (51, 51, 'Sincronização de tabela TB_PRODPRECOAPARTIR', TRUNC(SYSDATE),
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (51, 52, 'Sincronização de tabela TB_PROMSURPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresa',  52,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (52, 52, 'Sincronização de tabela TB_PROMSURPRESA', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_promsurpresa',  52,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
 
 \
 
