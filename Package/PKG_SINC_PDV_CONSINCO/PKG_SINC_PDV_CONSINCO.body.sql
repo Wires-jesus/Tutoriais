@@ -5936,6 +5936,77 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_clientecartao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_clientecartao T
+    USING (SELECT * FROM VW_INT_C5_CLI_CONV) S 
+    ON    (T.NROCARTAO = S.NROCARTAO AND T.NROFORMAPAGTO = S.NROFORMAPAGTO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.SEQPESSOAPORTADOR = S.SEQPESSOAPORTADOR,
+          T.SEQPESSOATITULAR  = S.SEQPESSOATITULAR,
+          T.DTAVALIDADE       = S.DTAVALIDADE,
+          T.ATIVO             = S.ATIVO
+       WHERE T.SEQPESSOAPORTADOR   <> S.SEQPESSOAPORTADOR 
+       OR    T.SEQPESSOATITULAR    <> S.SEQPESSOATITULAR  
+       OR    T.DTAVALIDADE         <> S.DTAVALIDADE
+       OR    T.ATIVO               <> S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.NROCARTAO,
+          T.NROFORMAPAGTO,
+          T.SEQPESSOAPORTADOR,
+          T.SEQPESSOATITULAR,
+          T.DTAVALIDADE,
+          T.ATIVO
+          ) 
+        VALUES(
+          S.NROCARTAO,
+          S.NROFORMAPAGTO,
+          S.SEQPESSOAPORTADOR,
+          S.SEQPESSOATITULAR,
+          S.DTAVALIDADE,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_clientecartao', 'carrega_tb_clientecartao OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_clientecartao',
+           'carrega_tb_clientecartao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_clientecartao',
+           'carrega_tb_clientecartao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+
 
 PROCEDURE exec_sinc AS
 
