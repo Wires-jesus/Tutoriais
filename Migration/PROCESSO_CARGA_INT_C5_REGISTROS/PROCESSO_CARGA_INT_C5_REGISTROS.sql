@@ -370,7 +370,7 @@ values (73, 'tb_clientecredito')
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (73, 'tb_clientecartao')
+values (74, 'tb_clientecartao')
 
 
 /* Popular tabela PCCONTROLECONSINCO */
