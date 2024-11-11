@@ -1641,17 +1641,6 @@ create or replace package body FISCAL is
             return 'S';
       end;
 
-      -- RATEAR A DESPESA ACESSORIA SE AINDA NÃO ESTIVER RATEADA
-      begin
-         if NVL(VDESPESA_RATEADA, 'N') <> 'S'
-         then
-            CALCULAR_RATEIO_DESPESAS(NUMTRANSACAO, MSG);
-         end if;
-      exception
-         when others then
-            null;
-      end;
-
       -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUTÁRIA ---
       if not UTILIZA_FIGURA_PISCOFINS(MSG)
       then
