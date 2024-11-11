@@ -103,6 +103,11 @@
 			"versao": "6.0.01.000"
 		},
 		{
+			"nome": "VW_INT_C5_CLI_CONV",
+			"tipo": "OBJETO_PLSQL",
+			"versao": "6.0.01.000"
+		},
+		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
 			"versao": "6.0.35.000"
@@ -155,7 +160,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "6.0.06.000"
+			"versao": "6.0.07.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
