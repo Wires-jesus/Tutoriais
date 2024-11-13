@@ -1902,10 +1902,12 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND DECODE(PUSOCONSUMO,'N',NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'CI'
                                 AND DECODE(PATIVIOMOBULIZADO,'N',NVL(PCMOV.TIPOMERCDEPTO, 'X'),'XX') <> 'IM'
                                 AND not exists (SELECT 1
-                                                FROM PCNFSAID
-                                                WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
+                                                  FROM PCNFSAID
+                                                 WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
                                                   AND PCNFSAID.ESPECIE = 'NF'
                                                   AND NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) = PCODFILIAL
+                                                  AND NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) = NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)
+                                                  AND PCNFSAID.DTSAIDA between PDTINICIO AND PDTFIM
                                                   AND PCNFSAID.VLTOTAL > 0)
                                 AND PCMOV.STATUS in ('A', 'AB')
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
