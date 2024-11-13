@@ -5958,6 +5958,9 @@ END;
 
 PROCEDURE carrega_tb_clientecartao(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+  UPDATE MONITORPDVMIDDLE.tb_clientecartao SET ATIVO = 'N'
+  WHERE ATIVO = 'S';
+  
   MERGE INTO monitorpdvmiddle.tb_clientecartao T
     USING (SELECT * FROM VW_INT_C5_CLI_CONV) S 
     ON    (T.NROCARTAO = S.NROCARTAO AND T.NROFORMAPAGTO = S.NROFORMAPAGTO)
