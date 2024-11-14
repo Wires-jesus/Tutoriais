@@ -371,8 +371,17 @@ values (72, 'tb_clientecredito')
 \
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
-values (74, 'tb_clientecartao')
+values (73, 'tb_clientecartao')
 
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (74, 'tb_bincartao')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (75, 'tb_regrabincartao')
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -738,4 +747,14 @@ values (72, 72, 'Sincronização de tabela TB_CLIENTECREDITO', TRUNC(SYSDATE), '
 \
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
-values (74, 74, 'Sincronização de tabela TB_CLIENTECARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_clientecartao',  74,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+values (73, 73, 'Sincronização de tabela TB_CLIENTECARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_clientecartao',  73,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (74, 74, 'Sincronização de tabela TB_BINCARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_bincartao',  74,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (75, 75, 'Sincronização de tabela TB_REGRABINCARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regrabincartao',  75,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
