@@ -6029,7 +6029,121 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_bincartao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+    MERGE INTO monitorpdvmiddle.tb_bincartao s
+        USING (SELECT *
+               FROM VW_INT_C5_BINCARTAO c
+               ) b
 
+		ON (s.seqbincartao = b.seqbincartao)
+		WHEN MATCHED THEN
+		UPDATE SET
+               s.nrobininicial	= b.nrobininicial,
+               s.nrobinfinal    = b.nrobinfinal,
+               s.codrede   		= b.codrede,
+               s.codbandeira    = b.codbandeira,
+               s.tipo  			= b.tipo,
+               s.ativo    		= b.ativo
+		WHEN NOT MATCHED THEN
+		INSERT (s.seqbincartao,
+                s.nrobininicial,
+				s.nrobinfinal,
+                s.codrede,
+                s.codbandeira,
+                s.tipo,
+                s.ativo)
+                VALUES
+                  (b.seqbincartao,
+                   b.nrobininicial,
+                   b.nrobinfinal,
+                   b.codrede,
+                   b.codbandeira,
+                   b.tipo,
+                   b.ativo);
+    
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_bincartao',
+       'carrega_tb_bincartao OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+	EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_bincartao',
+           'carrega_tb_bincartao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+END;
+  
+PROCEDURE carrega_tb_regrabincartao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+	MERGE INTO monitorpdvmiddle.tb_regrabincartao s
+		USING (SELECT *
+               FROM VW_INT_C5_REGRABINCARTAO
+               ) b
+
+	ON (s.seqregra = b.seqregra AND s.seqbincartao = b.seqbincartao)
+	WHEN MATCHED THEN
+	UPDATE SET
+		   s.seqbincartao = b.seqbincartao,
+		   s.seqregra     = b.seqregra,
+		   s.percdesconto = b.percdesconto,
+		   s.ativo    	  = b.ativo  			   
+    WHEN NOT MATCHED THEN
+		INSERT (s.seqbincartao,
+				s.seqregra,
+				s.percdesconto,
+				s.ativo)
+        VALUES
+			  (b.seqbincartao,
+			   b.seqregra,
+			   b.percdesconto,
+			   b.ativo);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_regrabincartao',
+       'carrega_tb_regrabincartao OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+	EXCEPTION
+	WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regrabincartao',
+           'carrega_tb_regrabincartao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+END;  
 
 PROCEDURE exec_sinc AS
 

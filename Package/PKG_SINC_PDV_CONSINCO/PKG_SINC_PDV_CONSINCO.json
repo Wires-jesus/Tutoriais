@@ -160,7 +160,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "6.0.08.000"
+			"versao": "6.0.09.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -420,6 +420,26 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
 		  "tipo": "MIGRATION",
+		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "PCBINCARTAO",
+		  "tipo": "TABELA",
+		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "PCBINCARTAOFIDELIDADE",
+		  "tipo": "TABELA",
+		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "VW_INT_C5_BINCARTAO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "VW_INT_C5_REGRABINCARTAO",
+		  "tipo": "OBJETO_PLSQL",
 		  "versao": "6.0.01.000"
 		}
 	]
