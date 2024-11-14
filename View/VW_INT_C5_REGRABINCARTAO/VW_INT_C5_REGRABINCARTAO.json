@@ -1,0 +1,18 @@
+{"nome":"VW_INT_C5_REGRABINCARTAO","tipoPLSQL":"VIEW","dependencias":[
+      {
+        "nome": "PCBINCARTAO",
+        "tipo": "TABELA",
+        "versao": "6.0.01.000"
+      },
+	  {
+        "nome": "PCBINCARTAOFIDELIDADE",
+        "tipo": "TABELA",
+        "versao": "6.0.01.000"
+      },
+	  {
+        "nome": "PCDESCONTOFIDELIDADE",
+        "tipo": "TABELA",
+        "versao": "6.0.02.000"
+      }	  
+	]
+}

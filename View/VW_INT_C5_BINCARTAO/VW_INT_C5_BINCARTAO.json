@@ -1,0 +1,8 @@
+{"nome":"VW_INT_C5_BINCARTAO","tipoPLSQL":"VIEW","dependencias":[
+      {
+        "nome": "PCBINCARTAO",
+        "tipo": "TABELA",
+        "versao": "6.0.01.000"
+      }
+	]
+}
