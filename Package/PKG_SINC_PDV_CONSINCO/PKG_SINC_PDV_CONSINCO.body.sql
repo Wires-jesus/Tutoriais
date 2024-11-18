@@ -1194,7 +1194,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 'R'
                WHEN f.especie LIKE ('POS%') THEN
                 'S'
-               WHEN f.especie = 'CNV' THEN
+               WHEN (f.especie = 'CNV') or ((f.especie = 'O') and (f.codcob = 'CONV')) THEN
                 'V'
                WHEN f.especie = 'CRE' THEN
                 'I'
@@ -6028,6 +6028,80 @@ BEGIN
         RAISE;
   END;
 END;
+
+PROCEDURE carrega_tb_convenioperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  UPDATE monitorpdvmiddle.tb_convenioperiodo S SET S.ATIVO = 'N'
+  WHERE S.ATIVO = 'S';
+    
+  MERGE INTO monitorpdvmiddle.tb_convenioperiodo T
+    USING (SELECT * FROM VW_INT_C5_CLI_CONV_PERIODO) S 
+    ON    (T.NROFORMAPAGTO = S.NROFORMAPAGTO AND T.SEQPERIODO = S.SEQPERIODO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.DTAINICIO  = S.DTAINICIO,
+          T.DTAFIM     = S.DTAFIM,
+          T.DTAVENCTO  = S.DTAVENCTO,
+          T.ATIVO      = S.ATIVO
+       WHERE T.DTAINICIO  <> S.DTAINICIO 
+       OR    T.DTAFIM     <> S.DTAFIM  
+       OR    T.DTAVENCTO  <> S.DTAVENCTO
+       OR    T.ATIVO      <> S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+          T.NROFORMAPAGTO,
+          T.SEQPERIODO,
+          T.DTAINICIO,
+          T.DTAFIM,
+          T.DTAVENCTO,
+          T.ATIVO
+          ) 
+        VALUES(
+          S.NROFORMAPAGTO,
+          S.SEQPERIODO,
+          S.DTAINICIO,
+          S.DTAFIM,
+          S.DTAVENCTO,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_convenioperiodo', 'carrega_tb_convenioperiodo OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_convenioperiodo',
+           'carrega_tb_convenioperiodo ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_convenioperiodo',
+           'carrega_tb_convenioperiodo ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 
 PROCEDURE carrega_tb_bincartao(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN

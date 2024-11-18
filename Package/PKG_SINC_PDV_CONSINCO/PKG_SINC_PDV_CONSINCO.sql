@@ -166,8 +166,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   procedure carrega_tb_limitevendafamilia(p_id in pccontroleconsinco.id%type);
 
   PROCEDURE carrega_tb_clientecredito(p_id IN pccontroleconsinco.id%TYPE) ;
-
+  
   PROCEDURE carrega_tb_clientecartao(p_id IN pccontroleconsinco.id%TYPE) ;
+
+  PROCEDURE carrega_tb_convenioperiodo(p_id IN pccontroleconsinco.id%TYPE) ;
 
   PROCEDURE carrega_tb_bincartao(p_id IN pccontroleconsinco.id%TYPE);
   
