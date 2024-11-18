@@ -1384,8 +1384,19 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DESPADUAN', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLADUANEIRA, 0), 0)
                ELSE
                              --FORMA QUE ESTAVA ANTERIORMENTE
-                             (DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT ) - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,
-                                          0), 0)  +
+                             (CASE WHEN (((NVL(PCMOV.VLIPI,0) + NVL(PCMOV.ST,0) + NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLDESCONTONF, 0)) > 0) AND (NVL(PCMOV.CODOPER, 'E') = 'ED') ) THEN
+                                 ((ROUND((DECODE( NVL(PCMOVCOMPLE.BONIFIC,'N') , 'S', PCMOV.PBONIFIC, PCMOV.PUNITCONT) - NVL(PCMOV.VLIPI,0) - NVL(PCMOV.ST,0) -
+                                  DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0,NVL(PCMOVCOMPLE.VLFECP, 0))
+                                 ) * PCMOV. QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(NVL(PCMOV.VLIPI,0) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0,NVL(PCMOVCOMPLE.VLFECP, 0)) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) ))
+                                 / PCMOV.QTCONT)
+                             ELSE
+                                 DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT )
+                             END
+                             
+                             - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,0), 0)  +
                               --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
                                 CASE WHEN (PCMOV.CODOPER = 'ED') THEN
                                     CASE WHEN ((NVL(PCMOVCOMPLE.PERCICMSDESONERACAO, 0) > 0) AND (NVL(PCMOVCOMPLE.VLICMSDESONERACAO, 0) > 0) ) THEN PCMOVCOMPLE.VLICMSDESONERACAO
@@ -1412,7 +1423,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
 
 
                                                                    NVL(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT),0)))
-                                        ), 2) / PCMOV.QTCONT),
+                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT),
 
                                         (ROUND( PCMOV.QTCONT *
                                         (DECODE((NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)),
@@ -1422,7 +1433,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    -1,
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
-                                        ), 2) / PCMOV.QTCONT))+
+                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT))+
                                        CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
                                                CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
                                                      AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
@@ -1453,11 +1464,14 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            DECODE(NVL(PCNFENT.DEDUZIRDESONERORGAOPUB, 'N'), 'S', 0, ROUND(NVL(PCMOV.VLDESCICMISENCAO,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT )
                                      ELSE
                                            0
-                                     END) -
-                               NVL(PCMOV.VLOUTRASDESP,
-                                    0) - NVL(PCMOV.ST,
-                                              0) - NVL(PCMOV.VLIPI,
-                                                        0) -
+                                     END) 
+                               - NVL(PCMOV.VLOUTRASDESP,0) 
+                               - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
+                                   ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
+                                 ELSE
+                                   NVL(PCMOV.ST, 0)
+                                 END  
+                               - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
                                        NVL(PCMOV.VLADUANEIRA,
