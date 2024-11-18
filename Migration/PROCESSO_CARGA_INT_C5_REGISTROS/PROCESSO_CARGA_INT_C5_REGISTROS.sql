@@ -382,6 +382,13 @@ values (74, 'tb_bincartao')
 
 insert into pctipoprocessoconsinco(ID, DESCRICAO)
 values (75, 'tb_regrabincartao')
+
+\
+
+insert into pctipoprocessoconsinco(ID, DESCRICAO)
+values (76, 'tb_convenioperiodo')
+
+
 /* Popular tabela PCCONTROLECONSINCO */
 
 \
@@ -758,3 +765,8 @@ values (74, 74, 'Sincronização de tabela TB_BINCARTAO', TRUNC(SYSDATE), 'D', '
 
 insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
 values (75, 75, 'Sincronização de tabela TB_REGRABINCARTAO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_regrabincartao',  75,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
+
+\
+
+insert into pccontroleconsinco(ID, CODPROCESSO, DESCRICAO, ULTIMAEXECUCAO, TIPO, OBJETOREFERENCIA, PRECEDENCIA, ATIVO, DTCRIACAO, DTALTERACAO)
+values (76, 76, 'Sincronização de tabela TB_CONVENIOPERIODO', TRUNC(SYSDATE), 'D', 'pkg_sinc_PDV_Consinco.carrega_tb_convenioperiodo',  76,  'A',  TRUNC(SYSDATE),  TRUNC(SYSDATE) )
