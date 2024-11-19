@@ -3125,7 +3125,7 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
       AND   SUBSTR(IDREF, LENGTH(IDREF) -3, LENGTH(IDREF))  = '2017';
       
       MERGE INTO monitorpdvmiddle.tb_regraincentivoperiodo tb_regraincentivoperiodo_c5
-        USING (SELECT distinct * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT distinct seqregra, dtahorinicio, dtahorfim, idref, ATIVO FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(
              tb_regraincentivoperiodo_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA 
         AND  tb_regraincentivoperiodo_c5.DTAHORINICIO = VIEW_C5_INCENTIVO.DTAHORINICIO
@@ -3226,7 +3226,7 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regraempresa(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regraempresa tb_regraempresa_c5
-        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT DISTINCT SEQREGRA, NROEMPRESA, ATIVO FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
       on(tb_regraempresa_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA AND
          tb_regraempresa_c5.NROEMPRESA   = VIEW_C5_INCENTIVO.NROEMPRESA
         )
@@ -3289,7 +3289,7 @@ END;
 PROCEDURE carrega_tb_regrasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrasegmento tb_regrasegmento_c5
-        USING (SELECT * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT distinct * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
         on(tb_regrasegmento_c5.SEQREGRA      = VIEW_C5_INCENTIVO.SEQREGRA AND
            tb_regrasegmento_c5.NROSEGMENTO   = 1
           )
