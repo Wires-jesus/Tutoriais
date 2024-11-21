@@ -5442,6 +5442,43 @@ create or replace package body FISCAL is
 
     RETURN  vRESULTADO;
   END;
+  
+  FUNCTION GET_NATUREZAOPERACAO(P_CODFISCAL IN VARCHAR2,
+                                P_CODOPER IN VARCHAR2,
+                                P_CODROTINAEMISSAO IN VARCHAR2 := 0) RETURN VARCHAR2 IS
+    vNATUREZAOPERACAO    VARCHAR2(60);
+  BEGIN
+    BEGIN
+      SELECT DESCRICAO
+        INTO vNATUREZAOPERACAO
+        FROM PCNATUREZAOPERACAO
+       WHERE CODFISCAL       = P_CODFISCAL
+         AND CODOPER         = P_CODOPER
+         AND CODROTINAORIGEM = P_CODROTINAEMISSAO;            
+     EXCEPTION    
+       WHEN NO_DATA_FOUND THEN
+       BEGIN
+         SELECT DESCRICAO
+           INTO vNATUREZAOPERACAO
+           FROM PCNATUREZAOPERACAO
+          WHERE CODFISCAL       = P_CODFISCAL
+            AND CODOPER         = P_CODOPER
+            AND CODROTINAORIGEM = 0;
+       EXCEPTION
+         WHEN NO_DATA_FOUND THEN
+         BEGIN
+           SELECT DESCCFO 
+             INTO vNATUREZAOPERACAO
+             FROM PCCFO
+            WHERE CODFISCAL = P_CODFISCAL;   
+         EXCEPTION
+           WHEN NO_DATA_FOUND THEN
+             vNATUREZAOPERACAO := '';
+         END;                 
+       END;         
+     END;  
+    RETURN  vNATUREZAOPERACAO;
+  END;  
 
   FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
                         P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2 IS
@@ -5500,53 +5537,52 @@ create or replace package body FISCAL is
  FUNCTION GET_DESCRICAO_NATUREZA_OP(
     P_CODFISCAL       NUMBER,
     P_CODOPER         VARCHAR2,
-    P_CODROTINAORIGEM NUMBER DEFAULT 0
-) RETURN VARCHAR2 IS
-    V_DESCRICAO VARCHAR2(60);
-BEGIN
-    V_DESCRICAO:='';
-    -- VALIDAÇÃO DOS PARÂMETROS
-    IF P_CODFISCAL < 1000 OR P_CODFISCAL > 7999 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'CFOP deve estar entre 1000 e 7999.');
-    ELSIF P_CODOPER IS NULL OR TRIM(P_CODOPER) = '' THEN
-        RAISE_APPLICATION_ERROR(-20002, 'Código da Operação não pode ser vazio.');
-    END IF; 
+    P_CODROTINAORIGEM NUMBER DEFAULT 0) RETURN VARCHAR2 IS
+  V_DESCRICAO VARCHAR2(60);
+  BEGIN
+      V_DESCRICAO:='';
+      -- VALIDAÇÃO DOS PARÂMETROS
+      IF P_CODFISCAL < 1000 OR P_CODFISCAL > 7999 THEN
+          RAISE_APPLICATION_ERROR(-20001, 'CFOP deve estar entre 1000 e 7999.');
+      ELSIF P_CODOPER IS NULL OR TRIM(P_CODOPER) = '' THEN
+          RAISE_APPLICATION_ERROR(-20002, 'Código da Operação não pode ser vazio.');
+      END IF; 
 
-    -- BUSCA A DESCRIÇÃO ROTINA 4014 BASEADA NOS PARÂMETROS RECEBIDOS
-    BEGIN
-        SELECT DESCRICAO
-        INTO V_DESCRICAO
-        FROM PCNATUREZAOPERACAO
-        WHERE CODFISCAL = P_CODFISCAL
-          AND CODOPER = P_CODOPER
-          AND (NVL(P_CODROTINAORIGEM, 0) = 0 OR CODROTINAORIGEM = P_CODROTINAORIGEM);
+      -- BUSCA A DESCRIÇÃO ROTINA 4014 BASEADA NOS PARÂMETROS RECEBIDOS
+      BEGIN
+          SELECT DESCRICAO
+          INTO V_DESCRICAO
+          FROM PCNATUREZAOPERACAO
+          WHERE CODFISCAL = P_CODFISCAL
+            AND CODOPER = P_CODOPER
+            AND (NVL(P_CODROTINAORIGEM, 0) = 0 OR CODROTINAORIGEM = P_CODROTINAORIGEM);
 
-        RETURN V_DESCRICAO;
+          RETURN V_DESCRICAO;
 
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            -- SE NÃO ENCONTRAR NA 4014 VERIFICA SE O CFOP EXISTE NA ROTINA 543
-            BEGIN
-                SELECT DESCCFO
-                INTO V_DESCRICAO
-                FROM PCCFO
-                WHERE CODFISCAL = P_CODFISCAL;
-            EXCEPTION
-                WHEN NO_DATA_FOUND THEN
-                    RETURN 'CFOP não encontrado rotinas: 4014/543.';
-            END;
+      EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+              -- SE NÃO ENCONTRAR NA 4014 VERIFICA SE O CFOP EXISTE NA ROTINA 543
+              BEGIN
+                  SELECT DESCCFO
+                  INTO V_DESCRICAO
+                  FROM PCCFO
+                  WHERE CODFISCAL = P_CODFISCAL;
+              EXCEPTION
+                  WHEN NO_DATA_FOUND THEN
+                      RETURN 'CFOP não encontrado rotinas: 4014/543.';
+              END;
 
-            RETURN V_DESCRICAO;
-    END;
+              RETURN V_DESCRICAO;
+      END;
 
-EXCEPTION
-    WHEN OTHERS THEN
-         IF SQLCODE IN (-20001, -20002) THEN
-            RETURN SQLERRM;
-        ELSE
-            RETURN 'Erro ao buscar descrição Natureza da Operação.';
-        END IF;
-END GET_DESCRICAO_NATUREZA_OP;  
+  EXCEPTION
+      WHEN OTHERS THEN
+           IF SQLCODE IN (-20001, -20002) THEN
+              RETURN SQLERRM;
+          ELSE
+              RETURN 'Erro ao buscar descrição Natureza da Operação.';
+          END IF;
+  END GET_DESCRICAO_NATUREZA_OP;  
   
 END;
 -- Alteração 18/12/2023 - Processo Recalculo do Pis e Cofins
