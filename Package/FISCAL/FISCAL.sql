@@ -218,6 +218,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_PERCOFINS        OUT NUMBER,
                                       P_MENSAGEM_RETORNO OUT VARCHAR2)
       RETURN BOOLEAN;
+      
+   FUNCTION GET_NATUREZAOPERACAO(P_CODFISCAL IN VARCHAR2,
+                                P_CODOPER IN VARCHAR2,
+                                P_CODROTINAEMISSAO IN VARCHAR2 := 0) RETURN VARCHAR2;
 
    FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
                          P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2;
@@ -228,4 +232,5 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_CODROTINAORIGEM NUMBER DEFAULT 0
                                       ) RETURN VARCHAR2;
 END;
+
 
