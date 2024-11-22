@@ -5,12 +5,12 @@
   {
    "nome": "TIPO_CTE_IDENTIFICACAO",
    "tipo": "MIGRATION",
-   "versao": "4.0.02.000"
+   "versao": "6.0.01.000"
   },
   {
    "nome": "PCNFSAID",
    "tipo":"TABELA",
-   "versao": "4.0.03.000"
+   "versao": "6.0.04.000"
   },
   {
    "nome": "CTE_EMITENTE",
