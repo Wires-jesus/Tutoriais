@@ -36,7 +36,7 @@ BEGIN
                        WHERE PCNFSAID.NUMTRANSVENDACONHEC = FRETE.NUMTRANSVENDA
                          AND PCNFSAID.NUMTRANSVENDACONHEC = P_TRANSACAO
                          AND NOT PCNFSAID.ESPECIE IN ('CE', 'CO')
-                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) = 0
+                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) IN (0, 5)
                       --------------
                       UNION ALL
                       --------------OUTROS (NF)
@@ -59,7 +59,7 @@ BEGIN
                        WHERE PCNFSAID.NUMTRANSVENDA = PCCONHECIMENTOFRETEI.NUMTRANSCONHEC
                          AND PCNFSAID.CODREMETENTEFRETE = PCCLIENT.CODCLI
                          AND PCCONHECIMENTOFRETEI.NUMTRANSCONHEC = P_TRANSACAO
-                         AND NVL(TIPOEMISSAOCTE, 0) = 0
+                         AND NVL(TIPOEMISSAOCTE, 0) IN (0, 5)
                       --------------
                       UNION ALL
                       --------------CTE COMPLEMENTAR
@@ -82,7 +82,7 @@ BEGIN
                        WHERE PCNFSAID.NUMTRANSVENDA = ORIG.NUMTRANSVENDAORIGEM
                          AND ORIG.NUMTRANSVENDA = P_TRANSACAO
                          AND PCNFSAID.ESPECIE IN ('CE', 'CO')
-                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) = 0)            
+                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) IN (0, 5))            
            LOOP
                 RETORNO.EXTEND;
                 RETORNO(RETORNO.COUNT) := TIPO_CTE_INFO_NOTA(DOCUMENTO_ORIGINARIO => NULL
