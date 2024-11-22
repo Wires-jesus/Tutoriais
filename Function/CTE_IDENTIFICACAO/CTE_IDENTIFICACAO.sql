@@ -44,12 +44,6 @@ CREATE OR REPLACE FUNCTION CTE_IDENTIFICACAO
             ,NVL(PCNFSAID.TIPOEMISSAO
                 ,'1') AS TIPO_EMISSAO
             ,NVL(PCNFSAID.TIPOEMISSAOCTE,0) AS TIPO_CTE
-            /*,DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('AMBIENTECTE'
-                                                     ,PCFILIAL.CODIGO)
-                       ,'H')
-                   ,'H'
-                   ,2
-                   ,1) AS TIPO_AMBIENTE*/
             ,DECODE(NVL(PCNFSAID.AMBIENTECTE,PCNFSAID.AMBIENTENFE), 'H', 2, 1) AS TIPO_AMBIENTE
             ,CASE WHEN NVL(PCNFSAID.TIPOSUBCONTRATACAOCTE,'0') = '0' THEN
                   NVL(PCNFSAID.CHAVECTEREF, (SELECT S.CHAVECTE FROM PCNFSAID S WHERE S.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDAORIGEM AND ROWNUM = 1)) 
@@ -91,6 +85,8 @@ CREATE OR REPLACE FUNCTION CTE_IDENTIFICACAO
             ,PCNFSAID.INFGLOBALIZADO INF_GLOBALIZADO
             ,PCNFSAID.QRCODE
             ,PCNFSAID.CODIGONUMERICOCHAVE AS CODIGO_NUMERICO_CHAVE
+            ,NVL(PCNFSAID.TIPOPRESTACAO, 'T') TIPOPRESTACAO
+            ,NVL(PCNFSAID.CTESIMPLIFICADO, 'N') CTESIMPLIFICADO
       FROM   PCNFSAID
             ,PCFILIAL
             ,PCNFBASE
@@ -151,7 +147,6 @@ CREATE OR REPLACE FUNCTION CTE_IDENTIFICACAO
                    ,1) AS TIPO_AMBIENTE
             ,'' AS CHAVECTE_REFERENCIADA
             ,1 AS MODAL
-            --,0 AS TIPO_SERVICO
             ,NVL((SELECT DECODE(PCNFSAID.TIPOSERVICOCTE,'1', 
                   DECODE(PCNFSAID.TIPOSUBCONTRATACAOCTE,'1',1, 0), DECODE(PCNFSAID.TIPOSERVICOCTE,'2', 2, 0))
                   FROM PCNFSAID
@@ -188,6 +183,8 @@ CREATE OR REPLACE FUNCTION CTE_IDENTIFICACAO
             ,'' INF_GLOBALIZADO
             ,PCNFENT.QRCODE
             ,PCNFENT.CODIGONUMERICOCHAVE AS CODIGO_NUMERICO_CHAVE
+            ,'T' TIPOPRESTACAO
+            ,'N' CTESIMPLIFICADO
       FROM   PCNFENT
             ,PCFILIAL
             ,PCNFBASE
@@ -200,10 +197,7 @@ CREATE OR REPLACE FUNCTION CTE_IDENTIFICACAO
       AND    PCNFENT.NUMTRANSENT = P_TRANSACAO
       AND    P_MOV = 'E';
 
-
    RETORNO TABELA_CTE_IDENTIFICACAO;
-
-  -- VCODIGO_CLIENTE PCCLIENT.CODCLI%TYPE;
 
    VCODIGO_MUNICIPIO_INICIO PCCIDADE.CODIBGE%TYPE;
    VNOME_MUNICIPIO_INICIO   PCCIDADE.NOMECIDADE%TYPE;
@@ -240,8 +234,6 @@ BEGIN
    WHEN OTHERS THEN
      NULL;
    END;
-     
-   
 
    IF P_MOV = 'E' THEN
       BEGIN
@@ -415,56 +407,10 @@ BEGIN
            NULL;
     END;
 
-
    FOR IDENTIFICACAO IN CR_IDENTIFICACAO LOOP
       RETORNO.EXTEND;
 
-      RETORNO(RETORNO.COUNT) := TIPO_CTE_IDENTIFICACAO(NUM_TRANSACAO               => NULL
-                                                      ,CHAVECTE                    => NULL
-                                                      ,CFOP                        => NULL
-                                                      ,NATUREZA_OP                 => NULL
-                                                      ,FORMA_PAGAMENTO             => NULL
-                                                      ,SERIE                       => NULL
-                                                      ,NUMERO_NOTA                 => NULL
-                                                      ,DATA_HORA_EMISSAO           => NULL
-                                                      ,TIPO_DACTE                  => NULL
-                                                      ,TIPO_EMISSAO                => NULL
-                                                      ,TIPO_AMBIENTE               => NULL
-                                                      ,TIPO_CTE                    => NULL
-                                                      ,CHAVECTE_REFERENCIADA       => NULL
-                                                      ,CODIGO_MUN_EMISSAO          => NULL
-                                                      ,MUNICIPIO_EMISSAO           => NULL
-                                                      ,SIGLA_UF_EMISSAO            => NULL
-                                                      ,MODAL                       => NULL
-                                                      ,TIPO_SERVICO                => NULL
-                                                      ,TIPOSERVICOCTE              => NULL
-                                                      ,CODIGO_MUN_INICIO_PRESTACAO => NULL
-                                                      ,MUNICIPIO_INICIO_PRESTACAO  => NULL
-                                                      ,SIGLA_UF_INICIO_PRESTACAO   => NULL
-                                                      ,CODIGO_MUN_FIM_PRESTACAO    => NULL
-                                                      ,MUNICIPIO_FIM_PRESTACAO     => NULL
-                                                      ,SIGLA_UF_FIM_PRESTACAO      => NULL
-                                                      ,RETIRA                      => NULL
-                                                      ,DETALHE_RETIRA              => NULL
-                                                      ,TOMADOR_SERVICO             => NULL
-                                                      ,VALOR_TOTAL                 => NULL
-                                                      ,PROTOCOLO_AUTORIZACAO       => NULL
-                                                      ,DATA_HORA_AUTORIZACAO       => NULL
-                                                      ,DTHORA_CONTINGENCIA         => NULL
-                                                      ,JUSTIFICATIVA_CONTINGENCIA  => NULL
-                                                      ,TOTAL_PESO_BRUTO            => NULL
-                                                      ,TOTAL_CUBAGEM               => NULL
-                                                      ,QTDE_VOLUMES                => NULL
-                                                      ,LACRES                      => NULL
-                                                      ,VALOR_TOTAL_SERVICO         => NULL
-                                                      ,IE_TOMADOR                  => NULL
-                                                      ,CTE_GLOBALIZADO             => NULL
-                                                      ,INF_GLOBALIZADO             => NULL 
-                                                      ,QRCODE                      => NULL
-                                                      ,CODIGO_NUMERICO_CHAVE       => NULL
-                                                       );
-
-
+      RETORNO(RETORNO.COUNT) := TIPO_CTE_IDENTIFICACAO();
       RETORNO(RETORNO.COUNT).NUM_TRANSACAO               := IDENTIFICACAO.NUMTRANSACAO;
       RETORNO(RETORNO.COUNT).CHAVECTE                    := IDENTIFICACAO.CHAVECTE;
       RETORNO(RETORNO.COUNT).CFOP                        := IDENTIFICACAO.CFOP;
@@ -508,6 +454,8 @@ BEGIN
       RETORNO(RETORNO.COUNT).INF_GLOBALIZADO             := IDENTIFICACAO.INF_GLOBALIZADO;
       RETORNO(RETORNO.COUNT).QRCODE                      := IDENTIFICACAO.QRCODE;
       RETORNO(RETORNO.COUNT).CODIGO_NUMERICO_CHAVE       := IDENTIFICACAO.CODIGO_NUMERICO_CHAVE;
+      RETORNO(RETORNO.COUNT).TIPOPRESTACAO               := IDENTIFICACAO.TIPOPRESTACAO;
+      RETORNO(RETORNO.COUNT).CTESIMPLIFICADO             := IDENTIFICACAO.CTESIMPLIFICADO;
 
    END LOOP;
    RETURN RETORNO;
