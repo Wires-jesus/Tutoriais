@@ -176,8 +176,9 @@ WITH CTE_EMBALAGEM AS (
     ON DEPARA.CODPROD = E.CODPROD 
    AND DEPARA.ATIVO = 'S'
    AND (DEPARA.CODAUXILIAR = E.CODAUXILIAR OR DEPARA.CODAUXILIAR = 0)
-  WHERE 
-    (E.qtunit <> E.qtminimaatacado)
+  /* DPDVSUPER-3308 : retirado tratamento para descer todas as embalagens independente do gatilho de atacado
+    WHERE 
+    (E.qtunit <> E.qtminimaatacado)*/
   GROUP BY 
     DEPARA.SEQFAMILIA,
     NVL(e.qtunit, 1)
