@@ -6105,6 +6105,10 @@ END;
 
 PROCEDURE carrega_tb_bincartao(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+	/* INVATIVANDO REGISTRO SEM VINCULO*/
+	UPDATE monitorpdvmiddle.tb_bincartao SET ATIVO = 'N'  
+	WHERE ATIVO = 'S';    
+	
     MERGE INTO monitorpdvmiddle.tb_bincartao s
         USING (SELECT *
                FROM VW_INT_C5_BINCARTAO c
@@ -6167,6 +6171,10 @@ END;
   
 PROCEDURE carrega_tb_regrabincartao(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
+	/* INVATIVANDO REGISTRO SEM VINCULO*/
+	UPDATE monitorpdvmiddle.tb_regrabincartao SET ATIVO = 'N'  
+	WHERE ATIVO = 'S';
+	
 	MERGE INTO monitorpdvmiddle.tb_regrabincartao s
 		USING (SELECT *
                FROM VW_INT_C5_REGRABINCARTAO
@@ -6174,9 +6182,7 @@ BEGIN
 
 	ON (s.seqregra = b.seqregra AND s.seqbincartao = b.seqbincartao)
 	WHEN MATCHED THEN
-	UPDATE SET
-		   s.seqbincartao = b.seqbincartao,
-		   s.seqregra     = b.seqregra,
+	UPDATE SET		   
 		   s.percdesconto = b.percdesconto,
 		   s.ativo    	  = b.ativo  			   
     WHEN NOT MATCHED THEN
