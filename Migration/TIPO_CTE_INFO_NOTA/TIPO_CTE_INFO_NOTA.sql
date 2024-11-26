@@ -15,18 +15,36 @@ EXCEPTION
 END;
 \
 CREATE OR REPLACE TYPE TIPO_CTE_INFO_NOTA AS OBJECT
-  (
-     DOCUMENTO_ORIGINARIO                     NUMBER,
-     CNPJ                                     VARCHAR2(18),
-     PIN_SUFRAMA                              VARCHAR2(9),
-     CHAVENFE                                 VARCHAR2(44),
-     DESCRICAO_OUTROS                         VARCHAR2(20),
-     NUMERO_DOCUMENTO                         NUMBER,
-     DATA_EMISSAO                             DATE,    
-     VALOR_DOCUMENTO                          NUMBER,
-     SERIE                                    VARCHAR2(3),
-     CLIENTE                                  VARCHAR2(60),
-     ENDERECO                                 VARCHAR2(255)
-  );
+(
+    DOCUMENTO_ORIGINARIO NUMBER,
+    CNPJ                 VARCHAR2(18),
+    PIN_SUFRAMA          VARCHAR2(9),
+    CHAVENFE             VARCHAR2(44),
+    DESCRICAO_OUTROS     VARCHAR2(20),
+    NUMERO_DOCUMENTO     NUMBER,
+    DATA_EMISSAO         DATE,    
+    VALOR_DOCUMENTO      NUMBER,
+    SERIE                VARCHAR2(3),
+    CLIENTE              VARCHAR2(60),
+    ENDERECO             VARCHAR2(255),
+    CNPJEMIT             VARCHAR2(18),     
+    UFORIG               VARCHAR2(3),
+    CODMUNINICTE         NUMBER,
+    NOMEMUNINICTE        VARCHAR2(80),
+    CNPJDEST             VARCHAR2(18),
+    UFDEST               VARCHAR2(3),
+    CODMUNFIMCTE         NUMBER,
+    NOMEMUNFIMCTE        VARCHAR2(80),
+    CONSTRUCTOR FUNCTION TIPO_CTE_INFO_NOTA(SELF IN OUT NOCOPY TIPO_CTE_INFO_NOTA)
+    RETURN SELF AS RESULT
+);
+\
+CREATE OR REPLACE TYPE BODY TIPO_CTE_INFO_NOTA AS
+  CONSTRUCTOR FUNCTION TIPO_CTE_INFO_NOTA(SELF IN OUT NOCOPY TIPO_CTE_INFO_NOTA)
+    RETURN SELF AS RESULT IS
+  BEGIN
+    RETURN;
+  END;
+END;
 \
 CREATE OR REPLACE TYPE TABELA_CTE_INFO_NOTA IS TABLE OF TIPO_CTE_INFO_NOTA;
