@@ -40,7 +40,7 @@ BEGIN
                              CIDADE_D.UF UFDEST,
                              CIDADE_D.CODIBGE CODMUNFIMCTE,
                              CIDADE_D.NOMECIDADE NOMEMUNFIMCTE,
-                             FRETE.VLFRETE VALORFRETE
+                             FRETE.VLFRETETRANSPORTARNF VALORFRETE
                         FROM PCNFSAID, PCNFSAID FRETE, PCCLIENT DESTINATARIO, PCCIDADE CIDADE_D,
                              PCCLIENT REMETENTE, PCCIDADE CIDADE_E
                        WHERE PCNFSAID.NUMTRANSVENDACONHEC = FRETE.NUMTRANSVENDA
@@ -112,7 +112,7 @@ BEGIN
                              '' AS UFDEST,
                              NULL AS CODMUNFIMCTE,
                              '' AS NOMEMUNFIMCTE,
-                             PCNFSAID.VLFRETE VALORFRETE
+                             PCNFSAID.VLFRETETRANSPORTARNF VALORFRETE
                         FROM PCNFSAID, PCNFSAID ORIG
                        WHERE PCNFSAID.NUMTRANSVENDA = ORIG.NUMTRANSVENDAORIGEM
                          AND ORIG.NUMTRANSVENDA = P_TRANSACAO
