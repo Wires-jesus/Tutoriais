@@ -11,6 +11,11 @@
    "nome": "PCCONHECIMENTOFRETEI",
    "tipo":"TABELA",
    "versao": "6.0.01.000"
+  },
+  {
+   "nome": "PCNFSAID",
+   "tipo":"TABELA",
+   "versao": "6.0.05.000"
   }
  ]
 }
