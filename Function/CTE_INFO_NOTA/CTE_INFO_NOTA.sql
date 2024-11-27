@@ -31,12 +31,26 @@ BEGIN
                              PCNFSAID.VLTOTAL AS VALOR_DOCUMENTO,
                              PCNFSAID.SERIE SERIE,
                              PCNFSAID.CLIENTE CLIENTE,
-                             PCNFSAID.ENDERECO ENDERECO
-                        FROM PCNFSAID, PCNFSAID FRETE
+                             PCNFSAID.ENDERECO ENDERECO,
+                             '' AS CNPJEMIT,
+                             CIDADE_E.UF UFORIG,
+                             CIDADE_E.CODIBGE CODMUNINICTE,
+                             CIDADE_E.NOMECIDADE NOMEMUNINICTE,
+                             '' AS CNPJDEST,
+                             CIDADE_D.UF UFDEST,
+                             CIDADE_D.CODIBGE CODMUNFIMCTE,
+                             CIDADE_D.NOMECIDADE NOMEMUNFIMCTE,
+                             FRETE.VLFRETE VALORFRETE
+                        FROM PCNFSAID, PCNFSAID FRETE, PCCLIENT DESTINATARIO, PCCIDADE CIDADE_D,
+                             PCCLIENT REMETENTE, PCCIDADE CIDADE_E
                        WHERE PCNFSAID.NUMTRANSVENDACONHEC = FRETE.NUMTRANSVENDA
+                         AND FRETE.CODDESTINATARIOFRETE = DESTINATARIO.CODCLI
+                         AND FRETE.CODREMETENTEFRETE = REMETENTE.CODCLI
                          AND PCNFSAID.NUMTRANSVENDACONHEC = P_TRANSACAO
                          AND NOT PCNFSAID.ESPECIE IN ('CE', 'CO')
                          AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) IN (0, 5)
+                         AND REMETENTE.CODCIDADE = CIDADE_E.CODCIDADE(+)
+                         AND DESTINATARIO.CODCIDADE = CIDADE_D.CODCIDADE(+)
                       --------------
                       UNION ALL
                       --------------OUTROS (NF)
@@ -54,12 +68,24 @@ BEGIN
                              NVL(PCCONHECIMENTOFRETEI.VLTOTAL, PCNFSAID.VLTOTAL) AS VALOR_DOCUMENTO,
                              NVL(PCCONHECIMENTOFRETEI.SERIE, PCNFSAID.SERIE) AS SERIE,
                              PCNFSAID.CLIENTE CLIENTE,
-                             PCNFSAID.ENDERECO ENDERECO
-                        FROM PCNFSAID, PCCONHECIMENTOFRETEI, PCCLIENT
+                             PCNFSAID.ENDERECO ENDERECO,
+                             PCCONHECIMENTOFRETEI.CNPJEMIT,
+                             PCCONHECIMENTOFRETEI.UFORIG,
+                             PCCONHECIMENTOFRETEI.CODMUNINICTE,
+                             CIDADE_E.NOMECIDADE NOMEMUNINICTE,
+                             PCCONHECIMENTOFRETEI.CNPJDEST,
+                             PCCONHECIMENTOFRETEI.UFDEST,
+                             PCCONHECIMENTOFRETEI.CODMUNFIMCTE,
+                             CIDADE_D.NOMECIDADE NOMEMUNFIMCTE,
+                             PCCONHECIMENTOFRETEI.VLFRETE VALORFRETE
+                        FROM PCNFSAID, PCCONHECIMENTOFRETEI, PCCLIENT,
+                             PCCIDADE CIDADE_E, PCCIDADE CIDADE_D
                        WHERE PCNFSAID.NUMTRANSVENDA = PCCONHECIMENTOFRETEI.NUMTRANSCONHEC
                          AND PCNFSAID.CODREMETENTEFRETE = PCCLIENT.CODCLI
                          AND PCCONHECIMENTOFRETEI.NUMTRANSCONHEC = P_TRANSACAO
-                         AND NVL(TIPOEMISSAOCTE, 0) IN (0, 5)
+                         AND PCCONHECIMENTOFRETEI.CODMUNINICTE = CIDADE_E.CODIBGE(+)
+                         AND PCCONHECIMENTOFRETEI.CODMUNFIMCTE = CIDADE_D.CODIBGE(+)
+                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) IN (0, 5)
                       --------------
                       UNION ALL
                       --------------CTE COMPLEMENTAR
@@ -77,27 +103,24 @@ BEGIN
                              PCNFSAID.VLTOTAL AS VALOR_DOCUMENTO,
                              PCNFSAID.SERIE SERIE,
                              '' AS CLIENTE,
-                             '' AS ENDERECO
+                             '' AS ENDERECO,
+                             '' AS CNPJEMIT,
+                             '' AS UFORIG,
+                             NULL AS CODMUNINICTE,
+                             '' AS NOMEMUNINICTE,
+                             '' AS CNPJDEST,
+                             '' AS UFDEST,
+                             NULL AS CODMUNFIMCTE,
+                             '' AS NOMEMUNFIMCTE,
+                             PCNFSAID.VLFRETE VALORFRETE
                         FROM PCNFSAID, PCNFSAID ORIG
                        WHERE PCNFSAID.NUMTRANSVENDA = ORIG.NUMTRANSVENDAORIGEM
                          AND ORIG.NUMTRANSVENDA = P_TRANSACAO
                          AND PCNFSAID.ESPECIE IN ('CE', 'CO')
-                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) IN (0, 5))            
+                         AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) = 0)            
            LOOP
                 RETORNO.EXTEND;
-                RETORNO(RETORNO.COUNT) := TIPO_CTE_INFO_NOTA(DOCUMENTO_ORIGINARIO => NULL
-                                                            ,PIN_SUFRAMA          => NULL
-                                                            ,CHAVENFE             => NULL
-                                                            ,DESCRICAO_OUTROS     => NULL
-                                                            ,NUMERO_DOCUMENTO     => NULL
-                                                            ,DATA_EMISSAO         => NULL
-                                                            ,VALOR_DOCUMENTO      => NULL
-                                                            ,CNPJ                 => NULL
-                                                            ,SERIE                => NULL
-                                                            ,CLIENTE              => NULL
-                                                            ,ENDERECO             => NULL
-                                                             );       
-                                                                      
+                RETORNO(RETORNO.COUNT) := TIPO_CTE_INFO_NOTA();                                                                            
                 RETORNO(RETORNO.COUNT).DOCUMENTO_ORIGINARIO := NOTA.DOCUMENTO_ORIGINARIO;
                 RETORNO(RETORNO.COUNT).PIN_SUFRAMA          := NOTA.PIN_SUFRAMA;
                 RETORNO(RETORNO.COUNT).CHAVENFE             := NOTA.CHAVENFE;
@@ -108,7 +131,16 @@ BEGIN
                 RETORNO(RETORNO.COUNT).CNPJ                 := NOTA.CNPJ;
                 RETORNO(RETORNO.COUNT).SERIE                := NOTA.SERIE;
                 RETORNO(RETORNO.COUNT).CLIENTE              := NOTA.CLIENTE;
-                RETORNO(RETORNO.COUNT).ENDERECO             := NOTA.ENDERECO;                
+                RETORNO(RETORNO.COUNT).ENDERECO             := NOTA.ENDERECO;       
+                RETORNO(RETORNO.COUNT).CNPJEMIT             := NOTA.CNPJEMIT;
+                RETORNO(RETORNO.COUNT).UFORIG               := NOTA.UFORIG;
+                RETORNO(RETORNO.COUNT).CODMUNINICTE         := NOTA.CODMUNINICTE;
+                RETORNO(RETORNO.COUNT).NOMEMUNINICTE        := NOTA.NOMEMUNINICTE;
+                RETORNO(RETORNO.COUNT).CNPJDEST             := NOTA.CNPJDEST;
+                RETORNO(RETORNO.COUNT).UFDEST               := NOTA.UFDEST;
+                RETORNO(RETORNO.COUNT).CODMUNFIMCTE         := NOTA.CODMUNFIMCTE;
+                RETORNO(RETORNO.COUNT).NOMEMUNFIMCTE        := NOTA.NOMEMUNFIMCTE;
+                RETORNO(RETORNO.COUNT).VALORFRETE           := NOTA.VALORFRETE;
              END LOOP;
    RETURN RETORNO;
 
