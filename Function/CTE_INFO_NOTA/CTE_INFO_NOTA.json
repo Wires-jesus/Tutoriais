@@ -3,9 +3,14 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
-   "nome": "TABELA_CTE_INFO_NOTA",
-   "tipo":"OBJETO_PLSQL",
-   "versao": "4.0.01.000"
+   "nome": "TIPO_CTE_INFO_NOTA",
+   "tipo": "MIGRATION",
+   "versao": "6.0.02.000"
+  },
+  {
+   "nome": "PCCONHECIMENTOFRETEI",
+   "tipo":"TABELA",
+   "versao": "6.0.01.000"
   }
  ]
 }
