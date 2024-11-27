@@ -113,10 +113,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
      OUTROW.RECEBELANCTO     := NULL;
      OUTROW.NATUREZACONTA    := NULL;
      OUTROW.TIPOCONTA        := NULL;
-  END LIMPAVARIAVEIS;
-
-  
-  
+  END LIMPAVARIAVEIS;  
   
   /****************************************************************************
     FUNÇÃO: RETORNA O SALDO DA CONTA SEM SER DFC
