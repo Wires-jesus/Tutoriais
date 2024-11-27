@@ -24,7 +24,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
 /****************************************************************************
   Declaração de variáveis
 *****************************************************************************/
-  --Declara Valores de Saí­da
+  --Declara Valores de Saída
   OUTROW DRECONTABIL_DATAROW := DRECONTABIL_DATAROW(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                                                     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL);
   --Arrays
@@ -42,7 +42,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_DRECONTABIL IS
                            DESC_RESULTADO   PCCONFIGDRE.DESC_RESULTADO%TYPE,
                            SALDODFC         PCCONFIGDRE.SALDODFC%TYPE,
                            NATUREZALANC     PCCONFIGDRE.NATUREZALANC%TYPE,
-					            	   CODCONTA_PC      PCMODELOPC.CODCONTA_PC%TYPE,
+                           CODCONTA_PC      PCMODELOPC.CODCONTA_PC%TYPE,
                            RECEBELANCTO     PCMODELOPC.RECEBE_LANCTO%TYPE,
                            NATUREZACONTA    PCMODELOPC.NATUREZA%TYPE,
                            TIPOCONTA        PCMODELOPC.TIPOCONTA%TYPE);
@@ -1327,7 +1327,7 @@ BEGIN
                       DESC_RESULTADO,
                       NVL(SALDODFC, 0) SALDODFC,
                       NVL(NATUREZALANC, ''D'') NATUREZALANC,
-					            M.CODCONTA_PC,
+                      M.CODCONTA_PC,
                       NVL(M.RECEBE_LANCTO, ''N'') RECEBE_LANCTO,
                       M.NATUREZA AS NATUREZACONTA,
                       M.TIPOCONTA
@@ -1335,8 +1335,8 @@ BEGIN
                 WHERE CODCONFIGPAI > 0
                   AND CODDEMONST =    :PCODDRE
                   AND PCCONFIGDRE.CODPLANOCONTA = :PCODPLANOCONTA
-				          AND M.CODPLANOCONTA(+) = PCCONFIGDRE.CODPLANOCONTA
-				          AND M.CODREDUZIDO_PC(+) = PCCONFIGDRE.CODCONTAREDUZIDO
+                  AND M.CODPLANOCONTA(+) = PCCONFIGDRE.CODPLANOCONTA
+                  AND M.CODREDUZIDO_PC(+) = PCCONFIGDRE.CODCONTAREDUZIDO
                   AND CODCONFIGPAI =  :PCODCONFIGPAI
                   ORDER BY ORDEM ';
 
@@ -1545,13 +1545,44 @@ BEGIN
                           OUTROW.ORDEM                      := NULL;
                           OUTROW.VALORBASE                  := VN_VALORCONTAANALITICA;
                           OUTROW.NEGRITO                    := 'N';
-						              OUTROW.CODCONTA_PC                := CONTASANALITICAS.CODCONTA_PC;
+                          OUTROW.CODCONTA_PC                := CONTASANALITICAS.CODCONTA_PC;
                           OUTROW.RECEBELANCTO               := CONTASANALITICAS.RECEBE_LANCTO;
                           OUTROW.NATUREZACONTA              := CONTASANALITICAS.NATUREZA;
                           OUTROW.TIPOCONTA                  := CONTASANALITICAS.TIPOCONTA;
 
                           VRETORNO(VN_POSICAO_EM_ALTERACAO) := OUTROW;
                        END IF;
+                       
+                       /*CENTRO DE CUSTOS*/
+                       IF PEXIBIRRATEIO_RECEITA_CUSTO = 'S' THEN
+
+                          OPEN RATEIOCURSOR FOR V_SQL_RATEIO
+                          USING
+                            CONTASANALITICAS.CODREDUZIDO_PC, PCODPLANOCONTA, PANO, PMESINI, PMESFIM,
+                            CONTASANALITICAS.CODREDUZIDO_PC, PCODPLANOCONTA, PANO, PMESINI, PMESFIM;
+                          LOOP
+                            FETCH RATEIOCURSOR INTO RATEIO;
+                            EXIT WHEN RATEIOCURSOR%NOTFOUND;
+
+                            VRETORNO.EXTEND;
+                            VN_POSICAO_EM_ALTERACAO := VRETORNO.COUNT;
+                            OUTROW.DESCRICAO    := '                        ' || RATEIO.CODIGO || '-'|| RATEIO.DESCRICAO;
+                            IF RATEIO.VALOR < 0 THEN
+                               OUTROW.VALOR    :=  '(' || TRIM(TO_CHAR(ABS(RATEIO.VALOR), '999,999,999,999.99')) || ')';
+                            ELSE
+                               OUTROW.VALOR    :=   TRIM(TO_CHAR(ABS(RATEIO.VALOR), '999,999,999,999.99'));
+                            END IF;
+
+                            OUTROW.VALOR         := OUTROW.VALOR;
+                            OUTROW.ORDEM         := NULL;
+                            OUTROW.VALORBASE     := RATEIO.VALOR;
+                            OUTROW.NEGRITO       := 'N';
+                            OUTROW.PERCVERTICAL  := RATEIO.PERCENTUAL; --Quando esta opção esta marcado, o função vertical e desabilitada na rotina 2122
+
+                            VRETORNO(VN_POSICAO_EM_ALTERACAO) := OUTROW;
+                          END LOOP;
+                       END IF;
+                                       
                     END IF;
                  END LOOP;
               END IF;
@@ -1650,7 +1681,8 @@ BEGIN
           VN_VLRSUBTOTALANTERIOR := VN_VLRSUBTOTALANTERIOR - VN_VALORANTERIOR;        
         END IF;
 
-        IF PEXIBIRRATEIO_RECEITA_CUSTO = 'S' THEN
+		/*CENTRO DE CUSTOS*/
+        IF PEXIBIRRATEIO_RECEITA_CUSTO = 'S' AND PEXIBIRCONTASANALITICAS = 'N' THEN
 
           OPEN RATEIOCURSOR FOR V_SQL_RATEIO
           USING
