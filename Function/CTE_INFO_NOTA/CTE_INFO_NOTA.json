@@ -5,12 +5,12 @@
   {
    "nome": "TIPO_CTE_INFO_NOTA",
    "tipo": "MIGRATION",
-   "versao": "4.0.03.000"
+   "versao": "6.0.02.000"
   },
   {
    "nome": "PCCONHECIMENTOFRETEI",
    "tipo":"TABELA",
-   "versao": "4.0.02.000"
+   "versao": "6.0.01.000"
   }
  ]
 }
