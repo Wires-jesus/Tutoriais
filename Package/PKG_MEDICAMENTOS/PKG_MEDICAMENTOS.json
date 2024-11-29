@@ -1,4 +1,4 @@
-{"nome":"PKG_MEDICAMENTO","tipoPLSQL":"PACKAGE","dependencias":
+{"nome":"PKG_MEDICAMENTOS","tipoPLSQL":"PACKAGE","dependencias":
 [
   {"nome": "PCCLIENTFILIALMED", "tipo":"TABELA", "versao":"5.0.02.000"},
   {"nome": "PCCLIUSURFILIALLINHAPROD", "tipo":"TABELA", "versao":"5.0.01.000"},
