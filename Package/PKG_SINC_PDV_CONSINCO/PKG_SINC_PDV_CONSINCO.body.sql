@@ -3289,7 +3289,7 @@ END;
 PROCEDURE carrega_tb_regrasegmento(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrasegmento tb_regrasegmento_c5
-        USING (SELECT distinct * FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
+        USING (SELECT distinct  seqregra,ativo FROM VW_INT_C5_REGRAINCENTIVO) VIEW_C5_INCENTIVO
         on(tb_regrasegmento_c5.SEQREGRA      = VIEW_C5_INCENTIVO.SEQREGRA AND
            tb_regrasegmento_c5.NROSEGMENTO   = 1
           )
@@ -3356,14 +3356,14 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
       MERGE INTO monitorpdvmiddle.tb_regraproduto tb_regraproduto_c5
         USING 
              (
-               SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF  
+               SELECT DISTINCT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF  
                FROM VW_INT_C5_DESC561PRODUTO
                UNION ALL
-               SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
+               SELECT DISTINCT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
                FROM VW_INT_C5_PRECOFIXO_R357
 			   UNION ALL 
-			   SELECT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
-               FROM VW_INT_C5_DESC2048FIDELIDADE
+			   SELECT DISTINCT SEQREGRA, SEQPRODUTO, QTDEMBALAGEM, PERCDESCONTO, PRECO, ATIVO, IDREF 
+               FROM VW_INT_C5_DESC2048PRODUTO
               ) vw_int_c5_regraproduto
       on(
             tb_regraproduto_c5.SEQPRODUTO    = vw_int_c5_regraproduto.SEQPRODUTO        
@@ -3450,19 +3450,19 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regracliente(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regracliente D
-    USING (SELECT C.SEQPESSOA,
+    USING (SELECT DISTINCT C.SEQPESSOA,
                   C.SEQREGRA,
 				  C.PERCDESCONTO,
                   C.ATIVO,
 				  C.IDREF
 				  FROM VW_INT_C5_DESC561CLIENTE C
 				  UNION ALL
-				  SELECT F.SEQPESSOA,
+				  SELECT DISTINCT F.SEQPESSOA,
                   F.SEQREGRA,
 				  F.PERCDESCONTO,
                   F.ATIVO,
 				  F.IDREF
-				  FROM VW_INT_C5_DESC2048FIDELIDADE F) S 
+				  FROM VW_INT_C5_DESC2048CLIENTE F) S 
     ON    ( D.SEQPESSOA = S.SEQPESSOA AND D.SEQREGRA = S.SEQREGRA)
   WHEN MATCHED THEN
        UPDATE SET
