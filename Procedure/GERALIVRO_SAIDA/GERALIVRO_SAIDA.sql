@@ -617,6 +617,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
        and P.CODPROD = B.CODPROD
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
        and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
+       and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL       
        and B.CODPROD = PF.CODPROD(+)
        and B.STATUS in ('A', 'AB')
        and B.QTCONT > 0
@@ -8969,5 +8970,4 @@ exception
       DESATIVAR_SESSAO;
     end;
 end;
--- Última Alteração : 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
--- V 001 --
+-- Última Alteração : 28/11/2024 - Alteração no sql 01 para melhoria de performance.
