@@ -2,7 +2,6 @@
 [
   {"nome": "PCCLIENTFILIALMED", "tipo":"TABELA", "versao":"5.0.02.000"},
   {"nome": "PCCLIUSURFILIALLINHAPROD", "tipo":"TABELA", "versao":"5.0.01.000"},
-  {"nome": "PCEXCECAOUFMEDABCFARMA", "tipo": "TABELA", "versao": "2.0.01.000"},
   {"nome": "PCORIGEMPRECO", "tipo": "TABELA", "versao": "1.3.01.000"},
   {"nome": "PCPAUTAPRODUTUF", "tipo": "TABELA", "versao": "3.0.01.000"},
   {"nome": "PCPEDI", "tipo": "TABELA", "versao": "6.0.01.000"},
