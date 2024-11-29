@@ -10816,7 +10816,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnCodicmtabpf                 PCTRIBUT.CODICMTABPF%TYPE,
          vnPerDescRepasse              PCTRIBUT.PERDESCREPASSE%TYPE,
          vbcodicmtabpf_enulo           BOOLEAN,
-         vnAliqIcmsFecp                PCTRIBUT.ALIQICMSFECP%TYPE -- HIS.04200.2017
+         vnAliqIcmsFecp                PCTRIBUT.ALIQICMSFECP%TYPE, -- HIS.04200.2017
 		 vsUTILIZAICMTABFlex           PCTRIBUT.UTILIZAICMTABFLEX%TYPE															  
          );
     vrDadosTributacao                  TRecDadosTributacao;
@@ -10897,8 +10897,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          VLICMSSUBSTITUTOANTERIOR      PCPEDI.VLICMSSUBSTITUTOANTERIOR%TYPE, -- DDMEDICA-7697
          VLICMSSTRETANTERIOR           PCPEDI.VLICMSSTRETANTERIOR%TYPE,      -- DDMEDICA-7697
          STCLIENTEGNRE                 PCPEDI.STCLIENTEGNRE%TYPE,            -- DDMEDICA-7697
-         VLDESCCMVPROMOCAOMED          PCPEDI.VLDESCCMVPROMOCAOMED%TYPE      -- DDMEDICA-7697
-		  CODICMTAB                     PCPEDI.CODICMTAB%TYPE													
+         VLDESCCMVPROMOCAOMED          PCPEDI.VLDESCCMVPROMOCAOMED%TYPE,      -- DDMEDICA-7697
+		 CODICMTAB                     PCPEDI.CODICMTAB%TYPE													
          );     
 
     vrItensPedido                      TRecItensPedido;  
@@ -11331,6 +11331,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   , PCPEDI.VLICMSSTRETANTERIOR      -- DDMEDICA-7697
                                   , PCPEDI.STCLIENTEGNRE            -- DDMEDICA-7697
                                   , PCPEDI.VLDESCCMVPROMOCAOMED     -- DDMEDICA-7697
+								  , PCPEDI.CODICMTAB
                                FROM PCPEDI
                                   , PCPRODUT
                               WHERE (PCPRODUT.CODPROD = PCPEDI.CODPROD)
