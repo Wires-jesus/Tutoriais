@@ -11882,15 +11882,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                             vrDadosEstoque.vnCustoFin,
                             vrDadosEstoque.vnCustoReal,
                             vrDadosTributacao.vnPerDescCusto,
-                            case when (pi_vTipoChamada = 'V')
-                              and (vrDadosTributacao.vsUtilizaICMTABFlex = 'S') then
+                            case when (vrDadosTributacao.vsUtilizaICMTABFlex = 'S') then
                                 vrItensPedido.CODICMTAB
                               else
                                 vrDadosTributacao.vnCodicmtab
                             end,
                             vrDadosTributacao.vbCodicmtabpf_enulo,
-                            case when (pi_vTipoChamada = 'V')
-                              and (vrDadosTributacao.vsUtilizaICMTABFlex = 'S') then
+                            case when (vrDadosTributacao.vsUtilizaICMTABFlex = 'S') then
                                 vrItensPedido.CODICMTAB
                               else
                                 vrDadosTributacao.vnCodicmtabpf
