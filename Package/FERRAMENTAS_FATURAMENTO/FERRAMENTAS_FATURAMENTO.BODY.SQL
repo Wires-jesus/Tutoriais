@@ -177,7 +177,9 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                PMSGRETORNO OUT VARCHAR2,
                                PCODFUNCTRANSF IN PCLOGTRANSFNFCARREG.CODFUNCTRANSF%TYPE DEFAULT NULL,
                                PCODMOTIVO IN PCLOGTRANSFNFCARREG.CODMOTIVO%TYPE DEFAULT NULL,
-                               PMOTIVOTRANSF IN PCLOGTRANSFNFCARREG.MOTIVOTRANSF%TYPE DEFAULT '')
+                               PMOTIVOTRANSF IN PCLOGTRANSFNFCARREG.MOTIVOTRANSF%TYPE DEFAULT '',
+                               PNUMPED IN PCNFSAID.NUMPED%TYPE DEFAULT 0,
+                               PNUMTRANSVENDA IN PCNFSAID.NUMTRANSVENDA%TYPE DEFAULT 0)
     RETURN VARCHAR2 IS
     VRET VARCHAR2(1) := 'N';
     VTIPOTRANSF VARCHAR2(2);
@@ -194,7 +196,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
        NUMNOTA PCNFSAID.NUMNOTA%TYPE,
        CODFILIAL PCMOV.CODFILIAL%TYPE,
        CODFILIALNF PCMOV.CODFILIALNF%TYPE,
-       CODFILIALRETIRA PCMOV.CODFILIALRETIRA%TYPE);
+       CODFILIALRETIRA PCMOV.CODFILIALRETIRA%TYPE,
+       NUMPED PCNFSAID.NUMPED%TYPE);
     TYPE TTRANSACAO IS TABLE OF TRECTRANSACAO INDEX BY BINARY_INTEGER;
     TRANSACOES TTRANSACAO;
         
@@ -235,9 +238,12 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                , M.CODFILIAL
                                , M.CODFILIALNF
                                , M.CODFILIALRETIRA
+                               , S.NUMPED
                             FROM PCNFSAID S
                                , PCMOV M
                            WHERE S.NUMCAR = PNUMCARORIGEM
+                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                             AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
                              AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
                              AND S.CODFILIAL = M.CODFILIAL
                              AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
@@ -249,9 +255,12 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                , M.CODFILIAL
                                , M.CODFILIALNF
                                , M.CODFILIALRETIRA
+                               , S.NUMPED
                             FROM PCNFSAIDPREFAT S
                                , PCMOVPREFAT M
                            WHERE S.NUMCAR = PNUMCARORIGEM
+                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                             AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
                              AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
                              AND S.CODFILIAL = M.CODFILIAL
                              AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
@@ -266,18 +275,21 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                                      , TRANSACOES(NOTA).CODFILIALNF);
               IF (VTIPOTRANSF IN('V', 'VR')) THEN 
                  VRET := 'S';
-                 
+                  
                  UPDATE PCTRANSFVIRT
                     SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM;
+                  WHERE NUMCAR = PNUMCARORIGEM
+                    AND NUMPED = TRANSACOES(NOTA).NUMPED;
                    
                  UPDATE PCTRANSFVIRTDEV
                     SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM;
+                  WHERE NUMCAR = PNUMCARORIGEM
+                    AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;
                   
                  UPDATE PCTRANSFVIRTFAT
                     SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM;               
+                  WHERE NUMCAR = PNUMCARORIGEM
+                    AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;               
                   
                  VLOG.NUMNOTA := TRANSACOES(NOTA).NUMNOTA;
                  VLOG.NUMTRANSVENDA := TRANSACOES(NOTA).NUMTRANSVENDA;
