@@ -82,7 +82,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO AS
     FROM USER_TABLES
     WHERE TABLE_NAME = PTABELA;
 
-    RETURN v_ExisteTabela > 0;
+    RETURN NVL(v_ExisteTabela,0) > 0;
   END EXISTE_TABELA_TMPMON;
   
 
@@ -220,9 +220,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO AS
     EXCEPTION 
       WHEN OTHERS THEN
         v_DataCriacaoTabela := SYSDATE - 1;
-    END;  
-      
-    RETURN TRUNC(v_DataCriacaoTabela) < TRUNC(v_DataUltimoProcessamento);
+    END;
+
+    RETURN (TRUNC(v_DataCriacaoTabela) < TRUNC(v_DataUltimoProcessamento)) 
+           OR (v_DataUltimoProcessamento IS NULL);
   END TABELA_MONITOR_DESATUALIZADA;
 
 
