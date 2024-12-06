@@ -617,7 +617,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
        and P.CODPROD = B.CODPROD
        and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
        and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
-       and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL       
+       and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
        and B.CODPROD = PF.CODPROD(+)
        and B.STATUS in ('A', 'AB')
        and B.QTCONT > 0
@@ -1583,10 +1583,12 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                and A.ESPECIE in ('NF', 'CF', 'CP')
                and A.SERIE in ('CF', 'CP')
                and (P_INSERIRCF = 'S' OR A.CHAVENFE IS NOT NULL)
-               and A.DTSAIDA between P_DATA1 and P_DATA2
-         AND B.DTMOV BETWEEN P_DATA1 AND P_DATA2
-               and ((A.NUMNOTA >= P_NOTA1) and (A.NUMNOTA <= P_NOTA2))
+               and A.DTSAIDA BETWEEN P_DATA1 and P_DATA2
+               and B.DTMOV BETWEEN P_DATA1 AND P_DATA2
+               and ((A.NUMNOTA >= P_NOTA1) and 
+                    (A.NUMNOTA <= P_NOTA2))
                and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
+               and NVL(A.CODFILIALNF, a.CODFILIAL) = P_CODFILIAL               
                and NVL(B.CODFILIALNF, B.CODFILIAL) = F.CODIGO
              group by NVL(A.CODFILIALNF, A.CODFILIAL),
                       A.NUMTRANSVENDA,
@@ -1662,7 +1664,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
               DTGERA,
               CONTAORDEM,
               SITUACAONFE,
-              DATA
+              DATA,
+              NUMSQL
        order by
               DTSAIDA, NUMTRANSVENDA,NUMNOTA;
     -------------------------------------------------------------------------------------------
@@ -8474,25 +8477,22 @@ END;
   
   ---------------------------------------------------------------------------------
   IF F_NOTAS_CUPOM_FISCAL(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
-  
-      open C_NOTAS_CUPOM_FISCAL(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
-      fetch C_NOTAS_CUPOM_FISCAL bulk collect
-      into LISTA_NOTAS_CUPOM_FISCAL;
-      close C_NOTAS_CUPOM_FISCAL;
-      GERALIVRO_FISCAL(LISTA_NOTAS_CUPOM_FISCAL);
+    open C_NOTAS_CUPOM_FISCAL(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
+    fetch C_NOTAS_CUPOM_FISCAL bulk collect
+    into LISTA_NOTAS_CUPOM_FISCAL;
+    close C_NOTAS_CUPOM_FISCAL;
+    GERALIVRO_FISCAL(LISTA_NOTAS_CUPOM_FISCAL);
     
+    IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
+       COMMIT;
+       V_CONTADORREGISTRO := 0;
+       RETURN;
+    END IF;
     
-      IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
-         COMMIT;
-         V_CONTADORREGISTRO := 0;
-         RETURN;
-      END IF;
-    
-      IF V_CONTADORREGISTRO > 0 THEN
-         COMMIT;
-         V_CONTADORREGISTRO := 0;
-      END IF;
-      
+    IF V_CONTADORREGISTRO > 0 THEN
+       COMMIT;
+       V_CONTADORREGISTRO := 0;
+    END IF;
   END IF;
   ---------------------------------------------------------------------------------
   IF F_NOTAS_DEV_FORNEC(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
@@ -8970,4 +8970,4 @@ exception
       DESATIVAR_SESSAO;
     end;
 end;
--- Última Alteração : 28/11/2024 - Alteração no sql 01 para melhoria de performance.
+-- 001 - 06/12/2024 - ajuste no sql 03 referente ao agrupamento do campo NUMSQL
