@@ -10,12 +10,12 @@
   {
    "nome": "SQL_NFE_CABECALHO_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao": "5.0.01.000"
+   "versao": "7.0.01.000"
   },
   {
    "nome": "SQL_NFE_CABECALHO_ENTRADA_DEV",
    "tipo":"OBJETO_PLSQL",
-   "versao": "5.0.01.000"
+   "versao": "7.0.01.000"
   }
  ]
 }
