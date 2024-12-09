@@ -39,32 +39,7 @@ SELECT PCNFSAID.NUMTRANSVENDA AS NUM_TRANSACAO
           WHERE  PCDEVFORNEC.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
           AND    ROWNUM = 1) NUM_TRANSACAO_DEV
         ,PCNFSAID.NUMTRANSVENDAORIGEM AS NUM_TRANSACAO_ORIG
-        --Alteração solicitada pelo Ricardinho
-        ,CASE
-           WHEN (PCNFSAID.FINALIDADENFE = 'A') THEN
-            DECODE(NVL(PCNFSAID.NATOPERNFE, ''),
-                   '',
-                   NVL(NVL((SELECT PCCFO.DESCCFO
-                             FROM PCCFO
-                            WHERE PCCFO.CODFISCAL =
-                                  (SELECT MIN(CODFISCAL)
-                                     FROM PCMOV
-                                    WHERE PCMOV.NUMTRANSVENDA =
-                                          PCNFSAID.NUMTRANSVENDA)),
-                           (SELECT PCCFO.DESCCFO
-                              FROM PCCFO
-                             WHERE PCCFO.CODFISCAL =
-                                   (SELECT MIN(CODFISCAL)
-                                      FROM PCMOVCIAP
-                                     WHERE PCMOVCIAP.NUMTRANSVENDA =
-                                           PCNFSAID.NUMTRANSVENDA))),
-                       (SELECT MIN(PCCFO.DESCCFO)
-                          FROM PCCFO, PCNFBASE
-                         WHERE PCNFBASE.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
-                           AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)),
-                   NATOPERNFE)
-           ELSE
-            --Melhoria HIS.02791.2016 - Eddy
+        ,DECODE(NVL(PCNFSAID.NATOPERNFE, ''), '',   
             DECODE(NVL(PCNFSAID.PAGCHEQUEMORADIA, 'N'),'S',
                    'VENDA COM CHEQUE MORADIA',
                    NVL(NVL((SELECT PCCFO.DESCCFO
@@ -83,8 +58,8 @@ SELECT PCNFSAID.NUMTRANSVENDA AS NUM_TRANSACAO
                         (SELECT MIN(PCCFO.DESCCFO)
                            FROM PCCFO, PCNFBASE
                           WHERE PCNFBASE.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
-                            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)))
-         END AS NATUREZA_OP
+                            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL))),
+                   PCNFSAID.NATOPERNFE) AS NATUREZA_OP
         ,NVL((SELECT MIN(CODFISCAL)
               FROM PCMOV
               WHERE PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA),
@@ -442,32 +417,7 @@ SELECT PCNFSAID.NUMTRANSVENDA AS NUM_TRANSACAO
           WHERE  PCDEVFORNEC.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA
           AND    ROWNUM = 1) NUM_TRANSACAO_DEV
         ,PCNFSAIDPREFAT.NUMTRANSVENDAORIGEM AS NUM_TRANSACAO_ORIG
-        --Alteração solicitada pelo Ricardinho
-        ,CASE
-           WHEN (PCNFSAIDPREFAT.FINALIDADENFE = 'A') THEN
-            DECODE(NVL(PCNFSAIDPREFAT.NATOPERNFE, ''),
-                   '',
-                   NVL(NVL((SELECT PCCFO.DESCCFO
-                             FROM PCCFO
-                            WHERE PCCFO.CODFISCAL =
-                                  (SELECT MIN(CODFISCAL)
-                                     FROM PCMOVPREFAT
-                                    WHERE PCMOVPREFAT.NUMTRANSVENDA =
-                                          PCNFSAIDPREFAT.NUMTRANSVENDA)),
-                           (SELECT PCCFO.DESCCFO
-                              FROM PCCFO
-                             WHERE PCCFO.CODFISCAL =
-                                   (SELECT MIN(CODFISCAL)
-                                      FROM PCMOVCIAP
-                                     WHERE PCMOVCIAP.NUMTRANSVENDA =
-                                           PCNFSAIDPREFAT.NUMTRANSVENDA))),
-                       (SELECT MIN(PCCFO.DESCCFO)
-                          FROM PCCFO, PCNFBASE
-                         WHERE PCNFBASE.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA
-                           AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)),
-                   NATOPERNFE)
-           ELSE
-            --Melhoria HIS.02791.2016 - Eddy
+        ,DECODE(NVL(PCNFSAIDPREFAT.NATOPERNFE, ''), '',   
             DECODE(NVL(PCNFSAIDPREFAT.PAGCHEQUEMORADIA, 'N'),'S',
                    'VENDA COM CHEQUE MORADIA',
                    NVL(NVL((SELECT PCCFO.DESCCFO
@@ -486,8 +436,8 @@ SELECT PCNFSAID.NUMTRANSVENDA AS NUM_TRANSACAO
                         (SELECT MIN(PCCFO.DESCCFO)
                            FROM PCCFO, PCNFBASE
                           WHERE PCNFBASE.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA
-                            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)))
-         END AS NATUREZA_OP
+                            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL))),
+                   PCNFSAIDPREFAT.NATOPERNFE) AS NATUREZA_OP
         ,NVL((SELECT MIN(CODFISCAL)
               FROM PCMOVPREFAT
               WHERE PCMOVPREFAT.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA),
