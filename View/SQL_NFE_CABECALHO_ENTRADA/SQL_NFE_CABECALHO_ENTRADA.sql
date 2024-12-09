@@ -43,18 +43,7 @@ SELECT PCNFENT.NUMTRANSENT AS NUM_TRANSACAO
                     NULL)
        AS DATA_ENTREGA 
       ,PCNFENT.NUMNOTA AS NUMERO_NOTA
-      ,CASE WHEN (PCNFENT.FINALIDADENFE = 'A') THEN
-        DECODE(NVL(NATOPERNFE, ''), '', NVL((SELECT MIN(PCCFO.DESCCFO) DESCCFO
-                                              FROM PCCFO
-                                                   ,PCMOV
-                                             WHERE  PCMOV.CODFISCAL = PCCFO.CODFISCAL
-                                               AND  PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT),
-                                           (SELECT MIN(PCCFO.DESCCFO) DESCCFO
-                                            FROM   PCCFO, PCNFBASE
-                                            WHERE  PCNFBASE.NUMTRANSENT = PCNFENT.NUMTRANSENT
-                                            AND PCNFBASE.CODCONT  = PCNFENT.CODCONT
-                                            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)) , NATOPERNFE)
-       ELSE
+      ,DECODE(NVL(PCNFENT.NATOPERNFE, ''), '', 
          NVL( NVL((SELECT MIN(PCCFO.DESCCFO) DESCCFO
               FROM PCCFO
                    ,PCMOV
@@ -69,8 +58,7 @@ SELECT PCNFENT.NUMTRANSENT AS NUM_TRANSACAO
             FROM   PCCFO, PCNFBASE
             WHERE  PCNFBASE.NUMTRANSENT = PCNFENT.NUMTRANSENT
             AND PCNFBASE.CODCONT  = PCNFENT.CODCONT
-            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL))
-       END AS NATUREZA_OP
+            AND PCNFBASE.CODFISCAL = PCCFO.CODFISCAL)), PCNFENT.NATOPERNFE) AS NATUREZA_OP
       ,DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC',
                                                 PCFILIAL.CODIGO),
                   'N'),
