@@ -3601,7 +3601,7 @@ END;
 PROCEDURE carrega_tb_regrapessoagrupo(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regrapessoagrupo D
-    USING (SELECT 0 PERCDESCONTO,
+    USING (SELECT C.PERCDESCONTO,
 	              C.SEQREGRA,
 				  C.SEQGRUPOPESSOA,
 				  C.ATIVO,

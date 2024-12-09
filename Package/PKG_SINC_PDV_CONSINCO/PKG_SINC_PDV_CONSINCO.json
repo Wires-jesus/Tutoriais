@@ -140,7 +140,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "6.0.07.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
@@ -425,7 +425,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
 		  "tipo": "MIGRATION",
-		  "versao": "6.0.06.000"
+		  "versao": "7.0.02.000"
 		},
 		{
 		  "nome": "PCBINCARTAO",
@@ -445,7 +445,7 @@
 		{
 		  "nome": "VW_INT_C5_REGRABINCARTAO",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "6.0.03.000"
+		  "versao": "7.0.01.000"
 		}
 	]
 }
