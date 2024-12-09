@@ -20,8 +20,7 @@ CREATE OR REPLACE PACKAGE ATUALIZACAO_DIARIA IS
   
   PROCEDURE P_PC_ORDENAR_SEQUENCIA_ROTACLI( P_DTPROXVISITA IN PCROTACLI.DTPROXVISITA%TYPE
                                            , P_CODUSUR IN PCROTACLI.CODUSUR%TYPE DEFAULT 0
-                                           , P_ROWID IN VARCHAR2 DEFAULT ''
-                                           );
+                                           , P_ROWID IN VARCHAR2 DEFAULT '');
 
   PROCEDURE P_PC_GERAROTACLI(PI_DTPROCESSAMENTO IN DATE);
 
