@@ -3,5 +3,5 @@
     {"nome": "PROCESSO_CARGA_INT_C5_DESC561","tipo": "MIGRATION","versao": "6.0.03.000"},
     {"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017","tipo": "MIGRATION","versao": "5.0.01.000"},
     {"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011","tipo": "MIGRATION","versao": "5.0.01.000"},
-	{"nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE","tipo": "MIGRATION","versao": "6.0.06.000"}
+	{"nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE","tipo": "MIGRATION","versao": "7.0.02.000"}
 ]}
