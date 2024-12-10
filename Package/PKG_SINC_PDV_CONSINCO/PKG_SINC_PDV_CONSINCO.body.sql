@@ -837,22 +837,46 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      WHERE PCCESTPRODUTO.CODPROD = v.codprod
                      AND ROWNUM = 1
                     )*/ v.codcest,
-					CASE
-					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
-					          FROM PCEMBALAGEM e1
-					         WHERE e1.codprod = v.codprod
-							       AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
-					           AND tipoembalagem IN ('U', 'P')) > 1 THEN
-					  'N'
-					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
-					          FROM PCEMBALAGEM e1
-					         WHERE e1.codprod = v.codprod
-							      AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
-					          AND tipoembalagem IN ('P')) = 1 THEN
-					  'S'
-					  ELSE
-					  'N'
-					END PESAVEL,
+					        CASE
+                    WHEN (SELECT Count(*) FROM   pcconsum C WHERE  codclipc = 1264) > 0 THEN
+                      CASE
+                        WHEN (SELECT Count(DISTINCT tipoembalagem)
+                              FROM   pcembalagem e1
+                              WHERE  e1.codprod = v.codprod
+                                    AND e1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
+                                    AND tipoembalagem IN ( 'U', 'P' )) > 1 
+                          THEN
+                            'N'
+                        WHEN (SELECT Count(DISTINCT tipoembalagem)
+                              FROM   pcembalagem e1
+                              WHERE  e1.codprod = v.codprod
+                                    AND E1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
+                                    AND tipoembalagem IN ( 'P' )) = 1 
+                          THEN 
+                            'S'
+                          ELSE 
+                            'N'
+                      END
+                    ELSE
+                      CASE
+                        WHEN (SELECT Count(DISTINCT tipoembalagem)
+                              FROM   pcembalagem e1
+                              WHERE  e1.codprod = v.codprod
+                                    AND E1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
+                                    AND tipoembalagem IN ( 'P' )) = 1 
+                          THEN 
+                            'S'
+                        WHEN (SELECT Count(DISTINCT tipoembalagem)
+                              FROM   pcembalagem e1
+                              WHERE  e1.codprod = v.codprod
+                                    AND e1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
+                                    AND tipoembalagem IN ( 'U', 'P' )) > 1 
+                          THEN
+                            'N'
+                          ELSE 
+                            'N'
+                      END
+                  END PESAVEL,
 					CASE 
 					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
 					          FROM PCEMBALAGEM e1
@@ -2788,7 +2812,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_enderecoalternativo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN 
-    UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
+    --UPDATE monitorpdvmiddle.tb_enderecoalternativo SET ativo = 'N';
 
     MERGE INTO monitorpdvmiddle.tb_enderecoalternativo TB_ENDERECOALTERNATIVO
     USING(SELECT * FROM VW_INT_C5_ENDERECO_ALTERNATIVO) VW_INT_C5_ENDERECO_ALTERNATIVO
