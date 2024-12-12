@@ -488,6 +488,7 @@ IS
          dDTVALIDADE               PCLOTE.DTVALIDADE%TYPE,
          vDESCRICAO                PCPRODUT.DESCRICAO%TYPE,
          nQT                       PCPEDI.QT%TYPE,
+         nQTREPROVADA              PCLOTE.QTINDENIZ%TYPE,
          nCUSTOFIN                 PCPEDI.CUSTOFINEST%TYPE,
          vRESTRICAO                VARCHAR2(1),
          vOBS                      VARCHAR2(50));
@@ -553,6 +554,7 @@ IS
     vnQtTV10                      NUMBER;
     vnQtTrocaNota                 NUMBER;
     vnQtAvaria                    NUMBER;
+    vnQtReprovada                 NUMBER;
           
     -- Tipo Objeto
     OUTROW TIPO_MED_OBTER_LOTES_PEDIDO := TIPO_MED_OBTER_LOTES_PEDIDO(NULL,  -- NUMTRANSENT
@@ -890,6 +892,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
             vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
             vtEntrada(viContaID).nQT                   := vnQtCrossDocking; -- DDMEDICA-1769 
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).nCUSTOFIN             := vc_Movimentacao.CUSTOULTENTCONT; 
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
@@ -984,6 +987,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := NULL; 
             vtEntrada(viContaID).dDTVALIDADE           := NULL; 
             vtEntrada(viContaID).nQT                   := NVL(vnQtTV10,0);
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).nCUSTOFIN             := NVL(vnCustoFinTV10,0); 
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
@@ -1170,6 +1174,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
             vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
             vtEntrada(viContaID).nQT                   := NVL(vnQtTV10,0);
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).nCUSTOFIN             := NVL(vnCustoFinTV10,0); 
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
@@ -1313,6 +1318,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
             vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
             vtEntrada(viContaID).nQT                   := NVL(vnQtTrocaNota,0);
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).nCUSTOFIN             := NVL(vc_Movimentacao.PLIQ,0); 
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
@@ -1445,6 +1451,7 @@ IS
           vtEntrada(viContaID).vNUMLOTE              := vc_Promocao.NUMLOTE; 
           vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
           vtEntrada(viContaID).nQT                   := vc_Promocao.QUANTIDADE; 
+          vtEntrada(viContaID).nQTREPROVADA          := 0;
           vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
           vtEntrada(viContaID).vOBS                  := vvObs;
               
@@ -1567,6 +1574,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
             vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
             vtEntrada(viContaID).nQT                   := vc_Movimentacao.QUANTIDADE; 
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
                 
@@ -1651,6 +1659,7 @@ IS
             vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
             vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
             vtEntrada(viContaID).nQT                   := vc_Movimentacao.QUANTIDADE; 
+            vtEntrada(viContaID).nQTREPROVADA          := 0;
             vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
             vtEntrada(viContaID).vOBS                  := vvObs;
                 
@@ -1703,8 +1712,10 @@ IS
               BEGIN
                 SELECT NULL
                      , DTVALIDADE
+                     , NVL(PCLOTE.QTINDENIZ,0)
                   INTO vvObs
                      , vdDtValidade
+                     , vnQtReprovada
                   FROM PCLOTE
                  WHERE (CODFILIAL = vvCodFilial)
                    AND (CODPROD   = vc_Movimentacao.CODPROD)
@@ -1786,7 +1797,8 @@ IS
               vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
               vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
               vtEntrada(viContaID).dDTVALIDADE           := vdDtValidade; 
-              vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; -- DDMEDICA-1769 
+              vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; -- DDMEDICA-1769
+              vtEntrada(viContaID).nQTREPROVADA          := vnQtReprovada;
               vtEntrada(viContaID).nCUSTOFIN             := vc_Movimentacao.CUSTOULTENTCONT; 
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;
@@ -1894,7 +1906,8 @@ IS
               vtEntrada(viContaID).nCODPROD              := vc_Movimentacao.CODPROD; 
               vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
               vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
-              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QUANTIDADE; 
+              vtEntrada(viContaID).nQT                   := vc_Movimentacao.QUANTIDADE;
+              vtEntrada(viContaID).nQTREPROVADA          := 0;              
               vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
               vtEntrada(viContaID).vOBS                  := vvObs;                  
             END IF; -- Fim Condição: Se aceita o Produto
@@ -1984,6 +1997,7 @@ IS
                 vtEntrada(viContaID).vNUMLOTE              := vc_Movimentacao.NUMLOTE; 
                 vtEntrada(viContaID).dDTVALIDADE           := vc_Movimentacao.DTVALIDADE; 
                 vtEntrada(viContaID).nQT                   := vnQtDisponivelBloqueado; 
+                vtEntrada(viContaID).nQTREPROVADA          := 0;
                 vtEntrada(viContaID).vRESTRICAO            := vvRestricao;
                 vtEntrada(viContaID).vOBS                  := vvObs;
               END IF;
@@ -2179,7 +2193,7 @@ IS
         ----------------
         -- Calcula Saldo
         ----------------
-        vnQtSaldo := vrDadosEntrada.nQT - NVL(vnQtVendaGeral,0) - NVL(vnQtVendaPedido,0);
+        vnQtSaldo := vrDadosEntrada.nQT - NVL(vnQtVendaGeral,0) - NVL(vnQtVendaPedido,0) - NVL(vrDadosEntrada.nQTREPROVADA, 0);
         IF (vnQtSaldo < 0)                AND
            (pi_nOrigemChamada NOT IN (4)) THEN -->> Chamadas que deve deixar ficar negativo
           vnQtSaldo := 0;
