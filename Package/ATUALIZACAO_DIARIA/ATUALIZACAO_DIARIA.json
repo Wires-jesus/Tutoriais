@@ -23,6 +23,11 @@
       "nome": "VIEW_DEVOL_RESUMO_FATURAVULSA",
       "tipo": "OBJETO_PLSQL",
       "versao": "6.0.01.000"
-     }
+     },
+	 {
+	  "nome": "PARAMFILIAL",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.01.000"
+	 }
     ]}
 	
