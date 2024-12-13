@@ -57,9 +57,12 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
   V_NUMNOTAFINAL               number;
   V_CONTADORREGISTRO           number;
   V_QUANTIDADECOMMIT           number;
-  V_QTDNF_NO_PERIODO number;
+  V_QTDNF_NO_PERIODO           number;
   V_OBS_TEMP                   PCNFBASESAID.OBS%TYPE;
   vnGeraDTENTREGA              varchar2(1);
+  vnGeraDTENTREGA_POR_DATA     varchar2(1);
+  V_DATA_ANTERIOR_DTENTREGA    DATE := TO_DATE('01/04/2011', 'DD/MM/YYYY');
+
   /*Declara? das vari?is que substitui a chamada da fun? PARAMFILIAL.OBTERCOMOVARCHAR2 */
   vPARAM_GERARICMSLIVFISCFOP        varchar2(1);
   vPARAM_FIL_REGRAARREDONDAECF      varchar2(1);
@@ -369,32 +372,13 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            ------------------------------------------------------------------
            DECODE(A.CHAVENFE, NULL,
                   GREATEST(ROUND(A.VLOUTRASDESP -
-                                 NVL((SELECT ROUND(SUM(QTCONT * VLACRESCIMOPF), 2)
-                                      FROM PCMOV
-                                      WHERE NUMTRANSVENDA = A.NUMTRANSVENDA
-                                        AND NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL) = P_CODFILIAL
-                    AND PCMOV.DTMOV BETWEEN P_DATA1 AND P_DATA2
-                                        AND QTCONT > 0
-                                        AND DTCANCEL IS NULL), 0), 2), 0), NVL(A.VLOUTRASDESP,0)) VLOUTRASDESP,
+                                 NVL(( SUM(MOV.VLTOTAL_ACRESCIMOPF) ), 0), 2), 0), NVL(A.VLOUTRASDESP,0)) VLOUTRASDESP,
            ------------------------------------------------------------------
            (GREATEST(A.VLOUTRASDESP -
-                     NVL((select ROUND(sum(QTCONT * VLACRESCIMOPF), 2)
-                           from PCMOV
-                          where NUMTRANSVENDA = A.NUMTRANSVENDA
-                            AND NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL) = P_CODFILIAL
-              AND PCMOV.DTMOV BETWEEN P_DATA1 AND P_DATA2
-                            and QTCONT > 0
-                            and DTCANCEL is null), 0), 0) *
-           DECODE(NVL(A.PERBASEREDOUTRASDESP, 0), 0, 100, A.PERBASEREDOUTRASDESP) / 100) VLBASEOUTRASDESP,
+                     NVL(( SUM(MOV.VLTOTAL_ACRESCIMOPF)), 0), 0) *
+           DECODE(NVL(A.PERBASEREDOUTRASDESP, 0), 0, 100, A.PERBASEREDOUTRASDESP) / 100) VLBASEOUTRASDESP,           
            ------------------------------------------------------------------
-           NVL((select GREATEST(ROUND(sum(QTCONT * (NVL(VLOUTROS, 0) -
-                                         NVL(VLACRESCIMOPF, 0))), 2), 0)
-                 from PCMOV
-                where NUMTRANSVENDA = A.NUMTRANSVENDA
-                  AND NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL) = P_CODFILIAL
-          AND PCMOV.DTMOV BETWEEN P_DATA1 AND P_DATA2
-                  and QTCONT > 0
-                  and DTCANCEL is null), 0) VLOUTRASDESP_ITEM,
+           NVL((SUM(MOV.VLTOTAL_OUTROS)), 0) VLOUTRASDESP_ITEM,
            ------------------------------------------------------------------
            NVL(A.PERBASEREDOUTRASDESP, 0) PERBASEREDOUTRASDESP,
            A.TIPOVENDA,
@@ -606,10 +590,24 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            PCCFO CF,
            PCPRODUT P,
            PCPRODFILIAL  PF,
-           PCDADOSXML DXML
+           PCDADOSXML DXML, 
+           (SELECT M.NUMTRANSVENDA,
+                   M.CODPROD,  
+                   NVL(ROUND(SUM(M.QTCONT * NVL(M.VLACRESCIMOPF,0)), 2),0) VLTOTAL_ACRESCIMOPF,
+                   GREATEST(ROUND(SUM(M.QTCONT * (NVL(M.VLOUTROS, 0) -
+                                                  NVL(M.VLACRESCIMOPF, 0))), 2), 0) VLTOTAL_OUTROS
+              FROM PCMOV M
+             WHERE NVL(M.CODFILIALNF, M.CODFILIAL) = P_CODFILIAL
+               AND M.DTMOV BETWEEN P_DATA1 AND P_DATA2
+               AND M.QTCONT > 0
+               AND M.DTCANCEL IS NULL
+               AND (NVL(M.VLACRESCIMOPF,0) + NVL(M.VLOUTROS,0)) > 0 
+             GROUP BY M.NUMTRANSVENDA, M.CODPROD
+               ) MOV
      where A.NUMTRANSVENDA = B.NUMTRANSVENDA
        and A.NUMNOTA = B.NUMNOTA
-       --and NVL(A.CODFILIALNF, A.CODFILIAL) = NVL(B.CODFILIALNF, B.CODFILIAL)
+       AND B.NUMTRANSVENDA = MOV.NUMTRANSVENDA(+)
+       AND B.CODPROD = MOV.CODPROD(+)
        and MC.NUMTRANSITEM = B.NUMTRANSITEM
        AND B.NUMTRANSITEM = DXML.NUMTRANSITEM(+)
        and C.CODCLI = DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF)
@@ -622,17 +620,18 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
        and B.STATUS in ('A', 'AB')
        and B.QTCONT > 0
        and CF.CODFISCAL(+) = B.CODFISCAL
-       and A.ESPECIE in ('NF', 'CO', 'CF', 'NS') --ADICIONADO NS PARA ATUALIAR A CONTA CONTABIL, POR?, FOI CRIADA CONDICIONAL PARA NÏ GERAR O LIVRO PARA ESSA ESPECIE
+       and A.ESPECIE in ('NF', 'CO', 'CF', 'NS') 
        and NVL(A.SERIE, 'X') not in ('CF', 'CP')
-       and ((A.NUMNOTA >= P_NOTA1) and (A.NUMNOTA <= P_NOTA2))       
+       and ((A.NUMNOTA >= P_NOTA1) and 
+            (A.NUMNOTA <= P_NOTA2))       
        AND A.DTSAIDA BETWEEN P_DATA1 and P_DATA2
-     AND B.DTMOV BETWEEN P_DATA1 AND P_DATA2
+       AND B.DTMOV BETWEEN P_DATA1 AND P_DATA2
        AND 0 = 0
        AND 0 = 0
        and F.CODIGO = P_CODFILIAL
        and (A.TIPOVENDA <> 'DF' and B.CODOPER <> 'SD')
        and NVL(SUBSTR(A.CHAVENFE, 21,2), 'X') <> '65'
-       and NVL(A.DOCEMISSAO, 'X') <> 'SF' -- Retirando lan?entos SAT
+       and NVL(A.DOCEMISSAO, 'X') <> 'SF' 
        and a.CHAVESAT IS NULL
      group by NVL(A.CODFILIALNF, A.CODFILIAL),
               A.NUMTRANSVENDA,
@@ -738,7 +737,101 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
      order by DTSAIDA, NUMTRANSVENDA, NUMNOTA;
   -------------------------------------------------------------------------------------------
   -- 02 - NFCe
-    cursor C_NOTAS_NFCE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
+    cursor C_NOTAS_NFCE(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) IS
+        SELECT TAB.NUMSQL, -- NUMSQL - 02 -- 
+           TAB.CODFILIAL,
+           TAB.NUMTRANSVENDA,
+           TAB.CHAVENFE,
+           TAB.NUMTRANSVENDAORIGEM,
+           TAB.NUMCAR,
+           TAB.CONDVENDA,
+           TAB.ESPECIE,
+           TAB.SERIE,
+           TAB.SUBSERIE,
+           TAB.NUMNOTA,
+           TAB.DTSAIDA,
+           TAB.DTCANCEL,
+           TAB.CODCLI,
+           TAB.PERCICM,
+           TAB.PERCICMNAOTRIB,
+           TAB.CLIENTE,
+           TAB.CNPJ,
+           TAB.IE,
+           TAB.UF,
+           TAB.TIPOFJ,
+           TAB.CONSUMIDORFINAL,
+           TAB.VLTOTAL,
+           TAB.CODCONT,
+           TAB.CODFISCAL,
+           TAB.SITTRIBUT,
+           TAB.CODOPER,
+           SUM(TAB.VLBASE_ARRED_POR_ITEM) VLBASE_ARRED_POR_ITEM,
+           SUM(TAB.VLBASENAOTRIB) VLBASENAOTRIB,
+           SUM(TAB.VLBASE_REDUCAO) VLBASE_REDUCAO,
+           SUM(TAB.VLBASE) VLBASE,
+           SUM(TAB.VLICMS) VLICMS,
+           SUM(TAB.VLICMSNAOTRIB) VLICMSNAOTRIB,
+           SUM(TAB.VLISENTAS_ARRED_POR_ITEM) VLISENTAS_ARRED_POR_ITEM,
+           SUM(TAB.VLISENTAS) VLISENTAS,
+           SUM(TAB.VLOUTRAS) VLOUTRAS,
+           TAB.OBS,
+           SUM(TAB.VLDESDOBRADO_ARRED_POR_ITEM) VLDESDOBRADO_ARRED_POR_ITEM,
+           SUM(TAB.VLDESDOBRADO) VLDESDOBRADO,
+           TAB.VLFRETE,
+           TAB.VLFRETE_MOV,
+           TAB.FRETEPF,
+           TAB.VLOUTRASDESP,
+           TAB.VLBASEOUTRASDESP,
+           TAB.VLOUTRASDESP_ITEM,
+           TAB.PERBASEREDOUTRASDESP,
+           TAB.TIPOVENDA,
+           TAB.BASEST,
+           TAB.VLST,
+           TAB.BASESTFORANF,
+           TAB.VLSTFORANF,
+           TAB.VLBASEIPI,
+           TAB.VLIPI,
+           TAB.PERCIPI,
+           TAB.VLISENTASIPI,
+           TAB.VLBASEISENTASIPI,
+           TAB.VLBASEOUTRASIPI,
+           TAB.VLOUTRASIPI,
+           SUM(TAB.VLPIS) VLPIS,
+           SUM(TAB.VLCOFINS) VLCOFINS,
+           TAB.BCIMPESTADUAL,
+           TAB.VLIMPESTADUAL,
+           TAB.VLREPASSE,
+           TAB.VLBASEBCR,
+           TAB.VLSTBCR,
+           TAB.VLICMSBCR,
+           TAB.VLNAOTRIB_DAPI,
+           TAB.VLBASERED_DAPI,
+           TAB.VLSUSPENSAS_DAPI,
+           TAB.VLST_DAPI,
+           TAB.VLISENTAS_DAPI,
+           TAB.VLOUTRAS_DAPI,      
+           TAB.DTGERA,      
+           SUM(TAB.VLDESCREDUCAOPIS) VLDESCREDUCAOPIS,      
+           SUM(TAB.VLDESCREDUCAOCOFINS) VLDESCREDUCAOCOFINS,      
+           TAB.CONTAORDEM,      
+           TAB.SITUACAONFE,      
+           SUM(TAB.VLICMSPARTDEST) VLICMSPARTDEST,      
+           SUM(TAB.VLICMSPARTREM) VLICMSPARTREM,
+           SUM(TAB.VLFCP) VLFCP,
+           SUM(TAB.VLICMSDIFALIQPART) VLICMSDIFALIQPART,
+           SUM(TAB.VLBASEPARTDEST) VLBASEPARTDEST,
+           SUM(TAB.VLIPIDEVFORNEC) VLIPIDEVFORNEC,
+           SUM(TAB.VLACRESCIMOFUNCEP) VLACRESCIMOFUNCEP,
+           SUM(TAB.VLFECP) VLFECP,
+           TAB.PERACRESCIMOFUNCEP,
+           SUM(TAB.VLBASEFCPICMS) VLBASEFCPICMS,
+           SUM(TAB.VLBASEFCPST) VLBASEFCPST,
+           TAB.ALIQICMSFECP,
+           TAB.DATA,
+           SUM(TAB.VLOUTROS) VLOUTROS,
+           SUM(TAB.VL_DESCONTO) VL_DESCONTO,
+           SUM(TAB.VL_PRODUTO) VL_PRODUTO
+FROM (
     select '02' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
            A.NUMTRANSVENDA,
@@ -839,17 +932,17 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                       (B.CODFISCAL IN (5929, 6929)) THEN
-               SUM(DECODE(NVL(B.BASEICMS,0),0,0,ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))
+               (DECODE(NVL(B.BASEICMS,0),0,0,ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))
             ELSE
                (CASE WHEN (MC.PERDIFEREIMENTOICMS = 100) THEN
                    0
                 ELSE
                   --DDFISCAL-14626
                   (CASE WHEN (A.CONDVENDA IN (7,8)) THEN
-                     SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
+                     (DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
                                 DECODE(NVL(B.BASEICMS,0),0,0,ROUND(B.QTCONT * NVL(B.BASEICMS,0),2))))
                    ELSE
-                     SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
+                     (DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
                                 DECODE(NVL(B.BASEICMS,0),0,0,ROUNDABNT(B.QTCONT * NVL(B.BASEICMS,0),2))))
                    END)
                 END)
@@ -858,13 +951,13 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                       (B.CODFISCAL IN (5929, 6929)) THEN
-                 SUM( DECODE(NVL(B.BASEICMS,0), 0, 0, DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),
+                 ( DECODE(NVL(B.BASEICMS,0), 0, 0, DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),
                                                                                       (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))))
             ELSE
                (CASE WHEN (MC.PERDIFEREIMENTOICMS = 100) THEN
                    0
                 ELSE
-                   SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', 0,
+                   (DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', 0,
                               DECODE(NVL(B.BASEICMS,0),0,0,DECODE(NVL(B.PERCBASERED,0), 0,(NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),
                                                                                           (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2))))))
                 END)
@@ -873,11 +966,11 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                       (B.CODFISCAL IN (5929, 6929)) THEN
-               SUM(ROUND(DECODE(NVL(B.BASEICMS,0), 0, 0,
+               (ROUND(DECODE(NVL(B.BASEICMS,0), 0, 0,
                                 ROUND((NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)) - DECODE(NVL(B.BASEICMS,0),0,0,
                                 DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)) ,(ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))),2)),2))
             ELSE
-               SUM(ROUND(DECODE(NVL(B.BASEICMS,0), 0, 0,
+               (ROUND(DECODE(NVL(B.BASEICMS,0), 0, 0,
                          DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'N', 0,
                                 ROUND((NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)) - DECODE(NVL(B.BASEICMS,0),0,0,
                                 DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),(ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))),2))),2))
@@ -886,22 +979,22 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                       (B.CODFISCAL IN (5929, 6929)) THEN
-               SUM((ROUNDABNT(B.QTCONT * NVL(B.BASEICMS,0),2)))
+               ((ROUNDABNT(B.QTCONT * NVL(B.BASEICMS,0),2)))
             ELSE
               (CASE WHEN (MC.PERDIFEREIMENTOICMS = 100) THEN
                   0
                ELSE
                   --DDFISCAL-15552
-                  SUM((ROUNDABNT(B.QTCONT * NVL(B.BASEICMS,0),2)))
+                  ((ROUNDABNT(B.QTCONT * NVL(B.BASEICMS,0),2)))
                END)
             END) VLBASE,
            ------------------------------------------------------------------
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
            (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
                       (B.CODFISCAL IN (5929, 6929)) THEN
-               ROUND(SUM(FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NFCE', B.ROWID,c.estent, a.chavenfe)), 2)
+               ROUND((FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NFCE', B.ROWID,c.estent, a.chavenfe)), 2)
             ELSE
-               ROUND(SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NFCE', B.ROWID,c.estent, a.chavenfe), 0)),2)
+               ROUND((DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NFCE', B.ROWID,c.estent, a.chavenfe), 0)),2)
             END) VLICMS,
            ------------------------------------------------------------------
            -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
@@ -909,7 +1002,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                       (B.CODFISCAL IN (5929, 6929)) THEN
                0
             ELSE
-               SUM(ROUND(B.QTCONT *
+               (ROUND(B.QTCONT *
                          (CASE WHEN (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') OR
                                     (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
                              DECODE(NVL(B.BASEICMS,0),0,0,DECODE(NVL(B.PERCBASERED,0), 0,
@@ -920,7 +1013,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                           END), 2))
              END) VLICMSNAOTRIB,
            ------------------------------------------------------------------
-           SUM(CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
+           (CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
                                           FROM PCDESTSITTRIBUT
                                           WHERE NVL(VLISENTAS, 'N') = 'S') AND
                           NOT EXISTS (SELECT 1
@@ -942,7 +1035,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                   0
                END) VLISENTAS_ARRED_POR_ITEM,
            ------------------------------------------------------------------
-           SUM(CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
+           (CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
                                           FROM PCDESTSITTRIBUT
                                           WHERE NVL(VLISENTAS, 'N') = 'S') AND
                           NOT EXISTS (SELECT 1
@@ -968,7 +1061,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            ------------------------------------------------------------------
            A.OBS,
            ------------------------------------------------------------------
-           sum( CASE WHEN MC.VLSUBTOTITEM IS NULL THEN
+           ( CASE WHEN MC.VLSUBTOTITEM IS NULL THEN
                      DECODE(NVL(B.TRUNCARITEM, 'S'), 'S', 
                             TRUNC(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) + DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0))), 2),
                             ROUND(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) + DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0))), 2))
@@ -976,7 +1069,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                           (MC.VLSUBTOTITEM + ROUND(B.QTCONT * DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0)),2)) END
               ) VLDESDOBRADO_ARRED_POR_ITEM,
           ------------------------------------------------------------------
-           sum( CASE WHEN MC.VLSUBTOTITEM IS NULL THEN
+           ( CASE WHEN MC.VLSUBTOTITEM IS NULL THEN
                      DECODE(NVL(B.TRUNCARITEM, 'S'), 'S', 
                             TRUNC(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) + DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0))), 2),
                             ROUND(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) + DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0))), 2))
@@ -985,7 +1078,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
               ) VLDESDOBRADO,
            ------------------------------------------------------------------
            A.VLFRETE,
-           DECODE(A.TIPOVENDA,'DF',0,SUM(ROUND(B.QTCONT * NVL(B.VLFRETE, 0), 2))) VLFRETE_MOV,
+           DECODE(A.TIPOVENDA,'DF',0,(ROUND(B.QTCONT * NVL(B.VLFRETE, 0), 2))) VLFRETE_MOV,
            'N' FRETEPF,
            0 VLOUTRASDESP,
            0 VLBASEOUTRASDESP,
@@ -1004,12 +1097,12 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            0 VLBASEOUTRASIPI,
            0 VLOUTRASIPI,
            ------------------------------------------------------------------
-           SUM(ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S',
+           (ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S',
                                    NVL(NVL(MC.QTLITRAGEM, P.LITRAGEM), 0), 0), 0,
                             B.QTCONT * NVL(B.VLPIS,0), NVL(MC.QTLITRAGEM, P.LITRAGEM) *
                             B.QTCONT * NVL(B.VLPIS,0)), 2)) VLPIS,
            ------------------------------------------------------------------
-           SUM(ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S',
+           (ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S',
                                    NVL(NVL(MC.QTLITRAGEM, P.LITRAGEM), 0), 0), 0,
                             B.QTCONT * NVL(B.VLCOFINS,0), NVL(MC.QTLITRAGEM, P.LITRAGEM) *
                             B.QTCONT * NVL(B.VLCOFINS,0)), 2)) VLCOFINS,
@@ -1027,32 +1120,32 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
            0 VLISENTAS_DAPI,
            0 VLOUTRAS_DAPI,
            sysdate DTGERA,
-           SUM(ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOPIS,0), 2)) VLDESCREDUCAOPIS,
-           SUM(ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOCOFINS,0), 2)) VLDESCREDUCAOCOFINS,
+           (ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOPIS,0), 2)) VLDESCREDUCAOPIS,
+           (ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOCOFINS,0), 2)) VLDESCREDUCAOCOFINS,
            A.CONTAORDEM,
            A.SITUACAONFE,
-           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE SUM(ROUND(B.QTCONT * nvl(MC.VLICMSPARTDEST, 0),2)) END as VLICMSPARTDEST,
-           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE SUM(ROUND(B.QTCONT * nvl(MC.VLICMSPARTREM, 0),2)) END as VLICMSPARTREM ,
-           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE SUM(ROUND(B.QTCONT * nvl(MC.VLFCPPART, 0),2)) END AS VLFCP,
-           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE sum(ROUND(b.QTCONT * nvl(mc.VLICMSDIFALIQPART, 0),2)) END as VLICMSDIFALIQPART,
-           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE sum(ROUND(b.QTCONT * nvl(mc.VLBASEPARTDEST, 0),2)) END as VLBASEPARTDEST,
-           SUM(ROUND(B.QTCONT * NVL(MC.VLIPIDEVFORNEC,0),2)) VLIPIDEVFORNEC,
-           SUM(ROUND(B.QTCONT * NVL(MC.VLACRESCIMOFUNCEP,0),2)) VLACRESCIMOFUNCEP,
-           SUM(ROUND(B.QTCONT * NVL(MC.VLFECP,0),2)) VLFECP,
+           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE (ROUND(B.QTCONT * nvl(MC.VLICMSPARTDEST, 0),2)) END as VLICMSPARTDEST,
+           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE (ROUND(B.QTCONT * nvl(MC.VLICMSPARTREM, 0),2)) END as VLICMSPARTREM ,
+           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE (ROUND(B.QTCONT * nvl(MC.VLFCPPART, 0),2)) END AS VLFCP,
+           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE (ROUND(b.QTCONT * nvl(mc.VLICMSDIFALIQPART, 0),2)) END as VLICMSDIFALIQPART,
+           CASE WHEN NOT B.DTCANCEL IS NULL THEN 0 ELSE (ROUND(b.QTCONT * nvl(mc.VLBASEPARTDEST, 0),2)) END as VLBASEPARTDEST,
+           (ROUND(B.QTCONT * NVL(MC.VLIPIDEVFORNEC,0),2)) VLIPIDEVFORNEC,
+           (ROUND(B.QTCONT * NVL(MC.VLACRESCIMOFUNCEP,0),2)) VLACRESCIMOFUNCEP,
+           (ROUND(B.QTCONT * NVL(MC.VLFECP,0),2)) VLFECP,
            NVL(MC.PERACRESCIMOFUNCEP, 0) PERACRESCIMOFUNCEP,
-           SUM(ROUND(B.QTCONT * NVL(MC.VLBASEFCPICMS, 0), 2)) VLBASEFCPICMS,
-           SUM(ROUND(B.QTCONT * NVL(MC.VLBASEFCPST, 0), 2)) VLBASEFCPST,
+           (ROUND(B.QTCONT * NVL(MC.VLBASEFCPICMS, 0), 2)) VLBASEFCPICMS,
+           (ROUND(B.QTCONT * NVL(MC.VLBASEFCPST, 0), 2)) VLBASEFCPST,
            NVL(MC.ALIQICMSFECP, 0) ALIQICMSFECP,
            A.DTSAIDA DATA,
-           SUM(ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)),2)) VLOUTROS,
-           SUM(NVL(DXML.VDESC,
+           (ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)),2)) VLOUTROS,
+           (NVL(DXML.VDESC,
                CASE WHEN (NVL(B.PERCDESC,0) > 0) AND 
                     (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',NVL(A.CODFILIALNF, A.CODFILIAL)),'B') <> 'L') THEN
                   ROUND((B.PTABELA * (NVL(B.PERCDESC,0) / 100)) * ROUND(B.QT, 4),2)
                ELSE 
                  0 
                END)) VL_DESCONTO,
-           SUM(NVL(DXML.VPROD,
+           (NVL(DXML.VPROD,
                CASE 
                WHEN NVL(MC.VLSUBTOTITEM, 0) > 0
                   THEN  NVL(MC.VLSUBTOTITEM, 0)
@@ -1094,119 +1187,85 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
        and NVL(A.SERIE, 'X') not in ('CF', 'CP')
        and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
        and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
-       and A.DTSAIDA between P_DATA1 and P_DATA2
-     AND B.DTMOV BETWEEN P_DATA1 AND P_DATA2
-       and ((A.NUMNOTA >= P_NOTA1) and (A.NUMNOTA <= P_NOTA2))
+       and A.DTSAIDA BETWEEN P_DATA1 and P_DATA2
+       and B.DTMOV BETWEEN P_DATA1 AND P_DATA2
+       and ((A.NUMNOTA >= P_NOTA1) and 
+            (A.NUMNOTA <= P_NOTA2))
        and (NVL(F.IMPEDETIPO14_LIVROFISCAL, 'N') = 'N'
         or  NVL(A.CONDVENDA, 0) <> 14)
        and NVL(A.CODFILIALNF, A.CODFILIAL) = F.CODIGO
        and (A.TIPOVENDA <> 'DF' and B.CODOPER <> 'SD')
        and NVL(substr(a.chavenfe, 21,2), 'X') = '65'
-     group by NVL(A.CODFILIALNF, A.CODFILIAL),
-              A.NUMTRANSVENDA,
-              A.NUMTRANSVENDAORIGEM,
-              A.NUMCAR,
-              A.CONDVENDA,
-              A.ESPECIE,
-              A.SERIE,
-              A.SUBSERIE,
-              A.CHAVENFE,
-              NVL(A.CLIENTE, (case
-                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
-                      VC.CLIENTE
-                     else
-                      C.CLIENTE
-                   end)),
-              NVL(A.CGC, (case
-                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
-                      VC.CGCENT
-                     else
-                      C.CGCENT
-                   end)),
-              NVL(A.IE, (case
-                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
-                      VC.IEENT
-                     else
-                      C.IEENT
-                   end)),
-              NVL(A.UF, (case
-                     when A.CODCLI in (1, 2, 3) then
-                      (case
-                     when NVL(VC.NUMPED, 0) > 0 then
-                      VC.ESTENT
-                     else
-                      V_UFFILIAL
-                   end) else C.ESTENT end)),
-              NVL(A.TIPOFJ, (case
-                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
-                      'F'
-                     else
-                      C.TIPOFJ
-                   end)),
-              NVL(A.CONSUMIDORFINAL, (case
-                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
-                      'S'
-                     else
-                      C.CONSUMIDORFINAL
-                   end)),
-              A.NUMNOTA,
-              --DECODE(vnGeraDTENTREGA,'S',NVL(NVL(A.DTENTREGA, A.DTSAIDANF),A.DTSAIDA),A.DTSAIDA),
-              A.DTENTREGA, A.DTSAIDANF, A.DTSAIDA,
-              A.DTCANCEL,
-              NVL(B.GERAICMSLIVROFISCAL, 'S'),
-              NVL(B.PERCICM, 0),
-              A.PERBASEREDOUTRASDESP,
-              A.VLFRETE,
-              ------------------------------------------------------------------
-              (case
-                when (((C.TIPOFJ = 'F') and (C.UTILIZAIESIMPLIFICADA = 'N')) or
-                     (C.CONSUMIDORFINAL = 'S') or
-                     ((V_CONSIDERAISENTOSCOMOPF = 'S') and
-                     ((C.IEENT is null) or (C.IEENT = 'ISENTO') or
-                     (C.IEENT = 'ISENTA')))) and (C.CONTRIBUINTE = 'N') then
-                 'S'
-                else
-                 'N'
-              end),
-              ------------------------------------------------------------------
-              A.VLOUTRASDESP,
-              DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF),
-              C.TIPOFJ,
-              A.VLTOTAL,
-              A.CODCONT,
-              B.CODFISCAL,
-              FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO),NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTSAIDA),
-              CF.CODOPER,
-              A.OBS,
-              A.TIPOVENDA,
-              MC.PERDIFEREIMENTOICMS,
-              (case
-                when B.CODFISCAL in (5929, 6929) then
-                 0
-                else
-                 NVL(B.PERCIPI, 0)
-              end),
-              A.CONTAORDEM,
-              -- Implementados no erro Group By
-              A.UF,
-              A.CODCLI,
-              C.ESTENT,
-              VC.NUMPED,
-              V_UFFILIAL,
-              VC.ESTENT,
-              C.TIPOFJ,
-              C.UTILIZAIESIMPLIFICADA,
-              C.CONSUMIDORFINAL,
-              C.CONTRIBUINTE,
-              C.IEENT,
-              A.SITUACAONFE,
-              B.DTCANCEL,
-              NVL(MC.PERACRESCIMOFUNCEP, 0),
-              NVL(MC.ALIQICMSFECP, 0),
-              A.DTSAIDA
-     order by A.DTSAIDA,
-              NUMTRANSVENDA,
-              NUMNOTA;
+       AND A.DTSAIDA >= (SELECT MIN(DTSAIDA) FROM PCNFSAID)
+) TAB
+GROUP BY   TAB.NUMSQL,
+           TAB.CODFILIAL,
+           TAB.NUMTRANSVENDA,
+           TAB.CHAVENFE,
+           TAB.NUMTRANSVENDAORIGEM,
+           TAB.NUMCAR,
+           TAB.CONDVENDA,
+           TAB.ESPECIE,
+           TAB.SERIE,
+           TAB.SUBSERIE,
+           TAB.NUMNOTA,
+           TAB.DTSAIDA,
+           TAB.DTCANCEL,
+           TAB.CODCLI,
+           TAB.PERCICM,
+           TAB.PERCICMNAOTRIB,
+           TAB.CLIENTE,
+           TAB.CNPJ,
+           TAB.IE,
+           TAB.UF,
+           TAB.TIPOFJ,
+           TAB.CONSUMIDORFINAL,
+           TAB.VLTOTAL,
+           TAB.CODCONT,
+           TAB.CODFISCAL,
+           TAB.SITTRIBUT,
+           TAB.CODOPER,
+           TAB.OBS,
+           TAB.VLFRETE,
+           TAB.VLFRETE_MOV,
+           TAB.FRETEPF,
+           TAB.VLOUTRASDESP,
+           TAB.VLBASEOUTRASDESP,
+           TAB.VLOUTRASDESP_ITEM,
+           TAB.PERBASEREDOUTRASDESP,
+           TAB.TIPOVENDA,
+           TAB.BASEST,
+           TAB.VLST,
+           TAB.BASESTFORANF,
+           TAB.VLSTFORANF,
+           TAB.VLBASEIPI,
+           TAB.VLIPI,
+           TAB.PERCIPI,
+           TAB.VLISENTASIPI,
+           TAB.VLBASEISENTASIPI,
+           TAB.VLBASEOUTRASIPI,
+           TAB.VLOUTRASIPI,
+           TAB.BCIMPESTADUAL,
+           TAB.VLIMPESTADUAL,
+           TAB.VLREPASSE,
+           TAB.VLBASEBCR,
+           TAB.VLSTBCR,
+           TAB.VLICMSBCR,
+           TAB.VLNAOTRIB_DAPI,
+           TAB.VLBASERED_DAPI,
+           TAB.VLSUSPENSAS_DAPI,
+           TAB.VLST_DAPI,
+           TAB.VLISENTAS_DAPI,
+           TAB.VLOUTRAS_DAPI,      
+           TAB.DTGERA,      
+           TAB.CONTAORDEM,      
+           TAB.SITUACAONFE,      
+           TAB.PERACRESCIMOFUNCEP,
+           TAB.ALIQICMSFECP,
+           TAB.DATA
+     order by TAB.DTSAIDA,
+              TAB.NUMTRANSVENDA,
+              TAB.NUMNOTA;       
     -------------------------------------------------------------------------------------------
     -- 03 - CUPONS FISCAIS
     cursor C_NOTAS_CUPOM_FISCAL(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
@@ -1583,12 +1642,12 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                and A.ESPECIE in ('NF', 'CF', 'CP')
                and A.SERIE in ('CF', 'CP')
                and (P_INSERIRCF = 'S' OR A.CHAVENFE IS NOT NULL)
-               and A.DTSAIDA BETWEEN P_DATA1 and P_DATA2
+               and A.DTSAIDA between P_DATA1 and P_DATA2
                and B.DTMOV BETWEEN P_DATA1 AND P_DATA2
                and ((A.NUMNOTA >= P_NOTA1) and 
                     (A.NUMNOTA <= P_NOTA2))
                and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
-               and NVL(A.CODFILIALNF, a.CODFILIAL) = P_CODFILIAL               
+               and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL               
                and NVL(B.CODFILIALNF, B.CODFILIAL) = F.CODIGO
              group by NVL(A.CODFILIALNF, A.CODFILIAL),
                       A.NUMTRANSVENDA,
@@ -1604,7 +1663,6 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                       NVL(A.TIPOFJ, DECODE(NVL(VC.NUMPED, 0), 0, C.TIPOFJ, 'F')),
                       NVL(A.CONSUMIDORFINAL, DECODE(NVL(VC.NUMPED, 0), 0, C.CONSUMIDORFINAL, 'S')),
                       A.NUMNOTA,
-                      --DECODE(vnGeraDTENTREGA,'S',NVL(NVL(A.DTENTREGA, A.DTSAIDANF),A.DTSAIDA),A.DTSAIDA),
                       A.DTENTREGA, A.DTSAIDANF, A.DTSAIDA,
                       A.DTCANCEL,
                       NVL(B.GERAICMSLIVROFISCAL, 'S'),
@@ -1664,7 +1722,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
               DTGERA,
               CONTAORDEM,
               SITUACAONFE,
-              DATA,
+              DATA, 
               NUMSQL
        order by
               DTSAIDA, NUMTRANSVENDA,NUMNOTA;
@@ -3195,7 +3253,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
               NUMTRANSVENDA,
               NUMNOTA;
 
-cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
+    cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
     -- 09 - NOTAS FISCAIS COMPLEMENTARES COM ITEM
     select '09' NUMSQL, 
            NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
@@ -5122,6 +5180,666 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
               A.DTSAIDA
      order by DTSAIDA, NUMTRANSVENDA, NUMNOTA;
   ---------------------------------------------------------------------------------
+  cursor C_NOTAS_NF_DF(P_NOTA1 in number, P_NOTA2 in number, P_DATA1 in date, P_DATA2 in date, P_INSERIRCF in varchar2, P_CODFILIAL in varchar2) is
+  -- 12 - NOTAS FISCAIS DE VENDA FILTRANDO PELO DTENTREGA REF. PROCESSO ESPECIFICO DO DF. SQL IGUAL AO 01 COM ALTERAÇÃO NO FILTRO DTSAIDA PARA DTENTREGA
+    select '12' NUMSQL, 
+           NVL(A.CODFILIALNF, A.CODFILIAL) CODFILIAL,
+           A.NUMTRANSVENDA,
+           A.CHAVENFE,
+           A.NUMTRANSVENDAORIGEM,
+           A.NUMCAR,
+           A.CONDVENDA,
+           A.ESPECIE,
+           A.SERIE,
+           A.SUBSERIE,
+           A.NUMNOTA,
+           DECODE(vnGeraDTENTREGA,'S',NVL(NVL(A.DTENTREGA, A.DTSAIDANF),A.DTSAIDA),A.DTSAIDA) DTSAIDA,
+           A.DTCANCEL,
+           DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF) CODCLI,
+           ------------------------------------------------------------------
+           -- Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               NVL(B.PERCICM, 0)
+           ELSE
+              (CASE WHEN (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') OR
+                       (B.CODFISCAL in (5929, 6929)) OR
+                       (NVL(MC.PERDIFEREIMENTOICMS, 0) = 100) THEN
+                  0
+               ELSE
+                  NVL(B.PERCICM, 0)
+               END)
+           END) PERCICM,
+           ------------------------------------------------------------------
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               0
+            ELSE
+               (CASE WHEN (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') OR
+                          (B.CODFISCAL in (5929, 6929)) THEN
+                   NVL(B.PERCICM, 0)
+                ELSE
+                   0
+                END)
+            END) PERCICMNAOTRIB,
+           ------------------------------------------------------------------
+           NVL(A.CLIENTE, (case
+                  when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                   VC.CLIENTE
+                  else
+                   C.CLIENTE
+                end)) CLIENTE,
+           ------------------------------------------------------------------
+           NVL(A.CGC, (case
+                  when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                   VC.CGCENT
+                  else
+                   C.CGCENT
+                end)) CNPJ,
+           ------------------------------------------------------------------
+           NVL(A.IE, (case
+                  when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                   VC.IEENT
+                  else
+                   C.IEENT
+                end)) IE,
+           ------------------------------------------------------------------
+           NVL(A.UF, (case
+                  when A.CODCLI in (1, 2, 3) then
+                   (case
+                  when NVL(VC.NUMPED, 0) > 0 then
+                   VC.ESTENT
+                  else
+                   V_UFFILIAL
+                end) else C.ESTENT end)) UF,
+           ------------------------------------------------------------------
+           NVL(A.TIPOFJ, (case
+                  when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                   'F'
+                  else
+                   C.TIPOFJ
+                end)) TIPOFJ,
+           ------------------------------------------------------------------
+           NVL(A.CONSUMIDORFINAL, (case
+                  when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                   'S'
+                  else
+                   C.CONSUMIDORFINAL
+                end)) CONSUMIDORFINAL,
+           ------------------------------------------------------------------
+           A.VLTOTAL,
+           A.CODCONT,
+           B.CODFISCAL,
+           FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO),NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTSAIDA) SITTRIBUT,
+           CF.CODOPER,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               SUM(ROUND(DECODE(V_GERABASENORMALQUANDOST, 'N',
+                                DECODE(NVL(B.ST,0), 0, DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT * NVL(MC.VLBASEOUTROS,0)))),
+                                   DECODE(C.ESTENT, V_UFFILIAL,
+                                          DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT * NVL(MC.VLBASEOUTROS,0)))), 0)),
+                         DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT *NVL(MC.VLBASEOUTROS,0))))),2))
+            ELSE
+               (CASE WHEN (NVL(MC.PERDIFEREIMENTOICMS, 0) = 100) THEN
+                   0
+                ELSE
+                   CASE WHEN (vPARAM_RECALCBASEICMSDIFERIDO = 'S') AND
+                              (DECODE(LENGTH(NVL(B.SITTRIBUT, 0)), 3, SUBSTR(B.SITTRIBUT, 2, 3), B.SITTRIBUT) = '51') THEN
+                     SUM(ROUND(B.QTCONT * (NVL(B.BASEICMS,0) * ((100 - MC.PERDIFEREIMENTOICMS)/100)),2))
+                   ELSE
+                     SUM(ROUND(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
+                         DECODE(V_GERABASENORMALQUANDOST, 'N',
+                              DECODE(NVL(B.ST,0), 0, DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT * NVL(MC.VLBASEOUTROS,0)))),
+                                     DECODE(C.ESTENT, V_UFFILIAL,
+                                          DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT * NVL(MC.VLBASEOUTROS,0)))), 0)),
+                             DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), ((B.QTCONT * NVL(B.BASEICMS,0)) + (B.QTCONT * NVL(MC.VLBASEFRETE,0)) + (B.QTCONT *NVL(MC.VLBASEOUTROS,0)))))),2))
+                   END
+                END)
+            END) VLBASE_ARRED_POR_ITEM,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               0
+            ELSE
+               SUM(ROUND(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S', 0,
+                                DECODE(V_GERABASENORMALQUANDOST, 'N',
+                                       DECODE(NVL(B.ST, 0), 0,
+                                              (B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0))),
+                                              DECODE(C.ESTENT, V_UFFILIAL,
+                                                     (B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0))), 0)),
+                                       (B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0))))), 2))
+            END) VLBASENAOTRIB,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               SUM(ROUND(DECODE(NVL(B.BASEICMS,0), 0, 0,
+                         ROUND(DECODE(V_GERABASENORMALQUANDOST,'N', DECODE(NVL(B.ST, 0), 0,
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS,0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2) ,2) ,0),DECODE(C.ESTENT, V_UFFILIAL,
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2),2) ,0), 0)),
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2),2),0) ),2)),2))
+            ELSE
+               SUM(ROUND(DECODE(NVL(B.BASEICMS, 0), 0, 0, DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'N', 0,
+                         ROUND(DECODE(V_GERABASENORMALQUANDOST,'N', DECODE(NVL(B.ST, 0), 0,
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS,0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2) ,2) ,0),DECODE(C.ESTENT, V_UFFILIAL,
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2),2) ,0), 0)),
+                         GREATEST(ROUND(B.QTCONT * NVL(B.PUNITCONT, 0) - B.QTCONT * NVL(B.ST, 0) - B.QTCONT * NVL(B.VLIPI, 0) -
+                                  ROUND(B.QTCONT * (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)),2),2),0) ),2))),2))
+            END) VLBASE_REDUCAO,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               SUM(ROUND(DECODE(V_GERABASENORMALQUANDOST, 'N',
+                                DECODE(NVL(B.ST,0), 0, DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2))),
+                                DECODE(C.ESTENT, V_UFFILIAL,
+                                       DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2))),0)),
+                                DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2)))),2))
+            ELSE
+               (CASE WHEN (NVL(MC.PERDIFEREIMENTOICMS, 0) = 100) THEN
+                   0
+                ELSE
+                   CASE WHEN (vPARAM_RECALCBASEICMSDIFERIDO = 'S') AND
+                              (DECODE(LENGTH(NVL(B.SITTRIBUT, 0)), 3, SUBSTR(B.SITTRIBUT, 2, 3), B.SITTRIBUT) = '51') THEN
+                     SUM(ROUND(B.QTCONT * (NVL(B.BASEICMS,0) * ((100 - MC.PERDIFEREIMENTOICMS)/100)),2))
+                   ELSE
+                     SUM(ROUND(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'N', 0,
+                                      DECODE(V_GERABASENORMALQUANDOST, 'N',
+                                             DECODE(NVL(B.ST,0), 0, DECODE(NVL(A.CHAVENFE,'X'),'X',(B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2))),
+                                      DECODE(C.ESTENT, V_UFFILIAL,
+                                             DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2))),0)),
+                               DECODE(NVL(A.CHAVENFE,'X'),'X', (B.QTCONT * NVL(B.BASEICMS,0)), (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEFRETE,0),2) + ROUND(B.QTCONT * NVL(MC.VLBASEOUTROS,0),2))))),2))
+                   END
+                END)
+            END) VLBASE,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               SUM(FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NF', B.ROWID, C.ESTENT, A.CHAVENFE))
+            ELSE
+               SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NF', B.ROWID, C.ESTENT, A.CHAVENFE),0))
+            END) VLICMS,
+           ------------------------------------------------------------------
+           --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
+           (CASE WHEN (vPARAM_GERARICMSLIVFISCFOP = 'S') AND
+                      (B.CODFISCAL IN (5929, 6929)) THEN
+               0
+            ELSE
+               SUM(ROUND(B.QTCONT *
+                         (CASE WHEN (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') OR
+                                    ((V_GERABASENORMALQUANDOST = 'N') and (NVL(B.ST, 0) > 0) AND
+                                     (C.ESTENT <> V_UFFILIAL)) OR (NVL(B.BASEICMS, 0) <= 0) OR (NVL(B.PERCICM, 0) <= 0) THEN
+                             (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEOUTROS, 0) + NVL(MC.VLBASEFRETE, 0)) * NVL(B.PERCICM, 0) / 100
+                          ELSE
+                             0
+                          END), 2))
+            END) VLICMSNAOTRIB,
+           ------------------------------------------------------------------
+           CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
+                                          FROM PCDESTSITTRIBUT
+                                          WHERE NVL(VLISENTAS, 'N') = 'S') AND
+                          NOT EXISTS (SELECT 1
+                                      FROM PCCFOPEXCDESTSITTRIBUT CED
+                                      WHERE CED.CODFISCAL = B.CODFISCAL
+                                        AND CED.SITTRIBUT = B.SITTRIBUT)) OR
+                         (B.SITTRIBUT IN (SELECT SITTRIBUT
+                                          FROM PCDESTSITTRIBUT
+                                          WHERE NVL(VLOUTRAS, 'N') = 'S') AND
+                          EXISTS (SELECT 1
+                                  FROM PCCFOPEXCDESTSITTRIBUT CED
+                                  WHERE CED.CODFISCAL = B.CODFISCAL
+                                    AND CED.SITTRIBUT = B.SITTRIBUT)) THEN
+                  GREATEST(
+                       sum(round(
+                       round(B.qtcont * (nvl(B.punitcont,0) - nvl(B.st,0) - nvl(B.vlipi,0)),2) +
+                       round((nvl(B.qtcont,0) * nvl(B.vloutros,0)),2) +
+                       decode(a.chavenfe, null, nvl(B.qtcont,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+                       round((nvl(B.qtcont,0) * nvl(B.vlfrete,0)),2)
+                       ,2)) -
+                      sum(round(B.QTCONT * DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S', (NVL(B.BASEICMS, 0)
+                      + NVL(MC.VLBASEOUTROS, 0) + NVL(MC.VLBASEFRETE, 0)+ NVL(MC.VLFECP,0)), 0),2)) ,0)
+               ELSE
+                  0
+               END VLISENTAS_ARRED_POR_ITEM,
+           ------------------------------------------------------------------
+           CASE WHEN (B.SITTRIBUT IN (SELECT SITTRIBUT
+                                          FROM PCDESTSITTRIBUT
+                                          WHERE NVL(VLISENTAS, 'N') = 'S') AND
+                          NOT EXISTS (SELECT 1
+                                      FROM PCCFOPEXCDESTSITTRIBUT CED
+                                      WHERE CED.CODFISCAL = B.CODFISCAL
+                                        AND CED.SITTRIBUT = B.SITTRIBUT)) OR
+                         (B.SITTRIBUT IN (SELECT SITTRIBUT
+                                          FROM PCDESTSITTRIBUT
+                                          WHERE NVL(VLOUTRAS, 'N') = 'S') AND
+                          EXISTS (SELECT 1
+                                  FROM PCCFOPEXCDESTSITTRIBUT CED
+                                  WHERE CED.CODFISCAL = B.CODFISCAL
+                                    AND CED.SITTRIBUT = B.SITTRIBUT)) THEN
+                 GREATEST(
+                       sum(round(
+                       round(B.qtcont * (nvl(B.punitcont,0) - nvl(B.st,0) - nvl(B.vlipi,0)),2) +
+                       round((nvl(B.qtcont,0) * nvl(B.st,0)),2) +
+                       round((nvl(B.qtcont,0) * nvl(B.vlipi,0)),2) +
+                       round((nvl(B.qtcont,0) * nvl(B.vloutros,0)),2) +
+                       decode(a.chavenfe, null, nvl(B.qtcont,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+                       round((nvl(B.qtcont,0) * nvl(B.vlfrete,0)),2)
+                       ,2)) -
+                       sum(ROUND(B.QTCONT * DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S', (NVL(B.BASEICMS, 0) +
+                               NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0) + NVL(MC.VLFECP,0)), 0),2)),0)
+               ELSE
+                  0
+               END VLISENTAS,
+           ------------------------------------------------------------------
+           0 VLOUTRAS,
+           A.OBS,
+           ------------------------------------------------------------------
+           sum(round(
+           round(B.qtcont * (nvl(B.punitcont,0) - nvl(B.vlipi,0) - nvl(B.st,0) - nvl(mc.vlfecp,0) ),2) +
+           round((nvl(B.qtcont,0) * nvl(B.vlipi,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(B.st,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(B.vloutros,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(mc.vlfecp,0) ),2) +
+           decode(a.chavenfe, null, nvl(B.qtcont,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+           round((nvl(B.qtcont,0) * nvl(B.vlfrete,0)),2)
+           ,2)) AS VLDESDOBRADO_ARRED_POR_ITEM,
+           ------------------------------------------------------------------
+           sum(round(
+           round(B.qtcont * (nvl(B.punitcont,0) - nvl(B.vlipi,0) - nvl(B.st,0) - nvl(mc.vlfecp,0) ),2) +
+           round((nvl(B.qtcont,0) * nvl(B.vlipi,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(B.st,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(B.vloutros,0)),2) +
+           round((nvl(B.qtcont,0) * nvl(mc.vlfecp,0) ),2) +
+           decode(a.chavenfe, null, nvl(B.qtcont,0) * NVL(B.VLACRESCIMOPF, 0), 0) +
+           round((nvl(B.qtcont,0) * nvl(B.vlfrete,0)),2)
+           ,2)) AS VLDESDOBRADO,
+           ------------------------------------------------------------------
+           A.VLFRETE,
+           DECODE(A.TIPOVENDA,'DF',0,SUM(ROUND(B.QTCONT * NVL(B.VLFRETE, 0), 2))) VLFRETE_MOV,
+           ------------------------------------------------------------------
+           CASE WHEN (((C.TIPOFJ = 'F') and (C.UTILIZAIESIMPLIFICADA = 'N')) or
+                      (C.CONSUMIDORFINAL = 'S') or ((V_CONSIDERAISENTOSCOMOPF = 'S') and
+                      ((C.IEENT is null) or (C.IEENT = 'ISENTO') or
+                       (C.IEENT = 'ISENTA')))) and (C.CONTRIBUINTE = 'N') then
+              'S'
+           ELSE
+              'N'
+           END FRETEPF,
+           ------------------------------------------------------------------
+           DECODE(A.CHAVENFE, NULL,
+                  GREATEST(ROUND(A.VLOUTRASDESP -
+                                 NVL(( SUM(MOV.VLTOTAL_ACRESCIMOPF) ), 0), 2), 0), NVL(A.VLOUTRASDESP,0)) VLOUTRASDESP,
+           ------------------------------------------------------------------
+           (GREATEST(A.VLOUTRASDESP -
+                     NVL(( SUM(MOV.VLTOTAL_ACRESCIMOPF)), 0), 0) *
+           DECODE(NVL(A.PERBASEREDOUTRASDESP, 0), 0, 100, A.PERBASEREDOUTRASDESP) / 100) VLBASEOUTRASDESP,           
+           ------------------------------------------------------------------
+           NVL((SUM(MOV.VLTOTAL_OUTROS)), 0) VLOUTRASDESP_ITEM,
+           ------------------------------------------------------------------
+           NVL(A.PERBASEREDOUTRASDESP, 0) PERBASEREDOUTRASDESP,
+           A.TIPOVENDA,
+           sum(ROUND(NVL(B.BASEICST, 0) * B.QTCONT,2)) BASEST,
+           sum(ROUND(NVL(B.ST, 0) * B.QTCONT, 2)) VLST,
+           0 BASESTFORANF,
+           0 VLSTFORANF,
+           ------------------------------------------------------------------
+           sum(case when B.CODFISCAL in (5929, 6929) then
+              0
+           else
+              case
+                  when (select max(DESTVALORIPI)
+                        from PCDESTSITTRIBUTIPI
+                        where CODSITTRIBIPI = MC.CODSITTRIBIPI) IN ('I','O') then
+                 0
+              else
+                 ROUND(B.QTCONT * NVL(B.VLBASEIPI, 0), 2)
+              end
+           end) VLBASEIPI,
+           ------------------------------------------------------------------
+           sum(case when B.CODFISCAL in (5929, 6929) then
+              0
+           else
+              case
+                  when (select max(DESTVALORIPI)
+                        from PCDESTSITTRIBUTIPI
+                        where CODSITTRIBIPI = MC.CODSITTRIBIPI) IN ('I','O') then
+                 0
+              else
+                 ROUND(B.QTCONT * NVL(B.VLIPI, 0),2)
+              end
+           end) VLIPI,
+           ------------------------------------------------------------------
+           case when B.CODFISCAL in (5929, 6929) then
+              0
+           else
+              NVL(B.PERCIPI, 0)
+           end PERCIPI,
+           ----------------------------------------------------------------
+           sum(
+            case
+              when B.CODFISCAL in (5929, 6929) then
+                0
+              else
+                case
+                  when (select max(DESTVALORIPI)
+                        from PCDESTSITTRIBUTIPI
+                        where CODSITTRIBIPI = MC.CODSITTRIBIPI) = 'I' then
+                            case
+                              when (select max(FORMVALORIPI)
+                                    from PCDESTSITTRIBUTIPI
+                                    where CODSITTRIBIPI = MC.CODSITTRIBIPI) in ('C', 'CI') then
+                                      ROUND(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) - NVL(B.VLDESCONTO, 0) -
+                                            NVL(B.VLSUFRAMA, 0) + NVL(B.ST, 0) +
+                                            DECODE((select max(FORMVALORIPI)from PCDESTSITTRIBUTIPI
+                                                    where CODSITTRIBIPI = MC.CODSITTRIBIPI), 'C',
+                                                    NVL(B.VLIPI, 0), 0)), 2)
+                              else
+                                ROUND(B.QTCONT * NVL(B.VLBASEIPI, 0), 2)
+                            end
+                 else
+                   0
+                end
+            end) VLBASEISENTASIPI,
+           ----------------------------------------------------------------
+           sum(
+            case
+              when B.CODFISCAL in (5929, 6929) then
+                0
+              else
+                case
+                  when (select max(DESTVALORIPI)
+                        from PCDESTSITTRIBUTIPI
+                        where CODSITTRIBIPI = MC.CODSITTRIBIPI) = 'O' then
+                            case
+                              when (select max(FORMVALORIPI)
+                                    from PCDESTSITTRIBUTIPI
+                                    where CODSITTRIBIPI = MC.CODSITTRIBIPI) in ('C', 'CI') then
+                                      ROUND(B.QTCONT * (B.PUNITCONT + NVL(B.VLOUTROS, 0) - NVL(B.VLDESCONTO, 0) -
+                                            NVL(B.VLSUFRAMA, 0) + NVL(B.ST, 0) +
+                                            DECODE((select max(FORMVALORIPI)from PCDESTSITTRIBUTIPI
+                                                    where CODSITTRIBIPI = MC.CODSITTRIBIPI), 'C',
+                                                    NVL(B.VLIPI, 0), 0)), 2)
+                              else
+                                ROUND(B.QTCONT * NVL(B.VLBASEIPI, 0), 2)
+                            end
+                else
+                  0
+                end
+            end) VLBASEOUTRASIPI,
+           ------------------------------------------------------------------
+           sum(case
+                 when (select max(DESTVALORIPI)
+                       from PCDESTSITTRIBUTIPI
+                       where CODSITTRIBIPI = MC.CODSITTRIBIPI) = 'I' then
+                         ROUND(B.QTCONT * NVL(B.VLIPI, 0), 2)
+                 else
+                  0
+               end) VLISENTASIPI,
+           ----------------------------------------------------------------
+           sum(case
+                 when (select max(DESTVALORIPI)
+                       from PCDESTSITTRIBUTIPI
+                       where CODSITTRIBIPI = MC.CODSITTRIBIPI) = 'O' then
+                    ROUND(B.QTCONT * NVL(B.VLIPI, 0), 2)
+                 else
+                   0
+               end) VLOUTRASIPI,
+           ----------------------------------------------------------------
+           sum(ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S', NVL(NVL(MC.QTLITRAGEM, P.LITRAGEM), 0), 0), 0, B.QTCONT *
+                             NVL(B.VLPIS, 0), NVL(MC.QTLITRAGEM, P.LITRAGEM) *
+                             B.QTCONT * B.VLPIS), 2)) VLPIS,
+           ------------------------------------------------------------------
+           sum(ROUND(DECODE(DECODE(MC.USAPISCOFINSLIT, 'S', NVL(NVL(MC.QTLITRAGEM, P.LITRAGEM), 0), 0), 0, B.QTCONT *
+                             NVL(B.VLCOFINS, 0), NVL(MC.QTLITRAGEM, P.LITRAGEM) *
+                             B.QTCONT * B.VLCOFINS), 2)) VLCOFINS,
+           ------------------------------------------------------------------
+           DECODE(V_UFFILIAL,
+                  'PI', sum(B.QTCONT * NVL(B.BASEACRESCIMOPF, 0)),
+                  'MA', sum(B.QTCONT * NVL(B.BASEACRESCIMOPF, 0)), 0) BCIMPESTADUAL,
+           ------------------------------------------------------------------
+           DECODE(V_UFFILIAL,
+                  'PI', sum(B.QTCONT * NVL(B.VLACRESCIMOPF, 0)),
+                  'MA', sum(B.QTCONT * NVL(B.VLACRESCIMOPF, 0)), 0) VLIMPESTADUAL,
+           ------------------------------------------------------------------
+           sum(NVL(B.VLREPASSE, 0) * B.QTCONT) VLREPASSE,
+           ------------------------------------------------------------------
+           sum(NVL(B.BASEBCR, 0) * B.QTCONT) VLBASEBCR,
+           ------------------------------------------------------------------
+           sum(ROUND(NVL(B.STBCR, 0) * B.QTCONT,2)) VLSTBCR,
+           ------------------------------------------------------------------
+           sum(ROUND(NVL(B.VLICMSBCR, 0) * B.QTCONT,2)) VLICMSBCR,
+           ------------------------------------------------------------------
+           sum(DECODE(B.SITTRIBUT, '41', B.QTCONT * B.PUNITCONT, 0)) VLNAOTRIB_DAPI,
+           ------------------------------------------------------------------
+           SUM(DECODE(B.SITTRIBUT,
+                      '20', B.QTCONT * GREATEST(B.PUNITCONT - NVL(B.VLIPI, 0) - NVL(B.ST, 0) - (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 0),
+                      '70', B.QTCONT * GREATEST(B.PUNITCONT - NVL(B.VLIPI, 0) - NVL(B.ST, 0) - (NVL(B.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 0), 0)) VLBASERED_DAPI,
+           ------------------------------------------------------------------
+           sum(DECODE(B.SITTRIBUT, '50', B.QTCONT * B.PUNITCONT, 0)) VLSUSPENSAS_DAPI,
+           ------------------------------------------------------------------
+           sum(ROUND(B.QTCONT * NVL(B.ST, 0), 2)) VLST_DAPI,
+           ------------------------------------------------------------------
+           0 VLISENTAS_DAPI,
+           ------------------------------------------------------------------
+           0 VLOUTRAS_DAPI,
+           ------------------------------------------------------------------
+           sysdate DTGERA,
+           ------------------------------------------------------------------
+           sum(ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOPIS, 0), 2)) VLDESCREDUCAOPIS,
+           ------------------------------------------------------------------
+           sum(ROUND(B.QTCONT * NVL(B.VLDESCREDUCAOCOFINS, 0), 2)) VLDESCREDUCAOCOFINS,
+           ------------------------------------------------------------------
+           A.CONTAORDEM,
+           A.SITUACAONFE,
+           SUM(ROUND(B.QTCONT * nvl(MC.VLICMSPARTDEST, 0),2)) as VLICMSPARTDEST,
+           SUM(ROUND(B.QTCONT * nvl(MC.VLICMSPARTREM, 0),2)) as VLICMSPARTREM ,
+           SUM(ROUND(B.QTCONT * nvl(MC.VLFCPPART, 0),2)) AS VLFCP,
+           sum(ROUND(b.QTCONT * nvl(mc.VLICMSDIFALIQPART, 0),2)) as VLICMSDIFALIQPART,
+           sum(ROUND(b.QTCONT * nvl(mc.VLBASEPARTDEST, 0),2)) as VLBASEPARTDEST,
+           SUM(ROUND(B.QTCONT * NVL(MC.VLIPIDEVFORNEC,0),2)) VLIPIDEVFORNEC,
+           -- VL.FCP.ICMS 
+           CASE WHEN B.CODFISCAL in (5929, 6929) THEN 0 ELSE 
+                SUM(DECODE(NVL(MC.VLBASEFCPICMS,0), 0, 0, ROUND(B.QTCONT * NVL(MC.VLACRESCIMOFUNCEP,0),2))) END VLACRESCIMOFUNCEP,
+           --------------
+           SUM(DECODE(NVL(MC.VLBASEFCPST,0), 0, 0, ROUND(B.QTCONT * NVL(MC.VLFECP,0),2))) VLFECP,
+           -- ALIQ.FCP.ICMS
+           CASE WHEN B.CODFISCAL in (5929, 6929) THEN 0 ELSE 
+                DECODE(NVL(MC.VLBASEFCPICMS,0), 0, 0, NVL(MC.PERACRESCIMOFUNCEP,0)) END PERACRESCIMOFUNCEP,
+           ----------------
+           -- BASE FCP ICMS
+           CASE WHEN B.CODFISCAL in (5929, 6929) THEN 0 ELSE            
+           SUM(ROUND(B.QTCONT * NVL(MC.VLBASEFCPICMS, 0), 2)) END VLBASEFCPICMS,
+           ----------------
+           SUM(ROUND(B.QTCONT * NVL(MC.VLBASEFCPST, 0), 2)) VLBASEFCPST,
+           DECODE(NVL(MC.VLBASEFCPST, 0), 0, 0, NVL(MC.ALIQICMSFECP, 0)) ALIQICMSFECP,
+           A.DTSAIDA DATA,
+           SUM(ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)),2)) VLOUTROS,
+           SUM(NVL(DXML.VDESC, 
+               ROUND(DECODE(NVL(MC.PRECOUTILIZADONFE, 
+                                NVL(NVL(DECODE(NVL(PF.PRECOUTILIZADONFE,'N'), 'N', '', PF.PRECOUTILIZADONFE), 
+                                               C.PRECOUTILIZADONFE), 
+                                     NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'L'))),
+                           'B', B.QTCONT * NVL(B.VLDESCONTO,0), 0), 2)
+           
+               )) VL_DESCONTO,
+           SUM(NVL(DXML.VPROD, 
+               ROUND(B.QTCONT * (NVL(B.PUNITCONT,0) - NVL(B.ST,0) - NVL(B.VLIPI,0) - NVL(MC.VLIPIDEVFORNEC,0)-
+                     NVL(MC.VLFECP,0)), 2) + 
+                     ROUND((NVL(B.QTCONT,0) * NVL(B.ST,0)), 2) + 
+                     ROUND((NVL(B.QTCONT,0) * NVL(B.VLIPI,0)), 2) + 
+                     ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)), 2) + 
+                     ROUND((NVL(B.QTCONT,0) * NVL(MC.VLIPIDEVFORNEC,0)), 2) + 
+                     ROUND((NVL(B.QTCONT,0) * NVL(B.VLFRETE,0)), 2)+
+                     DECODE(NVL(A.DOCEMISSAO,'X'), 
+                                'CE', 0, 
+                                'SF', 0, 
+                                'CF', 0, 
+                                'MF', 0, 
+                                ROUND((NVL(B.QTCONT, 0) * NVL(B.VLFRETE, 0)), 2))              
+                 )) VL_PRODUTO
+      from PCNFSAID A,
+           PCMOV  B,
+           PCMOVCOMPLE   MC,
+           PCCLIENT C,
+           PCVENDACONSUM VC,
+           PCFILIAL  F,
+           PCCFO CF,
+           PCPRODUT P,
+           PCPRODFILIAL  PF,
+           PCDADOSXML DXML, 
+           (SELECT M.NUMTRANSVENDA,
+                   M.CODPROD,  
+                   NVL(ROUND(SUM(M.QTCONT * NVL(M.VLACRESCIMOPF,0)), 2),0) VLTOTAL_ACRESCIMOPF,
+                   GREATEST(ROUND(SUM(M.QTCONT * (NVL(M.VLOUTROS, 0) -
+                                                  NVL(M.VLACRESCIMOPF, 0))), 2), 0) VLTOTAL_OUTROS
+              FROM PCMOV M
+             WHERE NVL(M.CODFILIALNF, M.CODFILIAL) = P_CODFILIAL
+               AND M.DTMOV BETWEEN P_DATA1 AND P_DATA2
+               AND M.QTCONT > 0
+               AND M.DTCANCEL IS NULL
+               AND (NVL(M.VLACRESCIMOPF,0) + NVL(M.VLOUTROS,0)) > 0 
+             GROUP BY M.NUMTRANSVENDA, M.CODPROD
+               ) MOV
+     where A.NUMTRANSVENDA = B.NUMTRANSVENDA
+       and A.NUMNOTA = B.NUMNOTA
+       AND B.NUMTRANSVENDA = MOV.NUMTRANSVENDA(+)
+       AND B.CODPROD = MOV.CODPROD(+)
+       and MC.NUMTRANSITEM = B.NUMTRANSITEM
+       AND B.NUMTRANSITEM = DXML.NUMTRANSITEM(+)
+       and C.CODCLI = DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF)
+       and A.NUMPED = VC.NUMPED(+)
+       and P.CODPROD = B.CODPROD
+       and NVL(B.CODFILIALNF, B.CODFILIAL) = PF.CODFILIAL(+)
+       and NVL(B.CODFILIALNF, B.CODFILIAL) = P_CODFILIAL
+       and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
+       and B.CODPROD = PF.CODPROD(+)
+       and B.STATUS in ('A', 'AB')
+       and B.QTCONT > 0
+       and CF.CODFISCAL(+) = B.CODFISCAL
+       and A.ESPECIE in ('NF', 'CO', 'CF', 'NS') 
+       and NVL(A.SERIE, 'X') not in ('CF', 'CP')
+       and ((A.NUMNOTA >= P_NOTA1) and 
+            (A.NUMNOTA <= P_NOTA2))       
+       AND A.DTENTREGA BETWEEN P_DATA1 and P_DATA2            
+       AND A.DTSAIDA NOT BETWEEN P_DATA1 and P_DATA2
+       and F.CODIGO = P_CODFILIAL
+       and (A.TIPOVENDA <> 'DF' and B.CODOPER <> 'SD')
+       and NVL(SUBSTR(A.CHAVENFE, 21,2), 'X') <> '65'
+       and NVL(A.DOCEMISSAO, 'X') <> 'SF' 
+       and A.CHAVESAT IS NULL
+     group by NVL(A.CODFILIALNF, A.CODFILIAL),
+              A.NUMTRANSVENDA,
+              A.NUMTRANSVENDAORIGEM,
+              A.NUMCAR,
+              A.CONDVENDA,
+              A.ESPECIE,
+              A.SERIE,
+              A.SUBSERIE,
+              B.SITTRIBUT,
+              A.CHAVENFE,
+              NVL(A.CLIENTE, (case
+                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                      VC.CLIENTE
+                     else
+                      C.CLIENTE
+                   end)),
+              NVL(A.CGC, (case
+                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                      VC.CGCENT
+                     else
+                      C.CGCENT
+                   end)),
+              NVL(A.IE, (case
+                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                      VC.IEENT
+                     else
+                      C.IEENT
+                   end)),
+              NVL(A.UF, (case
+                     when A.CODCLI in (1, 2, 3) then
+                      (case
+                     when NVL(VC.NUMPED, 0) > 0 then
+                      VC.ESTENT
+                     else
+                      V_UFFILIAL
+                   end) else C.ESTENT end)),
+              NVL(A.TIPOFJ, (case
+                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                      'F'
+                     else
+                      C.TIPOFJ
+                   end)),
+              NVL(A.CONSUMIDORFINAL, (case
+                     when NVL(VC.NUMPED, 0) > 0 and A.CODCLI in (1, 2, 3) then
+                      'S'
+                     else
+                      C.CONSUMIDORFINAL
+                   end)),
+              A.NUMNOTA,
+              --DECODE(vnGeraDTENTREGA,'S',NVL(NVL(A.DTENTREGA, A.DTSAIDANF),A.DTSAIDA),A.DTSAIDA),
+              A.DTENTREGA, A.DTSAIDANF, A.DTSAIDA,
+              A.DTCANCEL,
+              NVL(B.GERAICMSLIVROFISCAL, 'S'),
+              NVL(B.PERCICM, 0),
+              A.PERBASEREDOUTRASDESP,
+              A.VLFRETE,
+              ------------------------------------------------------------------
+              (case
+                when (((C.TIPOFJ = 'F') and (C.UTILIZAIESIMPLIFICADA = 'N')) or
+                     (C.CONSUMIDORFINAL = 'S') or
+                     ((V_CONSIDERAISENTOSCOMOPF = 'S') and
+                     ((C.IEENT is null) or (C.IEENT = 'ISENTO') or
+                     (C.IEENT = 'ISENTA')))) and (C.CONTRIBUINTE = 'N') then
+                 'S'
+                else
+                 'N'
+              end),
+              ------------------------------------------------------------------
+              A.VLOUTRASDESP,
+              DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF),
+              C.TIPOFJ,
+              A.VLTOTAL,
+              A.CODCONT,
+              B.CODFISCAL,
+              FISCAL.FORMATAR_CST_ICMS(B.SITTRIBUT, NVL(B.IMPORTADO, P.IMPORTADO),NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), A.DTSAIDA),
+              CF.CODOPER,
+              A.OBS,
+              A.TIPOVENDA,
+              (case
+                when B.CODFISCAL in (5929, 6929) then
+                 0
+                else
+                 NVL(B.PERCIPI, 0)
+              end),
+              A.CONTAORDEM,
+              -- Implementados no erro Group By
+              A.UF,
+              A.CODCLI,
+              C.ESTENT,
+              VC.NUMPED,
+              V_UFFILIAL,
+              VC.ESTENT,
+              C.TIPOFJ,
+              C.UTILIZAIESIMPLIFICADA,
+              C.CONSUMIDORFINAL,
+              C.CONTRIBUINTE,
+              C.IEENT,
+              A.SITUACAONFE,
+              DECODE(NVL(MC.VLBASEFCPICMS,0), 0, 0, NVL(MC.PERACRESCIMOFUNCEP,0)),
+              DECODE(NVL(MC.VLBASEFCPST, 0), 0, 0, NVL(MC.ALIQICMSFECP, 0)),NVL(MC.PERDIFEREIMENTOICMS, 0),
+              A.DTSAIDA
+     order by DTSAIDA, NUMTRANSVENDA, NUMNOTA;
+  -------------------------------------------------------------------------------------------
+  
   TYPE LISTA_NOTAS IS TABLE OF  C_NOTAS_NF%ROWTYPE;
 
   LISTA_NOTAS_CUPOM_FISCAL            LISTA_NOTAS;
@@ -5131,6 +5849,7 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
   LISTA_NOTAS_REDZ_CANC               LISTA_NOTAS;
   LISTA_NOTAS_REDZ_N_TRIB             LISTA_NOTAS;
   LISTA_NOTAS_NF                      LISTA_NOTAS;
+  LISTA_NOTAS_NF_DF                   LISTA_NOTAS;
   LISTA_NOTAS_NFCE                    LISTA_NOTAS;
   LISTA_NOTAS_SAT                     LISTA_NOTAS;
   LISTA_NOTAS_MFE                     LISTA_NOTAS;
@@ -5207,6 +5926,44 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
        and ((NVL(A.SERIE, 'X') <> 'CF') or ('S' = PINSERIRCF))
        AND ROWNUM = 1;
 
+     EXCEPTION
+     when NO_DATA_FOUND then
+       V_QTDNF_NO_PERIODO := 0;
+     END;
+
+     if (V_QTDNF_NO_PERIODO > 0) then
+       return True;
+     else
+       return False;
+     end if;
+   END;
+
+  -- Functions
+  -- C_NOTAS_NF_DF - Gerando informação pela Data de entrega 
+  function F_NOTAS_NF_DF(PDATA1 IN DATE,
+                         PDATA2 IN DATE,
+                         PCODFILIAL IN VARCHAR2,
+                         PNUMNOTA1 IN NUMBER,
+                         PNUMNOTA2 IN NUMBER,
+                         PINSERIRCF IN VARCHAR2) return boolean is
+  BEGIN
+     BEGIN
+
+    select 1 
+           INTO V_QTDNF_NO_PERIODO
+      from PCNFSAID A
+     where NVL(A.CODFILIALNF, A.CODFILIAL) = PCODFILIAL
+       and A.ESPECIE in ('NF', 'CO', 'CF', 'NS') 
+       and NVL(A.SERIE, 'X') not in ('CF', 'CP')
+       and ((A.NUMNOTA >= PNUMNOTA1) and 
+            (A.NUMNOTA <= PNUMNOTA2))       
+       AND A.DTENTREGA   BETWEEN PDATA1 and PDATA2            
+       AND A.DTSAIDA NOT BETWEEN PDATA1 and PDATA2
+       and A.TIPOVENDA <> 'DF'
+       and NVL(SUBSTR(A.CHAVENFE, 21,2), 'X') <> '65'
+       and NVL(A.DOCEMISSAO, 'X') <> 'SF' 
+       and A.CHAVESAT IS NULL
+       AND ROWNUM = 1;
      EXCEPTION
      when NO_DATA_FOUND then
        V_QTDNF_NO_PERIODO := 0;
@@ -5755,30 +6512,42 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
   begin 
      V_SQLERRO := 'EXCLUINDO REGISTROS ANTERIORES';
     begin
-      -- Deletando nfs no processo do DF DTENTREGA. Onde o Dtsaida esta menor que o DTENTREGA
-      if vnGeraDTENTREGA = 'S' then
-          -- Deletando Doc.onde o DTENTREGA esta maior que DTSAIDA e o livro foi gerado com esse DTENTREGA.
-         FOR DADOSNF IN (SELECT S.NUMTRANSVENDA
-                           FROM PCNFSAID S
-                          WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = pPCODFILIAL
-                            AND S.DTSAIDA BETWEEN pDATA1 and pDATA2
-                            AND S.DTENTREGA > S.DTSAIDA
-                            AND S.NUMNOTA BETWEEN pNUMNOTA1 AND pNUMNOTA2
-                            AND S.NUMTRANSVENDA IN (SELECT DISTINCT S2.NUMTRANSVENDA
-                                                      FROM PCNFBASESAID S2
-                                                     WHERE S2.CODFILIALNF = pPCODFILIAL
-                                                       AND S2.NUMTRANSVENDA = S.NUMTRANSVENDA
-                                                       AND S2.DTSAIDA = S.DTENTREGA)
-                          )
+      -- Deletando nfs no processo do DF DTENTREGA.
+      IF vnGeraDTENTREGA = 'S' THEN
+       -- 1 - Deletar todas as notas no livro pelo Dtsaida. 
+       delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+         from PCNFBASESAID
+        where DTSAIDA between pDATA1 and pDATA2
+          and CODFILIALNF = pPCODFILIAL
+          and NUMNOTA between pNUMNOTA1 and pNUMNOTA2
+          AND DECODE(pNUMTRANSVENDA,0,0,NUMTRANSVENDA) = DECODE(pNUMTRANSVENDA,0,0,pNUMTRANSVENDA)
+          and ESPECIE not in ('CF', 'MR');
+       COMMIT;        
+       ------------------------------------------------------------------------------------------ 
+       -- 2 - Deletar Nfs fora do período  
+       FOR DADOSNF IN (SELECT S.NUMTRANSVENDA
+                         FROM PCNFSAID S
+                        WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = pPCODFILIAL
+                          AND S.DTSAIDA BETWEEN pDATA1 and pDATA2
+                          AND S.DTENTREGA > S.DTSAIDA
+                          AND S.NUMNOTA BETWEEN pNUMNOTA1 AND pNUMNOTA2
+                          AND S.NUMTRANSVENDA IN (SELECT DISTINCT S2.NUMTRANSVENDA
+                                                    FROM PCNFBASESAID S2
+                                                   WHERE S2.CODFILIALNF = pPCODFILIAL
+                                                     AND S2.NUMTRANSVENDA = S.NUMTRANSVENDA
+                                                     AND S2.DTSAIDA BETWEEN pDATA1 and pDATA2 + 15
+                                                     AND S2.DTSAIDA = S.DTENTREGA))
          LOOP
             delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */
              from PCNFBASESAID S
             where S.NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
-          COMMIT;
+            COMMIT;
          END LOOP;
-      end if;
-
-      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+         
+      ELSE 
+        
+      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+        from PCNFBASESAID
        where DTSAIDA between pDATA1 and pDATA2
          and CODFILIALNF = pPCODFILIAL
          and NUMNOTA between pNUMNOTA1 and pNUMNOTA2
@@ -5786,13 +6555,17 @@ cursor C_NOTAS_COMPLEMETAR_COM_ITEM(P_NOTA1 in number, P_NOTA2 in number, P_DATA
          and ESPECIE not in ('CF', 'MR');
       COMMIT;
       ---------------------------------------------------------------------------------
-      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+        from PCNFBASESAID
        where DTSAIDA between pDATA1 and pDATA2
          and CODFILIALNF = pPCODFILIAL
          and ESPECIE in ('CF', 'MR');
-    end;
-    COMMIT;
 
+      END IF;
+         
+    end;
+    
+    COMMIT;
   end; 
 
   procedure GERAR_MAPARESUMO(P_CODFILIAL in varchar2,
@@ -8397,12 +9170,22 @@ END;
                             PCODFILIAL IN VARCHAR2,
                             PPROCESSOPORNOTA  IN VARCHAR2) IS
   BEGIN
-
+  ---------------------------------------------------------------------------- 
   open C_NOTAS_NF(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
   fetch c_notas_Nf bulk collect
   into LISTA_NOTAS_NF;
   close C_NOTAS_NF;
   GERALIVRO_FISCAL(LISTA_NOTAS_NF);
+ 
+  IF NVL(vnGeraDTENTREGA_POR_DATA,'N') = 'S' THEN
+    IF F_NOTAS_NF_DF(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
+      open C_NOTAS_NF_DF(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
+      fetch C_NOTAS_NF_DF bulk COLLECT into LISTA_NOTAS_NF_DF;
+      close C_NOTAS_NF_DF;
+      GERALIVRO_FISCAL(LISTA_NOTAS_NF_DF);
+    END IF;
+  END IF;
+  ---------------------------------------------------------------------------- 
 
     IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
      COMMIT;
@@ -8477,22 +9260,25 @@ END;
   
   ---------------------------------------------------------------------------------
   IF F_NOTAS_CUPOM_FISCAL(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
-    open C_NOTAS_CUPOM_FISCAL(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
-    fetch C_NOTAS_CUPOM_FISCAL bulk collect
-    into LISTA_NOTAS_CUPOM_FISCAL;
-    close C_NOTAS_CUPOM_FISCAL;
-    GERALIVRO_FISCAL(LISTA_NOTAS_CUPOM_FISCAL);
+  
+      open C_NOTAS_CUPOM_FISCAL(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
+      fetch C_NOTAS_CUPOM_FISCAL bulk collect
+      into LISTA_NOTAS_CUPOM_FISCAL;
+      close C_NOTAS_CUPOM_FISCAL;
+      GERALIVRO_FISCAL(LISTA_NOTAS_CUPOM_FISCAL);
     
-    IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
-       COMMIT;
-       V_CONTADORREGISTRO := 0;
-       RETURN;
-    END IF;
     
-    IF V_CONTADORREGISTRO > 0 THEN
-       COMMIT;
-       V_CONTADORREGISTRO := 0;
-    END IF;
+      IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
+         COMMIT;
+         V_CONTADORREGISTRO := 0;
+         RETURN;
+      END IF;
+    
+      IF V_CONTADORREGISTRO > 0 THEN
+         COMMIT;
+         V_CONTADORREGISTRO := 0;
+      END IF;
+      
   END IF;
   ---------------------------------------------------------------------------------
   IF F_NOTAS_DEV_FORNEC(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
@@ -8826,32 +9612,42 @@ begin
   ---------------------------------------------------------------------------------
   -- Processando Livro Fiscal.
   ---------------------------------------------------------------------------------
+  vnGeraDTENTREGA_POR_DATA := 'N'; 
+  
   if NVL(vnGeraDTENTREGA,'N') = 'N' then
      PROCESSAR_LIVRO(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL, 'N');
   else
      -- Gerar notas dentro do periodo
+     vnGeraDTENTREGA_POR_DATA := vnGeraDTENTREGA;
      PROCESSAR_LIVRO(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL, 'N');
 
-     -- Gerar notas que estao dentro do periodo pelo DTENTREGA.
-       FOR DADOSNF IN (SELECT S.NUMTRANSVENDA, S.NUMNOTA, S.DTSAIDA, NVL(S.DTENTREGA, S.DTSAIDANF) DTENTREGA
-                         FROM PCNFSAID S
-                        WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = PCODFILIAL
-                          AND NVL(NVL(S.DTENTREGA, S.DTSAIDANF),S.DTSAIDA) BETWEEN DATA1 and DATA2
-                          AND NVL(NVL(S.DTENTREGA, S.DTSAIDANF),S.DTSAIDA) <> S.DTSAIDA
-                          AND S.NUMNOTA BETWEEN NUMNOTA1 AND NUMNOTA2
-                          AND S.DTSAIDA BETWEEN TO_DATE(DATA1, 'DD-MM-YYYY')-90 AND DATA1 -- BUSCAR NOTAS QUE ESTEJAM 30DIAS ABAIXO DA DATA INICIAL.
-                        )
-       LOOP
-          -- Excluir Nf individualmente
-          delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
-           where DTSAIDA       = DADOSNF.DTSAIDA
-             and CODFILIALNF   = PCODFILIAL
-             and NUMNOTA       = DADOSNF.NUMNOTA
-             and NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
+  -- Gerar notas que estao dentro do periodo pelo DTENTREGA.
+     V_DATA_ANTERIOR_DTENTREGA := DATA1 - 90; 
+          
+     FOR DADOSNF IN (SELECT S.NUMTRANSVENDA, S.NUMNOTA, S.DTSAIDA, NVL(S.DTENTREGA, S.DTSAIDANF) DTENTREGA
+                       FROM PCNFSAID S
+                      WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = PCODFILIAL
+                        AND NVL(NVL(S.DTENTREGA, S.DTSAIDANF),S.DTSAIDA) BETWEEN DATA1 and DATA2
+                        AND NVL(NVL(S.DTENTREGA, S.DTSAIDANF),S.DTSAIDA) <> S.DTSAIDA
+                        AND S.NUMNOTA BETWEEN NUMNOTA1 AND NUMNOTA2
+                        AND S.NUMTRANSVENDA NOT IN (SELECT DISTINCT SS.NUMTRANSVENDA 
+                                                      FROM PCNFBASESAID SS
+                                                     WHERE SS.CODFILIALNF = PCODFILIAL
+                                                       AND SS.DTSAIDA = NVL(S.DTENTREGA, S.DTSAIDANF)
+                                                       AND SS.NUMTRANSVENDA = S.NUMTRANSVENDA  )                        
+                        AND S.DTSAIDA BETWEEN V_DATA_ANTERIOR_DTENTREGA AND DATA1)
+     LOOP
+        -- Excluir Nf individualmente
+        delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+         where DTSAIDA       = DADOSNF.DTSAIDA
+           and CODFILIALNF   = PCODFILIAL
+           and NUMNOTA       = DADOSNF.NUMNOTA
+           and NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
 
-          PROCESSAR_LIVRO(DADOSNF.NUMNOTA,DADOSNF.NUMNOTA,DADOSNF.DTSAIDA,DADOSNF.DTSAIDA,V_INSERIRCF,PCODFILIAL,'S');
-          COMMIT;
-       END LOOP;
+        vnGeraDTENTREGA_POR_DATA := 'N';
+        PROCESSAR_LIVRO(DADOSNF.NUMNOTA,DADOSNF.NUMNOTA,DADOSNF.DTSAIDA,DADOSNF.DTSAIDA,V_INSERIRCF,PCODFILIAL,'S');
+        COMMIT;
+     END LOOP;
    end if;
   ---------------------------------------------------------------------------------
   -- POPULANDO CONTAS CONTABEIS NOTAS SEM ITENS
@@ -8971,3 +9767,4 @@ exception
     end;
 end;
 -- 001 - 06/12/2024 - ajuste no sql 03 referente ao agrupamento do campo NUMSQL
+-- 002 - 06/12/2024 - Performance no processo de geração do sql 01 e do processo feito pela data de entrega no DF
