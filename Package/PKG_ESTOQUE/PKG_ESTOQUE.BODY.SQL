@@ -769,15 +769,22 @@ IS
                      AND NVL(P.CODFILIALRETIRA, P.CODFILIAL) = ESTOQUEGERENCIAL.CODFILIAL)
     LOOP
       -- Buscar parâmetro
-      vsORIGEMCUSTOFILIALRETIRA := PRIV_TIPO_TRANSFERENCIA(DADOS.CODFILIALVENDA,
-                                                           DADOS.CODFILIALGERENCIAL,
-                                                           DADOS.CODFILIALCONTABIL);
-      -- Usa custo filial retira?
-      IF vsORIGEMCUSTOFILIALRETIRA = 'R' THEN
-        vsCODFILIAL := DADOS.CODFILIALGERENCIAL;
+      IF (psOPERACAO = 'E') THEN
+        vsORIGEMCUSTOFILIALRETIRA := PRIV_TIPO_TRANSFERENCIA(DADOS.CODFILIALVENDA,
+                                                             DADOS.CODFILIALGERENCIAL,
+                                                             DADOS.CODFILIALCONTABIL);
+        -- Usa custo filial retira?
+        IF vsORIGEMCUSTOFILIALRETIRA = 'R' THEN
+          vsCODFILIAL := DADOS.CODFILIALGERENCIAL;
+        ELSE
+          vsCODFILIAL := DADOS.CODFILIALCONTABIL;
+        END IF;
+      
       ELSE
-        vsCODFILIAL := DADOS.CODFILIALCONTABIL;
-      END IF;
+          vsCODFILIAL := '-1';
+          vsORIGEMCUSTOFILIALRETIRA := FERRAMENTAS.PARAMETROS.GETVALORALFANVL('ORIGEMCUSTOATUFAT', DADOS.CODFILIALVENDA, 'V');
+      END IF;    
+      
       -- Buscar os custos atuais
       BEGIN
         SELECT PCEST.CUSTOREP,
@@ -789,7 +796,7 @@ IS
                PCEST.CUSTOREAL,
                PCEST.ESTBONIFIC,
                NVL(PCEST.CUSTOFISCAL, 0),
-               NVL(CUSTOULTENTFISCAL, 0)
+               NVL(PCEST.CUSTOULTENTFISCAL, 0)
           INTO vnCUSTOREP,
                vnCUSTOFIN,
                vnCUSTOCONT,
@@ -800,9 +807,17 @@ IS
                vsESTBONIFIC,
                vnCUSTOFISCAL,
                vnCUSTOULTENTFISCAL
-          FROM PCEST
-         WHERE CODPROD = DADOS.CODPROD
-           AND CODFILIAL = vsCODFILIAL;
+          FROM PCEST, PCMOV
+         WHERE PCEST.CODPROD = DADOS.CODPROD
+           AND PCMOV.CODPROD = PCEST.CODPROD
+           AND PCMOV.ROWID = DADOS.ID
+           AND (((psOPERACAO = 'E') AND PCEST.CODFILIAL = vsCODFILIAL)
+             OR ((psOPERACAO = 'S') AND PCEST.CODFILIAL = decode(vsORIGEMCUSTOFILIALRETIRA,
+                                        'V',
+                                         PCMOV.CODFILIAL,
+                                        'N',
+                                        PCMOV.CODFILIALNF,
+                                        NVL(PCMOV.CODFILIALRETIRA, PCMOV.CODFILIAL))));
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           vnCUSTOREP      := 0;
