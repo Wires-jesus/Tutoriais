@@ -2488,28 +2488,6 @@ SELECT P.NROEMPRESA,
 
 \
 
-CREATE OR REPLACE VIEW vw_int_c5_agrup_troco AS
-(
-SELECT P.NROEMPRESA,
-       P.NROCHECKOUT,
-       P.SEQDOCTO,
-       SUM(P.VLRTOTAL) AS VALOR,
-       MAX(P.DTABASECOBRANCA) AS DTABASECOBRANCA,
-       MAX(P.DTAVENCIMENTO) AS DTAVENCIMENTO,
-       MIN(SEQITEM) SEQITEM,
-	   P.nroformapagto
-  FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P
- WHERE P.NROFORMAPAGTO IN
-       (SELECT fp.nroformapagto
-          FROM monitorpdvmiddle.tb_formapagto fp
-         where fp.especie = 'D'
-         and fp.formapagto LIKE '%DINHEIRO%')
-   AND P.VLRTOTAL < 0
- GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto
- )
-
-\
-
 CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 ( SELECT  d.seqdocto,
         NULL numgiftcard,
