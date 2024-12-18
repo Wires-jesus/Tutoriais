@@ -425,7 +425,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.03.000"
+		  "versao": "7.0.04.000"
 		},
 		{
 		  "nome": "PCBINCARTAO",
