@@ -1004,9 +1004,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.ativo, '-') <> NVL(B.ativo, '-')
            OR NVL(S.seqmarca, 0) <> NVL(B.seqmarca, 0)
            OR NVL(S.seqfamgrupo, 0) <> NVL(B.seqfamgrupo, 0)
-           OR NVL(S.pesavel, '-') <> NVL(B.pesavel, '-')
-           OR NVL(S.situacaopis, '-') <> NVL(B.SITUACAOPIS, '-')
-           OR NVL(S.situacaocofins, '-') <> NVL(B.SITUACAOCOFINS, '-')
+           OR NVL(S.pesavel, '-') <> NVL(B.pesavel, '-')                      
+           OR NVL(S.situacaopis, 0) <> NVL(B.SITUACAOPIS, 0)
+           OR NVL(S.situacaocofins, 0) <> NVL(B.SITUACAOCOFINS, 0)
            OR NVL(S.percbasepis, 0) <> NVL(PERCBASEPIS, 0)
            OR NVL(S.percbasecofins, 0) <> NVL(PERCBASECOFINS, 0)
            OR NVL(S.percpis, 0) <> NVL(B.PERCPIS, 0)
@@ -1015,7 +1015,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.cnpjfabricante, '-') <> NVL(B.cnpjfabricante, '-')
            OR NVL(S.eantrib, 0) <> NVL(B.eantrib, 0)
            OR NVL(S.gerareducaobasepiscofins, '-') <> NVL(B.gerareducaobasepiscofins, '-')
-           OR NVL(S.idref, '-') <> NVL(B.idref, '-')
+           OR NVL(S.idref, 0) <> NVL(B.idref, 0)
 		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
@@ -1266,7 +1266,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.nrocarga   = b.nrocarga
 		WHERE NVL(s.especie, '-') <> NVL(b.especie, '-')
            OR NVL(s.formapagto, '-') <> NVL(b.formapagto, '-')
-           OR NVL(s.idref, '-') <> NVL(b.codfilial, '-')
+           OR NVL(s.idref, 0) <> NVL(b.codfilial, 0)
            OR NVL(s.ativo, '-') <> NVL(b.ativo, '-')
            OR NVL(s.nrocarga, 0) <> NVL(b.nrocarga, 0)
 		   
@@ -1357,7 +1357,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(s.abregaveta, '-')       <> NVL(b.abregaveta, '-')
          OR NVL(s.alternativa, '-')      <> NVL(b.alternativa, '-')
          OR NVL(s.faturamento, '-')      <> NVL(b.faturamento, '-')
-         OR NVL(s.idref, '-')            <> NVL(b.codCob, '-')
+         OR NVL(s.idref, 0)            <> NVL(b.codCob, 0)
          OR NVL(s.ativo, '-')            <> NVL(b.ativo, '-')
          OR NVL(s.nroParcelaJuro, 0)     <> NVL(b.nroParcelaJuro, 0)
          OR NVL(s.VLRMINIMOPARCELA, 0)   <> NVL(b.VLRMINIMOPARCELA, 0)
@@ -1567,7 +1567,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           OR NVL(s.ativo, '-')         <> NVL(b.ativo, '-')
           OR NVL(s.lerpeso, '-')       <> NVL(b.lerpeso, '-')
           OR NVL(s.NIVELHIERARQUIA, 0) <> NVL(b.nivelhierarquia, 0)
-          OR NVL(s.idref, '-')         <> NVL(b.idref, '-')
+          OR NVL(s.idref, 0)         <> NVL(b.idref, 0)
 		  
       WHEN NOT MATCHED THEN
         INSERT (s.seqcategoriapai,
@@ -1631,7 +1631,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.ativo = b.ativo,
         s.idref = b.idref
 	   WHERE NVL(s.ativo, '-') <> NVL(b.ativo, '-')
-          OR NVL(s.idref, '-') <> NVL(b.idref, '-')
+          OR NVL(s.idref, 0) <> NVL(b.idref, 0)
       WHEN NOT MATCHED THEN
         INSERT (s.seqfamilia,
                 s.seqcategoria,
@@ -1712,7 +1712,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         s.idref    = b.idref
 		  WHERE NVL(s.estqloja, 0) <> NVL(b.estqloja, 0)
          OR NVL(s.ativo, '-')  <> NVL(b.ativo, '-')
-         OR NVL(s.idref, '-')  <> NVL(b.idref, '-')
+         OR NVL(s.idref, 0)  <> NVL(b.idref, 0)
 		   
       WHEN NOT MATCHED THEN
         INSERT (s.seqproduto,
@@ -1986,7 +1986,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(TB_PRODPRECO_C5.promocao, '-')  <> NVL(VIEW_TB_PRODPRECO.promocao, '-')
          OR NVL(TB_PRODPRECO_C5.preco, 0)       <> NVL(VIEW_TB_PRODPRECO.preco, 0)
          OR NVL(TB_PRODPRECO_C5.PRECONORMAL, 0) <> NVL(VIEW_TB_PRODPRECO.PRECONORMAL, 0)
-         OR NVL(TB_PRODPRECO_C5.idref, '-')     <> NVL(VIEW_TB_PRODPRECO.idref, '-')
+         OR NVL(TB_PRODPRECO_C5.idref, 0)     <> NVL(VIEW_TB_PRODPRECO.idref, 0)
 		 
       WHEN NOT MATCHED THEN
       INSERT(
@@ -2055,7 +2055,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
        OR NVL(TB_PRODPRECO_C5.promocao, '-')  <> NVL(VW_INT_C5_PROMOCOES_VIGENTES.promocao, '-')
        OR NVL(TB_PRODPRECO_C5.preco, 0)       <> NVL(VW_INT_C5_PROMOCOES_VIGENTES.preco, 0)
        OR NVL(TB_PRODPRECO_C5.PRECONORMAL, 0) <> NVL(VW_INT_C5_PROMOCOES_VIGENTES.PRECONORMAL, 0)
-       OR NVL(TB_PRODPRECO_C5.idref, '-')     <> NVL(VW_INT_C5_PROMOCOES_VIGENTES.idref, '-')
+       OR NVL(TB_PRODPRECO_C5.idref, 0)     <> NVL(VW_INT_C5_PROMOCOES_VIGENTES.idref, 0)
     WHEN NOT MATCHED THEN
     INSERT(
       TB_PRODPRECO_C5.seqproduto,
@@ -2398,11 +2398,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(s.percbasefcpst, 0)        <> NVL(b.percbasefcpst, 0)
          OR NVL(s.percaliqfcpst, 0)        <> NVL(b.percaliqfcpst, 0)
          OR NVL(s.CALCICMSDESON, '-')      <> NVL(b.CALCICMSDESON, '-')
-         OR NVL(s.PERCALIQICMSDESON, 0)    <> NVL(b.PERCALIQICMSDESON, 0)
-         OR NVL(s.MOTIVODESONICMS, '-')    <> NVL(b.MOTIVODESONICMS, '-')
+         OR NVL(s.PERCALIQICMSDESON, 0)    <> NVL(b.PERCALIQICMSDESON, 0)         
+         OR NVL(s.MOTIVODESONICMS, 0)      <> NVL(b.MOTIVODESONICMS, 0) 
          OR NVL(s.CODBENEFICIODESONICMS, '-') <> NVL(b.CODBENEFICIODESONICMS, '-')
          OR NVL(s.codobservacao, '-')      <> NVL(b.codobservacao, '-')
-         OR NVL(s.IDREF, '-')              <> NVL(b.IDREF, '-')
+         OR NVL(s.idref, 0)              <> NVL(b.idref, 0)
 		 
       WHEN NOT MATCHED THEN
         INSERT (s.nrotributacao,
@@ -2998,7 +2998,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(s.NROMAXIMOPARCELA, 0) <> NVL(b.NROMAXIMOPARCELA, 0)
          OR NVL(s.NRODIASVENCTO, 0) <> NVL(b.NRODIASVENCTO, 0)
          OR NVL(s.ATIVO, '-') <> NVL(b.ATIVO, '-')
-         OR NVL(s.IDREF, '-') <> NVL(b.IDREF, '-')
+         OR NVL(s.idref, 0) <> NVL(b.idref, 0)
 		 
       WHEN NOT MATCHED THEN
         INSERT (s.NROCONDICAOPAGTO,
@@ -3072,7 +3072,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           OR NVL(tb_regraincentivo_C5.ATIVO, '-')      <> NVL(VIEW_C5_INCENTIVO.ATIVO, '-')
           OR NVL(tb_regraincentivo_C5.TIPOREGRA, '-')  <> NVL(VIEW_C5_INCENTIVO.TIPOREGRA, '-')
           OR NVL(tb_regraincentivo_C5.CUMULATIVO, '-') <> NVL(VIEW_C5_INCENTIVO.CUMULATIVO, '-')
-          OR NVL(tb_regraincentivo_C5.IDREF, '-')      <> NVL(VIEW_C5_INCENTIVO.IDREF, '-')
+          OR NVL(tb_regraincentivo_C5.idref, 0)      <> NVL(VIEW_C5_INCENTIVO.idref, 0)
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3403,7 +3403,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
         WHERE NVL(tb_regraproduto_c5.PERCDESCONTO, 0) <> NVL(vw_int_c5_regraproduto.PERCDESCONTO, 0)
            OR NVL(tb_regraproduto_c5.PRECO, 0)        <> NVL(vw_int_c5_regraproduto.PRECO, 0)
            OR NVL(tb_regraproduto_c5.ATIVO, '-')      <> NVL(vw_int_c5_regraproduto.ATIVO, '-')
-           OR NVL(tb_regraproduto_c5.IDREF, '-')      <> NVL(vw_int_c5_regraproduto.IDREF, '-')
+           OR NVL(tb_regraproduto_c5.idref, 0)      <> NVL(vw_int_c5_regraproduto.idref, 0)
 		   
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3495,7 +3495,7 @@ BEGIN
           D.IDREF           = S.IDREF 
        WHERE NVL(D.PERCDESCONTO, 0) <> NVL(S.PERCDESCONTO, 0)
           OR NVL(D.ATIVO, '-')      <> NVL(S.ATIVO, '-')
-          OR NVL(D.IDREF, '-')      <> NVL(S.IDREF, '-')
+          OR NVL(D.idref, 0)      <> NVL(S.idref, 0)
 		  
   WHEN NOT MATCHED THEN
         INSERT(
@@ -3731,7 +3731,7 @@ BEGIN
            OR NVL(tb_prodprecoapartir_c5.DTAINICIO, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(vw_int_c5_prodprecoapartir.DTAINICIO, TO_DATE('01-01-1994','DD-MM-YYYY'))
            OR NVL(tb_prodprecoapartir_c5.DTAFIM, TO_DATE('01-01-1994','DD-MM-YYYY'))    <> NVL(vw_int_c5_prodprecoapartir.DTAFIM, TO_DATE('01-01-1994','DD-MM-YYYY'))
            OR NVL(tb_prodprecoapartir_c5.ATIVO, '-')     <> NVL(vw_int_c5_prodprecoapartir.ATIVO, '-')
-           OR NVL(tb_prodprecoapartir_c5.IDREF, '-')     <> NVL(vw_int_c5_prodprecoapartir.IDREF, '-')
+           OR NVL(tb_prodprecoapartir_c5.idref, 0)     <> NVL(vw_int_c5_prodprecoapartir.idref, 0)
           
        WHEN NOT MATCHED THEN
         INSERT(
@@ -3928,7 +3928,7 @@ BEGIN
       OR NVL(TB_COMBOITEM.PRECO, 0)        <> NVL(VIEW_BRINDE_ITENS.PRECO, 0)
       OR NVL(TB_COMBOITEM.PERCDESCONTO, 0) <> NVL(VIEW_BRINDE_ITENS.PERCDESCONTO, 0)
       OR NVL(TB_COMBOITEM.SEQFAMILIA, 0)   <> NVL(VIEW_BRINDE_ITENS.SEQFAMILIA, 0)
-      OR NVL(TB_COMBOITEM.IDREF, '-')      <> NVL(VIEW_BRINDE_ITENS.IDREF, '-')
+      OR NVL(TB_COMBOITEM.idref, 0)      <> NVL(VIEW_BRINDE_ITENS.idref, 0)
       OR NVL(TB_COMBOITEM.TIPOITEM, '-')   <> NVL(VIEW_BRINDE_ITENS.TIPOITEM, '-')
       OR NVL(TB_COMBOITEM.SEQGRUPO, 0)     <> NVL(VIEW_BRINDE_ITENS.SEQGRUPO, 0)
             
@@ -4019,7 +4019,7 @@ BEGIN
   WHERE NVL(T.QTDE, 0)    <> NVL(V.QTDE, 0)
      OR NVL(T.GRUPO, '-') <> NVL(V.GRUPO, '-')
      OR NVL(T.ATIVO, '-') <> NVL(V.ATIVO, '-')
-     OR NVL(T.IDREF, '-') <> NVL(V.IDREF, '-')
+     OR NVL(T.idref, 0) <> NVL(V.idref, 0)
 	 
   WHEN NOT MATCHED THEN 
   INSERT (
@@ -4686,7 +4686,7 @@ END;
          OR NVL(TB_PROMSURPRESAITEM.QTDEMBALAGEM, 0) <> NVL(VW_INT_C5_BRINDE_ITENS_AUT.QTDEMBALAGEM, 0)
          OR NVL(TB_PROMSURPRESAITEM.ATIVO, '-')      <> NVL(VW_INT_C5_BRINDE_ITENS_AUT.ATIVO, '-')
          OR NVL(TB_PROMSURPRESAITEM.SEQFAMILIA, 0)   <> NVL(VW_INT_C5_BRINDE_ITENS_AUT.SEQFAMILIA, 0)
-         OR NVL(TB_PROMSURPRESAITEM.IDREF, '-')      <> NVL(VW_INT_C5_BRINDE_ITENS_AUT.IDREF, '-')
+         OR NVL(TB_PROMSURPRESAITEM.idref, 0)      <> NVL(VW_INT_C5_BRINDE_ITENS_AUT.idref, 0)
       
     WHEN NOT MATCHED THEN
       INSERT(
@@ -4770,7 +4770,7 @@ BEGIN
   WHERE NVL(T.QTDE, 0)  <> NVL(V.QTDE, 0)
      OR NVL(T.GRUPO, '-') <> NVL(V.GRUPO, '-')
      OR NVL(T.ATIVO, '-') <> NVL(V.ATIVO, '-')
-     OR NVL(T.IDREF, '-') <> NVL(V.IDREF, '-')
+     OR NVL(T.idref, 0) <> NVL(V.idref, 0)
 
   WHEN NOT MATCHED THEN 
   INSERT (
