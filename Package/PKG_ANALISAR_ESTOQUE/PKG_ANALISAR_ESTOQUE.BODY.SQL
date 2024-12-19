@@ -606,7 +606,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
                  AND NFPRE.CONDVENDA NOT IN (4, 7, 14)
                  AND NFPRE.NUMOS IS NULL
                  AND NFPRE.DTCANCEL IS NULL
-                 AND NFPRE.SITUACAONFE NOT IN (110, 205, 301, 302, 303)
+                 AND FISCAL.NFE_DENEGADA(NFPRE.SITUACAONFE, NFPRE.DTSAIDA) = 'N'
                  AND NFPRE.DTSAIDA >= (SELECT MIN(C.DATA)
                                          FROM PCPEDC C
                                              ,PCPEDI I
@@ -5494,7 +5494,7 @@ END IF;
 IF psCODFILIAL IS NOT NULL THEN
   vsSQL := vsSQL||'         AND NVL(PCNFSAID.CODFILIALNF,PCNFSAID.CODFILIAL) = '||CHR(39)||psCODFILIAL||CHR(39)||CHR(13);
 END IF;                        
-  vsSQL := vsSQL||'     AND SITUACAONFE IN (110,205,301,302,303))
+  vsSQL := vsSQL||'         AND FISCAL.NFE_DENEGADA(PCNFSAID.SITUACAONFE, PCNFSAID.DTSAIDA) = ''S'')
                             AND NOT EXISTS (SELECT DISTINCT (PCNFSAID.NUMTRANSVENDA)
                                               FROM PCNFSAID
                                                   ,PCPRODUT
@@ -5596,7 +5596,7 @@ END IF;
                           AND NOT (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(''DEVOLVESIMPLESREMTV13TOTAL'',PCMOV.CODFILIAL,''N'') = ''S'' AND PCMOV.ROTINACAD LIKE ''%1332%'' AND NVL(PCMOVCOMPLE.QTRETORNOTV13,0) = 0)
                           AND NOT EXISTS (SELECT NUMNOTA FROM PCNFSAID
                                            WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
-                                             AND SITUACAONFE IN (110,205,301,302,303))
+                                             AND FISCAL.NFE_DENEGADA(PCNFSAID.SITUACAONFE, PCNFSAID.DTSAIDA) = ''S'')
                           AND (NOT EXISTS (SELECT NUMPED
                                              FROM PCPEDC
                                             WHERE NUMPED = DECODE(PCMOV.CODOPER, ''EP'', -1, ''SP'',-1, PCMOV.NUMPED)
@@ -6265,7 +6265,7 @@ END IF;
                     AND NFPRE.CONDVENDA NOT IN (4, 7, 14)
                     AND NFPRE.NUMOS IS NULL
                     AND NFPRE.DTCANCEL IS NULL
-                    AND NFPRE.SITUACAONFE NOT IN (110, 205, 301, 302, 303)
+                    AND FISCAL.NFE_DENEGADA(NFPRE.SITUACAONFE, NFPRE.DTSAIDA) = ''N''
                     AND NFPRE.DTSAIDA >= '||CHR(39)||TO_CHAR(vDATAPEDRESERVADA)||CHR(39)||'
                     AND NVL(MOVPRE.QT, 0) > 0
                     AND MOVPRE.DTCANCEL IS NULL
@@ -8115,7 +8115,7 @@ END IF;
                          SELECT NUMNOTA
                            FROM PCNFSAID
                           WHERE NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
-                                AND SITUACAONFE IN(110, 205, 301, 302, 303))
+                            AND FISCAL.NFE_DENEGADA(PCNFSAID.SITUACAONFE, PCNFSAID.DTSAIDA) = 'S')
                AND NOT EXISTS(
                       SELECT DISTINCT (PCNFSAID.NUMTRANSVENDA)
                                  FROM PCNFSAID

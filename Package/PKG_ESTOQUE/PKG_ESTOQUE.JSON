@@ -12,6 +12,11 @@
 		  "nome": "FERRAMENTAS_FATURAMENTO",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "6.0.04.000"
+	   },
+	   {
+		  "nome": "FISCAL",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.01.000"
 	   }
 	]
 }
