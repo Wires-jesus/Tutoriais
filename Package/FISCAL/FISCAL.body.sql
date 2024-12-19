@@ -4300,6 +4300,12 @@ create or replace package body FISCAL is
                      vINDDEDUZDESONERACAO);
                 end if;
               END IF;
+               --  HABILITANDO SERVIÇO LOG
+               PKG_DEBUGGING_FWPC.ATIVARDEBUG('Cálculo Desoneração ICMS Saída', '1.0',NUMTRANSACAO);
+               -- GRAVANDO LOG
+               PKG_DEBUGGING_FWPC.LOG('Produto: ' || DADOS.CODPROD || ' Cod.Motivo: ' || VMOTIVODESONERACAO , 'S');
+               -- DESABILITANDO SERVIÇO LOG
+               PKG_DEBUGGING_FWPC.DESATIVARDEBUG;              
             END IF;
 
 

@@ -17,6 +17,10 @@
             "nome": "PCNATUREZAOPERACAO",
             "tipo": "TABELA",
             "versao": "6.0.02.000"
+        },{
+            "nome": "PKG_DEBUGGING_FWPC",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.01.000"
         }
 	]
 }
