@@ -210,9 +210,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
               M.VLDESCONTO,
               M.VLDESCICMISENCAO,
               M.ALIQICMS1,
-              M.PERICM
-            FROM PCMOVCOMPLE T, PCTMPMONMOV M
+              M.PERICM,
+              DX.VPROD,
+              DX.VUNTRIB,
+              DX.VDESC,
+              DX.VBC,
+              DX.VICMS,
+              DX.VBCST,
+              DX.VICMSST,
+              DX.VICMSDIF,
+              DX.VOUTRO,
+              DX.VICMSDESON,
+              DX.VII,
+              DX.VFRETE,
+              DX.VSEG
+            FROM
+              PCMOVCOMPLE T,
+              PCTMPMONMOV M,
+              PCDADOSXML DX
             WHERE T.NUMTRANSITEM = M.NUMTRANSITEM
+              AND DX.NUMTRANSITEM (+) = M.NUMTRANSITEM
             AND ' || GET_FILTRO_DATA_FORMATADA('M.DTMOV', PDATA_INICIAL, PDATA_FINAL);
   END GET_VALORES_MOV_UNIFICADA;
 
