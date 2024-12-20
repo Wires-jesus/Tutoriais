@@ -6222,7 +6222,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     v_tipocalculognre             PCTRIBUT.TIPOCALCULOGNRE%TYPE;
     v_pauta_pcpautaprodutuf       PCPAUTAPRODUTUF.PAUTA%TYPE;
 	v_desvincularFecpSTFuncepICMS PCTRIBUT.DESVINCULARFECPSTFUNCEPICMS%TYPE;																		
-    
+    v_utilizaCustoContBaseST      PCTRIBUT.UTILIZARCUSTOCONTBASEST%TYPE;
+	vnFatorAjusteCustoCont        PCTRIBUT.FATORAJUSTECUSTOCONT%type;
+	v_ncustocont          		  PCEST.CUSTOCONT%TYPE;
+  
    /*************************************
     PROCEDURE: P_INSERIR_MEMORIA_CALCULO
     DESCRICAO: Inserir Memória de Cálculo
@@ -6495,7 +6498,10 @@ IS PRAGMA SERIALLY_REUSABLE;
        p_tipocalculognre             IN VARCHAR2,
        po_nStClienteGnre            OUT NUMBER,
        po_nPmPf                     OUT NUMBER,
-       p_desvincularFecpSTFuncepICMS IN VARCHAR2)
+       p_desvincularFecpSTFuncepICMS IN VARCHAR2,
+	   p_utilizaCustoContBaseST      IN VARCHAR2,
+       p_nFatorAjusteCustoCont       IN NUMBER,
+       p_ncustocont                  IN NUMBER)  
     IS
     
       -- Preço de Venda sem Impostos
@@ -6626,7 +6632,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 p_vldescsuframa                IN NUMBER,
                                 po_vEnquadraIcmsSubstAnterior OUT VARCHAR2,
                                 po_nVlIcmsSubstitutoAnterior  OUT NUMBER,
-                                po_nPmPf                      OUT NUMBER)
+                                po_nPmPf                      OUT NUMBER,
+								p_utilizaCustoContBaseST      in VARCHAR2,
+								p_FatorAjusteCustoCon         in NUMBER,
+								p_ncustocont				  in NUMBER)
       RETURN NUMBER IS
       
         -- Variáveis Locais da Função
@@ -6690,7 +6699,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         vnVlDescReducaoPisCofins_B2    NUMBER;
         vnVlDescSuframaPisSuframa_B2   NUMBER;
         vnVlDescIcmIsencao_B2          NUMBER;
-         
+        vnBaseSTPB             		   NUMBER;
+		vnStFonteCustoCont             NUMBER;									  
       BEGIN
          
        /********************
@@ -8098,6 +8108,39 @@ IS PRAGMA SERIALLY_REUSABLE;
           
         END IF; -- FIM CONDIÇÃO CALCULA VALOR DO ST
               
+
+        IF (NVL(p_utilizaCustoContBaseST,'N') = 'S') AND  (NVL(p_nFatorAjusteCustoCont,0) > 0) THEN
+			  vnbcst := (NVL(vnPVENDA,0) +  NVL(p_vlfreteoutrasdesp,0));
+			  P_INSERIR_MEMORIA_CALCULO('=', 'Substituição da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
+
+			  vnBaseSTPB := ((NVL(p_ncustocont,0)/(1-(p_nFatorAjusteCustoCont/100))) +  NVL(p_vlfreteoutrasdesp,0));
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substituição da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, ROUND(vnBaseSTPB,p_numcasasdecvenda));    
+					
+			  vnstfonte  := vnbcst * (p_aliqicms1fonte/100);
+					
+			  vnStFonteCustoCont := vnBaseSTPB * (p_aliqicms1fonte/100);
+			  IF (vnstfonte < vnStFonteCustoCont) THEN
+				vnstfonte := vnStFonteCustoCont;
+				vnbcst :=   vnBaseSTPB;
+			  END IF;
+			  --Calcular ST - Truncar com 2 casas decimais
+			  IF p_tipocalcst = 'T2' THEN
+				  vnstfonte := trunc((vnstfonte) * 100) / 100;
+			  ELSIF p_tipocalcst = 'A2' THEN
+				  vnstfonte := round((vnstfonte) * 100) / 100;
+			  ELSIF p_tipocalcst = 'PV' THEN
+				  vnSTFONTE := round(vnSTFONTE, p_numcasasdecvenda);
+			  END IF;
+			
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substituição da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substituição conforme Regime Especial PB', NULL, NULL, vnstfonte);
+			  IF nvl(p_aliqicms1fonte, 0) = 0 AND
+			  nvl(p_aliqicms2fonte, 0) = 0 THEN
+				vnbcst := 0;                                                           -- Observação ST Fonte
+															   p_observacaostfonte := p_observacaostfonte || ',Zerada';
+			  END IF;
+			
+		END IF;	   
        /*--------------------------------------------------------------------------------------------
         Atualização de Retornos adicionais
         ---------------------------------*/
@@ -8247,7 +8290,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         p_usapmpfbasest                in pctribut.usapmpfbasest%type,
                                         p_pmpf                         IN NUMBER,
                                         po_pmpf                        OUT NUMBER,
-                                        p_desvincularFecpSTFuncepICMS  IN VARCHAR2																			  
+                                        p_desvincularFecpSTFuncepICMS  IN VARCHAR2,
+                                        p_utilizaCustoContBaseST       in pctribut.utilizarcustocontbasest%type,
+                                        p_nFatorAjusteCustoCont        in pctribut.fatorajustecustocont%type,
+                                        p_ncustocont                   in pcest.custocont%type										
                                         ) 
       RETURN NUMBER IS
       
@@ -8308,7 +8354,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         vnValordosProdutosPeloStMin    NUMBER;
         -- Regra Usar PMPF na Base do ST
         vbUsaPmPfBaseSt                BOOLEAN;
-         
+		vnBaseSTPB					   NUMBER;
+        vnStFonteCustoCont			   NUMBER; 
       BEGIN
          
        /********************
@@ -9205,7 +9252,32 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF; -- Fim Condição: ST MÍNIMO RJ
           
         END IF; -- FIM CONDIÇÃO CALCULA VALOR DO ST
-              
+		IF (NVL(p_utilizaCustoContBaseST,'N') = 'S') AND  (NVL(p_nFatorAjusteCustoCont,0) > 0) THEN
+           vnbcst := (NVL(vnPVENDA,0) +  NVL(p_vlfreteoutrasdesp,0));
+           
+      	   P_INSERIR_MEMORIA_CALCULO('=', 'Substituição da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
+           vnBaseSTPB := ((NVL(p_ncustocont,0)/(1-(p_nFatorAjusteCustoCont/100))) +  NVL(p_vlfreteoutrasdesp,0));
+		   P_INSERIR_MEMORIA_CALCULO('#', 'Substituição da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, round(vnBaseSTPB,p_numcasasdecvenda)); 
+
+           vnstfonte  := vnbcst * (p_aliqicms1fonte/100);
+
+           vnStFonteCustoCont := vnBaseSTPB * (p_aliqicms1fonte/100);
+
+          IF (vnstfonte < vnStFonteCustoCont) THEN
+              vnstfonte := vnStFonteCustoCont;
+              vnbcst :=   vnBaseSTPB;
+          END IF;
+                      --Calcular ST - Truncar com 2 casas decimais
+          IF p_tipocalcst = 'T2' THEN
+            vnstfonte := trunc((vnstfonte) * 100) / 100;
+          ELSIF p_tipocalcst = 'A2' THEN
+            vnstfonte := round((vnstfonte) * 100) / 100;
+          ELSIF p_tipocalcst = 'PV' THEN
+            vnSTFONTE := round(vnSTFONTE, p_numcasasdecvenda);
+          END IF;
+          P_INSERIR_MEMORIA_CALCULO('#', 'Substituição da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
+          P_INSERIR_MEMORIA_CALCULO('#', 'Substituição conforme Regime Especial PB', NULL, NULL, vnstfonte);
+        END IF;              
        /*--------------------------------------------------------------------------------------------
         Atualização de Retornos adicionais
         ---------------------------------*/
@@ -9555,7 +9627,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                        p_usapmpfbasest,
                                                        p_pmpf,
                                                        po_nPmPf,
-                                                       p_desvincularFecpStFuncepICMS
+                                                       p_desvincularFecpStFuncepICMS,
+                                                       p_utilizaCustoContBaseST   ,
+                                                       p_nFatorAjusteCustoCont     ,
+                                                       p_ncustocont
                                                        );                       
               
         ------------------------------------------------
@@ -9664,8 +9739,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                p_vldescsuframa,
                                                vvRetEnquadraIcmsSubstAnterior,
                                                vnRetVlIcmsSubstitutoAnterior,
-                                               po_nPmPf);
-  
+                                               po_nPmPf,
+                                               p_utilizaCustoContBaseST,
+                                               p_nFatorAjusteCustoCont,
+											   p_ncustocont  );
           -- Regras da Tributação pra Gravação na PCPEDI
           po_nAliqIcms1          := n_aliqicms1fonte;
           po_nAliqIcms2          := n_aliqicms2fonte;
@@ -10174,10 +10251,12 @@ IS PRAGMA SERIALLY_REUSABLE;
              , CUSTONFSEMST
              , BASEBCR
              , STBCR
+			 , CUSTOCONT
           INTO v_valorultent
              , v_custonfsemst
              , n_basebcrultent
              , n_stbcrultent
+			 , v_ncustocont
           FROM PCEST
          WHERE (CODFILIAL = vvCodFilialFaturamento) -- HIS.03371.2017
            AND (CODPROD   = pi_nCodProd);
@@ -10263,6 +10342,8 @@ IS PRAGMA SERIALLY_REUSABLE;
            , NVL(PCTRIBUT.DESTACICMSSTANTERIOR,'N')
            , NVL(PCTRIBUT.TIPOCALCULOGNRE,'P')
 		   , NVL(PCTRIBUT.DESVINCULARFECPSTFUNCEPICMS,'N') DESVINCULARFECPSTFUNCEPICMS																		  
+           , NVL(PCTRIBUT.Utilizarcustocontbasest,'N') Utilizarcustocontbasest
+		   , NVL(PCTRIBUT.FATORAJUSTECUSTOCONT,0) FATORAJUSTECUSTOCONT
         INTO v_iva
            , v_ivafonte
            , v_aliqicms1fonte
@@ -10331,6 +10412,8 @@ IS PRAGMA SERIALLY_REUSABLE;
            , v_destacicmsstanterior
            , v_tipocalculognre
 		   , v_desvincularFecpSTFuncepICMS							  
+		   , v_utilizaCustoContBaseST
+		   , vnFatorAjusteCustoCont							   
         FROM PCTRIBUT
        WHERE (CODST = pio_nCodSt);
     EXCEPTION
@@ -10338,7 +10421,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_vMensagem := 'Não foram encontrados dados para a Tributação: ' || NVL(pio_nCodSt,0);
         RAISE e_tratado;
     END;     
-     
+    
+	IF (NVL(v_utilizaCustoContBaseST,'N')= 'S') and (v_aliqicms1fonte = 0) THEN
+      v_aliqicms1fonte := v_ALIQICMS1;
+    END IF;
    /***************************************
     Pesquisa PMC quando a Tributação a usar
     ***************************************/
@@ -10677,7 +10763,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                     v_tipocalculognre            ,
                     po_nSTCLIENTEGNRE            ,
                     po_nPMPF                     ,
-                    v_desvincularFecpSTFuncepICMS										 
+                    v_desvincularFecpSTFuncepICMS,
+				    v_utilizaCustoContBaseST   ,
+				    vnFatorAjusteCustoCont     ,
+				    v_ncustocont		  
                     );
   
     -- Se ocorreram erros na Função
