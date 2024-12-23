@@ -803,25 +803,48 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         0 VLDEVOLUCAO,
                         SAID.CODPRACA
                         FROM PCNFSAID SAID,
-                         PCMOV MOV,
-                         PCPRODUT PROD,
-                        (SELECT *
-                            FROM VIEW_VENDAS_RESUMO_FATURAMENTO
-                           WHERE DTSAIDA >= ''' || PD_DATAINI || '''
-                             AND DTSAIDA <= ''' || PD_DATAFIM || '''';
-
-                         IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
-                             VSSQL := VSSQL || ' AND CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
-                         ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
-                            VSSQL := VSSQL || ' AND CODUSURMOV = ''' || PN_CODUSUR || '''';
-                         ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
-                            VSSQL := VSSQL || ' AND CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
-                         END IF;
-                         VSSQL := VSSQL || ' AND CODFILIAL IN(' || PS_CODFILIAL || ')
-                                             AND NUMTRANSVENDA IN
-                                            ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
-
-    VSSQL := VSSQL || ') VENDAS ';
+                             PCMOV MOV,
+                             PCPRODUT PROD,
+                            (SELECT                         
+                              V.VLBONIFIC,
+                              V.CODSUPERVMOV,
+                              V.CODGERENTELOCAL,
+                              V.CODGERENTEREGIONAL,
+                              V.CODGERENTENACIONAL,
+                              V.VLVENDA,
+                              V.ICMSRETIDO,
+                              V.ICMSRETIDOBONIFIC,
+                              V.VLIPI,
+                              V.VLIPIBONIFIC,
+                              V.VLFECP,
+                              V.VLFECPBONIFIC,
+                              V.VLCUSTOFIN,
+                              V.PRAZOMEDIO,
+                              V.VLCUSTOFINBONIF,
+                              V.QT,
+                              V.VLTABELA,
+                              V.CODFISCAL,
+                              V.CONDVENDA,
+                              V.NUMSEQ,
+                              V.CODPROD,
+                              V.NUMTRANSVENDA                        
+                            FROM VIEW_VENDAS_RESUMO_FATURAMENTO V
+                               WHERE V.DTSAIDA >= ''' || PD_DATAINI || '''
+                                 AND V.DTSAIDA <= ''' || PD_DATAFIM || '''';
+                                 
+                            IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
+                               VSSQL := VSSQL || ' AND V.CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
+                               
+                            ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
+                              VSSQL := VSSQL || ' AND V.CODUSURMOV = ''' || PN_CODUSUR || '''';
+                              
+                            ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
+                              VSSQL := VSSQL || ' AND V.CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
+                            END IF;
+                         
+                            VSSQL := VSSQL || ' AND V.CODFILIAL IN(' || PS_CODFILIAL || ')
+                                             AND V.NUMTRANSVENDA IN ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
+                            VSSQL := VSSQL || ') VENDAS ';
     
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
     
@@ -836,12 +859,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                     AND SAID.CODFILIAL IN(' || PS_CODFILIAL || ')
                     AND NVL(VENDAS.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
                     AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
-                    AND SAID.NUMTRANSVENDA IN( SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
+                    AND SAID.NUMTRANSVENDA IN( SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) )';
 
-    VSSQL := VSSQL || '  UNION ALL ';
+    VSSQL := VSSQL || ')  UNION ALL (';
     
     -- VIEW_DEVOL_RESUMO_FATURAMENTO
-    VSSQL := VSSQL || '(SELECT DEVOL.VLDEVOLUCAO * -1 VLLIQUIDO,
+    VSSQL := VSSQL || 'SELECT DEVOL.VLDEVOLUCAO * -1 VLLIQUIDO,
                         DEVOL.VLDEVOLBONIFIC * -1 VLBONIFIC,
                         PCNFENT.CODFILIAL,
                         (NVL(MOV.QT, 0) * NVL(PROD.VOLUME, 0)) * -1 VOLUMELIQUIDO,
@@ -883,29 +906,51 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                         0 VLTABELA,
                         DEVOL.VLDEVOLUCAO VLDEVOLUCAO,
                         SAID.CODPRACA
-                   FROM PCNFSAID SAID,
+                        FROM PCNFSAID SAID,
                             PCMOV MOV,
                             PCNFENT,
                             PCESTCOM,
                             PCPRODUT PROD,
-                     (SELECT *
-                        FROM VIEW_DEVOL_RESUMO_FATURAMENTO
-                       WHERE DTENT >= ''' || PD_DATAINI || '''
-                         AND DTENT <= ''' || PD_DATAFIM || '''';
+                           (SELECT 
+                              D.VLDEVOLUCAO,
+                              D.VLDEVOLBONIFIC,
+                              D.CODSUPERVMOV,
+                              D.CODGERENTELOCAL,
+                              D.CODGERENTEREGIONAL,
+                              D.CODGERENTENACIONAL,
+                              D.NUMTRANSVENDA,
+                              D.NUMSEQ,
+                              D.DTENT,
+                              D.VLST,
+                              D.ICMSRETIDO_BONIF,
+                              D.VLIPI,
+                              D.VLIPI_BONIF,
+                              D.VLFECP,
+                              D.VLFECPBONIFIC,
+                              D.VLCMVDEVOLBONIF,
+                              D.QT,
+                              D.CONDVENDA,
+                              D.NUMTRANSENT,
+                              D.CODPROD,
+                              D.VLCMVDEVOL                     
+                            FROM VIEW_DEVOL_RESUMO_FATURAMENTO D
+                            WHERE D.DTENT >= ''' || PD_DATAINI || '''
+                            AND D.DTENT <= ''' || PD_DATAFIM || '''';
                          
-    IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
-         VSSQL := VSSQL || ' AND CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
-    ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
-        VSSQL := VSSQL || ' AND CODUSURMOV = ''' || PN_CODUSUR || '''';
-    ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
-        VSSQL := VSSQL || ' AND CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
-    END IF;
+                        IF (NVL(PN_CODGERENTE, 0) <> 0) THEN
+                             VSSQL := VSSQL || ' AND D.CODGERENTELOCAL = ''' || PN_CODGERENTE || '''';
+                             
+                        ELSIF  (NVL(PN_CODUSUR, 0) <> 0) THEN
+                            VSSQL := VSSQL || ' AND D.CODUSURMOV = ''' || PN_CODUSUR || '''';
+                            
+                        ELSIF (NVL(PN_CODSUPERVISOR, 0) <> 0) THEN
+                            VSSQL := VSSQL || ' AND D.CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
+                        END IF;
     
-    VSSQL := VSSQL || ' AND CODFILIAL IN(' || PS_CODFILIAL || ')
-                         AND NUMTRANSVENDA IN
-         ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE)))';
+              VSSQL := VSSQL || ' AND D.CODFILIAL IN(' || PS_CODFILIAL || ')
+                       AND D.NUMTRANSVENDA IN ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE)))';
          
-    VSSQL := VSSQL ||') DEVOL';
+              VSSQL := VSSQL ||') DEVOL';
 
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
 
@@ -955,12 +1000,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
 
     VSSQL := VSSQL || ' AND PCNFENT.DTCANCEL IS NULL ';
 
-    VSSQL := VSSQL || ' UNION ALL ';
+    VSSQL := VSSQL || ') UNION ALL (';
     
     -- VIEW_DEVOL_RESUMO_FATURAVULSA
     VSSQL := VSSQL || ' SELECT NVL(VLTOTAL,0) * -1 VLLIQUIDO,
                             0 VLBONIFIC,
-                            ' || CASE WHEN INSTR(PS_CODFILIAL, ''',''') > 0 THEN '''99''' ELSE PS_CODFILIAL END || ' CODFILIAL,
+                            ''' || CASE WHEN INSTR(PS_CODFILIAL, ''',''') > 0 THEN '99' ELSE PS_CODFILIAL END || ''' CODFILIAL,
                             (NVL(MOV.QT, 0) * NVL(PROD.VOLUME, 0)) * -1 VOLUMELIQUIDO,
                             (NVL(MOV.QT, 0) * NVL(PROD.LITRAGEM, 0)) * -1 LITRAGEMLIQUIDO,
                             NVL(AVULSA.CODUSURMOV, AVULSA.CODUSUR) CODUSUR,
@@ -2471,7 +2516,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                         PN_CODGERENTENACIONAL => VSCODGERENTENACIONAL,
                                         PN_CODGERENTE          => VSCODGERENTE,
                                         PN_CODUSUR             => VSCODUSUR);
-          
+            
             EXECUTE IMMEDIATE VSSQL BULK COLLECT INTO VT_PCGMMETATEMP;
 
             FOR INDX IN 1 .. VT_PCGMMETATEMP.COUNT LOOP
@@ -2787,6 +2832,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     VDDATAFIM            := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
     VNLISTANUMTRANSVENDA := 0;
     VNCONTADOR           := 0;
+    
+    -- PARAMETROS PARA AS VIEWS VENDAS, DEVOLUCAO E AVULSA
+    PKG_PARAMETRO_CONTABIL.SET_DATA1(VDDATAINI);
+    PKG_PARAMETRO_CONTABIL.SET_DATA2(VDDATAFIM);
+    PKG_PARAMETRO_CONTABIL.SET_CODFILIAL(VSCODFILIAL);
 
     FOR DADOSCOMB in (SELECT DISTINCT METACOMB.*
                         FROM (SELECT PCGMMETACOMB.CODCOMBINACAO,
@@ -3126,7 +3176,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     EXECUTE IMMEDIATE 'ALTER SESSION  SET NLS_NUMERIC_CHARACTERS= '',.''';
     VDDATAINI := TO_DATE(PDDATAINI, 'DD/MM/RRRR');
     VDDATAFIM := TO_DATE(PDDATAFIM, 'DD/MM/RRRR');
-
+    
+    -- PARAMETROS PARA AS VIEWS VENDAS, DEVOLUCAO E AVULSA
+    PKG_PARAMETRO_CONTABIL.SET_DATA1(VDDATAINI);
+    PKG_PARAMETRO_CONTABIL.SET_DATA2(VDDATAFIM);
+    --PKG_PARAMETRO_CONTABIL.SET_CODFILIAL(VSCODFILIAL);
+    
     FOR DADOSMETACOMB IN (SELECT *
                             FROM (SELECT PCGMMETACOMB.CODCOMBINACAO,
                                          REPLACE((SELECT DBMS_LOB.SUBSTR(CONCAT_COLUNA(PCGMCOMBITEM.ITEM),
