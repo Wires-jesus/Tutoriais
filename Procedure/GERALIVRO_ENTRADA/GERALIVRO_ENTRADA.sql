@@ -2076,10 +2076,7 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
                               END) +
                              DECODE(A.CHAVENFE, NULL, ROUND(NVL(B.QTCONT,0) * NVL(B.VLACRESCIMOPF, 0),2), 0)
                              ,2))
-            ELSE SUM(ROUND(  ROUND(NVL(B.QTCONT, 0) * NVL(B.PUNITCONT, 0), 2)
-                           - ROUND(NVL(B.QTCONT, 0) * NVL(B.ST, 0), 2)
-                           - ROUND(NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0), 2)
-                           - ROUND(NVL(B.QTCONT, 0) * NVL(MC.VLFECP, 0), 2)
+            ELSE SUM(ROUND(  ROUND(B.QTCONT * (NVL(B.PUNITCONT,0) - NVL(B.VLIPI,0) - NVL(B.ST,0) - NVL(MC.VLFECP,0) ),2)
                            + ROUND((NVL(B.QTCONT, 0) * NVL(B.ST, 0)), 2)
                            + ROUND((NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0)), 2)
                            + ROUND((NVL(B.QTCONT, 0) * NVL(B.VLOUTROS, 0)), 2)
