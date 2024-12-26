@@ -987,8 +987,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.pesavel = B.pesavel,
                      S.situacaopis = B.SITUACAOPIS,
                      S.situacaocofins = B.SITUACAOCOFINS,
-                     S.percbasepis = PERCBASEPIS,
-                     S.percbasecofins = PERCBASECOFINS,
+                     S.percbasepis = B.PERCBASEPIS,
+                     S.percbasecofins = B.PERCBASECOFINS,
                      S.percpis = B.PERCPIS,
                      S.perccofins = B.PERCCOFINS,
                      S.indescala = B.indescala,
@@ -1008,8 +1008,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.pesavel, '-') <> NVL(B.pesavel, '-')                      
            OR NVL(S.situacaopis, 0) <> NVL(B.SITUACAOPIS, 0)
            OR NVL(S.situacaocofins, 0) <> NVL(B.SITUACAOCOFINS, 0)
-           OR NVL(S.percbasepis, 0) <> NVL(PERCBASEPIS, 0)
-           OR NVL(S.percbasecofins, 0) <> NVL(PERCBASECOFINS, 0)
+           OR NVL(S.percbasepis, 0) <> NVL(B.PERCBASEPIS, 0)
+           OR NVL(S.percbasecofins, 0) <> NVL(B.PERCBASECOFINS, 0)
            OR NVL(S.percpis, 0) <> NVL(B.PERCPIS, 0)
            OR NVL(S.perccofins, 0) <> NVL(B.PERCCOFINS, 0)
            OR NVL(S.indescala, '-') <> NVL(B.indescala, '-')
