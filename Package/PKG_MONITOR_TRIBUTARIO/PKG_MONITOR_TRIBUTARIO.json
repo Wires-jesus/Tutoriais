@@ -4,6 +4,21 @@
 	{
 	  "nome": "PKG_MONITOR_TRIBUTARIO_CONSULT",
 	  "tipo": "OBJETO_PLSQL",
-	  "versao": "7.0.07.000"
+	  "versao": "7.0.09.000"
 	}
+	{
+	  "nome": "PCREINFR4099",
+	  "tipo": "TABELA",
+	  "versao": "3.0.01.000"
+	}
+	{
+	  "nome": "PCREINFR2099",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	}
+	{
+	  "nome": "PCARQUIVOSGERADOS",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	}	
 ]}
