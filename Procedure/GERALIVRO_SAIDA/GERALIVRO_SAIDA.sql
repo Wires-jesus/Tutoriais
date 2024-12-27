@@ -579,7 +579,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                                 'SF', 0, 
                                 'CF', 0, 
                                 'MF', 0, 
-                                ROUND((NVL(B.QTCONT, 0) * NVL(B.VLFRETE, 0)), 2))              
+                                ROUND((NVL(B.QTCONT, 0) * NVL(B.VLFRETE, 0)), 2)) +
+                     DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B'), 'B', ROUND((NVL(B.QTCONT,0) * NVL(B.VLDESCONTO,0)), 2), 0)                          
                  )) VL_PRODUTO
       from PCNFSAID A,
            PCMOV  B,
