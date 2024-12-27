@@ -8,15 +8,15 @@
         }, {
             "nome": "PCREINFR4099",
             "tipo": "TABELA",
-            "versao": "7.0.01.000"
+            "versao": "3.0.01.000"
         }, {
             "nome": "PCREINFR2099",
             "tipo": "TABELA",
-            "versao": "7.0.01.000"
+            "versao": "3.0.01.000"
         }, {
             "nome": "PCREINFGRUPOEMPRESASI",
             "tipo": "TABELA",
-            "versao": "7.0.01.000"
+            "versao": "4.0.01.000"
         }, {
             "nome": "PCARQUIVOSGERADOS",
             "tipo": "TABELA",
