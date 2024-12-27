@@ -1461,11 +1461,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            0
                                      END) 
                                - NVL(PCMOV.VLOUTRASDESP,0) 
-                               - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
-                                   ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
-                                 ELSE
-                                   NVL(PCMOV.ST, 0)
-                                 END  
+							   - DECODE(NVL(PCMOV.CODOPER, 'E'),'ED', 0, NVL(PCMOV.ST, 0))
                                - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
