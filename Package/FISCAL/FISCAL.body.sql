@@ -3141,6 +3141,7 @@ create or replace package body FISCAL is
       VALOR_TOTAL_ACRESCIMOPF number(18, 2);
       VALOR_TOTAL_PRODUTOS    number(18, 2);
       VALOR_TOTAL_REPASSE     number(18, 2);
+      VALOR_TOTAL_STOUTRAS    number(18, 2);
 
       VALOR_OUTRAS_RATEADO         PCMOV.VLOUTROS%type;
       VALOR_RATEIO_OUTRAS_UNITARIO PCMOV.VLOUTROS%type;
@@ -3175,10 +3176,23 @@ create or replace package body FISCAL is
                     0
                  END) AS VALOR_REPASSE,
              NVL(PCNFSAID.VLOUTRASDESP, 0) as VALOR_OUTROS,
-             DECODE(max(PCMOV.CODOPER), 'ST', 'S', 'N') MOV_TRANSFERENCIA
-        from PCNFSAID, PCMOV
+             DECODE(max(PCMOV.CODOPER), 'ST', 'S', 'N') MOV_TRANSFERENCIA,
+             sum(CASE
+                   WHEN (NVL((SELECT PCPARAMFILIAL.VALOR
+                               FROM PCPARAMFILIAL
+                              WHERE (PCPARAMFILIAL.CODFILIAL =
+                                    PCNFSAID.CODFILIAL)
+                                AND PCPARAMFILIAL.NOME =
+                                    'RATEARDESPESASVLSTOUTRAS'),
+                             'N') = 'S') THEN
+                    Round(NVL(PCMOVCOMPLE.VLSTOUTRAS, 0) * PCMOV.QTCONT, 2)
+                   ELSE
+                    0
+                 END) AS VALOR_STOUTRAS
+        from PCNFSAID, PCMOV, PCMOVCOMPLE
        where PCNFSAID.NUMTRANSVENDA = P_TRANSACAO
          and PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
+         and PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM
          and PCMOV.QTCONT > 0
          and NVL(PCNFSAID.DOCEMISSAO, 'X') NOT IN ('CE', 'SF', 'MF', 'CF')
        group by NVL(PCNFSAID.VLTOTAL, 0),
@@ -3203,10 +3217,23 @@ create or replace package body FISCAL is
                     0
                  END) AS VALOR_REPASSE,
              NVL(PCNFSAIDPREFAT.VLOUTRASDESP, 0) as VALOR_OUTROS,
-             DECODE(max(PCMOVPREFAT.CODOPER), 'ST', 'S', 'N') MOV_TRANSFERENCIA
-        from PCNFSAIDPREFAT, PCMOVPREFAT
+             DECODE(max(PCMOVPREFAT.CODOPER), 'ST', 'S', 'N') MOV_TRANSFERENCIA,
+             sum(CASE
+                   WHEN (NVL((SELECT PCPARAMFILIAL.VALOR
+                               FROM PCPARAMFILIAL
+                              WHERE (PCPARAMFILIAL.CODFILIAL =
+                                    PCNFSAIDPREFAT.CODFILIAL)
+                                AND PCPARAMFILIAL.NOME =
+                                    'RATEARDESPESASVLSTOUTRAS'),
+                             'N') = 'S') THEN
+                    Round(NVL(PCMOVCOMPLEPREFAT.VLSTOUTRAS, 0) * PCMOVPREFAT.QTCONT, 2)
+                   ELSE
+                    0
+                 END) AS VALOR_STOUTRAS
+        from PCNFSAIDPREFAT, PCMOVPREFAT, PCMOVCOMPLEPREFAT
        where PCNFSAIDPREFAT.NUMTRANSVENDA = P_TRANSACAO
          and PCMOVPREFAT.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA
+         and PCMOVPREFAT.NUMTRANSITEM = PCMOVCOMPLEPREFAT.NUMTRANSITEM
          and PCMOVPREFAT.QTCONT > 0
          and NVL(PCNFSAIDPREFAT.DOCEMISSAO, 'X') NOT IN ('CE', 'SF', 'MF', 'CF')
          and PCNFSAIDPREFAT.DATACONSOLIDACAOPREFAT IS NULL
@@ -3221,15 +3248,17 @@ create or replace package body FISCAL is
              ,VALOR_REPASSE
              ,VALOR_OUTROS
              , MOV_TRANSFERENCIA
+             ,VALOR_STOUTRAS
         into VALOR_TOTAL_FRETE
             ,VALOR_TOTAL_PRODUTOS
             ,VALOR_TOTAL_ACRESCIMOPF
             ,VALOR_TOTAL_REPASSE
             ,VALOR_TOTAL_OUTROS
             ,MOV_TRANSFERENCIA
+            ,VALOR_TOTAL_STOUTRAS
         FROM TABELA;
 
-      VALOR_TOTAL_OUTROS := VALOR_TOTAL_OUTROS - VALOR_TOTAL_ACRESCIMOPF - VALOR_TOTAL_REPASSE;
+      VALOR_TOTAL_OUTROS := VALOR_TOTAL_OUTROS - VALOR_TOTAL_ACRESCIMOPF - VALOR_TOTAL_REPASSE - NVL(VALOR_TOTAL_STOUTRAS,0);
 
      GEROU_OUTROS_FRETE_ULTIMO_REG := 'N' ;
       VALOR_OUTRAS_RATEADO := 0;
@@ -3259,6 +3288,11 @@ create or replace package body FISCAL is
                                    0
                                end as PERC_REDUCAO_OUTRASDESP
                               ,'N' PREFATURAMENTO
+                              ,CASE WHEN (NVL((SELECT PCPARAMFILIAL.VALOR FROM PCPARAMFILIAL WHERE (PCPARAMFILIAL.CODFILIAL = PCNFSAID.CODFILIAL) AND PCPARAMFILIAL.NOME = 'RATEARDESPESASVLSTOUTRAS'),'N') = 'S') THEN
+                                 NVL((PCMOVCOMPLE.VLSTOUTRAS), 0)
+                               ELSE
+                                 0
+                               END AS ITEM_VLSTOUTRAS                              
                           from PCMOV
                               ,PCNFSAID
                               ,PCMOVCOMPLE
@@ -3293,6 +3327,11 @@ create or replace package body FISCAL is
                                    0
                                end as PERC_REDUCAO_OUTRASDESP
                               ,'S' PREFATURAMENTO
+                              ,CASE WHEN (NVL((SELECT PCPARAMFILIAL.VALOR FROM PCPARAMFILIAL WHERE (PCPARAMFILIAL.CODFILIAL = PCNFSAIDPREFAT.CODFILIAL) AND PCPARAMFILIAL.NOME = 'RATEARDESPESASVLSTOUTRAS'),'N') = 'S') THEN
+                                 NVL((PCMOVCOMPLEPREFAT.VLSTOUTRAS), 0)
+                               ELSE
+                                 0
+                               END AS ITEM_VLSTOUTRAS                                                            
                           from PCMOVPREFAT
                               ,PCNFSAIDPREFAT
                               ,PCMOVCOMPLEPREFAT
@@ -3329,7 +3368,7 @@ create or replace package body FISCAL is
                  if REGISTROS.ITEM_NUMTRANSITEM is null then
                     --GRAVAR VLFRETE E VLOUTROS PCMOV.
                     update PCMOVPREFAT
-                       set VLOUTROS     = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE
+                       set VLOUTROS     = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                           ,VLFRETE      = VALOR_RATEIO_FRETE_UNITARIO
                           ,NUMTRANSITEM = DFSEQ_PCMOVCOMPLE.NEXTVAL
                      where rowid = REGISTROS.IDREGISTRO
@@ -3372,7 +3411,7 @@ create or replace package body FISCAL is
                     end if;
 
                     update PCMOVPREFAT
-                       set VLOUTROS = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE
+                       set VLOUTROS = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                           ,VLFRETE  = VALOR_RATEIO_FRETE_UNITARIO
                      where rowid = REGISTROS.IDREGISTRO
                        AND DATACONSOLIDACAOPREFAT IS NULL;
@@ -3381,7 +3420,7 @@ create or replace package body FISCAL is
                  if REGISTROS.ITEM_NUMTRANSITEM is null then
                     --GRAVAR VLFRETE E VLOUTROS PCMOV.
                     update PCMOV
-                       set PCMOV.VLOUTROS     = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE
+                       set PCMOV.VLOUTROS     = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                           ,PCMOV.VLFRETE      = VALOR_RATEIO_FRETE_UNITARIO
                           ,PCMOV.NUMTRANSITEM = DFSEQ_PCMOVCOMPLE.NEXTVAL
                      where rowid = REGISTROS.IDREGISTRO;
@@ -3421,7 +3460,7 @@ create or replace package body FISCAL is
                     end if;
 
                     update PCMOV
-                       set PCMOV.VLOUTROS = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE
+                       set PCMOV.VLOUTROS = VALOR_RATEIO_OUTRAS_UNITARIO + REGISTROS.ITEM_ACRESCIMOPF + REGISTROS.ITEM_VLREPASSE + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                           ,PCMOV.VLFRETE  = VALOR_RATEIO_FRETE_UNITARIO
                      where rowid = REGISTROS.IDREGISTRO;
                  end if;
@@ -3653,6 +3692,7 @@ create or replace package body FISCAL is
       VALOR_TOTAL_ACRESCIMOPF number(18, 2);
       VALOR_TOTAL_PRODUTOS    number(18, 2);
       VALOR_TOTAL_REPASSE     number(18, 2);
+      VALOR_TOTAL_STOUTRAS    number(18, 2);
 
       VALOR_OUTRAS_RATEADO         PCMOV.VLOUTROS%type;
       VALOR_RATEIO_OUTRAS_UNITARIO PCMOV.VLOUTROS%type;
@@ -3675,22 +3715,30 @@ create or replace package body FISCAL is
                     0
                   END ) AS VALOR_REPASSE
             ,NVL(PCNFENT.VLOUTRAS,0) as VALOR_OUTROS
+            ,SUM( CASE WHEN (NVL((SELECT PCPARAMFILIAL.VALOR FROM PCPARAMFILIAL WHERE (PCPARAMFILIAL.CODFILIAL = PCNFENT.CODFILIAL) AND PCPARAMFILIAL.NOME = 'RATEARDESPESASVLSTOUTRAS'),'N') = 'S') THEN
+                    ROUND(NVL(PCMOVCOMPLE.VLSTOUTRAS, 0) * PCMOV.QTCONT)
+                  ELSE
+                    0
+                  END ) AS VALOR_STOUTRAS
         into VALOR_TOTAL_FRETE
             ,VALOR_TOTAL_PRODUTOS
             ,VALOR_TOTAL_ACRESCIMOPF
             ,VALOR_TOTAL_REPASSE
             ,VALOR_TOTAL_OUTROS
+            ,VALOR_TOTAL_STOUTRAS
         from PCNFENT
             ,PCMOV
+            ,PCMOVCOMPLE
        where PCNFENT.NUMTRANSENT = P_TRANSACAO
          and PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
+         and PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM
          and PCMOV.QTCONT > 0
        group by NVL(PCNFENT.VLTOTAL,0)
                ,NVL(PCNFENT.VLFRETE,0)
                ,NVL(PCNFENT.VLOUTRAS,0)
                ,NVL(PCNFENT.PERBASEREDOUTRASDESP,0);
 
-      VALOR_TOTAL_OUTROS := NVL(VALOR_TOTAL_OUTROS,0) - NVL(VALOR_TOTAL_ACRESCIMOPF,0) - NVL(VALOR_TOTAL_REPASSE,0);
+      VALOR_TOTAL_OUTROS := NVL(VALOR_TOTAL_OUTROS,0) - NVL(VALOR_TOTAL_ACRESCIMOPF,0) - NVL(VALOR_TOTAL_REPASSE,0) - NVL(VALOR_TOTAL_STOUTRAS,0);
 
       GEROU_OUTROS_FRETE_ULTIMO_REG := 'N';
       VALOR_OUTRAS_RATEADO := 0;
@@ -3719,6 +3767,11 @@ create or replace package body FISCAL is
                                   else
                                    0
                                end as PERC_REDUCAO_OUTRASDESP
+	                              ,CASE WHEN (NVL((SELECT PCPARAMFILIAL.VALOR FROM PCPARAMFILIAL WHERE (PCPARAMFILIAL.CODFILIAL = PCNFENT.CODFILIAL) AND PCPARAMFILIAL.NOME = 'RATEARDESPESASVLSTOUTRAS'),'N') = 'S') THEN
+                                 NVL((PCMOVCOMPLE.VLSTOUTRAS), 0)
+                               ELSE
+                                 0
+                               END AS ITEM_VLSTOUTRAS
                           from PCMOV
                               ,PCNFENT
                               ,PCMOVCOMPLE
@@ -3750,7 +3803,7 @@ create or replace package body FISCAL is
                then
                   --GRAVAR VLFRETE E VLOUTROS PCMOV.
                   update PCMOV
-                     set PCMOV.VLOUTROS     = NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) + NVL(REGISTROS.ITEM_ACRESCIMOPF,0) + NVL(REGISTROS.ITEM_VLREPASSE,0)
+                     set PCMOV.VLOUTROS     = NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) + NVL(REGISTROS.ITEM_ACRESCIMOPF,0) + NVL(REGISTROS.ITEM_VLREPASSE,0) + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                         ,PCMOV.VLFRETE      = NVL(VALOR_RATEIO_FRETE_UNITARIO,0)
                         ,PCMOV.NUMTRANSITEM = DFSEQ_PCMOVCOMPLE.NEXTVAL
                    where rowid = REGISTROS.IDREGISTRO;
@@ -3792,7 +3845,7 @@ create or replace package body FISCAL is
                   end if;
 
                   update PCMOV
-                     set PCMOV.VLOUTROS = NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) + NVL(REGISTROS.ITEM_ACRESCIMOPF,0) + NVL(REGISTROS.ITEM_VLREPASSE,0)
+                     set PCMOV.VLOUTROS = NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) + NVL(REGISTROS.ITEM_ACRESCIMOPF,0) + NVL(REGISTROS.ITEM_VLREPASSE,0) + NVL(REGISTROS.ITEM_VLSTOUTRAS,0)
                         ,PCMOV.VLFRETE  = NVL(VALOR_RATEIO_FRETE_UNITARIO,0)
                    where rowid = REGISTROS.IDREGISTRO;
 
