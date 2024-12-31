@@ -16592,7 +16592,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
       -- PEDIDO DE VENDA
       WHEN psOPERACAO IN ('IN','IV','IP','BQ','BV','BP','AQ','AV','AP','CQ','CV','CP','CC','FQ') THEN
         IF (vnCONDVENDA NOT IN (4, 7, 14)) AND (vsPOSICAO IN ('L', 'M')) AND
-           (vnQTDEANT <> vnQTDE OR psOPERACAO = 'FQ') THEN
+           ((vnQTDEANT <> vnQTDE) OR (psOPERACAO = 'FQ')) THEN
           -- Bloquear estoque reservado do item
           PRIV_BLOQUEAR_ESTOQUE (vsCODFILIALANT,pnCODPROD,psMSG_RETORNO);
           -- Validar se conseguiu BLOQUEAR o estoque
@@ -16603,7 +16603,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
           -- Baixar o estoque reservado
           vbBAIXOU  := RESERVA_BAIXAR(pnIDENTIFICADOR,pnCODPROD,pnNUMSEQ,psOPERACAO,psMSG_RETORNO);
           -- Valida se é operação de corte total
-          IF (psOPERACAO = 'FQ' AND (vnQTDE = 0 OR vnQTDEANT = vnQTDE) THEN
+          IF (psOPERACAO = 'FQ' AND (vnQTDE = 0 OR vnQTDEANT = vnQTDE)) THEN
             vbINCLUIU := 'S';
           ELSE
             IF vsROTINA LIKE '%998%' THEN
