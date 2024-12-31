@@ -16620,7 +16620,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                            'Operação......: '||psOPERACAO;
           P_INTERNO.MSG_RETORNO := psMSG_RETORNO;
           PRIV_GERARLOG;
-          RETURN 'N';
+          RETURN 'N'; 
         -- Validação
         END IF;
     -- Operação inválida
