@@ -1433,17 +1433,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    -1,
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
-                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT))+
-                                       CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                               CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
-                                                     AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
-                                                  COALESCE(PCMOV.VLDESCSUFRAMA,0)
-                                               ELSE
-                                                  0
-                                               END      
-                                            ELSE
-                                              0
-                                       END
+                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT)) +
+                                        
+                                        (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
+                                           DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                             (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
+                                         ELSE 0 END)
 
                                      ) +
                                           --apenas para devolução, calculo conforme a venda -- aqui
@@ -1466,11 +1461,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            0
                                      END) 
                                - NVL(PCMOV.VLOUTRASDESP,0) 
-                               - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
-                                   ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
-                                 ELSE
-                                   NVL(PCMOV.ST, 0)
-                                 END  
+							   - DECODE(NVL(PCMOV.CODOPER, 'E'),'ED', 0, NVL(PCMOV.ST, 0))
                                - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
@@ -1631,16 +1622,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), 2) / PCMOV.QTCONT)) +
-                                       CASE WHEN ((PCNFENT.FINALIDADENFE = 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
-                                              CASE WHEN (TRIM(PCCLIENT.SULFRAMA) IS NOT NULL 
-                                                     AND TRUNC(PCCLIENT.DTVENCSUFRAMA) >= TRUNC(PCNFENT.DTENT) ) THEN
-                                                  COALESCE(PCMOV.VLDESCSUFRAMA,0)
-                                               ELSE
-                                                  0
-                                               END
-                                            ELSE
-                                              0
-                                       END
+                                        
+                                        (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
+                                           DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                             (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
+                                         ELSE 0 END)
                                   ) +
                                   (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
                                         DECODE(NVL(PCNFENT.DEDUZIRDESONERORGAOPUB, 'N'), 'S', 0, ROUND(NVL(PCMOV.VLDESCICMISENCAO,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT )
@@ -1736,15 +1722,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                     ), 2) / PCMOV.QTCONT))
                             ) * PCMOV.QTCONT) +
-                            /*
-                            (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
+                            
+                            (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
                                    DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
-                                     NVL(PCMOV.VLDESCSUFRAMA,0) * QTCONT, 
-                                     0)
-                                 ELSE
-                                   0
-                            END) +                            
-                            */
+                                     (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
+                                 ELSE 0 END) +
+                            
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8','T')) THEN
                                  CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                        ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  PCNFENT.DTENT))) THEN

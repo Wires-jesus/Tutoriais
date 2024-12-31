@@ -1,9 +1,26 @@
-{"nome":"PKG_MONITOR_TRIBUTARIO",
- "tipoPLSQL":"PACKAGE",
- "dependencias":[
-	{
-	  "nome": "PKG_MONITOR_TRIBUTARIO_CONSULT",
-	  "tipo": "OBJETO_PLSQL",
-	  "versao": "7.0.07.000"
-	}
-]}
+{
+    "nome": "PKG_MONITOR_TRIBUTARIO",
+    "tipoPLSQL": "PACKAGE",
+    "dependencias": [{
+            "nome": "PKG_MONITOR_TRIBUTARIO_CONSULT",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.10.000"
+        }, {
+            "nome": "PCREINFR4099",
+            "tipo": "TABELA",
+            "versao": "3.0.01.000"
+        }, {
+            "nome": "PCREINFR2099",
+            "tipo": "TABELA",
+            "versao": "3.0.01.000"
+        }, {
+            "nome": "PCREINFGRUPOEMPRESASI",
+            "tipo": "TABELA",
+            "versao": "4.0.01.000"
+        }, {
+            "nome": "PCARQUIVOSGERADOS",
+            "tipo": "TABELA",
+            "versao": "6.0.01.000"
+        }
+    ]
+}

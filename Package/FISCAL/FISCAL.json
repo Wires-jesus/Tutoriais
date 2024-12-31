@@ -21,6 +21,10 @@
             "nome": "PKG_DEBUGGING_FWPC",
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.01.000"
+        },{
+            "nome": "PARAMETRO",
+            "tipo": "PARAMETRO",
+            "versao": "7.0.04.000"
         }
 	]
 }
