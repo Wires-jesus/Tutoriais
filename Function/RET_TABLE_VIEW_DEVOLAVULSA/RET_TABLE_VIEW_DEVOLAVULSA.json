@@ -2,10 +2,10 @@
  "nome":"RET_TABLE_VIEW_DEVOLAVULSA",
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
-  {
-   "nome": "TABELA_VIEW_DEVOLAVULSA",
-   "tipo": "OBJETO_PLSQL",
-   "versao": "4.0.01.000"
+   {
+   "nome": "TIPO_VIEW_DEVOLAVULSA",
+   "tipo": "MIGRATION",
+   "versao": "7.0.01.000"
   },
   {
    "nome": "VIEW_DEVOL_RESUMO_FATURAVULSA",
