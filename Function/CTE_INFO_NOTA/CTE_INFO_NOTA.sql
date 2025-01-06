@@ -115,7 +115,7 @@ BEGIN
                              PCNFSAID.VLFRETETRANSPORTARNF VALORFRETE
                         FROM PCNFSAID, PCNFSAID ORIG
                        WHERE PCNFSAID.NUMTRANSVENDA = ORIG.NUMTRANSVENDAORIGEM
-                         AND ORIG.NUMTRANSVENDA = P_TRANSACAO
+                         AND PCNFSAID.NUMTRANSVENDA = P_TRANSACAO
                          AND PCNFSAID.ESPECIE IN ('CE', 'CO')
                          AND NVL(PCNFSAID.TIPOEMISSAOCTE, 0) = 0)            
            LOOP
