@@ -1435,7 +1435,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT)) +
                                         
-                                        (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
+                                        (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
                                            DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
                                              (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
                                          ELSE 0 END)
@@ -1623,7 +1623,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), 2) / PCMOV.QTCONT)) +
                                         
-                                        (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
+                                        (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
                                            DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
                                              (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
                                          ELSE 0 END)
