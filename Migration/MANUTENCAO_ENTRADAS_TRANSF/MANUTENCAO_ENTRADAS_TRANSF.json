@@ -1,0 +1,11 @@
+{
+  "nome": "MANUTENCAO_ENTRADAS_TRANSF",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "FERRAMENTAS_FATURAMENTO",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "7.0.02.000"
+    }
+  ]
+}
