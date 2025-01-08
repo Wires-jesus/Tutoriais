@@ -316,6 +316,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
   FUNCTION SINC_INFOXML_SAIDA_ENTRADA(pNumtransvenda IN pcnfsaid.numtransvenda%type, pMensagemRetorno OUT VARCHAR2) 
     RETURN VARCHAR2 IS
     PINFOXML T_INFOXML;
+    VOBSNFE CLOB;
     vRetono VARCHAR2(1) := 'S';
   BEGIN
      pMensagemRetorno := 'OK';
@@ -326,8 +327,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                               , PCNFSAID.NUMNOTA
                               , PCNFSAID.ESPECIE
                               , PCNFSAID.SERIE
-                              , TO_CHAR(PCNFSAID.OBSNFE) OBSNFE
                               , PCNFSAID.NUMTRANSVENDA
+                              , ('N') PREFAT
                            FROM PCNFENT
                               , PCNFSAID
                           WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
@@ -340,8 +341,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                               , PCNFSAID.NUMNOTA
                               , PCNFSAID.ESPECIE
                               , PCNFSAID.SERIE
-                              , TO_CHAR(PCNFSAID.OBSNFE) OBSNFE
                               , PCNFSAID.NUMTRANSVENDA
+                              , ('S') PREFAT
                            FROM PCNFENT
                               , PCNFSAIDPREFAT PCNFSAID
                           WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
@@ -350,13 +351,25 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                             AND PCNFSAID.NUMTRANSVENDA = pNumtransvenda) NF
                   WHERE ROWNUM = 1)
      LOOP
+        IF (REG.PREFAT = 'S') THEN
+           SELECT P.OBSNFE
+             INTO VOBSNFE
+             FROM PCNFSAIDPREFAT P
+            WHERE P.NUMTRANSVENDA = REG.NUMTRANSVENDA;
+        ELSE
+           SELECT P.OBSNFE
+             INTO VOBSNFE
+             FROM PCNFSAID P
+            WHERE P.NUMTRANSVENDA = REG.NUMTRANSVENDA;        
+        END IF;
+               
         UPDATE PCNFENT
            SET CHAVENFE = REG.CHAVENFE
              , ESPECIE = REG.ESPECIE
              , SERIE = REG.SERIE
              , MODELO = DECODE(NVL(REG.CHAVENFE, '0'), '0', '01', '55')
              , NUMNOTA = REG.NUMNOTA
-             , OBSNFE = REG.OBSNFE
+             , OBSNFE = VOBSNFE
          WHERE NUMTRANSENT = REG.NUMTRANSENT
            AND ESPECIE = 'TP';
 
