@@ -39,7 +39,7 @@ SELECT c5.codfilial codfilial,
 create or replace view vw_int_c5_fat_vendas as
 (
 select  c5.codfilial codfilial,
-		 m.dtahoremissao datatransacao,
+		 m.dtamovimento datatransacao,
 		 c.status,
 		 m.NROCHECKOUT,
 		 c.seqdocto
@@ -88,7 +88,7 @@ SELECT P.NUMCAIXA,
 CREATE OR REPLACE VIEW VW_INT_C5_FAT_CANCELAMENTO AS
 (
 select  c5.codfilial codfilial,
-		 m.dtahoremissao datatransacao,
+		 m.dtamovimento datatransacao,
 		 c.status,
 		 m.NROCHECKOUT,
 		 c.seqdocto

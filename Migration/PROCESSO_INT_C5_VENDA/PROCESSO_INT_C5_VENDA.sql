@@ -615,6 +615,8 @@ SELECT  CASE
   FROM  monitorpdvmiddle.tb_doctopagto p,
         monitorpdvmiddle.tb_docto a
  WHERE  p.seqdocto = a.seqdocto
+   AND  p.NROEMPRESA = a.NROEMPRESA
+   AND  p.NROCHECKOUT = a.nrocheckout
    AND  a.seqdocto = pSeqDocto
    AND  a.nroempresa = pNroEmpresa
    AND  a.nrocheckout = pNroCheckout
