@@ -538,7 +538,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.nrosegmento,
              b.nrocarga);
 
-    
+    UPDATE monitorpdvmiddle.tb_empresasegmento t
+	   SET t.ATIVO = 'N'
+	 WHERE t.NROEMPRESA not in (SELECT C5.CODFILIALINTEGRACAO FROM VW_INT_C5_OBTER_FILIAIS_C5 C5);
+	 
+	 
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
     
     COMMIT;
