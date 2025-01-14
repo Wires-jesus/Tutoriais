@@ -125,7 +125,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "6.0.36.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -145,7 +145,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "6.0.05.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
@@ -160,7 +160,7 @@
 		{
 			"nome": "VW_INT_C5_ENDERECO_ALTERNATIVO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.01.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
