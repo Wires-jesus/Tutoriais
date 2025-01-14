@@ -4778,7 +4778,7 @@ create or replace package body FISCAL is
                    NVL(S.CODFILIALNF, S.CODFILIAL) CODFILIAL,
                    S.NUMTRANSVENDA TRANSACAO,
                    B.CODFISCAL CFOP,
-                   P.CODTRIBPISCOFINS CST,
+                   NVL(P.CODTRIBPISCOFINS, S.CODSITTRIBPISCOFINS) CST,
                    P.NUMTRANSPISCOFINS,
                    B.ROWID ID_BASE,
                    P.ROWID ID_PISCOFINS
@@ -4809,12 +4809,12 @@ create or replace package body FISCAL is
              UNION ALL
             -----------------------------------
             -- LANÇAMENTOS 1
-            SELECT 'E' TIPO,--ENTRADA
+            SELECT 'E' TIPO,
                    E.ESPECIE,
                    NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
                    E.NUMTRANSENT TRANSACAO,
                    B.CODFISCAL CFOP,
-                   NVL(P.CODTRIBPISCOFINS,E.CODTRIBPISCOFINS) CST, ----- PONTO 1
+                   NVL(P.CODTRIBPISCOFINS,E.CODTRIBPISCOFINS) CST,
                    P.NUMTRANSPISCOFINS,
                    B.ROWID ID_BASE,
                    P.ROWID ID_PISCOFINS
@@ -4848,12 +4848,12 @@ create or replace package body FISCAL is
              UNION ALL
             -----------------------------------
             -- LANÇAMENTOS SEM VINCULO COM CODCONT E COM OBRIG DE TER A PCNFENTPISCOFINS
-            SELECT 'E' TIPO,--ENTRADA
+            SELECT 'E' TIPO,
                    E.ESPECIE,
                    NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
                    E.NUMTRANSENT TRANSACAO,
                    B.CODFISCAL CFOP,
-                   NVL(P.CODTRIBPISCOFINS,E.CODTRIBPISCOFINS) CST, ----- PONTO 1
+                   NVL(P.CODTRIBPISCOFINS,E.CODTRIBPISCOFINS) CST,
                    P.NUMTRANSPISCOFINS,
                    B.ROWID ID_BASE,
                    P.ROWID ID_PISCOFINS
