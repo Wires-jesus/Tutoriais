@@ -2,6 +2,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
 (
  SELECT CATEG.NRODIVISAO, 
             C.seqcategoriac5 seqcategoria,
+			C.seqcategoriac5,
             CATEG.seqcategoriawinthor,
             (SELECT C5.seqcategoriac5 
              FROM   pcdeparacategoriac5 C5
