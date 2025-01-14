@@ -417,6 +417,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              );
 
     
+    UPDATE monitorpdvmiddle.tb_empresa t
+	   SET t.ATIVO = 'N'
+	 WHERE t.NROEMPRESA not in (SELECT C5.CODFILIALINTEGRACAO FROM VW_INT_C5_OBTER_FILIAIS_C5);
+
+	
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
     
     COMMIT;
@@ -1647,6 +1652,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.idref);
   
   vRegProcessados := SQL%ROWCOUNT;
+  
+    UPDATE monitorpdvmiddle.tb_famdivisaocategoria f
+     set f.idref = f.idref
+   where (f.SEQCATEGORIA, f.NRODIVISAO, f.SEQFAMILIA)
+      IN (SELECT v.SEQCATEGORIA, v.NRODIVISAO, v.SEQFAMILIA 
+            FROM VW_INT_C5_FAMDIVISAOCATEGORIA v);
   
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
