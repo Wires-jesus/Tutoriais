@@ -5643,6 +5643,220 @@ create or replace package body FISCAL is
           END IF;
   END GET_DESCRICAO_NATUREZA_OP;  
   
+  FUNCTION GET_FORMULA_CREDPRESUMIDO (
+                                      P_CODBENEFICIOFISCAL IN VARCHAR2,
+                                      P_CODST IN NUMBER,
+                                      P_ALIQICMSNF IN NUMBER,
+                                      P_CONTRIBUINTECONSFINAL IN VARCHAR2,
+                                      P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL,
+                                      P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL,
+                                      P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL,
+                                      P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL,
+                                      P_CODFISCAL IN NUMBER DEFAULT NULL,
+                                      P_NCM IN VARCHAR2 DEFAULT NULL,
+                                      P_ALIQCREDPRESUMIDO OUT NUMBER,
+                                      P_FORMULACREDPRES OUT VARCHAR2
+) 
+RETURN VARCHAR2
+IS
+    v_FORMULACREDPRES VARCHAR2(200);
+    v_ALIQCREDPRESUMIDO NUMBER;
+BEGIN
+    -- Query para buscar o FORMULACREDPRES
+    BEGIN
+        SELECT FORMULACREDPRES, ALIQCREDPRESUMIDO
+        INTO v_FORMULACREDPRES, v_ALIQCREDPRESUMIDO
+        FROM PCBENEFICFISCALCREDPRES
+        WHERE CODBENEFICIOFISCAL = P_CODBENEFICIOFISCAL
+          AND CODST = P_CODST
+          AND REGEXP_LIKE(ALIQICMSNF, '(^|,)' || REPLACE(TO_CHAR(P_ALIQICMSNF), ',', '.') || '($|,)')
+          -- Filtros adicionais somente se os parâmetros não forem nulos
+          AND (P_CONTRIBUINTECONSFINAL IS NULL OR NVL(CONTRIBUINTECONSFINAL, 'N') = P_CONTRIBUINTECONSFINAL)
+          AND (P_TIPO_EMPRESA IS NULL OR REGEXP_LIKE(TIPOEMPRESA, '(^|,)' || P_TIPO_EMPRESA || '($|,)'))
+          AND (P_TIPO_PESSOA IS NULL OR REGEXP_LIKE(TIPOPESSOA, '(^|,)' || P_TIPO_PESSOA || '($|,)'))
+          AND (P_ORIGEM_MERC IS NULL OR REGEXP_LIKE(ORIGMERCTRIB, '(^|,)' || P_ORIGEM_MERC || '($|,)'))
+          AND (P_SIT_TRIBUT IS NULL OR REGEXP_LIKE(SITTRIBUT, '(^|,)' || P_SIT_TRIBUT || '($|,)'))
+          AND (P_CODFISCAL IS NULL OR REGEXP_LIKE(CODFISCAL, '(^|,)' || REPLACE(TO_CHAR(P_CODFISCAL), ',', '.') || '($|,)'))
+          AND (P_NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))
+          AND ROWNUM  = 1;
+
+        -- Atribui os valores para os parâmetros de saída
+        P_FORMULACREDPRES := v_FORMULACREDPRES;
+        P_ALIQCREDPRESUMIDO := v_ALIQCREDPRESUMIDO;
+
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            P_FORMULACREDPRES := NULL;
+            P_ALIQCREDPRESUMIDO := NULL;
+            RETURN 'Nenhum dado encontrado';
+
+        WHEN OTHERS THEN
+            -- Em caso de erro inesperado, retorna o erro detalhado
+            P_FORMULACREDPRES := NULL;
+            P_ALIQCREDPRESUMIDO := NULL;
+            RETURN 'Erro inesperado: ' || SQLCODE || ' - ' || SQLERRM;
+    END;
+
+    RETURN 'OK';
+
+END GET_FORMULA_CREDPRESUMIDO;
+
+
+
+
+FUNCTION GET_DADOS_CREDITOPRESUMIDO (
+                                    P_CODBENEFICIOFISCAL IN VARCHAR2, -- Código Beneficio Fiscal
+                                    P_CODST IN NUMBER, -- Figura tributária rotina 514
+                                    P_ALIQICMSNF IN NUMBER, -- Alíquota ICMS NF
+                                    P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
+                                    P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional) 
+                                    P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)  
+                                    P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional) 
+                                    P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional) 
+                                    P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional) 
+                                    P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional) 
+                                    P_PUNITCONT IN NUMBER DEFAULT 0, -- Preço unitário
+                                    P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
+                                    P_VLFRETE IN NUMBER DEFAULT 0, -- Valor do frete
+                                    P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
+                                    P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
+                                    P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
+                                    -- Declarando as variáveis de saída
+                                    P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
+                                    P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
+                                    P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
+                                    P_MSG OUT VARCHAR2
+) 
+RETURN VARCHAR2 IS
+    VSMENSAGEM   VARCHAR2(32767);
+    V_RESULT     VARCHAR2(500);
+    VARIAVEL    FORMULA.RVARIAVEL;
+    VSFORMULA   PCFORMULA.CODFORMULA%TYPE;
+    VFORMULACREDPRES    PCFORMULA.FORMULA%TYPE;
+    VTVARIAVEIS FORMULA.TBVARIAVEIS;
+    RESULTADO   FORMULA.TBVARIAVEIS;
+    VFORMULARESULT    VARCHAR2(500);
+    
+    /* 
+    TIPO DE EMPRESA: 
+    Empresa Pequeno Porte        - EPP
+    Filantrópica	               - FI
+    Micro Empresa	               - ME
+    Microempreendedor Individual - MEI
+    Normal RPA	                 - NRPA
+    Outros	                     - O	
+    Produtor Rural	             - PR
+    Regime Especial	             - R
+    Simples Nacional	           - SN
+    Nenhum	                     - NULL 
+    
+    TIPO DE PESSOA:
+    Física - F
+    Jurídica - J
+    Nenhum   - NULL
+    
+    Origem Mercadoria (valores de 0 a 8 ou NULL)
+    Situação Tributária: (valores 00, 10, 20 ,30 ,40, 41, 50, 51, 60, 70, 90 ou NULL)
+    Contribuinte consumidor final (valores 'S', 'N' ou NULL)      
+    */
+
+BEGIN   
+    -- Validações obrigatórias
+    IF NVL(P_PUNITCONT, 0) + NVL(P_BASEICMS, 0) = 0 THEN
+        P_MSG := 'Erro: Pelo menos um dos valores P_PUNITCONT ou P_BASEICMS deve ser maior que zero.';
+        RETURN P_MSG;
+    END IF;
+    
+    IF P_CODBENEFICIOFISCAL IS NULL THEN
+        P_MSG := 'Erro: Código Benefício Fiscal não informado.';
+        RETURN P_MSG;
+    END IF;
+    
+    IF (P_CODST IS NULL) OR (P_CODST <= 0) THEN
+        P_MSG := 'Erro: Código figura tributária rotina 514 não informada.';
+        RETURN P_MSG;
+    END IF;
+    
+    IF (P_ALIQICMSNF IS NULL) OR (P_ALIQICMSNF < 0) THEN
+        P_MSG := 'Erro: Alíquota de ICMS NF não informada e/ou inválida.';
+        RETURN P_MSG;
+    END IF;
+
+   
+    -- Obter fórmula do crédito presumido
+    V_RESULT := FISCAL.GET_FORMULA_CREDPRESUMIDO(
+        P_CODBENEFICIOFISCAL => P_CODBENEFICIOFISCAL,
+        P_CODST => P_CODST,
+        P_ALIQICMSNF => P_ALIQICMSNF,
+        P_CONTRIBUINTECONSFINAL => P_CONTRIBUINTECONSFINAL,
+        P_TIPO_EMPRESA => P_TIPO_EMPRESA,
+        P_TIPO_PESSOA => P_TIPO_PESSOA,
+        P_ORIGEM_MERC => P_ORIGEM_MERC,
+        P_SIT_TRIBUT => P_SIT_TRIBUT,
+        P_CODFISCAL => P_CODFISCAL,
+        P_NCM => P_NCM,
+        P_ALIQCREDPRESUMIDO => P_ALIQCREDITOPRESUMIDO,
+        P_FORMULACREDPRES  => VFORMULACREDPRES
+    ); 
+
+    IF V_RESULT = 'OK' THEN
+        -- Atribuir valores das variáveis
+        VARIAVEL.NOME  := '[PUNITCONT]';
+        VARIAVEL.VALOR := P_PUNITCONT;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+        
+        VARIAVEL.NOME  := '[VLIPI]';
+        VARIAVEL.VALOR := P_VLIPI;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+        
+        VARIAVEL.NOME  := '[VLFRETE]';
+        VARIAVEL.VALOR := P_VLFRETE;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+        
+        VARIAVEL.NOME  := '[ST]';
+        VARIAVEL.VALOR := P_VLST;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+        
+        VARIAVEL.NOME  := '[VLOUTROS]';
+        VARIAVEL.VALOR := P_VLOUTROS;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+        
+        VARIAVEL.NOME  := '[BASEICMS]';
+        VARIAVEL.VALOR := P_BASEICMS;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+
+        VARIAVEL.NOME  := '[PERC_CRED_PRESUMIDO]';
+        VARIAVEL.VALOR := P_ALIQCREDITOPRESUMIDO;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+
+        -- Calcular crédito presumido ICMS
+        VFORMULACREDPRES := FORMULA.SUBSTITUIFORMULAS(VFORMULACREDPRES, RESULTADO);
+        VFORMULARESULT := FORMULA.BUSCAVALOR(RESULTADO, 'VLR_CRED_PRES_BENEF_FISCAL');
+        P_VLCREDITOPRESUMIDO := FORMULA.CALCULARSUBFORMULA(VFORMULARESULT, VTVARIAVEIS);
+
+        IF P_VLCREDITOPRESUMIDO <= 0 THEN
+            P_BASECREDITOPRESUMIDO := 0;
+            P_ALIQCREDITOPRESUMIDO := 0; 
+        ELSE
+            VFORMULACREDPRES := FORMULA.BUSCAVALOR(RESULTADO, 'BASE_CRED_PRES_BENEF_FISCAL');
+            P_BASECREDITOPRESUMIDO := FORMULA.CALCULARSUBFORMULA(VFORMULACREDPRES, VTVARIAVEIS);
+        END IF;
+
+        -- Mensagem de sucesso
+        P_MSG := 'OK';
+    ELSE
+        P_MSG := V_RESULT;
+    END IF;
+
+    RETURN P_MSG; 
+
+EXCEPTION
+    WHEN OTHERS THEN
+        VSMENSAGEM := SQLCODE || '-' || SQLERRM;
+        P_MSG := 'Erro inesperado: ' || VSMENSAGEM;
+        RETURN NULL;
+END GET_DADOS_CREDITOPRESUMIDO;
+  
 END;
 -- Alteração 18/12/2023 - Processo Recalculo do Pis e Cofins
 -- Alteração 16/01/2024 - Processo de atualização da conta contabil. - Gleibe
