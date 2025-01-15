@@ -15,6 +15,7 @@ Bancos homologados:
 6375 - Sofisa Correp. Santander
 6111 - Banco Paulista Corresp. Bradesco
 655 - Banco Votorantim
+218 - BS2
 
 Parâmetros de Entrada:
 PS_CODFILIAL         - Código da Filial do título selecionado (PCFILIAL)
@@ -231,6 +232,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VN_MULTIPLO      NUMBER(6);
     VN_RESULTMULTIPL NUMBER(6);
     VN_CONTADOR      NUMBER(6);
+    TYPE LINHA4_TYPE IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
+    VN_LINHA4        LINHA4_TYPE;            
   BEGIN
     IF (BANCO.NUMBANCO = 399) THEN
     -- CALCULO DV PARA O BANCO 399 HSBC
@@ -342,7 +345,77 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       ELSE
         --SE O RESTO FOR MENOR OU IGUAL A ZERO, O DIGITO SERÃ 0
         VS_DIGITO := 0;
-      END IF;
+      END IF; 
+    ELSIF (BANCO.NUMBANCO = 218) THEN
+      IF (PS_TIPO = 'L') THEN 
+        -- CALCULAR O DAC DA LINHA DIGITAVEL
+        VN_CONTADOR      := 1; 
+        VN_NUMERO        := 0; 
+        VN_NUMEROAUX     := 0;
+        VN_POSICAO       := LENGTH(TRIM(PS_PALAVRA));      
+        VN_MULTIPLICADOR := 2;
+        VN_RESTO         := 0;
+        VN_SOMA          := 0;
+        
+        -- CALCULAR LINHAS 2, 3 E 4
+        WHILE VN_CONTADOR <= VN_POSICAO
+        LOOP
+          VN_NUMEROAUX := TO_NUMBER(SUBSTR(PS_PALAVRA,VN_CONTADOR,1));
+          -- CALCULANDO A LINHA 3                            
+          VN_NUMEROAUX := VN_NUMEROAUX * VN_MULTIPLICADOR; 
+          -- CALCULANDO A LINHA 4        
+          IF LENGTH(VN_NUMEROAUX) > 1 THEN
+            VN_NUMERO    := VN_NUMEROAUX;
+            VN_NUMEROAUX := TO_NUMBER(SUBSTR(TO_CHAR(VN_NUMERO), 1, 1));
+            VN_NUMEROAUX := VN_NUMEROAUX + TO_NUMBER(SUBSTR(TO_CHAR(VN_NUMERO), 2, 1));   
+          END IF;
+          VN_LINHA4(VN_CONTADOR) := VN_NUMEROAUX;
+          -- ALIMENTAR CONTADORES
+          VN_CONTADOR := VN_CONTADOR + 1;
+          -- VN_MULTIPLICADOR REPRESENTA A LINHA 2 QUE SERÁ SEMPRE 2 E 1
+          VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;
+          IF VN_MULTIPLICADOR > 2 THEN
+            VN_MULTIPLICADOR := 1;
+          END IF;  
+        END LOOP;
+        
+        -- SOMA DA LINHA 4 DO RESPECTIVO LOTE
+        FOR I IN 1..VN_CONTADOR LOOP         
+          VN_SOMA := VN_SOMA + VN_LINHA4(I);               
+        END LOOP;            
+        
+        -- CALCULAR DIGITO 
+        VN_RESTO := MOD(VN_SOMA, 10);      
+        IF VN_RESTO <> 0 THEN              
+          VN_RESTO := 10 - VN_RESTO;  
+        END IF; 
+
+        VS_DIGITO := VN_RESTO; 
+      ELSE 
+        -- CALCULAR O DV DO NOSSO NUMERO
+        VN_MULTIPLICADOR := 3;  
+        VN_SOMA          := 0;
+        VN_RESTO         := 0;
+        VN_POSICAO       := LENGTH(TRIM(PS_PALAVRA));
+
+        FOR I IN 1 .. VN_POSICAO LOOP
+          VN_NUMERO    := TO_NUMBER(SUBSTR(PS_PALAVRA, I, 1));
+          VN_NUMEROAUX := VN_NUMERO * VN_MULTIPLICADOR;
+          VN_SOMA      := VN_SOMA + VN_NUMEROAUX;
+
+          VN_MULTIPLICADOR := VN_MULTIPLICADOR - 1;
+          IF VN_MULTIPLICADOR < 2 THEN
+            VN_MULTIPLICADOR := 9;
+          END IF; 
+        END LOOP;
+
+        VN_RESTO := 11 - MOD(VN_SOMA, 11);
+        IF VN_RESTO >= 10 THEN
+          VN_RESTO := 0;     
+        END IF;
+
+        VS_DIGITO := VN_RESTO;  
+      END IF;                   
     ELSE
     -- CALCULO DV PARA OS OUTROS BANCOS
       VN_MULTIPLICADOR := 2;
@@ -597,6 +670,56 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     IF V_RESTO > 9 THEN
       V_RESTO := 0;
     END IF;
+
+    RETURN V_RESTO;
+  END;
+
+  --CALCULA MÃ¿DULO 11 BANCO BS2 ************************************************
+  FUNCTION F_CALCULA_MODULO_11_218(PS_PALAVRA IN VARCHAR2) RETURN VARCHAR IS
+    V_CONTADOR NUMBER(10);
+    V_CONTADOR_LINHA_FIXA NUMBER(10);
+    V_AUX_MUL NUMBER(10);
+    V_SOMA NUMBER(10);
+    V_RESTO NUMBER(10);
+    V_AUX_SOMA NUMBER(10);
+    V_AUX NUMBER(10);    
+    TYPE LINHA2_ARRAY IS VARRAY(8) OF NUMBER;  
+    V_LINHA2_FIXA LINHA2_ARRAY := LINHA2_ARRAY(4, 3, 2, 9, 8, 7, 6, 5);
+  BEGIN
+    V_CONTADOR := 1;
+    V_CONTADOR_LINHA_FIXA := 1;
+    V_AUX_MUL  := 0;
+    V_AUX      := 0;
+    V_SOMA     := 0;
+    V_AUX_SOMA := 0;   
+    V_RESTO    := 0;    
+
+    WHILE V_CONTADOR <= LENGTH(PS_PALAVRA)
+    LOOP
+      V_AUX := TO_NUMBER(SUBSTR(PS_PALAVRA,V_CONTADOR,1));
+      
+      IF V_CONTADOR = 5 THEN -- NAO CONSIDERAR O DAC
+        V_AUX_MUL := 0;
+        V_CONTADOR_LINHA_FIXA := V_CONTADOR_LINHA_FIXA - 1;
+      ELSE        
+        V_AUX_MUL := V_AUX * V_LINHA2_FIXA(V_CONTADOR_LINHA_FIXA);       
+      END IF;
+      V_SOMA := V_SOMA + V_AUX_MUL;--SOMA DA LINHA 3
+
+      V_CONTADOR := V_CONTADOR + 1;
+
+      V_CONTADOR_LINHA_FIXA := V_CONTADOR_LINHA_FIXA + 1;
+      IF V_CONTADOR_LINHA_FIXA > 8 THEN
+        V_CONTADOR_LINHA_FIXA := 1;
+      END IF;  
+    END LOOP;
+
+    V_RESTO := MOD(V_SOMA, 11);    
+    IF V_RESTO IN (0,1,10) THEN
+      V_RESTO := 1;
+    ELSE
+      V_RESTO := 11 - V_RESTO;  
+    END IF;    
 
     RETURN V_RESTO;
   END;
@@ -1678,6 +1801,51 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VS_CODBARRA   := SUBSTR(VS_CODBARRA, 1, 4) || VS_DVCODBARRA || SUBSTR(VS_CODBARRA, 5, 39);
     --**********************************************************************************************
   END;
+
+  --BANCO BS2 *************************************************************************************
+  PROCEDURE F_GERADADOS_BANCO_218(PN_CODBANCO           IN NUMBER,
+                                  PN_VALOR              IN NUMBER,
+                                  PN_VALORLIQUIDO       IN NUMBER,
+                                  PD_DTVENC             IN DATE,
+                                  PN_PROXIMONOSSONUMERO IN NUMBER,
+                                  PS_UTILIZAVALORBRUTO  IN VARCHAR2,
+                                  PS_PRIMEIRAIMPRESSAO  IN VARCHAR2) IS
+    VS_NOSSONUMERO_TEMP VARCHAR2(30);
+    VS_CODBARRA_TEMP    VARCHAR2(44);
+    VS_DVCODBARRA       VARCHAR2(1);
+    VS_CONTA_SEM_DV     VARCHAR2(10);
+    VS_DV_NOSSONUMERO   VARCHAR2(1);
+    VS_NOVODIGMOD10     VARCHAR2(1);
+  BEGIN
+    -- GERAÃ¿Ã¿O DO NOSSO NÃ¿MERO PARA O BANCO BS2 *************************************************
+    IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
+      VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 9, '0');
+      VS_CONTA_SEM_DV     := SUBSTR(BANCO.CONTA, 1, LENGTH(BANCO.CONTA) - 1);                        
+      VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(BANCO.AGENCIA || VS_CONTA_SEM_DV || BANCO.NUMCARTEIRA3 || VS_NOSSONUMERO, 2, 'N');
+      VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;
+      VS_NOSSONUMERO_TEMP := NUMEROS(VS_NOSSONUMERO);
+    ELSE
+      VS_NOSSONUMERO_TEMP := NUMEROS(TITULOS.NOSSONUMERO);
+    END IF;
+    --**********************************************************************************************
+    -- GERAÃ¿Ã¿O DO CODIGO DE BARRAS PARA O BANCO BS2 ***********************************************
+    /*01 A 19*/ -- INICIO PADRAO COD BARRAS
+    VS_CODBARRA := F_MONTA_INICIO_CODBARRAS(PN_VALOR,
+                                            PN_VALORLIQUIDO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PD_DTVENC);
+    /*20 A 22*/                                        
+    VS_CODBARRA := VS_CODBARRA || '001';--AGENCIA FIXA NO LAYOUT
+    /*23 A 32*/
+    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CONTA, 10, '0');    
+    /*33 A 43*/
+    VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 11, '0'); 
+    /*44 A 44*/
+    VS_CODBARRA := VS_CODBARRA || '8'; 
+    VS_DVCODBARRA := F_CALCULA_MODULO_11_218(VS_CODBARRA);
+    VS_CODBARRA   := SUBSTR(VS_CODBARRA, 1, 4) || VS_DVCODBARRA || SUBSTR(VS_CODBARRA, 5, 39);
+    --**********************************************************************************************
+  END;
   
   --BUSCA TÃTULO(S) PARA FAZER GERAÃ¿Ã¿O *************************************************************
   PROCEDURE P_GERADADOSBANCARIOS(PS_CODFILIAL         IN VARCHAR2,
@@ -1929,7 +2097,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             TITULOS.DTVENC,
                                             VN_PROXIMONOSSONUMERO,
                                             PS_UTILIZAVALORBRUTO,
-                                            PS_PRIMEIRAIMPRESSAO);                                     
+                                            PS_PRIMEIRAIMPRESSAO); 
+        WHEN 218 THEN F_GERADADOS_BANCO_218(PN_CODBANCO,
+                                            TITULOS.VALOR_TEMP,
+                                            TITULOS.VALOR_TEMP - TITULOS.VALORDESC,
+                                            TITULOS.DTVENC,
+                                            VN_PROXIMONOSSONUMERO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PS_PRIMEIRAIMPRESSAO);
         ELSE
             RAISE_APPLICATION_ERROR(-20101, 'Banco nÃ£o homolagado!');
       END CASE;
