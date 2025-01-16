@@ -16,6 +16,7 @@ Bancos homologados:
 6111 - Banco Paulista Corresp. Bradesco
 655 - Banco Votorantim
 218 - BS2
+594 - Banco ASA
 
 Parâmetros de Entrada:
 PS_CODFILIAL         - Código da Filial do título selecionado (PCFILIAL)
@@ -111,7 +112,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     --SE FOR BANCO SAFRA OU UNIBANCO
     IF (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 409) OR (BANCO.NUMBANCO = 4221) OR
        (BANCO.NUMBANCO = 479) OR (BANCO.NUMBANCO = 3412) OR (BANCO.NUMBANCO = 399) OR
-       (BANCO.NUMBANCO = 6375) THEN
+       (BANCO.NUMBANCO = 6375) OR (BANCO.NUMBANCO = 594) THEN
 
       VS_PODEATUALIZARNOSSONUM := 'S';
 
@@ -605,7 +606,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
            ELSE
              VS_DIGITO := 0;
          END CASE;
-         WHEN (BANCO.NUMBANCO = 422) THEN
+         WHEN (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 594) THEN
            VN_DIVISAO := VN_SOMA / 10;
            VN_DIVISAO := TRUNC(VN_DIVISAO);
            VN_RESTO   := VN_SOMA - (VN_DIVISAO * 10);
@@ -976,6 +977,12 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             ELSE
               VS_DIGITO := 11 - VN_RESTO;
             END IF;
+          WHEN (BANCO.NUMBANCO = 594) THEN
+            IF (VN_RESTO = 0) OR (VN_RESTO = 1) OR (VN_RESTO > 9) THEN
+              VS_DIGITO := '1';
+            ELSE
+              VS_DIGITO := 11 - VN_RESTO;
+            END IF;
         END CASE;
       END IF;
     END IF;
@@ -1043,6 +1050,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
        VS_CODBARRA_TEMP := '033';
     ELSIF BANCO.NUMBANCO = '6111' THEN
        VS_CODBARRA_TEMP := '237';
+    ELSIF BANCO.NUMBANCO = '594' THEN
+       VS_CODBARRA_TEMP := '422';
     ELSE
        /*01 a 03*/ -- NUMERO DO BANCO
        VS_CODBARRA_TEMP := VS_CODBARRA_TEMP || LPAD(BANCO.NUMBANCO, 3, '0');
@@ -2105,6 +2114,15 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             VN_PROXIMONOSSONUMERO,
                                             PS_UTILIZAVALORBRUTO,
                                             PS_PRIMEIRAIMPRESSAO);
+        WHEN 594 THEN F_GERADADOS_BANCO_422(PN_CODBANCO,
+                                            TITULOS.VALOR_TEMP,
+                                            TITULOS.VALOR_TEMP - TITULOS.VALORDESC,
+                                            TITULOS.DTVENC,
+                                            VN_PROXIMONOSSONUMERO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PS_PRIMEIRAIMPRESSAO,
+                                            PN_NUMTRANSVENDA,
+                                            PS_PREST);                                            
         ELSE
             RAISE_APPLICATION_ERROR(-20101, 'Banco nÃ£o homolagado!');
       END CASE;
