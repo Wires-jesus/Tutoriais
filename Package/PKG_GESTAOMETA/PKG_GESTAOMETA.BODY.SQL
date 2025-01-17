@@ -1005,7 +1005,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     -- VIEW_DEVOL_RESUMO_FATURAVULSA
     VSSQL := VSSQL || ' SELECT NVL(VLTOTAL,0) * -1 VLLIQUIDO,
                             0 VLBONIFIC,
-                            ''' || CASE WHEN INSTR(PS_CODFILIAL, ''',''') > 0 THEN '99' ELSE PS_CODFILIAL END || ''' CODFILIAL,
+                            ' || CASE WHEN INSTR(PS_CODFILIAL, ''',''') > 0 THEN '''99''' ELSE PS_CODFILIAL END || ' CODFILIAL,
                             (NVL(MOV.QT, 0) * NVL(PROD.VOLUME, 0)) * -1 VOLUMELIQUIDO,
                             (NVL(MOV.QT, 0) * NVL(PROD.LITRAGEM, 0)) * -1 LITRAGEMLIQUIDO,
                             NVL(AVULSA.CODUSURMOV, AVULSA.CODUSUR) CODUSUR,
