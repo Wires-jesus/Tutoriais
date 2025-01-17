@@ -15,11 +15,11 @@ BEGIN
       'AcdS+R93n5Vf8Pkt+DBMY5y25ttZjNxT7MJtxUXbd8q98jyk98+Z+GJ59QQNFTXhDM9WNFzEhfNk2CsJCoUTykvRKWGhF1rScW5ey7UY+FY2OFZgKTHaFK60Jh7bj5LR',
       'S',
       null,
-      1);
+      24);
   ELSE
     UPDATE pcparamnps 
     SET 
-      tempo_inatividade = 1;
+      tempo_inatividade = 24;
   END IF;
 
   COMMIT;
