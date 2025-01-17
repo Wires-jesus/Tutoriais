@@ -381,7 +381,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
         END LOOP;
         
         -- SOMA DA LINHA 4 DO RESPECTIVO LOTE
-        FOR I IN 1..VN_CONTADOR LOOP         
+        FOR I IN 1..VN_CONTADOR-1 LOOP         
           VN_SOMA := VN_SOMA + VN_LINHA4(I);               
         END LOOP;            
         
