@@ -7095,7 +7095,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          nPERDESCSUFRAMA           PCTRIBUT.PERDESCSUFRAMA%TYPE,    -- DDMEDICA-1172
          nPERDESCCUSTOTRANSF       PCTRIBUT.PERDESCCUSTOTRANSF%TYPE,
          nPERDESCCUSTOTRANSFTV9    PCTRIBUT.PERDESCCUSTOTRANSFTV9%TYPE,
-         vDESTACDESCICMISENCAOCOMERCIAL PCTRIBUT.DESTACDESCICMISENCAOCOMERCIAL%TYPE -- DDMEDICA-3001
+         vDESTACDESCICMISENCAOCOMERCIAL PCTRIBUT.DESTACDESCICMISENCAOCOMERCIAL%TYPE, -- DDMEDICA-3001
+         vTIPOAPLICREPASSETRIBUT    PCTRIBUT.TIPOAPLICREPASSETRIBUT%TYPE
          ); -- HIS.02786.2016
     vrTribut                       TRecTribut;
 
@@ -12297,6 +12298,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , PCTRIBUT.PERDESCCUSTOTRANSF
                    , PCTRIBUT.PERDESCCUSTOTRANSFTV9
                    , PCTRIBUT.DESTACDESCICMISENCAOCOMERCIAL
+                   , PCTRIBUT.TIPOAPLICREPASSETRIBUT
                 INTO vrTribut.nPAUTA
                    , vrTribut.nIVA
                    , vrTribut.nALIQICMS1
@@ -12323,6 +12325,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , vrTribut.nPERDESCCUSTOTRANSF
                    , vrTribut.nPERDESCCUSTOTRANSFTV9
                    , vrTribut.vDESTACDESCICMISENCAOCOMERCIAL
+                   , vrTribut.vTIPOAPLICREPASSETRIBUT
                 FROM PCTRIBUT
                WHERE (PCTRIBUT.CODST = vrItemPedido.nCODST);
             EXCEPTION
@@ -13232,13 +13235,16 @@ IS PRAGMA SERIALLY_REUSABLE;
 
                 if vrProduto_O.vTIPOMERC in ('M','MA','L') and vrClienteDestino.vREPASSE = 'S' then
 
-                  -- Pesquisa o Tipo de Aplicação do Repasse dos Parâmetros por Filial
-                  POBTEM_PARAMFILIAL_STRING(pi_vCodFilial,
+                  IF (NVL(vrTribut.vTIPOAPLICREPASSETRIBUT,'XX') <> 'XX') THEN
+                    vrParamFilial.vTIPOAPLICREPASSEFILIAL := vrTribut.vTIPOAPLICREPASSETRIBUT; 
+                  ELSE                    
+                    -- Pesquisa o Tipo de Aplicação do Repasse dos Parâmetros por Filial
+                    POBTEM_PARAMFILIAL_STRING(pi_vCodFilial,
                                             'TIPOAPLICREPASSEFILIAL',
                                             vrParamFilial.vTIPOAPLICREPASSEFILIAL,
                                             vvErroPesqParam,
-                                            vvMsgErroPesqParam);
-
+                                            vvMsgErroPesqParam);                                             
+                  END IF;
                   -- Tipo de Aplicação do Repasse = Acréscimo sobre Preço Fábrica
                   if     (nvl(vrParamFilial.vTIPOAPLICREPASSEFILIAL,'AB') = 'AB') then
                      vrItemPedido.nVLREPASSE  := vrItemPedido.nPORIGINAL * (vrTribut.nPERDESCREPASSE/100);
@@ -13267,6 +13273,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   elsif (nvl(vrParamFilial.vTIPOAPLICREPASSEFILIAL,'AB') = 'AL') then
                      vrItemPedido.nVLREPASSE := vrItemPedido.nPVENDA * (vrTribut.nPERDESCREPASSE/100);
                      vrItemPedido.nVLOUTROS  := vrItemPedido.nVLREPASSE;
+                  elsif (NVL(vrParamFilial.vTIPOAPLICREPASSEFILIAL,'AB') = 'AP') THEN                   
+                     vrItemPedido.nVLREPASSE := vnPrecoMaxConsum * (NVL(vrTribut.nPERDESCREPASSE,0)/100);
+                     vrItemPedido.nVLOUTROS  := vrItemPedido.nVLREPASSE;                      
                   end if;
 
                 end if;
