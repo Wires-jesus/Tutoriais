@@ -1,35 +1,35 @@
 CREATE OR REPLACE PACKAGE BODY PKG_MEDICAMENTOS
 /***********************************************************************************************
-  Package Body de Processos EspecÌficos do MÛdulo de Medicamentos
+  Package Body de Processos Espec√≠ficos do M√≥dulo de Medicamentos
   ----------------     Historico     ------------------------------------------------------------
-  Data        Respons·vel        Tarefa          Comentario
+  Data        Respons√°vel        Tarefa          Comentario
   27/02/2018  Anderson Silva     DDMEDICA-570    Primeira Versao
-  04/11/2019  Anderson Silva     DDMEDICA-1241   RCA por Linha e TributaÁ„o de Pedido Avaria
-  20/11/2019  Anderson Silva     DDMEDICA-1388   OpÁ„o para usar aba perda da tributaÁ„o no pedido de avaria
+  04/11/2019  Anderson Silva     DDMEDICA-1241   RCA por Linha e Tributa√ß√£o de Pedido Avaria
+  20/11/2019  Anderson Silva     DDMEDICA-1388   Op√ß√£o para usar aba perda da tributa√ß√£o no pedido de avaria
   28/12/2019  Anderson Silva     DDMEDICA-1691   PMPF na Base do ST
-  05/06/2020  Anderson Silva     DDMEDICA-3065   DesoneraÁ„o do Rec·lculo do ST
-  05/08/2020  Anderson Silva     DDMEDICA-3545    N„o processar Comiss„o RCA Nula
+  05/06/2020  Anderson Silva     DDMEDICA-3065   Desonera√ß√£o do Rec√°lculo do ST
+  05/08/2020  Anderson Silva     DDMEDICA-3545    N√£o processar Comiss√£o RCA Nula
   17/08/2020  Anderson Silva     DDMEDICA-3639   Simples Nacional ST Fonte na Integradora 
-  22/12/2020  Anderson Silva     DDMEDICA-5115   TransferÍncia de Avaria n„o gravar como Simples Remessa
+  22/12/2020  Anderson Silva     DDMEDICA-5115   Transfer√™ncia de Avaria n√£o gravar como Simples Remessa
   25/05/2020  Anderson Silva     DDMEDICA-6666   Recalculo ST Itens Bonificados inseridos pelo Brinde Express na INTEGRADORA_MED
-  10/06/2021  Anderson Silva     DDMEDICA-6772   Movida para esta Package o Procedimento para Definir o CÛdigo Fiscal
-  29/06/2021  Anderson Silva     DDMEDICA-6900   Procedimento para obter o Custo da PromoÁ„o de Markup
-  15/09/2021  Anderson Silva     DDMEDICA-7594   CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
+  10/06/2021  Anderson Silva     DDMEDICA-6772   Movida para esta Package o Procedimento para Definir o C√≥digo Fiscal
+  29/06/2021  Anderson Silva     DDMEDICA-6900   Procedimento para obter o Custo da Promo√ß√£o de Markup
+  15/09/2021  Anderson Silva     DDMEDICA-7594   Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
   30/09/2021  Anderson Silva     DDMEDICA-7697   ST Recolhido anteriormente
-  21/10/2021  Anderson Silva     DDVENDAS-31316  ST Antecipado n„o somar ao CMV
+  21/10/2021  Anderson Silva     DDVENDAS-31316  ST Antecipado n√£o somar ao CMV
   27/10/2021  Anderson Silva     DDVENDAS-31441  Preencher campos de BCR com o ST Antecipado
   24/11/2021  Anderson Silva     DDVENDAS-32054  VLICMSSUBSTITUTOANTERIOR - aplicar a Aliq 2 do ST
-  21/02/2022  Anderson Silva     DDVENDAS-33718  Utilizar EndereÁo Entrega
+  21/02/2022  Anderson Silva     DDVENDAS-33718  Utilizar Endere√ßo Entrega
   22/03/2022  Anderson Silva     DDVENDAS-34479  PMPF podendo ser recebido por embalagem
-  19/04/2022  Anderson Silva     DDVENDAS-35050  Ajuste para melhorar as dependÍncias centralizando alguns procedimentos nesta Package
-  24/04/2022  Anderson Silva     DDVENDAS-35125  Melhoria ReferÍncias Externas
+  19/04/2022  Anderson Silva     DDVENDAS-35050  Ajuste para melhorar as depend√™ncias centralizando alguns procedimentos nesta Package
+  24/04/2022  Anderson Silva     DDVENDAS-35125  Melhoria Refer√™ncias Externas
   04/05/2022  Anderson Silva     DDVENDAS-35253  Limitar ST FECP a Clientes com ST Fonte
-  02/06/2022  Anderson Silva     DDVENDAS-35830  ExceÁıes ABCFARMA/CMED
-  15/08/2022  Anderson Silva     DDVENDAS-37241  C·lculo da DesoneraÁ„o somente no Faturamento
-  28/09/2022  Anderson Silva     DDVENDAS-38075 - PMC n„o entra nas ExceÁıes CMED
+  02/06/2022  Anderson Silva     DDVENDAS-35830  Exce√ß√µes ABCFARMA/CMED
+  15/08/2022  Anderson Silva     DDVENDAS-37241  C√°lculo da Desonera√ß√£o somente no Faturamento
+  28/09/2022  Anderson Silva     DDVENDAS-38075 - PMC n√£o entra nas Exce√ß√µes CMED
   30/12/2022  Anderson Silva     DDVENDAS-39621 - Ajuste chamada ST 4.0
-  28/02/2023  Anderson Silva     DDVENDAS-40446 - Performance c·lculo FunÁ„o PIS_COFINS_ICMS
-  27/04/2023  Anderson Silva     DDVENDAS-41753 - Inclus„o de prioriadade de exceÁ„o do ConvÍnio IsenÁ„o ICMS
+  28/02/2023  Anderson Silva     DDVENDAS-40446 - Performance c√°lculo Fun√ß√£o PIS_COFINS_ICMS
+  27/04/2023  Anderson Silva     DDVENDAS-41753 - Inclus√£o de prioriadade de exce√ß√£o do Conv√™nio Isen√ß√£o ICMS
   14/02/2024  Anderson Silva     DDVENDAS-46088 - Filial Retira por Cliente Filial e UF Cliente
  ************************************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
@@ -37,7 +37,7 @@ IS PRAGMA SERIALLY_REUSABLE;
  /*****************************************
   DDMEDICA-4225 - Controle de Versionamento
   -----------------------------------------
-  Issue                 Vers„o
+  Issue                 Vers√£o
   DDMEDICA-6666         v@30.3.1
   DDMEDICA-6772         v@30.4.1
   DDMEDICA-7584         v@30.4.2
@@ -57,7 +57,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvVersao VARCHAR2(10);
   BEGIN
   
-    -->> *** A CADA ALTERA«√O INCREMENTAR AQUI A VERS√O ***
+    -->> *** A CADA ALTERA√á√ÉO INCREMENTAR AQUI A VERS√ÉO ***
     vvVersao := 'v@35.0.1';
   
     RETURN 'MED_' || vvVersao;
@@ -65,7 +65,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   END F_OBTER_VERSIONAMENTO;
 
   ------------------------------------------------------------------------------
-  -- FunÁ„o para Verificar se Usa Regra EspecÌfica de Medicamentos --
+  -- Fun√ß√£o para Verificar se Usa Regra Espec√≠fica de Medicamentos --
   -------------------------------------------------------------------
   FUNCTION FUSA_REGRA_MEDICAMENTOS(pi_vCodFilial IN VARCHAR2,
                                    pi_vNome      IN VARCHAR2)
@@ -182,7 +182,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     EXCEPTION
       WHEN INVALID_NUMBER THEN
-        RAISE_APPLICATION_ERROR(-20000, 'N⁄MERO INV¡LIDO ATRIBUÕDO AO PAR¬METRO: "' || PNOMEPARAM || '". VERIFIQUE O SEPARADOR DECIMAL');
+        RAISE_APPLICATION_ERROR(-20000, 'N√öMERO INV√ÅLIDO ATRIBU√çDO AO PAR√ÇMETRO: "' || PNOMEPARAM || '". VERIFIQUE O SEPARADOR DECIMAL');
     WHEN OTHERS THEN
       RETURN PVALORSENULO;
     END;
@@ -194,8 +194,8 @@ IS PRAGMA SERIALLY_REUSABLE;
   END F_BUSCARPARAMETRO_NUM;
   
  /***********************************************************************************************
-  FUN«√O...: FFORMATAR_NUMERO_TEXTO_SQL
-  DESCRI«√O: FunÁ„o para Formatar um N˙mero para Texto SQL (manter o ponto como separado de casas)
+  FUN√á√ÉO...: FFORMATAR_NUMERO_TEXTO_SQL
+  DESCRI√á√ÉO: Fun√ß√£o para Formatar um N√∫mero para Texto SQL (manter o ponto como separado de casas)
   ***********************************************************************************************/
   FUNCTION FFORMATAR_NUMERO_TEXTO_SQL(pi_nNumero IN NUMBER) RETURN VARCHAR2 IS
     vvTextoRetorno  VARCHAR2(200);
@@ -207,7 +207,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Troca Virgulas por ponto
     vvTextoRetorno := REPLACE(vvTextoRetorno,',','.');
 
-    -- Elimina espaÁos em branco
+    -- Elimina espa√ßos em branco
     vvTextoRetorno := TRIM(vvTextoRetorno);
 
     -- Retorno
@@ -217,7 +217,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : definircodfiscalpcmov
-   Descric„o    : Procedimento para definir o CÛdigo Fiscal da PCMOV
+   Descric√£o    : Procedimento para definir o C√≥digo Fiscal da PCMOV
   ********************************************************************************/
   PROCEDURE definircodfiscalpcmov(vscalculast                    IN pcclient.calculast%TYPE,
                                   vsconfaz                       IN pcprodut.confaz%TYPE,
@@ -330,7 +330,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     ->Nome da PROCEDURE : DEFINIR_CODFISCALPCMOV
     ->Objetivo          : Retornar o PCMOVPREFAT.CODFISCAL para o Item da NF (PCMOVPREFAT.CODFISCAL)
     ->Versao            : Pacote
-    ->UtilizaÁ„o        : FATU_FATURA_PEDIDO
+    ->Utiliza√ß√£o        : FATU_FATURA_PEDIDO
 
     -------------------------------- Historico ------------------------------------------------
     Data         Responsavel    Tarefa    Comentarios
@@ -338,25 +338,25 @@ IS PRAGMA SERIALLY_REUSABLE;
     20/03/2007   Pablo                    Procedure criada visando corrigir erro Procedure too Large
                                           ao compilar a procedure de faturamento FATU_FATURA_PEDIDO
                                           no Oracle 8i
-    26/03/2007   Pablo          40720     AlteraÁ„o para validar o PCCLIENT.TIPOEMPRESA 'NRPA' nessa situaÁ„o
+    26/03/2007   Pablo          40720     Altera√ß√£o para validar o PCCLIENT.TIPOEMPRESA 'NRPA' nessa situa√ß√£o
                                           SitTribut := SitTributNRP
     12/04/2007   Pablo          41641     Caso a venda seja Pronta Entrega (PCPEDC.PRONTAENTREGA = 'S') e TV4
-                                          o CÛdigo Fiscal ser· o mesmo da Venda Manifesto (TV13), processo ref.
+                                          o C√≥digo Fiscal ser√° o mesmo da Venda Manifesto (TV13), processo ref.
                                           a rotina 1444.
     17/05/2007   Pablo          44116     Alterado o processo da tarefa 41641, caso a venda TV4 e (PCPEDC.PRONTAENTREGA = 'S')
-                                          ser· retornado o Codigo Fiscal da venda TV14
+                                          ser√° retornado o Codigo Fiscal da venda TV14
     26/01/2008   Sabrina        57253     Alterada a forma de validacao do st fonte, ja que para clientes
                                           no regime do SuperSimples IvaFonte = 0
-    08/04/2008   Pablo          60990     AlteraÁ„o para definir o CÛdigo Fiscal do Item como BonificaÁ„o caso a venda seja TV14
-                                          com CobranÁa igual 'BNF'.
-    02/05/2008   Pablo          60930     AlteraÁ„o para validar o CFOP do item brinde conforme o novo par‚metro PCTRIBUT.UsaCFOPBNFParaBrinde
-                                          caso o mesmo seja igual 'N' ser· utilizado o mesmo CFOP da venda.
-    14/07/2008   Pablo\Diego    64486     Caso seja TV10 e o novo campo (PCPedC.UsaCFOPVendaNaTV10 = 'S') ser· utilizando o CFOP de Venda.
-    22/05/2009   Pablo          81651     AlteraÁ„o para retornar o Codigo Fiscal para TV9 conf. novos campos PCTribut.CodFiscalTv9, PCTribut.CodFiscalInterTv9,
-                                          PCTribut.CodFiscalInternascTv9 caso os campos seja nulo ser· retornardo apartir do CFOP de BNF.
-    18/10/2010   Pablo         118301     AlteraÁ„o para validar o CFOP de Venda Triangular para PF e n„o considerar venda TV20 como triangular
-    16/06/2010   Thiago Melo   134475     Implementado a validaÁ„o do campo pctribut.sittributtv7.
-    17/06/2010   Thiago Melo   134475     Erros homologaÁ„o Fernandes.
+    08/04/2008   Pablo          60990     Altera√ß√£o para definir o C√≥digo Fiscal do Item como Bonifica√ß√£o caso a venda seja TV14
+                                          com Cobran√ßa igual 'BNF'.
+    02/05/2008   Pablo          60930     Altera√ß√£o para validar o CFOP do item brinde conforme o novo par√¢metro PCTRIBUT.UsaCFOPBNFParaBrinde
+                                          caso o mesmo seja igual 'N' ser√° utilizado o mesmo CFOP da venda.
+    14/07/2008   Pablo\Diego    64486     Caso seja TV10 e o novo campo (PCPedC.UsaCFOPVendaNaTV10 = 'S') ser√° utilizando o CFOP de Venda.
+    22/05/2009   Pablo          81651     Altera√ß√£o para retornar o Codigo Fiscal para TV9 conf. novos campos PCTribut.CodFiscalTv9, PCTribut.CodFiscalInterTv9,
+                                          PCTribut.CodFiscalInternascTv9 caso os campos seja nulo ser√° retornardo apartir do CFOP de BNF.
+    18/10/2010   Pablo         118301     Altera√ß√£o para validar o CFOP de Venda Triangular para PF e n√£o considerar venda TV20 como triangular
+    16/06/2010   Thiago Melo   134475     Implementado a valida√ß√£o do campo pctribut.sittributtv7.
+    17/06/2010   Thiago Melo   134475     Erros homologa√ß√£o Fernandes.
     -----------------------------------------------------------------------------------------*/
    IS
     -- HIS.01562.2015
@@ -370,7 +370,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vncfointerOriginal     := vncfointerpf;
     vncfointernascOriginal := vncfoisentostinternasc;
 
-    -- MED-1022 - Somente se o Cliente n„o for ST Fonte valida CFOP de Isento ST
+    -- MED-1022 - Somente se o Cliente n√£o for ST Fonte valida CFOP de Isento ST
     IF (NVL(vsclientefontest,'N') <> 'S') THEN
       -- Tarefa 27661
       IF ((vscalculast = 'N') --ST NORMAL
@@ -545,7 +545,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- 2350.113695.2015 - Ignorar CompraConsignado
     -- (Projeto 80066 - Entrada Consignada de Mercadorias) Tarefa 88714
-    -- 2350.117434.2016 Compra Consignado na Venda sem DevoluÁ„o SimbÛlica (Voltar Regra) -->> v26-v27_161024
+    -- 2350.117434.2016 Compra Consignado na Venda sem Devolu√ß√£o Simb√≥lica (Voltar Regra) -->> v26-v27_161024
     IF pscompraconsignado = 'S' THEN
       -->> v26-v27_161024
       IF ((pncondvenda = 1) AND -- 2350.117434.2016
@@ -566,7 +566,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_vTipoCodFiscal := 'pscompraconsignado = S > ' || vncfoest;
 
         -- LOG -->> v26-v27_161024
-        po_vLogProcMed := po_vLogProcMed || '| TV1 sem Dev. SimbÛlica CFOP compra consignado ' || vncfoest || ';' || vncfointer;
+        po_vLogProcMed := po_vLogProcMed || '| TV1 sem Dev. Simb√≥lica CFOP compra consignado ' || vncfoest || ';' || vncfointer;
       END IF;
     END IF;
 
@@ -652,7 +652,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
     --FIM HIS.00875.2013 ------------------------------------
 
-    -- Se for Venda do TV20 (DevoluÁ„o SimbÛlica) -- HIS.01562.2015
+    -- Se for Venda do TV20 (Devolu√ß√£o Simb√≥lica) -- HIS.01562.2015
     IF ((pncondvenda = 1) AND
         (NVL(pnnumtransentorigconsig,0) > 0)) THEN
       -- HIS.01079.2015
@@ -662,23 +662,23 @@ IS PRAGMA SERIALLY_REUSABLE;
         vncfointernasc := vncfointernascOriginal;
 
         -- HIS.03261.2016
-        po_vTipoCodFiscal := 'TV1 Dev. SimbÛlica CFOP Hospital > ' || vncfoest;
+        po_vTipoCodFiscal := 'TV1 Dev. Simb√≥lica CFOP Hospital > ' || vncfoest;
 
         -- LOG -->> v26-v27_161024
-        po_vLogProcMed := po_vLogProcMed || '| TV1 Dev. SimbÛlica CFOP Hospital ' || vncfoest || ';' || vncfointer;
+        po_vLogProcMed := po_vLogProcMed || '| TV1 Dev. Simb√≥lica CFOP Hospital ' || vncfoest || ';' || vncfointer;
       END IF;
     END IF;
 
-    -- 4262.058352.2016 - CST - Clientes org„o p˙blicos municipal, estadual e federal
+    -- 4262.058352.2016 - CST - Clientes org√£o p√∫blicos municipal, estadual e federal
     IF (((psorgaopubestadual  = 'S') OR
          (psorgaopubmunicipal = 'S') OR
          (psorgaopubfederal   = 'S')) AND (pssittributorgaopub is not null)) THEN
       vssittribut := pssittributorgaopub;
       -- HIS.03261.2016
-      po_vTipoSitTrib   := 'CST - Clientes org„o p˙blicos > ' || vssittribut;
+      po_vTipoSitTrib   := 'CST - Clientes org√£o p√∫blicos > ' || vssittribut;
     END IF;
 
-    -- Regime especial IsenÁ„o ST Fonte
+    -- Regime especial Isen√ß√£o ST Fonte
     IF (NVL(vsregimeespisenstfonte,'N') = 'S') THEN
       vncfoest       := vncfoisentost;
       vncfointer     := vncfoisentostinter;
@@ -689,10 +689,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       po_vTipoSitTrib   := 'vsregimeespisenstfonte = S > ' || vssittribut;
     END IF;
 
-    -- 3378.099712.2017 - BONIFICA«√O VALIDAR NO FINAL --
+    -- 3378.099712.2017 - BONIFICA√á√ÉO VALIDAR NO FINAL --
     -----------------------------------------------------
 
-    /* Tarefa 131448 - Erro homologaÁ„o Fernandes
+    /* Tarefa 131448 - Erro homologa√ß√£o Fernandes
     -- Se for Venda Bonificada --
     IF pncondvenda IN (5)
     THEN
@@ -750,7 +750,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : P_MED_DEFINIR_CODFISCAL
-   Descric„o    : Procedimento para definir o CÛdigo Fiscal
+   Descric√£o    : Procedimento para definir o C√≥digo Fiscal
   ********************************************************************************/
   PROCEDURE P_DEFINIR_CODFISCAL(pi_vCodFilial             IN  VARCHAR2,
                                 pi_nCodCli                IN  NUMBER,
@@ -803,7 +803,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          confaz                    PCPRODUT.confaz%TYPE,
          compraconsignado          PCPRODUT.compraconsignado%TYPE);
     vrDadosProduto                 TRecDadosProduto;
-    -- Dados da TributaÁ„o
+    -- Dados da Tributa√ß√£o
     TYPE TRecDadosTributacao       IS RECORD(
          Tributacao                PCTRIBUT%ROWTYPE);
     vrDadosTributacao              TRecDadosTributacao;
@@ -817,7 +817,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          consideraisentoscomopf    PCCONSUM.CONSIDERAISENTOSCOMOPF%TYPE,
          usartributacaotransftv10  PCCONSUM.USARTRIBUTACAOTRANSFTV10%TYPE);
     vrDadosConsum                  TRecDadosConsum;
-    -- Par‚metro
+    -- Par√¢metro
     vDESTACARICMSDEVCONSIGDIFHOSP  PCPARAMFILIAL.VALOR%TYPE;
     vFILOPTANTESIMPLESNAC          PCPARAMFILIAL.VALOR%TYPE;
     vMEDRETIRARSTBNFESTADUAL       PCPARAMFILIAL.VALOR%TYPE;
@@ -835,7 +835,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvItemTv1Bnf                   VARCHAR2(1);
     vvRegimeEspIsenStFonte         PCPEDI.REGIMEESPISENSTFONTE%TYPE;
     vvBonific                      PCPEDI.BONIFIC%TYPE;
-    -- HIS.02113.2017 - Regra Especifica Priorizar CST ”rg„o P˙blico sobre o CST de Pessoa Fisica
+    -- HIS.02113.2017 - Regra Especifica Priorizar CST √ìrg√£o P√∫blico sobre o CST de Pessoa Fisica
     vvPRIORIZACAOCSTORGAOPUBPF     VARCHAR2(200);
     -- DDMEDICA-6772
     vvLogProcMed                   VARCHAR2(2000);
@@ -849,10 +849,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vTipoSitTrib   := NULL;
 
     ----------------------------
-    -- Pesquisa Regra EspecÌfica
+    -- Pesquisa Regra Espec√≠fica
     ----------------------------
 
-    -- HIS.02113.2017 - Regra Especifica Priorizar CST ”rg„o P˙blico sobre o CST de Pessoa Fisica
+    -- HIS.02113.2017 - Regra Especifica Priorizar CST √ìrg√£o P√∫blico sobre o CST de Pessoa Fisica
     BEGIN
       vvPRIORIZACAOCSTORGAOPUBPF := NVL(FUSA_REGRA_MEDICAMENTOS('99','PRIORIZACAOCSTORGAOPUBPF'),'N');
     EXCEPTION
@@ -905,7 +905,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         NULL;
     END;
     
-    -- DDVENDAS-33718 - UF do EndereÁo de Entrega
+    -- DDVENDAS-33718 - UF do Endere√ßo de Entrega
     IF (pi_vEstEnt IS NOT NULL) THEN
       vrDadosCliente.estent := pi_vEstEnt;
     END IF;
@@ -923,7 +923,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         NULL;
     END;
 
-    -- Pesquisa Dados da TributaÁ„o
+    -- Pesquisa Dados da Tributa√ß√£o
     BEGIN
       SELECT PCTRIBUT.*
         INTO vrDadosTributacao.Tributacao
@@ -984,7 +984,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     ------------------------------
     vvBonific := pi_vBonific;
     IF (vvBonific = 'S') THEN
-      -- Pesquisa Par‚metro
+      -- Pesquisa Par√¢metro
       BEGIN
         SELECT NVL(VALOR,'N')
           INTO vMEDRETIRARSTBNFESTADUAL
@@ -995,9 +995,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vMEDRETIRARSTBNFESTADUAL := 'N';
       END;
-      -- Se n„o usa Regime Especial Santa Catarina
+      -- Se n√£o usa Regime Especial Santa Catarina
       IF (NVL(vMEDRETIRARSTBNFESTADUAL,'N') <> 'S') THEN
-        -- Item Bonificado È sempre "F", exceto quando usa Regime Especial Catarina
+        -- Item Bonificado √© sempre "F", exceto quando usa Regime Especial Catarina
         vvBonific := 'F';
       END IF;
     END IF;
@@ -1012,15 +1012,15 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
 
     -------------------------------------------------------
-    -- Identificador de Regime Especial de IsenÁ„o ST Fonte
+    -- Identificador de Regime Especial de Isen√ß√£o ST Fonte
     -------------------------------------------------------
     IF (pi_vRegimeEspIsenStFonte IS NULL) THEN
-      -- Se Org„o P˙blico e a TributaÁ„o tem IsenÁ„o de ST para ”rg„os P˙blicos
+      -- Se Org√£o P√∫blico e a Tributa√ß√£o tem Isen√ß√£o de ST para √ìrg√£os P√∫blicos
       IF    ((NVL(vrDadosCliente.tipoclimed, ' ') IN ('D','E','M')) AND
              (NVL(vrDadosTributacao.Tributacao.isencaostorgaopub, ' ') = 'S')) THEN
         vvRegimeEspIsenStFonte := 'N';
-      -- Se Cliente Usa Regime Especial IsenÁ„o ST Fonte e
-      -- TributaÁ„o com Regime Especial IsenÁ„o ST Fonte
+      -- Se Cliente Usa Regime Especial Isen√ß√£o ST Fonte e
+      -- Tributa√ß√£o com Regime Especial Isen√ß√£o ST Fonte
       ELSIF ((NVL(vrDadosCliente.usaregimeespisenstfonte,'N') = 'S') AND
              (NVL(vrDadosTributacao.Tributacao.regimeespisenstfonte,'N') = 'S')) THEN
         vvRegimeEspIsenStFonte := 'S';
@@ -1028,13 +1028,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvRegimeEspIsenStFonte := 'N';
       END IF;
     ELSE
-      -- Se j· definiu o valor no procedimento chamador
+      -- Se j√° definiu o valor no procedimento chamador
       vvRegimeEspIsenStFonte := pi_vRegimeEspIsenStFonte;
     END IF;
 
 
     -----------------------------------
-    -- Busca CFOP e SituaÁ„o Tribut·ria
+    -- Busca CFOP e Situa√ß√£o Tribut√°ria
     -----------------------------------
     definircodfiscalpcmov(vrDadosCliente.calculast,
                           vrDadosProduto.confaz,
@@ -1144,7 +1144,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                           );
 
 
-    -- Tarefa 114260 (BonificaÁ„o do tipo degustaÁ„o)
+    -- Tarefa 114260 (Bonifica√ß√£o do tipo degusta√ß√£o)
     IF (pi_nCondVenda = 5) AND (pi_nCodBnf = 4) AND
        (NVL(pi_nCfopNfDegusta,0) > 0) THEN
       vrDadosRetornoCfop.vncfoest       := pi_nCfopNfDegusta;
@@ -1155,7 +1155,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
 
     -------------------------------------
-    -- RedefiniÁ„o da SituaÁ„o Tribut·ria
+    -- Redefini√ß√£o da Situa√ß√£o Tribut√°ria
     -------------------------------------
     IF (vrDadosTributacao.Tributacao.codicmpf IS NOT NULL) AND (vbpessoafisica = TRUE) AND
        (pi_nCondVenda <> 7) THEN
@@ -1164,7 +1164,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       po_vTipoSitTrib   := 'sittributpf pessoa fisica > ' || vrDadosRetornoCfop.vssittribut;
     END IF;
 
-    -- HIS.02113.2017 - Regra Especifica Priorizar CST ”rg„o P˙blico sobre o CST de Pessoa Fisica
+    -- HIS.02113.2017 - Regra Especifica Priorizar CST √ìrg√£o P√∫blico sobre o CST de Pessoa Fisica
     IF (vvPRIORIZACAOCSTORGAOPUBPF = 'S') THEN
      IF (vbpessoafisica = TRUE) AND
         ((NVL(vrDadosCliente.orgaopub,'N') = 'S')                 OR
@@ -1172,8 +1172,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          (NVL(vrDadosCliente.orgaopubmunicipal,'N') = 'S')        OR
          (nvl(vrDadosCliente.tipoclimed,' ') IN ('D','E','M'))  ) THEN
         vrDadosRetornoCfop.vssittribut := vrDadosTributacao.Tributacao.sittributorgaopub;
-        -- HistÛrico
-        po_vTipoSitTrib := 'Priorizar CST ”rg„o P˙blico sobre PF > ' || vrDadosRetornoCfop.vssittribut;
+        -- Hist√≥rico
+        po_vTipoSitTrib := 'Priorizar CST √ìrg√£o P√∫blico sobre PF > ' || vrDadosRetornoCfop.vssittribut;
       END IF;
     END IF;
 
@@ -1198,10 +1198,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
 
     /*
-    DESCRI«√O DA ALTERA«√O:
-    Alterar a definiÁ„o do CFOP e CST na Package de Faturamento, nas Vendas para Clientes
-    que s„o ”rg„os P˙blicos e para os Produtos que est„o Tributados com IsenÁ„o de ST
-    para ”rg„os P˙blicos. Limitar a distribuidores de medicamentos.
+    DESCRI√á√ÉO DA ALTERA√á√ÉO:
+    Alterar a defini√ß√£o do CFOP e CST na Package de Faturamento, nas Vendas para Clientes
+    que s√£o √ìrg√£os P√∫blicos e para os Produtos que est√£o Tributados com Isen√ß√£o de ST
+    para √ìrg√£os P√∫blicos. Limitar a distribuidores de medicamentos.
     */
     IF --(nvl(vsutilizacontrolemedicamentos,'N') = 'S') AND
        (pi_nCondVenda = 1) AND
@@ -1219,7 +1219,7 @@ IS PRAGMA SERIALLY_REUSABLE;
        (NVL(pi_nNumNotaConsign,0) > 0) AND
        (nvl(vrDadosCliente.tipoclimed,' ') <> 'H') THEN
        --(NVL(vsICMSDEVCONSIGDIFHOSP,'S') = 'N') THEN
-      -- Pesquisa Par‚metro
+      -- Pesquisa Par√¢metro
       BEGIN
         SELECT NVL(VALOR,'S')
           INTO vDESTACARICMSDEVCONSIGDIFHOSP
@@ -1249,11 +1249,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
     END IF;
 
-    -- HIS.03678.2017 - Se sistema aplicar reduÁ„o p. fÌsica para hospitais e Ûrg„os p˙blicos
+    -- HIS.03678.2017 - Se sistema aplicar redu√ß√£o p. f√≠sica para hospitais e √≥rg√£os p√∫blicos
     IF vrDadosTributacao.Tributacao.utilizapercbaseredpfhosporgpub = 'S' THEN
-      -- Se Cliente È Hospital ou ”rg„o P˙blico Federal/Estadual/Municipal
+      -- Se Cliente √© Hospital ou √ìrg√£o P√∫blico Federal/Estadual/Municipal
       IF vrDadosCliente.tipoclimed IN ('H','D','E','M') THEN
-        -- Se informado o CST para reduÁ„o p. fÌsica para hospitais e Ûrg„os p˙blicos
+        -- Se informado o CST para redu√ß√£o p. f√≠sica para hospitais e √≥rg√£os p√∫blicos
         IF (vrDadosTributacao.Tributacao.sittribredpfhosporgpub IS NOT NULL) THEN
           vrDadosRetornoCfop.vssittribut := vrDadosTributacao.Tributacao.sittribredpfhosporgpub;
           -- LOG
@@ -1263,7 +1263,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
 
     IF (pi_nCondVenda = 20) THEN
-        -- Tratamento especÌfico consignado
+        -- Tratamento espec√≠fico consignado
         IF (TRIM(vrDadosTributacao.Tributacao.sittributtv20) IS NOT NULL) THEN
           vrDadosRetornoCfop.vssittribut := vrDadosTributacao.Tributacao.sittributtv20;
           -- HIS.03261.2016
@@ -1296,57 +1296,57 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : PRC_MED_OBTER_COMISSAO
-   Descric„o    : Procedimento para Obter a Comiss„o para os critÈrios estabelecidos
-                  nos Par„metros
-   Par‚metros   : ENTRADA:
+   Descric√£o    : Procedimento para Obter a Comiss√£o para os crit√©rios estabelecidos
+                  nos Par√£metros
+   Par√¢metros   : ENTRADA:
                   pi_nTipoChamada          = 1 - Chamado da 2316
-                                             2 - Chamado da 2308 (Rec·lculo)
-                                             3 - Chamado para Obter a Comiss„o Diferenciada Farma/Hospitalar
-                                             4 - Procedure Valida PromoÁ„o
-                  pi_nTipoDefinicaoComiss  = 1 - Obter a Comiss„o do Representante
-                                             2 - Obter a Comiss„o do Televendas
+                                             2 - Chamado da 2308 (Rec√°lculo)
+                                             3 - Chamado para Obter a Comiss√£o Diferenciada Farma/Hospitalar
+                                             4 - Procedure Valida Promo√ß√£o
+                  pi_nTipoDefinicaoComiss  = 1 - Obter a Comiss√£o do Representante
+                                             2 - Obter a Comiss√£o do Televendas
                                                  como RCA2
-                                             3 - Obter a Comiss„o do RCA2 (N„o precisa ser o Emitente)
-                  pi_nCodPromocaoMed       = CÛdigo da PromoÁ„o do Item do Pedido
-                  pi_nCodProd              = CÛdigo do Produto
-                  pi_nCodCli               = CÛdigo do Cliente
+                                             3 - Obter a Comiss√£o do RCA2 (N√£o precisa ser o Emitente)
+                  pi_nCodPromocaoMed       = C√≥digo da Promo√ß√£o do Item do Pedido
+                  pi_nCodProd              = C√≥digo do Produto
+                  pi_nCodCli               = C√≥digo do Cliente
                   pi_dData                 = Data Base a ser considerada nas Consultas
-                  pi_vCodFilial            = CÛdigo da Filial
-                  pi_nNumRegiao            = Regi„o do Cliente
-                  pi_nCodUsur              = CÛdigo Vendedor
-                  pi_nMatricula            = Matricula do Funcion·rio logado no Sistema
+                  pi_vCodFilial            = C√≥digo da Filial
+                  pi_nNumRegiao            = Regi√£o do Cliente
+                  pi_nCodUsur              = C√≥digo Vendedor
+                  pi_nMatricula            = Matricula do Funcion√°rio logado no Sistema
                   pi_vOrigemPed            = Origem do Pedido
-                  pi_vTipoFv               = Tipo de Pedido ForÁa de Vendas [FV;OL;PE]
-                  pi_nCodPlPag             = CÛdigo do Plano de Pagamento
+                  pi_vTipoFv               = Tipo de Pedido For√ßa de Vendas [FV;OL;PE]
+                  pi_nCodPlPag             = C√≥digo do Plano de Pagamento
                   pi_nQtde                 = Quantidade
                   pi_nPerDesc              = Percentual de Desconto
-                  pi_nCodDesconto          = CÛdigo do Desconto
-                  pi_vTipoComissao         = Se for para pesquisar somente um tipo de comiss„o,
+                  pi_nCodDesconto          = C√≥digo do Desconto
+                  pi_vTipoComissao         = Se for para pesquisar somente um tipo de comiss√£o,
                                              passar ele aqui.
                                              'RA' - RCA/Ramo Atividade
-                  pi_nCodEdital            = CÛdigo do Edital
+                  pi_nCodEdital            = C√≥digo do Edital
                   SAIDA:
-                  po_nPerCom               = Percentual de Comiss„o
-                  po_vOcorreramErros       = Se Ocorreram Erros [S-Sim;N-N„o]
+                  po_nPerCom               = Percentual de Comiss√£o
+                  po_vOcorreramErros       = Se Ocorreram Erros [S-Sim;N-N√£o]
                   po_vMsgErros             = Mensagem de Erro
-   Alterac„o    : Anderson Silva   - 23/05/2015 - CriaÁ„o da Procedure
-   Alterac„o    : Anderson Silva   - 19/06/2015 - HIS.00802.2015 - Comissionamento da Equipe de Vendas 
-                                                                   (Comiss„o por Cliente) 
-                : Anderson Silva - 08/10/2015 - HIS.03333.2015 - InformaÁıes para
-                                                                 Rec·lculo Comiss„o Compartilhada
-                : Anderson Silva - 02/12/2015 - 5232.133953.2015 - Comiss„o Produto/Filial                                                              
-                : Anderson Silva - 04/12/2015 - HIS.02846.2015   - Comiss„o por Ramo Atividade
-                : Anderson Silva - 24/03/2016 - Ordem Comiss„o
-                : Anderson Silva - 28/11/2016 - HIS.02082.2016 - Comiss„o LicitaÁ„o
-                : Anderson Silva - 01/02/2017 - HIS.00118.2017 - Comiss„o por Faixa de Rentabilidade
-                                                opÁ„o 3 para o par‚metro pi_nTipoChamada
-   AlteraÁ„o    : Anderson Silva    = 24/02/2017 - Chamada 4 na Proc. PRC_MED_OBTER_COMISSAO
-   AlteraÁ„o    : Anderson Silva - 24/04/2017 - HIS.00665.2017 - Comissıes com pedidos de promoÁ„o combo zeradas
-                : Anderson Silva - 03/08/2017 - HIS.02819.2017 - Comiss„o Rentabilidade Compartilhada por Liquidez
-                : Anderson Silva - 09/11/2017 - HIS.04185.2017 - Regra EspecÌfica Comiss„o Pacote - Retornar Tipo Comiss„o no Rec·lculo              
-                : Anderson Silva - 20/05/2019 - MED-2595 - Comiss„o por Grupo
+   Alterac√£o    : Anderson Silva   - 23/05/2015 - Cria√ß√£o da Procedure
+   Alterac√£o    : Anderson Silva   - 19/06/2015 - HIS.00802.2015 - Comissionamento da Equipe de Vendas 
+                                                                   (Comiss√£o por Cliente) 
+                : Anderson Silva - 08/10/2015 - HIS.03333.2015 - Informa√ß√µes para
+                                                                 Rec√°lculo Comiss√£o Compartilhada
+                : Anderson Silva - 02/12/2015 - 5232.133953.2015 - Comiss√£o Produto/Filial                                                              
+                : Anderson Silva - 04/12/2015 - HIS.02846.2015   - Comiss√£o por Ramo Atividade
+                : Anderson Silva - 24/03/2016 - Ordem Comiss√£o
+                : Anderson Silva - 28/11/2016 - HIS.02082.2016 - Comiss√£o Licita√ß√£o
+                : Anderson Silva - 01/02/2017 - HIS.00118.2017 - Comiss√£o por Faixa de Rentabilidade
+                                                op√ß√£o 3 para o par√¢metro pi_nTipoChamada
+   Altera√ß√£o    : Anderson Silva    = 24/02/2017 - Chamada 4 na Proc. PRC_MED_OBTER_COMISSAO
+   Altera√ß√£o    : Anderson Silva - 24/04/2017 - HIS.00665.2017 - Comiss√µes com pedidos de promo√ß√£o combo zeradas
+                : Anderson Silva - 03/08/2017 - HIS.02819.2017 - Comiss√£o Rentabilidade Compartilhada por Liquidez
+                : Anderson Silva - 09/11/2017 - HIS.04185.2017 - Regra Espec√≠fica Comiss√£o Pacote - Retornar Tipo Comiss√£o no Rec√°lculo              
+                : Anderson Silva - 20/05/2019 - MED-2595 - Comiss√£o por Grupo
   ********************************************************************************/
-  -- SE ALTERAR ESTE PROCEDIMENTO, ALTERAR TAMB…M NA PKG_COMISSAO_MED
+  -- SE ALTERAR ESTE PROCEDIMENTO, ALTERAR TAMB√âM NA PKG_COMISSAO_MED
   PROCEDURE P_OBTER_COMISSAO(pi_nTipoChamada         IN  NUMBER,
                              pi_nTipoDefinicaoComiss IN  NUMBER,
                              pi_nCodPromocaoMed      IN  NUMBER,
@@ -1370,7 +1370,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              pi_nCodEdital           IN  NUMBER DEFAULT 0)
   IS
   
-    -- Par‚metros
+    -- Par√¢metros
     TYPE TRecParametros IS RECORD(
          vUSACOMISSAOPORRCA      PCCONSUM.USACOMISSAOPORRCA%TYPE,
          vCOMISSAORCATIPOVENDA   PCCONSUM.COMISSAORCATIPOVENDA%TYPE,
@@ -1396,7 +1396,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          nCODATV1                PCCLIENT.CODATV1%TYPE);
     vrCliente TRecCliente;
          
-    -- Dados do Funcion·rio
+    -- Dados do Funcion√°rio
     TYPE TRecEmpr IS RECORD(
          nCODUSUR                PCEMPR.CODUSUR%TYPE);
     vrEmpr TRecEmpr;
@@ -1409,11 +1409,11 @@ IS PRAGMA SERIALLY_REUSABLE;
          );
     vrProd TRecProd;
   
-    -- Pesquisa das Comissıes
+    -- Pesquisa das Comiss√µes
     vbTodasComissoes             BOOLEAN;
     vvTipoComissao               VARCHAR2(3);
     
-    -- ARRAY para Ordem da Comiss„o
+    -- ARRAY para Ordem da Comiss√£o
     TYPE TTOrdemComissao         IS TABLE OF VARCHAR2(3) INDEX BY BINARY_INTEGER;
     vtOrdemComissao              TTOrdemComissao;
     viIdxOrigemComissao          INTEGER;
@@ -1430,7 +1430,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vPriorizaComissao            PCPROMOCAOMED.PRIORIZACOMISSAO%TYPE;
   
    /********************************************************************
-    MED-2595 - FunÁ„o para Retornar o Percentual de Comiss„o da PromoÁ„o
+    MED-2595 - Fun√ß√£o para Retornar o Percentual de Comiss√£o da Promo√ß√£o
     ********************************************************************/
     FUNCTION F_OBTER_COMISSAO_PROMOCAO(pi_nCodDesconto    IN NUMBER,
                                        pi_nCodPromocaoMed IN NUMBER,
@@ -1443,7 +1443,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       
     BEGIN
     
-      -- Pesquisa Grupo de Comiss„o
+      -- Pesquisa Grupo de Comiss√£o
       BEGIN
         SELECT CASE WHEN (NVL(PRIORIZACOMISSAO,'N') = 'S') THEN
                  CODGRUPOCOMISSAO
@@ -1458,7 +1458,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vnCodGrupoComissao := NULL;
       END;
       
-      -- Se tem Grupo de Comiss„o
+      -- Se tem Grupo de Comiss√£o
       IF (vnCodGrupoComissao > 0) THEN
       
         -- Pesquisa a Marca do Produto
@@ -1472,7 +1472,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnCodMarca := NULL;
         END;
         
-        -- Pesquisa a Comiss„o
+        -- Pesquisa a Comiss√£o
         BEGIN 
           SELECT T.PERCENTUAL 
             INTO vnRetPerCom
@@ -1485,10 +1485,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnRetPerCom := 0;
         END;
             
-      -- Se n„o tem Grupo de Comiss„o
+      -- Se n√£o tem Grupo de Comiss√£o
       ELSE
           
-        -- Pesquisa o Percentual de Comiss„o da PromoÁ„o
+        -- Pesquisa o Percentual de Comiss√£o da Promo√ß√£o
         BEGIN  
           SELECT DECODE(pi_vTipoVend
                        ,'I', PERCOMMINT
@@ -1514,7 +1514,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     -------------------------------------------------
     -- PROCEDURE: P_COMISSAO_REGIAOMED
-    -- DESCRI«√O: Obter Comiss„o Diferenciada 
+    -- DESCRI√á√ÉO: Obter Comiss√£o Diferenciada 
     --            Farma/Hospitalar informada na
     --            PCCOMISSAOREGIAOMED
     ------------------------------------------------
@@ -1529,7 +1529,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    pi_nPerDesc                IN NUMBER,
                                    pio_nPerCom                IN OUT NUMBER)
     IS
-      -- Cursor de Comiss„o Regi„o por Produto
+      -- Cursor de Comiss√£o Regi√£o por Produto
       CURSOR c_ComissRegProd(pi_vTipoVend     IN VARCHAR2,                           
                              pi_vCodFilial    IN VARCHAR2,
                              pi_nNumRegiao    IN NUMBER,
@@ -1548,7 +1548,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE ((NUMREGIAO IS NULL) OR (NUMREGIAO = pi_nNumRegiao))
            AND (ROUND(NVL(pi_nPerDesc,0),2) BETWEEN PERDESCINI AND PERDESCFIM)
            AND (NVL(TIPO,'R') = 'RS')
-           AND (CODSEC = pi_nCodSec) -->> POR SE«√O
+           AND (CODSEC = pi_nCodSec) -->> POR SE√á√ÉO
            AND ((CODFILIAL IS NULL) OR (NVL(CODFILIAL,' ') = pi_vCodFilial))
            AND (TRUNC(pi_dData) BETWEEN NVL(DTINICIO, TRUNC(pi_dData)) AND NVL(DTFIM, TRUNC(pi_dData)))
         UNION   
@@ -1592,11 +1592,11 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (NVL(TIPO,'R') = 'R') -->> POR REGIAO
            AND ((CODFILIAL IS NULL) OR (NVL(CODFILIAL,' ') = pi_vCodFilial))
            AND (TRUNC(pi_dData) BETWEEN NVL(DTINICIO, TRUNC(pi_dData)) AND NVL(DTFIM, TRUNC(pi_dData)))
-         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir· sair do LaÁo
+         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir√° sair do La√ßo
       
     BEGIN
     
-      -- Pesquisa a Comiss„o por Regi„o e Produto
+      -- Pesquisa a Comiss√£o por Regi√£o e Produto
       FOR vc_ComissRegProd IN c_ComissRegProd(pi_vTipoVend,
                                               pi_vCodFilial,
                                               pi_nNumRegiao,
@@ -1620,16 +1620,16 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         END IF;                                             
                                               
-        -- Sai apÛs achar o primeiro
+        -- Sai ap√≥s achar o primeiro
         EXIT;
                                                     
-      END LOOP; -- Fim Regi„o e Produto
+      END LOOP; -- Fim Regi√£o e Produto
     
     END P_COMISSAO_REGIAOMED;
   
     ---------------------------------------------
     -- PROCEDURE: P_COMISSAO_RCA
-    -- DESCRI«√O: Obter Comiss„o informada no RCA
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada no RCA
     ---------------------------------------------
     PROCEDURE P_COMISSAO_RCA(pi_vUsaComissaoPorRca      IN VARCHAR2,
                              pi_vComissaoRcaTipoVenda   IN VARCHAR2,
@@ -1648,13 +1648,13 @@ IS PRAGMA SERIALLY_REUSABLE;
       vnCodModalidadeLicit         NUMBER;
     BEGIN
     
-      -- Se usa Comiss„o por RCA
+      -- Se usa Comiss√£o por RCA
       IF (NVL(pi_vUsaComissaoPorRca,'N') = 'S') THEN
       
-        -- Se usa Comiss„o RCA por Tipo de Venda
+        -- Se usa Comiss√£o RCA por Tipo de Venda
         IF (NVL(pi_vComissaoRcaTipoVenda,'N') = 'S') THEN
         
-          -- Comiss„o Venda ‡ Vista
+          -- Comiss√£o Venda √† Vista
           IF    (NVL(pi_vTipoVenda,' ') = 'VV') AND
                 (pi_nPercent IS NOT NULL)       THEN
                 
@@ -1668,7 +1668,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vvTipoComissaoMed := 'RC';
             END IF;
                 
-          -- Comiss„o Venda a Prazo
+          -- Comiss√£o Venda a Prazo
           ELSIF (NVL(pi_vTipoVenda,' ') = 'VP') AND
                 (pi_nPercent2 IS NOT NULL)      THEN
   
@@ -1684,10 +1684,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                 
           END IF;
         
-        -- Se N√O usa Comiss„o RCA por Tipo de Venda
+        -- Se N√ÉO usa Comiss√£o RCA por Tipo de Venda
         ELSE
         
-          -- DDMEDICA-3545 - N„o processar Comiss„o RCA Nula
+          -- DDMEDICA-3545 - N√£o processar Comiss√£o RCA Nula
           IF (pi_nPercent2 IS NOT NULL) THEN
 
             IF (NVL(pi_nPercent2,0) = 0) THEN
@@ -1702,14 +1702,14 @@ IS PRAGMA SERIALLY_REUSABLE;
             
           END IF;
         
-        END IF; -- Fim CondiÁ„o Se usa Comiss„o RCA por Tipo de Venda
+        END IF; -- Fim Condi√ß√£o Se usa Comiss√£o RCA por Tipo de Venda
       
-      END IF; -- Fim CondiÁ„o Se usa Comiss„o por RCA
+      END IF; -- Fim Condi√ß√£o Se usa Comiss√£o por RCA
       
-      -- Comiss„o do RCA da LicitaÁ„o -- HIS.02082.2016
+      -- Comiss√£o do RCA da Licita√ß√£o -- HIS.02082.2016
       IF (pi_nCodEdital > 0) THEN
       
-        -- Verifica se usa a Comiss„o da LicitaÁ„o
+        -- Verifica se usa a Comiss√£o da Licita√ß√£o
         BEGIN
           EXECUTE IMMEDIATE ' SELECT USACOMISSAOLICITPEDVENDAMED 
                                 FROM PCCONFIGLICITACAO 
@@ -1722,7 +1722,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vUSACOMISSAOLICITPEDVENDAMED := 'N';      
         END;
         
-        -- Se utiliza Comiss„o da LicitaÁ„o
+        -- Se utiliza Comiss√£o da Licita√ß√£o
         IF (vUSACOMISSAOLICITPEDVENDAMED = 'S') THEN
         
           -- Inicializa Valores
@@ -1745,7 +1745,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Se achou a Modalidade
           IF (vnCodModalidadeLicit > 0) THEN
           
-            -- Pesquisa Comiss„o da Modalidade - GERAL
+            -- Pesquisa Comiss√£o da Modalidade - GERAL
             BEGIN
               EXECUTE IMMEDIATE ' SELECT ''S'' ACHOU 
                                        , PERCOM 
@@ -1762,7 +1762,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vvAchouPerComLicit := 'N';
             END;      
             
-            -- Se n„o achou Geral, procura por RCA
+            -- Se n√£o achou Geral, procura por RCA
             IF (NVL(vvAchouPerComLicit,'N') = 'N') THEN
               BEGIN
                 EXECUTE IMMEDIATE ' SELECT ''S'' ACHOU 
@@ -1781,7 +1781,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               END;      
             END IF;  
           
-          END IF; -- Fim CondiÁ„o Se achou a Modalidade
+          END IF; -- Fim Condi√ß√£o Se achou a Modalidade
           
           -- Se achou um Registro que atenda a Modalidade
           IF (vvAchouPerComLicit = 'S') THEN
@@ -1796,15 +1796,15 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
           END IF;        
         
-        END IF; -- Fim CondiÁ„o Se utiliza Comiss„o da LicitaÁ„o
+        END IF; -- Fim Condi√ß√£o Se utiliza Comiss√£o da Licita√ß√£o
       
-      END IF; -- Fim CondiÁ„o Comiss„o do RCA da LicitaÁ„o
+      END IF; -- Fim Condi√ß√£o Comiss√£o do RCA da Licita√ß√£o
     
     END P_COMISSAO_RCA;
   
     ---------------------------------------------------------
     -- PROCEDURE: P_COMISSAO_RAMO_ATIVIDADE
-    -- DESCRI«√O: Obter Comiss„o informada por Ramo Atividade
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada por Ramo Atividade
     ---------------------------------------------------------
     PROCEDURE P_COMISSAO_RAMO_ATIVIDADE(pi_vConsiderarComissaoZero IN VARCHAR2,
                                         pi_vTipoVend               IN VARCHAR2,                           
@@ -1815,7 +1815,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       vnPerComAtiv PCCOMISSAOMED.PERCOMREP%TYPE;
     BEGIN
     
-      -- Somente pesquisa a Comiss„o por Cliente (N„o tem Comiss„o de Operador por Filial)
+      -- Somente pesquisa a Comiss√£o por Cliente (N√£o tem Comiss√£o de Operador por Filial)
       BEGIN
         SELECT DECODE(pi_vTipoVend
                      ,'I',   PERCOMINT
@@ -1851,7 +1851,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     -------------------------------------------------
     -- PROCEDURE: P_COMISSAO_CLIENTE
-    -- DESCRI«√O: Obter Comiss„o informada no Cliente
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada no Cliente
     -------------------------------------------------
     PROCEDURE P_COMISSAO_CLIENTE(pi_vUsaComissaoPorCliente  IN VARCHAR2,
                                  pi_vConsiderarComissaoZero IN VARCHAR2,
@@ -1862,14 +1862,14 @@ IS PRAGMA SERIALLY_REUSABLE;
       vnPerComCli PCCLIENT.PERCOMCLI%TYPE;
     BEGIN
     
-      -- Se usa Comiss„o por Cliente
+      -- Se usa Comiss√£o por Cliente
       IF (NVL(pi_vUsaComissaoPorCliente,'N') = 'S') THEN
         
-        -- Somente pesquisa a Comiss„o por Cliente (N„o tem Comiss„o de Operador por Filial)
+        -- Somente pesquisa a Comiss√£o por Cliente (N√£o tem Comiss√£o de Operador por Filial)
         BEGIN
           SELECT DECODE(pi_vTipoVend
                        ,'I',   PERCOMINTMED
-                       ,'E',   0 -->> Comiss„o por Cliente n„o tem coluna de Externo
+                       ,'E',   0 -->> Comiss√£o por Cliente n√£o tem coluna de Externo
                        ,'R',   PERCOMCLI
                        ,0) PERCOM
             INTO vnPerComCli                     
@@ -1894,13 +1894,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         END IF;                                             
       
-      END IF; -- Fim CondiÁ„o Se usa Comiss„o por Cliente  
+      END IF; -- Fim Condi√ß√£o Se usa Comiss√£o por Cliente  
     
     END P_COMISSAO_CLIENTE;
     
     --------------------------------------------------
     -- PROCEDURE: P_COMISSAO_PRODUTO
-    -- DESCRI«√O: Obter Comiss„o informada por Produto
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada por Produto
     --------------------------------------------------
     PROCEDURE P_COMISSAO_PRODUTO(pi_vConsiderarComissaoZero IN VARCHAR2,
                                  pi_vTipoVend               IN VARCHAR2,                           
@@ -1913,7 +1913,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       vnPerCom PCPRODUT.PCOMREP1%TYPE;
     BEGIN
     
-      -- Pesquisa a Comiss„o por Produto
+      -- Pesquisa a Comiss√£o por Produto
       BEGIN  
         SELECT DECODE(
                   ( SELECT COUNT( 1 )
@@ -1962,7 +1962,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     --------------------------------------------------------------------------
     -- PROCEDURE: P_COMISSAO_USUR
-    -- DESCRI«√O: Obter Comiss„o informada por Desconto e RCA - HIS.00665.2017
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada por Desconto e RCA - HIS.00665.2017
     --------------------------------------------------------------------------
     PROCEDURE P_COMISSAO_USUR(pi_vConsiderarComissaoZero IN VARCHAR2,
                               pi_nCodUsur                IN NUMBER,
@@ -1972,7 +1972,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               pi_nPerDesc                IN NUMBER,
                               pio_nPerCom                IN OUT NUMBER)
     IS
-      -- Cursor de Comiss„o por Desconto e RCA
+      -- Cursor de Comiss√£o por Desconto e RCA
       CURSOR c_ComissDescRca(pi_nCodUsur      IN NUMBER,
                              pi_nCodProd      IN NUMBER,
                              pi_nCodepto      IN NUMBER,
@@ -1995,7 +1995,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE (CODUSUR = pi_nCodUsur)
            AND (ROUND(NVL(pi_nPerDesc,0),2) BETWEEN PERCDESCINI AND PERCDESCFIM)
            AND (NVL(TIPO,'R') = 'RS')
-           AND (CODSEC = pi_nCodSec) -->> POR SE«√O
+           AND (CODSEC = pi_nCodSec) -->> POR SE√á√ÉO
         UNION   
         SELECT 3 PRIORIDADE,
                'UD' TIPOCOMISSAOMED,
@@ -2013,10 +2013,10 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE (CODUSUR = pi_nCodUsur) -->> POR RCA
            AND (ROUND(NVL(pi_nPerDesc,0),2) BETWEEN PERCDESCINI AND PERCDESCFIM)
            AND (NVL(TIPO,'R') = 'R') 
-         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir· sair do LaÁo    
+         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir√° sair do La√ßo    
     BEGIN
     
-      -- Pesquisa a Comiss„o por Desconto e RCA
+      -- Pesquisa a Comiss√£o por Desconto e RCA
       FOR vc_ComissDescRca IN c_ComissDescRca(pi_nCodUsur,
                                               pi_nCodProd,
                                               pi_nCodepto,
@@ -2037,7 +2037,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         END IF;                                             
                                               
-        -- Sai apÛs achar o primeiro
+        -- Sai ap√≥s achar o primeiro
         EXIT;
                                                     
       END LOOP; -- Fim Desconto e RCA
@@ -2046,7 +2046,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     
     -------------------------------------------------
     -- PROCEDURE: P_COMISSAO_REGIAO
-    -- DESCRI«√O: Obter Comiss„o informada por Regi„o
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada por Regi√£o
     ------------------------------------------------
     PROCEDURE P_COMISSAO_REGIAO(pi_vConsiderarComissaoZero IN VARCHAR2,
                                 pi_vTipoVend               IN VARCHAR2,                           
@@ -2060,7 +2060,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 pi_nPerDesc                IN NUMBER,
                                 pio_nPerCom                IN OUT NUMBER)
     IS
-      -- Cursor de Comiss„o Regi„o por Produto
+      -- Cursor de Comiss√£o Regi√£o por Produto
       CURSOR c_ComissRegProd(pi_vTipoVend     IN VARCHAR2,                           
                              pi_vCodFilial    IN VARCHAR2,
                              pi_nNumRegiao    IN NUMBER,
@@ -2095,7 +2095,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE ((NUMREGIAO IS NULL) OR (NUMREGIAO = pi_nNumRegiao))
            AND (ROUND(NVL(pi_nPerDesc,0),2) BETWEEN PERDESCINI AND PERDESCFIM)
            AND (NVL(TIPO,'R') = 'RS')
-           AND (CODSEC = pi_nCodSec) -->> POR SE«√O
+           AND (CODSEC = pi_nCodSec) -->> POR SE√á√ÉO
            AND ((CODFILIAL IS NULL) OR (NVL(CODFILIAL,' ') = pi_vCodFilial))
            AND (TRUNC(pi_dData) BETWEEN NVL(DTINICIO, TRUNC(pi_dData)) AND NVL(DTFIM, TRUNC(pi_dData)))
         UNION   
@@ -2139,10 +2139,10 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (NVL(TIPO,'R') = 'R') -->> POR REGIAO
            AND ((CODFILIAL IS NULL) OR (NVL(CODFILIAL,' ') = pi_vCodFilial))
            AND (TRUNC(pi_dData) BETWEEN NVL(DTINICIO, TRUNC(pi_dData)) AND NVL(DTFIM, TRUNC(pi_dData)))
-         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir· sair do LaÁo    
+         ORDER BY 1; -->> Ordenado pela Prioridade, ao achar o primeiro ir√° sair do La√ßo    
     BEGIN
     
-      -- Pesquisa a Comiss„o por Regi„o e Produto
+      -- Pesquisa a Comiss√£o por Regi√£o e Produto
       FOR vc_ComissRegProd IN c_ComissRegProd(pi_vTipoVend,
                                               pi_vCodFilial,
                                               pi_nNumRegiao,
@@ -2167,16 +2167,16 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         END IF;                                             
                                               
-        -- Sai apÛs achar o primeiro
+        -- Sai ap√≥s achar o primeiro
         EXIT;
                                                     
-      END LOOP; -- Fim Regi„o e Produto
+      END LOOP; -- Fim Regi√£o e Produto
     
     END P_COMISSAO_REGIAO;
   
     --------------------------------------------------------------
     -- PROCEDURE: P_COMISSAO_POLITICA
-    -- DESCRI«√O: Obter Comiss„o informada na Politica de Desconto 
+    -- DESCRI√á√ÉO: Obter Comiss√£o informada na Politica de Desconto 
     --------------------------------------------------------------
     PROCEDURE P_COMISSAO_POLITICA(pi_vConsiderarComissaoZero IN VARCHAR2,
                                   pi_vTipoVend               IN VARCHAR2,                           
@@ -2185,7 +2185,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   pio_nPerCom                IN OUT NUMBER)
     IS
   
-      -- Cursor de Comiss„o da Politica de Desconto
+      -- Cursor de Comiss√£o da Politica de Desconto
       CURSOR c_ComissaoPolitica(pi_vTipoVend    IN VARCHAR2,                           
                                 pi_nCodDesconto IN NUMBER) IS
   
@@ -2197,7 +2197,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           FROM PCDESCONTO
          WHERE (PCDESCONTO.CODDESCONTO = pi_nCodDesconto);
   
-      -- Cursor de Comiss„o do LOG Politica de Desconto 
+      -- Cursor de Comiss√£o do LOG Politica de Desconto 
       CURSOR c_ComissaoLogPolitica(pi_vTipoVend       IN VARCHAR2,                           
                                    pi_nCodDesconto    IN NUMBER,
                                    pi_nCodPromocaoMed IN NUMBER) IS
@@ -2214,7 +2214,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       
     BEGIN
     
-      -- Pesquisa a Comiss„o da PolÌtica
+      -- Pesquisa a Comiss√£o da Pol√≠tica
       FOR vc_ComissaoPolitica IN c_ComissaoPolitica(pi_vTipoVend,
                                                     pi_nCodDesconto) LOOP
                                               
@@ -2232,20 +2232,20 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         END IF;                                             
                                               
-        -- Sai apÛs achar o primeiro
+        -- Sai ap√≥s achar o primeiro
         EXIT;
                                                     
       END LOOP;  
       
-      -- Se Chamado da Rotina 2308 (Rec·lculo)
-      -- e tem PromoÁ„o associado ao Desconto
-      -- e n„o achou na PCDESCONTO
+      -- Se Chamado da Rotina 2308 (Rec√°lculo)
+      -- e tem Promo√ß√£o associado ao Desconto
+      -- e n√£o achou na PCDESCONTO
       IF (pi_nTipoChamada    = 2)     AND
          (pi_nCodDesconto    > 0)     AND
          (pi_nCodPromocaoMed > 0)     AND
          (pio_nPerCom        IS NULL) THEN
       
-        -- Pesquisa a Comiss„o do LOG da PolÌtica
+        -- Pesquisa a Comiss√£o do LOG da Pol√≠tica
         FOR vc_ComissaoLogPolitica IN c_ComissaoLogPolitica(pi_vTipoVend,
                                                             pi_nCodDesconto,
                                                             pi_nCodPromocaoMed) LOOP
@@ -2264,7 +2264,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
           END IF;                                             
                                                 
-          -- Sai apÛs achar o primeiro
+          -- Sai ap√≥s achar o primeiro
           EXIT;
                                                       
         END LOOP;  
@@ -2279,7 +2279,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   BEGIN
   
    /**************************
-    InicializaÁ„o dos Retornos
+    Inicializa√ß√£o dos Retornos
     **************************/
     
     po_nPerCom         := 0;
@@ -2287,23 +2287,23 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vMsgErros       := NULL;
     
    /***********************************
-    RestriÁ„o de Pesquisa das Comissıes
+    Restri√ß√£o de Pesquisa das Comiss√µes
     ***********************************/
     
-    -- Pesquisa por padr„o Todas as Comissıes
+    -- Pesquisa por padr√£o Todas as Comiss√µes
     vbTodasComissoes := TRUE;
-    -- Pega o Tipo de Comiss„o do Par‚metro
+    -- Pega o Tipo de Comiss√£o do Par√¢metro
     vvTipoComissao   := NVL(pi_vTipoComissao,'T');
-    -- RestriÁıes
+    -- Restri√ß√µes
     IF (vvTipoComissao = 'RA') THEN
       vbTodasComissoes := FALSE;
     END IF; 
   
    /**************************************************************
-    InicializaÁ„o de Vari·veis para uso nos procedimentos internos
+    Inicializa√ß√£o de Vari√°veis para uso nos procedimentos internos
     **************************************************************/
     
-    -- Pesquisa Par‚metros
+    -- Pesquisa Par√¢metros
     BEGIN
       SELECT PCCONSUM.USACOMISSAOPORRCA
            , PCCONSUM.COMISSAORCATIPOVENDA
@@ -2373,7 +2373,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END;  
     
    /*****************
-    Ordem da Comiss„o
+    Ordem da Comiss√£o
     *****************/
     IF    (NVL(vrParametros.nTIPOAVALIACAOCOMISSAO,1) = 1) THEN
       vtOrdemComissao(1) := 'PRO';
@@ -2411,14 +2411,14 @@ IS PRAGMA SERIALLY_REUSABLE;
           vtOrdemComissao(viIdxOrigemComissao) := 'RAM';
           viIdxOrigemComissao := NVL(viIdxOrigemComissao,0) + 1;
         END IF;
-        -- Tipo do LaÁo do Cursor
+        -- Tipo do La√ßo do Cursor
         vtOrdemComissao(viIdxOrigemComissao) := vcOrdem.TIPO;
         viIdxOrigemComissao := NVL(viIdxOrigemComissao,0) + 1;
       END LOOP;                    
     END IF;
   
     -----------------------------------------------------------------------------
-    --                  COMISS√O DIFERENCIADA FARMA/HOSPITALAR                 --
+    --                  COMISS√ÉO DIFERENCIADA FARMA/HOSPITALAR                 --
     -----------------------------------------------------------------------------
     IF (NVL(pi_nTipoChamada,0) = 3) THEN
     
@@ -2439,7 +2439,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrProd.nCODSEC       := NULL;   
       END;
     
-      -- Pesquisa a Comiss„o diferenciada
+      -- Pesquisa a Comiss√£o diferenciada
       -->> RCA
       IF   (pi_nTipoDefinicaoComiss = 1) THEN
         P_COMISSAO_REGIAOMED(vrParametros.vCONSIDERARCOMISSAOZERO,
@@ -2452,7 +2452,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              vrProd.nCODSEC,
                              pi_nPerDesc,
                              po_nPerCom);
-      -->> RCA 2 que n„o precisa ser o Emitente
+      -->> RCA 2 que n√£o precisa ser o Emitente
       ELSIF (pi_nTipoDefinicaoComiss = 3) THEN
         P_COMISSAO_REGIAOMED(vrParametros.vCONSIDERARCOMISSAOZERO,
                              vrRca.vTIPOVEND,
@@ -2467,11 +2467,11 @@ IS PRAGMA SERIALLY_REUSABLE;
      END IF;                           
     
     -----------------------------------------------------------------------------
-    --                  COMISS√O CONFORME ORDEM DAS COMISS’ES                  --
+    --                  COMISS√ÉO CONFORME ORDEM DAS COMISS√ïES                  --
     -----------------------------------------------------------------------------
     ELSE
     
-      -- Verifica se Prioriza Comiss„o - MED-2595
+      -- Verifica se Prioriza Comiss√£o - MED-2595
       BEGIN
         SELECT PRIORIZACOMISSAO
           INTO vPriorizaComissao
@@ -2482,11 +2482,11 @@ IS PRAGMA SERIALLY_REUSABLE;
           vPriorizaComissao := 'N';
       END;
       
-      -- Se Prioriza Comiss„o E n„o for Rec·lculo de comiss„o
+      -- Se Prioriza Comiss√£o E n√£o for Rec√°lculo de comiss√£o
       IF (NVL(vPriorizaComissao,'N') = 'S') AND
          (NVL(pi_nTipoChamada,0) <> 2)      THEN
       
-        -- Busca Comiss„o da PromoÁ„o
+        -- Busca Comiss√£o da Promo√ß√£o
         po_nPerCom := F_OBTER_COMISSAO_PROMOCAO(pi_nCodDesconto,
                                                 pi_nCodPromocaoMed,
                                                 vrRca.vTIPOVEND,
@@ -2499,7 +2499,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           FOR viIdxOrigemComissao IN vtOrdemComissao.FIRST..vtOrdemComissao.LAST LOOP 
       
            /*******************************
-            Obter Comiss„o informada no RCA
+            Obter Comiss√£o informada no RCA
             *******************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'RCA') THEN
               IF (vbTodasComissoes) THEN
@@ -2516,7 +2516,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                   
           
            /*******************************************
-            Obter Comiss„o informada por Ramo Atividade
+            Obter Comiss√£o informada por Ramo Atividade
             *******************************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'RAM') THEN
               IF (vbTodasComissoes) OR
@@ -2530,7 +2530,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                   
                            
            /************************************
-            Obter Comiss„o informada por Cliente
+            Obter Comiss√£o informada por Cliente
             ************************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'CLI') THEN
               IF (vbTodasComissoes) THEN
@@ -2543,12 +2543,12 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                   
           
            /************************************************************
-            Obter Comiss„o informada por Desconto e RCA - HIS.00665.2017
+            Obter Comiss√£o informada por Desconto e RCA - HIS.00665.2017
             ************************************************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'USU') THEN
               IF (vbTodasComissoes) THEN
               
-                -- Pesquisa Depto. e SeÁ„o do Produto
+                -- Pesquisa Depto. e Se√ß√£o do Produto
                 BEGIN
                   SELECT CODEPTO
                        , CODSEC        
@@ -2562,7 +2562,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vrProd.nCODSEC  := NULL;   
                 END;
               
-                -- Pesquisa a Comiss„o
+                -- Pesquisa a Comiss√£o
                 P_COMISSAO_USUR(vrParametros.vCONSIDERARCOMISSAOZERO,
                                 pi_nCodUsur,
                                 pi_nCodProd,
@@ -2574,7 +2574,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF; 
                   
            /***********************************
-            Obter Comiss„o informada por Regi„o
+            Obter Comiss√£o informada por Regi√£o
             ***********************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'REG') THEN
               IF (vbTodasComissoes) THEN
@@ -2596,7 +2596,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vrProd.nCODSEC       := NULL;   
                 END;
               
-                -- Pesquisa a Comiss„o
+                -- Pesquisa a Comiss√£o
                 P_COMISSAO_REGIAO(vrParametros.vCONSIDERARCOMISSAOZERO,
                                   vrRca.vTIPOVEND,
                                   pi_vCodFilial,
@@ -2612,7 +2612,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                   
           
            /************************************
-            Obter Comiss„o informada por Produto
+            Obter Comiss√£o informada por Produto
             ************************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'PRO') THEN
               IF (vbTodasComissoes) THEN
@@ -2627,7 +2627,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                   
           
            /*************************************************
-            Obter Comiss„o informada na PolÌtica de Descontos
+            Obter Comiss√£o informada na Pol√≠tica de Descontos
             *************************************************/
             IF (vtOrdemComissao(viIdxOrigemComissao) = 'POL') THEN
               IF (vbTodasComissoes) THEN
@@ -2640,20 +2640,20 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                 
             
           END LOOP;
-        END IF; -- FIM ORDEM DAS COMISS’ES      
+        END IF; -- FIM ORDEM DAS COMISS√ïES      
         
-      END IF; -- Fim CondiÁ„o: Prioriza Comiss„o
+      END IF; -- Fim Condi√ß√£o: Prioriza Comiss√£o
       
-    END IF; -- FIM CONDI«√O: COMISS√O DIFERENCIADA FARMA/HOSPITALAR ou COMISS√O CONFORME ORDEM DAS COMISS’ES               
+    END IF; -- FIM CONDI√á√ÉO: COMISS√ÉO DIFERENCIADA FARMA/HOSPITALAR ou COMISS√ÉO CONFORME ORDEM DAS COMISS√ïES               
                         
    /********************************************************
-    Regra de Comiss„o do Operador:
-    Somente tem Comiss„o se o prÛprio Funcion·rio for o RCA2
-    passado no Par‚metro como pi_nCodUsur
+    Regra de Comiss√£o do Operador:
+    Somente tem Comiss√£o se o pr√≥prio Funcion√°rio for o RCA2
+    passado no Par√¢metro como pi_nCodUsur
     ********************************************************/
     IF (pi_nTipoDefinicaoComiss = 2) THEN                      
     
-      -- Pesquisa RCA do Funcion·rio
+      -- Pesquisa RCA do Funcion√°rio
       BEGIN
         SELECT PCEMPR.CODUSUR
           INTO vrEmpr.nCODUSUR
@@ -2664,9 +2664,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrEmpr.nCODUSUR := NULL;
       END;
       
-      -- Se o Emitente n„o for um Televendas, zera a Comiss„o
-      -- (Operador n„o tem CÛdigo de RCA, operador n„o concede comiss„o ao RCA2, 
-      --  se o Digitador for outro Televendas aÌ pode considerar a comiss„o do RCA2 - 31/03/2016)
+      -- Se o Emitente n√£o for um Televendas, zera a Comiss√£o
+      -- (Operador n√£o tem C√≥digo de RCA, operador n√£o concede comiss√£o ao RCA2, 
+      --  se o Digitador for outro Televendas a√≠ pode considerar a comiss√£o do RCA2 - 31/03/2016)
       IF (NVL(vrEmpr.nCODUSUR,0) = 0) THEN
         po_nPerCom        := 0;
         vvTipoComissaoMed := 'ZT';
@@ -2674,7 +2674,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     
     END IF;
     
-    -- Se chamado da ValidaÁ„o da PromoÁ„o, retorna o Tipo de PromoÁ„o
+    -- Se chamado da Valida√ß√£o da Promo√ß√£o, retorna o Tipo de Promo√ß√£o
     IF (pi_nTipoChamada IN (2,4)) THEN
       IF (pi_vOrigemPed = 'F')   AND 
          (pi_vTipoFv    IS NULL) THEN
@@ -2682,7 +2682,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       ELSE
         po_vMsgErros := 'T' || NVL(vvTipoComissaoMed,' ');
       END IF;
-    END IF; -- Fim CondiÁ„o: Se chamado da ValidaÁ„o da PromoÁ„o
+    END IF; -- Fim Condi√ß√£o: Se chamado da Valida√ß√£o da Promo√ß√£o
   
   EXCEPTION
     WHEN e_Tratado THEN
@@ -2692,15 +2692,15 @@ IS PRAGMA SERIALLY_REUSABLE;
     WHEN OTHERS THEN
       po_nPerCom   := 0;
       po_vMsgErros := 'S';
-      po_vMsgErros := 'Erro C·lculo Comiss„o: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
+      po_vMsgErros := 'Erro C√°lculo Comiss√£o: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
   END P_OBTER_COMISSAO;
 
  /**********************************************************************************************
   OBJETO...: P_OBTER_DIAS_PRAZO_PEDIDO
-  DESCRI«√O: Procedure para retornar os dias de Prazo de 1 a 12 do Plano de Pagamento
+  DESCRI√á√ÉO: Procedure para retornar os dias de Prazo de 1 a 12 do Plano de Pagamento
              DDMEDICA-570
-  OBS......: Par‚metros: pi_nItensEticos, pi_nItensGenericos e pi_dDtVencCustomizado s„o de uso
-             de testes automatizados que n„o requerem pedido para validaÁ„o
+  OBS......: Par√¢metros: pi_nItensEticos, pi_nItensGenericos e pi_dDtVencCustomizado s√£o de uso
+             de testes automatizados que n√£o requerem pedido para valida√ß√£o
   **********************************************************************************************/  
   PROCEDURE P_OBTER_DIAS_PRAZO_PEDIDO(pi_vCarregarTabTemp   IN VARCHAR2,
                                       pi_nCodPlPag          IN NUMBER,
@@ -2746,7 +2746,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Array de Parcelas
     TYPE TTArrayParcelas IS TABLE OF PCPLPAG.PRAZO1%TYPE INDEX BY BINARY_INTEGER;
     vtArrayParcelas      TTArrayParcelas;
-    -- Outras Vari·veis
+    -- Outras Vari√°veis
     vnValorEticos          NUMBER;
     vnValorGenericos       NUMBER;
     vnValorTotalNormal     NUMBER;
@@ -2843,7 +2843,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            diafixo     PCPLPAG.diafixo%TYPE,
            numparcelas PCPLPAG.numeroparcelasdiafixo%TYPE);
       vrDadosPlPagDiaFixo TRecDadosPlPagDiaFixo;
-      -- Vari·veis para Vencimento da Parcela Dia Fixo - 4663.107370.2018
+      -- Vari√°veis para Vencimento da Parcela Dia Fixo - 4663.107370.2018
       viVencDiaFixo          INTEGER;
       vdDtVencParcelaDiaFixo DATE;
   
@@ -2852,7 +2852,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            numdiascarencia  PCPLPAG.diascarencia%TYPE,
            numparcelas      PCPLPAG.numparcelas%TYPE);
       vrDadosPlPagMensal TRecDadosPlPagMensal;
-      -- Vari·veis para Vencimento da Parcela Dia Fixo - 4663.107370.2018
+      -- Vari√°veis para Vencimento da Parcela Dia Fixo - 4663.107370.2018
       viVencMensal          INTEGER;
       vdDtVencParcelaMensal DATE;
 	  vb_diavalido boolean;	
@@ -2861,12 +2861,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Inicializa Retorno
       po_aArrayParcelas.DELETE;
   
-      -- Se enviando Plano 99 e n„o È …tico e GenÈrico
+      -- Se enviando Plano 99 e n√£o √© √âtico e Gen√©rico
       IF (NOT pi_bEticoGenerico)              AND 
          (pi_nCodPlPag = 99)                  AND
          (NVL(pi_vUsarPrazoCustom,'N') = 'S') THEN
          
-        -- InformaÁıes de Prazo Customizado 99 passados no par‚metro
+        -- Informa√ß√µes de Prazo Customizado 99 passados no par√¢metro
         vrDadosPlPag.vnPrazo1  := pi_nPrazoCustom1;
         vrDadosPlPag.vnPrazo2  := pi_nPrazoCustom2;
         vrDadosPlPag.vnPrazo3  := pi_nPrazoCustom3;
@@ -2886,7 +2886,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          
       ELSE
       
-        -- Pesquisa informaÁıes do Plano de Pagamento
+        -- Pesquisa informa√ß√µes do Plano de Pagamento
         BEGIN
           SELECT PCPLPAG.PRAZO1
                , PCPLPAG.PRAZO2
@@ -2944,13 +2944,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         
       END IF;
   
-      -- Contador de Vencimentos Vari·veis
+      -- Contador de Vencimentos Vari√°veis
       viContaVencVariavel := 0;
   
       -- ORIGEM = DATAS DE VENCIMENTO INFORMADAS NO PEDIDO ----------------------------------------
       IF (NVL(vrDadosPlPag.vvFormaParcelamento,'C') = 'V') THEN
   
-        -- Preeche Arrray a partir dos vencimentos prÈ-informados
+        -- Preeche Arrray a partir dos vencimentos pr√©-informados
         IF (NVL(pi_nNumPed,0) > 0) THEN
           FOR vc_VencVariavel IN (SELECT (PCPEDCVCTO.DTVENC - TRUNC(pi_dDtEntrega)) PRAZO
                                     FROM PCPEDCVCTO
@@ -2961,7 +2961,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             po_aArrayParcelas(viContaVencVariavel) := NVL(vc_VencVariavel.PRAZO,0);
           END LOOP;
         ELSE 
-          -- Para vencimento customizado ˙nico
+          -- Para vencimento customizado √∫nico
           IF (pi_dDtVencCustomizado IS NOT NULL) THEN
             IF (pi_dDtVencCustomizado >= pi_dDtEntrega) THEN
               FOR vc_VencVariavel IN (SELECT (pi_dDtVencCustomizado - TRUNC(pi_dDtEntrega)) PRAZO
@@ -2974,7 +2974,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF;
         END IF;
   
-      -- 4663.107370.2018 - ImplementaÁ„o Regra Data Fixa
+      -- 4663.107370.2018 - Implementa√ß√£o Regra Data Fixa
       ELSIF (vrDadosPlPag.vvFormaParcelamento = 'T') THEN
   
         BEGIN
@@ -3004,11 +3004,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                 
               vb_diavalido      := FALSE;
               WHILE (NOT vb_diavalido) LOOP
-			  -- Se Fevereiro for o mÍs do Vencimento e no Plano de Pagamento estiver como dia fixo igual ou superior a 29 dias
+			  -- Se Fevereiro for o m√™s do Vencimento e no Plano de Pagamento estiver como dia fixo igual ou superior a 29 dias
                IF ((TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), NVL(viVencDiaFixo,0)),'MM') = '02') AND
                   (NVL(vrDadosPlPagDiaFixo.diafixo,0) >= 29)) THEN
   
-                -- Pega o ˙ltimo dia de fevereiro a partir do primeiro dia do prÛximo mÍs - 1
+                -- Pega o √∫ltimo dia de fevereiro a partir do primeiro dia do pr√≥ximo m√™s - 1
                 SELECT TO_DATE(TO_CHAR('01') || '/' ||
                                TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), viVencDiaFixo + 1),
                                        'MM/YYYY'),
@@ -3016,7 +3016,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   INTO vdDtVencParcelaDiaFixo
                   FROM DUAL;
   
-              -- Se n„o for Fevereiro
+              -- Se n√£o for Fevereiro
                 ELSE
     
                   SELECT TO_DATE(TO_CHAR(vrDadosPlPagDiaFixo.diafixo) || '/' ||
@@ -3056,9 +3056,9 @@ IS PRAGMA SERIALLY_REUSABLE;
               NULL;
           END;
   
-        END IF; -- Fim CondiÁ„o: Se Calcula Parcelas Dia Fixo
+        END IF; -- Fim Condi√ß√£o: Se Calcula Parcelas Dia Fixo
   
-      -- 4663.107370.2018 - ImplementaÁ„o Regra Mensal
+      -- 4663.107370.2018 - Implementa√ß√£o Regra Mensal
       ELSIF (vrDadosPlPag.vvFormaParcelamento = 'M') THEN
   
         BEGIN
@@ -3102,11 +3102,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               NULL;
           END;
   
-        END IF; -- Fim CondiÁ„o: Se Calcula Parcelas Dia Fixo
+        END IF; -- Fim Condi√ß√£o: Se Calcula Parcelas Dia Fixo
   
-      END IF; -- FIM CONDI«√O: -- Se Vencimemto Vari·vel
+      END IF; -- FIM CONDI√á√ÉO: -- Se Vencimemto Vari√°vel
   
-      -- Se n„o preencheu os Parcelamentos Vari·veis
+      -- Se n√£o preencheu os Parcelamentos Vari√°veis
       IF (NVL(viContaVencVariavel,0) = 0) THEN
   
         -- Se preencheu a Data Vencimento Fixa
@@ -3130,7 +3130,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
         ELSE
   
-          -- LaÁo de Prazos
+          -- La√ßo de Prazos
           FOR viIdxPrazo IN 1..12 LOOP
   
             -- Pega Prazo
@@ -3160,11 +3160,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               po_aArrayParcelas(viIdxPrazo) := vrDadosPlPag.vnPrazo12;
             END IF;
   
-          END LOOP; -- Fim LaÁo de Prazos
+          END LOOP; -- Fim La√ßo de Prazos
   
-        END IF; -- Fim CondiÁ„o Se preencheu a Data Vencimento Fixa
+        END IF; -- Fim Condi√ß√£o Se preencheu a Data Vencimento Fixa
   
-      END IF; -- Fim CondiÁ„o: Se n„o preencheu os Parcelamentos Vari·veis
+      END IF; -- Fim Condi√ß√£o: Se n√£o preencheu os Parcelamentos Vari√°veis
   
     END P_CARREGAR_ARRAY_PARCELAS;
                                     
@@ -3188,11 +3188,11 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_nPrazo12        := NULL;
     po_nPrazoMedio     := NULL;
     
-    -- Se apaga Tabela Tempor·ria
+    -- Se apaga Tabela Tempor√°ria
     IF (pi_vCarregarTabTemp = 'S') THEN
       DELETE FROM PCMED_TITULOSRECEBER;
     END IF;
-    -- Tabela Tempor·ria de Prazos sempre limpa e insere duas linhas vazias para inicializar o grid de parcelas na tela inicial
+    -- Tabela Tempor√°ria de Prazos sempre limpa e insere duas linhas vazias para inicializar o grid de parcelas na tela inicial
     DELETE FROM PCMED_PRAZOS_TITULOSRECEBER;
     INSERT INTO PCMED_PRAZOS_TITULOSRECEBER(LINHA) VALUES (1);
     INSERT INTO PCMED_PRAZOS_TITULOSRECEBER(LINHA) VALUES (2);
@@ -3202,7 +3202,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Calculou Prazos                                             
       po_vCalculouPrazos := 'S';
     
-      -- Pesquisa Totais do Pedido se passar o N˙mero do Pedido
+      -- Pesquisa Totais do Pedido se passar o N√∫mero do Pedido
       IF (NVL(pi_nNumPed,0) > 0) THEN
         SELECT SUM(CASE WHEN NVL(PCPEDI.BONIFIC,'N') = 'N' THEN
                      DECODE(NVL(PCPRODUT.GRUPOFATURAMENTO,'N'),'E',(PCPEDI.PVENDA * PCPEDI.QT),0) 
@@ -3232,7 +3232,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              , PCPRODUT
          WHERE (PCPEDI.NUMPED    = pi_nNumPed)
            AND (PCPRODUT.CODPROD = PCPEDI.CODPROD);
-      -- Recebe dos par‚metros para teste automatizado
+      -- Recebe dos par√¢metros para teste automatizado
       ELSE
         vnValorEticos          := pi_nValorEticos;
         vnValorGenericos       := pi_nValorGenericos;
@@ -3240,8 +3240,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         vnValorTotalBonificado := 0;
       END IF;
       
-      -- Se for para gravar na Tabela Tempor·ria e n„o tiver Produtos,
-      -- inicializo o …tico e GenÈrico com valor 1 sÛ pra fazer o c·lculo dos dias de Prazo Inicial
+      -- Se for para gravar na Tabela Tempor√°ria e n√£o tiver Produtos,
+      -- inicializo o √âtico e Gen√©rico com valor 1 s√≥ pra fazer o c√°lculo dos dias de Prazo Inicial
       -- e poder sair no grid de parcelas da tela inicial os dias de prazo ao iniciar o pedido
       IF (pi_vCarregarTabTemp = 'N'    ) AND
          (NVL(vnValorTotalNormal,0) = 0) THEN
@@ -3261,7 +3261,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          
         -- Inicializa Texto Sql
         vvSqlPrazoEtiGen     := NULL;
-        -- Inicializa maior prazo …tico e GenÈrico
+        -- Inicializa maior prazo √âtico e Gen√©rico
         viMaiorPrazoEtico    := 0;
         viMaiorPrazoGenerico := 0;
          
@@ -3269,7 +3269,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF (NVL(vnValorEticos,0) > 0) THEN
         
           P_CARREGAR_ARRAY_PARCELAS(TRUE,
-                                    pi_nCodPlPagEtico, -->> Plano de Pagamento …tico
+                                    pi_nCodPlPagEtico, -->> Plano de Pagamento √âtico
                                     pi_dDtEntrega,
                                     vtArrayParcelas);
           viQtdeParcelas := NVL(vtArrayParcelas.COUNT,0);                    
@@ -3285,10 +3285,10 @@ IS PRAGMA SERIALLY_REUSABLE;
               END IF;
               vvSqlPrazoEtiGen := vvSqlPrazoEtiGen || ' SELECT ' || NVL(vtArrayParcelas(viIdx),0) || ' AS PRAZO FROM DUAL ';
               
-              -- Guarda maior prazo Ètico
+              -- Guarda maior prazo √©tico
               viMaiorPrazoEtico := NVL(vtArrayParcelas(viIdx),0);
                 
-              -- Insere na Tabela Tempor·ria
+              -- Insere na Tabela Tempor√°ria
               IF (pi_vCarregarTabTemp = 'S') THEN
               
                 INSERT INTO PCMED_TITULOSRECEBER
@@ -3301,7 +3301,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
             END LOOP;
             
-            -- Atualiza Tabela Tempor·ria
+            -- Atualiza Tabela Tempor√°ria
             IF (pi_vCarregarTabTemp = 'S') THEN
             
               UPDATE PCMED_TITULOSRECEBER
@@ -3314,11 +3314,11 @@ IS PRAGMA SERIALLY_REUSABLE;
           
         END IF; -- FIM: Carrega Array de Parcelas do Plano de Pagamento Etico
 
-        -- Carrega Array de Parcelas do Plano de Pagamento GenÈrico
+        -- Carrega Array de Parcelas do Plano de Pagamento Gen√©rico
         IF (NVL(vnValorGenericos,0) > 0) THEN
         
           P_CARREGAR_ARRAY_PARCELAS(TRUE,
-                                    pi_nCodPlPagGenerico, -->> Plano de Pagamento GenÈrico
+                                    pi_nCodPlPagGenerico, -->> Plano de Pagamento Gen√©rico
                                     pi_dDtEntrega,
                                     vtArrayParcelas);
           viQtdeParcelas := NVL(vtArrayParcelas.COUNT,0);
@@ -3334,10 +3334,10 @@ IS PRAGMA SERIALLY_REUSABLE;
               END IF;            
               vvSqlPrazoEtiGen := vvSqlPrazoEtiGen || ' SELECT ' || NVL(vtArrayParcelas(viIdx),0) || ' AS PRAZO FROM DUAL ';
 
-              -- Guarda maior prazo genÈrico
+              -- Guarda maior prazo gen√©rico
               viMaiorPrazoGenerico := NVL(vtArrayParcelas(viIdx),0);
 
-              -- Insere na Tabela Tempor·ria
+              -- Insere na Tabela Tempor√°ria
               IF (pi_vCarregarTabTemp = 'S') THEN
               
                 INSERT INTO PCMED_TITULOSRECEBER
@@ -3350,7 +3350,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
             END LOOP;
             
-            -- Atualiza Tabela Tempor·ria
+            -- Atualiza Tabela Tempor√°ria
             IF (pi_vCarregarTabTemp = 'S') THEN
             
               UPDATE PCMED_TITULOSRECEBER
@@ -3361,7 +3361,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             
           END IF; -- FIM: Se tem Parcelas
           
-        END IF; -- FIM: Carrega Array de Parcelas do Plano de Pagamento GenÈrico
+        END IF; -- FIM: Carrega Array de Parcelas do Plano de Pagamento Gen√©rico
          
         -- Agrupa Parcelas em Array
         IF (vvSqlPrazoEtiGen IS NOT NULL) THEN
@@ -3376,10 +3376,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           EXECUTE IMMEDIATE vvSqlPrazoEtiGen
                BULK COLLECT INTO vtArrayParcelas;
                     
-        END IF; -- Fim CondiÁ„o: Agrupa Parcelas em Array
+        END IF; -- Fim Condi√ß√£o: Agrupa Parcelas em Array
                
       -----------------------------------
-      --  Se N√O FOR Grupo de Faturamento
+      --  Se N√ÉO FOR Grupo de Faturamento
       -----------------------------------
       ELSE
                           
@@ -3397,7 +3397,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Guarda maior prazo
             viMaiorPrazo := NVL(vtArrayParcelas(viIdx),0);
 
-            -- Insere na Tabela Tempor·ria
+            -- Insere na Tabela Tempor√°ria
             IF (pi_vCarregarTabTemp = 'S') THEN
             
               INSERT INTO PCMED_TITULOSRECEBER
@@ -3410,7 +3410,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             
           END LOOP;
           
-          -- Atualiza Tabela Tempor·ria
+          -- Atualiza Tabela Tempor√°ria
           IF (pi_vCarregarTabTemp = 'S') THEN
           
             UPDATE PCMED_TITULOSRECEBER
@@ -3421,7 +3421,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
         END IF;
                 
-      END IF; -- Fim CondiÁ„o: Se Grupo de Faturamento
+      END IF; -- Fim Condi√ß√£o: Se Grupo de Faturamento
       
       -------------------------------------------------------------------------------------------
       -- SE GEROU PARCELAS ----------------------------------------------------------------------
@@ -3431,7 +3431,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Pega a Quantidade de Parcelas do Array
         viQtdeParcelas := NVL(vtArrayParcelas.COUNT,0);
 
-        -- Calcula o Prazo MÈdio
+        -- Calcula o Prazo M√©dio
         viSomaDiasParcelas := 0;
         FOR viIdx IN vtArrayParcelas.FIRST..vtArrayParcelas.LAST LOOP
           viSomaDiasParcelas := NVL(viSomaDiasParcelas,0) + NVL(vtArrayParcelas(viIdx),0);
@@ -3442,17 +3442,17 @@ IS PRAGMA SERIALLY_REUSABLE;
           viPrazoMedio := 0;
         END IF;    
         
-        -- Cria no array as posiÁıes das parcelas que n„o existem atÈ a 12a. Parcela
+        -- Cria no array as posi√ß√µes das parcelas que n√£o existem at√© a 12a. Parcela
         FOR viIdx IN (viQtdeParcelas+1)..12 LOOP
           vtArrayParcelas(viIdx) := NULL;
         END LOOP;
         
         -----------------------------------
-        -- FINALIZA«√O DA TABELA TEMPOR¡RIA
+        -- FINALIZA√á√ÉO DA TABELA TEMPOR√ÅRIA
         -----------------------------------
         IF (pi_vCarregarTabTemp = 'S') THEN
         
-          -- Se n„o tiver Grupo de Faturamento
+          -- Se n√£o tiver Grupo de Faturamento
           SELECT SUM(VALORTITULOMED)
             INTO vnAuxTotal
             FROM PCMED_TITULOSRECEBER
@@ -3485,7 +3485,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                WHERE (TIPO = 'G')
                  AND (PRAZOMED = viMaiorPrazoGenerico);
             END IF;
-            -- Agrupa o …tico e GenÈrico
+            -- Agrupa o √âtico e Gen√©rico
             INSERT INTO PCMED_TITULOSRECEBER
                       ( TIPO
                       , PRAZOMED
@@ -3498,10 +3498,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                   GROUP BY PRAZOMED;          
           END IF;
           
-        END IF; -- FIM: FINALIZA«√O DA TABELA TEMPOR¡RIA
+        END IF; -- FIM: FINALIZA√á√ÉO DA TABELA TEMPOR√ÅRIA
 
         -----------------------------------
-        -- TEMPOR¡RIA PARCELA BONIFICADOS
+        -- TEMPOR√ÅRIA PARCELA BONIFICADOS
         -----------------------------------
         IF (pi_vCarregarTabTemp = 'S') THEN
         
@@ -3594,20 +3594,20 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nPrazo12    := vtArrayParcelas(12);
         po_nPrazoMedio := viPrazoMedio;
                                                                                                             
-      END IF; -- Fim CondiÁ„o: Se Gerou Prazos
+      END IF; -- Fim Condi√ß√£o: Se Gerou Prazos
             
-    END IF; -- Fim CondiÁ„o: TipoPrazoMedicamen <> 4
+    END IF; -- Fim Condi√ß√£o: TipoPrazoMedicamen <> 4
     
   END P_OBTER_DIAS_PRAZO_PEDIDO;   
   
   /*******************************************************************************
    Nome         : P_OBTEM_PMPF
-   Descric„o    : Procedimento Obter o PMPF dos Medicamentos
-   Par‚metros   : ENTRADA:
-                  pi_nCodSt   = CÛdigo da TributaÁ„o
-                  pi_nCodProd = CÛdigo do Produto
-                  pi_nCodCli  = CÛdigo do Cliente
-                  pi_vEstEnt  = UF do EndereÁo de Entrega - DDVENDAS-33718
+   Descric√£o    : Procedimento Obter o PMPF dos Medicamentos
+   Par√¢metros   : ENTRADA:
+                  pi_nCodSt   = C√≥digo da Tributa√ß√£o
+                  pi_nCodProd = C√≥digo do Produto
+                  pi_nCodCli  = C√≥digo do Cliente
+                  pi_vEstEnt  = UF do Endere√ßo de Entrega - DDVENDAS-33718
                   SAIDA:
                   po_nPmPf    = PMPF
   **********************************************************************************/                                       
@@ -3623,7 +3623,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Inicializa Retorno
     po_nPmPf := NULL;
   
-    -- Pesquisa TributaÁ„o do Produto
+    -- Pesquisa Tributa√ß√£o do Produto
     BEGIN
       SELECT PCTRIBUT.USAPMPFBASEST
         INTO vvUsaPmPfBaseSt
@@ -3634,7 +3634,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvUsaPmPfBaseSt := 'N';
     END;
     
-    -- Se a TributaÁ„o Usa PMPF na Base do ST
+    -- Se a Tributa√ß√£o Usa PMPF na Base do ST
     IF (vvUsaPmPfBaseSt = 'S') THEN
     
       -- Pesquisa UF do Cliente
@@ -3648,7 +3648,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vvEstEnt := NULL;
       END;
       
-      -- Pega a UF do EndereÁo de Entrega recebido no Par‚metro - DDVENDAS-33718
+      -- Pega a UF do Endere√ßo de Entrega recebido no Par√¢metro - DDVENDAS-33718
       IF (pi_vEstEnt IS NOT NULL) THEN
         vvEstEnt := pi_vEstEnt;
       END IF;
@@ -3665,29 +3665,29 @@ IS PRAGMA SERIALLY_REUSABLE;
           po_nPmPf := 0;
       END;
       
-    END IF; -- Fim CondiÁ„o: Se a TributaÁ„o Usa PMPF na Base do ST
+    END IF; -- Fim Condi√ß√£o: Se a Tributa√ß√£o Usa PMPF na Base do ST
     
   END P_OBTEM_PMPF;
   
  /*******************************************************************************
   Nome         : F_OBTEM_PRECO_ABCFARMA - DDVENDAS-35697
-  Descric„o    : Procedimento Obter o PreÁo ABCFARMA/CMED - PreÁo F·brica ou PMC ou LicitaÁ„o
-  Par‚metros   : ENTRADA:
-                 pi_vTipoPreco       = 'PF'     - PreÁo F·brica
+  Descric√£o    : Procedimento Obter o Pre√ßo ABCFARMA/CMED - Pre√ßo F√°brica ou PMC ou Licita√ß√£o
+  Par√¢metros   : ENTRADA:
+                 pi_vTipoPreco       = 'PF'     - Pre√ßo F√°brica
                                        'PMC'    - PMC
-                                       'PFLIC'  - PreÁo F·brica da LicitaÁ„o
-                                       'PMCLIC' - PMC da LicitaÁ„o
-                 pi_nCodProd         = CÛdigo do Produto                
+                                       'PFLIC'  - Pre√ßo F√°brica da Licita√ß√£o
+                                       'PMCLIC' - PMC da Licita√ß√£o
+                 pi_nCodProd         = C√≥digo do Produto                
                  pi_vUf              = UF de Destino
-                 pi_vCodFilial       = CÛdigo da Filial
-                 pi_vCodFilialNf     = CÛdigo da Filial de Faturamento
-                 pi_nCodProd         = CÛdigo do Produto
-                 pi_nNumRegiao       = Regi„o
+                 pi_vCodFilial       = C√≥digo da Filial
+                 pi_vCodFilialNf     = C√≥digo da Filial de Faturamento
+                 pi_nCodProd         = C√≥digo do Produto
+                 pi_nNumRegiao       = Regi√£o
                  pi_vTipoCliMed      = Tipo de Cliente Medicamento
                  pi_vConvenioIsencao = S/N
                  SAIDA:
                  po_nPmc             = Valor do PMC
-                 po_nPrecoFabrica    = PreÁo F·brica
+                 po_nPrecoFabrica    = Pre√ßo F√°brica
                  po_vMensagem        = Mensagem de Erro
   ********************************************************************************/                                       
   FUNCTION F_OBTEM_PRECO_ABCFARMA(pi_vTipoPreco       IN VARCHAR2,
@@ -3706,13 +3706,13 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- UF
     vvUf          VARCHAR2(255);
     
-    -- CÛdigo da Filial
+    -- C√≥digo da Filial
     vvCodFilial   PCFILIAL.CODIGO%TYPE;
 
-    -- UF ExceÁ„o
+    -- UF Exce√ß√£o
     vvUfExcecao   VARCHAR2(255);
     
-    -- Achou ExceÁ„o
+    -- Achou Exce√ß√£o
     vAchouExcecao BOOLEAN;
         
   /*********************************
@@ -3727,7 +3727,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnRetPreco := NULL;
 
    /********************************************
-    Inicializa Vari·veis a partir dos Par‚metros
+    Inicializa Vari√°veis a partir dos Par√¢metros
     ********************************************/
     
     vvUf := pi_vUf;
@@ -3753,15 +3753,15 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
        
    /******************
-    ExceÁ„o do Cliente
+    Exce√ß√£o do Cliente
     ******************/
     
     vAchouExcecao := FALSE;
         
-    -- DDVENDAS-38075 - PMC n„o entra nas ExceÁıes
+    -- DDVENDAS-38075 - PMC n√£o entra nas Exce√ß√µes
     IF (UPPER(pi_vTipoPreco) NOT IN ('PMC','PMCLICIT')) THEN
         
-      -- Regra da Prioridade: ExceÁıes do ConvÍnio IsenÁ„o ICMS (existir um relacionamento na PCUFMEDABCFARMA para o cÛdigo da exceÁ„o e o convÍnio '1' = ConvÍnio IsenÁ„o ICMS)
+      -- Regra da Prioridade: Exce√ß√µes do Conv√™nio Isen√ß√£o ICMS (existir um relacionamento na PCUFMEDABCFARMA para o c√≥digo da exce√ß√£o e o conv√™nio '1' = Conv√™nio Isen√ß√£o ICMS)
       FOR vc_Excecao IN (SELECT E.CODEXCECAO
                               , NVL((SELECT 1 FROM PCUFMEDABCFARMA TB WHERE TB.UF = E.CODEXCECAO AND TB.TIPOMEDICAMENTO = '1' AND pi_vConvenioIsencao = 'S'),2) PRIORIDADE
                            FROM PCEXCECAOUFMEDABCFARMA E
@@ -3787,10 +3787,10 @@ IS PRAGMA SERIALLY_REUSABLE;
            WHERE (CODPROD = pi_nCodProd)
              AND (UF      = vc_Excecao.CODEXCECAO);
              
-          --** ACHOU EXCE«√O **--
+          --** ACHOU EXCE√á√ÉO **--
           vAchouExcecao := TRUE;
           
-          -- ConvÍnio CONFAZ 87 tem Prioridade, portanto n„o procura o prÛximo
+          -- Conv√™nio CONFAZ 87 tem Prioridade, portanto n√£o procura o pr√≥ximo
           IF (NVL(pi_vConvenioIsencao,'N') = 'S') AND
              (NVL(vnRetPreco,0) > 0) THEN
             EXIT;
@@ -3798,7 +3798,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            -- Se n„o encontrar mantÈm o ˙ltimo
+            -- Se n√£o encontrar mant√©m o √∫ltimo
             NULL;
         END;
                             
@@ -3807,7 +3807,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
     
    /********************
-    Se n„o achou ExceÁ„o
+    Se n√£o achou Exce√ß√£o
     ********************/
     
     IF (NOT vAchouExcecao) THEN
@@ -3834,7 +3834,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vnRetPreco := 0;
       END;
       
-      -- Se tabela Zona Franca e n„o achou a AlÌquota, busca na ZF
+      -- Se tabela Zona Franca e n√£o achou a Al√≠quota, busca na ZF
       IF (UPPER(pi_vUf) = 'ZF')  AND 
          (NVL(vnRetPreco,0) = 0) THEN
          
@@ -3862,7 +3862,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          
       END IF;
       
-    END IF; -- N„o Achou ExceÁ„o
+    END IF; -- N√£o Achou Exce√ß√£o
     
    /*******
     Retorno
@@ -3873,7 +3873,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   END F_OBTEM_PRECO_ABCFARMA;
 
   ---------------------------------------------------------------------------------------------------
-  -- FunÁ„o para Calcular o Descontos dos BenefÌcios Fiscais conforme Regra do Pacote - DDMEDICA-7584
+  -- Fun√ß√£o para Calcular o Descontos dos Benef√≠cios Fiscais conforme Regra do Pacote - DDMEDICA-7584
   ---------------------------------------------------------------------------------------------------
   PROCEDURE P_CALC_DESC_PIS_COFINS_ICMS(pi_vCODFILIAL              IN VARCHAR2,
                                         pi_vCODFILIANF             IN VARCHAR2,
@@ -3892,12 +3892,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         po_vErros                 OUT VARCHAR2,
                                         po_vMsgErros              OUT VARCHAR2) IS
     
-    -- DeclaraÁ„o de Vari·veis da FunÁ„o
+    -- Declara√ß√£o de Vari√°veis da Fun√ß√£o
     vvSql VARCHAR2(2000);
 
   BEGIN
 
-    -- Inicializa Vari·veis
+    -- Inicializa Vari√°veis
     po_nVALOR_DESCONTO_PIS    := 0;
     po_nPERC_DESCONTO_PIS     := 0;
     po_nVALOR_DESCONTO_COFINS := 0;
@@ -3951,13 +3951,13 @@ IS PRAGMA SERIALLY_REUSABLE;
   EXCEPTION
     WHEN OTHERS THEN
       po_vErros    := 'S';
-      po_vMsgErros := 'Erro no c·lculo dos benefÌcios fiscais (PKG_TRIBUTACAO): ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >>' || SQLERRM; 
+      po_vMsgErros := 'Erro no c√°lculo dos benef√≠cios fiscais (PKG_TRIBUTACAO): ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >>' || SQLERRM; 
   END P_CALC_DESC_PIS_COFINS_ICMS;  
   
   /*******************************************************************************
    Nome         : F_GET_SOMADESCUNITBENEFFISCAIS - DDMEDICA-7584
-   Descric„o    : FunÁ„o para retornar o somatÛrio dos valores unit·rios dos descontos de benefÌcios fiscais
-   Par‚metros   : ENTRADA:
+   Descric√£o    : Fun√ß√£o para retornar o somat√≥rio dos valores unit√°rios dos descontos de benef√≠cios fiscais
+   Par√¢metros   : ENTRADA:
                   pi_nVLDESCICMISENCAO
                   pi_nVLDESCSUFRAMA
                   pi_nVLDESCPISSUFRAMA
@@ -3976,7 +3976,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Inicializa Retorno
     vnRetSomaDescUnitBenefFiscais := 0;
   
-    -- SomatÛrio dos Descontos dos BenefÌcios Fiscais
+    -- Somat√≥rio dos Descontos dos Benef√≠cios Fiscais
     IF (NVL(pi_nVLDESCICMISENCAO,0) > 0) THEN 
       vnRetSomaDescUnitBenefFiscais := NVL(vnRetSomaDescUnitBenefFiscais,0) + NVL(pi_nVLDESCICMISENCAO,0);
     END IF;      
@@ -4018,7 +4018,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   END F_ARREDONDAMENTO_SUFRAMA;
 
   ------------------------------------------------------------------------------
-  -- Procedimento para arredondar o calculo da desoneraÁ„o - DDMEDICA-7594
+  -- Procedimento para arredondar o calculo da desonera√ß√£o - DDMEDICA-7594
   ------------------------------------------------------------------------------
   FUNCTION F_ARREDONDAMENTO_DESONERACAO(pi_nValor            IN NUMBER,
                                         pi_vNumCasasDecimais IN NUMBER,
@@ -4042,8 +4042,8 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vDESTACDESCICMISENCAOCOMERCIAL := 'N';
       END;
-      IF (NVL(vDESTACDESCICMISENCAOCOMERCIAL,'N') <> 'S') THEN -- IsenÁ„o ST n„o participa da Regra
-        -- Condicionar ‡s casas decimais do preÁo de venda para n„o gerar preÁo negativo
+      IF (NVL(vDESTACDESCICMISENCAOCOMERCIAL,'N') <> 'S') THEN -- Isen√ß√£o ST n√£o participa da Regra
+        -- Condicionar √†s casas decimais do pre√ßo de venda para n√£o gerar pre√ßo negativo
         IF    (NVL(pi_vNumCasasDecimais,2) = 3) THEN
           nValorDesoneracao := 0.001;
         ELSIF (NVL(pi_vNumCasasDecimais,2) = 4) THEN
@@ -4065,7 +4065,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
  /*******************************************************************************
   Nome     : P_BUSCARDADOSENDERECOENTREGA - DDVENDAS-33718
-  Descric„o: Procedimento para retornar os dados do endereÁo de entrega do cliente
+  Descric√£o: Procedimento para retornar os dados do endere√ßo de entrega do cliente
   ********************************************************************************/                                         
   PROCEDURE P_BUSCARDADOSENDERECOENTREGA(pCodCli    IN NUMBER,
                                          pCodEndEnt IN NUMBER,
@@ -4102,7 +4102,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
  /*******************************************************************************
   Nome     : P_RETORNARUFENTENDENT - DDVENDAS-33718
-  Descric„o: Procedimento para retornar a UF do EndereÁo de Entrega do Cliente
+  Descric√£o: Procedimento para retornar a UF do Endere√ßo de Entrega do Cliente
   ********************************************************************************/                                         
   PROCEDURE P_RETORNARUFENTENDENT(pCodCli      IN NUMBER,
                                   pCodEndEnt   IN NUMBER,
@@ -4145,7 +4145,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
  /*******************************************************************************
   Nome     : F_DEFINIRNUMREGIAOPEDIDO - DDVENDAS-33718
-  Descric„o: FunÁ„o para definir a Regi„o do Pedido baseado no EndereÁo de Entrega do Cliente
+  Descric√£o: Fun√ß√£o para definir a Regi√£o do Pedido baseado no Endere√ßo de Entrega do Cliente
   ********************************************************************************/                                         
   FUNCTION F_DEFINIRNUMREGIAOPEDIDO(pCodCli            IN NUMBER,
                                     pNumRegiao         IN NUMBER,
@@ -4159,10 +4159,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnCodPracaEnt     PCPRACA.CODPRACA%TYPE;
   BEGIN
   
-    -- Inicializa a Regi„o com o valor recebido no Par‚metro
+    -- Inicializa a Regi√£o com o valor recebido no Par√¢metro
     vnRetNumRegiao := pNumRegiao;
   
-    -- Se utilizar TributaÁ„o pelo EndereÁo de Entrega e informou o EndereÁo de Entrega
+    -- Se utilizar Tributa√ß√£o pelo Endere√ßo de Entrega e informou o Endere√ßo de Entrega
     IF (NVL(pUtilizaTribEndEnt,'N') = 'S') AND
        (NVL(pCodEndEnt,0) > 0)             THEN
 
@@ -4178,14 +4178,14 @@ IS PRAGMA SERIALLY_REUSABLE;
       
     END IF;
   
-    -- Retorna a Regi„o
+    -- Retorna a Regi√£o
     RETURN vnRetNumRegiao;
     
   END F_DEFINIRNUMREGIAOPEDIDO;
   
  /*******************************************************************************
   Nome     : F_DEFINIRNUMREGIAOPEDIDO - DDVENDAS-33718
-  Descric„o: FunÁ„o para definir a UF de Destino do Pedido baseado no EndereÁo de Entrega do Cliente
+  Descric√£o: Fun√ß√£o para definir a UF de Destino do Pedido baseado no Endere√ßo de Entrega do Cliente
   ********************************************************************************/                                         
   FUNCTION F_DEFINIRUFDESTINOPEDIDO(pCodCli            IN NUMBER,
                                     pUtilizaTribEndEnt IN VARCHAR2,
@@ -4201,7 +4201,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Inicia com ESTENT do Cliente
     vsRetEstDestino := pEstEnt;
   
-    -- Se utilizar TributaÁ„o pelo EndereÁo de Entrega e informou o EndereÁo de Entrega
+    -- Se utilizar Tributa√ß√£o pelo Endere√ßo de Entrega e informou o Endere√ßo de Entrega
     IF (NVL(pUtilizaTribEndEnt,'N') = 'S') AND
        (NVL(pCodEndEnt,0) > 0) THEN
        
@@ -4224,28 +4224,28 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : P_TAXACORDOPARCERIA
-   DescriÁ„o    : Procedimento para retornar a Taxa de Desconto a Aplicar sobre o PreÁo Tabela
-   Par‚metros   : ENTRADA:
-                  pi_vCodFilial        = CÛdigo da Filial
-                  pi_vCodFilialNf      = CÛdigo da Filial NF
-                  pi_nCodProd          = CÛdigo do Produto
-                  pi_nCodCli           = CÛdigo do Cliente
-                  pi_nNumRegiao        = N˙mero da Regi„o
+   Descri√ß√£o    : Procedimento para retornar a Taxa de Desconto a Aplicar sobre o Pre√ßo Tabela
+   Par√¢metros   : ENTRADA:
+                  pi_vCodFilial        = C√≥digo da Filial
+                  pi_vCodFilialNf      = C√≥digo da Filial NF
+                  pi_nCodProd          = C√≥digo do Produto
+                  pi_nCodCli           = C√≥digo do Cliente
+                  pi_nNumRegiao        = N√∫mero da Regi√£o
                   pi_nCondVenda        = Tipo de Venda
                   pi_vOrigemPed        = Origem do Pedido
                   pi_vTipoFv           = Tipo de FV
                   pi_nIntegradora      = Integradora
                   pi_dDtBase           = Data Base 
                   pi_vTipoChamada      = 'T' - Taxa de Desconto a Aplicar sobre o 
-                                               PreÁo Tabela
+                                               Pre√ßo Tabela
                                          'F' - Desconto Financeiro      
                   SAIDA:
-                  po_nCodAcordo        = CÛdigo do Acordo de Parceria
+                  po_nCodAcordo        = C√≥digo do Acordo de Parceria
                   po_nPercTaxa         = % Taxa
-                  po_nPerCom           = % Comiss„o
+                  po_nPerCom           = % Comiss√£o
                   po_vCampo            = Campo referenciado
-   AlteraÁ„o    : Anderson Silva - 25/06/2014 - CriaÁ„o da FunÁ„o
-   AlteraÁ„o    : Anderson Silva - 10/12/2017 - Chamada Desc. Financeiro
+   Altera√ß√£o    : Anderson Silva - 25/06/2014 - Cria√ß√£o da Fun√ß√£o
+   Altera√ß√£o    : Anderson Silva - 10/12/2017 - Chamada Desc. Financeiro
   ********************************************************************************/
   PROCEDURE P_TAXACORDOPARCERIA(pi_vCodFilial       IN  VARCHAR2,
                                 pi_vCodFilialNf     IN  VARCHAR2,
@@ -4273,9 +4273,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Origem do Pedido
     vvCodOrigemPed          PCACORDOPARCERIAORIG.CODORIG%TYPE;
     
-    -- Regi√£o
+    -- Regi√É¬£o
     v_numregiao             PCREGIAO.NUMREGIAO%TYPE;
-    -- Pra√ßa
+    -- Pra√É¬ßa
     v_codpraca              PCCLIENT.CODPRACA%TYPE;
     
     -- Tipo de Acordo 
@@ -4283,7 +4283,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     
     --------------------------------------------------------------------------------------
     -- Procedimento: P_OBTER_TAXA
-    -- Descri√ß√£o...: Obtem a Taxa para o Acordo
+    -- Descri√É¬ß√É¬£o...: Obtem a Taxa para o Acordo
     --------------------------------------------------------------------------------------
     PROCEDURE P_OBTER_TAXA(pi_nCodAcordo  IN NUMBER,
                            pi_nCodProd    IN NUMBER,
@@ -4306,23 +4306,23 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Pesquisa Dados do Acordo encontrado
       BEGIN
         SELECT CASE WHEN (NVL(TIPOACORDO,'A') IN ('D','F')) THEN
-                 -- Acordo Exclusivo de Desconto e Acr√©scimo OU Desconto Financeiro sempre √© Liberado
+                 -- Acordo Exclusivo de Desconto e Acr√É¬©scimo OU Desconto Financeiro sempre √É¬© Liberado
                  'L'
                ELSE
                  STATUS
                END STATUS
           INTO v_status
           FROM PCACORDOPARCERIA
-         WHERE (CODACORDO = pi_nCodAcordo); -->> C√≥digo do Acordo encontrado   
+         WHERE (CODACORDO = pi_nCodAcordo); -->> C√É¬≥digo do Acordo encontrado   
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           v_status := NULL;
       END;      
     
-      -- Se Acordo V√°lido: Se encontrou o Acordo e est√° Liberado
+      -- Se Acordo V√É¬°lido: Se encontrou o Acordo e est√É¬° Liberado
       IF (v_status = 'L') THEN
           
-        -- Pesquisa informa√ß√µes do produto
+        -- Pesquisa informa√É¬ß√É¬µes do produto
         BEGIN
           SELECT PCPRODUT.CODMARCA             
                , PCPRODUT.CODLINHAPROD
@@ -4373,15 +4373,15 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Sai
           EXIT;
           
-        END LOOP; -- Fim La√ßo Pesquisa Taxa
+        END LOOP; -- Fim La√É¬ßo Pesquisa Taxa
          
-      END IF; -- Fim Condi√ß√£o: Se Acordo V√°lido: Se encontrou o Acordo e est√° Liberado      
+      END IF; -- Fim Condi√É¬ß√É¬£o: Se Acordo V√É¬°lido: Se encontrou o Acordo e est√É¬° Liberado      
       
     END P_OBTER_TAXA;
       
     --------------------------------------------------------------------------------------
-    -- Fun√ß√£o...: F_ACORDO_RESTRICAO_VALIDO
-    -- Descri√ß√£o: Verifica se a Regi√£o √© V√°lida para as Restri√ß√µes passadas nos Par√¢metros
+    -- Fun√É¬ß√É¬£o...: F_ACORDO_RESTRICAO_VALIDO
+    -- Descri√É¬ß√É¬£o: Verifica se a Regi√É¬£o √É¬© V√É¬°lida para as Restri√É¬ß√É¬µes passadas nos Par√É¬¢metros
     --------------------------------------------------------------------------------------
     FUNCTION F_ACORDO_RESTRICAO_VALIDO(pi_nParamCodAcordo IN NUMBER,
                                        pi_nParamNumRegiao IN NUMBER,
@@ -4399,11 +4399,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Inicializa Retorno
       vvAcordoValido := 'N';
       
-      -- RESTRI√á√ïES DE REGI√ÉO ---------------------
+      -- RESTRI√É‚Ä°√É‚Ä¢ES DE REGI√É∆íO ---------------------
       
       vvRegiaoValida := 'N';
       
-      -- Verifica se tem alguma Restri√ß√£o de Regi√£o
+      -- Verifica se tem alguma Restri√É¬ß√É¬£o de Regi√É¬£o
       BEGIN
         SELECT 'S' 
           INTO vvAchouRegiao
@@ -4415,10 +4415,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           vvAchouRegiao := 'N';
       END; 
       
-      -- Se existem Restri√ß√µes de Regi√£o
+      -- Se existem Restri√É¬ß√É¬µes de Regi√É¬£o
       IF (NVL(vvAchouRegiao,'N') = 'S') THEN
       
-        -- Verifica se a Regi√£o est√° nas Restri√ß√µes
+        -- Verifica se a Regi√É¬£o est√É¬° nas Restri√É¬ß√É¬µes
         BEGIN
           SELECT 'S' 
             INTO vvAchouRegiao
@@ -4430,28 +4430,28 @@ IS PRAGMA SERIALLY_REUSABLE;
             vvAchouRegiao := 'N';
         END; 
         
-        -- Se a Regi√£o est√° nas Restri√ß√µes
+        -- Se a Regi√É¬£o est√É¬° nas Restri√É¬ß√É¬µes
         IF (vvAchouRegiao = 'S') THEN
-          -- REGI√ÉO V√ÅLIDA
+          -- REGI√É∆íO V√É¬ÅLIDA
           vvRegiaoValida := 'S';
         END IF;
       
-      -- Se N√ÉO existem Restri√ß√µes de Regi√£o
+      -- Se N√É∆íO existem Restri√É¬ß√É¬µes de Regi√É¬£o
       ELSE
   
-        -- REGI√ÉO V√ÅLIDA
+        -- REGI√É∆íO V√É¬ÅLIDA
         vvRegiaoValida := 'S';
   
-      END IF; -- Fim Condi√ß√£o: -- Se existem Restri√ß√µes de Regi√£o
+      END IF; -- Fim Condi√É¬ß√É¬£o: -- Se existem Restri√É¬ß√É¬µes de Regi√É¬£o
       
-      -- SE REGI√ÉO V√ÅLIDA
+      -- SE REGI√É∆íO V√É¬ÅLIDA
       IF (vvRegiaoValida = 'S') THEN
       
-        -- RESTRI√á√ïES DE PLANO DE PARAMENTO ---------------------
+        -- RESTRI√É‚Ä°√É‚Ä¢ES DE PLANO DE PARAMENTO ---------------------
         
         vvPlanoValido := 'N';
         
-        -- Verifica se tem alguma Restri√ß√£o de Plano de Pagamentp
+        -- Verifica se tem alguma Restri√É¬ß√É¬£o de Plano de Pagamentp
         BEGIN
           SELECT 'S' 
             INTO vvAchouPlano
@@ -4463,10 +4463,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             vvAchouPlano := 'N';
         END; 
         
-        -- Se existem Restri√ß√µes de Plano de Pagamento
+        -- Se existem Restri√É¬ß√É¬µes de Plano de Pagamento
         IF (NVL(vvAchouPlano,'N') = 'S') THEN
         
-          -- Verifica se o Plano de Pagamento est√° nas Restri√ß√µes
+          -- Verifica se o Plano de Pagamento est√É¬° nas Restri√É¬ß√É¬µes
           BEGIN
             SELECT 'S' 
               INTO vvAchouPlano
@@ -4478,29 +4478,29 @@ IS PRAGMA SERIALLY_REUSABLE;
               vvAchouPlano := 'N';
           END; 
           
-          -- Se o Plano de Pagamento est√° nas Restri√ß√µes
+          -- Se o Plano de Pagamento est√É¬° nas Restri√É¬ß√É¬µes
           IF (vvAchouPlano = 'S') THEN
-            -- PLANO DE PAGAMENTO V√ÅLIDO
+            -- PLANO DE PAGAMENTO V√É¬ÅLIDO
             vvPlanoValido := 'S';
           END IF;
         
-        -- Se N√ÉO existem Restri√ß√µes de Plano de Pagamento
+        -- Se N√É∆íO existem Restri√É¬ß√É¬µes de Plano de Pagamento
         ELSE
     
-          -- PLANO DE PAGAMENTO V√ÅLIDO
+          -- PLANO DE PAGAMENTO V√É¬ÅLIDO
           vvPlanoValido := 'S';
     
-        END IF; -- Fim Condi√ß√£o: -- Se existem Restri√ß√µes de Plano de Pagamento
+        END IF; -- Fim Condi√É¬ß√É¬£o: -- Se existem Restri√É¬ß√É¬µes de Plano de Pagamento
         
-        -- SE PLANO DE PAGAMENTO V√ÅLIDO
+        -- SE PLANO DE PAGAMENTO V√É¬ÅLIDO
         IF (vvPlanoValido = 'S') THEN
        
-          -- *** ACORDO DE PARCERIA V√ÅLIDO *** --
+          -- *** ACORDO DE PARCERIA V√É¬ÅLIDO *** --
           vvAcordoValido := 'S';
   
         END IF;
           
-      END IF; -- FIM CONDI√á√ÉO: SE REGI√ÉO V√ÅLIDA
+      END IF; -- FIM CONDI√É‚Ä°√É∆íO: SE REGI√É∆íO V√É¬ÅLIDA
       
       -- Retorno
       RETURN vvAcordoValido;
@@ -4534,12 +4534,12 @@ IS PRAGMA SERIALLY_REUSABLE;
       vvCodOrigemPed := pi_vOrigemPed;
     END IF;
   
-    -- Se passou a Regi√£o no Par√¢metro
+    -- Se passou a Regi√É¬£o no Par√É¬¢metro
     IF (NVL(pi_nNumRegiao,0) > 0) THEN
         
       v_numregiao := pi_nNumRegiao;
           
-    -- Se N√ÉO passou a Regi√£o no Par√¢metro
+    -- Se N√É∆íO passou a Regi√É¬£o no Par√É¬¢metro
     ELSE
       
       -- Pesquisa Dados do Cliente
@@ -4553,7 +4553,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           NULL;
       END;
       
-      -- Pesquisa Regi√£o do Cliente por Filial
+      -- Pesquisa Regi√É¬£o do Cliente por Filial
       BEGIN
         SELECT NUMREGIAO
           INTO v_numregiao
@@ -4565,9 +4565,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           v_numregiao := NULL;
       END;
         
-      -- Se n√£o achou Regiao do Cliente por Filial
+      -- Se n√É¬£o achou Regiao do Cliente por Filial
       IF (v_numregiao IS NULL) THEN
-         -- Pesquisa Regi√£o da Pra√ßa
+         -- Pesquisa Regi√É¬£o da Pra√É¬ßa
          BEGIN
            SELECT NUMREGIAO
              INTO v_numregiao
@@ -4579,7 +4579,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          END;
        END IF;
        
-    END IF; -- Fim Condi√ß√£o: Se passou a Regi√£o no Par√¢metro
+    END IF; -- Fim Condi√É¬ß√É¬£o: Se passou a Regi√É¬£o no Par√É¬¢metro
     
     ---------------------------------
     -- Pesquisa Acordo para o Cliente
@@ -4596,7 +4596,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          AND (PCACORDOPARCERIA.TIPOACORDO  = v_tipoacordo) -->> Tipo de Acordo conforme Tipo de Chamada
                          AND (pi_dDtBase BETWEEN TRUNC(PCACORDOPARCERIA.DTVIGENCIAINI) AND TRUNC(PCACORDOPARCERIA.DTVIGENCIAFIN))) LOOP
                          
-      -- Se Regi√£o e Plano de Pagamento V√°lidos
+      -- Se Regi√É¬£o e Plano de Pagamento V√É¬°lidos
       IF (F_ACORDO_RESTRICAO_VALIDO(vc_Acordo.CODACORDO,
                                     pi_nNumRegiao,
                                     pi_nCodPlPag) = 'S') THEN
@@ -4617,7 +4617,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                          
     END LOOP;
     
-    -- Se n√£o achou Taxa para o Cliente
+    -- Se n√É¬£o achou Taxa para o Cliente
     IF (po_vAchouTaxa = 'N') THEN
     
       -- Pesquisa Dados do Cliente
@@ -4650,7 +4650,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                            AND (PCACORDOPARCERIA.CODACORDO     IN (SELECT PCACORDOPARCERIADESCACRESC.CODACORDO FROM PCACORDOPARCERIADESCACRESC)) -->> Somente Acordos com Taxa
                            AND (pi_dDtBase BETWEEN TRUNC(PCACORDOPARCERIA.DTVIGENCIAINI) AND TRUNC(PCACORDOPARCERIA.DTVIGENCIAFIN))) LOOP
                            
-        -- Se Regi√£o e Plano de Pagamento V√°lidos
+        -- Se Regi√É¬£o e Plano de Pagamento V√É¬°lidos
         IF (F_ACORDO_RESTRICAO_VALIDO(vc_Acordo.CODACORDO,
                                       pi_nNumRegiao,
                                       pi_nCodPlPag) = 'S') THEN         
@@ -4671,7 +4671,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                            
       END LOOP;
       
-      -- Se n√£o achou Texa para a Rede de Clientes
+      -- Se n√É¬£o achou Texa para a Rede de Clientes
       IF (po_vAchouTaxa = 'N') THEN
           
         -------------------------------------------
@@ -4689,7 +4689,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              AND (PCACORDOPARCERIA.CODACORDO       IN (SELECT PCACORDOPARCERIADESCACRESC.CODACORDO FROM PCACORDOPARCERIADESCACRESC)) -->> Somente Acordos com Taxa
                              AND (pi_dDtBase BETWEEN TRUNC(PCACORDOPARCERIA.DTVIGENCIAINI) AND TRUNC(PCACORDOPARCERIA.DTVIGENCIAFIN))) LOOP
                              
-          -- Se Regi√£o e Plano de Pagamento V√°lidos
+          -- Se Regi√É¬£o e Plano de Pagamento V√É¬°lidos
           IF (F_ACORDO_RESTRICAO_VALIDO(vc_Acordo.CODACORDO,
                                         pi_nNumRegiao,
                                         pi_nCodPlPag) = 'S') THEN
@@ -4710,7 +4710,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              
         END LOOP;
   
-        -- Se n√£o achou Taxa para o Ramo de Atividade
+        -- Se n√É¬£o achou Taxa para o Ramo de Atividade
         IF (po_vAchouTaxa = 'N') THEN
               
           -----------------------------------------------
@@ -4729,7 +4729,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                AND (PCACORDOPARCERIA.CODACORDO NOT IN (SELECT PCACORDOPARCERIARAMOATIV.CODACORDO FROM PCACORDOPARCERIARAMOATIV))
                             ) LOOP
                                
-            -- Se Regi√£o e Plano de Pagamento V√°lidos
+            -- Se Regi√É¬£o e Plano de Pagamento V√É¬°lidos
             IF (F_ACORDO_RESTRICAO_VALIDO(vc_Acordo.CODACORDO,
                                           pi_nNumRegiao,
                                           pi_nCodPlPag) = 'S') THEN
@@ -4750,36 +4750,36 @@ IS PRAGMA SERIALLY_REUSABLE;
                                
           END LOOP;
         
-        END IF; -- Fim Condi√ß√£o: Se n√£o achou Acordo para o Ramo de Atividade
+        END IF; -- Fim Condi√É¬ß√É¬£o: Se n√É¬£o achou Acordo para o Ramo de Atividade
       
-      END IF; -- Fim Condi√ß√£o: Se n√£o achou Acordo para a Rede de Clientes    
+      END IF; -- Fim Condi√É¬ß√É¬£o: Se n√É¬£o achou Acordo para a Rede de Clientes    
      
-    END IF; -- Fim COndi√ß√£o: Se n√£o achou Acordo para o Cliente
+    END IF; -- Fim COndi√É¬ß√É¬£o: Se n√É¬£o achou Acordo para o Cliente
       
   END P_TAXACORDOPARCERIA;
   
   /***************************************************************************************************
    Nome         : P_OBTEM_VLREPASSE
-   Descric„o    : Procedimento Obter o Valor do Repasse
-   Par‚metros   : ENTRADA:
-                  pi_vCodFilial              = CÛdigo da Filial
-                  pi_nCodCli                 = CÛdigo do Cliente
-                  pi_nNumRegiao              = N˙mero da Regi„o
+   Descric√£o    : Procedimento Obter o Valor do Repasse
+   Par√¢metros   : ENTRADA:
+                  pi_vCodFilial              = C√≥digo da Filial
+                  pi_nCodCli                 = C√≥digo do Cliente
+                  pi_nNumRegiao              = N√∫mero da Regi√£o
                   pi_nCondVenda              = Tipo de Venda
-                  pi_nCodProd                = CÛdigo do Produto
-                  pi_nPrecoFabrica           = CÛdigo do Cliente
-                  pi_nPrecoLiquido           = N˙mero da Regi„o
-                  pi_vTipoAplicRepasseFilial = Par√¢metro da Filial
+                  pi_nCodProd                = C√≥digo do Produto
+                  pi_nPrecoFabrica           = C√≥digo do Cliente
+                  pi_nPrecoLiquido           = N√∫mero da Regi√£o
+                  pi_vTipoAplicRepasseFilial = Par√É¬¢metro da Filial
                   pi_vCriticaObrigatorio     = Se Critica obrigatoriedade
-                                               (Usar no c√°lculo na Venda)
+                                               (Usar no c√É¬°lculo na Venda)
                   SAIDA:
                   po_vMensagem               = Mensagem de Erro 
                   po_vTipoRepasse            = Tipo Repasse
                   po_nVlRepasse              = Valor do Repasse
-   AlteraÁ„o    : Anderson Silva    - 19/01/2016 - CriaÁ„o da Procedure
+   Altera√ß√£o    : Anderson Silva    - 19/01/2016 - Cria√ß√£o da Procedure
                   Franklin Carvalho - 08/02/2016 - HIS.00211.2016 - Usar Regra de ST BCR no Repasse
-                  Anderson Silva    - 16/03/2016 - Param "AS", n„o considerar PCTRIBUT.USABCRULTENT
-                  Anderson Silva    - 04/04/2016 - 2343.032553.2016 - Verificar se tem TributaÁ„o ST para critica do Repasse
+                  Anderson Silva    - 16/03/2016 - Param "AS", n√£o considerar PCTRIBUT.USABCRULTENT
+                  Anderson Silva    - 04/04/2016 - 2343.032553.2016 - Verificar se tem Tributa√ß√£o ST para critica do Repasse
                   Anderson Silva    - 18/06/2021 - Repasse em TV5 - DDMEDICA-7380 - #VERSAO20210818A
   ***************************************************************************************************/                                       
   PROCEDURE P_OBTEM_VLREPASSE(pi_vCodFilial              IN  VARCHAR2,
@@ -4804,7 +4804,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvTipoMerc                PCPRODUT.TIPOMERC%TYPE;
     vvUsaPmcBaseSt            PCPRODUT.USAPMCBASEST%TYPE;
     vvPercIvaBcr              PCPRODUT.PERCIVABCR%TYPE;
-    -- Dados da Tributa√ß√£o
+    -- Dados da Tributa√É¬ß√É¬£o
     vnCodSt                   PCTRIBUT.CODST%TYPE;
     vnPerDescRepasse          PCTRIBUT.PERDESCREPASSE%TYPE;
     vvUsaBcrUltEnt            PCTRIBUT.USABCRULTENT%TYPE;
@@ -4812,7 +4812,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vPMC                      NUMBER;
     vvMsgPmcUf                VARCHAR2(250);    
     vnPrecoFabrica            NUMBER;
-    -- Par√¢metros
+    -- Par√É¬¢metros
     vvUsaTributacaoPorUf      PCCONSUM.USATRIBUTACAOPORUF%TYPE;
     vvTipoAplicRepasseFilial  PCPARAMFILIAL.VALOR%TYPE;
     vvUsaTribEntPorUf         PCCONSUM.USATRIBENTPORUF%TYPE;
@@ -4826,7 +4826,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Regra do STBCR da Integradora
     vvIntegradoraUsaBcrUltEnt PCINTEGRADORA.USABCRULTENT%TYPE;
     
-    -- Exce√ß√£o Tratada
+    -- Exce√É¬ß√É¬£o Tratada
     e_tratado                 EXCEPTION;
     
    /***************************************************************************
@@ -4864,10 +4864,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     Se Produto e Venda que pode Calcular Repasse
     ********************************************/
     IF (vvTipoMerc IN ('M','MA','L')) AND  -->> MEDICAMENTO
-       (pi_nCondVenda IN (1,5))       THEN -->> VENDA/BONIFICA√á√ÉO
+       (pi_nCondVenda IN (1,5))       THEN -->> VENDA/BONIFICA√É‚Ä°√É∆íO
   
      /*******************
-      Pesquisa Par√¢metros
+      Pesquisa Par√É¬¢metros
       *******************/
       
       -- PCCONSUM
@@ -4879,7 +4879,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           FROM PCCONSUM;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          po_vMensagem := 'N√£o foram encontrados dados na PCCONSUM';
+          po_vMensagem := 'N√É¬£o foram encontrados dados na PCCONSUM';
           RAISE e_tratado;
       END;
       --
@@ -4889,14 +4889,14 @@ IS PRAGMA SERIALLY_REUSABLE;
           FROM PCCONSUM;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          po_vMensagem := 'N√£o foram encontrados dados na PCCONSUM';
+          po_vMensagem := 'N√É¬£o foram encontrados dados na PCCONSUM';
           RAISE e_tratado;
       END;
    
-      -- Se passou Par√¢metro da Filial
+      -- Se passou Par√É¬¢metro da Filial
       IF (TRIM(pi_vTipoAplicRepasseFilial) IS NOT NULL) THEN
         vvTipoAplicRepasseFilial := pi_vTipoAplicRepasseFilial;
-      -- Se N√ÉO passou Par√¢metro da Filial
+      -- Se N√É∆íO passou Par√É¬¢metro da Filial
       ELSE
         BEGIN
           SELECT VALOR
@@ -4911,7 +4911,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
       
       ----------------------------------------------------------------
-      -- SE OPERADOR LOG√çSTICO, PRIORIZA REGRA DA INTEGRADORA DO STBCR
+      -- SE OPERADOR LOG√É¬çSTICO, PRIORIZA REGRA DA INTEGRADORA DO STBCR
       ----------------------------------------------------------------
       IF ((pi_vOrigemPed = 'F') AND (NVL(pi_vTipoFV,'FV') IN ('OL','PE'))) THEN 
         BEGIN
@@ -4923,13 +4923,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           WHEN NO_DATA_FOUND THEN
             vvIntegradoraUsaBcrUltEnt := '0';
         END;
-        -- 1 - Calcular o Repasse conforme Regra dos Par√¢metros da Presid√™ncia
-        -- 2 - Calcular o Repasse pelo ST BCR da √öltima Entrada
-        -- 3 - N√£o Calcular Repasse nos Pedidos desta Integradora
+        -- 1 - Calcular o Repasse conforme Regra dos Par√É¬¢metros da Presid√É¬™ncia
+        -- 2 - Calcular o Repasse pelo ST BCR da √É≈°ltima Entrada
+        -- 3 - N√É¬£o Calcular Repasse nos Pedidos desta Integradora
         IF    (vvIntegradoraUsaBcrUltEnt = '2') THEN
-          vvTipoAplicRepasseFilial := 'AS'; -- Acr√©scimo ST BCR
+          vvTipoAplicRepasseFilial := 'AS'; -- Acr√É¬©scimo ST BCR
         ELSIF (vvIntegradoraUsaBcrUltEnt = '3') THEN
-          vvTipoAplicRepasseFilial := 'NA'; -- N√£o Aplicar
+          vvTipoAplicRepasseFilial := 'NA'; -- N√É¬£o Aplicar
         END IF;
       END IF;          
           
@@ -4949,7 +4949,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE (PCCLIENT.CODCLI = pi_nCodCli);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          po_vMensagem := 'N√£o foram encontrados dados do Cliente ' || NVL(pi_nCodCli,0);
+          po_vMensagem := 'N√É¬£o foram encontrados dados do Cliente ' || NVL(pi_nCodCli,0);
           RAISE e_tratado;
       END;
     
@@ -4964,7 +4964,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (PCCLIENTFILIALMED.CODFILIAL = pi_vCodFilial);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          -->> Se n√£o encontrar exce√ß√£o por Filial, Mant√©m os valores da PCCLIENT
+          -->> Se n√É¬£o encontrar exce√É¬ß√É¬£o por Filial, Mant√É¬©m os valores da PCCLIENT
           NULL;
       END;
       
@@ -4974,24 +4974,24 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF (vvRepasse = 'S') THEN
           
        /*******************
-        Pesquisa Tributa√ß√£o
+        Pesquisa Tributa√É¬ß√É¬£o
         *******************/
         
-        -- Se passou a Tributa√ß√£o do Par√¢metro
+        -- Se passou a Tributa√É¬ß√É¬£o do Par√É¬¢metro
         IF (NVL(pi_nCodSt,0) > 0) THEN
         
-          -- Usa a Tributa√ß√£o passada no Par√¢metro
+          -- Usa a Tributa√É¬ß√É¬£o passada no Par√É¬¢metro
           vnCodSt := NVL(pi_nCodSt,0);
         
-        -- Se N√ÉO passou a Tributa√ß√£o do Par√¢metro
+        -- Se N√É∆íO passou a Tributa√É¬ß√É¬£o do Par√É¬¢metro
         ELSE
               
           ---------------------------
-          -- Se usa Tributa√ß√£o por UF
+          -- Se usa Tributa√É¬ß√É¬£o por UF
           ---------------------------
           IF (NVL(vvUsaTributacaoPorUf,'N') = 'S') THEN
           
-            -- Pesquisa Tributa√ß√£o por UF
+            -- Pesquisa Tributa√É¬ß√É¬£o por UF
             BEGIN
               SELECT CODST
                 INTO vnCodSt
@@ -5001,24 +5001,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                  AND (CODFILIALNF = pi_vCodFilial);
             EXCEPTION
               WHEN NO_DATA_FOUND THEN
-                po_vMensagem := 'N√£o foi encontrada Tributa√ß√£o para o Produto ' || NVL(pi_nCodProd,0) || ', UF Destino [' || NVL(vvEstEnt,' ') || '] e Filial [' || NVL(pi_vCodFilial,' ' ||']');
+                po_vMensagem := 'N√É¬£o foi encontrada Tributa√É¬ß√É¬£o para o Produto ' || NVL(pi_nCodProd,0) || ', UF Destino [' || NVL(vvEstEnt,' ') || '] e Filial [' || NVL(pi_vCodFilial,' ' ||']');
                 RAISE e_tratado;
             END;
           
           -------------------------------
-          -- Se N√ÉO usa Tributa√ß√£o por UF
+          -- Se N√É∆íO usa Tributa√É¬ß√É¬£o por UF
           -------------------------------
           ELSE
           
-            -- Se passou a Regi√£o no Par√¢metro
+            -- Se passou a Regi√É¬£o no Par√É¬¢metro
             IF (NVL(pi_nNumRegiao,0) > 0) THEN
             
               vnNumRegiao := pi_nNumRegiao;
               
-            -- Se N√ÉO passou a Regi√£o no Par√¢metro
+            -- Se N√É∆íO passou a Regi√É¬£o no Par√É¬¢metro
             ELSE
           
-              -- Pesquisa Regi√£o do Cliente por Filial
+              -- Pesquisa Regi√É¬£o do Cliente por Filial
               BEGIN
                 SELECT NUMREGIAO
                   INTO vnNumRegiao
@@ -5030,9 +5030,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vnNumRegiao := NULL;
               END;
             
-              -- Se n√£o achou Regiao do Cliente por Filial
+              -- Se n√É¬£o achou Regiao do Cliente por Filial
               IF (vnNumRegiao IS NULL) THEN
-                -- Pesquisa Regi√£o da Pra√ßa
+                -- Pesquisa Regi√É¬£o da Pra√É¬ßa
                 BEGIN
                   SELECT NUMREGIAO
                     INTO vnNumRegiao
@@ -5044,9 +5044,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 END;
               END IF;
               
-            END IF; -- Fim Condi√ß√£o Se passou a Regi√£o no Par√¢metro        
+            END IF; -- Fim Condi√É¬ß√É¬£o Se passou a Regi√É¬£o no Par√É¬¢metro        
           
-            -- Pesquisa Tributa√ß√£o por Regi√£o
+            -- Pesquisa Tributa√É¬ß√É¬£o por Regi√É¬£o
             BEGIN
               SELECT CODST
                 INTO vnCodSt
@@ -5055,16 +5055,16 @@ IS PRAGMA SERIALLY_REUSABLE;
                  AND (NUMREGIAO = vnNumRegiao);
             EXCEPTION
               WHEN NO_DATA_FOUND THEN
-                po_vMensagem := 'N√£o foi encontrada Tributa√ß√£o para o Produto ' || NVL(pi_nCodProd,0) || ' e Regi√£o ' || NVL(vnNumRegiao,0);
+                po_vMensagem := 'N√É¬£o foi encontrada Tributa√É¬ß√É¬£o para o Produto ' || NVL(pi_nCodProd,0) || ' e Regi√É¬£o ' || NVL(vnNumRegiao,0);
                 RAISE e_tratado;
             END;
               
-          END IF; -- Fim Condi√ß√£o v_usatributacaoporuf
+          END IF; -- Fim Condi√É¬ß√É¬£o v_usatributacaoporuf
           
-        END IF; -- Fim Condi√ß√£o Se passou a Tributa√ß√£o do Par√¢metro
+        END IF; -- Fim Condi√É¬ß√É¬£o Se passou a Tributa√É¬ß√É¬£o do Par√É¬¢metro
     
        /****************************
-        Pesquisa dados da Tributa√ß√£o
+        Pesquisa dados da Tributa√É¬ß√É¬£o
         ****************************/
         BEGIN
           SELECT PCTRIBUT.PERDESCREPASSE
@@ -5077,7 +5077,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            WHERE (CODST = vnCodSt);
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            po_vMensagem := 'N√£o foram encontrados dados para a Tributa√ß√£o: ' || NVL(vnCodSt,0);
+            po_vMensagem := 'N√É¬£o foram encontrados dados para a Tributa√É¬ß√É¬£o: ' || NVL(vnCodSt,0);
             RAISE e_tratado;
         END;     
                 
@@ -5087,17 +5087,17 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF (NVL(vvTIPOAPLICREPASSETRIBUT,'XX') <> 'XX') THEN
           vvTipoAplicRepasseFilial := vvTIPOAPLICREPASSETRIBUT;
         END IF; 
-        -- Tipo de Aplica√ß√£o do Repasse = Acr√©scimo sobre Pre√ßo Bruto
+        -- Tipo de Aplica√É¬ß√É¬£o do Repasse = Acr√É¬©scimo sobre Pre√É¬ßo Bruto
         IF (NVL(vvTipoAplicRepasseFilial,'AB') = 'AB') THEN
         
           po_nVlRepasse   := NVL(pi_nPrecoFabrica,0) * (NVL(vnPerDescRepasse,0)/100);
           po_vTipoRepasse := 'AB';
             
-        -- Tipo de Aplica√ß√£o do Repasse = Acr√©scimo ST Ult Ent.
+        -- Tipo de Aplica√É¬ß√É¬£o do Repasse = Acr√É¬©scimo ST Ult Ent.
         ELSIF  (NVL(vvTipoAplicRepasseFilial,'AB') = 'AS') THEN
         
-          -- Se Tributa√ß√£o BCRULTENT
-          IF --(NVL(vvUsaBcrUltEnt,'N') = 'S')      AND -->> Param "AS", n√£o considerar PCTRIBUT.USABCRULTENT
+          -- Se Tributa√É¬ß√É¬£o BCRULTENT
+          IF --(NVL(vvUsaBcrUltEnt,'N') = 'S')      AND -->> Param "AS", n√É¬£o considerar PCTRIBUT.USABCRULTENT
              (NVL(vvConsumidorFinal,'N') <> 'S') THEN
                       
             BEGIN
@@ -5111,23 +5111,23 @@ IS PRAGMA SERIALLY_REUSABLE;
                WHEN NO_DATA_FOUND THEN
                  po_nVlRepasse := 0;
              END;              
-             -- Se n√£o achou o ST BCR e Se Validar Obrigatoriedade
+             -- Se n√É¬£o achou o ST BCR e Se Validar Obrigatoriedade
              IF (NVL(po_nVlRepasse,0) <= 0)    AND
                 (pi_vCriticaObrigatorio = 'S') THEN 
-               -- 2343.032553.2016 - Regra Espec√≠fica
+               -- 2343.032553.2016 - Regra Espec√É¬≠fica
                IF (NVL(vvUsaTribEntPorUf,'N') = 'N') AND
                   (NVL(vvUsaPmcBaseSt,'N')   <> 'S') AND -- Coloquei <> 'S' porque na base encontrei zeros no campo
                   (NVL(vvPercIvaBcr,0)        =  0 ) THEN
-                 po_nVlRepasse := 0; -->> N√ÉO CORTAR√Å O PRODUTO - N√ÉO TEM STBCR pela Tributa√ß√£o
+                 po_nVlRepasse := 0; -->> N√É∆íO CORTAR√É¬Å O PRODUTO - N√É∆íO TEM STBCR pela Tributa√É¬ß√É¬£o
                ELSE
-                 po_vMensagem := 'Produto sem ST BCR para Forma√ß√£o do Repasse';
+                 po_vMensagem := 'Produto sem ST BCR para Forma√É¬ß√É¬£o do Repasse';
                  RAISE e_tratado;
                END IF;
              END IF;
                     
-          END IF; -- Fim Condi√ß√£o Se Tributa√ß√£o BCRULTENT
+          END IF; -- Fim Condi√É¬ß√É¬£o Se Tributa√É¬ß√É¬£o BCRULTENT
             
-        -- Tipo de Aplica√ß√£o do Repasse = Acr√©scimo sobre Pre√ßo L√≠quido
+        -- Tipo de Aplica√É¬ß√É¬£o do Repasse = Acr√É¬©scimo sobre Pre√É¬ßo L√É¬≠quido
         ELSIF (NVL(vvTipoAplicRepasseFilial,'AB') = 'AL') THEN
     
           po_nVlRepasse   := NVL(pi_nPrecoLiquido,0) *  (NVL(vnPerDescRepasse,0)/100);
@@ -5148,9 +5148,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Arredonda para 6 Casas
         po_nVlRepasse := ROUND(po_nVlRepasse,6);
         
-      END IF; -- Fim Condi√ß√£o SE CLIENTE TEM REPASSE
+      END IF; -- Fim Condi√É¬ß√É¬£o SE CLIENTE TEM REPASSE
     
-    END IF; -- Fim Condi√ß√£o Se Produto e Venda que pode Calcular Repasse
+    END IF; -- Fim Condi√É¬ß√É¬£o Se Produto e Venda que pode Calcular Repasse
                                                              
   EXCEPTION
     WHEN e_tratado THEN
@@ -5161,24 +5161,24 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Sem ST
       po_vTipoRepasse := NULL;
       po_nVlRepasse   := 0;
-      po_vMensagem    := 'Erro C√°lculo Repasse: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
+      po_vMensagem    := 'Erro C√É¬°lculo Repasse: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
   END P_OBTEM_VLREPASSE;
                                   
   /*******************************************************************************
    Nome         : P_OBTEM_PMC_PRODUTO
-   Descric„o    : Procedimento Obter o PMC do Produto
-   Par‚metros   : ENTRADA:
-                  pi_vCodFilial = CÛdigo da Filial
-                  pi_nCodProd   = CÛdigo do Produto
+   Descric√£o    : Procedimento Obter o PMC do Produto
+   Par√¢metros   : ENTRADA:
+                  pi_vCodFilial = C√≥digo da Filial
+                  pi_nCodProd   = C√≥digo do Produto
                   pi_vUfCliente = UF do Cliente
-                  pi_nRegiao    = Regi„o
+                  pi_nRegiao    = Regi√£o
                   SAIDA:
                   po_nPmc          = Valor do PMC
-                  po_nPrecoFabrica = PreÁo F·brica
+                  po_nPrecoFabrica = Pre√ßo F√°brica
                   po_vMensagem     = Mensagem de Erro
-   Alterac„o    : Anderson Silva - 10/04/2014 - CriaÁ„o da Procedure
-   Alterac„o    : Anderson Silva - 30/04/2014 - AlteraÁ„o Tipo Vari·vel de pi_vCodFilial
-   Alterac„o    : Anderson Silva - 28/12/2015 - HIS.04408.2015 - AlteraÁ„o PreÁo F·brica por UF
+   Alterac√£o    : Anderson Silva - 10/04/2014 - Cria√ß√£o da Procedure
+   Alterac√£o    : Anderson Silva - 30/04/2014 - Altera√ß√£o Tipo Vari√°vel de pi_vCodFilial
+   Alterac√£o    : Anderson Silva - 28/12/2015 - HIS.04408.2015 - Altera√ß√£o Pre√ßo F√°brica por UF
   ********************************************************************************/                                       
   PROCEDURE P_OBTEM_PMC_PRODUTO(pi_vCodFilial    IN  VARCHAR2,
                                 pi_nCodProd      IN  NUMBER,
@@ -5190,27 +5190,27 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 pi_nCodCli       IN  NUMBER DEFAULT NULL)
   IS
   
-    -- Par‚metros
+    -- Par√¢metros
     vvUsaPmcUf                   PCPARAMFILIAL.VALOR%TYPE;
     vvUtilizaPrecoFabricaPorUf   PCPARAMFILIAL.VALOR%TYPE;
-    -- Identificador de Regi„o Zona Franca de Manaus
+    -- Identificador de Regi√£o Zona Franca de Manaus
     vvRegiaoZfm                  PCREGIAO.REGIAOZFM%TYPE;
-    -- PreÁos Nacionais por Produto
+    -- Pre√ßos Nacionais por Produto
     TYPE TRecNacionalPorProduto   IS RECORD(
          vnPmc                    PCPRODUT.PRECOMAXCONSUM%TYPE,
          vnPrecoFabrica           PCPRODUT.CUSTOREP%TYPE);
     vrNacionalPorProduto          TRecNacionalPorProduto;   
-    -- PreÁos Zona Franca por Produto
+    -- Pre√ßos Zona Franca por Produto
     TYPE TRecZonaFrancaPorProduto IS RECORD(
          vnPmc                    PCPRODUT.PRECOMAXCONSUM%TYPE,
          vnPrecoFabrica           PCPRODUT.CUSTOREP%TYPE);
     vrZonaFrancaPorProduto        TRecZonaFrancaPorProduto;  
-    -- PreÁos Nacionais por UF
+    -- Pre√ßos Nacionais por UF
     TYPE TRecNacionalPorUf        IS RECORD(
          vnPmc                    PCTABMEDABCFARMA.PRECOMAXCONSUM%TYPE,
          vnPrecoFabrica           PCTABMEDABCFARMA.PRECOFABRICA%TYPE);
     vrNacionalPorUf               TRecNacionalPorUf;
-    -- PreÁos Zona Franca por UF
+    -- Pre√ßos Zona Franca por UF
     TYPE TRecZonaFrancaPorUf      IS RECORD(
          vnPmc                    PCTABMEDABCFARMA.PRECOMAXCONSUM%TYPE,
          vnPrecoFabrica           PCTABMEDABCFARMA.PRECOFABRICA%TYPE);
@@ -5218,7 +5218,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     
     -- Tipo Cliente - DDVENDAS-35830
     vvTipoCliMed                  PCCLIENT.TIPOCLIMED%TYPE;
-    -- ConvÍnio - DDVENDAS-35830
+    -- Conv√™nio - DDVENDAS-35830
     vvConvenioIsencaoIcmsMed      PCPRODUT.CONVENIOISENCAOICMSMED%TYPE;
     
   /*********************************
@@ -5231,10 +5231,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vMensagem := NULL;
   
    /***************************************
-    Utilizando as ExceÁıes - DDVENDAS-35830
+    Utilizando as Exce√ß√µes - DDVENDAS-35830
     ***************************************/
 	
-	      -- PreÁo F·brica por UF
+	      -- Pre√ßo F√°brica por UF
     BEGIN
       SELECT NVL(VALOR,'N') VALOR
         INTO vvUtilizaPrecoFabricaPorUf
@@ -5263,7 +5263,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 	 
 	   END IF;
       
-      -- ConvÍnio
+      -- Conv√™nio
       BEGIN
         SELECT NVL(CONVENIOISENCAOICMSMED,'N')
           INTO vvConvenioIsencaoIcmsMed
@@ -5274,7 +5274,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vvConvenioIsencaoIcmsMed := 'N';
       END;
       
-      -- Verifica seRegi„o ZFM
+      -- Verifica seRegi√£o ZFM
       BEGIN
         SELECT NVL(PCREGIAO.REGIAOZFM,'N') REGIAOZFM
           INTO vvRegiaoZfm
@@ -5285,7 +5285,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vvRegiaoZfm := 'N';
       END;
       
-      -- Se Tabela Regi„o Zona Franca
+      -- Se Tabela Regi√£o Zona Franca
       IF (NVL(vvRegiaoZfm,'N') = 'S') THEN
 
         po_nPmc          := F_OBTEM_PRECO_ABCFARMA('PMC',
@@ -5332,7 +5332,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     ELSE
   
      /**********
-      Par‚metros
+      Par√¢metros
       **********/
       
       -- PMC por UF
@@ -5348,10 +5348,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       END;                 
     
      /**********
-      Regi„o ZFM
+      Regi√£o ZFM
       **********/
         
-      -- Pesquisa Regi„o - HIS.04408.2015
+      -- Pesquisa Regi√£o - HIS.04408.2015
       BEGIN
         SELECT NVL(PCREGIAO.REGIAOZFM,'N') REGIAOZFM
           INTO vvRegiaoZfm
@@ -5365,14 +5365,14 @@ IS PRAGMA SERIALLY_REUSABLE;
       -----------------------
       -- Se Usa PMC por UF
       -- OU 
-      -- PreÁo F·brica por UF
+      -- Pre√ßo F√°brica por UF
       -----------------------
       IF (NVL(vvUsaPmcUf,'N')        = 'S') OR
          (vvUtilizaPrecoFabricaPorUf = 'S') THEN
          
         -- Se ZFM - Zona Franca Manaus
         IF (vvRegiaoZfm = 'S') THEN
-          -- Pesquisa PMC e PreÁo por UF - Zona Franca Manaus
+          -- Pesquisa PMC e Pre√ßo por UF - Zona Franca Manaus
           BEGIN
             SELECT NVL(PRECOMAXCONSUM,0) PRECOMAXCONSUM
                  , NVL(PRECOFABRICA,0)   PRECOFABRICA
@@ -5406,10 +5406,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;    
       
       ----------------------------------
-      -- PMC e PreÁo F·brica da PCPRODUT
+      -- PMC e Pre√ßo F√°brica da PCPRODUT
       ----------------------------------
         
-      -- Pesquisa PMC e PreÁo F·brica do Produto NACIONAL e ZFM
+      -- Pesquisa PMC e Pre√ßo F√°brica do Produto NACIONAL e ZFM
       BEGIN
         SELECT NVL(PRECOMAXCONSUM,0)
              , NVL(CUSTOREP,0)
@@ -5430,7 +5430,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END;
             
      /****************
-      DefiniÁ„o do PMC
+      Defini√ß√£o do PMC
       ****************/
       
       ----------------------------------------------------
@@ -5442,7 +5442,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Inicializa PMC com Valor da UF do Cliente
         po_nPmc := vrNacionalPorUf.vnPmc;
         
-        -- Substitui PMC com Valor da Zona Franca se a Regi„o for ZFM
+        -- Substitui PMC com Valor da Zona Franca se a Regi√£o for ZFM
         IF (vvRegiaoZfm = 'S') AND
            (NVL(vrZonaFrancaPorUf.vnPmc,0) > 0) THEN
           po_nPmc := vrZonaFrancaPorUf.vnPmc;       
@@ -5456,7 +5456,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Inicializa PMC com Valor Nacional da PCPRODUT
         po_nPmc := vrNacionalPorProduto.vnPmc;
      
-        -- Substitui PMC com Valor da Zona Franca se a Regi„o for ZFM
+        -- Substitui PMC com Valor da Zona Franca se a Regi√£o for ZFM
         IF (vvRegiaoZfm = 'S')   AND
            (NVL(vrZonaFrancaPorProduto.vnPmc,0) > 0) THEN
           po_nPmc := vrZonaFrancaPorProduto.vnPmc;       
@@ -5465,32 +5465,32 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;     
     
      /**************************
-      DefiniÁ„o do PreÁo F·brica
+      Defini√ß√£o do Pre√ßo F√°brica
       **************************/
       
       ----------------------------------------------------
-      -- PRE«O F¡BRICA POR UF - Tabela PCTABMEDABCFARMA --
+      -- PRE√áO F√ÅBRICA POR UF - Tabela PCTABMEDABCFARMA --
       ----------------------------------------------------
       IF (NVL(vvUtilizaPrecoFabricaPorUf,'N') = 'S') THEN
     
-        -- Inicializa PreÁo F·brica com Valor da UF do Cliente
+        -- Inicializa Pre√ßo F√°brica com Valor da UF do Cliente
         po_nPrecoFabrica := vrNacionalPorUf.vnPrecoFabrica;
      
-        -- Substitui PreÁo F·brica com Valor da Zona Franca se a Regi„o for ZFM
+        -- Substitui Pre√ßo F√°brica com Valor da Zona Franca se a Regi√£o for ZFM
         IF (vvRegiaoZfm = 'S')   AND
            (NVL(vrZonaFrancaPorUf.vnPrecoFabrica,0) > 0) THEN
           po_nPrecoFabrica := vrZonaFrancaPorUf.vnPrecoFabrica;       
         END IF;
       
       ----------------------------------------------------
-      -- PRE«O F¡BRICA POR PRODUTO -----------------------
+      -- PRE√áO F√ÅBRICA POR PRODUTO -----------------------
       ----------------------------------------------------
       ELSE
     
-        -- Inicializa PreÁo F·brica com Valor Nacional da PCPRODUT
+        -- Inicializa Pre√ßo F√°brica com Valor Nacional da PCPRODUT
         po_nPrecoFabrica := vrNacionalPorProduto.vnPrecoFabrica;
      
-        -- Substitui PreÁo F·brica com Valor da Zona Franca se a Regi„o for ZFM
+        -- Substitui Pre√ßo F√°brica com Valor da Zona Franca se a Regi√£o for ZFM
         IF (vvRegiaoZfm = 'S')   AND
            (NVL(vrZonaFrancaPorProduto.vnPrecoFabrica,0) > 0) THEN
           po_nPrecoFabrica := vrZonaFrancaPorProduto.vnPrecoFabrica;
@@ -5498,7 +5498,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       
       END IF;
             
-    END IF; -- Fim CondiÁ„o: Usando as ExceÁıes
+    END IF; -- Fim Condi√ß√£o: Usando as Exce√ß√µes
     
   EXCEPTION
     WHEN OTHERS THEN
@@ -5507,12 +5507,12 @@ IS PRAGMA SERIALLY_REUSABLE;
 
  /*******************************************************************************
   Nome         : P_OBTER_VALORES_BENEF_FISCAIS
-  Descric„o    : Procedimento Obter os valores dos Descontos dos BenefÌcios 
+  Descric√£o    : Procedimento Obter os valores dos Descontos dos Benef√≠cios 
                  Fiscais: 
                  - SUFRAMA
-                 - DESONERA«√O ICMS
-                 - ReduÁ„o PIS e COFINS
-  SolicitaÁ„o  : DDMEDICA-7594                
+                 - DESONERA√á√ÉO ICMS
+                 - Redu√ß√£o PIS e COFINS
+  Solicita√ß√£o  : DDMEDICA-7594                
   *******************************************************************************/
   PROCEDURE P_OBTER_VALORES_BENEF_FISCAIS(pi_vCodFilial               IN VARCHAR2,
                                           pi_vCodFilialNf             IN VARCHAR2,
@@ -5563,33 +5563,33 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vMsgErros              := NULL;
     ------------------------------------------------------------------------------
     
-    -- Quantidade para Arredondamento da DesoneraÁ„o ICMS e SUFRAMA
+    -- Quantidade para Arredondamento da Desonera√ß√£o ICMS e SUFRAMA
     vnQtde := pi_nQt;
     IF (NVL(pi_nQt,0) = 0) THEN
       vnQtde := 1;
     END IF;
     
-    -- Par‚metro - DDVENDAS-37241
+    -- Par√¢metro - DDVENDAS-37241
     PROC_PCPARAMFILIAL('99',
                        'CALCDESONERACAOFATMEDICAM',
                        'N',
                        vCALCDESONERACAOFATMEDICAM);
                        
     ------------------------------------------------------------------------------
-    -- BASE DE C¡LCULO DOS DESCONTOS DE PIS, COFINS E ICMS (PLiq. Sem Impostos) --
+    -- BASE DE C√ÅLCULO DOS DESCONTOS DE PIS, COFINS E ICMS (PLiq. Sem Impostos) --
     ------------------------------------------------------------------------------
   
     vnBaseCalcDescPisCofinsIcms := NVL(pi_nPVendaSemImposto,0);
   
     --------------------------------------------------------------------------
-    -- DDVENDAS-37241 - Se a DesoneraÁ„o for calculada somente no Faturamento,
-    --                  o PreÁo da PrecificaÁ„o est· desonerado, ent„o precisa
-    --                  elev·-lo para calcular o desconto de isenÁ„o de ICMS
+    -- DDVENDAS-37241 - Se a Desonera√ß√£o for calculada somente no Faturamento,
+    --                  o Pre√ßo da Precifica√ß√£o est√° desonerado, ent√£o precisa
+    --                  elev√°-lo para calcular o desconto de isen√ß√£o de ICMS
     --------------------------------------------------------------------------
     
     IF (NVL(vCALCDESONERACAOFATMEDICAM,'N') = 'S') THEN
     
-      -- ELEVA O PRE«O COM O VALOR DESCONTADO DA DESONERA«√O
+      -- ELEVA O PRE√áO COM O VALOR DESCONTADO DA DESONERA√á√ÉO
       
       IF (NVL(pi_nPerDescIsencaoIcmsTrib,0) > 0) THEN
       
@@ -5605,10 +5605,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     
     P_CALC_DESC_PIS_COFINS_ICMS(pi_vCodFilial,
                                 pi_vCodFilialNf,
-                                NULL,                        -->> N„o tem ImplementaÁ„o de Filial Retira
+                                NULL,                        -->> N√£o tem Implementa√ß√£o de Filial Retira
                                 pi_nCodCli,
                                 pi_nCodProd,
-                                vnBaseCalcDescPisCofinsIcms, -->> Base de C·lculo
+                                vnBaseCalcDescPisCofinsIcms, -->> Base de C√°lculo
                                 po_nVlDescReducaoPis,
                                 po_nPercDescReducaoPis,
                                 po_nVlDescReducaoCofins,
@@ -5634,13 +5634,13 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- ESPECIFICO MEDICAMENTOS - DESONERACAO -------------------------------------
     ------------------------------------------------------------------------------
     
-    -- Calcula Desconto IsenÁ„o conforme par‚metros de cliente e tributaÁ„o
+    -- Calcula Desconto Isen√ß√£o conforme par√¢metros de cliente e tributa√ß√£o
     IF (NVL(pi_vAplicaDescIsencaoMed,'N') = 'S') THEN
       po_nVlDescIcmIsencao   := NVL(vnBaseCalcDescPisCofinsIcms,0) * (NVL(pi_nPerDescIsencaoIcmsTrib,0) / 100);
       po_nPercDescIcmIsencao := pi_nPerDescIsencaoIcmsTrib;
     END IF;
 
-    -- Se o Valor Total do Desconto de IsenÁ„o de ICMS tender a zero, aredonda o Valor Unit·rio do Suframa para as casas decimais do preÁo de venda
+    -- Se o Valor Total do Desconto de Isen√ß√£o de ICMS tender a zero, aredonda o Valor Unit√°rio do Suframa para as casas decimais do pre√ßo de venda
     IF (NVL(po_nVlDescIcmIsencao,0) > 0) THEN
       IF (F_ARREDONDAMENTO_DESONERACAO((po_nVlDescIcmIsencao * NVL(vnQtde,0)),2,'N',pi_nCodSt) = 0) THEN
         po_nVlDescIcmIsencao := F_ARREDONDAMENTO_DESONERACAO(po_nVlDescIcmIsencao,pi_nNumCasasDecVenda,'S',pi_nCodSt);
@@ -5648,13 +5648,13 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
     
     ---------------------------------------------------------------------------
-    -- DDVENDAS-37241 - RemoÁ„o do valor do desconto do ICMS para n„o desonerar
-    --                  novamente o Produto, que j· foi Precificado desonerado
+    -- DDVENDAS-37241 - Remo√ß√£o do valor do desconto do ICMS para n√£o desonerar
+    --                  novamente o Produto, que j√° foi Precificado desonerado
     ---------------------------------------------------------------------------
     
     IF (NVL(vCALCDESONERACAOFATMEDICAM,'N') = 'S') THEN
 
-      -- Exceto C·lculo do ST e da DesoneraÁ„o do Faturamento, onde deve retornar o valor da desoneraÁ„o
+      -- Exceto C√°lculo do ST e da Desonera√ß√£o do Faturamento, onde deve retornar o valor da desonera√ß√£o
       IF (NVL(pi_vCalcSomenteDesoneracao,'N') <> 'S') THEN
        
         po_nVlDescIcmIsencao   := 0;
@@ -5663,7 +5663,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
       
       ----------------------------------------------------------------------------------
-      -- AplicaÁ„o dos Descontos dos BenefÌcios Fiscais nos PreÁos EXCETO DESONERA«√O --
+      -- Aplica√ß√£o dos Descontos dos Benef√≠cios Fiscais nos Pre√ßos EXCETO DESONERA√á√ÉO --
       ----------------------------------------------------------------------------------
       po_nNovoPVenda          := ROUND(NVL(po_nNovoPVenda,0)
                                      - NVL(po_nVlDescReducaoPis,0)
@@ -5684,7 +5684,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     ELSE   
     
       ------------------------------------------------------------------------------
-      -- AplicaÁ„o dos Descontos dos BenefÌcios Fiscais nos PreÁos -----------------
+      -- Aplica√ß√£o dos Descontos dos Benef√≠cios Fiscais nos Pre√ßos -----------------
       ------------------------------------------------------------------------------    
       po_nNovoPVenda          := ROUND(NVL(po_nNovoPVenda,0)
                                      - NVL(po_nVlDescReducaoPis,0)
@@ -5710,50 +5710,50 @@ IS PRAGMA SERIALLY_REUSABLE;
   EXCEPTION
     WHEN OTHERS THEN
       po_vErros    := 'S';
-      po_vMsgErros := 'Erro no c·lculo dos benefÌcios fiscais (PKG_MEDICAMENTOS): ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >>' || SQLERRM; 
+      po_vMsgErros := 'Erro no c√°lculo dos benef√≠cios fiscais (PKG_MEDICAMENTOS): ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >>' || SQLERRM; 
   END P_OBTER_VALORES_BENEF_FISCAIS;                                          
 
   /*******************************************************************************
    Nome         : P_OBTEM_STFONTE_40
-   Descric„o    : Procedimento Obter a Base e Valor do ST Fonte por PreÁo de 
-                  Tabela ou PreÁo de Venda
-   Par‚metros   : ENTRADA:
-                  pi_vCodFilial            = CÛdigo da Filial
-                  pi_nCodProd              = CÛdigo do Produto
-                  pi_nCodCli               = CÛdigo do Cliente
-                  pi_nNumRegiao            = N˙mero da Regi„o
+   Descric√£o    : Procedimento Obter a Base e Valor do ST Fonte por Pre√ßo de 
+                  Tabela ou Pre√ßo de Venda
+   Par√¢metros   : ENTRADA:
+                  pi_vCodFilial            = C√≥digo da Filial
+                  pi_nCodProd              = C√≥digo do Produto
+                  pi_nCodCli               = C√≥digo do Cliente
+                  pi_nNumRegiao            = N√∫mero da Regi√£o
                   pi_nCondVenda            = Tipo de Venda
                   pi_nPercVenda            = Percentual de Venda do Pedido
-                  pi_vPVenda               = PreÁo de Venda
+                  pi_vPVenda               = Pre√ßo de Venda
                   pi_nValorIpi             = Valor do Ipi                
-                  pi_nPrecoMaxConsum       = PreÁo Max. Consumidor
-                  pi_nValorUltEnt          = Valor ⁄lt. Entrada
+                  pi_nPrecoMaxConsum       = Pre√ßo Max. Consumidor
+                  pi_nValorUltEnt          = Valor √ölt. Entrada
                   pi_nCustoNfSemSt         = Custo NF sem ST
-                  pi_nPTabela              = PreÁo de Tabela
+                  pi_nPTabela              = Pre√ßo de Tabela
                   pi_vSomenteIVATribut     = 'N' em todas as chamadas exceto no 
                                                  Simples Nacional
                   pi_vPesquisarCustos      = S - Pesquisa Custos na PCEST
-                                             N - N„o pesquisa Custos na PCEST, 
-                                                 usa os passados nos par‚metros
+                                             N - N√£o pesquisa Custos na PCEST, 
+                                                 usa os passados nos par√¢metros
                   pi_vItemBonific          = S/N
                   pi_nVlFreteOutrasDesp    = Quando chamado da Package Faturamento,
                                              para ratear o Frete e Outras Despesas na
                                              Base de ST  
-                  pi_vTipoChamada          = Determina o tipo de chamada da funÁ„o 
+                  pi_vTipoChamada          = Determina o tipo de chamada da fun√ß√£o 
                                              'F' - Chamado do Faturamento
-                                             'L' - Chamado do C·lculo do ST Especial
-                                                   de Operador LogÌsitco - HIS.01858.2015                                          
-                  pi_nCodFilialNf          = CÛdigo Filial NF                           
+                                             'L' - Chamado do C√°lculo do ST Especial
+                                                   de Operador Log√≠sitco - HIS.01858.2015                                          
+                  pi_nCodFilialNf          = C√≥digo Filial NF                           
                   ENTRADA E SAIDA:
-                  pio_nCodSt               = CÛdigo da TributaÁ„o
+                  pio_nCodSt               = C√≥digo da Tributa√ß√£o
                   SAIDA:
                   po_nBaseStFonte          = Base do ST Fonte
                   pi_nValorIpi             = Valor do ST Fonte
                   po_vMensagem             = Mensagem de Erro se ouver
                   po_vRegimeEspIsenStFonte = Se Isento de ST Fonte S/N
                   po_nPautaFonte           = Valor de Pauta ST Fonte (Farmacia Popular)
-                  po_vObservacaoStFonte    = Log de C·lculo
-                  po_vIndEscalaRelevante   = Escala Relevante ou N„o Relevante (S/N)
+                  po_vObservacaoStFonte    = Log de C√°lculo
+                  po_vIndEscalaRelevante   = Escala Relevante ou N√£o Relevante (S/N)
                   po_vCnpjFabricante       = CNPJ Fabricante
                   po_vFabricante           = Fabricante
                   po_nVLBASEFCPICMS        =  -- HIS.04200.2017
@@ -5768,53 +5768,53 @@ IS PRAGMA SERIALLY_REUSABLE;
                   po_nALIQICMSFECP         =  -- HIS.04200.2017
                   po_nVLCREDFCPICMSSN      =  -- HIS.04200.2017      
                   po_nCODCONFIGFUNCEPMED          
-                  pi_vOrdemCalculo         = P - Padr„o
+                  pi_vOrdemCalculo         = P - Padr√£o
                                            = I - Inverso
-                  pi_vMemoriaCalculo       = S - Sim (Grava a MemÛria de C·lculo
-                                             N - N„o (N„o grava a MemÛria de C·lculo)
+                  pi_vMemoriaCalculo       = S - Sim (Grava a Mem√≥ria de C√°lculo
+                                             N - N√£o (N√£o grava a Mem√≥ria de C√°lculo)
                   pi_nValorNotaFiscal      = Valor da Nota Fiscal           
-   AlteraÁ„o    : Anderson Silva - 27/08/2014 - [HIS.03151.2014] CriaÁ„o da Procedure
-   AlteraÁ„o    : Anderson Silva - 23/09/2014 - [0.107160.2014] Usar PTabela na Base da Aliq. 2
-   AlteraÁ„o    : Anderson Silva - 08/01/2015 - Merge ST por PreÁo de Tabela
-   Alterac„o    : Anderson Silva - 08/01/2015 - Simples Nacional [HIS.05161.2014]
-   Alterac„o    : Anderson Silva - 21/01/2015 - Par‚metros ST do Cliente por Filial
-   Alterac„o    : Anderson Silva - 26/01/2015 - CAT CMED [HIS.00021.2015]
-                                                Regime IsenÁ„o [HIS.04991.2014]
-   AlteraÁ„o    : Anderson Silva - 05/02/2015 - BonificaÁ„o n„o calcula ICMS    
-   AlteraÁ„o    : Anderson Silva - 08/04/2015 - 4663.042313.2015 - Somar Despesas Base 2 do ST                                           
-   AlteraÁ„o    : Rubens Junior  - 24/04/2015 - HIS.00679.2015 - ST PEPS
-   AlteraÁ„o    : Anderson Silva - 25/04/2015 - HIS.00679.2015 - ST PEPS 
-                                                Ajuste OrdenaÁ„o por Data + NumTransEnt
-   AlteraÁ„o    : Anderson Silva - 25/06/2015 - Ajuste ST sobre PTABELA
-   AlteraÁ„o    : Anderson Silva - 01/07/2015 - HIS.01858.2015 - Somar ST no PVENDA no Pedido de OL em clientes N„o Fonte v2
-   AlteraÁ„o    : Anderson Silva - 17/07/2015 - HIS.03187.2015 - C·lculo ST pelo Regime Simplificado de Carga Tribut·ria
-   AlteraÁ„o    : Anderson Silva - 23/11/2015 - HIS.03788.2015 - Regra do USABCRULTENT tem que ficar dentro do STFONTE por causa do Repasse por STBCR
-   AlteraÁ„o    : Anderson Silva - 28/12/2015 - HIS.04408.2015 - PreÁo F·brica/PMC por UF
-   AlteraÁ„o    : Franklin Carvalho - 13/04/2016 - HIS.04322.2015 - SubstituiÁ„o Tribut·ria Fonte X Simples Nacional
-   AlteraÁ„o    : Anderson Silva - 01/07/2016 - 4415.073219.2016 - ST Fonte TV10
-   AlteraÁ„o    : Franklin Carvalho - 06/07/2016 - N„o Calcular ST Fonte se valores n„o informados na TributaÁ„o
-   AlteraÁ„o    : Anderson Silva - 21/10/2016 - Regra ST Paran·
-   AlteraÁ„o    : Anderson Silva - 06/01/2017 - 5661.146071.2016 - Redutor CAT-49/2016
-   AlteraÁ„o    : Anderson Silva - 25/04/2017 - HIS.01277.2017 - Carga MÌnima Deferimento ST 
-   AlteraÁ„o    : Anderson Silva - 27/04/2017 - HIS.01277.2017 - observar valor st < % carga mÌnima
-   AlteraÁ„o    : Anderson Silva - 08/06/2017 - HIS.01838.2017 - MODALIDADE DE DETERMINA«√O DA BASE DE C¡LCULO DO ICMS ST
-   AlteraÁ„o    : Anderson Silva - 14/09/2017 - HIS.03371.2017 - Escala Relevante e n„o Relevante
-   AlteraÁ„o    : Anderson Silva - 21/09/2017 - HIS.03371.2017 - Stfonte carga trib. mÈdia
-   AlteraÁ„o    : Anderson Silva - 06/10/2017 - HIS.03428.2017 - CONFORME NOVA LEGISLA«√O, SEMPRE SOMAR¡ NO ICMS PR”PRIO AS OUTRAS DESPESAS 
-   AlteraÁ„o    : Anderson Silva - 09/11/2017 - HIS.04200.2017 - ST FUNCEP
-   AlteraÁ„o    : Anderson Silva - 11/01/2018 - HIS.04200.2017 - PCTRIBUT.CODCONFIGFUNCEPMED
-   AlteraÁ„o    : Anderson Silva - 19/04/2018 - MED-1080 - ReduÁ„o Base CrÈdito ST
-   AlteraÁ„o    : Anderson Silva - 20/05/2018 - C·lculo ST Inverso
-                                                -- A memÛria de C·lculo desta condiÁ„o foi colocada na linha MC001
-   AlteraÁ„o    : Anderson Silva - 20/06/2018 - MED-1090 - FCP
-   AlteraÁ„o    : Anderson Silva - 02/08/2018 - MED-1471 - AlteraÁ„o ST Funcep TV10
-   AlteraÁ„o    : Anderson Silva - 21/11/2018 - Merge ST Reverso Base Reduzida
-   AlteraÁ„o    : Anderson Silva - 29/01/2019 - MED-1930 - ST inverso FECP
-   AlteraÁ„o    : Anderson Silva - 20/03/2019 - MED-2346 - Novo C·lculo FECP
-   AlteraÁ„o    : Anderson Silva - 04/04/2019 - MED-2425 - AlteraÁ„o c·lculo resultado FECP negativo
-   AlteraÁ„o    : Anderson Silva - 17/05/2019 - MED-2521 - IsenÁ„o ST BonificaÁ„o
-   AlteraÁ„o    : Anderson Silva - 05/07/2019 - DDMEDICA-198 - Item Bonificado
-   AlteraÁ„o    : Anderson Silva - 04/11/2019 - ST para Pedido Avaria
+   Altera√ß√£o    : Anderson Silva - 27/08/2014 - [HIS.03151.2014] Cria√ß√£o da Procedure
+   Altera√ß√£o    : Anderson Silva - 23/09/2014 - [0.107160.2014] Usar PTabela na Base da Aliq. 2
+   Altera√ß√£o    : Anderson Silva - 08/01/2015 - Merge ST por Pre√ßo de Tabela
+   Alterac√£o    : Anderson Silva - 08/01/2015 - Simples Nacional [HIS.05161.2014]
+   Alterac√£o    : Anderson Silva - 21/01/2015 - Par√¢metros ST do Cliente por Filial
+   Alterac√£o    : Anderson Silva - 26/01/2015 - CAT CMED [HIS.00021.2015]
+                                                Regime Isen√ß√£o [HIS.04991.2014]
+   Altera√ß√£o    : Anderson Silva - 05/02/2015 - Bonifica√ß√£o n√£o calcula ICMS    
+   Altera√ß√£o    : Anderson Silva - 08/04/2015 - 4663.042313.2015 - Somar Despesas Base 2 do ST                                           
+   Altera√ß√£o    : Rubens Junior  - 24/04/2015 - HIS.00679.2015 - ST PEPS
+   Altera√ß√£o    : Anderson Silva - 25/04/2015 - HIS.00679.2015 - ST PEPS 
+                                                Ajuste Ordena√ß√£o por Data + NumTransEnt
+   Altera√ß√£o    : Anderson Silva - 25/06/2015 - Ajuste ST sobre PTABELA
+   Altera√ß√£o    : Anderson Silva - 01/07/2015 - HIS.01858.2015 - Somar ST no PVENDA no Pedido de OL em clientes N√£o Fonte v2
+   Altera√ß√£o    : Anderson Silva - 17/07/2015 - HIS.03187.2015 - C√°lculo ST pelo Regime Simplificado de Carga Tribut√°ria
+   Altera√ß√£o    : Anderson Silva - 23/11/2015 - HIS.03788.2015 - Regra do USABCRULTENT tem que ficar dentro do STFONTE por causa do Repasse por STBCR
+   Altera√ß√£o    : Anderson Silva - 28/12/2015 - HIS.04408.2015 - Pre√ßo F√°brica/PMC por UF
+   Altera√ß√£o    : Franklin Carvalho - 13/04/2016 - HIS.04322.2015 - Substitui√ß√£o Tribut√°ria Fonte X Simples Nacional
+   Altera√ß√£o    : Anderson Silva - 01/07/2016 - 4415.073219.2016 - ST Fonte TV10
+   Altera√ß√£o    : Franklin Carvalho - 06/07/2016 - N√£o Calcular ST Fonte se valores n√£o informados na Tributa√ß√£o
+   Altera√ß√£o    : Anderson Silva - 21/10/2016 - Regra ST Paran√°
+   Altera√ß√£o    : Anderson Silva - 06/01/2017 - 5661.146071.2016 - Redutor CAT-49/2016
+   Altera√ß√£o    : Anderson Silva - 25/04/2017 - HIS.01277.2017 - Carga M√≠nima Deferimento ST 
+   Altera√ß√£o    : Anderson Silva - 27/04/2017 - HIS.01277.2017 - observar valor st < % carga m√≠nima
+   Altera√ß√£o    : Anderson Silva - 08/06/2017 - HIS.01838.2017 - MODALIDADE DE DETERMINA√á√ÉO DA BASE DE C√ÅLCULO DO ICMS ST
+   Altera√ß√£o    : Anderson Silva - 14/09/2017 - HIS.03371.2017 - Escala Relevante e n√£o Relevante
+   Altera√ß√£o    : Anderson Silva - 21/09/2017 - HIS.03371.2017 - Stfonte carga trib. m√©dia
+   Altera√ß√£o    : Anderson Silva - 06/10/2017 - HIS.03428.2017 - CONFORME NOVA LEGISLA√á√ÉO, SEMPRE SOMAR√Å NO ICMS PR√ìPRIO AS OUTRAS DESPESAS 
+   Altera√ß√£o    : Anderson Silva - 09/11/2017 - HIS.04200.2017 - ST FUNCEP
+   Altera√ß√£o    : Anderson Silva - 11/01/2018 - HIS.04200.2017 - PCTRIBUT.CODCONFIGFUNCEPMED
+   Altera√ß√£o    : Anderson Silva - 19/04/2018 - MED-1080 - Redu√ß√£o Base Cr√©dito ST
+   Altera√ß√£o    : Anderson Silva - 20/05/2018 - C√°lculo ST Inverso
+                                                -- A mem√≥ria de C√°lculo desta condi√ß√£o foi colocada na linha MC001
+   Altera√ß√£o    : Anderson Silva - 20/06/2018 - MED-1090 - FCP
+   Altera√ß√£o    : Anderson Silva - 02/08/2018 - MED-1471 - Altera√ß√£o ST Funcep TV10
+   Altera√ß√£o    : Anderson Silva - 21/11/2018 - Merge ST Reverso Base Reduzida
+   Altera√ß√£o    : Anderson Silva - 29/01/2019 - MED-1930 - ST inverso FECP
+   Altera√ß√£o    : Anderson Silva - 20/03/2019 - MED-2346 - Novo C√°lculo FECP
+   Altera√ß√£o    : Anderson Silva - 04/04/2019 - MED-2425 - Altera√ß√£o c√°lculo resultado FECP negativo
+   Altera√ß√£o    : Anderson Silva - 17/05/2019 - MED-2521 - Isen√ß√£o ST Bonifica√ß√£o
+   Altera√ß√£o    : Anderson Silva - 05/07/2019 - DDMEDICA-198 - Item Bonificado
+   Altera√ß√£o    : Anderson Silva - 04/11/2019 - ST para Pedido Avaria
   **********************************************************************************/                                       
   PROCEDURE P_OBTEM_STFONTE_40(pi_vCodFilial             IN VARCHAR2,
                                pi_nCodProd               IN NUMBER,
@@ -5944,46 +5944,46 @@ IS PRAGMA SERIALLY_REUSABLE;
    
   /*******************************************************************************
    Nome         : P_OBTEM_STFONTE_42
-   Descric„o    : Procedimento Obter a Base e Valor do ST Fonte por PreÁo de 
-                  Tabela ou PreÁo de Venda
+   Descric√£o    : Procedimento Obter a Base e Valor do ST Fonte por Pre√ßo de 
+                  Tabela ou Pre√ßo de Venda
                   com a Regra do ST Recolhido Anteriormente
-   Par‚metros   : ENTRADA:
-                  pi_vCodFilial            = CÛdigo da Filial
-                  pi_nCodProd              = CÛdigo do Produto
-                  pi_nCodCli               = CÛdigo do Cliente
-                  pi_nNumRegiao            = N˙mero da Regi„o
+   Par√¢metros   : ENTRADA:
+                  pi_vCodFilial            = C√≥digo da Filial
+                  pi_nCodProd              = C√≥digo do Produto
+                  pi_nCodCli               = C√≥digo do Cliente
+                  pi_nNumRegiao            = N√∫mero da Regi√£o
                   pi_nCondVenda            = Tipo de Venda
                   pi_nPercVenda            = Percentual de Venda do Pedido
-                  pi_vPVenda               = PreÁo de Venda
+                  pi_vPVenda               = Pre√ßo de Venda
                   pi_nValorIpi             = Valor do Ipi                
-                  pi_nPrecoMaxConsum       = PreÁo Max. Consumidor
-                  pi_nValorUltEnt          = Valor ⁄lt. Entrada
+                  pi_nPrecoMaxConsum       = Pre√ßo Max. Consumidor
+                  pi_nValorUltEnt          = Valor √ölt. Entrada
                   pi_nCustoNfSemSt         = Custo NF sem ST
-                  pi_nPTabela              = PreÁo de Tabela
+                  pi_nPTabela              = Pre√ßo de Tabela
                   pi_vSomenteIVATribut     = 'N' em todas as chamadas exceto no 
                                                  Simples Nacional
                   pi_vPesquisarCustos      = S - Pesquisa Custos na PCEST
-                                             N - N„o pesquisa Custos na PCEST, 
-                                                 usa os passados nos par‚metros
+                                             N - N√£o pesquisa Custos na PCEST, 
+                                                 usa os passados nos par√¢metros
                   pi_vItemBonific          = S/N
                   pi_nVlFreteOutrasDesp    = Quando chamado da Package Faturamento,
                                              para ratear o Frete e Outras Despesas na
                                              Base de ST  
-                  pi_vTipoChamada          = Determina o tipo de chamada da funÁ„o 
+                  pi_vTipoChamada          = Determina o tipo de chamada da fun√ß√£o 
                                              'F' - Chamado do Faturamento
-                                             'L' - Chamado do C·lculo do ST Especial
-                                                   de Operador LogÌsitco - HIS.01858.2015                                          
-                  pi_nCodFilialNf          = CÛdigo Filial NF                           
+                                             'L' - Chamado do C√°lculo do ST Especial
+                                                   de Operador Log√≠sitco - HIS.01858.2015                                          
+                  pi_nCodFilialNf          = C√≥digo Filial NF                           
                   ENTRADA E SAIDA:
-                  pio_nCodSt               = CÛdigo da TributaÁ„o
+                  pio_nCodSt               = C√≥digo da Tributa√ß√£o
                   SAIDA:
                   po_nBaseStFonte          = Base do ST Fonte
                   pi_nValorIpi             = Valor do ST Fonte
                   po_vMensagem             = Mensagem de Erro se ouver
                   po_vRegimeEspIsenStFonte = Se Isento de ST Fonte S/N
                   po_nPautaFonte           = Valor de Pauta ST Fonte (Farmacia Popular)
-                  po_vObservacaoStFonte    = Log de C·lculo
-                  po_vIndEscalaRelevante   = Escala Relevante ou N„o Relevante (S/N)
+                  po_vObservacaoStFonte    = Log de C√°lculo
+                  po_vIndEscalaRelevante   = Escala Relevante ou N√£o Relevante (S/N)
                   po_vCnpjFabricante       = CNPJ Fabricante
                   po_vFabricante           = Fabricante
                   po_nVLBASEFCPICMS        =  -- HIS.04200.2017
@@ -5998,15 +5998,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                   po_nALIQICMSFECP         =  -- HIS.04200.2017
                   po_nVLCREDFCPICMSSN      =  -- HIS.04200.2017      
                   po_nCODCONFIGFUNCEPMED          
-                  pi_vOrdemCalculo         = P - Padr„o
+                  pi_vOrdemCalculo         = P - Padr√£o
                                            = I - Inverso
-                  pi_vMemoriaCalculo       = S - Sim (Grava a MemÛria de C·lculo
-                                             N - N„o (N„o grava a MemÛria de C·lculo)
+                  pi_vMemoriaCalculo       = S - Sim (Grava a Mem√≥ria de C√°lculo
+                                             N - N√£o (N√£o grava a Mem√≥ria de C√°lculo)
                   pi_nValorNotaFiscal      = Valor da Nota Fiscal           
                   po_nBCSTRETANTERIOR          = Base do ST Recolhido Anteriormente
                   po_nVLICMSSUBSTITUTOANTERIOR = Base do ICMS Substituto Recolhido Anteriormente
                   po_nVLICMSSTRETANTERIOR      = Valor do ST Recolhido Anteriormente
-   AlteraÁ„o    : Anderson Silva - 30/09/2021 - CriaÁ„o da Procedure - DDMEDICA-7697
+   Altera√ß√£o    : Anderson Silva - 30/09/2021 - Cria√ß√£o da Procedure - DDMEDICA-7697
   **********************************************************************************/                                       
   PROCEDURE P_OBTEM_STFONTE_42(pi_vCodFilial                IN VARCHAR2,
                                pi_nCodProd                  IN NUMBER,
@@ -6069,10 +6069,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                
   IS
   
-    -- CÛdigo da Filial de Faturamento - HIS.03371.2017
+    -- C√≥digo da Filial de Faturamento - HIS.03371.2017
     vvCodFilialFaturamento       PCFILIAL.CODIGO%TYPE;
     
-    -- Vari·veis Auxiliares do Procedimento Principal
+    -- Vari√°veis Auxiliares do Procedimento Principal
     v_iva                        PCTRIBUT.IVA%TYPE;
     v_ivafonte                   PCTRIBUT.IVAFONTE%TYPE;
     v_aliqicms1fonte             PCTRIBUT.ALIQICMS1FONTE%TYPE;
@@ -6149,7 +6149,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- FIM: HIS.03187.2015
     v_precofabrica                PCPRODUT.CUSTOREP%TYPE; --// HIS.04408.2015
     vvMensagemPmc                 VARCHAR2(2000);         --// HIS.04408.2015
-    -- ST Fonte TransferÍncia
+    -- ST Fonte Transfer√™ncia
     vUSAREGRADIFSTFONTETV10       PCTRIBUT.USAREGRADIFSTFONTETV10%TYPE;
     -- 5661.146071.2016 
     vUSAREDUTORCAT49BASESTFONTE   PCTRIBUT.USAREDUTORCAT49BASESTFONTE%TYPE;
@@ -6171,25 +6171,25 @@ IS PRAGMA SERIALLY_REUSABLE;
     --
     vUSAREDICMNORMVENDASTFONTE    PCTRIBUT.USAREDICMNORMVENDASTFONTE%TYPE; -- MED-1080
     vPERCBASERED                  PCTRIBUT.PERCBASERED%TYPE; -- MED-1080
-    -- Contador da MemÛria de C·lculo
+    -- Contador da Mem√≥ria de C√°lculo
     iSeqMemoriaCalculo            INTEGER;
     -- Percentual de IPI na Venda
     v_percipivenda                PCPRODUT.PERCIPIVENDA%TYPE;
-    -- Novos c·lculos st fonte
+    -- Novos c√°lculos st fonte
     v_usavlultentmediobasest      PCTRIBUT.USAVLULTENTMEDIOBASEST%TYPE;
     n_percbasestrj                PCTRIBUT.PERCBASESTRJ%TYPE;
     n_vlultentmes                 PCTABPR.VLULTENTMES%TYPE;
-    -- AlÌquota que receber· a Aliq 1 do ST Fonte e a AlÌquota FECP para ST Inverso - MED-1930
+    -- Al√≠quota que receber√° a Aliq 1 do ST Fonte e a Al√≠quota FECP para ST Inverso - MED-1930
     vnAliq1StFonteFecp            NUMBER;
     vnFecpInverso                 NUMBER;
     -- Erro Tratado
     e_tratado                     EXCEPTION;
-    -- Erro BenefÌcios Fiscais - DDMEDICA-7584
+    -- Erro Benef√≠cios Fiscais - DDMEDICA-7584
     e_benef_fiscais               EXCEPTION;
-    -- LesgilaÁ„o teto para aplicar reduÁ„o de PMC
+    -- Lesgila√ß√£o teto para aplicar redu√ß√£o de PMC
     v_usaReducaoBasePmc PCTRIBUT.USAREDUCAOBASEPMC%TYPE;
     v_pertetoredbasepmc PCTRIBUT.PERTETOREDBASEPMC%TYPE;
-    -- MED-2521 - IsenÁ„o ST BonificaÁ„o
+    -- MED-2521 - Isen√ß√£o ST Bonifica√ß√£o
     v_isencaostfontebonificacao   PCTRIBUT.ISENCAOSTFONTEBONIFICACAO%TYPE;
     --
     v_percbaseredst_mc            PCTRIBUT.PERCBASEREDST_MC%TYPE;
@@ -6202,7 +6202,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     v_usapmpfbasest               PCTRIBUT.USAPMPFBASEST%TYPE;
     vnPmPf                        PCTABMEDABCFARMA.PMPF%TYPE;
        
-    -- DDMEDICA-7594 - Valores para CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
+    -- DDMEDICA-7594 - Valores para Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
     v_tipocalcsulframa            PCCONSUM.TIPOCALCSULFRAMA%TYPE;
     v_agregapiscofinsst1          PCTRIBUT.AGREGAPISCOFINSST1%TYPE;
     v_agregasuframast1            PCTRIBUT.AGREGASUFRAMAST1%TYPE;
@@ -6246,7 +6246,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
    /*************************************
     PROCEDURE: P_INSERIR_MEMORIA_CALCULO
-    DESCRICAO: Inserir MemÛria de C·lculo
+    DESCRICAO: Inserir Mem√≥ria de C√°lculo
     *************************************/
     PROCEDURE P_INSERIR_MEMORIA_CALCULO(pi_vOperacao        IN VARCHAR2,
                                         pi_vDescricao       IN VARCHAR2,                                      
@@ -6261,7 +6261,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     
         iSeqMemoriaCalculo := NVL(iSeqMemoriaCalculo,0) + 1;
         
-        -- Se Soma ou SubtraÁ„o tem que ter Valor
+        -- Se Soma ou Subtra√ß√£o tem que ter Valor
         IF (NVL(pi_vOperacao,' ') NOT IN ('+','-')) OR
            ( (NVL(pi_vOperacao,' ') IN ('+','-')) AND (NVL(pi_nValor,0) > 0) ) OR
            ( (NVL(pi_vOperacao,' ') IN ('+','-')) AND (NVL(pi_nValor,0) = 0) AND (pi_vGravarValorZero) ) THEN    
@@ -6294,7 +6294,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
    /**********************************************
     PROCEDURE: P_INSERE_OPCAO_MEMORIA_CALCULO
-    DESCRICAO: Inserir OpÁ„o na MemÛria de C·lculo
+    DESCRICAO: Inserir Op√ß√£o na Mem√≥ria de C√°lculo
     **********************************************/
     PROCEDURE P_INSERE_OPCAO_MEMORIA_CALCULO(pi_vDescricao     IN VARCHAR2,
                                              pi_vOpcaoCondicao IN VARCHAR2,
@@ -6330,7 +6330,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
    /************************************************
     PROCEDURE: P_ATU_OPCAO_MEMORIA_CALCULO
-    DESCRICAO: Atualizar OpÁ„o na MemÛria de C·lculo
+    DESCRICAO: Atualizar Op√ß√£o na Mem√≥ria de C√°lculo
     ************************************************/
     PROCEDURE P_ATU_OPCAO_MEMORIA_CALCULO(pi_vOpcaoCondicao IN VARCHAR2,
                                           pi_vOpcaoValor    IN VARCHAR2 DEFAULT NULL)
@@ -6341,7 +6341,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
         iSeqMemoriaCalculo := NVL(iSeqMemoriaCalculo,0) + 1;
         
-        -- Limpa OpÁıes Marcadas
+        -- Limpa Op√ß√µes Marcadas
         UPDATE PCMED_MEMORIA_CALCULO_ST     
            SET OPCAOSEL   = NULL
              , FLAGRESUMO = 'N'
@@ -6349,7 +6349,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (ORIGEM        = ('S'||pi_vOrdemCalculo))
            AND (OPCAOCONDICAO = pi_vOpcaoCondicao);
   
-        -- Atualiza somente OpÁ„o passada no Par‚metro
+        -- Atualiza somente Op√ß√£o passada no Par√¢metro
         UPDATE PCMED_MEMORIA_CALCULO_ST     
            SET OPCAOSEL   = '*'
          WHERE (CODPROD       = pi_nCodProd)
@@ -6357,7 +6357,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (OPCAOCONDICAO = pi_vOpcaoCondicao) 
            AND (OPCAOVALOR    = pi_vOpcaoValor);
            
-        -- Se opÁ„o marcada diferente de NAO, indica que vai mostrar Pergunta no Resumo
+        -- Se op√ß√£o marcada diferente de NAO, indica que vai mostrar Pergunta no Resumo
         IF (pi_vOpcaoValor <> 'NAO') THEN
           UPDATE PCMED_MEMORIA_CALCULO_ST     
              SET FLAGRESUMO = 'S'
@@ -6522,7 +6522,7 @@ IS PRAGMA SERIALLY_REUSABLE;
        p_ncustocont                  IN NUMBER)  
     IS
     
-      -- PreÁo de Venda sem Impostos
+      -- Pre√ßo de Venda sem Impostos
       vnPrecoVendaSemImpostos        NUMBER;
   
       -- Variaveis Auxiliares
@@ -6538,7 +6538,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       vnRetVlFreteOutrasDespBaseSt   NUMBER; -- MED-2346
       vnRetPercBaseRedIcmsFecp       NUMBER; -- MED-2346
       
-      -- Valores para gravaÁ„o do ST recolhido anteriormente
+      -- Valores para grava√ß√£o do ST recolhido anteriormente
       vvRetEnquadraIcmsSubstAnterior VARCHAR2(1);
       vnRetVlIcmsSubstitutoAnterior  NUMBER;
       
@@ -6546,7 +6546,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------
       -- FUNCTION FCALCULARSTFONTE
-      --42 parametros ( mas pode ser usada pode packages que utilizam a de 38 par¬metros)
+      --42 parametros ( mas pode ser usada pode packages que utilizam a de 38 par√Çmetros)
       -------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------
@@ -6587,7 +6587,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 p_contribuinte               IN VARCHAR2,
                                 p_numcasasdecvenda           in NUMBER,
                                 p_baseicst                   IN OUT NUMBER,
-                                p_PercBaseRedStFonteAlterado OUT NUMBER, -->> SE A LEGISLA«√O MUDAR O % DE REDU«√O DO CADASTRO - 5661.146071.2016
+                                p_PercBaseRedStFonteAlterado OUT NUMBER, -->> SE A LEGISLA√á√ÉO MUDAR O % DE REDU√á√ÉO DO CADASTRO - 5661.146071.2016
                                 p_mensagem                   OUT VARCHAR2,
                                 P_CUSTONFSEMST               in pcest.custonfsemst%type default 0,
                                 p_usavalorultentbasest2      in pctribut.usavalorultentbasest2%type default 'N',
@@ -6656,7 +6656,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 								p_ncustocont				  in NUMBER)
       RETURN NUMBER IS
       
-        -- Vari·veis Locais da FunÁ„o
+        -- Vari√°veis Locais da Fun√ß√£o
         vnpercbasered                  NUMBER;
         vnpercbaseredBaseCred          NUMBER;
         vnpercbaseredIcmsFecp          NUMBER;
@@ -6671,45 +6671,45 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbCalculaSTFonte               BOOLEAN;
         vnpvenda                       NUMBER;
         vncustonfsemst                 PCEST.CUSTONFSEMST%TYPE;
-        -- Regra Farm·cia Popular
+        -- Regra Farm√°cia Popular
         vbRegraFciaPopular             BOOLEAN;
         -- Regra Usar PMC na Base do ST
         vbUsaPmcBaseSt                 BOOLEAN;
-        -- PMC de ReferÍncia para Ajuste PreÁo CMED
+        -- PMC de Refer√™ncia para Ajuste Pre√ßo CMED
         vnPmcAjustePrecoCMED           NUMBER;
-        -- Valor do Frete e Despesas AcessÛrias a Somar nas Base de ST
+        -- Valor do Frete e Despesas Acess√≥rias a Somar nas Base de ST
         vnVlFreteOutrasDespBaseSt      NUMBER;
-        -- Valor do Frete e Despesas AcessÛrias a Somar nas Base de ICMS
+        -- Valor do Frete e Despesas Acess√≥rias a Somar nas Base de ICMS
         vnVlFreteOutrasDespBaseIcms    NUMBER;
-        -- Se usa Regra Regime Simplificado pela Carga Tribut·ria MÈdia                   
+        -- Se usa Regra Regime Simplificado pela Carga Tribut√°ria M√©dia                   
         vbUsaRegraRegSimplCargaTrib    BOOLEAN;
         vnBcIcmsOperPropriaCargaTribut NUMBER;
         vnVlIcmsOperPropriaCargaTribut NUMBER;
         vnBcEstimatSimplifCargaTribut  NUMBER;
         vnVlEstimatSimplifCargaTribut  NUMBER;
-        -- Se usa ST da ⁄ltima Entrada
+        -- Se usa ST da √öltima Entrada
         vbUsaRegraStUltimaEntrada      BOOLEAN;
-        -- Se Ignorar ST Fonte no TV 10 quando valores zerados na tributaÁ„o
+        -- Se Ignorar ST Fonte no TV 10 quando valores zerados na tributa√ß√£o
         vvIgnorarSTFonteTV10Zerado     VARCHAR2(1);  
-        -- Regra ExceÁ„o ST Fonte Paran·
+        -- Regra Exce√ß√£o ST Fonte Paran√°
         vvUsaRegraSTParanaOutrasDesp   VARCHAR2(1);
-        -- Base ST Original sem ReduÁ„o - 5661.146071.2016
+        -- Base ST Original sem Redu√ß√£o - 5661.146071.2016
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
         vnStPercMinPMC                 NUMBER;
-        -- Vari·veis Auxiliares da MemÛria de Calculo
+        -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
         vvDescOpcaoSelMemoriaCalculo   VARCHAR2(200);
-        -- Vari·veis para c·lculo do ST RJ
+        -- Vari√°veis para c√°lculo do ST RJ
         vnBaseStRj                     NUMBER;
         vnValorStRj                    NUMBER;
         vnPercBaseRedRj                NUMBER;
         -- Regra Usar PMPF na Base do ST
         vbUsaPmPfBaseSt                BOOLEAN;
-        -- DDMEDICA-7594 - Valores para CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
-        -- B1 = Base da AlÌquota 1,  B2 = Base da AlÌquota 2
+        -- DDMEDICA-7594 - Valores para Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
+        -- B1 = Base da Al√≠quota 1,  B2 = Base da Al√≠quota 2
         vnVlDescReducaoPisCofins_B1    NUMBER;
         vnVlDescSuframaPisSuframa_B1   NUMBER;
         vnVlDescIcmIsencao_B1          NUMBER;
@@ -6722,13 +6722,13 @@ IS PRAGMA SERIALLY_REUSABLE;
       BEGIN
          
        /********************
-        Inicializa Vari·veis
+        Inicializa Vari√°veis
         ********************/
       
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte         := 'St.Fonte';
       
-        -- Regra Farm·cia Popular
+        -- Regra Farm√°cia Popular
         vbRegraFciaPopular          := ( (NVL(p_CALCSTPAUTAFARMACIAPOPULAR,'N') = 'S') and
                                          (NVL(p_FARMACIAPOPULAR,'N') = 'S') and
                                          (NVL(p_PARTICIPAFARMACIAPOPULAR,'N') = 'S') and
@@ -6738,11 +6738,11 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbUsaPmcBaseSt              := ( (NVL(p_PRECOMAXCONSUM,0) > 0) and
                                          (NVL(p_USAPMCBASEST,'N') = 'S') );
   
-        -- Rgra Usa ST da ⁄ltima Entrada (Se n„o for Consumidor Final)
+        -- Rgra Usa ST da √öltima Entrada (Se n√£o for Consumidor Final)
         vbUsaRegraStUltimaEntrada   := ( (NVL(p_usabcrultent,'N')     = 'S') AND
                                          (NVL(p_consumidorfinal,'N') <> 'S') ); 
   
-        -- Regra Regime Simplificado pela Carga Tribut·ria MÈdia -- HIS.03187.2015                                    
+        -- Regra Regime Simplificado pela Carga Tribut√°ria M√©dia -- HIS.03187.2015                                    
         vbUsaRegraRegSimplCargaTrib := ( (NVL(p_USAREGSIMPLCARGATRIBSTFONTE,'N') = 'S') and
                                          (NVL(p_REGSIMPLCARGATRIBSTFONTE,'N')    = 'S') and
                                          (NVL(p_PERCREGSIMPLCARGATRIBSTFONTE,0)  > 0) );
@@ -6751,7 +6751,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbUsaPmPfBaseSt             := ( (NVL(p_PMPF,0) > 0) and
                                          (NVL(p_USAPMPFBASEST,'N') = 'S') );
                               
-        -- Regra ExceÁ„o ST Fonte Paran· para Somar Outras Despesas na Base ICMS com PMC na Base do ST                                      
+        -- Regra Exce√ß√£o ST Fonte Paran√° para Somar Outras Despesas na Base ICMS com PMC na Base do ST                                      
         BEGIN
           SELECT VALOR
             INTO vvUsaRegraSTParanaOutrasDesp
@@ -6764,17 +6764,17 @@ IS PRAGMA SERIALLY_REUSABLE;
         END;                     
   
        /***************************
-        Inicializa Outras Vari·veis
+        Inicializa Outras Vari√°veis
         ***************************/
   
-        -- Retorno - SE A LEGISLA«√O MUDAR O % DE REDU«√O DO CADASTRO - 5661.146071.2016      
+        -- Retorno - SE A LEGISLA√á√ÉO MUDAR O % DE REDU√á√ÉO DO CADASTRO - 5661.146071.2016      
         p_PercBaseRedStFonteAlterado := NULL; 
   
         -- MED-2346 - Valores para FECP
         po_nVlFreteOutrasDespBaseIcms := NULL; 
         po_nPercBaseRedIcmsFecp       := NULL; 
         
-        -- Outras Vari·veis
+        -- Outras Vari√°veis
         vnbcst                        := 0;
         vnstf1                        := 0;
         vnstf2                        := 0;
@@ -6789,7 +6789,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         --
         vnVlFreteOutrasDespBaseSt     := 0;
         vnVlFreteOutrasDespBaseIcms   := 0;           
-        -- DDMEDICA-7594 - Valores para CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
+        -- DDMEDICA-7594 - Valores para Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
         vnVlDescReducaoPisCofins_B1   := 0;
         vnVlDescSuframaPisSuframa_B1  := 0;
         vnVlDescIcmIsencao_B1         := 0;
@@ -6797,7 +6797,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vnVlDescReducaoPisCofins_B2   := 0;
         vnVlDescSuframaPisSuframa_B2  := 0;
         vnVlDescIcmIsencao_B2         := 0;
-        -- Valores para gravaÁ„o do ST recolhido anteriormente
+        -- Valores para grava√ß√£o do ST recolhido anteriormente
         po_vEnquadraIcmsSubstAnterior := 'N';
         po_nVlIcmsSubstitutoAnterior  := 0;
 
@@ -6807,7 +6807,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            vnCUSTONFSEMST := p_valorultent;    
         end if;
       
-        -- Definindo se È Pessoa FÌsica
+        -- Definindo se √© Pessoa F√≠sica
         if (p_AceitaPFContribuinte = 'N') then
           vscontribuinte := p_AceitaPFContribuinte;
         end if;
@@ -6824,14 +6824,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         Define se Usa ST Fonte
         **********************/
       
-        -- Identificar a incidÍncia de ST Fonte [RDB05]
+        -- Identificar a incid√™ncia de ST Fonte [RDB05]
         vbCalculaSTFonte := (p_CLIENTEFONTEST = 'S')  and
                             ((p_ALIQICMS1FONTE > 0) or (p_ALIQICMS2FONTE > 0));-- and  ((p_ALIQICMS1 = 0) or (p_ALIQICMS2 = 0));
       
         vbCalculaSTFonte := vbCalculaSTFonte and
                             (not ((p_CALCSTPF = 'N') and (vbpessoafisica)));
         
-        -- Item Bonificado com Regime Especial pra Retirar ST da BonificaÁ„o da NF Estadual
+        -- Item Bonificado com Regime Especial pra Retirar ST da Bonifica√ß√£o da NF Estadual
         IF ((NVL(p_itembonific,'N') = 'S') AND
             (NVL(p_medretirarstbnfestadual,'N') = 'S') AND
             (p_uffilial = p_estent)) THEN
@@ -6842,7 +6842,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Se for Pedido TV10
         IF (pi_nCondVenda = 10) THEN
       
-          -- Verifica exceÁ„o para ignorar ST Fonte TV 10 quando valores zerados na tibutaÁ„o
+          -- Verifica exce√ß√£o para ignorar ST Fonte TV 10 quando valores zerados na tibuta√ß√£o
           BEGIN
             SELECT NVL(VALOR,'N')
               INTO vvIgnorarSTFonteTV10Zerado
@@ -6856,9 +6856,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         
           -- Se possuir a regra
           IF vvIgnorarSTFonteTV10Zerado = 'S' THEN
-            -- Reinicializa a vari·vel
+            -- Reinicializa a vari√°vel
             vvIgnorarSTFonteTV10Zerado := 'N';
-            -- Verifica se os campos est„o zerados 
+            -- Verifica se os campos est√£o zerados 
             BEGIN
               SELECT 'S'
                 INTO vvIgnorarSTFonteTV10Zerado
@@ -6879,7 +6879,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vvIgnorarSTFonteTV10Zerado := 'N';
             END; 
             
-            -- Se os valores para os campos est„o zerados, n„o calcula ST Fonte
+            -- Se os valores para os campos est√£o zerados, n√£o calcula ST Fonte
             IF (vvIgnorarSTFonteTV10Zerado = 'S') THEN
               vbCalculaSTFonte := FALSE;
             END IF; 
@@ -6896,30 +6896,30 @@ IS PRAGMA SERIALLY_REUSABLE;
              (vbCalculaSTFonte)          THEN -->> HIS.03788.2015 - Somente se for STFONTE
   
           -------------------------------------------
-          -- Se usa o PEPS e È Chamado do Faturamento
+          -- Se usa o PEPS e √© Chamado do Faturamento
           -------------------------------------------
           IF (pi_vTipoChamada = 'F') AND
              (v_medcalcularstpelopeps = 'S') THEN
           
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PEPS';
           
              -- Total de itens (Saldo). 
              v_nqt_saldo := NVL(pi_nQT,0);
-             -- Apagando a movimentaÁ„o da tempor·ria
+             -- Apagando a movimenta√ß√£o da tempor√°ria
              DELETE FROM PCPEPSSALDOTEMP;
              
-             -- Cursor para identificar as transaÁıes.
+             -- Cursor para identificar as transa√ß√µes.
              FOR CR_PEPS IN (SELECT M.NUMTRANSPEPS
                                   , E.DTENT
                                   , SUM(SALDO) SALDO
-                                FROM   (   -- Saldo PEPS atÈ ˙ltimo fechamento
+                                FROM   (   -- Saldo PEPS at√© √∫ltimo fechamento
                                         SELECT   S.NUMTRANSENT NUMTRANSPEPS, SUM (S.QTSALDO) SALDO
                                           FROM   PCPEPSSALDO S
                                          WHERE   S.CODFILIAL = p_codfilialfaturamento -- HIS.03371.2017
                                            AND   S.CODPROD = pi_nCodProd
                                         GROUP BY S.NUMTRANSENT
-                                    UNION  -- Entradas apÛs ˙ltimo fechamento
+                                    UNION  -- Entradas ap√≥s √∫ltimo fechamento
                                         SELECT   N.NUMTRANSENT NUMTRANSPEPS, SUM (M.QTCONT) SALDO
                                           FROM   PCNFENT N, PCMOV M
                                          WHERE   NVL (N.CODFILIALNF, N.CODFILIAL) = p_codfilialfaturamento -- HIS.03371.2017
@@ -6940,7 +6940,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                                AND CODFILIAL = p_codfilialfaturamento -- HIS.03371.2017
                                                                AND CODPROD = M.CODPROD)
                                           GROUP BY N.NUMTRANSENT
-                                    UNION  -- SaÌdas apÛs ˙ltimo fechamento
+                                    UNION  -- Sa√≠das ap√≥s √∫ltimo fechamento
                                         SELECT   C.NUMTRANSPEPS, SUM (M.QTCONT) * (-1) SALDO
                                           FROM   PCNFSAID N, PCMOV M, PCMOVCOMPLE C
                                          WHERE   NVL (M.CODFILIALNF, M.CODFILIAL) = p_codfilialfaturamento -- HIS.03371.2017
@@ -6958,7 +6958,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                AND N.DTCANCEL IS NULL
                                                AND C.NUMTRANSITEM = M.NUMTRANSITEM
                                           GROUP BY C.NUMTRANSPEPS
-                                    UNION  -- Saldo j· reservado no Pedido (outros lotes)
+                                    UNION  -- Saldo j√° reservado no Pedido (outros lotes)
                                         SELECT   I.NUMTRANSPEPS, SUM (I.QT) * (-1) SALDO
                                           FROM   PCPEDC P, PCPEDI I
                                          WHERE   NVL (P.CODFILIALNF, P.CODFILIAL) = p_codfilialfaturamento -- HIS.03371.2017
@@ -6975,19 +6975,19 @@ IS PRAGMA SERIALLY_REUSABLE;
                          ORDER BY E.DTENT, M.NUMTRANSPEPS)
              LOOP
              
-              -- CALCULANDO A QUANTIDADE DE BAIXA POR TRANSA«√O.
+              -- CALCULANDO A QUANTIDADE DE BAIXA POR TRANSA√á√ÉO.
                v_nqt_baixa := 0; 
                IF (NVL(CR_PEPS.SALDO,0) >= NVL(v_nqt_saldo,0)) then
                  -- Se tem Saldo no PEPS para atender totalmente a quantidade
                  v_nqt_baixa := NVL(v_nqt_saldo,0);
                  v_nqt_saldo := 0;
                else
-                 -- Se N√O tem Saldo no PEPS para atender toda a quantidade
+                 -- Se N√ÉO tem Saldo no PEPS para atender toda a quantidade
                  v_nqt_baixa := NVL(CR_PEPS.SALDO,0);
                  v_nqt_saldo := NVL(v_nqt_saldo,0) - NVL(v_nqt_baixa,0);  
                end if;
                
-               -- BUSCANDO INFORMA«√O DE BASE ST E ST DA TRANSA«√O DE ENTRADA.
+               -- BUSCANDO INFORMA√á√ÉO DE BASE ST E ST DA TRANSA√á√ÉO DE ENTRADA.
                BEGIN
                    SELECT BASEBCR
                         , STBCR
@@ -6998,7 +6998,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       AND CODPROD = pi_nCodProd
                       AND ROWNUM = 1; 
                          
-                   -- Por enquanto respeitam a tributaÁ„o as vari·veis abaixo
+                   -- Por enquanto respeitam a tributa√ß√£o as vari√°veis abaixo
                    V_iva                := p_iva;
                    V_ivafonte           := p_ivafonte;
                    V_aliqicms1fonte     := p_aliqicms1fonte;
@@ -7006,11 +7006,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                    V_percbaseredstfonte := p_percbaseredstfonte;
                 EXCEPTION
                   WHEN NO_DATA_FOUND THEN
-                    po_vMensagem := 'N„o foi encontrado movimento para a transaÁ„o ' + CR_PEPS.NUMTRANSPEPS + ' no processo do PEPS';
+                    po_vMensagem := 'N√£o foi encontrado movimento para a transa√ß√£o ' + CR_PEPS.NUMTRANSPEPS + ' no processo do PEPS';
                     RAISE e_tratado;
                 END;                  
                
-               -- INSERINDO NA TEMPOR¡RIA
+               -- INSERINDO NA TEMPOR√ÅRIA
                INSERT INTO PCPEPSSALDOTEMP (NUMTRANSPEPS
                                            ,CODPROD
                                            ,QTSALDO
@@ -7042,7 +7042,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              
              -- Se ainda ficar saldo grava com os dados da PCEST
              IF (NVL(v_nqt_saldo,0) > 0) THEN
-               -- INSERINDO NA TEMPOR¡RIA
+               -- INSERINDO NA TEMPOR√ÅRIA
                INSERT INTO PCPEPSSALDOTEMP (NUMTRANSPEPS
                                            ,CODPROD
                                            ,QTSALDO
@@ -7054,7 +7054,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            ,ALIQICMS2FONTE
                                            ,PERCBASEREDSTFONTE)
                                      VALUES
-                                           (NULL        -->> N„o ter· NUMTRANSPEPS
+                                           (NULL        -->> N√£o ter√° NUMTRANSPEPS
                                            ,pi_nCodProd
                                            ,v_nqt_saldo -->> Saldo Restante do Item do Pedido
                                            ,NVL(p_basebcrultent,0)
@@ -7068,29 +7068,29 @@ IS PRAGMA SERIALLY_REUSABLE;
              END IF;
              
           ----------------------------------------------------------------------
-          -- Se n„o usa o PEPS ou se usa o PEPS mas n„o È chamado do Faturamento
+          -- Se n√£o usa o PEPS ou se usa o PEPS mas n√£o √© chamado do Faturamento
           ----------------------------------------------------------------------
           ELSE 
             -- Usa Valores da PCEST
             vnbcst    := NVL(p_basebcrultent,0);
             vnstfonte := NVL(p_stbcrultent,0);
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PEPS PcEst';
           END IF;
            
        /*********************************************************************************************
         *********************************************************************************************
-        **            CALCULAR VALOR DO ST PELA CARGA TRIBUT¡RIA M…DIA - HIS.03187.2015            **
+        **            CALCULAR VALOR DO ST PELA CARGA TRIBUT√ÅRIA M√âDIA - HIS.03187.2015            **
         *********************************************************************************************
         *********************************************************************************************/
         ELSIF (vbUsaRegraRegSimplCargaTrib) AND
               (vbCalculaSTFonte)            THEN -->> HIS.03371.2017 - Somente se for STFONTE
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
-                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Carga Trib.MÈdia';
+                                                                                                                         -- Observa√ß√£o ST Fonte
+                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Carga Trib.M√©dia';
             
         /*   
-         Base ST = [Valor OperaÁ„o PrÛpria] + [Valor Estimativa Simplificada Carga Tribut·ria MÈdia]
+         Base ST = [Valor Opera√ß√£o Pr√≥pria] + [Valor Estimativa Simplificada Carga Tribut√°ria M√©dia]
                    ---------------------------------------------------------------------------------
                      		                        Percentual ICMS Interno
   
@@ -7098,25 +7098,25 @@ IS PRAGMA SERIALLY_REUSABLE;
                    ----------------------------------------------------------------------------------------------
         		                                         (Aliq1/100)
                                                      
-         Valor ST = [Valor Estimativa Simplificada Carga Tribut·ria MÈdia]
+         Valor ST = [Valor Estimativa Simplificada Carga Tribut√°ria M√©dia]
          
-         OBS: Excluem-se deste: Cliente Regime IsenÁ„o; Item Bonificado Retira ST Estadual; Org„o P˙blico e a TributaÁ„o tem IsenÁ„o de ST para ”rg„os P˙blicos
+         OBS: Excluem-se deste: Cliente Regime Isen√ß√£o; Item Bonificado Retira ST Estadual; Org√£o P√∫blico e a Tributa√ß√£o tem Isen√ß√£o de ST para √ìrg√£os P√∫blicos
          */
   
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DO VALOR DA OPERA«√O PR”PRIA
+          DEFINI√á√ÉO DO VALOR DA OPERA√á√ÉO PR√ìPRIA
           -------------------------------------*/
   
-          -- Base C·lculo
+          -- Base C√°lculo
           vnBcIcmsOperPropriaCargaTribut := NVL(vnPVENDA,0); 
           -- Valor
           vnVlIcmsOperPropriaCargaTribut := NVL(vnBcIcmsOperPropriaCargaTribut,0) * (NVL(p_ALIQICMS2FONTE,0) / 100);
           
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DO ST VALOR DA OPERA«√O PR”PRIA
+          DEFINI√á√ÉO DO ST VALOR DA OPERA√á√ÉO PR√ìPRIA
           -------------------------------------*/
   
-          -- Base C·lculo
+          -- Base C√°lculo
           vnBcEstimatSimplifCargaTribut := NVL(vnPVENDA,0);
           vnBcEstimatSimplifCargaTribut := NVL(vnBcEstimatSimplifCargaTribut,0) + NVL(p_vlipi,0);
           vnBcEstimatSimplifCargaTribut := NVL(vnBcEstimatSimplifCargaTribut,0) + NVL(p_vlfreteoutrasdesp,0);
@@ -7124,13 +7124,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           vnVlEstimatSimplifCargaTribut := NVL(vnBcEstimatSimplifCargaTribut,0) * (NVL(p_PERCREGSIMPLCARGATRIBSTFONTE,0) / 100);
   
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA BASE DO ST
+          DEFINI√á√ÉO DA BASE DO ST
           ----------------------*/
           
           vnBCST := (NVL(vnVlIcmsOperPropriaCargaTribut,0) + NVL(vnVlEstimatSimplifCargaTribut,0)) / (NVL(p_ALIQICMS1FONTE,0) / 100);
   
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DO VALOR DO ST
+          DEFINI√á√ÉO DO VALOR DO ST
           -----------------------*/
           
           vnSTFONTE := NVL(vnVlEstimatSimplifCargaTribut,0);
@@ -7151,24 +7151,24 @@ IS PRAGMA SERIALLY_REUSABLE;
         *********************************************************************************************/
         ELSIF (vbCalculaSTFonte) THEN
           
-                                                                                                                         -- ObservaÁ„o ST Fonte
-                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Padr„o';
+                                                                                                                         -- Observa√ß√£o ST Fonte
+                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Padr√£o';
                 
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA REDU«√O DA BASE DE C¡LCULO
+          DEFINI√á√ÉO DA REDU√á√ÉO DA BASE DE C√ÅLCULO
           --------------------------------------*/
         
           vnpercbasered := p_percbaseredstfonte;
         
-          -- MED-1080 - ReduÁ„o da Base CrÈdito do ST Fonte
+          -- MED-1080 - Redu√ß√£o da Base Cr√©dito do ST Fonte
           vnpercbaseredBaseCred := p_percbaseredstfonte;
           IF (NVL(p_USAREDICMNORMVENDASTFONTE,'N') = 'S') THEN
             vnpercbaseredBaseCred := p_PERCBASERED; -- MED-1080
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',RedICMSNorm'||p_PERCBASERED;
           END IF;
         
-          --  MED-2346 - ReduÁ„o para o ICMS CrÈdito
+          --  MED-2346 - Redu√ß√£o para o ICMS Cr√©dito
           vnpercbaseredIcmsFecp := p_PERCBASERED; 
         
           ---- Se tipo de empresa do cliente for Normal RPA
@@ -7178,7 +7178,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnpercbaseredBaseCred := p_percbaserednrpa; -- MED-1080
             vnpercbaseredIcmsFecp := p_percbaserednrpa; -- MED-2346
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',NRPA';
           END IF;
           ---- Cliente consumidor final utiliza %base red. p/ consumidor final
@@ -7187,7 +7187,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnpercbaseredBaseCred := p_percbaseredconsumidor; -- MED-1080
             vnpercbaseredIcmsFecp := p_percbaseredconsumidor; -- MED-2346
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.CF';
           END IF;
           ---- Cliente PF que utiliza IE simplificada nao aplica %base red
@@ -7197,7 +7197,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnpercbaseredBaseCred := 0; -- MED-1080
             vnpercbaseredIcmsFecp := 0; -- MED-2346
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PF.Simplif.';
           END IF;
         
@@ -7208,7 +7208,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnpercbaseredBaseCred := 0; -- MED-1080
               vnpercbaseredIcmsFecp := 0; -- MED-2346
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.PF.';
             end if;
           end if;
@@ -7218,17 +7218,17 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnpercbaseredBaseCred := 0; -- MED-1080
             vnpercbaseredIcmsFecp := 0; -- MED-2346
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.Isento';
           END IF;
           
-          --// MERGE CR -> GU = Farm·cia Popular n„o tem ReduÁ„o da Base de C·lculo
+          --// MERGE CR -> GU = Farm√°cia Popular n√£o tem Redu√ß√£o da Base de C√°lculo
           if (vbRegraFciaPopular) then
             vnpercbasered         := 0;
             vnpercbaseredBaseCred := 0; -- MED-1080
             vnpercbaseredIcmsFecp := 0; -- MED-2346
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.FciaPop.';
           end if;
   
@@ -7240,7 +7240,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vnpercbasered         := 0;
                   vnpercbaseredBaseCred := 0; -- MED-1080
                   vnpercbaseredIcmsFecp := 0; -- MED-2346
-                  -- ObservaÁ„o ST Fonte
+                  -- Observa√ß√£o ST Fonte
                   p_observacaostfonte := p_observacaostfonte || ',Sem Red.Teto PMC.';
                 END IF;
               END IF;
@@ -7251,13 +7251,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           p_percbaseredstfonte := vnpercbasered;
         
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DO PERCENTUAL DE IVA FONTE
+          DEFINI√á√ÉO DO PERCENTUAL DE IVA FONTE
           -----------------------------------*/
         
           -- Definir IVA do ST Fonte [RBD07]
           if p_UsaIVAFonteDiferenciado = 'N' then
             vnIvaFonte := p_IVAFONTE;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',N:Iva Dif.';
           
             --Comentado na 316 por:  //Fernandes 13/09/2011
@@ -7269,7 +7269,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             --Fim Comentado na 316 por:  //Fernandes 13/09/2011
           elsif p_usaivafontediferenciado = 'S' then
             vnIvaFonte := p_IVAFonte_Cli;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',S:Iva Dif.';
             
           elsif p_usaivafontediferenciado = 'M' then
@@ -7279,33 +7279,33 @@ IS PRAGMA SERIALLY_REUSABLE;
             else
               vnIvaFonte := p_IVAFonte_Cli;
             end if;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',M:Iva Dif.';
             
           end if;
         
-          -- [HIS.05161.2014] - ReduÁ„o Simples Nacional no IVA
+          -- [HIS.05161.2014] - Redu√ß√£o Simples Nacional no IVA
           IF (p_somenteIVATribut = 'N') THEN
-            IF ((NVL(p_usadescsimplesnac,'N')     = 'N')     AND  -- Somente se na Rotina 132 N„o usa desconto do Simples Nacional
-                (NVL(p_percredpvendasimplesnac,0) > 0)       AND  -- Somente se tiver % ReduÁ„o cadastrado na TributaÁ„o
+            IF ((NVL(p_usadescsimplesnac,'N')     = 'N')     AND  -- Somente se na Rotina 132 N√£o usa desconto do Simples Nacional
+                (NVL(p_percredpvendasimplesnac,0) > 0)       AND  -- Somente se tiver % Redu√ß√£o cadastrado na Tributa√ß√£o
                 (NVL(p_simplesnacional,'N')       = 'S')     AND  -- Somente se o Cliente participa do Simples Nacional 
-                (NVL(p_tipomerc,' ') NOT IN (' ','M','MA'))) THEN -- Somente se n„o for Medicamento e tiver o Tipo Merc. Preenchido
+                (NVL(p_tipomerc,' ') NOT IN (' ','M','MA'))) THEN -- Somente se n√£o for Medicamento e tiver o Tipo Merc. Preenchido
               vnIvaFonte := vnIvaFonte * (p_percredpvendasimplesnac / 100);
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.Iva SN';
             END IF;          
           END IF;
         
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA BASE DE C¡LCULO DA ALIQ 01
+          DEFINI√á√ÉO DA BASE DE C√ÅLCULO DA ALIQ 01
           --------------------------------------*/
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Tipo de Base de C·lculo do ST (DÈbito)', 'COLUNA_BCST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Base ST pela Pauta Fonte (Farm·cia Popular)', 'COLUNA_BCST', 'PAUTAFONTE');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Base ST pelo PreÁo M·ximo Consumidor', 'COLUNA_BCST', 'PMC');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Base ST pelo PreÁo Tabela', 'COLUNA_BCST', 'PTABELA'); 
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) Base ST pela MÈdia dos Valores das Entradas (MG)', 'COLUNA_BCST', 'VLMEDIAENTMG');                                                
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Tipo de Base de C√°lculo do ST (D√©bito)', 'COLUNA_BCST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Base ST pela Pauta Fonte (Farm√°cia Popular)', 'COLUNA_BCST', 'PAUTAFONTE');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Base ST pelo Pre√ßo M√°ximo Consumidor', 'COLUNA_BCST', 'PMC');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Base ST pelo Pre√ßo Tabela', 'COLUNA_BCST', 'PTABELA'); 
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) Base ST pela M√©dia dos Valores das Entradas (MG)', 'COLUNA_BCST', 'VLMEDIAENTMG');                                                
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('5) Base ST pelo Custo da Nota de Entrada sem ST', 'COLUNA_BCST', 'CUSTONF');          
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('6) Base ST pelo Valor da Ultima Entrada', 'COLUNA_BCST', 'VALORULTENT');          
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('7) Base ST pelo Valor da Ultima Entrada (ST RJ)', 'COLUNA_BCST', 'VLULTENTSTRJ');
@@ -7320,33 +7320,33 @@ IS PRAGMA SERIALLY_REUSABLE;
              vnVlFreteOutrasDespBaseSt   := NVL(p_vlfreteoutrasdesp,0);
              vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',FciaPop';
              
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'PAUTAFONTE');                     
     
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
     
           -- PMC NA BASE DO ST
           elsif (vbUsaPmcBaseSt) then
     
              vnPBASE := P_PRECOMAXCONSUM; 
   
-             vnVlFreteOutrasDespBaseSt := 0; --> Nesta Regra n„o aplicar· Frete e Outras Despesas
+             vnVlFreteOutrasDespBaseSt := 0; --> Nesta Regra n√£o aplicar√° Frete e Outras Despesas
              
-             -- HIS.03428.2017 - CONFORME NOVA LEGISLA«√O, SEMPRE SOMAR¡ NO ICMS PR”PRIO           
+             -- HIS.03428.2017 - CONFORME NOVA LEGISLA√á√ÉO, SEMPRE SOMAR√Å NO ICMS PR√ìPRIO           
              vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PMC';
              
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'PMC');                     
              
-             -- MemÛria de C·lculo
-             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+             -- Mem√≥ria de C√°lculo
+             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
              
 
           -- PMPF NA BASE DO ST
@@ -7356,18 +7356,18 @@ IS PRAGMA SERIALLY_REUSABLE;
              
              po_nPmPf := P_PMPF; -- DDMEDICA-7697
   
-             vnVlFreteOutrasDespBaseSt := 0; --> Nesta Regra n„o aplicar· Frete e Outras Despesas
+             vnVlFreteOutrasDespBaseSt := 0; --> Nesta Regra n√£o aplicar√° Frete e Outras Despesas
              
              vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PMPF';
              
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'PMPF');                     
              
-             -- MemÛria de C·lculo
-             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+             -- Mem√≥ria de C√°lculo
+             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
              
           -- USAR PTABELA BASE DO ST
           elsif (NVL(p_usaptabelabasest,'N') = 'S') then
@@ -7377,16 +7377,16 @@ IS PRAGMA SERIALLY_REUSABLE;
              vnVlFreteOutrasDespBaseSt   := NVL(p_vlfreteoutrasdesp,0);
              vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
              
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',P.Tab';
              
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'PTABELA');                     
              
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
                                        
-          -- USAR VALOR M…DIO DAS ULTIMAS ENTRADAS (MG)
+          -- USAR VALOR M√âDIO DAS ULTIMAS ENTRADAS (MG)
           elsif (NVL(p_usavlultentmediobasest,'N') = 'S') then
   
              vnPBASE := p_vlultentmes;
@@ -7394,27 +7394,27 @@ IS PRAGMA SERIALLY_REUSABLE;
              vnVlFreteOutrasDespBaseSt   := NVL(p_vlfreteoutrasdesp,0);
              vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
              
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Media Ent.MG';
              
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'VLMEDIAENTMG');                     
              
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
              
           -- DEMAIS CASOS (PVENDA, CUSTO, ETC)              
           else
         
-            -- DDMEDICA-7594 - Passou para o inicio por ser priorit·rio sobre todos os ValorUltEnt
+            -- DDMEDICA-7594 - Passou para o inicio por ser priorit√°rio sobre todos os ValorUltEnt
             if (p_UfFilial = p_EstEnt) and (NVL(p_UsaValorUltEntBaseST2,'N') = 'S') then
             
               vnPVENDA := vnCustoNFSemST; 
               
-              vnVlFreteOutrasDespBaseSt   := 0; --> Nesta Regra n„o aplicar· Frete e Outras Despesas
+              vnVlFreteOutrasDespBaseSt   := 0; --> Nesta Regra n√£o aplicar√° Frete e Outras Despesas
               vnVlFreteOutrasDespBaseIcms := 0;
                
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Ult.Ent.ST2';
               
             -- VALOR DA ULTIMA ENTRADA NA BASE DO ST      
@@ -7424,13 +7424,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                
               vnpbase  := vncustonfsemst; 
     
-              vnVlFreteOutrasDespBaseSt   := 0; --> Nesta Regra n„o aplicar· Frete e Outras Despesas
+              vnVlFreteOutrasDespBaseSt   := 0; --> Nesta Regra n√£o aplicar√° Frete e Outras Despesas
               vnVlFreteOutrasDespBaseIcms := 0;
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Ult.Ent.';
               
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              if nvl(P_CUSTONFSEMST,0) = 0 then
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'VALORULTENT');                     
                                                                                                                                              ELSE            
@@ -7444,13 +7444,13 @@ IS PRAGMA SERIALLY_REUSABLE;
   
               vnpbase  := NVL(p_valorultent,0); 
     
-              vnVlFreteOutrasDespBaseSt   := 0; --> VERIFICAR DEPOIS Nesta Regra n„o aplicar· Frete e Outras Despesas
+              vnVlFreteOutrasDespBaseSt   := 0; --> VERIFICAR DEPOIS Nesta Regra n√£o aplicar√° Frete e Outras Despesas
               vnVlFreteOutrasDespBaseIcms := 0;
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Ult.Ent.RJ';
               
-                                                                                                                         -- MemÛria de C·lculo
+                                                                                                                         -- Mem√≥ria de C√°lculo
                                                                                                                          P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'VLULTENTSTRJ');                     
                           
             ELSE          
@@ -7460,21 +7460,21 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnVlFreteOutrasDespBaseSt   := NVL(p_vlfreteoutrasdesp,0);
               vnVlFreteOutrasDespBaseIcms := NVL(p_vlfreteoutrasdesp,0);
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',P.Venda';            
               
-                                                                                                                         -- MemÛria de C·lculo
+                                                                                                                         -- Mem√≥ria de C√°lculo
                                                                                                                          P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCST', 'PVENDA');                     
                                                                
 
               ---------------------------------------------------------------------------------------------------
-              -- DDMEDICA-7594 - Valores para CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
-              -- Base ST da AlÌquota 1
+              -- DDMEDICA-7594 - Valores para Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
+              -- Base ST da Al√≠quota 1
               ---------------------------------------------------------------------------------------------------
               -- Usou IVA na Base 1
               vbUsouIVAFonte_B1 := TRUE;
 
-              -- Define os Valores conforme parametrizaÁ„o
+              -- Define os Valores conforme parametriza√ß√£o
               IF (p_agregapiscofinsst1 = 'S') THEN
                 vnVlDescReducaoPisCofins_B1 := (NVL(p_vldescreducaopis,0) + NVL(p_vldescreducaocofins,0));
               END IF; 
@@ -7485,30 +7485,30 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vnVlDescIcmIsencao_B1        := NVL(p_vldescicmisencao,0);
               END IF;
               
-              -- APLICA REDU«√O PIS/COFINS
+              -- APLICA REDU√á√ÉO PIS/COFINS
               IF (NVL(vnVlDescReducaoPisCofins_B1,0) > 0) THEN
                 vnPBASE := NVL(vnPBASE,0) - NVL(vnVlDescReducaoPisCofins_B1,0);        
               
-                                                                                                                                                 -- MemÛria de C·lculo          
-                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o PIS/COFINS', vnPBASE, NULL, vnVlDescReducaoPisCofins_B1);
+                                                                                                                                                 -- Mem√≥ria de C√°lculo          
+                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o PIS/COFINS', vnPBASE, NULL, vnVlDescReducaoPisCofins_B1);
                                                                                                                                                  
               END IF; 
               
-              -- APLICA REDU«√O SUFRAMA
+              -- APLICA REDU√á√ÉO SUFRAMA
               IF (NVL(vnVlDescSuframaPisSuframa_B1,0) > 0) THEN
                 vnPBASE := NVL(vnPBASE,0) - NVL(vnVlDescSuframaPisSuframa_B1,0);        
               
-                                                                                                                                                 -- MemÛria de C·lculo          
-                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o SUFRAMA', vnPBASE, NULL, vnVlDescSuframaPisSuframa_B1);
+                                                                                                                                                 -- Mem√≥ria de C√°lculo          
+                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o SUFRAMA', vnPBASE, NULL, vnVlDescSuframaPisSuframa_B1);
                                                                                                                                                  
               END IF; 
     
-              -- APLICA REDU«√O DESONERA«√O
+              -- APLICA REDU√á√ÉO DESONERA√á√ÉO
               IF (NVL(vnVlDescIcmIsencao_B1,0) > 0) THEN
                 vnPBASE := NVL(vnPBASE,0) - NVL(vnVlDescIcmIsencao_B1,0);        
               
-                                                                                                                                                 -- MemÛria de C·lculo          
-                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o DesoneraÁ„o ICMS', vnPBASE, NULL, vnVlDescIcmIsencao_B1);
+                                                                                                                                                 -- Mem√≥ria de C√°lculo          
+                                                                                                                                                 P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o Desonera√ß√£o ICMS', vnPBASE, NULL, vnVlDescIcmIsencao_B1);
                                                                                                                                                  
               END IF; 
               ---------------------------------------------------------------------------------------------------
@@ -7516,180 +7516,180 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
 
 
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (DÈbito)', vnPBASE);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST (D√©bito)', vnPBASE);
         
             -- Soma o Valor do IPI na Base do ST
             vnpbase := vnpbase + nvl(p_vlipi, 0);
             
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'IPI', vnPBASE, p_percipivenda, p_vlipi);
             
          
           end if;
           
-          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C·culo Aliq. 01
+          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C√°culo Aliq. 01
           vnPBASE := NVL(vnPBASE,0) + NVL(vnVlFreteOutrasDespBaseSt,0);        
           
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'Frete e Outras Despesas', vnPBASE, NULL, vnVlFreteOutrasDespBaseSt);
           
           
-          -- Guarda a Base ST Original sem ReduÁ„o para c·lculos mais abaixo - 5661.146071.2016
+          -- Guarda a Base ST Original sem Redu√ß√£o para c√°lculos mais abaixo - 5661.146071.2016
           vnBaseStOriginalSemReducao := vnPBASE;         
              
           --------------------------------------------
-          -- APLICA REDU«√O na Base de C·culo Aliq. 01
+          -- APLICA REDU√á√ÉO na Base de C√°culo Aliq. 01
           --------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar ReduÁ„o na Base de ST (DÈbito) ?', 'RED_BCST');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar reduÁ„o', 'RED_BCST', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o aplicar reduÁ„o', 'RED_BCST', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Redu√ß√£o na Base de ST (D√©bito) ?', 'RED_BCST');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar redu√ß√£o', 'RED_BCST', 'SIM');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o aplicar redu√ß√£o', 'RED_BCST', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCST', 'NAO'); -->> Default               
           
-          -- Se tem ReduÁ„o na Base do ST
+          -- Se tem Redu√ß√£o na Base do ST
           IF vnpercbasered > 0 THEN
           
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - vnpercbasered);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnpbase * (vnPercMemoriaCalculo / 100));
           
-            -- Aplica ReduÁ„o na Base
+            -- Aplica Redu√ß√£o na Base
             vnpbase := vnpbase * (vnpercbasered / 100);
             
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCST', 'SIM');                     
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o de ' || vnpercbasered || '% na Base ST (CrÈdito)', vnPBASE, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o de ' || vnpercbasered || '% na Base ST (Cr√©dito)', vnPBASE, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
             
-          END IF; -- Fim CondiÁ„o: APLICA REDU«√O na Base de C·culo Aliq. 01
+          END IF; -- Fim Condi√ß√£o: APLICA REDU√á√ÉO na Base de C√°culo Aliq. 01
           
           ---------------------------------------------        
           -- APLICA O REDUTOR Cat/49 - 5661.146071.2016
           ---------------------------------------------        
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar ReduÁ„o Cat-49/2016 na Base de ST (DÈbito) ?', 'CAT49_BCST');                
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Redu√ß√£o Cat-49/2016 na Base de ST (D√©bito) ?', 'CAT49_BCST');                
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar Cat-49/2016', 'CAT49_BCST', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o aplicar Cat-49/2016','CAT49_BCST', 'NAO');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o aplicar Cat-49/2016','CAT49_BCST', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT49_BCST', 'NAO'); -->> Default               
                   
           -- Se usa Redutor Cat/49
           IF (p_USAREDUTORCAT49BASESTFONTE = 'S') THEN
             IF (NVL(p_PERCREDUTORCAT49BASESTFONTE,0) > 0) THEN
   
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - p_PERCREDUTORCAT49BASESTFONTE);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnpbase * (vnPercMemoriaCalculo / 100));
             
-              -- Aplica ReduÁ„o CAT/49 na Base
+              -- Aplica Redu√ß√£o CAT/49 na Base
               vnpbase := vnpbase * (NVL(p_PERCREDUTORCAT49BASESTFONTE,0) / 100);
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.Cat49';
               
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT49_BCST', 'SIM');                     
               
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o Cat/49 de ' || vnpercbasered || '% da Base ST', vnPBASE, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o Cat/49 de ' || vnpercbasered || '% da Base ST', vnPBASE, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);                                                  
               
             END IF;
           END IF;
                             
           ---------------------------------------------------------------------------------------------      
-          -- Regra Ajuste de PreÁo CMED para o PMC
-          -- (TributaÁ„o Marcada para Ajuste de PreÁo CMED, se tiver PMC e se N„o for Farm·cia Popular)
+          -- Regra Ajuste de Pre√ßo CMED para o PMC
+          -- (Tributa√ß√£o Marcada para Ajuste de Pre√ßo CMED, se tiver PMC e se N√£o for Farm√°cia Popular)
           ---------------------------------------------------------------------------------------------      
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar LegislaÁ„o Cat-35/2014 na Base de ST (DÈbito) ? (Obs: Somente Produtos com PMC e sem Pauta)', 'CAT35_BCST');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Aplicar Cat-35/2014 ajustando a Base de ST pelo MVA (Fator Ajuste CMED >= Percentual de ReferÍncia)', 'CAT35_BCST', 'SIM_MVA_REF');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Aplicar Cat-35/2014 ajustando a Base de ST pelo PMC (Fator Ajuste CMED >= Percentual de ReferÍncia)', 'CAT35_BCST', 'SIM_PMC_REF');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Aplicar Cat-35/2014 ajustando a Base de ST pelo PMC (Fator Ajuste CMED < Percentual de ReferÍncia)', 'CAT35_BCST', 'SIM_PMC');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) N„o Aplicar LegislaÁ„o Cat-35/2014', 'CAT35_BCST', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Legisla√ß√£o Cat-35/2014 na Base de ST (D√©bito) ? (Obs: Somente Produtos com PMC e sem Pauta)', 'CAT35_BCST');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Aplicar Cat-35/2014 ajustando a Base de ST pelo MVA (Fator Ajuste CMED >= Percentual de Refer√™ncia)', 'CAT35_BCST', 'SIM_MVA_REF');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Aplicar Cat-35/2014 ajustando a Base de ST pelo PMC (Fator Ajuste CMED >= Percentual de Refer√™ncia)', 'CAT35_BCST', 'SIM_PMC_REF');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Aplicar Cat-35/2014 ajustando a Base de ST pelo PMC (Fator Ajuste CMED < Percentual de Refer√™ncia)', 'CAT35_BCST', 'SIM_PMC');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) N√£o Aplicar Legisla√ß√£o Cat-35/2014', 'CAT35_BCST', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT35_BCST', 'NAO'); -->> Default               
           
-          -- Se Utilizar LegislaÁ„o Cat/35 (Ajuste PreÁo CMED
+          -- Se Utilizar Legisla√ß√£o Cat/35 (Ajuste Pre√ßo CMED
           IF (NVL(p_usarajusteprecocmed,'N') = 'S') AND
              (NVL(p_PRECOMAXCONSUM,0) > 0) AND
              (NOT vbRegraFciaPopular) THEN
                        
-            -- PMC de ReferÍncia para Ajuste PreÁo CMED
+            -- PMC de Refer√™ncia para Ajuste Pre√ßo CMED
             IF (NVL(vnpercbasered,0) > 0) THEN
             
               vnPmcAjustePrecoCMED := NVL(p_PRECOMAXCONSUM,0) * (vnpercbasered / 100);
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Red.AjusteCMED';
                           
             ELSE
             
               vnPmcAjustePrecoCMED := NVL(p_PRECOMAXCONSUM,0);
                           
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',AjusteCMED';
                           
             END IF;
                                   
-            -- Se o PreÁo de Venda passado no Par‚metro sobre o PMC com ReduÁ„o exceder o Percentual informado na TributaÁ„o,
+            -- Se o Pre√ßo de Venda passado no Par√¢metro sobre o PMC com Redu√ß√£o exceder o Percentual informado na Tributa√ß√£o,
             -- calcula a Base de ST pelo MVA mesmo sendo um Produto Tributado pelo PMC
             IF (((NVL(p_pvenda,0) / NVL(vnPmcAjustePrecoCMED,0)) * 100) >= NVL(p_percajusteprecocmed,0)) THEN
                                                  
-              --- Calcula a base pelo MVA , sem o Percentual de ReduÁ„o          
+              --- Calcula a base pelo MVA , sem o Percentual de Redu√ß√£o          
               vnBCST := NVL(p_pvenda,0) + nvl(p_vlipi,0);
               vnBCST := (vnBCST * (p_PERCVENDA / 100)) *
                         (1 + (vnIVAFONTE / 100));          
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',IVA AjusteCMED';
                                     
-              -- A Base do ST n„o pode Exceder o PMC
+              -- A Base do ST n√£o pode Exceder o PMC
               IF (NVL(vnBCST,0) > NVL(p_PRECOMAXCONSUM,0)) THEN
               
                 vnBCST := NVL(p_PRECOMAXCONSUM,0);
                 
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Exc.AjusteCMED';
                
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT35_BCST', 'SIM_PMC_REF');                     
                
               ELSE
               
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT35_BCST', 'SIM_MVA_REF');                     
                            
               END IF;
                                     
-            -- Sem Regra Ajuste PreÁo CMED
+            -- Sem Regra Ajuste Pre√ßo CMED
             ELSE
                       
               -- Calcula a Base do ST pelo PMC
               vnBCST := NVL(p_PRECOMAXCONSUM,0);
-              -- Base de C·culo Aliq. 01
+              -- Base de C√°culo Aliq. 01
               IF vnpercbasered > 0 THEN
                 vnBCST := vnBCST * (vnpercbasered / 100);
               END IF;
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',S/AjusteCMED';
               
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CAT35_BCST', 'SIM_PMC');                                 
               
             END IF;
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de ReferÍncia CAT/35', NULL, p_percajusteprecocmed, NULL);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de Refer√™ncia CAT/35', NULL, p_percajusteprecocmed, NULL);                                                  
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Fator Ajuste CMED ((Valor Produto ' || NVL(p_pvenda,0) || CHR(247) || ' PMC ' || NVL(vnPmcAjustePrecoCMED,0) || ') x 100)', NULL, NULL, ((NVL(p_pvenda,0) / NVL(vnPmcAjustePrecoCMED,0)) * 100)); 
                                       
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'SubstituiÁ„o da Base ST conforme LegislaÁ„o CAT-35/2014', vnBCST, NULL, NULL);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Substitui√ß√£o da Base ST conforme Legisla√ß√£o CAT-35/2014', vnBCST, NULL, NULL);                                                  
                                                                                                   
           -----------------------------------------------
           -- Demais Casos (FARMACIA POPULAR, PMC, MVA ...
@@ -7703,7 +7703,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnBCST               := vnpbase;
               p_pautafonteaplicado := NVL(p_PAUTAFONTE,0); -- HIS.01838.2017
       
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BaseFciaPop.';
       
             -- PMC NA BASE ST
@@ -7712,7 +7712,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Sem IVA
               vnBCST := vnpbase;
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BasePMC';
               
 
@@ -7722,26 +7722,26 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Sem IVA
               vnBCST := vnpbase;
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BasePMPF';              
 
             -- Demais casos: COM IVA
             else
       
-              -- Vari·veis Auxiliares da MemÛria de Calculo
+              -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
               vnValorCalculadoMemoriaCalculo := (vnPBASE * (vnIVAFONTE / 100));
       
               -- Agrega o MVA na Base do ST
               vnBCST := (vnPBASE * (p_PERCVENDA / 100)) *
                         (1 + (vnIVAFONTE / 100));
                         
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BaseIVA';
               
-                                                                                                                                                         -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar MVA na Base de ST (DÈbito)', 'MVA_BCST');                
+                                                                                                                                                         -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar MVA na Base de ST (D√©bito)', 'MVA_BCST');                
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar MVA', 'MVA_BCST', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o aplicar MVA', 'MVA_BCST', 'NAO');   
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o aplicar MVA', 'MVA_BCST', 'NAO');   
                                                                                                                                              IF (vnIVAFONTE > 0) THEN       
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('MVA_BCST', 'SIM'); -->> Default               
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'MVA', vnBCST, vnIVAFONTE, vnValorCalculadoMemoriaCalculo);                                          
@@ -7755,73 +7755,73 @@ IS PRAGMA SERIALLY_REUSABLE;
           --------------------
           vnSTF1 := vnBCST * (p_ALIQICMS1FONTE / 100);
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor ICMS Compra (DÈbito)', NULL, p_ALIQICMS1FONTE, vnSTF1);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor ICMS Compra (D√©bito)', NULL, p_ALIQICMS1FONTE, vnSTF1);
           
-          -- Valores para gravaÁ„o do ST recolhido anteriormente -
+          -- Valores para grava√ß√£o do ST recolhido anteriormente -
           --------------------------------------------------------
           po_vEnquadraIcmsSubstAnterior := 'S'; -- DDVENDAS-32054
          
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA BASE DE CALCULO DA ALIQ 02
+          DEFINI√á√ÉO DA BASE DE CALCULO DA ALIQ 02
           --------------------------------------*/
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Tipo de Base de C·lculo do ICMS (CrÈdito)', 'COLUNA_BCICM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Base ICMS pelo PreÁo Tabela', 'COLUNA_BCICM', 'PTABELA');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Base ICMS pela MÈdia dos Valores das Entradas (MG)', 'COLUNA_BCICM', 'VLULTENTMES');                          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Tipo de Base de C√°lculo do ICMS (Cr√©dito)', 'COLUNA_BCICM');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Base ICMS pelo Pre√ßo Tabela', 'COLUNA_BCICM', 'PTABELA');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Base ICMS pela M√©dia dos Valores das Entradas (MG)', 'COLUNA_BCICM', 'VLULTENTMES');                          
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('3) Base ICMS pelo Valor dos Produtos', 'COLUNA_BCICM', 'PVENDA');          
                   
           -------------------------------------------------------------------------------------
-          -- Base de C·culo Aliq. 02
-          -- Se Usa o PreÁo Tabela na Base do ST, aplica o PTabela tambÈm na Base da AlÌquota 2
+          -- Base de C√°culo Aliq. 02
+          -- Se Usa o Pre√ßo Tabela na Base do ST, aplica o PTabela tamb√©m na Base da Al√≠quota 2
           -------------------------------------------------------------------------------------
           
-          -- Se Utiliza PreÁo Tabela na Base do ST        
+          -- Se Utiliza Pre√ßo Tabela na Base do ST        
           IF (NVL(p_usaptabelabasest,'N') = 'S') THEN
           
             vnPVENDA := p_ptabela;
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BaseIcmPTab.';          
             
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCICM', 'PVENDA');                                           
           
-          -- Se Utiliza a MÈdia dos Valores das Entradas (MG)
+          -- Se Utiliza a M√©dia dos Valores das Entradas (MG)
           ELSIF (NVL(p_usavlultentmediobasest,'N') = 'S') THEN
   
             vnPVENDA := p_vlultentmes;
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BaseIcm Media MG';          
             
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCICM', 'VLULTENTMES');                                           
           
-          -- Se Utiliza o PreÁo de Venda 
+          -- Se Utiliza o Pre√ßo de Venda 
           ELSE
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BaseIcmPVenda.';          
           
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('COLUNA_BCICM', 'PVENDA');                                 
           
           END IF;      
             
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ICMS (CrÈdito)', vnPVENDA);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ICMS (Cr√©dito)', vnPVENDA);
 
 
           ---------------------------------------------------------------------------------------------------
-          -- DDMEDICA-7594 - Valores para CustomizaÁ„o da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO
-          -- Base ST da AlÌquota 2
+          -- DDMEDICA-7594 - Valores para Customiza√ß√£o da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO
+          -- Base ST da Al√≠quota 2
           ---------------------------------------------------------------------------------------------------
           -- Somente se usou IVA na Base 1
           IF (vbUsouIVAFonte_B1) THEN
           
-            -- Define os Valores conforme parametrizaÁ„o
+            -- Define os Valores conforme parametriza√ß√£o
             IF (p_agregapiscofinsst2 = 'S') THEN
               vnVlDescReducaoPisCofins_B2 := (NVL(p_vldescreducaopis,0) + NVL(p_vldescreducaocofins,0));
             END IF; 
@@ -7832,79 +7832,79 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnVlDescIcmIsencao_B2        := NVL(p_vldescicmisencao,0);
             END IF;
   
-            -- APLICA REDU«√O PIS/COFINS
+            -- APLICA REDU√á√ÉO PIS/COFINS
             IF (NVL(vnVlDescReducaoPisCofins_B2,0) > 0) THEN
               vnPVENDA := NVL(vnPVENDA,0) - NVL(vnVlDescReducaoPisCofins_B2,0);        
             
-                                                                                                                                               -- MemÛria de C·lculo          
-                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o PIS/COFINS', vnPVENDA, NULL, vnVlDescReducaoPisCofins_B2);
+                                                                                                                                               -- Mem√≥ria de C√°lculo          
+                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o PIS/COFINS', vnPVENDA, NULL, vnVlDescReducaoPisCofins_B2);
                                                                                                                                                
             END IF; 
             
-            -- APLICA REDU«√O SUFRAMA
+            -- APLICA REDU√á√ÉO SUFRAMA
             IF (NVL(vnVlDescSuframaPisSuframa_B2,0) > 0) THEN
               vnPVENDA := NVL(vnPVENDA,0) - NVL(vnVlDescSuframaPisSuframa_B2,0);        
             
-                                                                                                                                               -- MemÛria de C·lculo          
-                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o SUFRAMA', vnPVENDA, NULL, vnVlDescSuframaPisSuframa_B2);
+                                                                                                                                               -- Mem√≥ria de C√°lculo          
+                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o SUFRAMA', vnPVENDA, NULL, vnVlDescSuframaPisSuframa_B2);
                                                                                                                                                
             END IF; 
   
-            -- APLICA REDU«√O DESONERA«√O
+            -- APLICA REDU√á√ÉO DESONERA√á√ÉO
             IF (NVL(vnVlDescIcmIsencao_B2,0) > 0) THEN
               vnPVENDA := NVL(vnPVENDA,0) - NVL(vnVlDescIcmIsencao_B2,0);        
             
-                                                                                                                                               -- MemÛria de C·lculo          
-                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o DesoneraÁ„o ICMS', vnPVENDA, NULL, vnVlDescIcmIsencao_B2);
+                                                                                                                                               -- Mem√≥ria de C√°lculo          
+                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o Desonera√ß√£o ICMS', vnPVENDA, NULL, vnVlDescIcmIsencao_B2);
                                                                                                                                                
             END IF; 
           END IF;
           ---------------------------------------------------------------------------------------------------
             
           ---------------------------------------------------------------------
-          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C·culo Aliq. 02
+          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C√°culo Aliq. 02
           ---------------------------------------------------------------------
   
-          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C·culo Aliq. 02
+          -- APLICA VALOR DO FRETE E OUTRAS DESPESAS na Base de C√°culo Aliq. 02
           vnPVENDA := NVL(vnPVENDA,0) + NVL(vnVlFreteOutrasDespBaseIcms,0);        
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'Frete e Outras Despesas', vnPVENDA, NULL, vnVlFreteOutrasDespBaseIcms);
             
           ---------------------------------------------
-          -- Se usa Base ICMS Reduzida no C·lculo do ST
+          -- Se usa Base ICMS Reduzida no C√°lculo do ST
           ---------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar ReduÁ„o na Base de ICMS (CrÈdito) ?', 'RED_BCICM');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, reduzir a base usando o Percentual ReduÁ„o do ST Fonte', 'RED_BCICM', 'SIM_REDFONTE');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sim, reduzir a base usando o Percentual ReduÁ„o do ICMS da Venda', 'RED_BCICM', 'SIM_REDVENDA');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N„o reduzir a base', 'RED_BCICM', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Redu√ß√£o na Base de ICMS (Cr√©dito) ?', 'RED_BCICM');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, reduzir a base usando o Percentual Redu√ß√£o do ST Fonte', 'RED_BCICM', 'SIM_REDFONTE');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sim, reduzir a base usando o Percentual Redu√ß√£o do ICMS da Venda', 'RED_BCICM', 'SIM_REDVENDA');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N√£o reduzir a base', 'RED_BCICM', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCICM', 'NAO'); -->> Default               
           
           -- Se usa Base ICMS Reduzida
           IF (p_usabaseicmsreduzida = 'S') THEN
             
-            -- MED-1080 - ReduÁ„o da Base CrÈdito do ST Fonte
+            -- MED-1080 - Redu√ß√£o da Base Cr√©dito do ST Fonte
             IF (NVL(p_USAREDICMNORMVENDASTFONTE,'N') = 'S') THEN
               
               IF vnpercbaseredBaseCred > 0 THEN
                
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - vnpercbaseredBaseCred);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnpbase * (vnPercMemoriaCalculo / 100));
                
-                -- Aplica ReduÁ„o da AlÌquota informada na Aba de ICMS na Venda
+                -- Aplica Redu√ß√£o da Al√≠quota informada na Aba de ICMS na Venda
                 vnPVENDA := vnPVENDA * (vnpercbaseredBaseCred / 100);
   
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',Red.PVenda'||vnpercbaseredBaseCred;          
   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCICM', 'SIM_REDVENDA');                                               
                                             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o de ' || vnpercbaseredBaseCred || '% na Base de ICMS (DÈbito)', vnPVENDA, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o de ' || vnpercbaseredBaseCred || '% na Base de ICMS (D√©bito)', vnPVENDA, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
                                             
               END IF;
               
@@ -7912,32 +7912,32 @@ IS PRAGMA SERIALLY_REUSABLE;
                         
               IF vnpercbasered > 0 THEN
               
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - vnpercbasered);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnpbase * (vnPercMemoriaCalculo / 100));
               
-                -- Aplica ReduÁ„o da AlÌquota informada na Aba de ST Fonte
+                -- Aplica Redu√ß√£o da Al√≠quota informada na Aba de ST Fonte
                 vnPVENDA := vnPVENDA * (vnpercbasered / 100);
               
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',Red.PVenda';          
               
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCICM', 'SIM_REDFONTE');                                 
                                             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o de ' || vnpercbasered || '% na Base de ICMS (DÈbito)', vnPVENDA, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o de ' || vnpercbasered || '% na Base de ICMS (D√©bito)', vnPVENDA, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
                                             
               END IF;
               
             END IF;
           END IF;
   
-          -- Se Item Bonificado e a BonificaÁ„o n„o calcular ICMS
+          -- Se Item Bonificado e a Bonifica√ß√£o n√£o calcular ICMS
           IF ((p_itembonific IN ('S','F')) and -- DDMEDICA-198 - Incluir F
               (p_bnfnaocalculaicms = 'S')) THEN
             p_ALIQICMS2FONTE := 0;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte  := p_observacaostfonte || ',BNF';          
           END IF;
             
@@ -7946,10 +7946,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           vnSTF2 := (vnPVENDA * (p_PERCVENDA / 100)) *
                     (p_ALIQICMS2FONTE / 100);
                                  
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor ICMS Venda (CrÈdito)', NULL, p_ALIQICMS2FONTE, vnSTF2);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor ICMS Venda (Cr√©dito)', NULL, p_ALIQICMS2FONTE, vnSTF2);
 
-          -- Valores para gravaÁ„o do ST recolhido anteriormente -
+          -- Valores para grava√ß√£o do ST recolhido anteriormente -
           --------------------------------------------------------
           po_nVlIcmsSubstitutoAnterior  := vnSTF2; -- DDVENDAS-32054
 
@@ -7969,32 +7969,32 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnSTFONTE := round(vnSTFONTE, p_numcasasdecvenda);       
           END IF;
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Valor ICMS ST (Valor ICMS DÈbito - Valor ICMS CrÈdito)', NULL, NULL, vnSTFONTE);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Valor ICMS ST (Valor ICMS D√©bito - Valor ICMS Cr√©dito)', NULL, NULL, vnSTFONTE);
   
           --------------------------------------------------------
-          -- CARGA MÕNIMA DEFERIMENTO ST FONTE - HIS.01277.2017 --
+          -- CARGA M√çNIMA DEFERIMENTO ST FONTE - HIS.01277.2017 --
           --------------------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Usar Carga MÌnima de Deferimento do ST Fonte ?', 'DEFERIM_ST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, usar a carga mÌnima', 'DEFERIM_ST', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o usar a carga mÌnima', 'DEFERIM_ST', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Usar Carga M√≠nima de Deferimento do ST Fonte ?', 'DEFERIM_ST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, usar a carga m√≠nima', 'DEFERIM_ST', 'SIM');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o usar a carga m√≠nima', 'DEFERIM_ST', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('DEFERIM_ST', 'NAO'); -->> Default               
           
-          -- Se usa Carga MÌnima de ST Fonte
+          -- Se usa Carga M√≠nima de ST Fonte
           IF (p_USACARGAMINIMADEFERIMSTFONTE = 'S') THEN
                          
-            --Calculo o ST pela Carga MÌnima
+            --Calculo o ST pela Carga M√≠nima
             vnStFonteCargaMinima := vnBCST * (NVL(p_PERCARGAMINIMADEFERIMSTFONTE,0) / 100) ;
                       
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de Carga MÌnima de Deferimento ST Fonte', NULL, p_PERCARGAMINIMADEFERIMSTFONTE, NULL);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de Carga M√≠nima de Deferimento ST Fonte', NULL, p_PERCARGAMINIMADEFERIMSTFONTE, NULL);                                                  
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor do ST MÌnimo conforme Percentual de Defermimento', NULL, NULL, vnstfonte); 
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor do ST M√≠nimo conforme Percentual de Defermimento', NULL, NULL, vnstfonte); 
             
-            --Calcular ST pela Carga MÌnima - Truncar com 2 casas decimais
+            --Calcular ST pela Carga M√≠nima - Truncar com 2 casas decimais
             IF p_tipocalcst = 'T2' THEN
               vnStFonteCargaMinima := trunc((vnStFonteCargaMinima) * 100) / 100;
             ELSIF p_tipocalcst = 'A2' THEN
@@ -8003,34 +8003,34 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnStFonteCargaMinima := round(vnStFonteCargaMinima, p_numcasasdecvenda);       
             END IF;
                     
-            -- Verifico se o ST do Item È inferior ao ST Calculado pela Carga MÌnima
+            -- Verifico se o ST do Item √© inferior ao ST Calculado pela Carga M√≠nima
             IF (NVL(vnstfonte,0) < NVL(vnStFonteCargaMinima,0)) THEN
   
               -- Substitui ST
               vnstfonte := vnStFonteCargaMinima;
               
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o do Valor do ST conforme Deferimento ST Fonte', NULL, NULL, vnstfonte);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o do Valor do ST conforme Deferimento ST Fonte', NULL, NULL, vnstfonte);                                                  
               
             END IF;
             
-                                                                                                                         -- ObservaÁ„o ST Fonte
-                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Carga MÌn.';          
+                                                                                                                         -- Observa√ß√£o ST Fonte
+                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Carga M√≠n.';          
                                                         
-          END IF; -- FIM: CARGA MÕNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
+          END IF; -- FIM: CARGA M√çNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
         
-          --Se ST for menor que 0, torn·-lo 0
+          --Se ST for menor que 0, torn√°-lo 0
           IF vnstfonte < 0 THEN
             vnstfonte := 0;
-          -- N„o zerar a Base de C·lculo do ST se o resultado do ST for zero - HIS.03187.2015
+          -- N√£o zerar a Base de C√°lculo do ST se o resultado do ST for zero - HIS.03187.2015
           --ELSIF vnstfonte = 0 THEN
           --  vnbcst := 0;
           END IF;
           
-          -- Se Usa o PreÁo Tabela na Base do ST, a Base de ST dever· ser o PreÁo de Tabela (ACRE)
+          -- Se Usa o Pre√ßo Tabela na Base do ST, a Base de ST dever√° ser o Pre√ßo de Tabela (ACRE)
           IF (NVL(p_usaptabelabasest,'N') = 'S') THEN
             vnbcst := p_ptabela;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',PTab.BaseSt';                    
           END IF;      
         
@@ -8038,101 +8038,101 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF nvl(p_aliqicms1fonte, 0) = 0 AND
              nvl(p_aliqicms2fonte, 0) = 0 THEN
             vnbcst := 0;
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Zerada';
           END IF;            
   
           -------------------------------------------------------------------------
-          -- PERCENTUAL BASE RJ - PriorizaÁ„o do Maior entre o MÌnimo e o Calculado
+          -- PERCENTUAL BASE RJ - Prioriza√ß√£o do Maior entre o M√≠nimo e o Calculado
           -------------------------------------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('OpÁ„o de ST MÌnimo RJ', 'VL_STRJ');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Valor do ST calculado maior que o Valor do ST MÌnimo RJ, manter ST calculado.', 'VL_STRJ', 'CALC_STRJ');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Valor do ST calculado menor que o Valor do ST MÌnimo RJ, substituir pelo ST MÌnimo.', 'VL_STRJ', 'MIN_STRJ');   
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N„o aplicar ST MÌnimo RJ', 'VL_STRJ', 'NAO_STRJ');   
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Op√ß√£o de ST M√≠nimo RJ', 'VL_STRJ');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Valor do ST calculado maior que o Valor do ST M√≠nimo RJ, manter ST calculado.', 'VL_STRJ', 'CALC_STRJ');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Valor do ST calculado menor que o Valor do ST M√≠nimo RJ, substituir pelo ST M√≠nimo.', 'VL_STRJ', 'MIN_STRJ');   
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N√£o aplicar ST M√≠nimo RJ', 'VL_STRJ', 'NAO_STRJ');   
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJ', 'NAO_STRJ'); -->> Default               
           
           IF (NVL(p_usavalorultentbasest,'N') = 'S') AND
              (NVL(p_percbasestrj,0) > 0)             THEN
   
-            -- Base ST Rj pelo Valor da ⁄ltima Entrada
+            -- Base ST Rj pelo Valor da √öltima Entrada
             vnBaseStRj := NVL(p_valorultent,0);
   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST RJ', vnBaseStRj);
                                       
             -- Soma o Valor do IPI na Base do ST Rj
             vnBaseStRj := vnBaseStRj + nvl(p_vlipi, 0);
             
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'IPI', vnBaseStRj, p_percipivenda, p_vlipi);
                                       
             -- Agrega o MVA na Base do ST Rj
             vnBaseStRj := (vnBaseStRj * (1 + (vnIVAFONTE / 100)));
                                       
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'MVA', vnBaseStRj, vnIVAFONTE, vnValorCalculadoMemoriaCalculo);                                      
           
-            -- ReduÁ„o ST Rj
+            -- Redu√ß√£o ST Rj
             vnPercBaseRedRj := NVL(vnpercbasered,0); 
             IF (NVL(vnPercBaseRedRj,0) = 0) THEN
               vnPercBaseRedRj := 100;
             END IF;
             
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - vnPercBaseRedRj);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnBaseStRj * (vnPercMemoriaCalculo / 100));
             
-            -- Aplica ReduÁ„o na Base do ST Rj
+            -- Aplica Redu√ß√£o na Base do ST Rj
             vnBaseStRj := vnBaseStRj * (vnPercBaseRedRj / 100);
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o de ' || vnPercBaseRedRj || '% na Base ST (CrÈdito)', vnBaseStRj, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o de ' || vnPercBaseRedRj || '% na Base ST (Cr√©dito)', vnBaseStRj, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
           
             -- Calcula o Valor do ST RJ  
             vnValorStRj := vnBaseStRj * (NVL(p_percbasestrj,0) / 100);
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor MÌnimo ST RJ', NULL, p_percbasestrj, vnValorStRj);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor M√≠nimo ST RJ', NULL, p_percbasestrj, vnValorStRj);
                                                                                
-            -- ValidaÁ„o do ST MÌnimo
+            -- Valida√ß√£o do ST M√≠nimo
             IF (NVL(vnstfonte,0) < NVL(vnValorStRj,0)) THEN
   
               -- Substitui a Base do ST 
               vnbcst    := NVL(vnBaseStRj,0); 
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'SubstituiÁ„o da Base do ST conforme ST MÌnimo RJ', NULL, NULL, vnbcst);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Substitui√ß√£o da Base do ST conforme ST M√≠nimo RJ', NULL, NULL, vnbcst);                                                  
             
               -- Substitui o Valor do ST
               vnstfonte := NVL(vnValorStRj,0);
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o do Valor do ST conforme ST MÌnimo RJ', NULL, NULL, vnstfonte);                                                  
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o do Valor do ST conforme ST M√≠nimo RJ', NULL, NULL, vnstfonte);                                                  
                                                   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJ', 'MIN_STRJ');                                 
   
             ELSE
                
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJ', 'CALC_STRJ');                                 
                                           
             END IF;
              
     
-          END IF; -- Fim CondiÁ„o: PERCENTUAL BASE RJ - PriorizaÁ„o do Maior entre o MÌnimo e o Calculado
+          END IF; -- Fim Condi√ß√£o: PERCENTUAL BASE RJ - Prioriza√ß√£o do Maior entre o M√≠nimo e o Calculado
           
-        END IF; -- FIM CONDI«√O CALCULA VALOR DO ST
+        END IF; -- FIM CONDI√á√ÉO CALCULA VALOR DO ST
               
 
         IF (NVL(p_utilizaCustoContBaseST,'N') = 'S') AND  (NVL(p_nFatorAjusteCustoCont,0) > 0) THEN
 			  vnbcst := (NVL(vnPVENDA,0) +  NVL(p_vlfreteoutrasdesp,0));
-			  P_INSERIR_MEMORIA_CALCULO('=', 'SubstituiÁ„o da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
+			  P_INSERIR_MEMORIA_CALCULO('=', 'Substitui√ß√£o da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
 
 			  vnBaseSTPB := ((NVL(p_ncustocont,0)/(1-(p_nFatorAjusteCustoCont/100))) +  NVL(p_vlfreteoutrasdesp,0));
-			  P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, ROUND(vnBaseSTPB,p_numcasasdecvenda));    
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, ROUND(vnBaseSTPB,p_numcasasdecvenda));    
 					
 			  vnstfonte  := vnbcst * (p_aliqicms1fonte/100);
 					
@@ -8150,33 +8150,33 @@ IS PRAGMA SERIALLY_REUSABLE;
 				  vnSTFONTE := round(vnSTFONTE, p_numcasasdecvenda);
 			  END IF;
 			
-			  P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
-			  P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o conforme Regime Especial PB', NULL, NULL, vnstfonte);
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
+			  P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o conforme Regime Especial PB', NULL, NULL, vnstfonte);
 			  IF nvl(p_aliqicms1fonte, 0) = 0 AND
 			  nvl(p_aliqicms2fonte, 0) = 0 THEN
-				vnbcst := 0;                                                           -- ObservaÁ„o ST Fonte
+				vnbcst := 0;                                                           -- Observa√ß√£o ST Fonte
 															   p_observacaostfonte := p_observacaostfonte || ',Zerada';
 			  END IF;
 			
 		END IF;	   
        /*--------------------------------------------------------------------------------------------
-        AtualizaÁ„o de Retornos adicionais
+        Atualiza√ß√£o de Retornos adicionais
         ---------------------------------*/
   
         -- APLICA O REDUTOR Cat/49 - 5661.146071.2016
         IF (p_USAREDUTORCAT49BASESTFONTE = 'S') THEN
-          -- Recalcula o % ReduÁ„o, para considerar o agregado do % Red. Base C·lculo com o % Redutor Cat/49    
+          -- Recalcula o % Redu√ß√£o, para considerar o agregado do % Red. Base C√°lculo com o % Redutor Cat/49    
           IF (NVL(nPERCREDUTORCAT49BASESTFONTE,0) <> 0) AND
              (NVL(vnBaseStOriginalSemReducao,0) > 0)    THEN
             p_PercBaseRedStFonteAlterado := ROUND((NVL(vnbcst,0) / NVL(vnBaseStOriginalSemReducao,0)) * 100,4);
-                                                                                                                         -- ObservaÁ„o ST Fonte
+                                                                                                                         -- Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',Redutor49';
           END IF;
         END IF;
               
-        -- MED-2346 - Retorno das Outras Despesas que compıem a base de icms
+        -- MED-2346 - Retorno das Outras Despesas que comp√µem a base de icms
         po_nVlFreteOutrasDespBaseIcms := vnVlFreteOutrasDespBaseSt;
-        -- MED-2346 - Retorno do Percentual de ReduÁ„o da Base de Icms
+        -- MED-2346 - Retorno do Percentual de Redu√ß√£o da Base de Icms
         po_nPercBaseRedIcmsFecp       := vnpercbaseredIcmsFecp;
 			
         IF (NVL(p_USAVLSTMAIORPERCMINPMC, 'N') = 'S') AND
@@ -8195,8 +8195,8 @@ IS PRAGMA SERIALLY_REUSABLE;
 		   
           IF vnStPercMinPMC > vnstfonte THEN
             vnstfonte := vnStPercMinPMC;
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o do Valor do ST conforme Percentual Minimo PMC', NULL, NULL, vnstfonte);                                                  			
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o do Valor do ST conforme Percentual Minimo PMC', NULL, NULL, vnstfonte);                                                  			
           END IF;
         END IF;
               
@@ -8217,7 +8217,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------
       -- FUNCTION FCALCULARSTFONTE_INVERSO
-      --42 parametros ( mas pode ser usada pode packages que utilizam a de 38 par¬metros)
+      --42 parametros ( mas pode ser usada pode packages que utilizam a de 38 par√Çmetros)
       -- *** Lembrar sincronia entre PRC_MED_CALCULARSTFONTE e PRC_MED_OBTEM_STFONTE ***
       -------------------------------------------------------------------------------------------------------------------
       -------------------------------------------------------------------------------------------------------------------
@@ -8315,7 +8315,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         ) 
       RETURN NUMBER IS
       
-        -- Vari·veis Locais da FunÁ„o
+        -- Vari√°veis Locais da Fun√ß√£o
         vnpercbasered                  NUMBER;
         vnpercbaseredBaseCred          NUMBER; -- MED-1080
         vnbcst                         NUMBER;
@@ -8329,41 +8329,41 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbCalculaSTFonte               BOOLEAN;
         vnpvenda                       NUMBER;
         vncustonfsemst                 PCEST.CUSTONFSEMST%TYPE;
-        -- Regra Farm·cia Popular
+        -- Regra Farm√°cia Popular
         vbRegraFciaPopular             BOOLEAN;
         -- Regra Usar PMC na Base do ST
         vbUsaPmcBaseSt                 BOOLEAN;
-        -- PMC de ReferÍncia para Ajuste PreÁo CMED
+        -- PMC de Refer√™ncia para Ajuste Pre√ßo CMED
         vnPmcAjustePrecoCMED           NUMBER;
-        -- Valor do Frete e Despesas AcessÛrias a Somar nas Base de ST
+        -- Valor do Frete e Despesas Acess√≥rias a Somar nas Base de ST
         vnVlFreteOutrasDespBaseSt      NUMBER;
-        -- Valor do Frete e Despesas AcessÛrias a Somar nas Base de ICMS
+        -- Valor do Frete e Despesas Acess√≥rias a Somar nas Base de ICMS
         vnVlFreteOutrasDespBaseIcms    NUMBER;
-        -- Se usa Regra Regime Simplificado pela Carga Tribut·ria MÈdia                   
+        -- Se usa Regra Regime Simplificado pela Carga Tribut√°ria M√©dia                   
         vbUsaRegraRegSimplCargaTrib    BOOLEAN;
         vnBcIcmsOperPropriaCargaTribut NUMBER;
         vnVlIcmsOperPropriaCargaTribut NUMBER;
         vnBcEstimatSimplifCargaTribut  NUMBER;
         vnVlEstimatSimplifCargaTribut  NUMBER;
-        -- Se usa ST da ⁄ltima Entrada
+        -- Se usa ST da √öltima Entrada
         vbUsaRegraStUltimaEntrada      BOOLEAN;
-        -- Se Ignorar ST Fonte no TV 10 quando valores zerados na tributaÁ„o
+        -- Se Ignorar ST Fonte no TV 10 quando valores zerados na tributa√ß√£o
         vvIgnorarSTFonteTV10Zerado     VARCHAR2(1);  
-        -- Regra ExceÁ„o ST Fonte Paran·
+        -- Regra Exce√ß√£o ST Fonte Paran√°
         vvUsaRegraSTParanaOutrasDesp   VARCHAR2(1);
-        -- Base ST Original sem ReduÁ„o - 5661.146071.2016
+        -- Base ST Original sem Redu√ß√£o - 5661.146071.2016
         vnBaseStOriginalSemReducao     NUMBER;
         -- HIS.01277.2017
         vnStFonteCargaMinima           NUMBER;
-        -- Vari·veis Auxiliares da MemÛria de Calculo
+        -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
         vnPercMemoriaCalculo           NUMBER;
         vnValorCalculadoMemoriaCalculo NUMBER;
         vvDescOpcaoSelMemoriaCalculo   VARCHAR2(200);
-        -- Vari·veis para c·lculo do ST RJ
+        -- Vari√°veis para c√°lculo do ST RJ
         vnBaseStRj                     NUMBER;
         vnValorStRj                    NUMBER;
         vnPercBaseRedRj                NUMBER;
-        -- Vari·veis para C·lculo do ST Inverso
+        -- Vari√°veis para C√°lculo do ST Inverso
         vnPercentualValorProdutos      NUMBER;
         vnPercentualBaseSt             NUMBER;
         vnPercentualValorIcmsCompra    NUMBER;
@@ -8377,13 +8377,13 @@ IS PRAGMA SERIALLY_REUSABLE;
       BEGIN
          
        /********************
-        Inicializa Vari·veis
+        Inicializa Vari√°veis
         ********************/
         
         -- Valor dos Produtos 
         p_valorprodutos             := 0;
       
-        -- Regra Farm·cia Popular
+        -- Regra Farm√°cia Popular
         vbRegraFciaPopular          := ( (NVL(p_CALCSTPAUTAFARMACIAPOPULAR,'N') = 'S') and
                                          (NVL(p_FARMACIAPOPULAR,'N') = 'S') and
                                          (NVL(p_PARTICIPAFARMACIAPOPULAR,'N') = 'S') and
@@ -8393,11 +8393,11 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbUsaPmcBaseSt              := ( (NVL(p_PRECOMAXCONSUM,0) > 0) and
                                          (NVL(p_USAPMCBASEST,'N') = 'S') );
   
-        -- Rgra Usa ST da ⁄ltima Entrada (Se n„o for Consumidor Final)
+        -- Rgra Usa ST da √öltima Entrada (Se n√£o for Consumidor Final)
         vbUsaRegraStUltimaEntrada   := ( (NVL(p_usabcrultent,'N')     = 'S') AND
                                          (NVL(p_consumidorfinal,'N') <> 'S') ); 
   
-        -- Regra Regime Simplificado pela Carga Tribut·ria MÈdia -- HIS.03187.2015                                    
+        -- Regra Regime Simplificado pela Carga Tribut√°ria M√©dia -- HIS.03187.2015                                    
         vbUsaRegraRegSimplCargaTrib := ( (NVL(p_USAREGSIMPLCARGATRIBSTFONTE,'N') = 'S') and
                                          (NVL(p_REGSIMPLCARGATRIBSTFONTE,'N')    = 'S') and
                                          (NVL(p_PERCREGSIMPLCARGATRIBSTFONTE,0)  > 0) );
@@ -8406,7 +8406,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vbUsaPmPfBaseSt              := ( (NVL(p_PMPF,0) > 0) and
                                           (NVL(p_USAPMPFBASEST,'N') = 'S') );
                               
-        -- Regra ExceÁ„o ST Fonte Paran· para Somar Outras Despesas na Base ICMS com PMC na Base do ST                                      
+        -- Regra Exce√ß√£o ST Fonte Paran√° para Somar Outras Despesas na Base ICMS com PMC na Base do ST                                      
         BEGIN
           SELECT VALOR
             INTO vvUsaRegraSTParanaOutrasDesp
@@ -8419,12 +8419,12 @@ IS PRAGMA SERIALLY_REUSABLE;
         END;                     
   
        /***************************
-        Inicializa Outras Vari·veis
+        Inicializa Outras Vari√°veis
         ***************************/
   
-        -- Retorno - SE A LEGISLA«√O MUDAR O % DE REDU«√O DO CADASTRO - 5661.146071.2016      
+        -- Retorno - SE A LEGISLA√á√ÉO MUDAR O % DE REDU√á√ÉO DO CADASTRO - 5661.146071.2016      
   
-        -- Outras Vari·veis
+        -- Outras Vari√°veis
         vnbcst                      := 0;
         vnstf1                      := 0;
         vnstf2                      := 0;
@@ -8446,7 +8446,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            vnCUSTONFSEMST := p_valorultent;    
         end if;
       
-        -- Definindo se È Pessoa FÌsica
+        -- Definindo se √© Pessoa F√≠sica
         if (p_AceitaPFContribuinte = 'N') then
           vscontribuinte := p_AceitaPFContribuinte;
         end if;
@@ -8463,14 +8463,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         Define se Usa ST Fonte
         **********************/
       
-        -- Identificar a incidÍncia de ST Fonte [RDB05]
+        -- Identificar a incid√™ncia de ST Fonte [RDB05]
         vbCalculaSTFonte := (p_CLIENTEFONTEST = 'S')  and
                             ((p_ALIQICMS1FONTE > 0) or (p_ALIQICMS2FONTE > 0));-- and  ((p_ALIQICMS1 = 0) or (p_ALIQICMS2 = 0));
       
         vbCalculaSTFonte := vbCalculaSTFonte and
                             (not ((p_CALCSTPF = 'N') and (vbpessoafisica)));
         
-        -- Item Bonificado com Regime Especial pra Retirar ST da BonificaÁ„o da NF Estadual
+        -- Item Bonificado com Regime Especial pra Retirar ST da Bonifica√ß√£o da NF Estadual
         IF ((NVL(p_itembonific,'N') = 'S') AND
             (NVL(p_medretirarstbnfestadual,'N') = 'S') AND
             (p_uffilial = p_estent)) THEN
@@ -8481,7 +8481,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Se for Pedido TV10
         IF (pi_nCondVenda = 10) THEN
       
-          -- Verifica exceÁ„o para ignorar ST Fonte TV 10 quando valores zerados na tibutaÁ„o
+          -- Verifica exce√ß√£o para ignorar ST Fonte TV 10 quando valores zerados na tibuta√ß√£o
           BEGIN
             SELECT NVL(VALOR,'N')
               INTO vvIgnorarSTFonteTV10Zerado
@@ -8495,9 +8495,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         
           -- Se possuir a regra
           IF vvIgnorarSTFonteTV10Zerado = 'S' THEN
-            -- Reinicializa a vari·vel
+            -- Reinicializa a vari√°vel
             vvIgnorarSTFonteTV10Zerado := 'N';
-            -- Verifica se os campos est„o zerados 
+            -- Verifica se os campos est√£o zerados 
             BEGIN
               SELECT 'S'
                 INTO vvIgnorarSTFonteTV10Zerado
@@ -8518,7 +8518,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vvIgnorarSTFonteTV10Zerado := 'N';
             END; 
             
-            -- Se os valores para os campos est„o zerados, n„o calcula ST Fonte
+            -- Se os valores para os campos est√£o zerados, n√£o calcula ST Fonte
             IF (vvIgnorarSTFonteTV10Zerado = 'S') THEN
               vbCalculaSTFonte := FALSE;
             END IF; 
@@ -8534,17 +8534,17 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF   (vbUsaRegraStUltimaEntrada) AND
              (vbCalculaSTFonte)          THEN -->> HIS.03788.2015 - Somente se for STFONTE
   
-          p_mensagem := 'Funcionalidade n„o habilitada para o ST pela ˙ltima entrada';
+          p_mensagem := 'Funcionalidade n√£o habilitada para o ST pela √∫ltima entrada';
            
        /*********************************************************************************************
         *********************************************************************************************
-        **            CALCULAR VALOR DO ST PELA CARGA TRIBUT¡RIA M…DIA - HIS.03187.2015            **
+        **            CALCULAR VALOR DO ST PELA CARGA TRIBUT√ÅRIA M√âDIA - HIS.03187.2015            **
         *********************************************************************************************
         *********************************************************************************************/
         ELSIF (vbUsaRegraRegSimplCargaTrib) AND
               (vbCalculaSTFonte)            THEN -->> HIS.03371.2017 - Somente se for STFONTE
             
-          p_mensagem := 'Funcionalidade n„o habilitada para o ST pela Carga Tribut·ria MÈdia';
+          p_mensagem := 'Funcionalidade n√£o habilitada para o ST pela Carga Tribut√°ria M√©dia';
           
        /*********************************************************************************************
         *********************************************************************************************
@@ -8554,12 +8554,12 @@ IS PRAGMA SERIALLY_REUSABLE;
         ELSIF (vbCalculaSTFonte) THEN
                         
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA REDU«√O DA BASE DE C¡LCULO
+          DEFINI√á√ÉO DA REDU√á√ÉO DA BASE DE C√ÅLCULO
           --------------------------------------*/
         
           vnpercbasered := p_percbaseredstfonte;
         
-          -- MED-1080 - ReduÁ„o da Base CrÈdito do ST Fonte
+          -- MED-1080 - Redu√ß√£o da Base Cr√©dito do ST Fonte
           vnpercbaseredBaseCred := p_percbaseredstfonte;
           IF (NVL(p_USAREDICMNORMVENDASTFONTE,'N') = 'S') THEN
             vnpercbaseredBaseCred := p_PERCBASERED; -- MED-1080
@@ -8596,7 +8596,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnpercbaseredBaseCred := 0; -- MED-1080
           END IF;
           
-          --// MERGE CR -> GU = Farm·cia Popular n„o tem ReduÁ„o da Base de C·lculo
+          --// MERGE CR -> GU = Farm√°cia Popular n√£o tem Redu√ß√£o da Base de C√°lculo
           if (vbRegraFciaPopular) then
             vnpercbasered         := 0;
             vnpercbaseredBaseCred := 0; -- MED-1080
@@ -8605,7 +8605,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           p_percbaseredstfonte := vnpercbasered;
         
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DO PERCENTUAL DE IVA FONTE
+          DEFINI√á√ÉO DO PERCENTUAL DE IVA FONTE
           -----------------------------------*/
         
           -- Definir IVA do ST Fonte [RBD07]
@@ -8632,50 +8632,50 @@ IS PRAGMA SERIALLY_REUSABLE;
             
           end if;
         
-          -- [HIS.05161.2014] - ReduÁ„o Simples Nacional no IVA
+          -- [HIS.05161.2014] - Redu√ß√£o Simples Nacional no IVA
           IF (p_somenteIVATribut = 'N') THEN
-            IF ((NVL(p_usadescsimplesnac,'N')     = 'N')     AND  -- Somente se na Rotina 132 N„o usa desconto do Simples Nacional
-                (NVL(p_percredpvendasimplesnac,0) > 0)       AND  -- Somente se tiver % ReduÁ„o cadastrado na TributaÁ„o
+            IF ((NVL(p_usadescsimplesnac,'N')     = 'N')     AND  -- Somente se na Rotina 132 N√£o usa desconto do Simples Nacional
+                (NVL(p_percredpvendasimplesnac,0) > 0)       AND  -- Somente se tiver % Redu√ß√£o cadastrado na Tributa√ß√£o
                 (NVL(p_simplesnacional,'N')       = 'S')     AND  -- Somente se o Cliente participa do Simples Nacional 
-                (NVL(p_tipomerc,' ') NOT IN (' ','M','MA'))) THEN -- Somente se n„o for Medicamento e tiver o Tipo Merc. Preenchido
+                (NVL(p_tipomerc,' ') NOT IN (' ','M','MA'))) THEN -- Somente se n√£o for Medicamento e tiver o Tipo Merc. Preenchido
               vnIvaFonte := vnIvaFonte * (p_percredpvendasimplesnac / 100);
             END IF;          
           END IF;
         
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA BASE DE C¡LCULO DA ALIQ 01
+          DEFINI√á√ÉO DA BASE DE C√ÅLCULO DA ALIQ 01
           --------------------------------------*/
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'AlÌquota de ICMS Compra (DÈbito)', NULL, p_ALIQICMS1FONTE, NULL);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Al√≠quota de ICMS Compra (D√©bito)', NULL, p_ALIQICMS1FONTE, NULL);
                                                  
           --------------------------------------------
-          -- APLICA REDU«√O na Base de C·culo Aliq. 01
+          -- APLICA REDU√á√ÉO na Base de C√°culo Aliq. 01
           --------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar ReduÁ„o na AlÌquota de Compra (DÈbito) ?', 'RED_BCSTINV');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar reduÁ„o', 'RED_BCSTINV', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o aplicar reduÁ„o', 'RED_BCSTINV', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Redu√ß√£o na Al√≠quota de Compra (D√©bito) ?', 'RED_BCSTINV');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, aplicar redu√ß√£o', 'RED_BCSTINV', 'SIM');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o aplicar redu√ß√£o', 'RED_BCSTINV', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCSTINV', 'NAO'); -->> Default               
           
-          -- Se tem ReduÁ„o na Base do ST
+          -- Se tem Redu√ß√£o na Base do ST
           IF vnpercbasered > 0 THEN
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de ReduÁ„o', NULL, vnpercbasered, NULL);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de Redu√ß√£o', NULL, vnpercbasered, NULL);
                                       
-            -- Reduz a AlÌquota de ICMS de Compra (Arredonda para 2 casas decimais)
+            -- Reduz a Al√≠quota de ICMS de Compra (Arredonda para 2 casas decimais)
             p_ALIQICMS1FONTE := ROUND((NVL(p_ALIQICMS1FONTE,0) * (NVL(vnpercbasered,0) / 100)),2);
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'AlÌquota ICMS Compra com ReduÁ„o [Aliq. Compra x (ReduÁ„o ' || CHR(247) || ' 100)]', NULL, p_ALIQICMS1FONTE, NULL);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Al√≠quota ICMS Compra com Redu√ß√£o [Aliq. Compra x (Redu√ß√£o ' || CHR(247) || ' 100)]', NULL, p_ALIQICMS1FONTE, NULL);
            
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCSTINV', 'SIM');                     
             
             
-          END IF; -- Fim CondiÁ„o: APLICA REDU«√O na Base de C·culo Aliq. 01
+          END IF; -- Fim Condi√ß√£o: APLICA REDU√á√ÉO na Base de C√°culo Aliq. 01
                   
           ---------------------------------------------        
           -- APLICA O REDUTOR Cat/49 - 5661.146071.2016
@@ -8685,29 +8685,29 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF (p_USAREDUTORCAT49BASESTFONTE = 'S') THEN
             IF (NVL(p_PERCREDUTORCAT49BASESTFONTE,0) > 0) THEN
   
-              p_mensagem := 'Funcionalidade n„o habilitada para o ST com Redutor Cat/49';
+              p_mensagem := 'Funcionalidade n√£o habilitada para o ST com Redutor Cat/49';
               
             END IF;
           END IF;
                             
           ---------------------------------------------------------------------------------------------      
-          -- Regra Ajuste de PreÁo CMED para o PMC
-          -- (TributaÁ„o Marcada para Ajuste de PreÁo CMED, se tiver PMC e se N„o for Farm·cia Popular)
+          -- Regra Ajuste de Pre√ßo CMED para o PMC
+          -- (Tributa√ß√£o Marcada para Ajuste de Pre√ßo CMED, se tiver PMC e se N√£o for Farm√°cia Popular)
           ---------------------------------------------------------------------------------------------      
                   
-          -- Se Utilizar LegislaÁ„o Cat/35 (Ajuste PreÁo CMED)
+          -- Se Utilizar Legisla√ß√£o Cat/35 (Ajuste Pre√ßo CMED)
           IF (NVL(p_usarajusteprecocmed,'N') = 'S') AND
              (NVL(p_PRECOMAXCONSUM,0) > 0) AND
              (NOT vbRegraFciaPopular) THEN
                        
-            p_mensagem := 'Funcionalidade n„o habilitada para o ST com LegislaÁ„o Cat/35 (Ajuste PreÁo CMED)';
+            p_mensagem := 'Funcionalidade n√£o habilitada para o ST com Legisla√ß√£o Cat/35 (Ajuste Pre√ßo CMED)';
                                          
           -----------------------------------------------
-          -- PreÁo Tabela na Base do ST
+          -- Pre√ßo Tabela na Base do ST
           -----------------------------------------------
           ELSIF (NVL(p_usaptabelabasest,'N') = 'S') THEN
   
-            p_mensagem := 'Funcionalidade n„o habilitada para o ST com PreÁo de Tabela na Base do ST';
+            p_mensagem := 'Funcionalidade n√£o habilitada para o ST com Pre√ßo de Tabela na Base do ST';
                                                                                                           
           -----------------------------------------------
           -- Demais Casos (FARMACIA POPULAR, PMC, MVA ...
@@ -8715,18 +8715,18 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSE
                   
            /*--------------------------------------------------------------------------------------------
-            DEFINI«√O DO VALOR DO ICMS INTERNO
+            DEFINI√á√ÉO DO VALOR DO ICMS INTERNO
             ---------------------------------*/
         
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('OpÁ„o de C·lculo Inverso do ST', 'INVERSO_ST');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) C·lculo inverso de ST com Pauta', 'INVERSO_ST', 'PAUTA_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) C·lculo inverso de ST com Valor da Ultima Entrada RJ', 'INVERSO_ST', 'VLENTRJ_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) C·lculo inverso de ST com PMC', 'INVERSO_ST', 'PMC_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) C·lculo inverso de ST pela MÈdia dos Valores das Entradas (MG)', 'INVERSO_ST', 'MEDIAMG_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) C·lculo inverso de ST pelo MVA', 'INVERSO_ST', 'MVA_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('5) N„o Aplicar ST inverso (funcionalidade n„o habilitada)', 'INVERSO_ST', 'NAO_INVERSOST');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('6) C·lculo inverso de ST com PMPF', 'INVERSO_ST', 'PMPF_INVERSOST');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Op√ß√£o de C√°lculo Inverso do ST', 'INVERSO_ST');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) C√°lculo inverso de ST com Pauta', 'INVERSO_ST', 'PAUTA_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) C√°lculo inverso de ST com Valor da Ultima Entrada RJ', 'INVERSO_ST', 'VLENTRJ_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) C√°lculo inverso de ST com PMC', 'INVERSO_ST', 'PMC_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) C√°lculo inverso de ST pela M√©dia dos Valores das Entradas (MG)', 'INVERSO_ST', 'MEDIAMG_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) C√°lculo inverso de ST pelo MVA', 'INVERSO_ST', 'MVA_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('5) N√£o Aplicar ST inverso (funcionalidade n√£o habilitada)', 'INVERSO_ST', 'NAO_INVERSOST');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('6) C√°lculo inverso de ST com PMPF', 'INVERSO_ST', 'PMPF_INVERSOST');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'NAO_INVERSOST'); -->> Default               
         
             -- *** CALCULO INVERSO COM PAUTA SEM MVA ***
@@ -8739,13 +8739,13 @@ IS PRAGMA SERIALLY_REUSABLE;
             
               IF    (vbRegraFciaPopular) THEN
               
-                -- Pauta = Pauta Fonte TributaÁ„o
+                -- Pauta = Pauta Fonte Tributa√ß√£o
                 p_pautafonteaplicado := NVL(p_PAUTAFONTE,0);
                 
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Pauta (Pauta Fonte ST)', NULL, NULL, p_pautafonteaplicado);
                 
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'PAUTA_INVERSOST');
                 
               ELSIF (vbUsaPmcBaseSt)     THEN 
@@ -8753,13 +8753,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- Pauta = PMC
                 p_pautafonteaplicado := NVL(P_PRECOMAXCONSUM,0);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Pauta (PMC)', NULL, NULL, p_pautafonteaplicado);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Aliq. Compra', NULL, p_ALIQICMS1FONTE, NULL);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'PMC_INVERSOST');
  
  
@@ -8770,30 +8770,30 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- Pauta = PMPF
                 p_pautafonteaplicado := NVL(P_PMPF,0);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Pauta (PMPF)', NULL, NULL, p_pautafonteaplicado);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Aliq. Compra', NULL, p_ALIQICMS1FONTE, NULL);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'PMPF_INVERSOST');
               
              
               END IF;
                                                                     
-              -- Valor Icms Compra - DÈbito
+              -- Valor Icms Compra - D√©bito
               vnSTF1 := NVL(p_pautafonteaplicado,0) * (NVL(p_ALIQICMS1FONTE,0)/100);
               p_baseicst := NVL(p_pautafonteaplicado,0); -- MED-1930
               IF (NVL(vnpercbasered,0) > 0) THEN
-                -- Compensar a AlÌquota que foi reduzida
+                -- Compensar a Al√≠quota que foi reduzida
                 p_baseicst := (NVL(p_baseicst,0) * (NVL(vnpercbasered,0) / 100)); 
               END IF;
               
               
               
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (DÈbito) = [Pauta x (Aliq. Compra ' || CHR(247) || ' 100)]',  NULL, NULL, vnSTF1);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (D√©bito) = [Pauta x (Aliq. Compra ' || CHR(247) || ' 100)]',  NULL, NULL, vnSTF1);
                              
             -- *** CALCULO INVERSO COM PAUTA MAS COM MVA ***
             -- ST RJ
@@ -8802,61 +8802,61 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Pauta = Valor da Ultima Entrada
               p_pautafonteaplicado := NVL(p_valorultent,0);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Pauta (Valor Ultima Entrada)', NULL, NULL, p_pautafonteaplicado);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de MVA', NULL, vnIVAFONTE, NULL);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Aliq. Compra', NULL, p_ALIQICMS1FONTE, NULL);
   
-              -- Valor Icms Compra - DÈbito
+              -- Valor Icms Compra - D√©bito
               vnSTF1 := (NVL(p_pautafonteaplicado,0) * (1 + (NVL(vnIVAFONTE,0) / 100))) * (NVL(p_ALIQICMS1FONTE,0)/100);
               p_baseicst := (NVL(p_pautafonteaplicado,0) * (1 + (NVL(vnIVAFONTE,0) / 100))); -- MED-1930
               IF (NVL(vnpercbasered,0) > 0) THEN
-                -- Compensar a AlÌquota que foi reduzida
+                -- Compensar a Al√≠quota que foi reduzida
                 p_baseicst := (NVL(p_baseicst,0) * (NVL(vnpercbasered,0) / 100)); 
               END IF;
               
               
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (DÈbito) = [(Pauta x (1 + (MVA ' || CHR(247) || ' 100))) x (Aliq. Compra ' || CHR(247) || ' 100)]', NULL, NULL, vnSTF1);
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (D√©bito) = [(Pauta x (1 + (MVA ' || CHR(247) || ' 100))) x (Aliq. Compra ' || CHR(247) || ' 100)]', NULL, NULL, vnSTF1);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'VLENTRJ_INVERSOST');    
   
-            -- ST MG (Pelo Valor MÈdio das Ultimas Entradas)
+            -- ST MG (Pelo Valor M√©dio das Ultimas Entradas)
             elsif (NVL(p_usavlultentmediobasest,'N') = 'S') then
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Vl.MÈdio Entradas', NULL, NULL, p_vlultentmes);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Vl.M√©dio Entradas', NULL, NULL, p_vlultentmes);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de MVA', NULL, vnIVAFONTE, NULL);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Aliq. Compra', NULL, p_ALIQICMS1FONTE, NULL);
   
-              -- Valor Icms Compra - DÈbito
+              -- Valor Icms Compra - D√©bito
               vnSTF1 := (NVL(p_vlultentmes,0) * (1 + (NVL(vnIVAFONTE,0) / 100))) * (NVL(p_ALIQICMS1FONTE,0)/100);
               p_baseicst := (NVL(p_vlultentmes,0) * (1 + (NVL(vnIVAFONTE,0) / 100))); -- MED-1930
               IF (NVL(vnpercbasered,0) > 0) THEN
-                -- Compensar a AlÌquota que foi reduzida
+                -- Compensar a Al√≠quota que foi reduzida
                 p_baseicst := (NVL(p_baseicst,0) * (NVL(vnpercbasered,0) / 100)); 
               END IF;
               
               
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (DÈbito) = [(Vl.MÈdio Entradas x (1 + (MVA ' || CHR(247) || ' 100))) x (Aliq. Compra ' || CHR(247) || ' 100)]', NULL, NULL, vnSTF1);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Compra (D√©bito) = [(Vl.M√©dio Entradas x (1 + (MVA ' || CHR(247) || ' 100))) x (Aliq. Compra ' || CHR(247) || ' 100)]', NULL, NULL, vnSTF1);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'MEDIAMG_INVERSOST');    
                
             -- Demais casos: COM IVA
             else
             
               -- *************************************************************************************************
-              -- *** O C¡LCULO SEM PAUTA E COM MVA SER¡ FEITO AO FINAL DESTA FUN«√O COM UMA F”RMULA ESPECÕFICA ***
+              -- *** O C√ÅLCULO SEM PAUTA E COM MVA SER√Å FEITO AO FINAL DESTA FUN√á√ÉO COM UMA F√ìRMULA ESPEC√çFICA ***
               -- *************************************************************************************************
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('INVERSO_ST', 'MVA_INVERSOST');    
       
@@ -8868,28 +8868,28 @@ IS PRAGMA SERIALLY_REUSABLE;
           --------------------
           
          /*--------------------------------------------------------------------------------------------
-          DEFINI«√O DA BASE DE CALCULO DA ALIQ 02
+          DEFINI√á√ÉO DA BASE DE CALCULO DA ALIQ 02
           --------------------------------------*/
                     
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'AlÌquota de ICMS Venda (CrÈdito)', NULL, p_ALIQICMS2FONTE, NULL);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Al√≠quota de ICMS Venda (Cr√©dito)', NULL, p_ALIQICMS2FONTE, NULL);
                     
           ---------------------------------------------
-          -- Se usa Base ICMS Reduzida no C·lculo do ST
+          -- Se usa Base ICMS Reduzida no C√°lculo do ST
           ---------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar ReduÁ„o na Base de ICMS (CrÈdito) ?', 'RED_BCICMINV');                
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, reduzir a base usando o Percentual ReduÁ„o do ST Fonte', 'RED_BCICMINV', 'SIM_REDFONTE');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sim, reduzir a base usando o Percentual ReduÁ„o do ICMS da Venda', 'RED_BCICMINV', 'SIM_REDVENDA');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N„o reduzir a base', 'RED_BCICMINV', 'NAO');          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Aplicar Redu√ß√£o na Base de ICMS (Cr√©dito) ?', 'RED_BCICMINV');                
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, reduzir a base usando o Percentual Redu√ß√£o do ST Fonte', 'RED_BCICMINV', 'SIM_REDFONTE');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sim, reduzir a base usando o Percentual Redu√ß√£o do ICMS da Venda', 'RED_BCICMINV', 'SIM_REDVENDA');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) N√£o reduzir a base', 'RED_BCICMINV', 'NAO');          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('RED_BCICMINV', 'NAO'); -->> Default               
           
-                                                                                                                                             -- Inicio: MemÛria de C·lculo
+                                                                                                                                             -- Inicio: Mem√≥ria de C√°lculo
                                                                                                                                              -- Se usa Base ICMS Reduzida
                                                                                                                                              IF (p_usabaseicmsreduzida = 'S') THEN
             
-                                                                                                                                             -- MED-1080 - ReduÁ„o da Base CrÈdito do ST Fonte
+                                                                                                                                             -- MED-1080 - Redu√ß√£o da Base Cr√©dito do ST Fonte
                                                                                                                                              IF (NVL(p_USAREDICMNORMVENDASTFONTE,'N') = 'S') THEN
               
                                                                                                                                              IF vnpercbaseredBaseCred > 0 THEN
@@ -8908,30 +8908,30 @@ IS PRAGMA SERIALLY_REUSABLE;
               
                                                                                                                                              END IF;
                                                                                                                                              END IF;
-                                                                                                                                             -- Fim: MemÛria de C·lculo
+                                                                                                                                             -- Fim: Mem√≥ria de C√°lculo
             
-          -- Se Item Bonificado e a BonificaÁ„o n„o calcular ICMS
+          -- Se Item Bonificado e a Bonifica√ß√£o n√£o calcular ICMS
           IF ((p_itembonific IN ('S','F')) and -- DDMEDICA-198 - Incluir F
               (p_bnfnaocalculaicms = 'S')) THEN
   
-            p_mensagem := 'Funcionalidade n„o habilitada para o ST com Item Bonificado';
+            p_mensagem := 'Funcionalidade n√£o habilitada para o ST com Item Bonificado';
             --p_ALIQICMS2FONTE := 0;
   
           END IF;
                                     
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de ReduÁ„o', NULL, vnpercbaseredBaseCred, NULL);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Percentual de Redu√ß√£o', NULL, vnpercbaseredBaseCred, NULL);
                                     
           -- Se usa Base ICMS Reduzida
           IF (p_usabaseicmsreduzida = 'S') THEN
           
-            -- Reduz a AlÌquota de ICMS de Compra (Arredonda para 2 casas decimais)
+            -- Reduz a Al√≠quota de ICMS de Compra (Arredonda para 2 casas decimais)
             IF vnpercbaseredBaseCred > 0 THEN
     	
               p_ALIQICMS2FONTE := ROUND((NVL(p_ALIQICMS2FONTE,0) * (NVL(vnpercbaseredBaseCred,0) / 100)),2);
       
-                                                                                                                                               -- MemÛria de C·lculo          
-                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('=', 'AlÌquota ICMS Venda com ReduÁ„o [Aliq. Venda x (ReduÁ„o ' || CHR(247) || ' 100)]', NULL, p_ALIQICMS2FONTE, NULL);
+                                                                                                                                               -- Mem√≥ria de C√°lculo          
+                                                                                                                                               P_INSERIR_MEMORIA_CALCULO('=', 'Al√≠quota ICMS Venda com Redu√ß√£o [Aliq. Venda x (Redu√ß√£o ' || CHR(247) || ' 100)]', NULL, p_ALIQICMS2FONTE, NULL);
             END IF;																																		   
   
           END IF;
@@ -8944,24 +8944,24 @@ IS PRAGMA SERIALLY_REUSABLE;
           ------------------*/
                        
           --------------------------------------------------------
-          -- CARGA MÕNIMA DEFERIMENTO ST FONTE - HIS.01277.2017 --
+          -- CARGA M√çNIMA DEFERIMENTO ST FONTE - HIS.01277.2017 --
           --------------------------------------------------------
           
-          -- Se usa Carga MÌnima de ST Fonte
+          -- Se usa Carga M√≠nima de ST Fonte
           IF (p_USACARGAMINIMADEFERIMSTFONTE = 'S') THEN
                          
-            p_mensagem := 'Funcionalidade n„o habilitada para o ST com Carga MÌnima de Deferimento do ST Fonte';
+            p_mensagem := 'Funcionalidade n√£o habilitada para o ST com Carga M√≠nima de Deferimento do ST Fonte';
                                                         
-          END IF; -- FIM: CARGA MÕNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
+          END IF; -- FIM: CARGA M√çNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
   
           IF (p_USAVLSTMAIORPERCMINPMC = 'S') THEN
                          
-            p_mensagem := 'Funcionalidade n„o habilitada para o Valor de ST Maior que Percentual MÌnimo sobre PMC';
+            p_mensagem := 'Funcionalidade n√£o habilitada para o Valor de ST Maior que Percentual M√≠nimo sobre PMC';
                                                         
-          END IF; -- FIM: CARGA MÕNIMA DEFERIMENTO ST FONTE - HIS.01277.2017  
+          END IF; -- FIM: CARGA M√çNIMA DEFERIMENTO ST FONTE - HIS.01277.2017  
   
          /**********************************************************************************************
-           C¡LCULO DO VALOR DOS PRODUTOS USANDO PAUTA (FARMACIA POPULAR, PMC, VALOR ULTIMA ENTRADA ...)
+           C√ÅLCULO DO VALOR DOS PRODUTOS USANDO PAUTA (FARMACIA POPULAR, PMC, VALOR ULTIMA ENTRADA ...)
           **********************************************************************************************/
           -- *** CALCULO INVERSO COM PAUTA SEM MVA *****************************************************
           -- FARMACIA POPULAR
@@ -8974,24 +8974,24 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- ST RJ
              ((NVL(p_usavalorultentbasest,'N') = 'S') AND (NVL(p_percbasestrj,0) > 0)) THEN
              
-            -- Requer AlÌquota de Venda para n„o dar erro de divis„o por zero
+            -- Requer Al√≠quota de Venda para n√£o dar erro de divis√£o por zero
             IF (NVL(p_ALIQICMS2FONTE,0) > 0) THEN
              
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Valor Nota Fiscal', NULL, NULL, p_valornotafiscal);
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Valor ICMS Compra', NULL, NULL, vnSTF1);
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Aliq. ICMS Venda', NULL, NULL, p_ALIQICMS2FONTE);
   
-              -- C·lculo do Valor dos Produtos sem Impostos
+              -- C√°lculo do Valor dos Produtos sem Impostos
               p_valorprodutos := (NVL(p_valornotafiscal,0) - NVL(vnSTF1,0)) / ( 1 - (NVL(p_ALIQICMS2FONTE,0) / 100));
               p_valorprodutos := round(p_valorprodutos, p_numcasasdecvenda);   
                
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Valor dos Produtos = [(Valor Nota Fiscal - Valor Icms Compra) ' || CHR(247) || ' ( 1 - (Aliq. ICMS Venda ' || CHR(247) || ' 100))]', p_valorprodutos, NULL, NULL);
                             
             ELSE
              
-              p_mensagem := 'Funcionalidade n„o habilitada para o ST sem AlÌquota de Venda (CrÈdito)';
+              p_mensagem := 'Funcionalidade n√£o habilitada para o ST sem Al√≠quota de Venda (Cr√©dito)';
              
             END IF;
           
@@ -9000,7 +9000,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             *************/
             vnstfonte :=  (NVL(p_valornotafiscal,0) - NVL(p_valorprodutos,0)) ;
     
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Valor do ST = (Valor NF - Valor Produtos)', NULL, NULL, vnstfonte);
             
             --Calcular ST - Truncar com 2 casas decimais
@@ -9015,17 +9015,17 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- *** CALCULO ST MG *************************************************************************
           ELSIF (NVL(p_usavlultentmediobasest,'N') = 'S') THEN
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Vl.MÈdio Entradas', NULL, NULL, p_vlultentmes);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Vl.M√©dio Entradas', NULL, NULL, p_vlultentmes);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Aliq. Venda', NULL, p_ALIQICMS2FONTE, NULL);
   
-            -- Valor Icms Venda - CrÈdito
+            -- Valor Icms Venda - Cr√©dito
             vnSTF2 := (NVL(p_vlultentmes,0) * (NVL(p_ALIQICMS2FONTE,0)/100));
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Venda (CrÈdito) = (Vl.MÈdio Entradas x * (Aliq. Venda ' || CHR(247) || ' 100)', NULL, NULL, vnSTF2);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor Icms Venda (Cr√©dito) = (Vl.M√©dio Entradas x * (Aliq. Venda ' || CHR(247) || ' 100)', NULL, NULL, vnSTF2);
   
            /*************
             ST DE RETORNO
@@ -9041,17 +9041,17 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnstfonte := round(vnstfonte, p_numcasasdecvenda);       
             END IF;          
             
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Valor do ST MG = (Valor Icms Compra - Valor Icms Venda)', NULL, NULL, vnstfonte);
                                                                                                                                
             -- Calcula o Valor dos Produtos pelo ST MG
             p_valorprodutos := NVL(p_valornotafiscal,0) - NVL(vnstfonte,0);
             p_valorprodutos := round(p_valorprodutos, p_numcasasdecvenda);   
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Valor Nota Fiscal', NULL, NULL, p_valornotafiscal);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Valor dos Produtos pelo ST MG = (Valor NF - Valor ST MG)', NULL, NULL, p_valorprodutos);
   
              
@@ -9061,48 +9061,48 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Valor dos Produtos em Percentual
             vnPercentualValorProdutos := 100;
           
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Valor dos Produtos em Percentual', vnPercentualValorProdutos, NULL, NULL);
   
             -- Inicializa a Base do ST em Percentual
             vnPercentualBaseSt := vnPercentualValorProdutos;
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Base do ST em Percentual = Valor dos Produtos em Percentual', vnPercentualValorProdutos, NULL, NULL);
   
             -- Soma o IVA na Base do ST em Percentual
             vnPercentualBaseSt := vnPercentualBaseSt + NVL(vnIVAFONTE,0);
   
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'Acresce o MVA em Percentual', vnPercentualBaseSt , NVL(vnIVAFONTE,0) , NULL, TRUE);
           
-            -- C·lculo do Icms de Compra em Percentual
+            -- C√°lculo do Icms de Compra em Percentual
             vnPercentualValorIcmsCompra := NVL(vnPercentualBaseSt,0) * (p_ALIQICMS1FONTE / 100);
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Valor do Icms Compra em Percentual = [Base do ST em Percentual x (Aliq. ICMS Compra ' || CHR(247) || ' 100)]', NULL, NULL, vnPercentualValorIcmsCompra);
           
-            -- C·lculo do Valor do ST em Percentual
+            -- C√°lculo do Valor do ST em Percentual
             vnPercentualValorSt := (NVL(vnPercentualValorIcmsCompra,0) - NVL(p_ALIQICMS2FONTE,0));
             
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Valor do ST em Percentual = (Valor do Icms Compra em Percentual - Aliq. ICMS Venda)', NULL, NULL, vnPercentualValorSt);
                                       
-            -- C·lculo do Valor da Nota Fiscal em Percentual
+            -- C√°lculo do Valor da Nota Fiscal em Percentual
             vnPercentualValorNotaFiscal := NVL(vnPercentualValorProdutos,0) + NVL(vnPercentualValorSt,0);                                      
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('>', 'Valor Nota Fiscal em Percentual = (Valor dos Produtos em Percentual + Valor do ST em Percentual)', NULL, NULL, vnPercentualValorNotaFiscal);
           
-            -- C·lculo do Valor dos Produtos sem Impostos
+            -- C√°lculo do Valor dos Produtos sem Impostos
             p_valorprodutos := (NVL(p_valornotafiscal,0) / (NVL(vnPercentualValorNotaFiscal,0) / 100));
             p_valorprodutos := round(p_valorprodutos, p_numcasasdecvenda);   
              
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('=', 'Valor Nota Fiscal em R$', NULL, NULL, p_valornotafiscal);
              
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Valor dos Produtos = [Valor NF em R$ ' || CHR(247) || ' (Valor NF em Percentual ' || CHR(247) || ' 100)]', NULL, NULL, p_valorprodutos);
           
            /*************
@@ -9113,12 +9113,12 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Retorno da Base do ST -- MED-1930    
             p_baseicst := (NVL(p_valorprodutos,0) * (1 + (NVL(vnIVAFONTE,0) / 100)));
             IF (NVL(vnpercbasered,0) > 0) THEN
-              -- Compensar a AlÌquota que foi reduzida
+              -- Compensar a Al√≠quota que foi reduzida
               p_baseicst := (NVL(p_baseicst,0) * (NVL(vnpercbasered,0) / 100)); 
             END IF;
     
     
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Valor do ST = (Valor NF - Valor Produtos)', NULL, NULL, vnstfonte);
             
             --Calcular ST - Truncar com 2 casas decimais
@@ -9139,7 +9139,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('Abater FECP do Valor ST Total ?', 'VL_FECP');                
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim', 'VL_STRJINV', 'SIM_FECP');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o', 'VL_STRJINV', 'NAO_FECP');   
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o', 'VL_STRJINV', 'NAO_FECP');   
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_FECP', 'NAO_FECP'); -->> Default               
           
           IF ((NVL(p_participafuncep,'S')  = 'S') OR 
@@ -9166,62 +9166,62 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnSTFONTE := 0;
             END IF;          
             
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_FECP', 'SIM_FECP');
                                                                                                                                              
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('#', 'Abater o Valor do FECP do ST Total', NULL, NULL, p_vlfecp);
                                                                                                                                                        
           ELSE        
             p_vlfecp := 0;
   
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_FECP', 'NAO_FECP');
             
           END IF;
   
                   
           -------------------------------------------------------------------------
-          -- PERCENTUAL BASE RJ - PriorizaÁ„o do Maior entre o MÌnimo e o Calculado
+          -- PERCENTUAL BASE RJ - Prioriza√ß√£o do Maior entre o M√≠nimo e o Calculado
           -------------------------------------------------------------------------
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Calcular ST pelo Percentual MÌnimo RJ ?', 'VL_STRJINV');                
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('Calcular ST pelo Percentual M√≠nimo RJ ?', 'VL_STRJINV');                
                                                                                                                                              P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim', 'VL_STRJINV', 'SIM_STRJ');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N„o', 'VL_STRJINV', 'NAO_STRJ');   
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) N√£o', 'VL_STRJINV', 'NAO_STRJ');   
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJINV', 'NAO_STRJ'); -->> Default               
           
-          -- Se Calcula ST MÕNIMO RJ
+          -- Se Calcula ST M√çNIMO RJ
           IF (NVL(p_usavalorultentbasest,'N') = 'S') AND
              (NVL(p_percbasestrj,0) > 0)             THEN
   
-            -- Base ST MÌnimo Rj pelo Valor da ⁄ltima Entrada
+            -- Base ST M√≠nimo Rj pelo Valor da √öltima Entrada
             vnBaseStRj := NVL(p_valorultent,0);
   
-                                                                                                                                             -- MemÛria de C·lculo
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST MÌnimo RJ', vnBaseStRj);
+                                                                                                                                             -- Mem√≥ria de C√°lculo
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('=', 'Valor Inicial da Base ST M√≠nimo RJ', vnBaseStRj);
                                                                           
-            -- Agrega o MVA na Base do ST MÌnimo Rj
+            -- Agrega o MVA na Base do ST M√≠nimo Rj
             vnBaseStRj := (vnBaseStRj * (1 + (vnIVAFONTE / 100)));
                                       
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_INSERIR_MEMORIA_CALCULO('+', 'MVA', vnBaseStRj, vnIVAFONTE, vnValorCalculadoMemoriaCalculo);                                      
           
-            -- ReduÁ„o ST MÌnimo Rj
+            -- Redu√ß√£o ST M√≠nimo Rj
             vnPercBaseRedRj := NVL(vnpercbasered,0); 
             IF (NVL(vnPercBaseRedRj,0) = 0) THEN
               vnPercBaseRedRj := 100;
             END IF;
             
-                                                                                                                                             -- Vari·veis Auxiliares da MemÛria de Calculo
+                                                                                                                                             -- Vari√°veis Auxiliares da Mem√≥ria de Calculo
                                                                                                                                              vnPercMemoriaCalculo           := (100 - vnPercBaseRedRj);
                                                                                                                                              vnValorCalculadoMemoriaCalculo := (vnBaseStRj * (vnPercMemoriaCalculo / 100));
             
-            -- Aplica ReduÁ„o na Base do ST Rj
+            -- Aplica Redu√ß√£o na Base do ST Rj
             vnBaseStRj := vnBaseStRj * (vnPercBaseRedRj / 100);
           
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'ReduÁ„o de ' || vnPercBaseRedRj || '% na Base ST MÌnimo', vnBaseStRj, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('-', 'Redu√ß√£o de ' || vnPercBaseRedRj || '% na Base ST M√≠nimo', vnBaseStRj, vnPercMemoriaCalculo, vnValorCalculadoMemoriaCalculo);
           
             -- Calcula o Valor do ST RJ  
             vnValorStRj := vnBaseStRj * (NVL(p_percbasestrj,0) / 100);
@@ -9235,19 +9235,19 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnValorStRj := round(vnValorStRj, p_numcasasdecvenda);       
             END IF;          
             
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor MÌnimo ST RJ', NULL, p_percbasestrj, vnValorStRj);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('>', 'Valor M√≠nimo ST RJ', NULL, p_percbasestrj, vnValorStRj);
                                                                                
                                                   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJ', 'MIN_STRJ'); 
                                         
-            -- Calcula o Valor dos Produtos pelo MÌnimo
+            -- Calcula o Valor dos Produtos pelo M√≠nimo
             vnValordosProdutosPeloStMin := NVL(p_valornotafiscal,0) - NVL(vnValorStRj,0);
             vnValordosProdutosPeloStMin := round(vnValordosProdutosPeloStMin, p_numcasasdecvenda);   
   
                                       
-            -- Verifica o Maior ST para definir qual aplicar a Invers„o
+            -- Verifica o Maior ST para definir qual aplicar a Invers√£o
             IF (NVL(vnValorStRj,0) > NVL(vnstfonte,0)) THEN
   
              /*****************************************
@@ -9256,26 +9256,26 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnstfonte := NVL(vnValorStRj,0);            
               p_valorprodutos := NVL(vnValordosProdutosPeloStMin,0);
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Valor dos Produtos pelo ST MÌnimo = (Valor NF - Valor ST MÌnimo)', NULL, NULL, vnValordosProdutosPeloStMin);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Valor dos Produtos pelo ST M√≠nimo = (Valor NF - Valor ST M√≠nimo)', NULL, NULL, vnValordosProdutosPeloStMin);
   
-                                                                                                                                             -- MemÛria de C·lculo          
-                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o do Valor dos Produtos pelo calculado pelo ST MÌnimo', NULL, NULL, p_valorprodutos);
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
+                                                                                                                                             P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o do Valor dos Produtos pelo calculado pelo ST M√≠nimo', NULL, NULL, p_valorprodutos);
               
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('VL_STRJINV', 'SIM_STRJ');
               
             END IF;
   
-          END IF; -- Fim CondiÁ„o: ST MÕNIMO RJ
+          END IF; -- Fim Condi√ß√£o: ST M√çNIMO RJ
           
-        END IF; -- FIM CONDI«√O CALCULA VALOR DO ST
+        END IF; -- FIM CONDI√á√ÉO CALCULA VALOR DO ST
 		IF (NVL(p_utilizaCustoContBaseST,'N') = 'S') AND  (NVL(p_nFatorAjusteCustoCont,0) > 0) THEN
            vnbcst := (NVL(vnPVENDA,0) +  NVL(p_vlfreteoutrasdesp,0));
            
-      	   P_INSERIR_MEMORIA_CALCULO('=', 'SubstituiÁ„o da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
+      	   P_INSERIR_MEMORIA_CALCULO('=', 'Substitui√ß√£o da Base do ST conforme ST pvenda + Despesas PB', NULL, NULL, vnbcst);
            vnBaseSTPB := ((NVL(p_ncustocont,0)/(1-(p_nFatorAjusteCustoCont/100))) +  NVL(p_vlfreteoutrasdesp,0));
-		   P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, round(vnBaseSTPB,p_numcasasdecvenda)); 
+		   P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o da Base do ST conforme ST Custo Cont + Fator + Despesas PB', NULL, NULL, round(vnBaseSTPB,p_numcasasdecvenda)); 
 
            vnstfonte  := vnbcst * (p_aliqicms1fonte/100);
 
@@ -9293,11 +9293,11 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSIF p_tipocalcst = 'PV' THEN
             vnSTFONTE := round(vnSTFONTE, p_numcasasdecvenda);
           END IF;
-          P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
-          P_INSERIR_MEMORIA_CALCULO('#', 'SubstituiÁ„o conforme Regime Especial PB', NULL, NULL, vnstfonte);
+          P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o da Base do ST conforme Regime Especial PB', NULL, NULL, round(vnbcst,p_numcasasdecvenda));   
+          P_INSERIR_MEMORIA_CALCULO('#', 'Substitui√ß√£o conforme Regime Especial PB', NULL, NULL, vnstfonte);
         END IF;              
        /*--------------------------------------------------------------------------------------------
-        AtualizaÁ„o de Retornos adicionais
+        Atualiza√ß√£o de Retornos adicionais
         ---------------------------------*/
               
        /*--------------------------------------------------------------------------------------------
@@ -9345,55 +9345,55 @@ IS PRAGMA SERIALLY_REUSABLE;
       BEGIN
       
        /********************
-        Inicializa Vari·veis
+        Inicializa Vari√°veis
         ********************/
       
-                                                                                                                         -- ContinuaÁ„o da ObservaÁ„o ST Fonte
+                                                                                                                         -- Continua√ß√£o da Observa√ß√£o ST Fonte
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',St.Funcep';
                         
        /*--------------------------------------------------------------------------------------------
-        C¡LCULO DO ST FUNCEP
-        -- * QUANDO N√O TEM ST, ONDE CADASTRA o Percentual do Fundo de Combate ‡ Pobreza (pFCP ) 
+        C√ÅLCULO DO ST FUNCEP
+        -- * QUANDO N√ÉO TEM ST, ONDE CADASTRA o Percentual do Fundo de Combate √† Pobreza (pFCP ) 
         -------------------*/
         IF (NVL(p_codconfigfuncepmed,0) > 0) THEN
-          -- Fundo de Combate ‡ Pobreza
-          p_vlbasefcpicms      := 0; -- MED-656 - Ser· Calculado no Faturamento -- Valor da Base de C·lculo do FCP [vBCFCP]
-          -->> p_peracrescimofuncep --> SER¡ USADO PARA GRAVAR O CAMPO Percentual do FCP retido por SubstituiÁ„o Tribut·ria [pFCPST]
-          p_vlacrescimofuncep  := 0; -- MED-656 - Ser· Calculado no Faturamento -- SER¡ USADO PARA GRAVAR O CAMPO Valor do Fundo de Combate ‡ Pobreza (FCP) [vFCP]
+          -- Fundo de Combate √† Pobreza
+          p_vlbasefcpicms      := 0; -- MED-656 - Ser√° Calculado no Faturamento -- Valor da Base de C√°lculo do FCP [vBCFCP]
+          -->> p_peracrescimofuncep --> SER√Å USADO PARA GRAVAR O CAMPO Percentual do FCP retido por Substitui√ß√£o Tribut√°ria [pFCPST]
+          p_vlacrescimofuncep  := 0; -- MED-656 - Ser√° Calculado no Faturamento -- SER√Å USADO PARA GRAVAR O CAMPO Valor do Fundo de Combate √† Pobreza (FCP) [vFCP]
     
           -- Simples Nacional
-          p_perfcpsn           := 0;                                                              -- ??? AlÌquota aplic·vel de c·lculo do crÈdito (SIMPLES NACIONAL). [pCredSN]
-          p_vlcredfcpicmssn    := 0;                                                              -- ??? Valor crÈdito do ICMS que pode ser aproveitado nos termos do art. 23 da LC 123 (SIMPLES NACIONAL) [vCredICMSSN]
+          p_perfcpsn           := 0;                                                              -- ??? Al√≠quota aplic√°vel de c√°lculo do cr√©dito (SIMPLES NACIONAL). [pCredSN]
+          p_vlcredfcpicmssn    := 0;                                                              -- ??? Valor cr√©dito do ICMS que pode ser aproveitado nos termos do art. 23 da LC 123 (SIMPLES NACIONAL) [vCredICMSSN]
     
          -- Retido anteriormente por ST 
-          p_vlbcfcpstret       := 0;                                                              -- Valor da Base de C·lculo do FCP retido anteriormente [vBCFCPSTRet]
-          p_perfcpstret        := 0;                                                              -- Percentual do FCP retido anteriormente por SubstituiÁ„o Tribut·ria [pFCPSTRet]
-          p_vlfcpstret         := 0;                                                              -- Valor do Fundo de Combate ‡ Pobreza (FCP) [vFCP]             -- Valor Total do FCP retido anteriormente por SubstituiÁ„o Tribut·ria [vFCPSTRet]
+          p_vlbcfcpstret       := 0;                                                              -- Valor da Base de C√°lculo do FCP retido anteriormente [vBCFCPSTRet]
+          p_perfcpstret        := 0;                                                              -- Percentual do FCP retido anteriormente por Substitui√ß√£o Tribut√°ria [pFCPSTRet]
+          p_vlfcpstret         := 0;                                                              -- Valor do Fundo de Combate √† Pobreza (FCP) [vFCP]             -- Valor Total do FCP retido anteriormente por Substitui√ß√£o Tribut√°ria [vFCPSTRet]
     
-          -->> p_aliqicmsfecp -->> Percentual do FCP retido por SubstituiÁ„o Tribut·ria [pFCPST]
+          -->> p_aliqicmsfecp -->> Percentual do FCP retido por Substitui√ß√£o Tribut√°ria [pFCPST]
     
-          -- Retido por SubstituiÁ„o Tribut·ria (CUIDADO QUE O NOME DAS COLUNAS N√O CORRESPONDE AO NOME DAS TAGS POR REAPROVEITAMENTO DO OERACRESCIMOFUNCEP)
-          -- Valor da Base de C·lculo do FCP retido por SubstituiÁ„o Tribut·ria [vBCFCPST]        
+          -- Retido por Substitui√ß√£o Tribut√°ria (CUIDADO QUE O NOME DAS COLUNAS N√ÉO CORRESPONDE AO NOME DAS TAGS POR REAPROVEITAMENTO DO OERACRESCIMOFUNCEP)
+          -- Valor da Base de C√°lculo do FCP retido por Substitui√ß√£o Tribut√°ria [vBCFCPST]        
           IF    (p_codconfigfuncepmed = 1) THEN
   
             p_vlbasefcpst       := p_bcst;                                                              
-                                                                                                                         -- ObservaÁ„o ST Fonte
-            -- Valor do FCP retido por SubstituiÁ„o Tribut·ria [vFCPST]     
+                                                                                                                         -- Observa√ß√£o ST Fonte
+            -- Valor do FCP retido por Substitui√ß√£o Tribut√°ria [vFCPST]     
             p_vlfecp            := (NVL(p_vlbasefcpst,0) * (NVL(p_aliqicmsfecp,0) / 100));       
                                                                                                                          p_observacaostfonte := p_observacaostfonte || ',1-BaseSt';
           ELSIF (p_codconfigfuncepmed = 2) THEN
       
             p_vlbasefcpst       := p_pvenda;                                                              
       
-            -- Valor do FCP retido por SubstituiÁ„o Tribut·ria [vFCPST]     
+            -- Valor do FCP retido por Substitui√ß√£o Tribut√°ria [vFCPST]     
             p_vlfecp            := (NVL(p_vlbasefcpst,0) * (NVL(p_aliqicmsfecp,0) / 100));       
                  
-          -- MED-2346                                                                                                               -- ObservaÁ„o ST Fonte
+          -- MED-2346                                                                                                               -- Observa√ß√£o ST Fonte
           ELSIF (p_codconfigfuncepmed = 3) THEN
       
             p_vlbasefcpst         := p_bcst;                                                              
             
-            -- ReduÁ„o do ICMS Normal - MED-2346
+            -- Redu√ß√£o do ICMS Normal - MED-2346
             vnPercBaseRedIcmsNormal := NVL(p_percbaseredicmsfecp,0);
             IF (NVL(vnPercBaseRedIcmsNormal,0) = 0) THEN
               vnPercBaseRedIcmsNormal := 100;
@@ -9406,10 +9406,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Valor ICMS Normal FECP - MED-2346
             vnValorIcmsNormalFecp := (NVL(vnBaseIcmsNormalFecp,0) * (NVL(p_peracrescimofuncep,0) / 100));
             
-            -- Valor do FCP retido por SubstituiÁ„o Tribut·ria [vFCPST]     
+            -- Valor do FCP retido por Substitui√ß√£o Tribut√°ria [vFCPST]     
             p_vlfecp              := (NVL(p_vlbasefcpst,0) * (NVL(p_aliqicmsfecp,0) / 100));       
           
-            -- Retira o Valor do ICMS Normal do Valor do FCP retido por SubstituiÁ„o Tribut·ria
+            -- Retira o Valor do ICMS Normal do Valor do FCP retido por Substitui√ß√£o Tribut√°ria
             p_vlfecp              := NVL(p_vlfecp,0) - NVL(vnValorIcmsNormalFecp,0);
             IF (p_vlfecp < 0) THEN
               p_vlfecp := 0;
@@ -9427,35 +9427,35 @@ IS PRAGMA SERIALLY_REUSABLE;
       
     BEGIN
     
-                                                                                                                                             -- MemÛria de C·lculo          
+                                                                                                                                             -- Mem√≥ria de C√°lculo          
                                                                                                                                              IF (NVL(pi_vOrdemCalculo,'F') = 'F') THEN
                                                                                                                                                P_INSERE_OPCAO_MEMORIA_CALCULO('Calcular ST Fonte ?', 'CALCULARST');          
                                                                                                                                              ELSE
-                                                                                                                                               P_INSERE_OPCAO_MEMORIA_CALCULO('Calcular ST Fonte INVERSO ?', 'CALCULARST'); -- (N„o mexer no texto "Calcular ST Fonte INVERSO ?", È usado para pintar o grid)
+                                                                                                                                               P_INSERE_OPCAO_MEMORIA_CALCULO('Calcular ST Fonte INVERSO ?', 'CALCULARST'); -- (N√£o mexer no texto "Calcular ST Fonte INVERSO ?", √© usado para pintar o grid)
                                                                                                                                              END IF;
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, calcular ST Fonte com tributaÁ„o ' || NVL(pio_nCodSt,0), 'CALCULARST', 'SIM');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sem ST Fonte por IsenÁ„o ”rg„o P˙blico (Cliente x TributaÁ„o)', 'CALCULARST', 'NAO_ORGAOPUB');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Sem ST Fonte por Regime Especial de IsenÁ„o ST (Cliente x TributaÁ„o)', 'CALCULARST', 'NAO_ISENCAO');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) Sem ST Fonte por Fabricante n„o Relevenda (Produto)', 'CALCULARST', 'NAO_RELEVANTE');          
-                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('5) Sem ST Fonte por IsenÁ„o para BonificaÁ„o (TributaÁ„o)', 'CALCULARST', 'NAO_ISEBNF'); -- MED-2521
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('1) Sim, calcular ST Fonte com tributa√ß√£o ' || NVL(pio_nCodSt,0), 'CALCULARST', 'SIM');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('2) Sem ST Fonte por Isen√ß√£o √ìrg√£o P√∫blico (Cliente x Tributa√ß√£o)', 'CALCULARST', 'NAO_ORGAOPUB');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('3) Sem ST Fonte por Regime Especial de Isen√ß√£o ST (Cliente x Tributa√ß√£o)', 'CALCULARST', 'NAO_ISENCAO');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('4) Sem ST Fonte por Fabricante n√£o Relevenda (Produto)', 'CALCULARST', 'NAO_RELEVANTE');          
+                                                                                                                                             P_INSERE_OPCAO_MEMORIA_CALCULO('5) Sem ST Fonte por Isen√ß√£o para Bonifica√ß√£o (Tributa√ß√£o)', 'CALCULARST', 'NAO_ISEBNF'); -- MED-2521
     
-      -- Iniciaiza Retornos com Regras da TributaÁ„o pra GravaÁ„o na PCPEDI                                          
+      -- Iniciaiza Retornos com Regras da Tributa√ß√£o pra Grava√ß√£o na PCPEDI                                          
       po_nAliqIcms1            := 0;
       po_nAliqIcms2            := 0;
       po_nIva                  := 0;
       po_nPercBaseRedStFonte   := 0;
     
-      -- Atualiza vari·veis locais que ser„o par‚metros de Entrada e SaÌda na FUNCOESVENDAS, 
-      -- com valores passados nos Par‚metros de Entrada da Procedure
+      -- Atualiza vari√°veis locais que ser√£o par√¢metros de Entrada e Sa√≠da na FUNCOESVENDAS, 
+      -- com valores passados nos Par√¢metros de Entrada da Procedure
       n_ivafonte               := p_ivafonte;
       n_aliqicms1fonte         := p_aliqicms1fonte;
       n_aliqicms2fonte         := p_aliqicms2fonte;
       n_percbaseredstfonte     := p_percbaseredstfonte;
     
-      -- Inicializa Retorno indicando como Padr„o que n„o tem IsenÁ„o ST Fonte
+      -- Inicializa Retorno indicando como Padr√£o que n√£o tem Isen√ß√£o ST Fonte
       po_vRegimeEspIsenStFonte := 'N';
       
-      -- Inicializa Vari·veis de C·lculo do FUNCEP - HIS.04200.2017
+      -- Inicializa Vari√°veis de C√°lculo do FUNCEP - HIS.04200.2017
       p_vlbasefcpicms          := 0;
       p_vlbasefcpst            := 0;
       p_vlbcfcpstret           := 0;
@@ -9470,7 +9470,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       po_nAliqIcmsFecp         := 0;    
       po_nCodConfigFuncepMed   := NULL;
       
-      -- Se Org„o P˙blico e a TributaÁ„o tem IsenÁ„o de ST para ”rg„os P˙blicos
+      -- Se Org√£o P√∫blico e a Tributa√ß√£o tem Isen√ß√£o de ST para √ìrg√£os P√∫blicos
       IF    ((NVL(p_tipoclimed, ' ') IN ('D','E','M')) AND  
              (NVL(p_isencaostorgaopub, ' ') = 'S')) THEN
     
@@ -9480,13 +9480,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2          := 0;
         po_nIva                := 0;
         po_nPercBaseRedStFonte := 0;
-        po_vObservacaoStFonte  := 'IsenÁ„o Org„o P˙blico';
+        po_vObservacaoStFonte  := 'Isen√ß√£o Org√£o P√∫blico';
                
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_ORGAOPUB');                     
                
-      -- Se Cliente Usa Regime Especial IsenÁ„o ST Fonte e
-      -- TributaÁ„o com Regime Especial IsenÁ„o ST Fonte
+      -- Se Cliente Usa Regime Especial Isen√ß√£o ST Fonte e
+      -- Tributa√ß√£o com Regime Especial Isen√ß√£o ST Fonte
       ELSIF ((NVL(p_usaregimeespisenstfonte,'N') = 'S') AND
              (NVL(p_regimeespisenstfonte,'N')    = 'S')) THEN
       
@@ -9496,14 +9496,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2            := 0;
         po_nIva                  := 0;
         po_nPercBaseRedStFonte   := 0;
-        -- Atualiza Retorno indicando que vai aplicar IsenÁ„o ST Fonte
+        -- Atualiza Retorno indicando que vai aplicar Isen√ß√£o ST Fonte
         po_vRegimeEspIsenStFonte := 'S';
         po_vObservacaoStFonte    := 'Regime Especial ST Fonte';
         
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_ISENCAO');                     
         
-      -- Fabricante N√O RELEVANTE - HIS.03371.2017  
+      -- Fabricante N√ÉO RELEVANTE - HIS.03371.2017  
       ELSIF (NVL(p_indescalarelevante,'S') = 'N') THEN
   
         po_nBaseStFonte          := 0;
@@ -9512,16 +9512,16 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2            := 0;
         po_nIva                  := 0;
         po_nPercBaseRedStFonte   := 0;
-        po_vObservacaoStFonte    := 'Fabricante n„o Relevante';    
+        po_vObservacaoStFonte    := 'Fabricante n√£o Relevante';    
         
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_RELEVANTE');                     
       
   
   
-      -- MED-2521 - IsenÁ„o ST BonificaÁ„o
+      -- MED-2521 - Isen√ß√£o ST Bonifica√ß√£o
       ELSIF (NVL(p_isencaostfontebonificacao,'N') = 'S') AND
-            ((NVL(p_itembonific,'N') IN ('S','F')) OR (NVL(pi_nCondVenda,0) = 5)) THEN -- DDMEDICA-198 - IncluÌdo F
+            ((NVL(p_itembonific,'N') IN ('S','F')) OR (NVL(pi_nCondVenda,0) = 5)) THEN -- DDMEDICA-198 - Inclu√≠do F
   
         po_nBaseStFonte          := 0;
         po_nValorStFonte         := 0;
@@ -9529,27 +9529,27 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2            := 0;
         po_nIva                  := 0;
         po_nPercBaseRedStFonte   := 0;
-        po_vObservacaoStFonte    := 'IsenÁ„o BNF';
+        po_vObservacaoStFonte    := 'Isen√ß√£o BNF';
   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_ISEBNF');
   
       ELSE     
   
-                                                                                                                                             -- MemÛria de C·lculo
+                                                                                                                                             -- Mem√≥ria de C√°lculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'SIM');                     
   
         ----------------------------------------------------
-        -- Recebe o PreÁo de Venda sem Impostos do Par‚metro
+        -- Recebe o Pre√ßo de Venda sem Impostos do Par√¢metro
         ----------------------------------------------------
         vnPrecoVendaSemImpostos := NVL(p_pvenda,0);
       
         --------------------------------------------------
-        -- C ¡ L C U L O    I N V E R S O    D O    S T -- 
+        -- C √Å L C U L O    I N V E R S O    D O    S T -- 
         --------------------------------------------------
         IF (pi_vOrdemCalculo = 'I') THEN
         
-          -- AlÌquota FECP para somar na AlÌq 1 do ST Fonte - MED-1930
+          -- Al√≠quota FECP para somar na Al√≠q 1 do ST Fonte - MED-1930
           IF (NVL(p_participafuncep,'S')  = 'S') AND
              (NVL(p_codconfigfuncepmed,0) >  0 ) AND
              (NVL(p_aliqicmsfecp,0)       >  0 ) THEN
@@ -9558,16 +9558,16 @@ IS PRAGMA SERIALLY_REUSABLE;
             vnAliq1StFonteFecp := NVL(n_aliqicms1fonte,0); -- Regra anterior.
           END IF;
   
-          -- Chama FunÁ„o para Calcular a Base e Valor do ST Fonte
+          -- Chama Fun√ß√£o para Calcular a Base e Valor do ST Fonte
           po_nValorStFonte := FCALCULARSTFONTE_INVERSO(pi_nValorNotaFiscal         ,
                                                        p_codprod                   ,
                                                        p_condvenda                 ,
                                                        p_percvenda                 ,
                                                        p_iva                       ,
-                                                       n_ivafonte                  , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                                       vnAliq1StFonteFecp          , -- MED-1930 --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                                       n_aliqicms2fonte            , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                                       n_percbaseredstfonte        , --> Vari·vel local no par‚metro de Entrada e SaÌda
+                                                       n_ivafonte                  , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                                       vnAliq1StFonteFecp          , -- MED-1930 --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                                       n_aliqicms2fonte            , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                                       n_percbaseredstfonte        , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
                                                        p_percbaserednrpa           ,
                                                        p_percbaseredconsumidor     ,
                                                        p_utilizapercbaseredpf_trib ,
@@ -9596,7 +9596,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                        p_contribuinte              ,
                                                        p_numcasasdecvenda          ,
                                                        po_nBaseStFonte             , -- MED-1930
-                                                       po_vMensagem                , --> Vari·vel local no par‚metro de SaÌda
+                                                       po_vMensagem                , --> Vari√°vel local no par√¢metro de Sa√≠da
                                                        p_custonfsemst              ,
                                                        p_usavalorultentbasest2     ,
                                                        p_usapmcbasest              ,
@@ -9652,19 +9652,19 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                        );                       
               
         ------------------------------------------------
-        -- C ¡ L C U L O    P A D R √ O    D O    S T -- 
+        -- C √Å L C U L O    P A D R √É O    D O    S T -- 
         ------------------------------------------------   
         ELSE
             
-          -- Chama FunÁ„o para Calcular a Base e Valor do ST Fonte
+          -- Chama Fun√ß√£o para Calcular a Base e Valor do ST Fonte
           po_nValorStFonte := FCALCULARSTFONTE(p_codprod                   ,
                                                p_condvenda                 ,
                                                p_percvenda                 ,
                                                p_iva                       ,
-                                               n_ivafonte                  , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                               n_aliqicms1fonte            , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                               n_aliqicms2fonte            , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                                               n_percbaseredstfonte        , --> Vari·vel local no par‚metro de Entrada e SaÌda
+                                               n_ivafonte                  , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                               n_aliqicms1fonte            , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                               n_aliqicms2fonte            , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                                               n_percbaseredstfonte        , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
                                                p_percbaserednrpa           ,
                                                p_percbaseredconsumidor     ,
                                                p_utilizapercbaseredpf_trib ,
@@ -9680,7 +9680,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                p_utilizaiesimplificada     ,
                                                p_tipoempresa               ,
                                                p_consideraisentoscomopf    ,
-                                               vnPrecoVendaSemImpostos     , -->> PASSA O PRE«O DE VENDA SEM IMPOSTOS
+                                               vnPrecoVendaSemImpostos     , -->> PASSA O PRE√áO DE VENDA SEM IMPOSTOS
                                                p_vlipi                     ,
                                                p_uffilial                  ,
                                                p_estent                    ,
@@ -9694,8 +9694,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                p_contribuinte              ,
                                                p_numcasasdecvenda          ,
                                                po_nBaseStFonte             , -->> BASE ST FONTE QUE SERA RETORNADA PELA PROCEDURE
-                                               vnPercBaseRedStFonteAlterado, -->> SE A LEGISLA«√O MUDAR O % DE REDU«√O DO CADASTRO - 5661.146071.2016
-                                               po_vMensagem                , --> Vari·vel local no par‚metro de SaÌda
+                                               vnPercBaseRedStFonteAlterado, -->> SE A LEGISLA√á√ÉO MUDAR O % DE REDU√á√ÉO DO CADASTRO - 5661.146071.2016
+                                               po_vMensagem                , --> Vari√°vel local no par√¢metro de Sa√≠da
                                                p_custonfsemst              ,
                                                p_usavalorultentbasest2     ,
                                                p_usapmcbasest              ,
@@ -9761,14 +9761,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                p_utilizaCustoContBaseST,
                                                p_nFatorAjusteCustoCont,
 											   p_ncustocont  );
-          -- Regras da TributaÁ„o pra GravaÁ„o na PCPEDI
+          -- Regras da Tributa√ß√£o pra Grava√ß√£o na PCPEDI
           po_nAliqIcms1          := n_aliqicms1fonte;
           po_nAliqIcms2          := n_aliqicms2fonte;
           po_nIva                := n_ivafonte;
           po_nPercBaseRedStFonte := n_percbaseredstfonte;
           po_nPautaFonte         := p_pautafonteaplicado;
                             
-          -->> SE A LEGISLA«√O MUDAR O % DE REDU«√O DO CADASTRO
+          -->> SE A LEGISLA√á√ÉO MUDAR O % DE REDU√á√ÉO DO CADASTRO
           IF (vnPercBaseRedStFonteAlterado IS NOT NULL) THEN
             IF (p_USAREDUTORCAT49BASESTFONTE = 'S') THEN
               po_nPercBaseRedStFonte := vnPercBaseRedStFonteAlterado;
@@ -9776,10 +9776,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;
           END IF;
           
-          -- Se n„o houve erro no C·lculo do ST
+          -- Se n√£o houve erro no C√°lculo do ST
           IF (po_vMensagem IS NULL) THEN
           
-            -- FUNCEP com FÛrmula com Motor de C·lculo
+            -- FUNCEP com F√≥rmula com Motor de C√°lculo
             IF ((NVL(p_participafuncep,'S')  = 'S') OR 
               ((NVL(p_desvincularFecpStFuncepICMS,'N')  = 'S')
                 AND (NVL(p_participafuncep,'S')  = 'N'))) AND 
@@ -9790,7 +9790,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Chama Procedimento para Calcular os Valores do FUNCEP
               PCALCULARFUNCEP(p_codconfigfuncepmed,
                               po_nBaseStFonte,
-                              vnPrecoVendaSemImpostos, -->> PASSA O PRE«O DE VENDA SEM IMPOSTOS
+                              vnPrecoVendaSemImpostos, -->> PASSA O PRE√áO DE VENDA SEM IMPOSTOS
                               po_vObservacaoStFonte, 
                               p_aliqicmsfecp,
                               p_vlbasefcpicms,
@@ -9805,27 +9805,27 @@ IS PRAGMA SERIALLY_REUSABLE;
                               vnRetVlFreteOutrasDespBaseSt,
                               vnRetPercBaseRedIcmsFecp); 
     
-              -- Atualiza Vari·veis de C·lculo do FUNCEP - HIS.04200.2017
+              -- Atualiza Vari√°veis de C√°lculo do FUNCEP - HIS.04200.2017
               po_nPerAcrescimoFuncep := 0; -- MED-656 ->> Percentual de ICMS do FUNCEP - Ficou sendo gravado no Faturamento, junto com a Base e Valor do ICMS o FUNCEP
               IF (NVL(p_vlbasefcpst,0) = 0) THEN
-                po_nAliqIcmsFecp     := 0; -->> Se n„o tiver base n„o vai ter alÌquota do ST do Funcep MED-1471
+                po_nAliqIcmsFecp     := 0; -->> Se n√£o tiver base n√£o vai ter al√≠quota do ST do Funcep MED-1471
               ELSE
                 po_nAliqIcmsFecp     := p_aliqicmsfecp;
               END IF;            
               po_nCodConfigFuncepMed := p_codconfigfuncepmed;                                             
                                                           
-            END IF; -- Fim CondiÁ„o: FUNCEP com FÛrmula com Motor de C·lculo
+            END IF; -- Fim Condi√ß√£o: FUNCEP com F√≥rmula com Motor de C√°lculo
             
-          END IF; -- Fim CondiÁ„o: Se n„o houve erro no C·lculo do ST
+          END IF; -- Fim Condi√ß√£o: Se n√£o houve erro no C√°lculo do ST
           
           ----------------------------------
-          -- C¡LCULO ST GNRE - DDMEDICA-7697
+          -- C√ÅLCULO ST GNRE - DDMEDICA-7697
           ----------------------------------
           IF (NVL(v_tipocalculognre,'P') = 'C') THEN
           
             -- ST CLIENTE GNRE
             po_nStClienteGnre            := po_nValorStFonte;
-            -- Sem ST PrÛprio
+            -- Sem ST Pr√≥prio
             po_nBaseStFonte              := 0;
             po_nValorStFonte             := 0;
             po_nAliqIcms1                := 0;
@@ -9844,15 +9844,15 @@ IS PRAGMA SERIALLY_REUSABLE;
           ---------------------------------------------------
           ELSIF (NVL(v_destacicmsstanterior,'N') = 'S') THEN
           
-            -- Enquadrado no C·lculo do ST Padr„o
+            -- Enquadrado no C√°lculo do ST Padr√£o
             IF (NVL(vvRetEnquadraIcmsSubstAnterior,'N') = 'S') THEN
   
-              -- Os valores calculados de ST ser„o gravados em campos separados          
+              -- Os valores calculados de ST ser√£o gravados em campos separados          
               po_nBcStRetAnterior          := po_nBaseStFonte;
               po_nVlIcmsSubstitutoAnterior := vnRetVlIcmsSubstitutoAnterior;
               po_nVlIcmsStRetAnterior      := po_nValorStFonte;
               
-              -- Ser„o zerados os valores calculados de ST
+              -- Ser√£o zerados os valores calculados de ST
               -- menos o po_nAliqIcms1 que precisarei dele no DANFE - DDVENDAS-31441
               po_nBaseStFonte              := 0;
               po_nValorStFonte             := 0;
@@ -9861,7 +9861,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               po_nPercBaseRedStFonte       := 0;
               po_vObservacaoStFonte        := po_vObservacaoStFonte || ',StRecolhidoAnt';
               
-            -- N„o est· enquadrado no ST Padr„o (Possui uma ExceÁ„o ‡ Regra)
+            -- N√£o est√° enquadrado no ST Padr√£o (Possui uma Exce√ß√£o √† Regra)
             ELSE
             
               po_vObservacaoStFonte        := po_vObservacaoStFonte || ',ExcStRecAnt';
@@ -9870,7 +9870,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             
           END IF;
   
-        END IF; -- Fim CondiÁ„o - C·lculo Inverso do ST
+        END IF; -- Fim Condi√ß√£o - C√°lculo Inverso do ST
                                                                                  
       END IF;
     
@@ -9879,7 +9879,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Sem ST
         po_nBaseStFonte  := 0;
         po_nValorStFonte := 0;
-        po_vMensagem     := 'Erro c·lculo ST Fonte: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
+        po_vMensagem     := 'Erro c√°lculo ST Fonte: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
     END P_OBTER_STFONTE;
   
    /***************************************************************************
@@ -9896,10 +9896,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vClienteFonteSt := 'N';
   
    /****************************
-    Inicializa Tabela Tempor·ria
+    Inicializa Tabela Tempor√°ria
     ****************************/
   
-    -- Limpa Tabela Temporaria de Memoria de C·lculo
+    -- Limpa Tabela Temporaria de Memoria de C√°lculo
     IF (pi_vMemoriaCalculo = 'S') THEN
       DELETE FROM PCMED_MEMORIA_CALCULO_ST
        WHERE (CODPROD <> pi_nCodProd)
@@ -9909,12 +9909,12 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
   
    /************************************************
-    CÛdigo da Filial de Faturamento - HIS.03371.2017
+    C√≥digo da Filial de Faturamento - HIS.03371.2017
     ************************************************/
     vvCodFilialFaturamento := NVL(pi_nCodFilialNf,pi_vCodFilial);
   
    /*******************
-    Pesquisa Par‚metros
+    Pesquisa Par√¢metros
     *******************/
     BEGIN
       SELECT TIPOCALCST
@@ -9938,7 +9938,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         FROM PCCONSUM;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vMensagem := 'N„o foram encontrados dados na PCCONSUM';
+        po_vMensagem := 'N√£o foram encontrados dados na PCCONSUM';
         RAISE e_tratado;
     END;
     --
@@ -10046,11 +10046,11 @@ IS PRAGMA SERIALLY_REUSABLE;
        WHERE (CODCLI = pi_nCodCli);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vMensagem := 'N„o foram encontrados dados do Cliente ' || NVL(pi_nCodCli,0);
+        po_vMensagem := 'N√£o foram encontrados dados do Cliente ' || NVL(pi_nCodCli,0);
         RAISE e_tratado;
     END;
     
-    -- DDVENDAS-33718 - UF do EndereÁo de Entrega do Cliente
+    -- DDVENDAS-33718 - UF do Endere√ßo de Entrega do Cliente
     IF (pi_vEstEnt IS NOT NULL) THEN
       v_estent := pi_vEstEnt;     
     END IF;
@@ -10066,12 +10066,12 @@ IS PRAGMA SERIALLY_REUSABLE;
          AND (PCCLIENTFILIALMED.CODFILIAL = vvCodFilialFaturamento); -- HIS.03371.2017
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        -->> Se n„o encontrar exceÁ„o por Filial, MantÈm os valores da PCCLIENT
+        -->> Se n√£o encontrar exce√ß√£o por Filial, Mant√©m os valores da PCCLIENT
         NULL;
     END;
     
    /*************************************************
-    Retornar· se o Cliente È ST Fonte - DDMEDICA-7697
+    Retornar√° se o Cliente √© ST Fonte - DDMEDICA-7697
     *************************************************/
     po_vClienteFonteSt := v_clientefontest; 
   
@@ -10087,7 +10087,7 @@ IS PRAGMA SERIALLY_REUSABLE;
        WHERE (CODIGO = vvCodFilialFaturamento); -- HIS.03371.2017
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vMensagem := 'N„o foram encontrados dados para a Filial: ' || NVL(vvCodFilialFaturamento,' '); -- HIS.03371.2017
+        po_vMensagem := 'N√£o foram encontrados dados para a Filial: ' || NVL(vvCodFilialFaturamento,' '); -- HIS.03371.2017
         RAISE e_tratado;
     END;
   
@@ -10114,7 +10114,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     Pesquisa Dados do Produto por Filial - HIS.03371.2017
     *****************************************************/
     BEGIN
-      SELECT NVL(PCPRODFILIAL.INDESCALARELEVANTE,'S') -->> PADR√O SIM PARA CALCULAR ST (INDUSTRIA FARMACEUTICA RELEVANTE)
+      SELECT NVL(PCPRODFILIAL.INDESCALARELEVANTE,'S') -->> PADR√ÉO SIM PARA CALCULAR ST (INDUSTRIA FARMACEUTICA RELEVANTE)
            , PCPRODFILIAL.CNPJFABRICANTE 
            , PCPRODFILIAL.FABRICANTE 
         INTO po_vIndEscalaRelevante
@@ -10125,27 +10125,27 @@ IS PRAGMA SERIALLY_REUSABLE;
          AND (CODFILIAL = vvCodFilialFaturamento); -- HIS.03371.2017
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vIndEscalaRelevante := 'S'; -->> PADR√O SIM PARA CALCULAR ST (INDUSTRIA FARMACEUTICA RELEVANTE)
+        po_vIndEscalaRelevante := 'S'; -->> PADR√ÉO SIM PARA CALCULAR ST (INDUSTRIA FARMACEUTICA RELEVANTE)
         po_vCnpjFabricante     := NULL;
         po_vFabricante         := NULL;
     END;
     
    /*******************
-    Pesquisa TributaÁ„o
+    Pesquisa Tributa√ß√£o
     *******************/
     
-    -- Pega a Regi„o do Par‚metro
+    -- Pega a Regi√£o do Par√¢metro
     v_numregiao := pi_nNumRegiao;
     
-    -- Se N√O passou a TributaÁ„o do Par‚metro
+    -- Se N√ÉO passou a Tributa√ß√£o do Par√¢metro
     IF (NVL(pio_nCodSt,0) = 0) THEN
       
       ---------------------------
-      -- Se usa TributaÁ„o por UF
+      -- Se usa Tributa√ß√£o por UF
       ---------------------------
       IF (NVL(v_usatributacaoporuf,'N') = 'S') THEN
       
-        -- Pesquisa TributaÁ„o por UF
+        -- Pesquisa Tributa√ß√£o por UF
         BEGIN
           SELECT CODST
             INTO pio_nCodSt
@@ -10155,24 +10155,24 @@ IS PRAGMA SERIALLY_REUSABLE;
              AND (CODFILIALNF = vvCodFilialFaturamento); -- HIS.03371.2017
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            po_vMensagem := 'N„o foi encontrada TributaÁ„o para o Produto ' || NVL(pi_nCodProd,0) || ', UF Destino [' || NVL(v_estent,' ') || '] e UF Filial [' || NVL(v_uffilial,' ' ||']');
+            po_vMensagem := 'N√£o foi encontrada Tributa√ß√£o para o Produto ' || NVL(pi_nCodProd,0) || ', UF Destino [' || NVL(v_estent,' ') || '] e UF Filial [' || NVL(v_uffilial,' ' ||']');
             RAISE e_tratado;
         END;
             
       -------------------------------
-      -- Se N√O usa TributaÁ„o por UF
+      -- Se N√ÉO usa Tributa√ß√£o por UF
       -------------------------------
       ELSE
       
-        -- Se passou a Regi„o no Par‚metro
+        -- Se passou a Regi√£o no Par√¢metro
         IF (NVL(pi_nNumRegiao,0) > 0) THEN
         
           v_numregiao := pi_nNumRegiao;
           
-        -- Se N√O passou a Regi„o no Par‚metro
+        -- Se N√ÉO passou a Regi√£o no Par√¢metro
         ELSE
       
-          -- Pesquisa Regi„o do Cliente por Filial
+          -- Pesquisa Regi√£o do Cliente por Filial
           BEGIN
             SELECT NUMREGIAO
               INTO v_numregiao
@@ -10184,9 +10184,9 @@ IS PRAGMA SERIALLY_REUSABLE;
               v_numregiao := NULL;
           END;
         
-          -- Se n„o achou Regiao do Cliente por Filial
+          -- Se n√£o achou Regiao do Cliente por Filial
           IF (v_numregiao IS NULL) THEN
-            -- Pesquisa Regi„o da PraÁa
+            -- Pesquisa Regi√£o da Pra√ßa
             BEGIN
               SELECT NUMREGIAO
                 INTO v_numregiao
@@ -10198,9 +10198,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             END;
           END IF;
           
-        END IF; -- Fim CondiÁ„o Se passou a Regi„o no Par‚metro        
+        END IF; -- Fim Condi√ß√£o Se passou a Regi√£o no Par√¢metro        
       
-        -- Pesquisa TributaÁ„o por Regi„o
+        -- Pesquisa Tributa√ß√£o por Regi√£o
         BEGIN
           SELECT CODST
             INTO pio_nCodSt
@@ -10209,25 +10209,25 @@ IS PRAGMA SERIALLY_REUSABLE;
              AND (NUMREGIAO = v_numregiao);
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            po_vMensagem := 'N„o foi encontrada TributaÁ„o para o Produto ' || NVL(pi_nCodProd,0) || ' e Regi„o ' || NVL(v_numregiao,0);
+            po_vMensagem := 'N√£o foi encontrada Tributa√ß√£o para o Produto ' || NVL(pi_nCodProd,0) || ' e Regi√£o ' || NVL(v_numregiao,0);
             RAISE e_tratado;
         END;
           
-      END IF; -- Fim CondiÁ„o v_usatributacaoporuf
+      END IF; -- Fim Condi√ß√£o v_usatributacaoporuf
       
-    END IF; -- Fim CondiÁ„o Se passou a TributaÁ„o do Par‚metro
+    END IF; -- Fim Condi√ß√£o Se passou a Tributa√ß√£o do Par√¢metro
   
    /***********************************
-    Pesquisa PreÁo M·ximo do Consumidor
+    Pesquisa Pre√ßo M√°ximo do Consumidor
     ***********************************/
     
-    -- Se passou o PreÁo M·ximo do Consumidor no Par‚metro
+    -- Se passou o Pre√ßo M√°ximo do Consumidor no Par√¢metro
     IF (NVL(pi_nPrecoMaxConsum,0) > 0) THEN
   
-      -- Pega valor do par‚metro  
+      -- Pega valor do par√¢metro  
       v_precomaxconsum := NVL(pi_nPrecoMaxConsum,0);
       
-    -- N√O passou o PreÁo M·ximo do Consumidor no Par‚metro
+    -- N√ÉO passou o Pre√ßo M√°ximo do Consumidor no Par√¢metro
     ELSE
   
       -------------------
@@ -10246,21 +10246,21 @@ IS PRAGMA SERIALLY_REUSABLE;
         RAISE e_tratado;
       END IF;                              
   
-    END IF; -- Fim CondiÁ„o Se passou o PreÁo M·ximo do Consumidor no Par‚metro
+    END IF; -- Fim Condi√ß√£o Se passou o Pre√ßo M√°ximo do Consumidor no Par√¢metro
       
    /*************************
     Pesquisa Valores da PCEST
     *************************/
     
-    -- Se passou dados da PCEST no par‚metro
+    -- Se passou dados da PCEST no par√¢metro
     --IF (pi_nValorUltEnt  IS NOT NULL) AND
     --   (pi_nCustoNfSemSt IS NOT NULL) THEN
     --   
-    --  -- Pega Valores do Par‚metro  
+    --  -- Pega Valores do Par√¢metro  
     --  v_valorultent  := NVL(pi_nValorUltEnt,0);   
     --  v_custonfsemst := NVL(pi_nCustoNfSemSt,0);   
     --   
-    -- Se N√O passou dados da PCEST no par‚metro
+    -- Se N√ÉO passou dados da PCEST no par√¢metro
     --ELSE 
     
       -- Pesquisa Dados da PCEST
@@ -10286,10 +10286,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           n_stbcrultent   := 0;
       END;
       
-    --END IF; -- Fim CondiÁ„o Se passou dados da PCEST no par‚metro     
+    --END IF; -- Fim Condi√ß√£o Se passou dados da PCEST no par√¢metro     
     
    /****************************
-    Pesquisa dados da TributaÁ„o
+    Pesquisa dados da Tributa√ß√£o
     ****************************/
     BEGIN
       SELECT IVA
@@ -10436,7 +10436,7 @@ IS PRAGMA SERIALLY_REUSABLE;
        WHERE (CODST = pio_nCodSt);
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vMensagem := 'N„o foram encontrados dados para a TributaÁ„o: ' || NVL(pio_nCodSt,0);
+        po_vMensagem := 'N√£o foram encontrados dados para a Tributa√ß√£o: ' || NVL(pio_nCodSt,0);
         RAISE e_tratado;
     END;     
     
@@ -10444,7 +10444,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       v_aliqicms1fonte := v_ALIQICMS1;
     END IF;
    /***************************************
-    Pesquisa PMC quando a TributaÁ„o a usar
+    Pesquisa PMC quando a Tributa√ß√£o a usar
     ***************************************/
     vnPmPf := NULL;
     IF (v_usapmpfbasest = 'S') THEN
@@ -10465,10 +10465,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     n_vlultentmes := 0;
     IF (NVL(v_usavlultentmediobasest,'N') = 'S') THEN
     
-      -- Se chegou aqui sem a Regi„o
+      -- Se chegou aqui sem a Regi√£o
       IF (NVL(v_numregiao,0) = 0) THEN
     
-        -- Pesquisa Regi„o do Cliente por Filial
+        -- Pesquisa Regi√£o do Cliente por Filial
         BEGIN
           SELECT NUMREGIAO
             INTO v_numregiao
@@ -10480,9 +10480,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             v_numregiao := NULL;
         END;
       
-        -- Se n„o achou Regiao do Cliente por Filial
+        -- Se n√£o achou Regiao do Cliente por Filial
         IF (v_numregiao IS NULL) THEN
-          -- Pesquisa Regi„o da PraÁa
+          -- Pesquisa Regi√£o da Pra√ßa
           BEGIN
             SELECT NUMREGIAO
               INTO v_numregiao
@@ -10494,9 +10494,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           END;
         END IF;
         
-      END IF; -- Fim CondiÁ„o Se passou a Regi„o no Par‚metro        
+      END IF; -- Fim Condi√ß√£o Se passou a Regi√£o no Par√¢metro        
     
-      -- Pesquisa dados da Regi„o
+      -- Pesquisa dados da Regi√£o
       BEGIN
         SELECT VLULTENTMES
           INTO n_vlultentmes
@@ -10511,11 +10511,11 @@ IS PRAGMA SERIALLY_REUSABLE;
       
    /***************************************************************************
                   Calcula como se Fosse ST Fonte - HIS.01858.2015
-    (Operador Logistico por PreÁo F·brica, mas Trabalha com ST na PrecificaÁ„o)
+    (Operador Logistico por Pre√ßo F√°brica, mas Trabalha com ST na Precifica√ß√£o)
     ***************************************************************************/
     IF (pi_vTipoChamada = 'L') THEN
     
-      -- Trata o C·lculo como se fosse um Cliente ST Fonte
+      -- Trata o C√°lculo como se fosse um Cliente ST Fonte
       v_clientefontest := 'S';
     
     END IF;
@@ -10527,7 +10527,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Se Cliente for SIMPLES Nacional 
     IF v_simplesnacional = 'S' THEN    
       BEGIN   
-        -- Busca Par‚metro
+        -- Busca Par√¢metro
         SELECT NVL(VALOR,'N')         
           INTO v_medutilizarstfontesimplesnac
           FROM PCPARAMFILIAL
@@ -10538,7 +10538,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           v_medutilizarstfontesimplesnac := 'N';
       END;
       
-      -- Se Utilizar, substitui as vari·veis para fazer o c·lculo
+      -- Se Utilizar, substitui as vari√°veis para fazer o c√°lculo
       IF v_medutilizarstfontesimplesnac = 'S' THEN    
         BEGIN
           SELECT NVL(IVAFONTESIMPLESNAC,0)
@@ -10555,16 +10555,16 @@ IS PRAGMA SERIALLY_REUSABLE;
          WHERE (CODST = pio_nCodSt);
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
-            po_vMensagem := 'N„o foram encontrados dados para a TributaÁ„o SIMPLES NACIONAL: ' || NVL(pio_nCodSt,0);
+            po_vMensagem := 'N√£o foram encontrados dados para a Tributa√ß√£o SIMPLES NACIONAL: ' || NVL(pio_nCodSt,0);
           RAISE e_tratado;
         END;
       END IF; -- Fim-Se Utilizar ST Fonte SIMPLES Nacional
     END IF; -- Fim-se Cliente SIMPLES Nacional    
     
-    -- 4415.073219.2016 - Se Utiliza Regra Diferenciada de ST Fonte na TransferÍncia
+    -- 4415.073219.2016 - Se Utiliza Regra Diferenciada de ST Fonte na Transfer√™ncia
     IF (pi_nCondVenda = 10) AND 
        (vUSAREGRADIFSTFONTETV10 = 'S') THEN    
-      -- Se Utilizar, substitui as vari·veis para fazer o c·lculo
+      -- Se Utilizar, substitui as vari√°veis para fazer o c√°lculo
       BEGIN
         SELECT NVL(IVAFONTETV10,0)
              , NVL(ALIQICMS1FONTETV10,0)
@@ -10580,16 +10580,16 @@ IS PRAGMA SERIALLY_REUSABLE;
        WHERE (CODST = pio_nCodSt);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          po_vMensagem := 'N„o foram encontrados dados para a TributaÁ„o TV10: ' || NVL(pio_nCodSt,0);
+          po_vMensagem := 'N√£o foram encontrados dados para a Tributa√ß√£o TV10: ' || NVL(pio_nCodSt,0);
         RAISE e_tratado;
       END;
     END IF;
     
-    -- TributaÁ„o diferenciada para Pedido de Avaria
+    -- Tributa√ß√£o diferenciada para Pedido de Avaria
     IF (pi_vPedidoAvaria = 'S')              AND 
        (vUSARABAPERDASTFONTEPEDAVARIA = 'S') AND
        (NVL(pi_nCondVenda,0) <> 10)          THEN -- DDMEDICA-5115
-      vUSAREDICMNORMVENDASTFONTE := 'N'; -->> N„o usa a ReduÁ„o da Aba Venda
+      vUSAREDICMNORMVENDASTFONTE := 'N'; -->> N√£o usa a Redu√ß√£o da Aba Venda
       v_ivafonte                 := NVL(v_iva_mc,0);
       v_aliqicms1fonte           := NVL(v_aliqicms1_mc,0);
       v_aliqicms2fonte           := NVL(v_aliqicms2_mc,0);
@@ -10598,11 +10598,11 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF;
    
  /**********************************************************************
-  Chama Procedimento para Obter os valores para CustomizaÁ„o 
-  da Base ST com SUFRAMA/ReduÁ„o PISCOFINS e DESONERACAO - DDMEDICA-7594
+  Chama Procedimento para Obter os valores para Customiza√ß√£o 
+  da Base ST com SUFRAMA/Redu√ß√£o PISCOFINS e DESONERACAO - DDMEDICA-7594
   **********************************************************************/
   P_OBTER_VALORES_BENEF_FISCAIS(pi_vCodFilial,
-                                pi_vCodFilial, -->> N„o tenho a Filial NF na Procedure
+                                pi_vCodFilial, -->> N√£o tenho a Filial NF na Procedure
                                 pi_nCodCli,
                                 pi_nCodProd,
                                 pio_nCodSt,
@@ -10610,9 +10610,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 v_tipocalcsulframa,
                                 v_perdescicmisencao,
                                 v_aplicadescisencaomed,
-                                ROUND(pi_vPVenda,v_numcasasdecvenda), -->> Deve ser usado o PreÁo com Arredondamento
-                                0, -->> Aqui n„o irei atualizar o preÁo de tabela
-                                0, -->> Aqui n„o irei atualizar o preÁo base rca
+                                ROUND(pi_vPVenda,v_numcasasdecvenda), -->> Deve ser usado o Pre√ßo com Arredondamento
+                                0, -->> Aqui n√£o irei atualizar o pre√ßo de tabela
+                                0, -->> Aqui n√£o irei atualizar o pre√ßo base rca
                                 pi_nQT,
                                 vnVlDescReducaoPis,
                                 vnPercDescReducaoPisAuxBF,
@@ -10648,14 +10648,14 @@ IS PRAGMA SERIALLY_REUSABLE;
    /***********************************************************
     Chama Procedimento para Calcular a Base e Valor do ST Fonte
     ***********************************************************/
-    P_OBTER_STFONTE(pi_nCodProd                  , -->> CÛdigo do Produto passado no Par‚metro
-                    pi_nCondVenda                , -->> Tipo de Venda Passado no Par‚metro
-                    pi_nPercVenda                , -->> Percentual de Venda passado no Par‚metro
+    P_OBTER_STFONTE(pi_nCodProd                  , -->> C√≥digo do Produto passado no Par√¢metro
+                    pi_nCondVenda                , -->> Tipo de Venda Passado no Par√¢metro
+                    pi_nPercVenda                , -->> Percentual de Venda passado no Par√¢metro
                     v_iva                        ,
-                    v_ivafonte                   , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                    v_aliqicms1fonte             , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                    v_aliqicms2fonte             , --> Vari·vel local no par‚metro de Entrada e SaÌda
-                    v_percbaseredstfonte         , --> Vari·vel local no par‚metro de Entrada e SaÌda
+                    v_ivafonte                   , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                    v_aliqicms1fonte             , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                    v_aliqicms2fonte             , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
+                    v_percbaseredstfonte         , --> Vari√°vel local no par√¢metro de Entrada e Sa√≠da
                     v_percbaserednrpa            ,
                     v_percbaseredconsumidor      ,
                     v_utilizapercbaseredpf_trib  ,
@@ -10671,8 +10671,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                     v_utilizaiesimplificada      ,
                     v_tipoempresa                ,
                     v_consideraisentoscomopf     ,
-                    pi_vPVenda                   , --> PreÁo de Venda passado no Par‚metro
-                    pi_nValorIpi                 , --> Valor do IPI passado no Par‚metro
+                    pi_vPVenda                   , --> Pre√ßo de Venda passado no Par√¢metro
+                    pi_nValorIpi                 , --> Valor do IPI passado no Par√¢metro
                     v_uffilial                   ,
                     v_estent                     ,
                     v_usavalorultentbasest       ,
@@ -10699,7 +10699,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     v_farmaciapopular            ,
                     v_participafarmaciapopular   ,                                        
                     v_usaptabelabasest           ,
-                    NVL(pi_nPTabela,pi_vPVenda)  , -->> Se a chamada ainda n„o tiver o PTabela, usar o PVenda
+                    NVL(pi_nPTabela,pi_vPVenda)  , -->> Se a chamada ainda n√£o tiver o PTabela, usar o PVenda
                     pi_vSomenteIVATribut         ,
                     v_usadescsimplesnac          ,
                     v_simplesnacional            ,
@@ -10725,7 +10725,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     po_nBaseStFonte              , -->> BASE ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_nValorStFonte             , -->> VALOR ST FONTE QUE SERA RETORNADA PELA PROCEDURE
                     po_vMensagem                 , -->> Mensagem de Erro de Retorno 
-                    po_vRegimeEspIsenStFonte     , -->> Retorno indicando se tem IsenÁ„o ST Fonte
+                    po_vRegimeEspIsenStFonte     , -->> Retorno indicando se tem Isen√ß√£o ST Fonte
                     po_nAliqIcms1                ,
                     po_nAliqIcms2                ,
                     po_nIva                      , 
@@ -10787,7 +10787,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 				    v_ncustocont		  
                     );
   
-    -- Se ocorreram erros na FunÁ„o
+    -- Se ocorreram erros na Fun√ß√£o
     IF (TRIM(po_vMensagem) IS NOT NULL) THEN
       RAISE e_tratado;
     END IF;                                         
@@ -10801,53 +10801,53 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Sem ST
       po_nBaseStFonte  := 0;
       po_nValorStFonte := 0;
-      po_vMensagem     := 'Erro C·lculo ST Fonte: ' || SUBSTR(vvMsgErrosBenefFiscais,1,240);
+      po_vMensagem     := 'Erro C√°lculo ST Fonte: ' || SUBSTR(vvMsgErrosBenefFiscais,1,240);
     WHEN OTHERS THEN  
       -- Sem ST
       po_nBaseStFonte  := 0;
       po_nValorStFonte := 0;
-      po_vMensagem     := 'Erro C·lculo ST Fonte: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
+      po_vMensagem     := 'Erro C√°lculo ST Fonte: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);
   END P_OBTEM_STFONTE_42;
 
   /*******************************************************************************
    Nome         : P_RECALCULAR_STFONTE
-   Descric„o    : Procedimento para Recalcular o ST Fonte de um Pedido
-   ObservaÁ„o   : O COMMIT dever· ser na procedure chamadora
-   Par‚metros   : Entrada
-                  pi_nNumPed                  = N˙mero do Pedido
-                  pi_vTipoChamada             = Determina o tipo de chamada da funÁ„o 
-                                                'F' - Chamado do Faturamento para C·lculo do PEPS
-                                                'L' - Chamado do C·lculo do ST Especial
-                                                      de Operador LogÌsitco - HIS.01858.2015                                          
+   Descric√£o    : Procedimento para Recalcular o ST Fonte de um Pedido
+   Observa√ß√£o   : O COMMIT dever√° ser na procedure chamadora
+   Par√¢metros   : Entrada
+                  pi_nNumPed                  = N√∫mero do Pedido
+                  pi_vTipoChamada             = Determina o tipo de chamada da fun√ß√£o 
+                                                'F' - Chamado do Faturamento para C√°lculo do PEPS
+                                                'L' - Chamado do C√°lculo do ST Especial
+                                                      de Operador Log√≠sitco - HIS.01858.2015                                          
                                                 'P' - Chamado do Faturamento para recalcular 
-                                                      o PreÁo de Tabela pelo PreÁo F·brica
+                                                      o Pre√ßo de Tabela pelo Pre√ßo F√°brica
                                                 'V' - Chamado do Faturamento para recalcular 
-                                                      o PreÁo de Tabela pelo PreÁo Venda - HIS.05093.2017
-                                                'B' - Rec·lculo dos Itens Bonificados
-                  pi_vCalculaDesoneracaoLicit = Se calcula a desoneraÁ„o da LicitaÁ„o
-                  pi_vAplicFatConvPedidoVenda = Par‚metro de LicitaÁ„o
-                  SaÌda
+                                                      o Pre√ßo de Tabela pelo Pre√ßo Venda - HIS.05093.2017
+                                                'B' - Rec√°lculo dos Itens Bonificados
+                  pi_vCalculaDesoneracaoLicit = Se calcula a desonera√ß√£o da Licita√ß√£o
+                  pi_vAplicFatConvPedidoVenda = Par√¢metro de Licita√ß√£o
+                  Sa√≠da
                   po_vOcorreramErros       = Se ocorreram Erros
                   pi_vvMsgErros            = Mensagem de Erros
-   Alterac„o    : Anderson Silva - 14/04/2012 - CriaÁ„o da Procedure
-   AlteraÁ„o    : Rubens Junior  - 24/04/2015 - HIS.00679.2015 - ST PEPS
-   AlteraÁ„o    : Anderson Silva - 25/04/2015 - HIS.00679.2015 - ST PEPS 
-                                                Ajuste GeraÁ„o NUMSEQ
-   AlteraÁ„o    : Anderson Silva - 11/05/2015 - N„o chamar a Package Faturamento para calcular CMV
-   AlteraÁ„o    : Anderson Silva - 01/09/2015 - Recalcular o Repasse
-   AlteraÁ„o    : Anderson Silva - 26/04/2016 - HIS.00558.2016 - PreÁo F·brica no XML (precofabricabrutonfe)
-   AlteraÁ„o    : Anderson Silva - 30/03/2017 - 6803.037246.2017 - DesoneraÁ„o LicitaÁ„o
-   AlteraÁ„o    : Anderson Silva - 08/06/2017 - HIS.01838.2017 - MODALIDADE DE DETERMINA«√O DA BASE DE C¡LCULO DO ICMS ST
-   AlteraÁ„o    : Anderson Silva - 14/09/2017 - HIS.03371.2017 - Escala Relevante e n„o Relevante
-   AlteraÁ„o    : Anderson Silva - 09/11/2017 - HIS.04200.2017 - ST FUNCEP
-   AlteraÁ„o    : Anderson Silva - 11/01/2018 - HIS.04200.2017 - PCTRIBUT.CODCONFIGFUNCEPMED
-   AlteraÁ„o    : Anderson Silva - 22/05/2018 - MED-1096 - Cross Docking
-   Alterac„o    : Anderson Silva - 16/06/2018 - HIS.05093.2017 - Regra para Aplicar no PreÁo de Tabela o PreÁo de Venda
-   AlteraÁ„o    : Anderson Silva - 12/06/2018 - 5666.044130.2018 - Rebaixa CMV
-   AlteraÁ„o    : Anderson Silva - 31/01/2019 - MED-900 - Arredondar PreÁos
-   AlteraÁ„o    : Anderson Silva - 27/03/2019 - MED-2373 - Origem Custo Filial Retira
-   AlteraÁ„o    : Anderson Silva - 17/05/2019 - MED-2521 - IsenÁ„o ST BonificaÁ„o
-   AlteraÁ„o    : Anderson Silva - 24/01/2019 - DDMEDICA-1953 - ST exclusivo para Avaria de Perda vinculado ao GERACP
+   Alterac√£o    : Anderson Silva - 14/04/2012 - Cria√ß√£o da Procedure
+   Altera√ß√£o    : Rubens Junior  - 24/04/2015 - HIS.00679.2015 - ST PEPS
+   Altera√ß√£o    : Anderson Silva - 25/04/2015 - HIS.00679.2015 - ST PEPS 
+                                                Ajuste Gera√ß√£o NUMSEQ
+   Altera√ß√£o    : Anderson Silva - 11/05/2015 - N√£o chamar a Package Faturamento para calcular CMV
+   Altera√ß√£o    : Anderson Silva - 01/09/2015 - Recalcular o Repasse
+   Altera√ß√£o    : Anderson Silva - 26/04/2016 - HIS.00558.2016 - Pre√ßo F√°brica no XML (precofabricabrutonfe)
+   Altera√ß√£o    : Anderson Silva - 30/03/2017 - 6803.037246.2017 - Desonera√ß√£o Licita√ß√£o
+   Altera√ß√£o    : Anderson Silva - 08/06/2017 - HIS.01838.2017 - MODALIDADE DE DETERMINA√á√ÉO DA BASE DE C√ÅLCULO DO ICMS ST
+   Altera√ß√£o    : Anderson Silva - 14/09/2017 - HIS.03371.2017 - Escala Relevante e n√£o Relevante
+   Altera√ß√£o    : Anderson Silva - 09/11/2017 - HIS.04200.2017 - ST FUNCEP
+   Altera√ß√£o    : Anderson Silva - 11/01/2018 - HIS.04200.2017 - PCTRIBUT.CODCONFIGFUNCEPMED
+   Altera√ß√£o    : Anderson Silva - 22/05/2018 - MED-1096 - Cross Docking
+   Alterac√£o    : Anderson Silva - 16/06/2018 - HIS.05093.2017 - Regra para Aplicar no Pre√ßo de Tabela o Pre√ßo de Venda
+   Altera√ß√£o    : Anderson Silva - 12/06/2018 - 5666.044130.2018 - Rebaixa CMV
+   Altera√ß√£o    : Anderson Silva - 31/01/2019 - MED-900 - Arredondar Pre√ßos
+   Altera√ß√£o    : Anderson Silva - 27/03/2019 - MED-2373 - Origem Custo Filial Retira
+   Altera√ß√£o    : Anderson Silva - 17/05/2019 - MED-2521 - Isen√ß√£o ST Bonifica√ß√£o
+   Altera√ß√£o    : Anderson Silva - 24/01/2019 - DDMEDICA-1953 - ST exclusivo para Avaria de Perda vinculado ao GERACP
   ********************************************************************************/    
   PROCEDURE P_RECALCULAR_STFONTE(pi_nNumPed                  IN  NUMBER,
                                  po_vOcorreramErros          OUT VARCHAR2,
@@ -10857,7 +10857,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                  pi_vAplicFatConvPedidoVenda IN  VARCHAR2 DEFAULT NULL)                                 
   IS
 
-    -- Par‚metros
+    -- Par√¢metros
     TYPE TRecParametros                IS RECORD(
          vnNumCasasDecVenda            PCCONSUM.NUMCASASDECVENDA%TYPE,
          vsAbaterImpostosComissaoRca   PCCONSUM.ABATERIMPOSTOSCOMISSAORCA%TYPE,
@@ -10866,12 +10866,12 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnTxVenda                     PCCONSUM.TXVENDA%TYPE,
          vvincluircomissaocmvvenda     PCCONSUM.INCLUIRCOMISSAOCMVVENDA%TYPE);
     vrParametros                       TRecParametros;
-    -- Par‚metros por Filial
+    -- Par√¢metros por Filial
     TYPE TRecParametrosFilial          IS RECORD(
          vvTipoAplicRepasseFilial      PCPARAMFILIAL.VALOR%TYPE,
          vvOrigemCustoFilialRetira     PCFILIAL.ORIGEMCUSTOFILIALRETIRA%TYPE);
     vrParametrosFilial                 TRecParametrosFilial;  
-    -- Dados da Regi„o
+    -- Dados da Regi√£o
     TYPE TRecDadosRegiao               IS RECORD(
          vnPerFreteTerceiros           PCREGIAO.PERFRETETERCEIROS%TYPE,
          vnPerFreteEspecial            PCREGIAO.PERFRETEESPECIAL%TYPE,
@@ -10916,7 +10916,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          nVLDESCICMISENCAO             PCPEDI.VLDESCICMISENCAO%TYPE    -- DDMEDICA-3065
          );
     vrDadosFuncep                      TRecDadosFuncep;
-    -- Dados TributaÁ„o
+    -- Dados Tributa√ß√£o
     TYPE TRecDadosTributacao           IS RECORD(
          vnPerDescCusto                PCTRIBUT.PERDESCCUSTO%TYPE,
          vnCodicmtab                   PCTRIBUT.CODICMTAB%TYPE,
@@ -10948,7 +10948,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnVlTotal                          NUMBER;
     vnVlTabela                         NUMBER;
     vnVlCustoFin                       NUMBER; -- 5666.044130.2018
-    -- ExceÁıes
+    -- Exce√ß√µes
     e_CalcularStFonte                  EXCEPTION;
     
     -- Array de Itens do Pedido
@@ -11022,7 +11022,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     vnvlbnftv1                         NUMBER;
     
-    -- Calculo da DesoneraÁ„o da LicitaÁ„o - 6803.037246.2017
+    -- Calculo da Desonera√ß√£o da Licita√ß√£o - 6803.037246.2017
     nVLDESCICMISENCAO                  PCPEDI.VLDESCICMISENCAO%TYPE;
     nPERDESCISENTOICMS                 PCPEDI.PERDESCISENTOICMS%TYPE;
     TYPE TRecDadosItemEdital           IS RECORD(
@@ -11031,7 +11031,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vrDadosItemEdital                  TRecDadosItemEdital;
     vrLimpaDadosItemEdital             TRecDadosItemEdital;
     vvSqlDesoneracaoIcms               VARCHAR2(2000);       
-    -- DoaÁ„o da LicitaÁ„o - 6803.037246.2017
+    -- Doa√ß√£o da Licita√ß√£o - 6803.037246.2017
     TYPE TRecDadosDoacao               IS RECORD(
          vnQtdeLotes                   NUMBER,
          vnPrimeiroNumSeqProduto       NUMBER,
@@ -11060,9 +11060,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnNumRegiao                        PCPEDC.NUMREGIAO%TYPE;
     -- DDMEDICA-1691 - PMPF de Medicamentos
     vnPmPfMedicamento                  PCTABMEDABCFARMA.PMPF%TYPE;
-    -- Rec·lculo Parcial do Pedido - DDMEDICA-6666
+    -- Rec√°lculo Parcial do Pedido - DDMEDICA-6666
     vbRecalcProduto                    BOOLEAN; 
-    -- DDMEDICA-7584 - SomatÛrio dos valores unit·rios dos benefÌcios fiscais
+    -- DDMEDICA-7584 - Somat√≥rio dos valores unit√°rios dos benef√≠cios fiscais
     vnVlSomaDescUnitBenefFiscais       NUMBER;
     -- DDVENDAS-33718 - UF de Entrega do Cliente
     vvEstEnt                           PCCLIENT.ESTENT%TYPE;
@@ -11081,7 +11081,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vUTILIZATRIBENDENT                 PCPARAMFILIAL.VALOR%TYPE;
          
     --------------------------------------------
-    -- Procedimento para c·lculo do CMV
+    -- Procedimento para c√°lculo do CMV
     --------------------------------------------
     PROCEDURE p_calcularcmv_med(p_abaterimpostoscomissaorca   IN VARCHAR2,
                                 p_aplicarindicecmv            IN VARCHAR2,
@@ -11117,7 +11117,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 p_vldesccustocmv              OUT NUMBER) IS
       vnbasecalccomissao NUMBER := 0;
     BEGIN
-      --Dados para c·lculo do CMV
+      --Dados para c√°lculo do CMV
       p_perfretecmv := p_perfreteterceiros;
   
       IF p_freteespecial = 'S' THEN
@@ -11202,7 +11202,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       p_vldesccustocmv := (ROUND(((NVL(p_custofinest, 0) *
                                  NVL(p_perdesccusto_item, 0) / 100) * 100))) / 100;
 
-      -- Verba de Fornecedor da PromoÁ„o para Rebaixa CMV - DDMEDICA-7697
+      -- Verba de Fornecedor da Promo√ß√£o para Rebaixa CMV - DDMEDICA-7697
       IF (NVL(p_vldesccmvpromocaomed,0) <> 0) THEN
         p_vlcustoreal := (p_vlcustoreal - NVL(p_vldesccmvpromocaomed,0));
         p_vlcustofin  := (p_vlcustofin  - NVL(p_vldesccmvpromocaomed,0));
@@ -11218,7 +11218,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vOcorreramErros := 'N';
     pi_vvMsgErros      := NULL;
     
-    -- Par‚metros
+    -- Par√¢metros
     SELECT NVL(PCCONSUM.NUMCASASDECVENDA,2) -- MED-900
          , PCCONSUM.ABATERIMPOSTOSCOMISSAORCA
          , PCCONSUM.APLICARINDICECMV
@@ -11270,11 +11270,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 WHERE (PCCLIENT.CODCLI = PCPEDC.CODCLI)
                                   AND (PCPEDC.NUMPED   = pi_nNumPed)) LOOP
                                
-      -- Regi„o - HIS.05093.2017
+      -- Regi√£o - HIS.05093.2017
       vnNumRegiao := vc_CabecalhoPedido.NUMREGIAO;
-      -- Se n„o gravou a Regi„o no Pedido - HIS.05093.2017
+      -- Se n√£o gravou a Regi√£o no Pedido - HIS.05093.2017
       IF (NVL(vnNumRegiao,0) = 0) THEN
-        -- Pesquisa Regi„o do Cliente por Filial
+        -- Pesquisa Regi√£o do Cliente por Filial
         BEGIN
           SELECT NUMREGIAO
             INTO vnNumRegiao
@@ -11285,9 +11285,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           WHEN NO_DATA_FOUND THEN
             vnNumRegiao := NULL;
         END;    
-        -- Se n„o achou Regiao do Cliente por Filial
+        -- Se n√£o achou Regiao do Cliente por Filial
         IF (vnNumRegiao IS NULL) THEN
-          -- Pesquisa Regi„o da PraÁa
+          -- Pesquisa Regi√£o da Pra√ßa
           BEGIN
             SELECT PCPRACA.NUMREGIAO
               INTO vnNumRegiao
@@ -11312,7 +11312,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                            vc_CabecalhoPedido.CODENDENTCLI,
                                            vc_CabecalhoPedido.ESTENT);
                                
-      -- Pesquisa Dados da Regi„o
+      -- Pesquisa Dados da Regi√£o
       BEGIN
         SELECT PCREGIAO.PERFRETETERCEIROS
              , PCREGIAO.PERFRETEESPECIAL
@@ -11321,7 +11321,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              , vrDadosRegiao.vnPerFreteEspecial
              , vrDadosRegiao.vvRegiaoZfm
           FROM PCREGIAO
-         WHERE (PCREGIAO.NUMREGIAO = vnNumRegiao); -- HIS.05093.2017 - Regi„o do Pedido ou do Cliente
+         WHERE (PCREGIAO.NUMREGIAO = vnNumRegiao); -- HIS.05093.2017 - Regi√£o do Pedido ou do Cliente
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
           vrDadosRegiao.vnPerFreteTerceiros := 0;
@@ -11329,7 +11329,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrDadosRegiao.vvRegiaoZfm         := 0;
       END;            
       
-      -- Buscando Par‚metros da Filial
+      -- Buscando Par√¢metros da Filial
       BEGIN
         SELECT NVL(VALOR,'N') VALOR
           INTO vvmedcalcularstpelopeps
@@ -11362,7 +11362,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrParametrosFilial.vvOrigemCustoFilialRetira := NULL;
       END;
           
-      -- Pesquisa Par‚metros de TributaÁ„o do Cliente por Filial
+      -- Pesquisa Par√¢metros de Tributa√ß√£o do Cliente por Filial
       BEGIN
         SELECT PCCLIENTFILIALMED.REPASSE      
           INTO vrDadosCliente.vvRepasse
@@ -11371,7 +11371,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (PCCLIENTFILIALMED.CODFILIAL = vc_CabecalhoPedido.CODFILIAL);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          -- Se n„o encontrar Par‚metros de TributaÁ„o do Cliente por Filial, ignora, mantendo os o Cliente
+          -- Se n√£o encontrar Par√¢metros de Tributa√ß√£o do Cliente por Filial, ignora, mantendo os o Cliente
           BEGIN
             SELECT PCCLIENT.REPASSE      
               INTO vrDadosCliente.vvRepasse
@@ -11445,7 +11445,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 AND (PCPEDI.NUMPED    = vc_CabecalhoPedido.NUMPED)
                               ORDER BY PCPEDI.NUMSEQ) LOOP
 
-        -- Rec·lculo Parcial do Pedido - DDMEDICA-6666
+        -- Rec√°lculo Parcial do Pedido - DDMEDICA-6666
         vbRecalcProduto := TRUE; 
         -- Somente Itens Bonificados                      
         IF (pi_vTipoChamada = 'B') THEN
@@ -11474,7 +11474,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           vtItensPedido(viIdxItePed).CUSTOREP                 := vc_ItensPedido.CUSTOREP;
           vtItensPedido(viIdxItePed).CUSTOREPZFM              := vc_ItensPedido.CUSTOREPZFM;
           vtItensPedido(viIdxItePed).PORIGINAL                := vc_ItensPedido.PORIGINAL;
-          -- Campos LicitaÁ„o - 6803.037246.2017
+          -- Campos Licita√ß√£o - 6803.037246.2017
           vtItensPedido(viIdxItePed).CODEDITAL                := vc_ItensPedido.CODEDITAL;
           vtItensPedido(viIdxItePed).LOTECONTRATO             := vc_ItensPedido.LOTECONTRATO;
           vtItensPedido(viIdxItePed).NUMSEQITEMCONTRATO       := vc_ItensPedido.NUMSEQITEMCONTRATO;    
@@ -11524,7 +11524,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Pegar Registro do Array
           vrItensPedido := vtItensPedido(viIdxItePed); 
           
-          -- DDMEDICA-7584 - SomatÛrio dos valores unit·rios dos benefÌcios fiscais
+          -- DDMEDICA-7584 - Somat√≥rio dos valores unit√°rios dos benef√≠cios fiscais
           vnVlSomaDescUnitBenefFiscais := F_GET_SOMADESCUNITBENEFFISCAIS(NVL(vrItensPedido.VLDESCICMISENCAO,0),
                                                                          NVL(vrItensPedido.VLDESCSUFRAMA,0),
                                                                          NVL(vrItensPedido.VLDESCPISSUFRAMA,0),
@@ -11532,9 +11532,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                                          NVL(vrItensPedido.VLDESCREDUCAOCOFINS,0));
           
                          
-          -- Obtem os valores originais antes de somar o ST (apÛs an·lise observou-se que arredondar o valor lÌquido no inÌcio garante maior acerto no ST)
-          -- OBSERVA«√O: Passou a ser tirado o ST do FUNCEP - PCPEDI.VLFECP - HIS.04200.2017
-          -- DDMEDICA-7584 - Usado o somatÛrio dos valores unit·rios dos benefÌcios fiscais ao invÈs de somente a DesoneraÁ„o de ICMS
+          -- Obtem os valores originais antes de somar o ST (ap√≥s an√°lise observou-se que arredondar o valor l√≠quido no in√≠cio garante maior acerto no ST)
+          -- OBSERVA√á√ÉO: Passou a ser tirado o ST do FUNCEP - PCPEDI.VLFECP - HIS.04200.2017
+          -- DDMEDICA-7584 - Usado o somat√≥rio dos valores unit√°rios dos benef√≠cios fiscais ao inv√©s de somente a Desonera√ß√£o de ICMS
           -- DDMEDICA-7697 - Usado o ST Recolhido Anteriormente
           vnPrecoLiqOriginal     := ROUND(( vrItensPedido.PVENDA    
                                           - NVL(vrItensPedido.ST, 0) 
@@ -11561,10 +11561,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                           + NVL(vnVlSomaDescUnitBenefFiscais,0) )
                                           , vrParametros.vnNumCasasDecVenda);
           
-          -- Pega PreÁo de F·brica armazenado no Item do Pedido
+          -- Pega Pre√ßo de F√°brica armazenado no Item do Pedido
           vnPOriginal            := NVL(vrItensPedido.PORIGINAL,0);
                   
-          -- ObtÈm valores do FUNCEP do Item do Pedido - HIS.04200.2017
+          -- Obt√©m valores do FUNCEP do Item do Pedido - HIS.04200.2017
           vrDadosFuncep.nVLBASEFCPICMS      := vrItensPedido.VLBASEFCPICMS;
           vrDadosFuncep.nVLBASEFCPST        := vrItensPedido.VLBASEFCPST;
           vrDadosFuncep.nVLBCFCPSTRET       := vrItensPedido.VLBCFCPSTRET;
@@ -11578,12 +11578,12 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrDadosFuncep.nVLCREDFCPICMSSN    := vrItensPedido.VLCREDFCPICMSSN;
           vrDadosFuncep.nCODCONFIGFUNCEPMED := vrItensPedido.CODCONFIGFUNCEPMED;
 
-          -- ObtÈm os Valores do ST Antecipado do Item do Pedido - DDMEDICA-7697
+          -- Obt√©m os Valores do ST Antecipado do Item do Pedido - DDMEDICA-7697
           vrDadosStAntecip.nBCSTRETANTERIOR          := vrItensPedido.BCSTRETANTERIOR;
           vrDadosStAntecip.nVLICMSSUBSTITUTOANTERIOR := vrItensPedido.VLICMSSUBSTITUTOANTERIOR;
           vrDadosStAntecip.nVLICMSSTRETANTERIOR      := vrItensPedido.VLICMSSTRETANTERIOR;
           
-          -- ObtÈm o Valor do ST CLIENTE GNRE - DDMEDICA-7697
+          -- Obt√©m o Valor do ST CLIENTE GNRE - DDMEDICA-7697
           vnStClienteGnre                            := vrItensPedido.STCLIENTEGNRE;
 
 
@@ -11592,7 +11592,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -------------------------------------------------------------------------------------------
           -------------------------------------------------------------------------------------------
           -------------------------------------------------------------------------------------------
-          -- INICIO: DoaÁ„o da LicitaÁ„o - 6803.037246.2017 --
+          -- INICIO: Doa√ß√£o da Licita√ß√£o - 6803.037246.2017 --
           ----------------------------------------------------
           ----------------------------------------------------
           ----------------------------------------------------
@@ -11602,7 +11602,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Inicializa
             vrDadosDoacao := vrLimpaDadosDoacao;
             
-            -- Como pode ocorrer desdobramento da PCPEDI, È necess·rio buscar informaÁıes por Produto
+            -- Como pode ocorrer desdobramento da PCPEDI, √© necess√°rio buscar informa√ß√µes por Produto
             SELECT COUNT(*)
                  , MIN(NUMSEQ)
                  , MAX(PCPEDI.QTPEDLICIT) -- A Quantidade Vendida do Empenho pode vir repetida se lote desdobrado
@@ -11621,21 +11621,21 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- SE ACHOU O PRODUTO
             IF (vrDadosDoacao.vnQtdeLotes > 0) THEN
                
-              -- SE FOR A PRIMEIRA OCORR NCIA DO PRODUTO
+              -- SE FOR A PRIMEIRA OCORR√äNCIA DO PRODUTO
               IF (vtItensPedido(viIdxItePed).NUMSEQ = vrDadosDoacao.vnPrimeiroNumSeqProduto) THEN
                  
-                -- Pega informaÁıes da Convers„o gravadas no Item do Pedido
+                -- Pega informa√ß√µes da Convers√£o gravadas no Item do Pedido
                 vrDadosDoacao.vAPLICFATCONVPEDIDOVENDA := NVL(pi_vAplicFatConvPedidoVenda,' '); 
                 vrDadosDoacao.edtFATORCONVERSAO        := NVL(vrItensPedido.FATORCONVERSAOPEDLICIT,0);
-                -- Pega PreÁo de Tabela Original
+                -- Pega Pre√ßo de Tabela Original
                 vrDadosDoacao.dPrecoTabela             := NVL(vnPrecoTabOriginal,0);
                    
                 ----------------------------------------------------------------
                 -- IMPORTANTE: ESTA REGRA EXISTE NA 2316, MANTER SINCRONIZADO --
                 ----------------------------------------------------------------
                    
-                --// Realiza a Convers„o - Unidade do Edital para Embalagem
-                --// Como Padr„o neste processo È MultiplicaÁ„o, como era antes, caso n„o tenha o par‚metro preenchido
+                --// Realiza a Convers√£o - Unidade do Edital para Embalagem
+                --// Como Padr√£o neste processo √© Multiplica√ß√£o, como era antes, caso n√£o tenha o par√¢metro preenchido
                 vrDadosDoacao.vdQtdeFinalOriginal := 0;
                 if      (vrDadosDoacao.vAPLICFATCONVPEDIDOVENDA = 'M') and
                         (vrDadosDoacao.edtFATORCONVERSAO <> 0)  then
@@ -11649,36 +11649,36 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrDadosDoacao.vdQtdeFinalOriginal  := vrDadosDoacao.edtQtdeVendida_EMPENHO;                        
                 end if;
                   
-                --// HIS.00420.2017 - Regra somente para a opÁ„o 4,
-                --//                  antes do CEIL truncar em 6 casas para ignorar os dÌzimos
+                --// HIS.00420.2017 - Regra somente para a op√ß√£o 4,
+                --//                  antes do CEIL truncar em 6 casas para ignorar os d√≠zimos
                 SELECT TRUNC(vrDadosDoacao.vdQtdeFinalOriginal,6) INTO vrDadosDoacao.vdQtdeFinalOriginal FROM DUAL;
                  
-                -- Esta operaÁ„o n„o ser· feita porque j· tenho a quantidade final gravada no Item do Pedido (PCPEDI.QT),
-                -- ent„o n„o preciso calcular a quantidade final pelo arredondamento (porque teria que fazer tambÈm a regra dos m˙ltiplos)
+                -- Esta opera√ß√£o n√£o ser√° feita porque j√° tenho a quantidade final gravada no Item do Pedido (PCPEDI.QT),
+                -- ent√£o n√£o preciso calcular a quantidade final pelo arredondamento (porque teria que fazer tamb√©m a regra dos m√∫ltiplos)
                 --SELECT CEIL(vrDadosDoacao.vdQtdeFinalOriginal) INTO vrDadosDoacao.vdQtdeFinal FROM DUAL;
                 vrDadosDoacao.vdQtdeFinal := NVL(vrDadosDoacao.vnQtdeTotalProduto,0); 
       
                 -- Na 2316 os arredondamentos determinam o valor da quantidade final, 
-                -- aqui j· temos o limite da quantidade final que È a quantidade da PCPEDI, ent„o ela determinar· a diferenÁa,
-                -- n„o È necess·rio fazer os c·lculos de arredondamento e multiplos pra chegar na quantidade final
-                --// Quantidade enviada a mais - Por DiferenÁa de Convers„o de Embalagem
+                -- aqui j√° temos o limite da quantidade final que √© a quantidade da PCPEDI, ent√£o ela determinar√° a diferen√ßa,
+                -- n√£o √© necess√°rio fazer os c√°lculos de arredondamento e multiplos pra chegar na quantidade final
+                --// Quantidade enviada a mais - Por Diferen√ßa de Convers√£o de Embalagem
                 --//edtQtdeDif.Value := (vdQtdeFinal - vdQtdeFinalOriginal);
                 vrDadosDoacao.vdQtdeDif := NVL(vrDadosDoacao.vnQtdeTotalProduto,0) - NVL(vrDadosDoacao.vdQtdeFinalOriginal,0);
                 IF (NVL(vrDadosDoacao.vdQtdeDif,0) < 0) THEN
-                  vrDadosDoacao.vdQtdeDif := 0; -->> Dependendo de Corte LogÌstico pode tirar a doaÁ„o
+                  vrDadosDoacao.vdQtdeDif := 0; -->> Dependendo de Corte Log√≠stico pode tirar a doa√ß√£o
                 END IF;
                  
-                -- SE AINDA TEM QTDE DOA«√O
+                -- SE AINDA TEM QTDE DOA√á√ÉO
                 IF (NVL(vrDadosDoacao.vdQtdeDif,0) > 0) THEN
-                  --// Valor do Desconto Total -> Ser· usado no Retorno da FunÁ„o
+                  --// Valor do Desconto Total -> Ser√° usado no Retorno da Fun√ß√£o
                   vrDadosDoacao.edtValorDesc := (vrDadosDoacao.vdQtdeDif * vrDadosDoacao.dPrecoTabela);
-                  --// Valor do Desconto Unit·rio -> Campo somente Informativo
+                  --// Valor do Desconto Unit√°rio -> Campo somente Informativo
                   if (vrDadosDoacao.vdQtdeFinal <> 0) then
                     vrDadosDoacao.edtValorUnitDesc := (vrDadosDoacao.edtValorDesc / vrDadosDoacao.vdQtdeFinal);
                   else
                     vrDadosDoacao.edtValorUnitDesc := 0; 
                   end if;
-                -- SE N√O TEM MAIS QTDE DOA«√O
+                -- SE N√ÉO TEM MAIS QTDE DOA√á√ÉO
                 ELSE
                   vrDadosDoacao.edtValorUnitDesc := 0; 
                 END IF;                        
@@ -11687,13 +11687,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vnPrecoLiqOriginal     := ROUND((NVL(vrDadosDoacao.dPrecoTabela,0) - NVL(vrDadosDoacao.edtValorUnitDesc,0)),vrParametros.vnNumCasasDecVenda);
                 vnPrecoBaseRcaOriginal := ROUND((NVL(vrDadosDoacao.dPrecoTabela,0) - NVL(vrDadosDoacao.edtValorUnitDesc,0)),vrParametros.vnNumCasasDecVenda);
                       
-                -- A Qtde. DoaÁ„o ficar· concentrada no primeiro item
+                -- A Qtde. Doa√ß√£o ficar√° concentrada no primeiro item
                 vrItensPedido.QTDEDOACAOPEDLICIT := vrDadosDoacao.vdQtdeDif;   
                             
-              -- A PARTIR DA SEGUNDA OCORR NCIA DO PRODUTO, PEGA PRE«OS DA PRIMEIRA OCORR NCIA (DESDOBRAMENTO DE LOTE)
+              -- A PARTIR DA SEGUNDA OCORR√äNCIA DO PRODUTO, PEGA PRE√áOS DA PRIMEIRA OCORR√äNCIA (DESDOBRAMENTO DE LOTE)
               ELSE
              
-                -- Pega os PreÁos j· ajustados no primeiro Item do Produto
+                -- Pega os Pre√ßos j√° ajustados no primeiro Item do Produto
                 SELECT ROUND((PCPEDI.PVENDA   - NVL(PCPEDI.ST, 0) - NVL(PCPEDI.VLIPI, 0) - NVL(PCPEDI.VLREPASSE, 0)),vrParametros.vnNumCasasDecVenda)
                      , ROUND((PCPEDI.PTABELA  - NVL(PCPEDI.ST, 0) - NVL(PCPEDI.VLIPI, 0) - NVL(PCPEDI.VLREPASSE, 0)),vrParametros.vnNumCasasDecVenda)
                      , ROUND((PCPEDI.PBASERCA - NVL(PCPEDI.ST, 0) - NVL(PCPEDI.VLIPI, 0) - NVL(PCPEDI.VLREPASSE, 0)),vrParametros.vnNumCasasDecVenda)
@@ -11705,40 +11705,40 @@ IS PRAGMA SERIALLY_REUSABLE;
                    AND (CODPROD = vrItensPedido.CODPROD)
                    AND (NUMSEQ  = vrDadosDoacao.vnPrimeiroNumSeqProduto);
                 
-                -- A Qtde. DoaÁ„o ficar· concentrada no primeiro item, n„o ter· a partir do segundo item
+                -- A Qtde. Doa√ß√£o ficar√° concentrada no primeiro item, n√£o ter√° a partir do segundo item
                 vrItensPedido.QTDEDOACAOPEDLICIT := 0;   
               
-              END IF; -- FIM CONDI«√O PRIMEIRA OU DEMAIS OCORR NCIAS DO PRODUTO  
+              END IF; -- FIM CONDI√á√ÉO PRIMEIRA OU DEMAIS OCORR√äNCIAS DO PRODUTO  
               
-            END IF; -- FIM CONDI«√O SE ACHOU O PRODUTO
+            END IF; -- FIM CONDI√á√ÉO SE ACHOU O PRODUTO
                           
-          END IF; -- Fim CondiÁ„o: DoaÁ„o da LicitaÁ„o                  
+          END IF; -- Fim Condi√ß√£o: Doa√ß√£o da Licita√ß√£o                  
           ----------------------------------------------------
           ----------------------------------------------------
           ----------------------------------------------------
-          --   FIM: DoaÁ„o da LicitaÁ„o - 6803.037246.2017  --
+          --   FIM: Doa√ß√£o da Licita√ß√£o - 6803.037246.2017  --
           -------------------------------------------------------------------------------------------
           -------------------------------------------------------------------------------------------
           -------------------------------------------------------------------------------------------
   
           
   
-          -- ObtÈm PreÁo F·brica
+          -- Obt√©m Pre√ßo F√°brica
           P_OBTEM_PMC_PRODUTO(vc_CabecalhoPedido.CODFILIAL,
                               vrItensPedido.CODPROD,
                               vc_CabecalhoPedido.ESTENT,
-                              vnNumRegiao, -- HIS.05093.2017 - Regi„o do Pedido ou do Cliente
-                              vnAuxPrecoMaxConsum, -->> Substitui o PreÁo M·ximo Consumidor
-                              vnAuxPrecoFabrica,   -->> Substitui o PreÁo F·brica
+                              vnNumRegiao, -- HIS.05093.2017 - Regi√£o do Pedido ou do Cliente
+                              vnAuxPrecoMaxConsum, -->> Substitui o Pre√ßo M√°ximo Consumidor
+                              vnAuxPrecoFabrica,   -->> Substitui o Pre√ßo F√°brica
                               vvMsgPmcUf,
                               vc_CabecalhoPedido.CODCLI); -- DDVENDAS-35830
           
          /********************************************************************************
-          SE CHAMADO PARA RECALCULAR O PRE«O DE TABELA PELO PRE«O F¡BRICA - HIS.00558.2016
+          SE CHAMADO PARA RECALCULAR O PRE√áO DE TABELA PELO PRE√áO F√ÅBRICA - HIS.00558.2016
           ********************************************************************************/
           IF (NVL(pi_vTipoChamada,' ') = 'P') THEN
                  
-            -- Se tem PreÁo F·brica
+            -- Se tem Pre√ßo F√°brica
             IF (NVL(vnAuxPrecoFabrica,0) > 0) THEN
               -- Substitui o PTABELA e PORIGINAL
               vnPrecoTabOriginal := vnAuxPrecoFabrica;
@@ -11746,13 +11746,13 @@ IS PRAGMA SERIALLY_REUSABLE;
             END IF;                                               
             
          /********************************************************************************
-          SE CHAMADO PARA RECALCULAR O PRE«O DE TABELA PELO PRE«O VENDA - HIS.05093.2017
+          SE CHAMADO PARA RECALCULAR O PRE√áO DE TABELA PELO PRE√áO VENDA - HIS.05093.2017
           MIN   TABELA   VENDA          TABELA   VENDA
           4     8        6       --->>> 6        6
           ********************************************************************************/
           ELSIF (NVL(pi_vTipoChamada,' ') = 'V') THEN
   
-            -- Iguala o PreÁo de Tabela ao PreÁo de Venda (Ignora a parte que foi Desconto Comercial Negociado, essa tem que sair como desconto na nota)
+            -- Iguala o Pre√ßo de Tabela ao Pre√ßo de Venda (Ignora a parte que foi Desconto Comercial Negociado, essa tem que sair como desconto na nota)
             IF (NVL(vrItensPedido.VLDESCNEG,0) > 0)       AND
                (NVL(vrItensPedido.TIPODESCNEG,'N') = 'C') THEN
               vnPrecoTabOriginal := (vnPrecoLiqOriginal + NVL(vrItensPedido.VLDESCNEG,0));
@@ -11760,9 +11760,9 @@ IS PRAGMA SERIALLY_REUSABLE;
               vnPrecoTabOriginal := vnPrecoLiqOriginal;
           END IF;        
   
-          END IF; -- Fim CondiÁ„o: pi_vTipoChamada      
+          END IF; -- Fim Condi√ß√£o: pi_vTipoChamada      
   
-          -- Dados TributaÁ„o
+          -- Dados Tributa√ß√£o
           BEGIN
             SELECT PCTRIBUT.PERDESCCUSTO
                  , PCTRIBUT.CODICMTAB
@@ -11795,7 +11795,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF;
           
           ---------------------
-          -- C·lculo do Repasse
+          -- C√°lculo do Repasse
           ---------------------
   
           -- Inicializa Valores
@@ -11806,7 +11806,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           
             if vrItensPedido.TIPOMERC in ('M','MA','L') and vrDadosCliente.vvRepasse = 'S' then
             
-              -- Refaz PreÁo Original (PRECO F¡BRICA)
+              -- Refaz Pre√ßo Original (PRECO F√ÅBRICA)
               --IF (NVL(vrItensPedido.TIPOMERC,' ') IN ('M','MA','L')) THEN -- Se Medicamento
               --  IF (NVL(vrDadosRegiao.vvRegiaoZfm,'N') = 'S') THEN
               --    vnPOriginal := vrItensPedido.CUSTOREPZFM;
@@ -11820,28 +11820,28 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vnPOriginal := vnAuxPrecoFabrica; -- Retornado por PRC_MED_OBTEM_PMC_PRODUTO()
               END IF;
                                                
-              -- Tipo de AplicaÁ„o do Repasse = AcrÈscimo sobre PreÁo F·brica 
+              -- Tipo de Aplica√ß√£o do Repasse = Acr√©scimo sobre Pre√ßo F√°brica 
               if (nvl(vrParametrosFilial.vvTipoAplicRepasseFilial,'AB') = 'AB') then
                  vnVlRepasse := NVL(vnPOriginal,0) * (NVL(vrDadosTributacao.vnPerDescRepasse,0)/100);
                  vnVlOutros  := NVL(vnVlRepasse,0);
-              -- Tipo de AplicaÁ„o do Repasse = AcrÈscimo sobre PreÁo Liquido
+              -- Tipo de Aplica√ß√£o do Repasse = Acr√©scimo sobre Pre√ßo Liquido
               elsif (nvl(vrParametrosFilial.vvTipoAplicRepasseFilial,'AB') = 'AL') then
                  vnVlRepasse := NVL(vnPrecoLiqOriginal,0) * (NVL(vrDadosTributacao.vnPerDescRepasse,0)/100);
                  vnVlOutros  := NVL(vnVlRepasse,0);
               end if;
                     
               ---------------------------------------------------------------      
-              -- Somar· ao PTabela e PVenda o VLREPASSE no UPDATE MAIS ABAIXO
+              -- Somar√° ao PTabela e PVenda o VLREPASSE no UPDATE MAIS ABAIXO
               ---------------------------------------------------------------      
                       
             end if;
           end if;
           
           ----------------
-          -- C·lculo do ST
+          -- C√°lculo do ST
           ----------------
           
-          -- ObservaÁ„o do ST
+          -- Observa√ß√£o do ST
           vvObservacaoStFonte  := NULL;
           
           -- ST - DDMEDICA-7697
@@ -11852,7 +11852,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           --DDMEDICA-3065--Pode ter repasse e st--IF (NVL(vnVlRepasse,0) = 0) THEN                                 
           -- Chama Procedure para Calcular ST Fonte
           -- 4.0 - HIS.04200.2017
-          -- DDMEDICA-7697 - C·lculo com o ST Recolhido Anteriormente
+          -- DDMEDICA-7697 - C√°lculo com o ST Recolhido Anteriormente
           P_OBTEM_STFONTE_42(vc_CabecalhoPedido.CODFILIAL,
                              vrItensPedido.CODPROD,
                              vc_CabecalhoPedido.CODCLI,
@@ -11869,15 +11869,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                              'N',  -- pi_vSomenteIVATribut
                              'S',  -- pi_vPesquisarCustos
                              NVL(vrItensPedido.BONIFIC,'N'),  -- MED-2521
-                             0,    -- Sem Despesas acessÛrias
+                             0,    -- Sem Despesas acess√≥rias
                              vnBaseicst,             -->> RETORNA A BASE DO ST
                              vnSt,                   -->> RETORNA O VALOR DO ST
                              vvMsgRetObterStFonte,   -->> Retorna a Mensagem de Erro
-                             vvRegimeEspIsenStFonte, -->> RETORNA SE REGIME ESPECIAL ISEN«√O ST FONTE
+                             vvRegimeEspIsenStFonte, -->> RETORNA SE REGIME ESPECIAL ISEN√á√ÉO ST FONTE
                              vnAliqIcms1,            -->> RETORNA ALIQ ICMS 1
                              vnAliqIcms2,            -->> RETORNA ALIQ ICMS 2
                              vnIva,                  -->> RETORNA IVA
-                             vnPercBaseRedStFonte,   -->> RETORNA PERC. REDU«√O  
+                             vnPercBaseRedStFonte,   -->> RETORNA PERC. REDU√á√ÉO  
                              pi_vTipoChamada,  
                              vrItensPedido.QT,
                              pi_nNumPed,
@@ -12035,7 +12035,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                FROM PCPEPSSALDOTEMP;
           END IF;
           
-          -- Se DesoneraÁ„o da LicitaÁ„o n„o calcula PEPS - 6803.037246.2017
+          -- Se Desonera√ß√£o da Licita√ß√£o n√£o calcula PEPS - 6803.037246.2017
           IF (NVL(pi_vCalculaDesoneracaoLicit,'N') = 'S') AND
              (NVL(vc_CabecalhoPedido.CODEDITAL,0) > 0)    THEN
             vnqtregistropepstemp := 0;
@@ -12674,7 +12674,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                AND (NVL(NUMSEQ,0) = vrItensPedido.NUMSEQ);
             vnqtregistroatupeps := NVL(SQL%ROWCOUNT,0);   
             
-          -- Se n„o tem Registros de PEPS  
+          -- Se n√£o tem Registros de PEPS  
           ELSE
           
             -- Atualiza Item
@@ -12690,8 +12690,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                  , VLCUSTOREAL           = vrValoresCusto.vnvlcustoreal
                  , VLDESCCUSTOCMV        = vrValoresCusto.vnvldesccustocmv
                    --
-                   -- OBSERVA«√O: Passou a ser somado o ST do FUNCEP - PCPEDI.VLFECP - HIS.04200.2017
-                   -- DDMEDICA-7584 - Descontado o SomatÛrio dos valores unit·rios dos benefÌcios fiscais ao invÈs de somente a desoneraÁ„o de ICMS
+                   -- OBSERVA√á√ÉO: Passou a ser somado o ST do FUNCEP - PCPEDI.VLFECP - HIS.04200.2017
+                   -- DDMEDICA-7584 - Descontado o Somat√≥rio dos valores unit√°rios dos benef√≠cios fiscais ao inv√©s de somente a desonera√ß√£o de ICMS
                    -- DDMEDICA-7697 - Somado o ST Antecipado
                  , PVENDA               = ROUND((NVL(vnPrecoLiqOriginal,0)     
                                                 + NVL(vnSt,0) 
@@ -12725,7 +12725,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                  , VLREPASSE            = NVL(vnVlRepasse,0)
                  , VLOUTROS             = NVL(vnVlOutros,0)
                  , PORIGINAL            = NVL(vnPOriginal,0)
-                 -- MED-656 - AtualizaÁ„o do PBONIFIC - Item Bonificado
+                 -- MED-656 - Atualiza√ß√£o do PBONIFIC - Item Bonificado
                  , PBONIFIC             = ROUND((DECODE(NVL(BONIFIC,'N'),
                                                  'F', NVL(vnPrecoLiqOriginal,0) + NVL(vnSt,0) + NVL(vnVlRepasse,0) + NVL(PCPEDI.VLIPI,0) + NVL(vrDadosFuncep.nVLFECP,0)
                                                     , PBONIFIC)),vrParametros.vnNumCasasDecVenda) -- MED-900 - Arredondar
@@ -12761,7 +12761,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                AND (NVL(NUMSEQ,0) = vrItensPedido.NUMSEQ);
               
             ----------------------------------------------------   
-            -- Se DesoneraÁ„o da LicitaÁ„o - 6803.037246.2017 --
+            -- Se Desonera√ß√£o da Licita√ß√£o - 6803.037246.2017 --
             ----------------------------------------------------
             IF (NVL(pi_vCalculaDesoneracaoLicit,'N') = 'S') AND
                (NVL(vc_CabecalhoPedido.CODEDITAL,0) > 0)    THEN
@@ -12774,7 +12774,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       '    AND (PCEDITAISITENS.LOTE        =       ' || '''' || vrItensPedido.LOTECONTRATO              || ''''          || ')' ||
                                       '    AND (PCEDITAISITENS.NUMERO_ITEM =       ' || '''' || NVL(vrItensPedido.NUMSEQITEMCONTRATO,0) || ''''          || ')';
   
-              -- Busca Dados da DesoneraÁ„o da LicitaÁ„o
+              -- Busca Dados da Desonera√ß√£o da Licita√ß√£o
               BEGIN
                 EXECUTE IMMEDIATE vvSqlDesoneracaoIcms
                              INTO vrDadosItemEdital;
@@ -12785,7 +12785,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vrDadosItemEdital := vrLimpaDadosItemEdital;
               END;
               
-              -- Calcula a DesoneraÁ„o
+              -- Calcula a Desonera√ß√£o
               IF (NVL(vrDadosItemEdital.vvUsarDesoneraIcm,'N') = 'S') THEN
                 nVLDESCICMISENCAO  := (NVL(vnPrecoLiqOriginal,0) * (NVL(vrDadosItemEdital.vnPercDesoneraIcm,0) / 100));
                 nPERDESCISENTOICMS := NVL(vrDadosItemEdital.vnPercDesoneraIcm,0);
@@ -12802,9 +12802,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                  AND (CODPROD       = vrItensPedido.CODPROD)
                  AND (NVL(NUMSEQ,0) = vrItensPedido.NUMSEQ);
   
-            END IF; -- Fim CondiÁ„o: Se DesoneraÁ„o da LicitaÁ„o
+            END IF; -- Fim Condi√ß√£o: Se Desonera√ß√£o da Licita√ß√£o
                          
-          END IF; -- Fim CondiÁ„o: Se Tem Registros de PEPS
+          END IF; -- Fim Condi√ß√£o: Se Tem Registros de PEPS
   
         END LOOP; -- Fim Processamento do Array de Itens do Pedido
       END IF;
@@ -12882,53 +12882,53 @@ IS PRAGMA SERIALLY_REUSABLE;
     WHEN OTHERS THEN
       ROLLBACK;
       po_vOcorreramErros := 'S'; 
-      pi_vvMsgErros      := 'Erro Geral C·lculo ST: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM;
+      pi_vvMsgErros      := 'Erro Geral C√°lculo ST: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM;
   END P_RECALCULAR_STFONTE;
 
  /*******************************************************************************
   Nome         : P_CALC_RED_SIMPLES_NAC
-  DescriÁ„o    : Procedimento para calcular a RecuÁ„o do Simples Nacional 
+  Descri√ß√£o    : Procedimento para calcular a Recu√ß√£o do Simples Nacional 
                  *** Somente para Clientes Fonte ***
-  Par‚metros   : ENTRADA:
-                 psCodFilial              = C√≥digo da Filial
-                 pCodCli                  = C√≥digo do Cliente
-                 pCodProd                 = C√≥digo do Produto
+  Par√¢metros   : ENTRADA:
+                 psCodFilial              = C√É¬≥digo da Filial
+                 pCodCli                  = C√É¬≥digo do Cliente
+                 pCodProd                 = C√É¬≥digo do Produto
                  pCondVenda               = Tipo de Venda
-                 pPreco                   = Pre√ßo Liquido
-                 pPrecoTabela             = Pre√ßo Tabela
+                 pPreco                   = Pre√É¬ßo Liquido
+                 pPrecoTabela             = Pre√É¬ßo Tabela
                  pValorIpi                = Valor do IPI
-                 pPrecoMaxConsum          = Pre√ßo M√°ximo do Consumidor
+                 pPrecoMaxConsum          = Pre√É¬ßo M√É¬°ximo do Consumidor
                  SAIDA:
-                 po_vTipoRedSimplesNac          = Tipo de Redu√ß√£o do Simples Nacional
-                                                  P - Redu√ß√£o no Pre√ßo
-                                                  S - Redu√ß√£o no ST
-                 po_nPercRedSimplesNac          = Percentual de Redu√ß√£o do Simples Nacional
-                 po_nValorRedSimplesNac         = Valor da Redu√ß√£o do Simples Nacional
-                 po_ValorRedSimplesNacNoPreco   = Valor da Redu√ß√£o do Simples Nacional a
-                                                  Reduzir no Pre√ßo
-                 po_ValorRedSimplesNacNoStFonte = Valor da Redu√ß√£o do Simples Nacional a
+                 po_vTipoRedSimplesNac          = Tipo de Redu√É¬ß√É¬£o do Simples Nacional
+                                                  P - Redu√É¬ß√É¬£o no Pre√É¬ßo
+                                                  S - Redu√É¬ß√É¬£o no ST
+                 po_nPercRedSimplesNac          = Percentual de Redu√É¬ß√É¬£o do Simples Nacional
+                 po_nValorRedSimplesNac         = Valor da Redu√É¬ß√É¬£o do Simples Nacional
+                 po_ValorRedSimplesNacNoPreco   = Valor da Redu√É¬ß√É¬£o do Simples Nacional a
+                                                  Reduzir no Pre√É¬ßo
+                 po_ValorRedSimplesNacNoStFonte = Valor da Redu√É¬ß√É¬£o do Simples Nacional a
                                                   Reduzir no ST Fonte
                  po_vOcorreramErros             = Se ocorreram Erros (S/N)
                  po_vMsgErros                   = Mensagem de Erros
-  Alterac√£o    : Anderson Silva - 08/01/2015 - Cria√ß√£o da Procedure [HIS.05161.2014]
-  Alterac√£o    : Anderson Silva - 21/01/2015 - Par√¢metros ST do Cliente por Filial
-  Alterac√£o    : Anderson Silva - 26/01/2015 - CAT CMED [HIS.00021.2015]
-                                               Regime Isen√ß√£o [HIS.04991.2014]
-  Altera√ß√£o    : Anderson Silva - 26/01/2015 - 3826.054937.2015 - Somente criticar Cliente ST fonte
-                                                                  se cliente calcula st da precifica√ß√£o
+  Alterac√É¬£o    : Anderson Silva - 08/01/2015 - Cria√É¬ß√É¬£o da Procedure [HIS.05161.2014]
+  Alterac√É¬£o    : Anderson Silva - 21/01/2015 - Par√É¬¢metros ST do Cliente por Filial
+  Alterac√É¬£o    : Anderson Silva - 26/01/2015 - CAT CMED [HIS.00021.2015]
+                                               Regime Isen√É¬ß√É¬£o [HIS.04991.2014]
+  Altera√É¬ß√É¬£o    : Anderson Silva - 26/01/2015 - 3826.054937.2015 - Somente criticar Cliente ST fonte
+                                                                  se cliente calcula st da precifica√É¬ß√É¬£o
  
-  OBSERVA√á√ÉO:
+  OBSERVA√É‚Ä°√É∆íO:
   ----------
-  Duas Formas de calcular o Valor da Redu√ß√£o do Simples Nacional, sendo uma delas dividida
-  em duas opera√ß√µes:
-  1) Desconto no Pre√ßo de Venda 
-     Quando na 132 UsaDescSimplesNac = 'S', aplica PCTRIBUT.PERCDESCSIMPLESNAC no Pre√ßo de Venda para obter o valor da redu√ß√£o
-  2) Redu√ß√£o no Pre√ßo de Venda
+  Duas Formas de calcular o Valor da Redu√É¬ß√É¬£o do Simples Nacional, sendo uma delas dividida
+  em duas opera√É¬ß√É¬µes:
+  1) Desconto no Pre√É¬ßo de Venda 
+     Quando na 132 UsaDescSimplesNac = 'S', aplica PCTRIBUT.PERCDESCSIMPLESNAC no Pre√É¬ßo de Venda para obter o valor da redu√É¬ß√É¬£o
+  2) Redu√É¬ß√É¬£o no Pre√É¬ßo de Venda
      Quando na 132 UsaDescSimplesNac = 'N' e PCTRIBUT.PERCREDPVENDASIMPLESNAC <> 0,
      2.1) Sem IVA, Sem Pauta, *** PMC *** e Aliq2 >= Aliq1
-          Realiza c√°lculo com base nos valores da √∫ltima entrada para obter o valor da redu√ß√£o
+          Realiza c√É¬°lculo com base nos valores da √É¬∫ltima entrada para obter o valor da redu√É¬ß√É¬£o
      2.2) Demais casos
-          Realiza o c√°lculo do ST sem Redu√ß√£o do IVA e com Redu√ß√£o do IVA, a diferen√ßa entre os dois ST ser√° o valor da redu√ß√£o
+          Realiza o c√É¬°lculo do ST sem Redu√É¬ß√É¬£o do IVA e com Redu√É¬ß√É¬£o do IVA, a diferen√É¬ßa entre os dois ST ser√É¬° o valor da redu√É¬ß√É¬£o
   ********************************************************************************/                                       
   PROCEDURE P_CALC_RED_SIMPLES_NAC(psCodFilial                    IN  VARCHAR2,
                                    pCodCli                        IN  NUMBER,
@@ -12952,7 +12952,7 @@ IS PRAGMA SERIALLY_REUSABLE;
  IS
  
    /***********************
-    Declara√ß√£o de Vari√°veis
+    Declara√É¬ß√É¬£o de Vari√É¬°veis
     ***********************/
     
     -- Base do ST 1
@@ -12972,7 +12972,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Mensagem Proc. de Obter ST Fonte
     vvMsgErros_ObtemStFonte       VARCHAR2(240);
   
-    -- Tipo Record de Par√¢metros da Filial
+    -- Tipo Record de Par√É¬¢metros da Filial
     TYPE TRec_ParamFilial         IS RECORD(
          TratarRestricaoAcrescimo PCCONSUM.TRATARRESTRICAOACRESCIMO%TYPE,
          NumCasasDecimais         PCCONSUM.NUMCASASDECVENDA%TYPE,
@@ -12996,7 +12996,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          UsarTributacaoTransfTV10 VARCHAR2(5)
          );
   
-    -- Tipo Record de Dados da Regi√£o
+    -- Tipo Record de Dados da Regi√É¬£o
     TYPE TRec_Regiao              IS RECORD (
          NumRegiao                PCREGIAO.NUMREGIAO%TYPE
     );
@@ -13021,7 +13021,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          PERCMVAORIGULTENT        PCEST.PERCMVAORIGULTENT%TYPE
     );
    
-    -- Record de Informa√ß√µes para C√°lculo do Imposto
+    -- Record de Informa√É¬ß√É¬µes para C√É¬°lculo do Imposto
     TYPE TRec_Imposto                 IS RECORD(
          Cliente                      PCCLIENT%ROWTYPE,
          Produto                      PCPRODUT%ROWTYPE,
@@ -13033,7 +13033,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          Regiao                       TRec_Regiao);
     Imposto                           TRec_Imposto;
     
-    -- Vari√°veis Auxiliares - REGRA PACOTE
+    -- Vari√É¬°veis Auxiliares - REGRA PACOTE
     vnPercentualdeRedSimplesNac       pctribut.percredpvendasimplesnac%TYPE;
     vnPercentualdeReducaoBaseIVA      pcest.REDBASEIVAULTENT%TYPE;
     vnST1                             NUMBER(18,8);
@@ -13073,15 +13073,15 @@ IS PRAGMA SERIALLY_REUSABLE;
          );
     vrDadosFuncep                      TRecDadosFuncep;
     
-    -- Par‚metro EspecÌfico Simples Nacional
+    -- Par√¢metro Espec√≠fico Simples Nacional
     v_medutilizarstfontesimplesnac     PCREGRASEXCECAOMED.VALOR%TYPE;
     
-    -- ExceÁıes
+    -- Exce√ß√µes
     e_Tratado                          EXCEPTION;
     
    /********************************************************************
     Procedure: P_INICIALIZAR_INF_IMPOSTO
-    Descri√ß√£o: Inicializar Record de Informa√ß√µes para C√°lculo do Imposto
+    Descri√É¬ß√É¬£o: Inicializar Record de Informa√É¬ß√É¬µes para C√É¬°lculo do Imposto
     ********************************************************************/
     PROCEDURE P_INICIALIZAR_INF_IMPOSTO(pi_nCodCli          IN NUMBER,
                                         pi_nCodProd         IN NUMBER,
@@ -13089,11 +13089,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         pio_vOcorreramErros IN OUT VARCHAR2,
                                         pio_vMsgErros       IN OUT VARCHAR2) IS
                        
-      -- C√≥digo da Tributa√ß√£o
+      -- C√É¬≥digo da Tributa√É¬ß√É¬£o
       vnCodSt PCTRIBUT.CODST%TYPE;   
      
       ---------------------------------------------------- 
-      -- Procedimento para Retornar o C√≥digo da Tributa√ß√£o
+      -- Procedimento para Retornar o C√É¬≥digo da Tributa√É¬ß√É¬£o
       ----------------------------------------------------
       PROCEDURE P_RETORNA_CODIGO_TRIBUTACAO(pi_nCodProd            IN     NUMBER,
                                             pi_nCodCli             IN     NUMBER,
@@ -13109,10 +13109,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Inicializa Retorno
         po_nCodSt := NULL;
         
-        -- Se Usa Tributa√ß√£o por UF
+        -- Se Usa Tributa√É¬ß√É¬£o por UF
         IF (NVL(pi_vUsaTributacaoPorUF,'N') = 'S') THEN
           
-          -- Pesquisa Tributa√ß√£o por UF
+          -- Pesquisa Tributa√É¬ß√É¬£o por UF
           BEGIN      
             SELECT PCTABTRIB.CODST
               INTO po_nCodSt
@@ -13124,13 +13124,13 @@ IS PRAGMA SERIALLY_REUSABLE;
             WHEN NO_DATA_FOUND THEN
               pio_vOcorreramErros := 'S';
               pio_vMsgErros       := pio_vMsgErros || CHR(13);
-              pio_vMsgErros       := pio_vMsgErros || 'Tributa√ß√£o n√£o encontrada para o Produto: ' || NVL(pi_nCodProd,0) || ' UF Destino ' || NVL(pi_vUfCli,' ') || ' e Filial ' || NVL(pi_vCodFilial,' ');
+              pio_vMsgErros       := pio_vMsgErros || 'Tributa√É¬ß√É¬£o n√É¬£o encontrada para o Produto: ' || NVL(pi_nCodProd,0) || ' UF Destino ' || NVL(pi_vUfCli,' ') || ' e Filial ' || NVL(pi_vCodFilial,' ');
           END;             
     
-        -- Se Usa Tributa√ß√£o por Regi√£o
+        -- Se Usa Tributa√É¬ß√É¬£o por Regi√É¬£o
         ELSE
               
-          -- Pesquisa Tributa√ß√£o por Regi√£o
+          -- Pesquisa Tributa√É¬ß√É¬£o por Regi√É¬£o
           BEGIN      
             SELECT PCTABPR.CODST
               INTO po_nCodSt
@@ -13141,7 +13141,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             WHEN NO_DATA_FOUND THEN
               pio_vOcorreramErros := 'S';
               pio_vMsgErros       := pio_vMsgErros || CHR(13);
-              pio_vMsgErros       := pio_vMsgErros || 'Tributa√ß√£o n√£o encontrada para o Produto: ' || NVL(pi_nCodProd,0) || ' e Regi√£o ' || NVL(pi_nNumRegiao,0);
+              pio_vMsgErros       := pio_vMsgErros || 'Tributa√É¬ß√É¬£o n√É¬£o encontrada para o Produto: ' || NVL(pi_nCodProd,0) || ' e Regi√É¬£o ' || NVL(pi_nNumRegiao,0);
           END;             
         END IF;
           
@@ -13156,7 +13156,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       po_nPercRedSimplesNac  := 0;
       po_nValorRedSimplesNac := 0;
       
-      -- Pesquisa Par√¢metros da 132
+      -- Pesquisa Par√É¬¢metros da 132
       Imposto.Parametros132.UsaDescSimplesNac        := F_BUSCARPARAMETRO_ALFA('USADESCSIMPLESNAC',psCodFilial,'S');
       Imposto.Parametros132.usaTributacaoPorUF       := F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF','99','N');
       Imposto.Parametros132.tipoaliqoutrasdesp       := F_BUSCARPARAMETRO_ALFA('CON_TIPOALIQOUTRASDESP','99','P');
@@ -13184,7 +13184,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para o Cliente: ' || NVL(pi_nCodCli,0);
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para o Cliente: ' || NVL(pi_nCodCli,0);
       END;
       
       -- DDVENDAS-33718 - UF de Entrega do Cliente
@@ -13201,11 +13201,11 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (PCCLIENTFILIALMED.CODFILIAL = pi_vCodFilial);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          -->> Se n√£o encontrar exce√ß√£o por Filial, Mant√©m os valores da PCCLIENT
+          -->> Se n√É¬£o encontrar exce√É¬ß√É¬£o por Filial, Mant√É¬©m os valores da PCCLIENT
           NULL;
       END;
     
-      -- Pesquisa N√∫mero da Regi√£o
+      -- Pesquisa N√É¬∫mero da Regi√É¬£o
       BEGIN
         SELECT PCTABPRCLI.NUMREGIAO
           INTO Imposto.Regiao.NumRegiao
@@ -13214,7 +13214,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (PCTABPRCLI.CODFILIALNF = pi_vCodFilial);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          -- N√£o existindo Regi√£o por Filial, busca Regi√£o da Pra√ßa
+          -- N√É¬£o existindo Regi√É¬£o por Filial, busca Regi√É¬£o da Pra√É¬ßa
           BEGIN
             SELECT PCPRACA.NUMREGIAO
               INTO Imposto.Regiao.NumRegiao
@@ -13224,11 +13224,11 @@ IS PRAGMA SERIALLY_REUSABLE;
             WHEN NO_DATA_FOUND THEN
               pio_vOcorreramErros := 'S';
               pio_vMsgErros       := pio_vMsgErros || CHR(13);
-              pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para a Pra√ßa: ' || NVL(Imposto.Cliente.CodPraca,0);
+              pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para a Pra√É¬ßa: ' || NVL(Imposto.Cliente.CodPraca,0);
           END;
       END;
       
-      -- DDVENDAS-33718 - Regi„o de Entrega do Cliente
+      -- DDVENDAS-33718 - Regi√£o de Entrega do Cliente
       IF (NVL(pi_nNumRegiaoEnt,0) > 0) THEN
         Imposto.Regiao.NumRegiao := pi_nNumRegiaoEnt;
       END IF;      
@@ -13243,17 +13243,17 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para o Produto: ' || NVL(pi_nCodProd,0);
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para o Produto: ' || NVL(pi_nCodProd,0);
       END;
   
-      -- Procedimento para Retornar o C√≥digo da Tributa√ß√£o
+      -- Procedimento para Retornar o C√É¬≥digo da Tributa√É¬ß√É¬£o
       P_RETORNA_CODIGO_TRIBUTACAO(pi_nCodProd,
                                   pi_nCodCli,
                                   Imposto.Regiao.NumRegiao,
                                   Imposto.Cliente.EstEnt,
                                   pi_vCodFilial,
                                   Imposto.Parametros132.usaTributacaoPorUF,
-                                  vnCodSt, -->> RETORNO com o C√≥digo da Tributa√ß√£o
+                                  vnCodSt, -->> RETORNO com o C√É¬≥digo da Tributa√É¬ß√É¬£o
                                   pio_vOcorreramErros,
                                   pio_vMsgErros);
       
@@ -13267,10 +13267,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para a Filial: ' || NVL(pi_vCodFilial,' ');
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para a Filial: ' || NVL(pi_vCodFilial,' ');
       END;
   
-      -- Pesquisa Dados da Tributa√ß√£o
+      -- Pesquisa Dados da Tributa√É¬ß√É¬£o
       BEGIN
         SELECT PCTRIBUT.*
           INTO Imposto.Tributacao
@@ -13280,7 +13280,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para a Tributa√ß√£o: ' || NVL(vnCodSt,0);
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para a Tributa√É¬ß√É¬£o: ' || NVL(vnCodSt,0);
       END;
    
       --------------------------------------------------------------------   
@@ -13296,7 +13296,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Se Cliente for SIMPLES Nacional - DDMEDICA-3639
       IF (NVL(Imposto.Cliente.SimplesNacional,'N') = 'S') THEN
         BEGIN   
-          -- Busca Par‚metro
+          -- Busca Par√¢metro
           SELECT NVL(VALOR,'N')         
             INTO v_medutilizarstfontesimplesnac
             FROM PCPARAMFILIAL
@@ -13307,7 +13307,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             v_medutilizarstfontesimplesnac := 'N';
         END;
         
-        -- Se Utilizar, substitui as vari·veis para fazer o c·lculo
+        -- Se Utilizar, substitui as vari√°veis para fazer o c√°lculo
         IF v_medutilizarstfontesimplesnac = 'S' THEN    
           BEGIN
             SELECT NVL(IVAFONTESIMPLESNAC,0)
@@ -13328,7 +13328,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF; -- Fim-se Cliente SIMPLES Nacional    
       --------------------------------------------------------------------   
 
-      -- Pesquisa Dados da Precifica√ß√£o
+      -- Pesquisa Dados da Precifica√É¬ß√É¬£o
       BEGIN
         SELECT PCTABPR.*
           INTO Imposto.Precificacao
@@ -13339,7 +13339,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para o Produto: ' || NVL(pi_nCodProd,0) || ' e Regi√£o: ' ||  NVL(Imposto.Regiao.NumRegiao,0);
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para o Produto: ' || NVL(pi_nCodProd,0) || ' e Regi√É¬£o: ' ||  NVL(Imposto.Regiao.NumRegiao,0);
       END;
   
       -- Pesquisa Dados da PCEST
@@ -13379,7 +13379,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           pio_vOcorreramErros := 'S';
           pio_vMsgErros       := pio_vMsgErros || CHR(13);
-          pio_vMsgErros       := pio_vMsgErros || 'Dados n√£o encontrados para o Produto: ' || NVL(pi_nCodProd,0) || ' e Filial: ' ||  NVL(pi_vCodFilial,' ');
+          pio_vMsgErros       := pio_vMsgErros || 'Dados n√É¬£o encontrados para o Produto: ' || NVL(pi_nCodProd,0) || ' e Filial: ' ||  NVL(pi_vCodFilial,' ');
       END;
       
     END P_INICIALIZAR_INF_IMPOSTO;
@@ -13403,12 +13403,12 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vMsgErros                   := NULL;
     
    /*************************************************************************************************
-    MEDICAMENTOS N√ÉO PODEM PARTICIPAR DO SIMPLES NACIONAL
+    MEDICAMENTOS N√É∆íO PODEM PARTICIPAR DO SIMPLES NACIONAL
     *****************************************************/
     IF (NVL(pTipoMerc,' ') NOT IN (' ','M','MA')) THEN
     
      /*************************************************************************************************
-      Inicializa Record de Informa√ß√µes para C√°lculo do Imposto
+      Inicializa Record de Informa√É¬ß√É¬µes para C√É¬°lculo do Imposto
       REGRA: ESPECIFICA MEDICAMENTOS
       ********************************************************/
       P_INICIALIZAR_INF_IMPOSTO(pCodCli,
@@ -13420,12 +13420,12 @@ IS PRAGMA SERIALLY_REUSABLE;
         RAISE e_Tratado;
       END IF;                            
     
-      -- Se Cliente n√£o for Fonte ST Aborta    
+      -- Se Cliente n√É¬£o for Fonte ST Aborta    
       IF (NVL(Imposto.Cliente.CalculaSt,'N') = 'S') AND -- 3826.054937.2015
          (NVL(Imposto.Cliente.ClienteFonteSt,'N') <> 'S') THEN
         po_vOcorreramErros := 'S';
         po_vMsgErros       := po_vMsgErros || CHR(13);
-        po_vMsgErros       := po_vMsgErros || 'Cliente: ' || NVL(pCodCli,0) || ' n√£o est√° parametrizado para utilizar ST Fonte';
+        po_vMsgErros       := po_vMsgErros || 'Cliente: ' || NVL(pCodCli,0) || ' n√É¬£o est√É¬° parametrizado para utilizar ST Fonte';
         RAISE e_Tratado;
       END IF;
     
@@ -13434,28 +13434,28 @@ IS PRAGMA SERIALLY_REUSABLE;
       REGRA: PACOTE
       ***************************/
     
-      --- PERCENTUAL BASE DE REDU√á√ÉO DE IVA ULT. ENTRADA
+      --- PERCENTUAL BASE DE REDU√É‚Ä°√É∆íO DE IVA ULT. ENTRADA
       IF NVL(Imposto.Estoque.REDBASEIVAULTENT,0) = 0 THEN
         vnPercentualdeReducaoBaseIVA := 100;
       ELSE
         vnPercentualdeReducaoBaseIVA := Imposto.Estoque.REDBASEIVAULTENT ;
       END IF;
-      --- FIM PERCENTUAL BASE DE REDU√á√ÉO DE ST
+      --- FIM PERCENTUAL BASE DE REDU√É‚Ä°√É∆íO DE ST
     
-      --- PERCENTUAL DE REDU√á√ÉO DO SIMPLES NACIONAL
+      --- PERCENTUAL DE REDU√É‚Ä°√É∆íO DO SIMPLES NACIONAL
       IF NVL(Imposto.Tributacao.PercRedPvendaSimplesnac,0) = 0 THEN
         vnPercentualdeRedSimplesNac := 100;
       ELSE
         vnPercentualdeRedSimplesNac := Imposto.Tributacao.PercRedPvendaSimplesnac ;
       END IF;
-      --- FIM PERCENTUAL DE REDU√á√ÉO DO SIMPLES NACIONAL
+      --- FIM PERCENTUAL DE REDU√É‚Ä°√É∆íO DO SIMPLES NACIONAL
     
       IF (NVL(Imposto.Cliente.SimplesNacional,'N') = 'S') THEN
         IF (NVL(Imposto.Parametros132.UsaDescSimplesNac,'N') = 'S') THEN
     
            vnVlReducao := pPreco * ( Imposto.Precificacao.PERCDESCSIMPLESNAC / 100);
            
-           -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√á√ÉO NO PRE√áO
+           -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√É‚Ä°√É∆íO NO PRE√É‚Ä°O
            po_vTipoRedSimplesNac := 'P'; 
            --
     
@@ -13467,9 +13467,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     
           -----------------------------------------------------------
           --Autor: Rodrigo Santos
-          --Solicita√ß√£o: HIS.05473.2014
+          --Solicita√É¬ß√É¬£o: HIS.05473.2014
           --Data: 29/12/2014
-          --Descri√ß√£o: C√°lculo do simples nacional alterando fator de ajuste.
+          --Descri√É¬ß√É¬£o: C√É¬°lculo do simples nacional alterando fator de ajuste.
           -----------------------------------------------------------
           IF (Imposto.Tributacao.AlteraFatorAjusteIVASN = 'S')
             AND (Imposto.Filial.UF = Imposto.Cliente.EstEnt)
@@ -13564,7 +13564,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                vnVlReducao := 0;
              END IF;
       
-             -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√á√ÉO NO PRE√áO;
+             -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√É‚Ä°√É∆íO NO PRE√É‚Ä°O;
              po_vTipoRedSimplesNac := 'P'; 
              --
     
@@ -13588,9 +13588,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                Imposto.Estoque.CustoNfSemSt,
                                pPrecoTabela,
                                'S', -->> Calcula o ST somente com o IVA Fonte
-                               'N', -->> N√£o Pesquisa Custos
-                               'N', -->> N√£o √© Item Bonificado
-                               0,   -->> N√£o passa Frete e Outras Despesas
+                               'N', -->> N√É¬£o Pesquisa Custos
+                               'N', -->> N√É¬£o √É¬© Item Bonificado
+                               0,   -->> N√É¬£o passa Frete e Outras Despesas
                                vnBaseSt1,
                                vnST1,
                                vvMsgErros_ObtemStFonte,
@@ -13600,8 +13600,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                vnIva1,
                                vnPercBaseRedStFonte1,
                                'O',   -->> Chamada = Outros
-                               0,     -->> N„o È preciso passar Qtde. para PEPS
-                               NULL,  -->> N„o È preciso passar N˙mero do Pedido para PEPS
+                               0,     -->> N√£o √© preciso passar Qtde. para PEPS
+                               NULL,  -->> N√£o √© preciso passar N√∫mero do Pedido para PEPS
                                pi_vCodFilialNf,
                                vnPautaFonte,
                                vvObservacaoStFonte,
@@ -13644,10 +13644,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                Imposto.Estoque.ValorUltEnt,
                                Imposto.Estoque.CustoNfSemSt,
                                pPrecoTabela,
-                               'N', -->> Calcula o ST com o IVA Fonte e Redu√ß√£o Simples Nacional no IVA Fonte
-                               'N', -->> N√£o Pesquisa Custos
-                               'N', -->> N√£o √© Item Bonificado
-                               0,   -->> N√£o passa Frete e Outras Despesas
+                               'N', -->> Calcula o ST com o IVA Fonte e Redu√É¬ß√É¬£o Simples Nacional no IVA Fonte
+                               'N', -->> N√É¬£o Pesquisa Custos
+                               'N', -->> N√É¬£o √É¬© Item Bonificado
+                               0,   -->> N√É¬£o passa Frete e Outras Despesas
                                vnBaseSt2,
                                vnST2,
                                vvMsgErros_ObtemStFonte,
@@ -13657,8 +13657,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                vnIva2,
                                vnPercBaseRedStFonte2,
                                'O',   -->> Chamada = Outros
-                               0,     -->> N„o È preciso passar Qtde. para PEPS
-                               NULL,  -->> N„o È preciso passar N˙mero do Pedido para PEPS
+                               0,     -->> N√£o √© preciso passar Qtde. para PEPS
+                               NULL,  -->> N√£o √© preciso passar N√∫mero do Pedido para PEPS
                                pi_vCodFilialNf,
                                vnPautaFonte,
                                vvObservacaoStFonte,
@@ -13684,7 +13684,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                RAISE e_Tratado;
              END IF;                              
     
-             -- C√°lculo do Valor da Redu√ß√£o
+             -- C√É¬°lculo do Valor da Redu√É¬ß√É¬£o
              -- Regra: PACOTE
              ------------------------------
              vnVlReducao := vnST1 - vnST2;
@@ -13693,7 +13693,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                vnVlReducao := 0;
              END IF;
     
-             -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√á√ÉO NO ST;
+             -- REGRA ESPECIFICA MEDICAMENTOS - CALCULA REDU√É‚Ä°√É∆íO NO ST;
              po_vTipoRedSimplesNac := 'S'; 
              --
     
@@ -13701,11 +13701,11 @@ IS PRAGMA SERIALLY_REUSABLE;
         END IF; -- Fim UsaDescSimplesNac/PercRedPvendaSimplesnac
       END IF; -- Fim Cliente SimplesNacional
   
-      -- C√°lculo do Percentual da Redu√ß√£o
+      -- C√É¬°lculo do Percentual da Redu√É¬ß√É¬£o
       -- Regra: PACOTE
-      -- OBS Medicamentos: Quando a Redu√ß√£o √© por Desconto, o % √© sobre o Pre√ßo de Tabela
-      --                   passado no par√¢metro, mas quando √© no ST, esse % sobre o Pre√ßo de Venda cujo
-      --                   retorno n√£o √© utilizado em lugar nenhum, se usar informar a quem for usar que √© sobre o Pre√ßo de Venda
+      -- OBS Medicamentos: Quando a Redu√É¬ß√É¬£o √É¬© por Desconto, o % √É¬© sobre o Pre√É¬ßo de Tabela
+      --                   passado no par√É¬¢metro, mas quando √É¬© no ST, esse % sobre o Pre√É¬ßo de Venda cujo
+      --                   retorno n√É¬£o √É¬© utilizado em lugar nenhum, se usar informar a quem for usar que √É¬© sobre o Pre√É¬ßo de Venda
       ---------------------------------------------------------------------------------------------------------------------------
       IF pPreco <> 0 THEN
         vnPercRedSimplesNasc := ROUND(vnVlReducao / pPreco, 6) * 100;
@@ -13722,11 +13722,11 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_ValorRedSimplesNacNoStFonte := vnVlReducao;
       END IF;    
       
-    END IF; -- FIM CONDI√á√ÉO MEDICAMENTOS N√ÉO PODEM PARTICIPAR DO SIMPLES NACIONAL    
+    END IF; -- FIM CONDI√É‚Ä°√É∆íO MEDICAMENTOS N√É∆íO PODEM PARTICIPAR DO SIMPLES NACIONAL    
   
   EXCEPTION
     WHEN e_Tratado THEN
-      -- Erro Tratado - A Mensagem "po_vMsgErros" j√° foi gerada anteriormente na origem do Erro
+      -- Erro Tratado - A Mensagem "po_vMsgErros" j√É¬° foi gerada anteriormente na origem do Erro
       po_nPercRedSimplesNac  := 0;
       po_nValorRedSimplesNac := 0;  
     WHEN OTHERS THEN
@@ -13738,7 +13738,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : P_OBTEM_CUSTO_PROMO_MARKUP
-   Descric„o    : Procedimento Obter o Custo da PromoÁ„o Markup - DDMEDICA-6900
+   Descric√£o    : Procedimento Obter o Custo da Promo√ß√£o Markup - DDMEDICA-6900
   **********************************************************************************/                                       
   PROCEDURE P_OBTEM_CUSTO_PROMO_MARKUP(pi_vCodFilial               IN  VARCHAR2,
                                        pi_vCodFilialRetira         IN  VARCHAR2,
@@ -13759,17 +13759,17 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vAchouCusto := 'N';
     po_nValorCusto := 0;
     
-    -- Default da OpÁ„o de Custo para Custo Financeiro
+    -- Default da Op√ß√£o de Custo para Custo Financeiro
     vvOpcaoCusto := NVL(pi_vCustoPromMarkupSt,'8');
     
-    -- CÛdigo da Filial para busca do Custo
+    -- C√≥digo da Filial para busca do Custo
     IF (NVL(pi_vOrigemCustoFilialRetira,'V') = 'R') THEN
       vvCodFilialCusto := pi_vCodFilialRetira; 
     ELSE
       vvCodFilialCusto := pi_vCodFilial; 
     END IF;
     
-    -- Se Venda Crossdocking o Custo È o da Nota de Entrada
+    -- Se Venda Crossdocking o Custo √© o da Nota de Entrada
     IF (NVL(pi_nNumTransEntCrossDock,0) > 0) THEN
     
       BEGIN
@@ -13789,10 +13789,10 @@ IS PRAGMA SERIALLY_REUSABLE;
           po_nValorCusto := 0;
       END;
     
-    -- Se n„o for Crossdocking o Custo È da PCEST
+    -- Se n√£o for Crossdocking o Custo √© da PCEST
     ELSE
     
-      -- Se j· tem o Custo Financeiro evita nova consulta na PCEST
+      -- Se j√° tem o Custo Financeiro evita nova consulta na PCEST
       IF (NVL(pi_nCustoFinanceiro,0) > 0) AND 
          (NVL(vvOpcaoCusto,'8') = '8')    THEN
          
@@ -13804,13 +13804,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         BEGIN
           SELECT 'S' AS ACHOU
                , CASE 
-                   WHEN vvOpcaoCusto = '1'  THEN -- ⁄ltima entrada
+                   WHEN vvOpcaoCusto = '1'  THEN -- √öltima entrada
                      CUSTOULTENT
-                   WHEN vvOpcaoCusto = '2'  THEN -- ⁄ltima entrada financeira
+                   WHEN vvOpcaoCusto = '2'  THEN -- √öltima entrada financeira
                      CUSTOULTENTFIN
                    WHEN vvOpcaoCusto = '3'  THEN -- Custo da NF sem ST
                      CUSTONFSEMST
-                   WHEN vvOpcaoCusto = '4'  THEN -- Cont·bil
+                   WHEN vvOpcaoCusto = '4'  THEN -- Cont√°bil
                      CUSTOCONT
                    WHEN vvOpcaoCusto = '5'  THEN -- (Real+ICMS)
                      CUSTOREP
@@ -13820,7 +13820,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                      CUSTOREAL
                    WHEN vvOpcaoCusto = '8'  THEN -- Financeiro
                      CUSTOFIN
-                   WHEN vvOpcaoCusto = '9'  THEN -- ⁄ltima entrada cont. sem ST
+                   WHEN vvOpcaoCusto = '9'  THEN -- √öltima entrada cont. sem ST
                      VLULTENTCONTSEMST
                    WHEN vvOpcaoCusto = '10' THEN -- Custo Financeiro Sem ST
                      CUSTOFINSEMST
@@ -13828,11 +13828,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                      CUSTOULTENTSEMST
                    WHEN vvOpcaoCusto = '12' THEN -- Custo Real Liquido 
                      CUSTOREALLIQ
-                   WHEN vvOpcaoCusto = '13' THEN -- Custo Ult. Ent. LÌquido
+                   WHEN vvOpcaoCusto = '13' THEN -- Custo Ult. Ent. L√≠quido
                      CUSTOULTENTLIQ
                    WHEN vvOpcaoCusto = '14' THEN -- Custo Ult. Ent. Fin. Sem ST
                      CUSTOULTENTFINSEMST
-                   ELSE                          -- Padr„o: Financeiro
+                   ELSE                          -- Padr√£o: Financeiro
                      CUSTOFIN
                  END     
             INTO po_vAchouCusto
@@ -13860,7 +13860,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : P_CALC_DESONERACAO_FATURAMENTO
-   Descric„o    : Procedimento para Calcular a DesoneraÁ„o no Faturamento - DDVENDAS-37241
+   Descric√£o    : Procedimento para Calcular a Desonera√ß√£o no Faturamento - DDVENDAS-37241
   **********************************************************************************/                                       
   PROCEDURE P_CALC_DESONERACAO_FATURAMENTO(pi_nNumPed        IN NUMBER,
                                            po_vOcorreuErro  OUT VARCHAR2,
@@ -13900,7 +13900,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         FROM PCCONSUM;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        po_vMensagemErro := 'N„o foram encontrados dados na PCCONSUM';
+        po_vMensagemErro := 'N√£o foram encontrados dados na PCCONSUM';
         RAISE e_tratado;
     END;
 
@@ -13944,9 +13944,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       v_tipocalcsulframa,
                                       vc_Item.PERDESCICMISENCAO,
                                       vc_Item.APLICADESCISENCAOMED,
-                                      ROUND(vc_Item.BASECALCULO,v_numcasasdecvenda), -->> Deve ser usado o PreÁo com Arredondamento
-                                      0, -->> Aqui n„o irei atualizar o preÁo de tabela
-                                      0, -->> Aqui n„o irei atualizar o preÁo base rca
+                                      ROUND(vc_Item.BASECALCULO,v_numcasasdecvenda), -->> Deve ser usado o Pre√ßo com Arredondamento
+                                      0, -->> Aqui n√£o irei atualizar o pre√ßo de tabela
+                                      0, -->> Aqui n√£o irei atualizar o pre√ßo base rca
                                       vc_Item.QT,
                                       vnVlDescReducaoPis,
                                       vnPercDescReducaoPisAuxBF,
@@ -13985,7 +13985,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
   /*******************************************************************************
    Nome         : P_OBTER_FILIAL_RETIRA_CLIENTE
-   Descric„o    : Procedimento para Obter a Filial Retira do Cliente
+   Descric√£o    : Procedimento para Obter a Filial Retira do Cliente
   **********************************************************************************/                                       
   PROCEDURE P_OBTER_FILIAL_RETIRA_CLIENTE(pi_nCodCli            IN  NUMBER,
                                           pi_vCodFilial         IN  VARCHAR2,
@@ -14061,7 +14061,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         END;
         
         IF (vvExiste = 'N') THEN
-          po_vAchouFilialRetira := 'N - Filial "' || pi_vCodFilial || '" e Filial Retira "' || po_vCodFilialRetira || '" n„o existem no cadastro de filiais retira (Rotina 535).';
+          po_vAchouFilialRetira := 'N - Filial "' || pi_vCodFilial || '" e Filial Retira "' || po_vCodFilialRetira || '" n√£o existem no cadastro de filiais retira (Rotina 535).';
           po_vCodFilialRetira   := NULL;
         END IF;
         
@@ -14073,7 +14073,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   
   /*******************************************************************************
    Nome         : P_OBTER_FILIAL_RETIRA_CLICOMBO
-   Descric„o    : Procedimento para Obter a Filial Retira do Cliente num COMBO
+   Descric√£o    : Procedimento para Obter a Filial Retira do Cliente num COMBO
   **********************************************************************************/                                       
   PROCEDURE P_OBTER_FILIAL_RETIRA_CLICOMBO(pi_nCodPromocaoMed    IN  NUMBER,
                                            pi_nCodCli            IN  NUMBER,
