@@ -4808,6 +4808,10 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnCodSt                   PCTRIBUT.CODST%TYPE;
     vnPerDescRepasse          PCTRIBUT.PERDESCREPASSE%TYPE;
     vvUsaBcrUltEnt            PCTRIBUT.USABCRULTENT%TYPE;
+    vvTIPOAPLICREPASSETRIBUT  PCTRIBUT.TIPOAPLICREPASSETRIBUT%TYPE;
+    vPMC                      NUMBER;
+    vvMsgPmcUf                VARCHAR2(250);    
+    vnPrecoFabrica            NUMBER;
     -- ParÃ¢metros
     vvUsaTributacaoPorUf      PCCONSUM.USATRIBUTACAOPORUF%TYPE;
     vvTipoAplicRepasseFilial  PCPARAMFILIAL.VALOR%TYPE;
@@ -5065,8 +5069,10 @@ IS PRAGMA SERIALLY_REUSABLE;
         BEGIN
           SELECT PCTRIBUT.PERDESCREPASSE
                , PCTRIBUT.USABCRULTENT
+               , PCTRIBUT.TIPOAPLICREPASSETRIBUT
             INTO vnPerDescRepasse
                , vvUsaBcrUltEnt
+               , vvTIPOAPLICREPASSETRIBUT
             FROM PCTRIBUT 
            WHERE (CODST = vnCodSt);
         EXCEPTION
@@ -5078,7 +5084,9 @@ IS PRAGMA SERIALLY_REUSABLE;
        /**************************
         CALCULA O VALOR DO REPASSE
         **************************/
-        
+        IF (NVL(vvTIPOAPLICREPASSETRIBUT,'XX') <> 'XX') THEN
+          vvTipoAplicRepasseFilial := vvTIPOAPLICREPASSETRIBUT;
+        END IF; 
         -- Tipo de AplicaÃ§Ã£o do Repasse = AcrÃ©scimo sobre PreÃ§o Bruto
         IF (NVL(vvTipoAplicRepasseFilial,'AB') = 'AB') THEN
         
@@ -5124,8 +5132,18 @@ IS PRAGMA SERIALLY_REUSABLE;
     
           po_nVlRepasse   := NVL(pi_nPrecoLiquido,0) *  (NVL(vnPerDescRepasse,0)/100);
           po_vTipoRepasse := 'AL';
-            
-        END IF; -- Fim CondiÃ§Ã£o Tipo de AplicaÃ§Ã£o do Repasse
+        
+        ELSIF (NVL(vvTipoAplicRepasseFilial,'AB') = 'AP') THEN
+          P_OBTEM_PMC_PRODUTO(pi_vCodFilial,
+                              pi_nCodProd,
+                              vvEstEnt,
+                              pi_nNumRegiao, 
+                              vPMC, 
+                              vnPrecoFabrica,   
+                              vvMsgPmcUf);      
+          po_nVlRepasse   := vPMC * NVL(vnPerDescRepasse,0) / 100;
+          po_vTipoRepasse := 'AP';   
+        END IF; 
         
         -- Arredonda para 6 Casas
         po_nVlRepasse := ROUND(po_nVlRepasse,6);
