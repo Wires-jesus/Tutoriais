@@ -1291,7 +1291,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     codicmsimplesnac         pctribut.codicmsimplesnac%type,
     codicmtabsimpnasc        pctribut.codicmtabsimpnasc%type,
     codicmdifer              pctribut.codicmdifer%type,
-    custoprecific            pctabpr.custoprecific%type
+    custoprecific            pctabpr.custoprecific%type,
+	tipoaplicrepassetribut   pctribut.tipoaplicrepassetribut%type
   );
 
 

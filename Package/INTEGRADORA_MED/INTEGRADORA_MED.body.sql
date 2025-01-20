@@ -9136,6 +9136,7 @@ end func_HoraDigitacaoPedido;
     vncoddesc                    pcdesconto.coddesconto%type;
     vncodpromocaomed             pcdesconto.codpromocaomed%type; -->> Força de Vendas com Promoção de Desconto Automático
     vbRetValidarrestricaovenda   boolean;
+    vstipoaplicrepassetribut     pctribut.Tipoaplicrepassetribut%type;
 
     -- Variáveis para uso na função de obter Promoção - HIS.03889.2014
     TYPE TRecRetornoPromocao   IS RECORD(
@@ -10435,7 +10436,8 @@ end func_HoraDigitacaoPedido;
              nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
              nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
              nvl(pctribut.codicmdifer, 0) codicmdifer,
-             nvl(pctabpr.custoprecific, 0) custoprecific
+             nvl(pctabpr.custoprecific, 0) custoprecific,
+             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -10674,7 +10676,8 @@ end func_HoraDigitacaoPedido;
                            nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                            nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                            nvl(pctribut.codicmdifer, 0) codicmdifer,
-                           nvl(pctabpr.custoprecific, 0) custoprecific
+                           nvl(pctabpr.custoprecific, 0) custoprecific,
+                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -10861,7 +10864,8 @@ end func_HoraDigitacaoPedido;
                          nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                          nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                          nvl(pctribut.codicmdifer, 0) codicmdifer,
-                         nvl(pctabpr.custoprecific, 0) custoprecific
+                         nvl(pctabpr.custoprecific, 0) custoprecific,
+                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                     into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -11169,7 +11173,8 @@ end func_HoraDigitacaoPedido;
                        nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                        nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                        nvl(pctribut.codicmdifer, 0) codicmdifer,
-                       nvl(pctabpr.custoprecific, 0) custoprecific
+                       nvl(pctabpr.custoprecific, 0) custoprecific,
+                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -11445,7 +11450,8 @@ end func_HoraDigitacaoPedido;
                      nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                      nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                      nvl(pctribut.codicmdifer, 0) codicmdifer,
-                     nvl(pctabpr.custoprecific, 0) custoprecific
+                     nvl(pctabpr.custoprecific, 0) custoprecific,
+                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -11781,10 +11787,15 @@ end if;
 
        -- 2881.043813.2016 - Repasse em TV5
        if p_regpedido.condvenda IN (1,5) then
+           IF (NVL(p_regprecos.tipoaplicrepassetribut,'XX') <> 'XX') THEN
+             vstipoaplicrepassetribut := p_regprecos.tipoaplicrepassetribut; 
+           ELSE
+             vstipoaplicrepassetribut := p_regfilial.TipoAplicRepasseFilial;
+           END IF;         
 
           -- Se o Pedido foi recebido por Integração de OL via Banco de Dados OU Se o Repasse for pelo STBCR
           IF (NVL(p_regpedido.integracaopedoperlog,'N')   = 'S')  OR
-             (NVL(p_regfilial.TipoAplicRepasseFilial,' ') = 'AS') OR
+             (NVL(vstipoaplicrepassetribut,' ') = 'AS') OR
              ((NVL(p_regpedido.origemped,' ') = 'F') AND (NVL(p_regpedido.tipofv,'FV') = 'FV') AND (NVL(p_regfilial.precosemrepassefv,'N') = 'S')) OR
              ((NVL(p_regpedido.origemped,' ') = 'W') AND (NVL(p_regfilial.somarrepasseprecoeccommerce,'N') = 'S')) THEN -- MED-1822 - E-Commerce
 
@@ -11797,7 +11808,7 @@ end if;
                                                p_regprecos.codst,
                                                p_regproduto.custorep,
                                                p_regitem.pvenda,
-                                               p_regfilial.TipoAplicRepasseFilial,
+                                               vstipoaplicrepassetribut,
                                                'S', --pi_vCriticaObrigatorio
                                                p_regpedido.integradora,
                                                p_regpedido.origemped,
@@ -11830,13 +11841,13 @@ end if;
              if p_regproduto.tipomerc in ('M','MA','L') and p_regcliente.repasse = 'S' then
 
              -- Tipo de Aplicação do Repasse = Acréscimo sobre Preço Bruto - Tarefa 153405
-              if    (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AB') then
+              if    (nvl(vstipoaplicrepassetribut,'AB') = 'AB') then
                   p_regitem.vlrepasse := p_regproduto.ptabela * (p_regprecos.perdescrepasse/100);
                   PGRAVA_LOG_VALOR('perdescrepasse sobre Preço Bruto',p_regprecos.perdescrepasse);
                   PGRAVA_LOG_VALOR('vlrepasse sobre Preço Bruto',p_regitem.vlrepasse);
                   p_regitem.vloutros := p_regitem.vlrepasse;
               -- Tipo de Aplicação do Repasse = Acréscimo ST Ult Ent - HIS.03788.2015
-              elsif  (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AS') then
+              elsif  (nvl(vstipoaplicrepassetribut,'AB') = 'AS') then
                  IF (NVL(p_regprecos.usabcrultent,'N') = 'S')      AND
                     (NVL(p_regcliente.consumidorfinal,'N') <> 'S') THEN
                    BEGIN
@@ -11870,7 +11881,7 @@ end if;
                     PGRAVA_LOG_VALOR('vlrepasse ST Ult Ent',p_regitem.vlrepasse);
                   END IF; -- Fim Condição: usabcrultent
               -- Tipo de Aplicação do Repasse = Acréscimo sobre Preço Líquido - Tarefa 153405
-               elsif (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AL') then
+               elsif (nvl(vstipoaplicrepassetribut,'AB') = 'AL') then
 
                 vlaux := p_regitem.pvenda/(1 + (p_regprecos.perdescrepasse/100));
                 vldesccom := p_regproduto.ptabela - vlaux;
@@ -11881,6 +11892,9 @@ end if;
 
                   PGRAVA_LOG_VALOR('perdescrepasse sobre Preço Líquido',p_regprecos.perdescrepasse);
                   PGRAVA_LOG_VALOR('vlrepasse sobre Preço Líquido',p_regitem.vlrepasse);
+               elsif (nvl(vstipoaplicrepassetribut,'AB') = 'AP') then
+                 p_regitem.vlrepasse := p_regproduto.precomaxconsum * p_regprecos.perdescrepasse/100;
+                 PGRAVA_LOG_VALOR('vlrepasse sobre PMC',p_regitem.vlrepasse);                               
               end if;
 
               end if;
@@ -16081,6 +16095,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
     vnQtdeLimiteAlvara         pcpedi.qt%type;
     --
     vvMsgPmcUf                 VARCHAR2(4000);
+    
+    vstipoaplicrepassetribut     pctribut.Tipoaplicrepassetribut%type;
 
     -- Variáveis para uso na função de obter Promoção - HIS.03889.2014
     TYPE TRecRetornoPromocao   IS RECORD(
@@ -17471,7 +17487,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
              nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
              nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
              nvl(pctribut.codicmdifer, 0) codicmdifer,
-             nvl(pctabpr.custoprecific, 0) custoprecific
+             nvl(pctabpr.custoprecific, 0) custoprecific,
+             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -17710,7 +17727,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                            nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                            nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                            nvl(pctribut.codicmdifer, 0) codicmdifer,
-                           nvl(pctabpr.custoprecific, 0) custoprecific
+                           nvl(pctabpr.custoprecific, 0) custoprecific,
+                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -17944,7 +17962,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                          nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                          nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                          nvl(pctribut.codicmdifer, 0) codicmdifer,
-                         nvl(pctabpr.custoprecific, 0) custoprecific
+                         nvl(pctabpr.custoprecific, 0) custoprecific,
+                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                      into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -18298,7 +18317,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                        nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                        nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                        nvl(pctribut.codicmdifer, 0) codicmdifer,
-                       nvl(pctabpr.custoprecific, 0) custoprecific
+                       nvl(pctabpr.custoprecific, 0) custoprecific,
+                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -18577,7 +18597,8 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                      nvl(pctribut.codicmsimplesnac, 0) codicmsimplesnac,
                      nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                      nvl(pctribut.codicmdifer, 0) codicmdifer,
-                     nvl(pctabpr.custoprecific, 0) custoprecific
+                     nvl(pctabpr.custoprecific, 0) custoprecific,
+                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -21713,10 +21734,14 @@ if p_regitem.cesta = 'S' and (p_Regproduto.ptabela <> vnptabelacesta) and vbvali
 
             -- 2881.043813.2016 - Repasse em TV5
             if p_regpedido.condvenda IN (1,5) then
-
+               IF (NVL(p_regprecos.tipoaplicrepassetribut,'XX') <> 'XX') THEN
+                 vstipoaplicrepassetribut := p_regprecos.tipoaplicrepassetribut; 
+               ELSE
+                 vstipoaplicrepassetribut := p_regfilial.TipoAplicRepasseFilial;
+               END IF; 
               -- Se o Pedido foi recebido por Integração de OL via Banco de Dados OU Se o Repasse for pelo STBCR OU o OL/PE possui tratamento diferenciado
               IF (NVL(p_regpedido.integracaopedoperlog,'N')   = 'S')  OR
-                 (NVL(p_regfilial.TipoAplicRepasseFilial,' ') = 'AS') OR
+                 (NVL(vstipoaplicrepassetribut,' ') = 'AS') OR
                  (NVL(p_regpedido.usabcrultent,'0') IN ('2','3'))     THEN
 
                 -- Calcula o Repasse
@@ -21728,7 +21753,7 @@ if p_regitem.cesta = 'S' and (p_Regproduto.ptabela <> vnptabelacesta) and vbvali
                                                    p_regprecos.codst,
                                                    p_regproduto.custorep,
                                                    p_regitem.pvenda,
-                                                   p_regfilial.TipoAplicRepasseFilial,
+                                                   vstipoaplicrepassetribut,
                                                    'S', --pi_vCriticaObrigatorio
                                                    p_regpedido.integradora,
                                                    p_regpedido.origemped,
@@ -21760,11 +21785,11 @@ if p_regitem.cesta = 'S' and (p_Regproduto.ptabela <> vnptabelacesta) and vbvali
                  if p_regproduto.tipomerc in ('M','MA','L') and p_regcliente.repasse = 'S' then
 
                    -- Tipo de Aplicação do Repasse = Acréscimo sobre Preço Bruto - Tarefa 153405
-                    if    (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AB') then
+                    if    (nvl(vstipoaplicrepassetribut,'AB') = 'AB') then
                       p_regitem.vlrepasse := vnptabela_aux * p_regprecos.perdescrepasse/100;
                       p_regitem.vloutros := p_regitem.vlrepasse;
                     -- Tipo de Aplicação do Repasse = Acréscimo ST Ult Ent - HIS.03788.2015
-                    elsif  (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AS') then
+                    elsif  (nvl(vstipoaplicrepassetribut,'AB') = 'AS') then
                        IF (NVL(p_regprecos.usabcrultent,'N') = 'S')      AND
                           (NVL(p_regcliente.consumidorfinal,'N') <> 'S') THEN
                          BEGIN
@@ -21797,9 +21822,12 @@ if p_regitem.cesta = 'S' and (p_Regproduto.ptabela <> vnptabelacesta) and vbvali
                           END IF;
                         END IF; -- Fim Condição: usabcrultent
                     -- Tipo de Aplicação do Repasse = Acréscimo sobre Preço Bruto - Tarefa 153405
-                    elsif (nvl(p_regfilial.TipoAplicRepasseFilial,'AB') = 'AL') then
+                    elsif (nvl(vstipoaplicrepassetribut,'AB') = 'AL') then
                       p_regitem.vlrepasse := (vnptabela_aux * (1-(nvl(vnperdesc,0)/100))) * (p_regprecos.perdescrepasse/100);
                       p_regitem.vloutros := p_regitem.vlrepasse;
+                    elsif (nvl(vstipoaplicrepassetribut,'AB') = 'AP') then
+                      p_regitem.vlrepasse := p_regproduto.precomaxconsum * p_regprecos.perdescrepasse/100;
+                      PGRAVA_LOG_VALOR('vlrepasse sobre PMC',p_regitem.vlrepasse);                           
                     end if;
 
                   end if;

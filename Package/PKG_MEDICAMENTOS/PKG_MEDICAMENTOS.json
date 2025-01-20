@@ -8,6 +8,6 @@
   {"nome": "PCORCAVENDAI", "tipo": "TABELA", "versao": "6.0.01.000"},
   {"nome": "PCPRODUT","tipo": "TABELA", "versao": "3.0.01.000"},  
   {"nome": "PCRESTRICAOUFMEDABCFARMA", "tipo": "TABELA", "versao": "2.1.01.000"},
-  {"nome": "PCTRIBUT", "tipo": "TABELA", "versao": "7.0.02.000"}
+  {"nome": "PCTRIBUT", "tipo": "TABELA", "versao": "7.0.03.000"}
 
 ]}

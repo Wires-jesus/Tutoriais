@@ -28,5 +28,6 @@
 	{"nome": "PCLOGPROMOCAORAMOATIVMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAOCLASSEVENDAMED","tipo": "TABELA","versao": "6.0.01.000"},
 	{"nome": "PCLOGPROMOCAOGRUPOCOMERCMED","tipo": "TABELA","versao": "6.0.01.000"},
-	{"nome": "PCPRODFILIAL","tipo": "TABELA","versao": "6.0.02.000"}
+	{"nome": "PCPRODFILIAL","tipo": "TABELA","versao": "6.0.02.000"},
+	{"nome": "PCTRIBUT","tipo": "TABELA","versao": "7.0.03.000"}
 ]}
