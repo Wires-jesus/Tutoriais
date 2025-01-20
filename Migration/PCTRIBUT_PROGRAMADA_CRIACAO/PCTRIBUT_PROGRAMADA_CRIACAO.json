@@ -1,0 +1,11 @@
+{
+  "nome": "PCTRIBUT_PROGRAMADA_CRIACAO",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCTRIBUT",
+      "tipo": "TABELA",
+      "versao": "7.0.02.000"
+    }
+  ]
+}
