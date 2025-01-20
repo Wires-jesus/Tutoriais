@@ -1807,18 +1807,23 @@ AS
         NULL posicaoretorno,
         0 pvendavasilhame,
         'L' posicao,
-        ( CASE WHEN i.seqprodcomposto is not null THEN
-          (SELECT SUM((X.VLRUNITARIO* F.QUANTIDADE) / NVL(X.QTDEMBALAGEM, 1)) 
-              FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
-                WHERE X.SEQDOCTO = i.seqdocto
-              AND X.nroempresa = i.nroempresa
-            AND X.nrocheckout = i.nrocheckout
-            AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
-            AND F.SEQPRODUTO = X.SEQPRODUTO
-            AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
-            AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
-            ELSE (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
-        END ) ptabela,
+        (CASE WHEN i.seqprodcomposto is not null THEN
+        (SELECT SUM((X.VLRUNITARIO*F.QUANTIDADE) / NVL(X.QTDEMBALAGEM, 1)) 
+            FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
+              WHERE X.SEQDOCTO = i.seqdocto
+            AND X.nroempresa = i.nroempresa
+          AND X.nrocheckout = i.nrocheckout
+          AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+          AND F.SEQPRODUTO = X.SEQPRODUTO
+          AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+          AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+        ELSE
+         CASE WHEN i.PROMOCAO = 'S' THEN
+		    ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
+		 ELSE 
+		    (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) 
+		 END
+        END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
           (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
               FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
@@ -2210,7 +2215,11 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
-        (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
+         CASE WHEN i.PROMOCAO = 'S' THEN
+		    ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
+		 ELSE 
+		    (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) 
+		 END
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
         (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
