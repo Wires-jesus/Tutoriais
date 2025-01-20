@@ -29,7 +29,18 @@ SELECT  ferramentas.f_buscarparametro_num('CODBANCOINTEGRACAOPDV',a.nroempresa,0
                           || ' - NUMSERIEEQUIP: NotaFiscal - CODOPERADORCX: '
                           || a.sequsuario
                           || ' - CODFISCALCX: '
-                          || a.sequsuario
+                          || NVL((select distinct e.sequsuario
+									from monitorpdvmiddle.tb_logsegdoctopdv c, monitorpdvmiddle.tb_logsegurancapdv d, monitorpdvmiddle.tb_usuario e
+								   where c.nroempresa = a.nroempresa
+									 and c.nrocheckout = a.nrocheckout
+									 and c.dtamovimento = a.dtamovimento
+									 and c.serie = a.serie
+									 and c.cro = a.cro
+									 and c.coo = a.coo
+									 and d.nroempresa = c.nroempresa
+									 and d.nrocheckout = c.nrocheckout
+									 and d.seqlogsegpdv = c.seqlogsegpdv
+									 and e.sequsuario = d.sequsuario) ,a.sequsuario)
              WHEN a.especie = 'SP'
                THEN
                           'SUPRIMENTO ROTINA: CONSINCO - NUMCAIXA: '
