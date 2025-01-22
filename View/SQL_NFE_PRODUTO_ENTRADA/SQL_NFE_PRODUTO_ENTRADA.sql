@@ -1461,7 +1461,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            0
                                      END) 
                                - NVL(PCMOV.VLOUTRASDESP,0) 
-							   - DECODE(NVL(PCMOV.CODOPER, 'E'),'ED', 0, NVL(PCMOV.ST, 0))
+							   - (CASE WHEN PCNFENT.TIPODESCARGA = '8' AND PCMOV.CODOPER = 'ER' THEN
+                                            NVL(PCMOV.ST, 0)
+                                        ELSE
+                                            DECODE(PCMOV.CODOPER, 'ED', NVL(PCMOV.ST, 0),
+                                                                  'EN', NVL(PCMOV.ST, 0), 0) END)
+							   
                                - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
@@ -1726,6 +1731,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
                                    DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
                                      (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
+									 * PCMOV.QTCONT
                                  ELSE 0 END) +
                             
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8','T')) THEN

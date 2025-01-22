@@ -110,6 +110,7 @@ begin
                                  where pcmov.numtransvenda =
                                        pcnfsaid.numtransvenda))) loop
     for itens in (select rownum,
+	                     codprod,
                          nvl(p.base_Icms, 0) as base_Icms,
                          nvl(p.valor_Icms, 0) as valor_Icms,
                          nvl(p.base_St, 0) as base_St,
@@ -129,17 +130,16 @@ begin
                          nvl(p.valor_frete, 0) as valor_frete,
                          nvl(p.valor_seguro, 0) as valor_seguro,
                          nvl(p.valor_Produtos, 0) as valor_Produtos,
-                         p.CODIGO_PRODUTO,
-                         p.NUMERO_SEQUENCIA
-                    from table(cast(nfe_produto_saida(notas.numtransvenda) as
-                                    TABELA_NFE_PRODUTO)) p) loop
+                         p.codigo_produto,
+                         p.numero_sequencia
+                    from table(cast(nfe_produto_saida(notas.numtransvenda) as tabela_nfe_produto)) p) loop
     
       select numtransitem
         into v_numtransitem
         from pcmov
        where numtransvenda = notas.numtransvenda
-         and codprod = itens.CODIGO_PRODUTO
-         and numseq = itens.NUMERO_SEQUENCIA
+         and codprod = itens.codprod
+         and numseq = itens.numero_sequencia
          and dtmov = trunc(notas.dtsaida)
          and rownum = 1;
        
@@ -188,6 +188,7 @@ begin
                                  where pcmov.numtransent = pcnfent.numtransent))) loop
   dbms_output.put_line('nota: ' || notas.numtransent);
     for itens in (select rownum,
+						 codprod,
                          nvl(p.base_Icms, 0) as base_Icms,
                          nvl(p.valor_Icms, 0) as valor_Icms,
                          nvl(p.base_St, 0) as base_St,
@@ -207,17 +208,16 @@ begin
                          nvl(p.valor_frete, 0) as valor_frete,
                          nvl(p.valor_seguro, 0) as valor_seguro,
                          nvl(p.valor_Produtos, 0) as valor_Produtos,
-                         p.CODIGO_PRODUTO,
-                         p.NUMERO_SEQUENCIA
-                    from table(cast(nfe_produto_entrada(notas.numtransent) as
-                                    TABELA_NFE_PRODUTO)) p) loop
+                         p.codigo_produto,
+                         p.numero_sequencia
+                    from table(cast(nfe_produto_entrada(notas.numtransent) as tabela_nfe_produto)) p) loop
     
       select numtransitem
         into v_numtransitem
         from pcmov
        where numtransent = notas.numtransent
-         and codprod = itens.CODIGO_PRODUTO
-         and NVL(PCMOV.NUMSEQADICAO, PCMOV.NUMSEQ) = itens.NUMERO_SEQUENCIA
+         and codprod = itens.codprod
+         and nvl(pcmov.numseqadicao, pcmov.numseq) = itens.numero_sequencia
          and dtmov = trunc(notas.dtent)
          and rownum = 1;
 
