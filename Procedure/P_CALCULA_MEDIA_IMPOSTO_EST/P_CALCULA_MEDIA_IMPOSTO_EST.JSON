@@ -1,0 +1,10 @@
+{
+    "nome": "P_CALCULA_MEDIA_IMPOSTO_EST",
+    "tipoPLSQL": "PROCEDURE",
+    "dependencias": [{
+            "nome": "PCHISTEST",
+            "tipo": "TABELA",
+            "versao": "6.0.03.000"
+        }
+    ]
+}
