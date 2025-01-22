@@ -17,6 +17,7 @@ Bancos homologados:
 655 - Banco Votorantim
 218 - BS2
 594 - Banco ASA
+637 - Banco Sofisa
 
 Parâmetros de Entrada:
 PS_CODFILIAL         - Código da Filial do título selecionado (PCFILIAL)
@@ -423,10 +424,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       VN_SOMA          := 0;
       VN_POSICAO       := LENGTH(TRIM(PS_PALAVRA));
 
+      IF BANCO.NUMBANCO = 637 THEN
+        PN_BASE := 1;  
+      END IF;
+
       FOR I IN REVERSE 1 .. VN_POSICAO LOOP
         VN_NUMERO    := TO_NUMBER(SUBSTR(PS_PALAVRA, I, 1));
 
-        IF ((BANCO.NUMBANCO = 33) OR (BANCO.NUMBANCO = 6375)) AND (PS_TIPO = 'DV1') THEN -- CALCULO DV1 CODBARRAS BANCO SANTANDER
+        IF ((BANCO.NUMBANCO = 33) OR (BANCO.NUMBANCO = 6375) OR (BANCO.NUMBANCO = 637)) AND (PS_TIPO = 'DV1') THEN -- CALCULO DV1 CODBARRAS BANCO SANTANDER
           IF ((VN_NUMERO * VN_MULTIPLICADOR) > 9) THEN
             VN_SOMA := VN_SOMA + ((VN_NUMERO * VN_MULTIPLICADOR) - 9);
           ELSE
@@ -520,6 +525,12 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
 
            VS_DIGITO := 10 - VN_SOMA;
          END IF;
+       WHEN (BANCO.NUMBANCO = 637) THEN  
+          IF (PS_TIPO = 'L') THEN
+            VN_SOMA   := VN_SOMA * 9;          
+            VN_RESTO  := VN_SOMA - (TRUNC(VN_SOMA / 10) * 10);
+            VS_DIGITO := VN_RESTO;
+          END IF;
        WHEN ((BANCO.NUMBANCO = 237) OR (BANCO.NUMBANCO = 6111)) THEN
          VN_MAIORVALOR := 1000;
 
@@ -1285,10 +1296,11 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VS_NOSSONUMERO_TEMP VARCHAR2(30);
     VS_CODBARRA_TEMP    VARCHAR2(44);
     VS_DVCODBARRA       VARCHAR2(1);
+    VS_DV_NOSSONUMERO   VARCHAR2(2);
     VS_NOVODIGMOD10     VARCHAR2(1);
   BEGIN
     -- GERAÃ¿Ã¿O DO NOSSO NÃ¿MERO PARA O BANCO SANTANDER **********************************************
-    IF (BANCO.TIPOCOB <> 'NS') AND (BANCO.NUMBANCO <> '6375') THEN
+    IF (BANCO.TIPOCOB <> 'NS') AND (BANCO.NUMBANCO <> '6375') AND (BANCO.NUMBANCO <> '637') THEN
       VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 7, '0');
       VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || F_CALCULA_MODULO_11(VS_NOSSONUMERO, 9, 'N', VS_NOVODIGMOD10);
 
@@ -1305,16 +1317,27 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
         ELSE
           VS_NOSSONUMERO      := TITULOS.NOSSONUMERO;
         END IF;
+      ELSIF BANCO.NUMBANCO = '637' THEN  
+        IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
+          VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
+          VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(VS_NOSSONUMERO, 1, 'DV1');
+          VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;
+          VS_NOSSONUMERO_TEMP := VS_NOSSONUMERO || VS_DV_NOSSONUMERO;
+        ELSE
+          VS_NOSSONUMERO      := TITULOS.NOSSONUMERO;
+        END IF;
       ELSE
         VS_NOSSONUMERO      := LPAD(BANCO.AGENCIA, 3, '0') || LPAD(PN_PROXIMONOSSONUMERO, 7, '0');
         VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || F_CALCULA_MODULO_10(VS_NOSSONUMERO, 0, 'N');
       END IF;
 
-      IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
-        VS_NOSSONUMERO_TEMP := LPAD(PN_PROXIMONOSSONUMERO, 7, '0');
-      ELSE
-        VS_NOSSONUMERO_TEMP := NUMEROS(SUBSTR(TITULOS.NOSSONUMERO, 4, LENGTH(TITULOS.NOSSONUMERO)));
-      END IF;
+      IF BANCO.NUMBANCO <> '637' THEN
+        IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
+          VS_NOSSONUMERO_TEMP := LPAD(PN_PROXIMONOSSONUMERO, 7, '0');
+        ELSE
+          VS_NOSSONUMERO_TEMP := NUMEROS(SUBSTR(TITULOS.NOSSONUMERO, 4, LENGTH(TITULOS.NOSSONUMERO)));
+        END IF;
+      END IF;  
     END IF;
     --**********************************************************************************************
     -- GERAÃ¿Ã¿O DO CODIGO DE BARRAS PARA O BANCO SANTANDER*******************************************
@@ -1324,20 +1347,31 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             PS_UTILIZAVALORBRUTO,
                                             PD_DTVENC);
     IF (BANCO.TIPOCOB <> 'NS') THEN
-      /*20 A 20*/
-      VS_CODBARRA := VS_CODBARRA || '9';
-      /*21 A 27*/
-      VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CODCLIENTENOBANCO, 7, '0');
-      /*28 A 36*/
-      IF BANCO.NUMBANCO = '6375' THEN
-         VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(VS_NOSSONUMERO), 13, '0');
+      IF (BANCO.NUMBANCO <> '637') THEN
+        /*20 A 20*/
+        VS_CODBARRA := VS_CODBARRA || '9';
+        /*21 A 27*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CODCLIENTENOBANCO, 7, '0');
+        /*28 A 36*/
+        IF BANCO.NUMBANCO = '6375' THEN
+          VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(VS_NOSSONUMERO), 13, '0');
+        ELSE
+          VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 13, '0');
+        END IF;
+        /*41 A 41*/
+        VS_CODBARRA := VS_CODBARRA || '0';
+        /*42 A 44*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA3, 3, '0');
       ELSE
-         VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 13, '0');
-    END IF;
-      /*41 A 41*/
-      VS_CODBARRA := VS_CODBARRA || '0';
-      /*42 A 44*/
-      VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA3, 3, '0');
+        /*20 A 23*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.AGENCIA, 4, '0');
+        /*24 A 26*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA3, 4, '0');
+        /*27 A 33*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CODCLIENTENOBANCO, 7, '0'); -- NUMERO DA OPERACAO
+        /*34 A 44*/
+        VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 11, '0');
+      END IF;
     ELSE
       VS_CODBARRA_TEMP := LPAD(BANCO.CODCLIENTENOBANCO, 11, '0') ||
                           LPAD(VS_NOSSONUMERO_TEMP, 7, '0') ||
@@ -2122,7 +2156,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             PS_UTILIZAVALORBRUTO,
                                             PS_PRIMEIRAIMPRESSAO,
                                             PN_NUMTRANSVENDA,
-                                            PS_PREST);                                            
+                                            PS_PREST);
+        WHEN  637 THEN F_GERADADOS_BANCO_033(PN_CODBANCO,
+                                            TITULOS.VALOR_TEMP,
+                                            TITULOS.VALOR_TEMP - TITULOS.VALORDESC,
+                                            TITULOS.DTVENC,
+                                            VN_PROXIMONOSSONUMERO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PS_PRIMEIRAIMPRESSAO);                                                                                        
         ELSE
             RAISE_APPLICATION_ERROR(-20101, 'Banco nÃ£o homolagado!');
       END CASE;
