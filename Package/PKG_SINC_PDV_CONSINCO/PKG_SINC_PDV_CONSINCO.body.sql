@@ -845,27 +845,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      WHERE PCCESTPRODUTO.CODPROD = v.codprod
                      AND ROWNUM = 1
                     )*/ v.codcest,
-					        CASE
-                    WHEN (SELECT Count(*) FROM   pcconsum C WHERE  codclipc = 1264) > 0 THEN
-                      CASE
-                        WHEN (SELECT Count(DISTINCT tipoembalagem)
-                              FROM   pcembalagem e1
-                              WHERE  e1.codprod = v.codprod
-                                    AND e1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
-                                    AND tipoembalagem IN ( 'U', 'P' )) > 1 
-                          THEN
-                            'N'
-                        WHEN (SELECT Count(DISTINCT tipoembalagem)
-                              FROM   pcembalagem e1
-                              WHERE  e1.codprod = v.codprod
-                                    AND E1.codauxiliar = CASE WHEN v.origem = 'D' THEN v.codauxiliar ELSE e1.codauxiliar END
-                                    AND tipoembalagem IN ( 'P' )) = 1 
-                          THEN 
-                            'S'
-                          ELSE 
-                            'N'
-                      END
-                    ELSE
                       CASE
                         WHEN (SELECT Count(DISTINCT tipoembalagem)
                               FROM   pcembalagem e1
@@ -883,8 +862,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                             'N'
                           ELSE 
                             'N'
-                      END
-                  END PESAVEL,
+                      END PESAVEL,
 					CASE 
 					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
 					          FROM PCEMBALAGEM e1
