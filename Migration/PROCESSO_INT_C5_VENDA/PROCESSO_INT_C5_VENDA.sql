@@ -2894,7 +2894,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 	   NULL nsupagdigital,
 	   NULL nomecarteiradigital,
 	   NULL carteiradigital,
-	   (p.valor - NVL((SELECT SUM(p1.valor) 
+	   (p.valor + NVL((SELECT SUM(p1.valor) 
 	                      FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P1,
       						   MONITORPDVMIDDLE.TB_DOCTOTROCOSOLIDARIO TS
 					     WHERE P1.SEQDOCTO = TS.SEQDOCTO
@@ -2931,6 +2931,17 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  f.codcob = v.codcob(+)
    AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   AND  (p.valor + NVL((SELECT SUM(p1.valor) 
+	                      FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P1,
+      						   MONITORPDVMIDDLE.TB_DOCTOTROCOSOLIDARIO TS
+					     WHERE P1.SEQDOCTO = TS.SEQDOCTO
+						 AND P1.NROEMPRESA = TS.NROEMPRESA
+						 AND P1.NROCHECKOUT = TS.NROCHECKOUT
+						 AND P1.NROEMPRESA = D.NROEMPRESA
+						 AND P1.NROCHECKOUT = D.NROCHECKOUT
+						 AND TS.NROEMPRESA = D.NROEMPRESA
+						 AND TS.NROCHECKOUT = D.NROCHECKOUT
+						 AND TS.SEQDOCTOORIGEM = D.SEQDOCTO),0) ) < 0
    UNION ALL
    SELECT  d.seqdocto,
         NULL numgiftcard,
