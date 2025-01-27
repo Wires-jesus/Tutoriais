@@ -1,4 +1,4 @@
-CREATE OR REPLACE package body INTEGRADORA_MED
+create or replace package body INTEGRADORA_MED
 IS PRAGMA SERIALLY_REUSABLE;
 
   /*..
@@ -701,7 +701,8 @@ IS PRAGMA SERIALLY_REUSABLE;
    p_custoprecific               IN NUMBER DEFAULT 0,
    p_codst                       IN NUMBER DEFAULT 0,
    p_bonific                     IN BOOLEAN DEFAULT FALSE,
-   p_aplicaredtribut             IN BOOLEAN DEFAULT FALSE
+   p_aplicaredtribut             IN BOOLEAN DEFAULT FALSE,
+   p_outrasdespesas              IN NUMBER DEFAULT 0
    ) IS
    vnbasecalccomissao             NUMBER := 0;
    v_preco_venda_sem_impostos     PCPEDI.PVENDA%TYPE := 0;
@@ -830,7 +831,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               p_codst,
                               p_codprod,
                               p_codfilial,
-                              p_numregiao);
+                              p_numregiao,
+                              p_outrasdespesas);
                        
       v_perc_icms_tabela := v_perc_icms_tabela * 100;
       v_perc_icms := p_codicm;
@@ -854,7 +856,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    p_codst,
                                    p_codprod,
                                    p_codfilial,
-                                   p_numregiao);
+                                   p_numregiao,
+                                   p_outrasdespesas);
 
         v_perc_icms_tabela_sn := v_perc_icms_tabela_sn * 100;
         v_perc_icms := p_codicmsn;
@@ -879,7 +882,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    p_codst,
                                    p_codprod,
                                    p_codfilial,
-                                   p_numregiao);
+                                   p_numregiao,
+                                   p_outrasdespesas);
 
         v_perc_icms_tabela_pf := v_perc_icms_tabela_pf * 100;
         v_perc_icms := p_codicmpf;
@@ -904,7 +908,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       p_codst,
                                       p_codprod,
                                       p_codfilial,
-                                      p_numregiao);
+                                      p_numregiao,
+                                      p_outrasdespesas);
 
         v_perc_icms_diferenciado := v_perc_icms_diferenciado * 100;
         p_codicmtab_item := nvl(v_perc_icms_diferenciado, 0);
@@ -931,7 +936,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                                               p_codst,
                                               p_codprod,
                                               p_codfilial,
-                                              p_numregiao);
+                                              p_numregiao,
+                                              p_outrasdespesas
+                                              );
                                               
         p_codicmtab_item := nvl(v_perc_acres_icms_tabela_bonif, 0);
 
@@ -27843,7 +27850,8 @@ end proc_GravaLogConvEmbalagem;
                                       when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
                                       else FALSE
                                     end,
-                                    false
+                                    false,
+                                    p_regitem.vloutros
                                     );
 
           -- 4493.064633.2016 - Tratamento de Erro por Divisão por Zero
@@ -28164,7 +28172,8 @@ end proc_GravaLogConvEmbalagem;
                                       when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
                                       else FALSE
                                     end,
-                                    false
+                                    false,
+                                    p_regitem.vloutros
                                     );
 
 
@@ -28941,7 +28950,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                             when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
                                             else FALSE
                                           end,
-                                          false
+                                          false,
+                                          p_regitem.vloutros
                                           );
 
                 -- 4493.064633.2016 - Tratamento de Erro por Divisão por Zero
@@ -29252,7 +29262,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                             when p_regpedido.condvenda = 5 or p_regitem.bonific <> 'N' then TRUE
                                             else FALSE
                                           end,
-                                          false
+                                          false,
+                                          p_regitem.vloutros
                                           );
 
 
@@ -31154,7 +31165,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                                 when gvet_regpedido(i).condvenda = 5 or gvet_regitem(j).bonific <> 'N' then TRUE
                                                 else FALSE
                                               end,
-                                              false
+                                              false,
+                                              gvet_regitem(j).vloutros
                                               );
 
                         gvet_regitem(j).logprocmed := gvet_regitem(j).logprocmed || CHR(13) || 'Msg CMV: ' || vvMsgErroCalcularCMV;
@@ -31665,7 +31677,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                                 when gvet_regpedido(i).condvenda = 5 or gvet_regitem(j).bonific <> 'N' then TRUE
                                                 else FALSE
                                               end,
-                                              false
+                                              false,
+                                              gvet_regitem(j).vloutros
                                               );
 
                              gvet_regitem(j).logprocmed := gvet_regitem(j).logprocmed || CHR(13) || 'Msg CMV: ' || vvMsgErroCalcularCMV;

@@ -10768,6 +10768,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     V_VARIAVEL                    FORMULA.RVARIAVEL;
     V_PERC_ICMS_ULTENT            PCEST.PERICMULTENT%TYPE;
     V_PERC_ICMS_ANTECIPADO_ULTENT PCEST.PERICMSANTECIPADOULTENT%TYPE;
+    vnCUSTOCONT                   PCEST.CUSTOCONT%TYPE;
 
   BEGIN
     
@@ -10775,8 +10776,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       
       SELECT PERICMULTENT
            , PERICMSANTECIPADOULTENT
+           , CUSTOCONT
         INTO V_PERC_ICMS_ULTENT
            , V_PERC_ICMS_ANTECIPADO_ULTENT
+           , vnCUSTOCONT
         FROM PCEST
        WHERE PCEST.CODPROD = P_CODIGO_PRODUTO
          AND PCEST.CODFILIAL = P_CODIGO_FILIAL;
@@ -10797,6 +10800,10 @@ IS PRAGMA SERIALLY_REUSABLE;
       V_VARIAVEL.NOME  := '[PERICMSANTECIPADOULTENT]';
       V_VARIAVEL.VALOR := V_PERC_ICMS_ANTECIPADO_ULTENT;
       FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);
+      
+      V_VARIAVEL.Nome  := '[CUSTOCONTABIL]';
+      V_VARIAVEL.Valor := vnCUSTOCONT;
+      FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);      
     END IF;
     
   END PRC_ALIMENTAR_VAR_PCEST;
@@ -10840,9 +10847,21 @@ IS PRAGMA SERIALLY_REUSABLE;
       V_VARIAVEL.NOME  := '[VLULTENTCONTSEMST]';
       V_VARIAVEL.VALOR := V_VALOR_ULTENT_CONTABIL_SEM_ST;
       FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);
+               
     END IF;
     
   END PRC_ALIMENTAR_VAR_PCTABPR;
+  
+  PROCEDURE PRC_CARREGAR_VARIAVEIS_PARAIBA(pi_codprod   IN NUMBER,
+                                     pi_NumRegiao IN NUMBER,
+                                     vtVariaveis  IN OUT formula.TBVARIAVEIS,
+                                     pi_OutrasDespesas IN NUMBER) IS
+      variavel            FORMULA.RVARIAVEL;                                   
+  BEGIN
+      variavel.Nome := '[OUTRASDESPESAS]';
+      variavel.Valor := pi_OutrasDespesas;
+      FORMULA.ATRIBUIVALOR(variavel, vtVariaveis);  
+  END;   
   
   PROCEDURE PRC_CARREGAR_VARIAVEIS
   (
@@ -10853,11 +10872,13 @@ IS PRAGMA SERIALLY_REUSABLE;
     P_CODIGO_PRODUTO IN NUMBER,
     P_CODIGO_FILIAL  IN NUMBER,
     P_NUMERO_REGIAO  IN NUMBER,
-    P_VARIAVEIS      IN OUT formula.TBVARIAVEIS
+    P_VARIAVEIS      IN OUT formula.TBVARIAVEIS,
+    P_OUTRASDESPESAS IN NUMBER DEFAULT 0
   ) IS
   
     V_VARIAVEL                     FORMULA.RVARIAVEL;
     V_FORMULA_ICMTAB               PCTRIBUT.FORMULAICMTAB%TYPE;
+    vnALIQICMS1               PCTRIBUT.ALIQICMS1%TYPE;
     
   BEGIN
 
@@ -10881,17 +10902,25 @@ IS PRAGMA SERIALLY_REUSABLE;
     FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);
 
     V_VARIAVEL.NOME := '[ICMS]';
-    V_VARIAVEL.VALOR  := P_ICMS;
+    V_VARIAVEL.VALOR  := P_ICMS;    
     
     FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);
+    
+    V_VARIAVEL.Nome :=   '[PVENDASEMIMPOSTO]';
+    IF nvl(P_PRECO,0) <> 0 then
+      V_VARIAVEL.Valor := P_PRECO;
+      FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);
+    END IF;       
 
     IF P_CODST > 0
     THEN
       
       BEGIN
         
-        SELECT PCTRIBUT.FORMULAICMTAB
-          INTO V_FORMULA_ICMTAB
+        SELECT PCTRIBUT.FORMULAICMTAB, 
+               PCTRIBUT.ALIQICMS1
+          INTO V_FORMULA_ICMTAB,
+               vnALIQICMS1
           FROM PCTRIBUT,
                PCCOLECAOVARIAVEISTRIBI PCCOLECAO
          WHERE PCTRIBUT.CODCOLECAOVAR = PCCOLECAO.CODCOLECAOVAR(+)
@@ -10901,8 +10930,13 @@ IS PRAGMA SERIALLY_REUSABLE;
       EXCEPTION
         WHEN OTHERS THEN
           V_FORMULA_ICMTAB := '';
+          vnALIQICMS1 := 0;
       
       END;
+      
+       V_VARIAVEL.NOME := '[ALIQINT]';
+       V_VARIAVEL.VALOR := vnALIQICMS1;
+       FORMULA.ATRIBUIVALOR(V_VARIAVEL, P_VARIAVEIS);    
 
       IF SQL%ROWCOUNT > 0
       THEN
@@ -10945,6 +10979,11 @@ IS PRAGMA SERIALLY_REUSABLE;
     PRC_ALIMENTAR_VAR_PCTABPR(P_CODIGO_PRODUTO,
                               P_NUMERO_REGIAO,
                               P_VARIAVEIS);
+                              
+    PRC_CARREGAR_VARIAVEIS_PARAIBA(P_CODIGO_PRODUTO,
+                              P_NUMERO_REGIAO,
+                              P_VARIAVEIS,
+                              P_OUTRASDESPESAS);                              
 
   END PRC_CARREGAR_VARIAVEIS;
   
@@ -11009,7 +11048,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     P_CODST             IN NUMBER,
     P_CODIGO_PRODUTO    IN NUMBER,
     P_CODIGO_FILIAL     IN VARCHAR,
-    P_NUMERO_REGIAO     IN NUMBER
+    P_NUMERO_REGIAO     IN NUMBER,
+    P_OUTRASDESPESAS IN NUMBER DEFAULT 0
   ) RETURN NUMBER IS
 
     V_VALIDO            BOOLEAN DEFAULT TRUE;
@@ -11034,7 +11074,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                              P_CODIGO_PRODUTO,
                              P_CODIGO_FILIAL,
                              P_NUMERO_REGIAO,
-                             V_VARIAVEIS);
+                             V_VARIAVEIS,
+                             P_OUTRASDESPESAS);
 
       PRC_CARREGAR_VARIAVEIS_CMV(P_CUSTO_PRECIFICADO,
                                  P_IMPOSTOS_CMV,
@@ -11043,7 +11084,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                  P_FRETE,
                                  P_FRETE_OUTROS,
                                  P_TAXA_VENDA,
-                                 V_VARIAVEIS);
+                                 V_VARIAVEIS);                                                        
 
        V_PERC_IMPOSTOS_CMV := FORMULA.CALCULARSUBFORMULA('PERCIMPOSTOSCMV', V_VARIAVEIS);
 
