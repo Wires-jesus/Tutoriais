@@ -25,6 +25,10 @@
             "nome": "PARAMETRO",
             "tipo": "PARAMETRO",
             "versao": "7.0.04.000"
+        },{
+            "nome": "PCBENEFICFISCALCREDPRES",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
         }
 	]
 }
