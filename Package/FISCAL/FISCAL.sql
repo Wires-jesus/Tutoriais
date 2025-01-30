@@ -178,12 +178,12 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                        ,P_TIPOMOV      varchar2
                                        ,P_ATIVARLOG    varchar2 := 'N'
                                        ,P_MSG      out varchar2);
-                                       
+
    FUNCTION F_CALCULAR_PARTILHA_ICMS_1_9(P_NUMTRANSACAO in number
                                         ,P_TIPOMOV      varchar2
                                         ,P_ATIVARLOG    varchar2 := 'N'
                                         ,P_CODMSG   out varchar2
-                                        ,P_MSG      out varchar2) 
+                                        ,P_MSG      out varchar2)
    RETURN VARCHAR2;
 
    PROCEDURE OBTERCODIGOCEST_1_3(P_CODPROD       IN NUMBER
@@ -218,7 +218,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_PERCOFINS        OUT NUMBER,
                                       P_MENSAGEM_RETORNO OUT VARCHAR2)
       RETURN BOOLEAN;
-      
+
    FUNCTION GET_NATUREZAOPERACAO(P_CODFISCAL IN VARCHAR2,
                                 P_CODOPER IN VARCHAR2,
                                 P_CODROTINAEMISSAO IN VARCHAR2 := 0) RETURN VARCHAR2;
@@ -231,8 +231,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_CODOPER         VARCHAR2,
                                       P_CODROTINAORIGEM NUMBER DEFAULT 0
                                       ) RETURN VARCHAR2;
-                    
-  FUNCTION GET_FORMULA_CREDPRESUMIDO (
+                                      
+   FUNCTION GET_FORMULA_CREDPRESUMIDO (
                                       P_CODBENEFICIOFISCAL IN VARCHAR2,
                                       P_CODST IN NUMBER,
                                       P_ALIQICMSNF IN NUMBER,
@@ -243,23 +243,24 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL,
                                       P_CODFISCAL IN NUMBER DEFAULT NULL,
                                       P_NCM IN VARCHAR2 DEFAULT NULL,
-                                      P_ALIQCREDPRESUMIDO OUT NUMBER,
-                    P_FORMULACREDPRES OUT VARCHAR2
-    
-    ) 
+                                      P_ALIQCREDPRESUMIDO OUT NUMBER,                                      
+                                      P_FORMULACREDPRES OUT VARCHAR2,
+                                      P_CCREDPRESUMIDO OUT VARCHAR2
+
+    )
     RETURN VARCHAR2;
-    
-    FUNCTION GET_DADOS_CREDITOPRESUMIDO (
+
+   FUNCTION GET_DADOS_CREDITOPRESUMIDO (
                                         P_CODBENEFICIOFISCAL IN VARCHAR2, -- Código Beneficio Fiscal
                                         P_CODST IN NUMBER, -- Figura tributária rotina 514
                                         P_ALIQICMSNF IN NUMBER, -- Alíquota ICMS NF
                                         P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
-                                        P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional) 
-                                        P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)  
-                                        P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional) 
-                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional) 
-                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional) 
-                                        P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional) 
+                                        P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional)
+                                        P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)
+                                        P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional)
+                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional)
+                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional)
+                                        P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional)
                                         P_PUNITCONT IN NUMBER DEFAULT 0, -- Preço unitário
                                         P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
 
@@ -271,10 +272,14 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                         P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
                                         P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
+                                        P_CCREDPRESUMIDO OUT PCMOVCOMPLE.CCREDPRESUMIDO%TYPE,
                                         P_MSG OUT VARCHAR2
-)     
-     RETURN VARCHAR2;                  
-                    
+  )
+     RETURN VARCHAR2;
+
+  FUNCTION CALCULAR_CREDITOPRESUMIDO(P_NUMTRANSACAO in number
+                                     ,P_TIPOMOV      varchar2
+                                     ,P_ATIVARLOG    varchar2 := 'N'
+                                     ,P_MSG      out varchar2)
+  RETURN VARCHAR2;
 END;
-
-
