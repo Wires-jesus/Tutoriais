@@ -382,7 +382,10 @@ begin
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
                                                INDDEDUZDESONERACAO      => NULL,
-                                               NUMTRANSITEM             => NULL
+                                               NUMTRANSITEM             => NULL,
+                                               CCREDPRESUMIDO           => NULL,
+                                               PERCCREDICMPRESUMIDO     => NULL,
+                                               VLCREDPRESUMIDO          => NULL
                                                );
 
     RETORNO(RETORNO.count).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -658,6 +661,9 @@ begin
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := PRODUTO.INDDEDUZDESONERACAO;
     RETORNO(RETORNO.COUNT).NUMTRANSITEM               := PRODUTO.NUMTRANSITEM;
+    RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := PRODUTO.CCREDPRESUMIDO;
+    RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := PRODUTO.PERCCREDICMPRESUMIDO;
+    RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := PRODUTO.VLCREDPRESUMIDO;
   end loop;
 
   --inicio processo de gera??o do item de notas complementares ou notas de ajustes.
@@ -942,7 +948,10 @@ begin
                                            ADREMICMSRET             => NULL,
                                            VICMSMONORET             => NULL,
                                            INDDEDUZDESONERACAO      => NULL,
-                                           NUMTRANSITEM             => NULL
+                                           NUMTRANSITEM             => NULL,
+                                           CCREDPRESUMIDO           => NULL,
+                                           PERCCREDICMPRESUMIDO     => NULL,
+                                           VLCREDPRESUMIDO          => NULL
                                           );
 
     RETORNO(RETORNO.count).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -1207,6 +1216,9 @@ begin
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
     RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
+    RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := NULL;
+    RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := NULL;
+    RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := NULL;
   END LOOP;
 
   ELSE
@@ -1506,7 +1518,10 @@ begin
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
                                                INDDEDUZDESONERACAO      => NULL,
-                                               NUMTRANSITEM             => NULL
+                                               NUMTRANSITEM             => NULL,
+                                               CCREDPRESUMIDO           => NULL,
+                                               PERCCREDICMPRESUMIDO     => NULL,
+                                               VLCREDPRESUMIDO          => NULL
                                              );
 
       RETORNO(RETORNO.count).ALIQUOTA_COFINS         := 0;
@@ -1766,6 +1781,9 @@ begin
       RETORNO(RETORNO.COUNT).VICMSMONORET               := 0;
       RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
       RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
+      RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := NULL;
+      RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := NULL;
+      RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := NULL;      
     end loop;
   end if;
   --fim processo de geração do item de notas complementares ou notas de ajustes

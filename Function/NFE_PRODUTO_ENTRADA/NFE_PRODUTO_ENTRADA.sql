@@ -410,7 +410,10 @@ BEGIN
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
                                                INDDEDUZDESONERACAO      => NULL,
-                                               NUMTRANSITEM             => NULL
+                                               NUMTRANSITEM             => NULL,
+                                               CCREDPRESUMIDO           => NULL,
+                                               PERCCREDICMPRESUMIDO     => NULL,
+                                               VLCREDPRESUMIDO          => NULL
                                                );
 
      RETORNO(RETORNO.COUNT).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -683,6 +686,9 @@ BEGIN
      RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
      RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := PRODUTO.INDDEDUZDESONERACAO;
      RETORNO(RETORNO.COUNT).NUMTRANSITEM               := PRODUTO.NUMTRANSITEM;
+     RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := PRODUTO.CCREDPRESUMIDO;
+     RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := PRODUTO.PERCCREDICMPRESUMIDO;
+     RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := PRODUTO.VLCREDPRESUMIDO;
   END LOOP;
 
 FOR PRODUTO IN CR_PRODUTOS_CIAP
@@ -956,7 +962,10 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
                                                INDDEDUZDESONERACAO      => NULL,
-                                               NUMTRANSITEM             => NULL
+                                               NUMTRANSITEM             => NULL,
+                                               CCREDPRESUMIDO           => NULL,
+                                               PERCCREDICMPRESUMIDO     => NULL,
+                                               VLCREDPRESUMIDO          => NULL
                                                );
 
     RETORNO(RETORNO.COUNT).ALIQUOTA_COFINS         := PRODUTO.ALIQUOTA_COFINS;
@@ -1218,6 +1227,9 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
     RETORNO(RETORNO.COUNT).VICMSMONORET               := PRODUTO.VICMSMONORET;
     RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
     RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
+    RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := NULL;
+    RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := NULL;
+    RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := NULL; 
   END LOOP;
   IF RETORNO.COUNT = 0 THEN
     INFO_ADICIONAL := '';
@@ -1519,7 +1531,10 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
                                                ADREMICMSRET             => NULL,
                                                VICMSMONORET             => NULL,
                                                INDDEDUZDESONERACAO      => NULL,
-                                               NUMTRANSITEM             => NULL
+                                               NUMTRANSITEM             => NULL,
+                                               CCREDPRESUMIDO           => NULL,
+                                               PERCCREDICMPRESUMIDO     => NULL,
+                                               VLCREDPRESUMIDO          => NULL
                                                );
 
 
@@ -1783,6 +1798,9 @@ FOR PRODUTO IN CR_PRODUTOS_CIAP
       RETORNO(RETORNO.COUNT).VICMSMONORET               := 0;       
       RETORNO(RETORNO.COUNT).INDDEDUZDESONERACAO        := NULL;
       RETORNO(RETORNO.COUNT).NUMTRANSITEM               := NULL;
+      RETORNO(RETORNO.COUNT).CCREDPRESUMIDO             := NULL;
+      RETORNO(RETORNO.COUNT).PERCCREDICMPRESUMIDO       := NULL;
+      RETORNO(RETORNO.COUNT).VLCREDPRESUMIDO            := NULL;
     END LOOP;
   END IF;
 
