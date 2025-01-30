@@ -3,8 +3,8 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
-   "nome": "TABELA_NFE_PRODUTO",
-   "tipo":"OBJETO_PLSQL",
+   "nome": "TIPO_NFE_PRODUTO",
+   "tipo": "MIGRATION",
    "versao": "6.0.02.000"
   },
   {
