@@ -6088,7 +6088,7 @@ create or replace package body FISCAL is
                               ,'S');
        END LOOP;
 
-
+       V_RETURN := 'S';
        -- DESABILITANDO SERVIÇO LOG
        PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
      EXCEPTION
@@ -6096,7 +6096,7 @@ create or replace package body FISCAL is
         PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
           P_MSG     := 'Erro o calcular Crédito Presumido.' || CHR(13) ||
                        'Erro original: ' || SQLERRM;
-          V_RETURN := 'ERRO';
+          V_RETURN := 'N';
      END;
 
 
