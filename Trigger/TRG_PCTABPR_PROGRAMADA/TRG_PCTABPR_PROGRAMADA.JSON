@@ -1,0 +1,11 @@
+{
+    "nome":"TRG_PCTABPR_PROGRAMADA",
+    "tipoPLSQL":"TRIGGER",
+    "dependencias": [
+        {
+            "nome": "PCTABPR_PROGRAMADA",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
+        }
+    ]
+}

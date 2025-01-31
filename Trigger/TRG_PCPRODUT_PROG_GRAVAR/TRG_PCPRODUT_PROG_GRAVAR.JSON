@@ -1,0 +1,11 @@
+{
+    "nome":"TRG_PCPRODUT_PROG_GRAVAR",
+    "tipoPLSQL":"TRIGGER",
+    "dependencias": [
+        {
+            "nome": "PCPRODUT_PROGRAMADA",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
+        }
+    ]
+}
