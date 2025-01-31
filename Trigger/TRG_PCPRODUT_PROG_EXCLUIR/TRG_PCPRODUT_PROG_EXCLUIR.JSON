@@ -1,0 +1,16 @@
+{
+    "nome":"TRG_PCPRODUT_PROG_EXCLUIR",
+    "tipoPLSQL":"TRIGGER",
+    "dependencias": [
+        {
+            "nome": "PCPRODUT_PROGRAMADA",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
+        },
+        {
+            "nome": "PCTABPR_PROGRAMADA",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
+        }
+    ]
+}
