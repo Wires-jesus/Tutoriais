@@ -5,7 +5,7 @@ create or replace package body FISCAL is
                      (SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             M.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
+                             MC.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
                              M.CODST, -- Figura tributária rotina 514
                              M.PERCICM, -- Alíquota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
@@ -95,7 +95,7 @@ create or replace package body FISCAL is
                       SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             M.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
+                             MC.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
                              M.CODST, -- Figura tributária rotina 514
                              M.PERCICM, -- Alíquota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
