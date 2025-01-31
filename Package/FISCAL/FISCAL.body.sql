@@ -5,15 +5,15 @@ create or replace package body FISCAL is
                      (SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             M.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
+                             MC.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
                              M.CODST, -- Figura tributária rotina 514
                              M.PERCICM, -- Alíquota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                              CLIENTE.TIPOEMPRESA, -- Tipo de empresa (Opcional)
                              CLIENTE.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
-                             M.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
+                             MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
                              M.SITTRIBUT, -- Situação tributária (Opcional)
-                             M.CODFILIAL, -- Código fiscal(CFOP) (Opcional)
+                             M.CODFISCAL, -- Código fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
                              M.PUNITCONT, -- Preço unitário
                              M.VLIPI, -- Valor do IPI
@@ -58,7 +58,7 @@ create or replace package body FISCAL is
                              CLIENTE.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
                              MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
                              M.SITTRIBUT, -- Situação tributária (Opcional)
-                             M.CODFILIAL, -- Código fiscal(CFOP) (Opcional)
+                             M.CODFISCAL, -- Código fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
                              M.PUNITCONT, -- Preço unitário
                              M.VLIPI, -- Valor do IPI
@@ -95,15 +95,15 @@ create or replace package body FISCAL is
                       SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             M.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
+                             MC.CODBENEFICIOFISCAL, -- Código Beneficio Fiscal
                              M.CODST, -- Figura tributária rotina 514
                              M.PERCICM, -- Alíquota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                              'N' TIPOEMPRESA, -- Tipo de empresa (Opcional)
                              N.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
-                             M.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
+                             MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
                              M.SITTRIBUT, -- Situação tributária (Opcional)
-                             M.CODFILIAL, -- Código fiscal(CFOP) (Opcional)
+                             M.CODFISCAL, -- Código fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
                              M.PUNITCONT, -- Preço unitário
                              M.VLIPI, -- Valor do IPI
@@ -5823,7 +5823,7 @@ create or replace package body FISCAL is
             -- Em caso de erro inesperado, retorna o erro detalhado
             P_FORMULACREDPRES := NULL;
             P_ALIQCREDPRESUMIDO := NULL;
-            P_CCREDPRESUMIDO := NULL;            
+            P_CCREDPRESUMIDO := NULL;
             RETURN 'Erro inesperado: ' || SQLCODE || ' - ' || SQLERRM;
     END;
 
@@ -5832,28 +5832,28 @@ create or replace package body FISCAL is
   END GET_FORMULA_CREDPRESUMIDO;
 
   FUNCTION GET_DADOS_CREDITOPRESUMIDO (
-                                    P_CODBENEFICIOFISCAL IN VARCHAR2, -- Código Beneficio Fiscal
-                                    P_CODST IN NUMBER, -- Figura tributária rotina 514
-                                    P_ALIQICMSNF IN NUMBER, -- Alíquota ICMS NF
-                                    P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
-                                    P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional)
-                                    P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)
-                                    P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional)
-                                    P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional)
-                                    P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional)
-                                    P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional)
-                                    P_PUNITCONT IN NUMBER DEFAULT 0, -- Preço unitário
-                                    P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
-                                    P_VLFRETE IN NUMBER DEFAULT 0, -- Valor do frete
-                                    P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
-                                    P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
-                                    P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
-                                    -- Declarando as variáveis de saída
-                                    P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
-                                    P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
-                                    P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
-                                    P_CCREDPRESUMIDO OUT PCMOV.CODBENEFICIOFISCAL%TYPE,
-                                    P_MSG OUT VARCHAR2
+                                        P_CODBENEFICIOFISCAL IN VARCHAR2, -- Código Beneficio Fiscal
+                                        P_CODST IN NUMBER, -- Figura tributária rotina 514
+                                        P_ALIQICMSNF IN NUMBER, -- Alíquota ICMS NF
+                                        P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
+                                        P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional)
+                                        P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)
+                                        P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional)
+                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional)
+                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional)
+                                        P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional)
+                                        P_PUNITCONT IN NUMBER DEFAULT 0, -- Preço unitário
+                                        P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
+                                        P_VLFRETE IN NUMBER DEFAULT 0, -- Valor do frete
+                                        P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
+                                        P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
+                                        P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
+                                        -- Declarando as variáveis de saída
+                                        P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
+                                        P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
+                                        P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
+                                        P_CCREDPRESUMIDO OUT PCMOVCOMPLE.CCREDPRESUMIDO%TYPE,
+                                        P_MSG OUT VARCHAR2
   )
   RETURN VARCHAR2 IS
     VSMENSAGEM   VARCHAR2(32767);
@@ -6018,7 +6018,7 @@ create or replace package body FISCAL is
                                        ' TIPOPESSOA '||DADOS_CREDITOPRESUMIDO.TIPOPESSOA||
                                        ' ORIGMERCTRIB '||DADOS_CREDITOPRESUMIDO.ORIGMERCTRIB||
                                        ' SITTRIBUT '||DADOS_CREDITOPRESUMIDO.SITTRIBUT||
-                                       ' CODFILIAL '||DADOS_CREDITOPRESUMIDO.CODFILIAL||
+                                       ' CODFISCAL '||DADOS_CREDITOPRESUMIDO.CODFISCAL||
                                        ' NBM '||DADOS_CREDITOPRESUMIDO.NBM||
                                        ' PUNITCONT '||DADOS_CREDITOPRESUMIDO.PUNITCONT||
                                        ' VLIPI '||DADOS_CREDITOPRESUMIDO.VLIPI||
@@ -6037,7 +6037,7 @@ create or replace package body FISCAL is
                                                    DADOS_CREDITOPRESUMIDO.TIPOPESSOA, -- Tipo de pessoa (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.SITTRIBUT, -- Situação tributária (Opcional)
-                                                   DADOS_CREDITOPRESUMIDO.CODFILIAL, -- Código fiscal(CFOP) (Opcional)
+                                                   DADOS_CREDITOPRESUMIDO.CODFISCAL, -- Código fiscal(CFOP) (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.NBM, -- NCM da mercadoria (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.PUNITCONT, -- Preço unitário
                                                    DADOS_CREDITOPRESUMIDO.VLIPI, -- Valor do IPI
