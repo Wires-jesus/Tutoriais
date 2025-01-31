@@ -37,6 +37,10 @@
             "nome": "PCMOVCOMPLEPREFAT",
             "tipo": "TABELA",
             "versao": "7.0.01.000"
-        }
+        },{
+            "nome": "PCBENEFICFISCALCREDPRESI",
+            "tipo": "TABELA",
+            "versao": "7.0.02.000"
+        }	
     ]
 }
