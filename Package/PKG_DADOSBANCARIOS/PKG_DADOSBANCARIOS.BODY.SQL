@@ -235,7 +235,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VN_RESULTMULTIPL NUMBER(6);
     VN_CONTADOR      NUMBER(6);
     TYPE LINHA4_TYPE IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    VN_LINHA4        LINHA4_TYPE;            
+    VN_LINHA4        LINHA4_TYPE;
+    VN_BASE          NUMBER(6);
   BEGIN
     IF (BANCO.NUMBANCO = 399) THEN
     -- CALCULO DV PARA O BANCO 399 HSBC
@@ -423,9 +424,10 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       VN_MULTIPLICADOR := 2;
       VN_SOMA          := 0;
       VN_POSICAO       := LENGTH(TRIM(PS_PALAVRA));
+      VN_BASE          := PN_BASE;
 
       IF BANCO.NUMBANCO = 637 THEN
-        PN_BASE := 1;  
+        VN_BASE := 1;  
       END IF;
 
       FOR I IN REVERSE 1 .. VN_POSICAO LOOP
@@ -438,7 +440,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             VN_SOMA := VN_SOMA + (VN_NUMERO * VN_MULTIPLICADOR);
           END IF;
 
-          IF (VN_MULTIPLICADOR = PN_BASE) THEN
+          IF (VN_MULTIPLICADOR = VN_BASE) THEN
             VN_MULTIPLICADOR := 2;
           ELSE
             VN_MULTIPLICADOR := VN_MULTIPLICADOR - 1;
@@ -1060,9 +1062,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     IF BANCO.NUMBANCO = '6375' THEN
        VS_CODBARRA_TEMP := '033';
     ELSIF BANCO.NUMBANCO = '6111' THEN
-       VS_CODBARRA_TEMP := '237';
-    ELSIF BANCO.NUMBANCO = '594' THEN
-       VS_CODBARRA_TEMP := '422';
+       VS_CODBARRA_TEMP := '237';    
     ELSE
        /*01 a 03*/ -- NUMERO DO BANCO
        VS_CODBARRA_TEMP := VS_CODBARRA_TEMP || LPAD(BANCO.NUMBANCO, 3, '0');
@@ -1862,7 +1862,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
   BEGIN
     -- GERAÃ¿Ã¿O DO NOSSO NÃ¿MERO PARA O BANCO BS2 *************************************************
     IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
-      VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 9, '0');
+      VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
       VS_CONTA_SEM_DV     := SUBSTR(BANCO.CONTA, 1, LENGTH(BANCO.CONTA) - 1);                        
       VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(BANCO.AGENCIA || VS_CONTA_SEM_DV || BANCO.NUMCARTEIRA3 || VS_NOSSONUMERO, 2, 'N');
       VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;
