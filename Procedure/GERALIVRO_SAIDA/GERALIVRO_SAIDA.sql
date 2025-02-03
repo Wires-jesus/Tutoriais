@@ -573,7 +573,6 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                      ROUND((NVL(B.QTCONT,0) * NVL(B.VLIPI,0)), 2) + 
                      ROUND((NVL(B.QTCONT,0) * NVL(B.VLOUTROS,0)), 2) + 
                      ROUND((NVL(B.QTCONT,0) * NVL(MC.VLIPIDEVFORNEC,0)), 2) + 
-                     ROUND((NVL(B.QTCONT,0) * NVL(B.VLFRETE,0)), 2)+
                      DECODE(NVL(A.DOCEMISSAO,'X'), 
                                 'CE', 0, 
                                 'SF', 0, 
