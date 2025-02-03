@@ -5800,13 +5800,13 @@ create or replace package body FISCAL is
           AND P.CODST = P_CODST
           AND I.ALIQICMSNF = P_ALIQICMSNF
           -- Filtros adicionais somente se os parâmetros não forem nulos
-          --AND (P_CONTRIBUINTECONSFINAL IS NULL OR NVL(CONTRIBUINTECONSFINAL, 'N') = P_CONTRIBUINTECONSFINAL)
-          --AND (P_TIPO_EMPRESA IS NULL OR REGEXP_LIKE(TIPOEMPRESA, '(^|,)' || P_TIPO_EMPRESA || '($|,)'))
-          --AND (P_TIPO_PESSOA IS NULL OR REGEXP_LIKE(TIPOPESSOA, '(^|,)' || P_TIPO_PESSOA || '($|,)'))
-          --AND (P_ORIGEM_MERC IS NULL OR REGEXP_LIKE(ORIGMERCTRIB, '(^|,)' || P_ORIGEM_MERC || '($|,)'))
-          --AND (P_SIT_TRIBUT IS NULL OR REGEXP_LIKE(SITTRIBUT, '(^|,)' || P_SIT_TRIBUT || '($|,)'))
-          --AND (P_CODFISCAL IS NULL OR REGEXP_LIKE(CODFISCAL, '(^|,)' || REPLACE(TO_CHAR(P_CODFISCAL), ',', '.') || '($|,)'))
-          --AND (P_NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))
+          AND (P_CONTRIBUINTECONSFINAL IS NULL OR NVL(CONTRIBUINTECONSFINAL, 'N') = P_CONTRIBUINTECONSFINAL)
+          AND ((NVL(TIPOEMPRESA, 'N') = P_TIPO_EMPRESA) OR (TIPOEMPRESA IS NULL ))
+          AND ((NVL(TIPOPESSOA, 'N') = P_TIPO_PESSOA) OR (TIPOPESSOA IS NULL ))
+          AND (ORIGMERCTRIB IS NULL OR REGEXP_LIKE(ORIGMERCTRIB, '(^|,)' || P_ORIGEM_MERC || '($|,)'))
+          AND (SITTRIBUT IS NULL OR REGEXP_LIKE(SITTRIBUT, '(^|,)' || P_SIT_TRIBUT || '($|,)'))
+          AND (CODFISCAL IS NULL OR REGEXP_LIKE(CODFISCAL, '(^|,)' || REPLACE(TO_CHAR(P_CODFISCAL), ',', '.') || '($|,)'))
+          AND (NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))
           AND ROWNUM  = 1;
 
         -- Atribui os valores para os parâmetros de saída
