@@ -5,5 +5,10 @@
         "nome": "PCFILIAL",
         "tipo": "TABELA",
         "versao": "5.0.01.000"
+    }
+	,{
+        "nome": "PCCSRTWINTHOR",
+        "tipo": "TABELA",
+        "versao": "5.0.01.000"
     }]
 }
