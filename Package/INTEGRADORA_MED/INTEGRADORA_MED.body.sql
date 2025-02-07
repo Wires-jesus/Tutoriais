@@ -3901,7 +3901,8 @@ end func_HoraDigitacaoPedido;
                 NULL, -- CONCEDENTEFERTA              -- DDVENDAS-33961
                 'NA', -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
                 'N',  -- USARCACLIENTELINHAPORFILIALMED
-                'N'   -- PRECIFICREGIAOFORAUFSEMST				
+                'N',  -- PRECIFICREGIAOFORAUFSEMST
+                0    -- FIL_NUMMAXITENSNFE           -- DDVENDAS-50926
           into p_regfilial
           from pcfilial
          where codigo = p_regpedido.codfilial;
@@ -4422,6 +4423,11 @@ end func_HoraDigitacaoPedido;
                         'USARCACLIENTELINHAPORFILIALMED',
                         'N',
                          p_regfilial.usarcaclientelinhaporfilialmed);
+
+     proc_pcparamfilial(p_regfilial.codigo,
+                        'FIL_NUMMAXITENSNFE',
+                        0,
+                        p_regfilial.nummaxitensnfe);
 
   end proc_parametros;
 
@@ -29517,6 +29523,79 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
     vvPosicaoQuebraPedido            PCPEDC.POSICAO%TYPE;
     vsAchouPedidoTV8                 VARCHAR2(1);
 
+    vicontador          NUMBER;
+    vsmensagemdividenfe VARCHAR2(1000);
+    vbpedidodivididonfe BOOLEAN;
+    
+    ERRO_PROC_FINAL EXCEPTION;
+    
+    FUNCTION EXTRAIR_PROX_NUMPED(LISTA IN OUT T_NUMPED_PED%TYPE)
+      RETURN NUMBER IS
+      NUMPEDTEMP PCPEDI.NUMPED%TYPE;
+    BEGIN
+      
+      IF LISTA.COUNT <= 0 THEN
+        
+        RETURN 0;
+        
+      END IF;
+
+      FOR I IN LISTA.FIRST .. LISTA.LAST LOOP
+        
+        NUMPEDTEMP := LISTA(I);
+        LISTA.DELETE(I);
+        
+        RETURN NUMPEDTEMP;
+        
+      END LOOP;
+      
+    END EXTRAIR_PROX_NUMPED;
+    
+    PROCEDURE PROC_VALIDARQUEBRA_PEDIDO(PINDICEPEDIDO IN NUMBER) IS
+      ITENTATIVA       NUMBER;
+      VNCOUNTPEDIDOS   NUMBER := 0;
+      VNCOUNTPEDIDOS_1 NUMBER := 0;
+      VNCOUNTPEDIDOS_2 NUMBER := 0;
+    BEGIN
+
+      IF GVET_REGPEDIDO(PINDICEPEDIDO).TIPOFV = 'FV' THEN
+      
+        IF NVL(REGFILIAL.NUMMAXITENSNFE, 0) > 0 AND
+          NVL(GVET_REGPEDIDO(PINDICEPEDIDO).ORCAMENTO, 'N') = 'N' AND 
+          GVET_REGPEDIDO(PINDICEPEDIDO).CONDVENDA <> 7
+        THEN
+          
+          VNCOUNTPEDIDOS := CEIL(NVL(GVET_REGPEDIDO(PINDICEPEDIDO).NUMITENS, 0) / NVL(REGFILIAL.NUMMAXITENSNFE, 0));
+          
+          WHILE VNCOUNTPEDIDOS > 1 LOOP
+            
+            ITENTATIVA := 0;
+            T_NUMPED_PED(VNCOUNTPEDIDOS_2) := 0;
+            
+            WHILE ITENTATIVA < 50 AND
+                  T_NUMPED_PED(VNCOUNTPEDIDOS_2) = 0 LOOP
+                  
+              T_NUMPED_PED(VNCOUNTPEDIDOS_2) := F_PROX_NUMPED(GVET_REGPEDIDO(PINDICEPEDIDO).CODUSUR);
+              
+              IF T_NUMPED_PED(VNCOUNTPEDIDOS_2) > 0 THEN
+                EXIT;
+              END IF;
+              
+              ITENTATIVA := ITENTATIVA + 1;
+              
+            END LOOP;
+            
+            VNCOUNTPEDIDOS_2 := VNCOUNTPEDIDOS_2 + 1;
+            VNCOUNTPEDIDOS   := VNCOUNTPEDIDOS - 1;
+            
+          END LOOP;
+          
+        END IF;
+      
+      END IF;
+      
+    END PROC_VALIDARQUEBRA_PEDIDO;
+
   begin
   
     vvVersionamentoPkg := F_OBTER_VERSIONAMENTO;
@@ -32184,6 +32263,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
               from pcpedi
              where pcpedi.numped = gvet_regpedido(i).numped;
 
+            proc_validarquebra_pedido(i);
 
             if vncontitensvalidos <> 0 and vncontitensvalidos > vnqtinicial then
 
@@ -32959,6 +33039,62 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
 
             end if;
 
+            IF (nvl(gvet_regpedido(i).tipofv, 'FV') = 'FV') AND
+               (nvl(regfilial.nummaxitensnfe, 0) > 0) AND 
+               (nvl(gvet_regpedido(i).orcamento, 'N') = 'N') AND
+               (gvet_regpedido(i).condvenda <> 7) THEN
+
+              vicontador := 1;
+
+              WHILE vicontador > 0 LOOP
+
+                -- Verifica se tem algum pedido com numero de itens superior ao parametrizado na pcparamfilial.nummaxitensnfe
+                SELECT COUNT(*)
+                  INTO vicontador
+                  FROM pcpedc
+                 WHERE numpedrca = gvet_regpedido(i).numpedrca
+                   AND codusur = gvet_regpedido(i).codusur
+                   AND codcli = gvet_regpedido(i).codcli
+                   AND dtaberturapedpalm = gvet_regpedido(i).dtaberturapedpalm
+                   AND pcpedc.numitens > nvl(regfilial.nummaxitensnfe, 0);
+
+                IF vicontador > 0 THEN
+                  integradoracomple_med.proc_divide_numitensnfe(gvet_regpedido(i).numpedrca,
+                                                                gvet_regpedido(i).codusur,
+                                                                gvet_regpedido(i).codcli,
+                                                                gvet_regpedido(i).dtaberturapedpalm,
+                                                                regfilial.nummaxitensnfe,
+                                                                gregpcconsum.numcasasdecvenda,
+                                                                vsmensagemdividenfe,
+                                                                vbpedidodivididonfe,
+                                                                EXTRAIR_PROX_NUMPED(T_NUMPED_PED));
+
+                   IF (vsmensagemdividenfe IS NOT NULL) and (vsmensagemdividenfe not like ('%sucesso%')) THEN
+                      gvet_regpedido(i).valido := FALSE;
+                      integradora_comple.proc_registralog(gvet_regpedido(i).numped,
+                                                          gvet_regpedido(i).numpedrca,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          gvet_regpedido(i).cgccli,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          gvet_regpedido(i).codusur,
+                                                          gvet_regpedido(i).dtaberturapedpalm,
+                                                          NULL,
+                                                          '2',
+                                                          vsmensagemdividenfe || ';',
+                                                          NULL,
+                                                          null);
+
+                      RAISE ERRO_PROC_FINAL;
+                   END IF;
+
+                END IF;
+              END LOOP;
+            END IF;
+
 
                if gvet_regpedido(i).condvenda = 7 and gvet_regpedido(i).numpedorig = 0 then
 
@@ -33181,6 +33317,59 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
           end if; -- pedido valido (gvet_regpedido (i).valido)
 
         exception
+          WHEN ERRO_PROC_FINAL THEN
+
+            ROLLBACK;
+
+            T_NUMPED_PED.DELETE();
+            gvet_regpedido(i).valido := FALSE;
+
+            proc_registralog(gvet_regpedido(i).numped,
+                             gvet_regpedido(i).numpedrca,
+                             NULL,
+                             NULL,
+                             gvet_regpedido(i).cgccli,
+                             NULL,
+                             NULL,
+                             NULL,
+                             gvet_regpedido(i).codusur,
+                             gvet_regpedido(i).dtaberturapedpalm,
+                             NULL,
+                             '2',
+                             SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ';',
+                             NULL,
+                             NULL);
+
+            IF nvl(gvet_regpedido(i).numpedorig, 0) = 0 THEN
+
+              IF gvet_regpedido(i).orcamento = 'S' THEN
+
+                DELETE FROM pcorcavendai
+                 WHERE numorca = integradora_comple.gvet_regpedido(i).numped;
+
+                DELETE FROM pcorcavendac
+                 WHERE numorca = integradora_comple.gvet_regpedido(i).numped;
+
+--                COMMIT;
+
+              ELSE
+
+                DELETE FROM pcpedi
+                 WHERE pcpedi.numped = gvet_regpedido(i).numped;
+
+                DELETE FROM pcorigempreco
+                 WHERE numped = gvet_regpedido(i).numped;
+
+                DELETE FROM pcpedc
+                 WHERE pcpedc.numped = gvet_regpedido(i).numped;
+
+--                COMMIT;
+              END IF;
+
+              EXIT;
+
+            END IF;
+
           when others then
 
             gvet_regpedido(i).valido := false;
@@ -33615,77 +33804,100 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
 
         BEGIN
 
-         if gvet_regpedido(i).orcamento = 'S' then
+          if gvet_regpedido(i).orcamento = 'S' then
 
-          select pcorcavendac.numorca,
-                       decode(gvet_regpedido(i).numpedorig,
-                              0,
-                              pcorcavendac.numpedrca,
-                              gvet_regpedido(i).numpedrca),
-                 pcorcavendac.codcli,
-                 pcclient.cliente,
-                 pcorcavendac.vltotal,
-                 pcorcavendac.vlatend,
-                 pcorcavendac.numitens
+            select pcorcavendac.numorca,
+                   decode(gvet_regpedido(i).numpedorig,
+                          0,
+                          pcorcavendac.numpedrca,
+                          gvet_regpedido(i).numpedrca),
+                   pcorcavendac.codcli,
+                   pcclient.cliente,
+                   pcorcavendac.vltotal,
+                   pcorcavendac.vlatend,
+                   pcorcavendac.numitens
+              into vnnumped,
+                   vnnumpedrca,
+                   vncodcli,
+                   vscliente,
+                   vnvltotal,
+                   vnvlatend,
+                   vnqtatendped
+              from pcorcavendac,pcclient
+             where pcorcavendac.numorca = gvet_regpedido(i).numped
+               and pcorcavendac.codcli = pcclient.codcli;
+           
+            vnqtpedida := gvet_regpedido(i).numitens;
 
-          into vnnumped,
-               vnnumpedrca,
-               vncodcli,
-               vscliente,
-               vnvltotal,
-               vnvlatend,
-               vnqtatendped
-          from pcorcavendac,pcclient
-          where pcorcavendac.numorca = gvet_regpedido(i).numped
-           and pcorcavendac.codcli = pcclient.codcli;
+            vsobsfinalpedido := '>>PEDIDO      : ' || vnnumpedrca||CHR(13)||
+                                vncodcli || ' - ' || vscliente||CHR(13)||
+                                'Pedido Winthor: ' || vnnumped||CHR(13)||
+                                'Total         : ' || vnvltotal||CHR(13)||
+                                'Atendido      : ' || vnvlatend||CHR(13)||
+                                'Tot. Itens    : ' || vnqtpedida||CHR(13)||
+                                'Tot. Atend    : ' || vnqtatendped;
 
+            -- MED-2079 - Informação da Margem do Pedido
+            IF (gvet_regpedido(i).margempedido IS NOT NULL) OR
+               (gvet_regpedido(i).margemminaplicada IS NOT NULL) THEN
+               
+               vsobsfinalpedido := vsobsfinalpedido || CHR(13)||
+                                   'Margem Minima : ' || gvet_regpedido(i).margemminaplicada||CHR(13)||
+                                   'Margem Pedido : ' || gvet_regpedido(i).margempedido;
+            END IF;
 
-         else
+          else
 
+            select sum(pcpedc.vltotal)
+              into vnvltotal
+              from pcpedc
+             where pcpedc.numpedrca = gvet_regpedido(i).numpedrca;               
+               
+            select codcli,
+                   cliente
+              into vncodcli,
+                   vscliente
+              from pcclient
+             where codcli = gvet_regpedido(i).codcli;
+               
+            vsobsfinalpedido := '>>PEDIDO      : ' || gvet_regpedido(i).numpedrca || CHR(13) || 
+                                vncodcli || ' - ' || vscliente || CHR(13) || 
+                                'Total         : ' || vnvltotal || CHR(13) || 
+                                '--------------------------------------------' || CHR(13);
+            
+            vnqtpedida := gvet_regpedido(i).numitens;
+            
+            FOR regped IN (select pcpedc.numped,
+                           decode(gvet_regpedido(i).numpedorig,
+                                  0,
+                                  pcpedc.numpedrca,
+                                  gvet_regpedido(i).numpedrca),
+                           pcpedc.codcli,
+                           pcclient.cliente,
+                           pcpedc.vltotal,
+                           pcpedc.vlatend,
+                           pcpedc.numitens
+                      from pcpedc, pcclient
+                     where pcpedc.numpedrca = gvet_regpedido(i).numpedrca
+                       and pcpedc.codcli = pcclient.codcli) LOOP
 
-          select pcpedc.numped,
-                       decode(gvet_regpedido(i).numpedorig,
-                              0,
-                              pcpedc.numpedrca,
-                              gvet_regpedido(i).numpedrca),
-                 pcpedc.codcli,
-                 pcclient.cliente,
-                 pcpedc.vltotal,
-                 pcpedc.vlatend,
-                 pcpedc.numitens
+              vsobsfinalpedido := vsobsfinalpedido || 'Pedido Winthor: ' || regped.numped || CHR(13) ||
+                                  'Total         : ' || regped.vltotal || CHR(13) ||
+                                  'Atendido      : ' || regped.vlatend || CHR(13) ||
+                                  'Tot. Itens    : ' || vnqtpedida || CHR(13) ||
+                                  'Tot. Atend    : ' || regped.numitens|| CHR(13);
+                                  
+            END LOOP;
+            
+            -- MED-2079 - Informação da Margem do Pedido
+            IF (gvet_regpedido(i).margempedido IS NOT NULL) OR
+               (gvet_regpedido(i).margemminaplicada IS NOT NULL) THEN
+                 
+               vsobsfinalpedido := vsobsfinalpedido || 'Margem Minima : ' || gvet_regpedido(i).margemminaplicada || CHR(13) ||
+                                                       'Margem Pedido : ' || gvet_regpedido(i).margempedido;
 
-          into vnnumped,
-               vnnumpedrca,
-               vncodcli,
-               vscliente,
-               vnvltotal,
-               vnvlatend,
-               vnqtatendped
-          from pcpedc, pcclient
-          where pcpedc.numped = gvet_regpedido(i).numped
-           and pcpedc.codcli = pcclient.codcli;
-
-         end if;
-
-          vnqtpedida := gvet_regpedido(i).numitens;
-
-               vsobsfinalpedido := '>>PEDIDO      : ' || vnnumpedrca||CHR(13)||
-                                    vncodcli || ' - ' || vscliente||CHR(13)||
-                                   'Pedido Winthor: ' || vnnumped||CHR(13)||
-                                   'Total         : ' || vnvltotal||CHR(13)||
-                                   'Atendido      : ' || vnvlatend||CHR(13)||
-                                   'Tot. Itens    : ' || vnqtpedida||CHR(13)||
-                                   'Tot. Atend    : ' || vnqtatendped;
-
-               -- MED-2079 - Informação da Margem do Pedido
-               IF (gvet_regpedido(i).margempedido IS NOT NULL) OR
-                  (gvet_regpedido(i).margemminaplicada IS NOT NULL) THEN
-                 vsobsfinalpedido := vsobsfinalpedido || CHR(13)||
-                                     'Margem Minima : ' || gvet_regpedido(i).margemminaplicada||CHR(13)||
-                                     'Margem Pedido : ' || gvet_regpedido(i).margempedido;
-               END IF;
-
-
+            END IF;            
+          end if;
         END;
 
        if gvet_regpedido(i).orcamento = 'S' then
