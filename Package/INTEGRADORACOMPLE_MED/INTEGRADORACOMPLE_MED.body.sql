@@ -11057,4 +11057,483 @@ IS PRAGMA SERIALLY_REUSABLE;
       
   END FNC_CALCULAR_PERC_SISTEMATICA;
 
+  PROCEDURE PROC_DIVIDE_NUMITENSNFE(P_NUMPEDRCA           IN PCPEDC.NUMPEDRCA%TYPE,
+                                    P_CODUSUR             IN PCPEDC.CODUSUR%TYPE,
+                                    P_CODCLI              IN PCPEDC.CODCLI%TYPE,
+                                    P_DTABERTURAPEDPALM   IN PCPEDC.DTABERTURAPEDPALM%TYPE,
+                                    P_NUM_MAX_ITENS_NFE   IN NUMBER,
+                                    P_NUM_CASAS_DEC_VENDA IN NUMBER,
+                                    P_MENSAGEM            OUT VARCHAR2,
+                                    P_VALIDO              OUT BOOLEAN,
+                                    P_NUM_PEDIDO          IN PCPEDC.NUMPED%TYPE DEFAULT NULL) 
+  IS
+ 
+    vnproxnumped    pcusuari.proxnumped%TYPE;
+
+    vnnumseqnovoped NUMBER;
+
+    vnvltabela       pcpedc.vltabela%TYPE;
+    vnvlatend        pcpedc.vlatend%TYPE;
+    vnvltotal        pcpedc.vltotal%TYPE;
+    vnvlcustofin     pcpedc.vlcustofin%TYPE;
+    vnvlcustoreal    pcpedc.vlcustoreal%TYPE;
+    vnvlcustorep     pcpedc.vlcustorep%TYPE;
+    vnvlcustocont    pcpedc.vlcustocont%TYPE;
+    vntotpeso        pcpedc.totpeso%TYPE;
+    vntotvolume      pcpedc.totvolume%TYPE;
+    vnnumitens       pcpedc.numitens%TYPE;
+    vnnumped         pcpedc.numped%TYPE;
+    vnperdescped     NUMBER;
+
+    vsdata      pcfalta.data%type;
+    vscodprod   pcfalta.codprod%type;
+    vscodusur   pcfalta.codusur%type;
+    vscodcli    pcfalta.codcli%type;
+    vsqt        pcfalta.qt%type;
+    vspvenda    pcfalta.pvenda%type;
+    vscodfilial pcfalta.codfilial%type;
+
+    viaux            NUMBER;
+    vbvalido         BOOLEAN;
+
+    iTentativa       NUMBER;
+
+    vLog PCLOG_INTEGRADORA%ROWTYPE := NULL;
+
+  BEGIN
+
+    p_valido := FALSE;
+    vbvalido := TRUE;
+    vnnumseqnovoped := 0;
+    
+    FOR reg_ped IN (SELECT numped,
+                          (select cgcent from pcclient where codcli = p_codcli)cgccli,
+                           numitens,
+                           condvenda,
+                           nvl(p_num_max_itens_nfe,
+                               400) nummaxitensnfe
+                      FROM pcpedc
+                     WHERE numpedrca = p_numpedrca
+                       AND pcpedc.codusur = p_codusur
+                       AND pcpedc.codcli = p_codcli
+                       AND pcpedc.dtaberturapedpalm = p_dtaberturapedpalm
+                       AND pcpedc.numitens > nvl(p_num_max_itens_nfe,
+                                                 400)) LOOP
+
+      BEGIN
+
+        IF p_num_pedido IS NULL THEN
+          vnproxnumped := ferramentas.F_PROX_NUMPED(p_codusur);
+        ELSE
+          vnproxnumped := p_num_pedido;
+        END IF;
+
+        iTentativa := 0;
+
+        WHILE iTentativa < 50 and vnproxnumped = 0 LOOP
+            vnproxnumped := ferramentas.F_PROX_NUMPED(p_codusur);
+
+            IF vnproxnumped > 0 THEN
+              
+              exit;
+
+            END IF;
+
+            iTentativa := iTentativa + 1;
+
+        END LOOP;
+
+      EXCEPTION
+        WHEN OTHERS THEN
+          p_mensagem := 'Erro ao buscar numeração do novo pedido : ' || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+          RAISE;
+      END;
+
+
+      IF nvl(vnproxnumped,0) = 0 THEN -- VEN-9145 - Ajustado o log para informar quando não gravar o 'proxnumpedrca' na divisão dos pedidos.
+        
+        vLog.NUMPEDRCA          := p_numpedrca;
+        vLog.CODUSUR            := p_codusur;
+        vLog.CGCCLI             := reg_ped.cgccli;
+        vLog.DTABERTURAPEDPALM  := p_dtaberturapedpalm;
+        vLog.TipoLog            := 'C';
+        vLog.MSG                := 'Erro! Função F_PROX_NUMPED retornou NUMPED = 0 ao dividir os itens para a NF-e.';
+
+        PRC_LOG_INTEGRADORA(vLog, (CASE WHEN vLog.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+        vbvalido := FALSE;
+        p_mensagem := 'Erro ao buscar numeração do novo pedido : ' || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+      
+      END IF;
+
+      viaux           := 0;
+      vnnumseqnovoped := 0;
+
+      IF vbvalido = TRUE THEN
+
+        FOR reg_itens IN (SELECT codprod,
+                                 codauxiliar,
+                                 condvenda,
+                                 numseq
+                            FROM pcpedi
+                           WHERE numped = reg_ped.numped) LOOP
+
+          viaux    := viaux + 1;
+          vbvalido := TRUE;
+
+          IF viaux > reg_ped.nummaxitensnfe THEN
+            --insere no novo pedido
+            vnnumseqnovoped := vnnumseqnovoped + 1;
+
+            BEGIN
+              UPDATE PCPEDI
+              SET   numped = vnproxnumped,
+                    numseq = vnnumseqnovoped,
+                    pbonific = CASE WHEN reg_ped.condvenda = 5 THEN pvenda ELSE 0 END
+              WHERE numped = reg_ped.numped
+                    AND codprod = reg_itens.codprod
+                    AND numseq = reg_itens.numseq;
+
+            EXCEPTION
+
+              WHEN OTHERS THEN
+
+                p_mensagem := 'Erro ao inserir item do novo pedido na pcpedi : ' || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+
+                vbvalido := FALSE;
+
+            END;
+
+            BEGIN
+
+              UPDATE pcorigempreco
+              SET    numped = vnproxnumped,
+                     numseq = vnnumseqnovoped
+              WHERE  numped = reg_ped.numped
+                     AND codprod = reg_itens.codprod
+                     AND numseq = reg_itens.numseq;
+
+            EXCEPTION
+
+              WHEN OTHERS THEN
+
+                p_mensagem := 'Erro ao inserir item do novo pedido na pcorigempreco : ' || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+
+                vbvalido := FALSE;
+
+            END;
+
+            BEGIN
+
+              UPDATE pcorigemcomis
+              SET    numped = vnproxnumped,
+                     numseq = vnnumseqnovoped
+              WHERE  numped = reg_ped.numped
+                     AND codprod = reg_itens.codprod
+                     AND numseq = reg_itens.numseq;
+
+            EXCEPTION
+
+              WHEN OTHERS THEN
+
+                p_mensagem := 'Erro ao inserir item do novo pedido na pcorigemcomis : ' || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+
+                vbvalido := FALSE;
+
+            END;
+
+          END IF;
+
+        END LOOP;
+
+        --recalcular pedido
+
+        SELECT SUM(ROUND(NVL(pcpedi.qt, 0) * NVL(pcpedi.ptabela, 0), 2)) vltabela,
+               SUM(DECODE(NVL(pcpedi.bonific, 'N'), 'F', 0, ROUND(pcpedi.qt * pcpedi.pvenda, 2))) vlatend,
+               SUM(ROUND((NVL(pcpedi.qt, 0) + nvl(pcpedi.qtfalta, 0)) * NVL(pcpedi.pvenda, 0), 2)) vltotal,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustofin, 0)) vlcustofin,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustoreal, 0)) vlcustoreal,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustorep, 0)) vlcustorep,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustocont, 0)) vlcustocont,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcprodut.pesoliq, 0)) totpeso,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcprodut.volume, 0)) totvolume,
+               COUNT(*) numitens
+          INTO vnvltabela,
+               vnvlatend,
+               vnvltotal,
+               vnvlcustofin,
+               vnvlcustoreal,
+               vnvlcustorep,
+               vnvlcustocont,
+               vntotpeso,
+               vntotvolume,
+               vnnumitens
+          FROM pcpedi,
+               pcprodut
+         WHERE pcpedi.numped = reg_ped.numped
+           AND pcpedi.codprod = pcprodut.codprod
+           AND PCPEDI.QT > 0;
+
+        UPDATE pcpedc
+           SET pcpedc.vltabela    = vnvltabela,
+               pcpedc.vlatend     = vnvlatend,
+               pcpedc.vltotal     = nvl(vnvltotal, 0),
+               pcpedc.vlcustofin  = vnvlcustofin,
+               pcpedc.vlcustoreal = vnvlcustoreal,
+               pcpedc.vlcustorep  = vnvlcustorep,
+               pcpedc.vlcustocont = vnvlcustocont,
+               pcpedc.totpeso     = vntotpeso,
+               pcpedc.totvolume   = vntotvolume,
+               pcpedc.numitens    = vnnumitens
+         WHERE pcpedc.numped = reg_ped.numped;
+
+        vnnumped := reg_ped.numped;
+
+        --gravar novo pedido
+        SELECT SUM(ROUND(NVL(pcpedi.qt, 0) * NVL(pcpedi.ptabela, 0), 2)) vltabela,
+               SUM(DECODE(NVL(pcpedi.bonific, 'N'), 'F', 0, ROUND(pcpedi.qt * pcpedi.pvenda, 2))) vlatend,
+               SUM(ROUND((NVL(pcpedi.qt, 0) + nvl(pcpedi.qtfalta, 0)) * NVL(pcpedi.pvenda, 0), 2)) vltotal,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustofin, 0)) vlcustofin,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustoreal, 0)) vlcustoreal,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustorep, 0)) vlcustorep,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcpedi.vlcustocont, 0)) vlcustocont,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcprodut.pesoliq, 0)) totpeso,
+               SUM(NVL(pcpedi.qt, 0) * NVL(pcprodut.volume, 0)) totvolume,
+               COUNT(*) numitens
+          INTO vnvltabela,
+               vnvlatend,
+               vnvltotal,
+               vnvlcustofin,
+               vnvlcustoreal,
+               vnvlcustorep,
+               vnvlcustocont,
+               vntotpeso,
+               vntotvolume,
+               vnnumitens
+          FROM pcpedi,
+               pcprodut
+         WHERE pcpedi.numped = vnproxnumped
+           AND pcpedi.codprod = pcprodut.codprod;
+
+        vnperdescped := ROUND((((vnvltabela - vnvltotal) / vnvltabela) * 100), p_num_casas_dec_venda);
+
+        INSERT INTO pcpedc (codcli, --1
+                            codcob, --2
+                            coddistrib, --3
+                            codemitente, --4
+                            codfilial, --5
+                            codfilialnf, --6
+                            codplpag, --7
+                            codpraca, --8
+                            codsupervisor, --9
+                            codusur, --10
+                            condvenda, --11
+                            DATA, --12
+                            dtentrega, --13
+                            hora, --14
+                            minuto, --15
+                            numcar, --16
+                            numitens, --17
+                            numped, --18
+                            numpedcli, --19
+                            numpedrca, --20
+                            obs1, --21
+                            obs2, --22
+                            obsentrega1, --23
+                            obsentrega2, --24
+                            operacao, --25
+                            origemped, --26
+                            percvenda, --27
+                            perdesc, --28
+                            posicao, --29
+                            prazo1, --30
+                            prazo2, --31
+                            prazo3, --32
+                            prazo4, --33
+                            prazo5, --34
+                            prazo6, --35
+                            prazo7, --36
+                            prazo8, --37
+                            prazo9, --38
+                            prazo10, --39
+                            prazo11, --40
+                            prazo12, --41
+                            prazomedio, --42
+                            tipovenda, --43
+                            totpeso, --44
+                            totvolume, --45
+                            vlatend, --46
+                            vlcustocont, --47
+                            vlcustofin, --48
+                            vlcustoreal, --49
+                            vlcustorep, --50
+                            vltabela, --51
+                            vltotal, --52
+                            dtaberturapedpalm, --53
+                            dtfechamentopedpalm, --54
+                            numregiao, --55
+                            usaintegracaowms, --56
+                            usacredrca, --57
+                            usadebcredrca, --58
+                            bonificaltdebcredrca, --59
+                            trocaaltdebcredrca, --60
+                            crmaltdebcredrca, --61
+                            brokeraltdebcredrca, --62
+                            tipomovccrca, --63
+                            vlfrete, --64
+                            codfornecfrete, --65
+                            fretedespacho, --66
+                            freteredespacho, --67
+                            broker, --68
+                            tipodocumento, --69
+                            codclinf, --70
+                            contaordem, --71
+                            codmotivo, --72
+                            motivoposicao, --73
+                            log, --74
+                            codclitv8, --75
+                            codplpagetico, --76
+                            codplpaggenerico, --77
+                            tipoprioridadeentrega, --78
+                            localdesembaraco, --79
+                            ufdesembaraco, --80
+                            numpedtv1, --81
+                            agrupamento, --82
+                            codbnf, --83
+                            custobonificacao, --84
+                            codfornecbonific, --85
+                            turnoentrega, --86
+                            codendent, --87
+                            vlentrada, --88
+                            codendentcli, --89
+                            vldescabatimento, --90
+                            codestabelecimento, --91
+                            numtabela, --92
+                            obsentrega3, --93
+                            obsentrega4, --94
+                            codmotbloqueio, --95
+                            utilizavendaporembalagem, --96
+                            codusur2, --97
+                            codusur3, --98
+                            codusur4, --99
+                            vlbonific, --100
+                            vendatriangular, --101
+                            codgerente, --102
+                            tipocontacorrente --103
+        )
+        SELECT codcli, --1
+               codcob, --2
+               coddistrib, --3
+               codemitente, --4
+               codfilial, --5
+               codfilialnf, --6
+               codplpag, --7
+               codpraca, --8
+               codsupervisor, --9
+               codusur, --10
+               condvenda, --11
+               DATA, --12
+               dtentrega, --13
+               hora, --14
+               minuto, --15
+               numcar, --16
+               vnnumitens, --17
+               vnproxnumped, --18
+               numpedcli, --19
+               numpedrca, --20
+               obs1, --21
+               obs2, --22
+               obsentrega1, --23
+               obsentrega2, --24
+               operacao, --25
+               origemped, --26
+               percvenda, --27
+               vnperdescped, --28
+               posicao, --29
+               prazo1, --30
+               prazo2, --31
+               prazo3, --32
+               prazo4, --33
+               prazo5, --34
+               prazo6, --35
+               prazo7, --36
+               prazo8, --37
+               prazo9, --38
+               prazo10, --39
+               prazo11, --40
+               prazo12, --41
+               prazomedio, --42
+               tipovenda, --43
+               vntotpeso, --44
+               vntotvolume, --45
+               vnvlatend, --46
+               vnvlcustocont, --47
+               vnvlcustofin, --48
+               vnvlcustoreal, --49
+               vnvlcustorep, --50
+               vnvltabela, --51
+               vnvltotal, --52
+               dtaberturapedpalm, --53
+               dtfechamentopedpalm, --54
+               numregiao, --55
+               usaintegracaowms, --56
+               usacredrca, --57
+               usadebcredrca, --58
+               bonificaltdebcredrca, --59
+               trocaaltdebcredrca, --60
+               crmaltdebcredrca, --61
+               brokeraltdebcredrca, --62
+               tipomovccrca, --63
+               vlfrete, --64
+               codfornecfrete, --65
+               fretedespacho, --66
+               freteredespacho, --67
+               broker, --68
+               tipodocumento, --69
+               codclinf, --70
+               contaordem, --71
+               codmotivo, --72
+               motivoposicao, --73
+               log, --74
+               codclitv8, --75
+               codplpagetico, --76
+               codplpaggenerico, --77
+               tipoprioridadeentrega, --78
+               localdesembaraco, --79
+               ufdesembaraco, --80
+               numpedtv1, --81
+               agrupamento, --82
+               codbnf, --83
+               custobonificacao, --84
+               codfornecbonific, --85
+               turnoentrega, --86
+               codendent, --87
+               vlentrada, --88
+               codendentcli, --89
+               vldescabatimento, --90
+               codestabelecimento, --91
+               numtabela, --92
+               obsentrega3, --93
+               obsentrega4, --94
+               codmotbloqueio, --95
+               utilizavendaporembalagem, --96
+               codusur2, --97
+               codusur3, --98
+               codusur4, --99
+               CASE WHEN reg_ped.condvenda = 5 THEN vnvlatend ELSE 0 END, --100 --tarefa 663.123945.2014
+               PCPEDC.VENDATRIANGULAR,
+               pcpedc.codgerente,
+               NVL(pcpedc.tipocontacorrente,'R') tipocontacorrente
+          FROM pcpedc
+         WHERE numped = reg_ped.numped;
+
+        p_mensagem := 'Gerado com sucesso Pedido : ' || vnproxnumped || ' com itens que ultrapassaram maximo de linhas';
+
+        p_valido := TRUE;
+
+      END IF;
+
+    END LOOP;
+
+  END PROC_DIVIDE_NUMITENSNFE;
+
 END INTEGRADORACOMPLE_MED;
