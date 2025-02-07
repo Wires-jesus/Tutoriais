@@ -1428,7 +1428,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     concedenteferta               varchar2(200), -- DDVENDAS-33961
     sobreposicaobloqueioalvara    varchar2(200),  -- DDVENDAS-37313
     usarcaclientelinhaporfilialmed varchar2(200),
-    precificregiaoforaufsemst     varchar2(1)
+    precificregiaoforaufsemst     varchar2(1),
+    nummaxitensnfe                NUMBER(10) -- DDVENDAS-50926
     );
 
 
@@ -1689,6 +1690,9 @@ type t_prodconvestoque is record(
 
   type tb_origemdesc is table of t_origemdesc index by binary_integer;
 
+  type numped_pedidos is table of number index by binary_integer;
+  
+  t_numped_ped numped_pedidos;
 
   -- As procedures devem ser habilitadas conforme a empresa prestadora.
 PROCEDURE importarpedido(p_tipoleitura IN NUMBER DEFAULT 1,
