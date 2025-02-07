@@ -756,5 +756,16 @@ IS PRAGMA SERIALLY_REUSABLE;
     P_CODIGO_FILIAL     IN VARCHAR,
     P_NUMERO_REGIAO     IN NUMBER
   ) RETURN NUMBER;
+                               
+  PROCEDURE PROC_DIVIDE_NUMITENSNFE(P_NUMPEDRCA           IN PCPEDC.NUMPEDRCA%TYPE,
+                                    P_CODUSUR             IN PCPEDC.CODUSUR%TYPE,
+                                    P_CODCLI              IN PCPEDC.CODCLI%TYPE,
+                                    P_DTABERTURAPEDPALM   IN PCPEDC.DTABERTURAPEDPALM%TYPE,
+                                    P_NUM_MAX_ITENS_NFE   IN NUMBER,
+                                    P_NUM_CASAS_DEC_VENDA IN NUMBER,
+                                    P_MENSAGEM            OUT VARCHAR2,
+                                    P_VALIDO              OUT BOOLEAN,
+                                    P_NUM_PEDIDO          IN PCPEDC.NUMPED%TYPE DEFAULT NULL
+                                    );
 
 END INTEGRADORACOMPLE_MED;
