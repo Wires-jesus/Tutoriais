@@ -33059,6 +33059,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                    AND pcpedc.numitens > nvl(regfilial.nummaxitensnfe, 0);
 
                 IF vicontador > 0 THEN
+
                   integradoracomple_med.proc_divide_numitensnfe(gvet_regpedido(i).numpedrca,
                                                                 gvet_regpedido(i).codusur,
                                                                 gvet_regpedido(i).codcli,
@@ -33070,31 +33071,34 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                                                 EXTRAIR_PROX_NUMPED(T_NUMPED_PED));
 
                    IF (vsmensagemdividenfe IS NOT NULL) and (vsmensagemdividenfe not like ('%sucesso%')) THEN
+                      
                       gvet_regpedido(i).valido := FALSE;
-                      integradora_comple.proc_registralog(gvet_regpedido(i).numped,
-                                                          gvet_regpedido(i).numpedrca,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          gvet_regpedido(i).cgccli,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          gvet_regpedido(i).codusur,
-                                                          gvet_regpedido(i).dtaberturapedpalm,
-                                                          NULL,
-                                                          '2',
-                                                          vsmensagemdividenfe || ';',
-                                                          NULL,
-                                                          null);
+
+                      proc_registralog(gvet_regpedido(i).numped,
+                                       gvet_regpedido(i).numpedrca,
+                                       NULL,
+                                       NULL,
+                                       gvet_regpedido(i).cgccli,
+                                       NULL,
+                                       NULL,
+                                       NULL,
+                                       gvet_regpedido(i).codusur,
+                                       gvet_regpedido(i).dtaberturapedpalm,
+                                       NULL,
+                                       '2',
+                                       vsmensagemdividenfe || ';',
+                                       NULL,
+                                       NULL);
 
                       RAISE ERRO_PROC_FINAL;
+
                    END IF;
 
                 END IF;
-              END LOOP;
-            END IF;
 
+              END LOOP;
+
+            END IF;
 
                if gvet_regpedido(i).condvenda = 7 and gvet_regpedido(i).numpedorig = 0 then
 
