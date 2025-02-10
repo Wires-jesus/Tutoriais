@@ -1406,7 +1406,8 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                               --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
                                 CASE WHEN (PCMOV.CODOPER = 'ED') THEN
                                     CASE WHEN ((NVL(PCMOVCOMPLE.PERCICMSDESONERACAO, 0) > 0) AND (NVL(PCMOVCOMPLE.VLICMSDESONERACAO, 0) > 0) ) THEN PCMOVCOMPLE.VLICMSDESONERACAO
-                                            ELSE 0 END + (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT)
+                                            ELSE 0 END + DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                             (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
                                     ELSE 0 END +
 
                                DECODE(NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', PCFILIAL.CODIGO),
@@ -1439,18 +1440,13 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    -1,
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
-                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT)) +
-                                        
-                                        (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
-                                           DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
-                                             (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
-                                         ELSE 0 END)
+                                        ), NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT))
 
                                      ) +
                                           --apenas para devolução, calculo conforme a venda -- aqui
-                                              (CASE WHEN (/*(PCNFENT.FINALIDADENFE <> 'A') AND*/ (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
+                                              (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8', 'T')) THEN
                                                     CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
-                                                               ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  pcnfent.dtent))) THEN
+                                                               (PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT) = 'S')) THEN
                                                            0
                                                          ELSE
 
