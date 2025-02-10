@@ -11262,7 +11262,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , TB.SALDO
                               , TB.CODIGODEPOSITOWMS
                               , 0 LIQDEVCLI
-                           FROM TABLE(PKG_FUNCOESVENDAS_MED.F_OBTER_LOTES_PEDIDO(''PTB'',1,' || NVL(pi_nNumTransEntCrossDock,0) || ', ' || NVL(pi_nNumPed,0) || ')) TB
+                           FROM TABLE(PKG_FUNCOESVENDAS_MED.F_OBTER_LOTES_PEDIDO(''PAT'',1,' || NVL(pi_nNumTransEntCrossDock,0) || ', ' || NVL(pi_nNumPed,0) || ',NULL, NULL, NULL,''' || pi_vCodFilial || ''')) TB
                           WHERE (RESTRICAO IS NULL) AND ' || vvWhereCrossDocking;
             ELSE
               -- Pedido Transferência Normal
