@@ -574,6 +574,15 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
                                    ,psPROCESSO    IN VARCHAR2 DEFAULT 'I'
                                    ,pdDATA        IN PCHISTESTLOTE.DATA%TYPE DEFAULT NULL)
   RETURN NUMBER;
+  
+  /**********************************************************************************************/
+  /* Validar estoque disponível do LOTE PARA VENDA */
+  /**********************************************************************************************/
+  FUNCTION ESTOQUE_DISPONIVEL_LOTE_VENDA (psCODFILIAL   IN PCPEDC.CODFILIAL%TYPE
+                                         ,pnCODPROD     IN PCPEDI.CODPROD%TYPE
+                                         ,psNUMLOTE     IN PCMOV.NUMLOTE%TYPE
+                                         ,psPROCESSO    IN VARCHAR2 DEFAULT 'I')
+  RETURN NUMBER;
 
   /**********************************************************************************************/
   /* Incluir quantidade frente de loja */

@@ -12625,6 +12625,51 @@ END IF;
     RETURN vnESTOQUE_DISPONIVEL_LOTE;
   -- Função
   END ESTOQUE_DISPONIVEL_LOTE;
+  
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor             Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
+  07/02/2025     Davi Bernado      DDESTOQUE-20048     Validar estoque disponível do lote para o venda
+  ************************************************************************************************************************/
+  FUNCTION ESTOQUE_DISPONIVEL_LOTE_VENDA (psCODFILIAL   IN PCPEDC.CODFILIAL%TYPE
+                                         ,pnCODPROD     IN PCPEDI.CODPROD%TYPE
+                                         ,psNUMLOTE     IN PCMOV.NUMLOTE%TYPE
+                                         ,psPROCESSO    IN VARCHAR2 DEFAULT 'I')
+  RETURN NUMBER
+  IS-- Declaração das variáveis internas
+    vnESTOQUE_DISPONIVEL_LOTE  PCEST.QTESTGER%TYPE;
+  BEGIN    
+    -- Definindo qual o calculo será feito
+    BEGIN
+      SELECT CASE
+               --Calculo Pedido de Avaria - DDMEDICA-620
+               WHEN (NVL(psPROCESSO,'X') = 'PA') THEN
+                 GREATEST(NVL(PCLOTE.QTINDENIZ, 0),0)
+               --Calculo Pedido de CrossDocking - DDMEDICA-620
+               WHEN (NVL(psPROCESSO,'X') = 'PC') THEN
+                 GREATEST(NVL(PCLOTE.QTCROSSDOCK, 0),0)
+             ELSE
+               GREATEST((NVL(PCLOTE.QT, 0) -
+                       NVL(PCLOTE.QTRESERV, 0) -
+                       NVL(PCLOTE.QTINDUSTRIA, 0) -
+                       NVL(PCLOTE.QTBLOQUEADA, 0)),0)
+             END DISPONIVEL
+        INTO vnESTOQUE_DISPONIVEL_LOTE
+        FROM PCLOTE
+       WHERE PCLOTE.CODFILIAL = psCODFILIAL
+         AND PCLOTE.CODPROD = pnCODPROD
+         AND PCLOTE.NUMLOTE = psNUMLOTE
+         AND NVL(PCLOTE.DTVALIDADE, TRUNC(SYSDATE - 1)) >= TRUNC(SYSDATE);
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vnESTOQUE_DISPONIVEL_LOTE := 0;
+    END;
+
+    -- Retornando o estoque disponível
+    RETURN vnESTOQUE_DISPONIVEL_LOTE;
+  -- Função
+  END ESTOQUE_DISPONIVEL_LOTE_VENDA;
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
