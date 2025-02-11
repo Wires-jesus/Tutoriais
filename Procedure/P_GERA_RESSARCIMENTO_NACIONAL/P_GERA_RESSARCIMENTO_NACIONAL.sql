@@ -47,7 +47,10 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                                 NVL(MC.NITEMXML, NVL(MC.NUMSEQENT, M.NUMSEQ)) NUMSEQ,
                                 FISCAL.FORMATAR_CST_ICMS(M.SITTRIBUT, NVL(M.IMPORTADO, P.IMPORTADO),NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), E.DTENT) CST,
                                 M.QTCONT,
-                                M.PUNITCONT,
+                                CASE WHEN X.VUNTRIB IS NOT NULL THEN
+                                   X.VUNTRIB 
+                                ELSE M.PUNITCONT
+                                END PUNITCONT,
                                 M.QTUNITCX,
                                 M.CODFISCAL,
                                 NVL(Mc.DESCRICAONFE, M.DESCRICAO) DESCRICAO,
@@ -82,7 +85,8 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                                 PCMOV M,
                                 PCMOVCOMPLE MC,
                                 PCPRODUT P,
-                                PCPRODFILIAL PF
+                                PCPRODFILIAL PF,
+                                PCDADOSXML X
                           WHERE NVL(E.CODFILIALNF, E.CODFILIAL) = NVL(M.CODFILIALNF, M.CODFILIAL)
                             AND E.NUMTRANSENT = M.NUMTRANSENT
                             AND E.NUMNOTA     = M.NUMNOTA
@@ -90,6 +94,7 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                             AND M.NUMTRANSITEM  = MC.NUMTRANSITEM
                             AND M.CODPROD     = P.CODPROD
                             AND M.CODPROD     = PF.CODPROD(+)
+                            AND M.NUMTRANSITEM = X.NUMTRANSITEM(+)
                             AND M.DTCANCEL IS NULL
                             AND M.QTCONT  > 0
                             AND NVL(M.CODFILIALNF, M.CODFILIAL) = PF.CODFILIAL(+)
@@ -124,7 +129,10 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                                 NVL(MC.NITEMXML, M.NUMSEQ) NUMSEQ,
                                 FISCAL.FORMATAR_CST_ICMS(M.SITTRIBUT, NVL(M.IMPORTADO, P.IMPORTADO),NVL(MC.ORIGMERCTRIB,PF.ORIGMERCTRIB), S.DTSAIDA) CST,
                                 M.QTCONT,
-                                M.PUNITCONT,
+                                CASE WHEN X.VUNTRIB IS NOT NULL THEN
+                                   X.VUNTRIB 
+                                ELSE M.PUNITCONT
+                                END PUNITCONT,
                                 M.QTUNITCX,
                                 M.CODFISCAL,
                                 NVL(MC.DESCRICAONFE, M.DESCRICAO) DESCRICAO,
@@ -143,7 +151,8 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                                 PCMOV M,
                                 PCMOVCOMPLE MC,
                                 PCPRODUT P,
-                                PCPRODFILIAL PF
+                                PCPRODFILIAL PF,
+                                PCDADOSXML X
                          WHERE NVL(S.CODFILIALNF, S.CODFILIAL) = NVL(M.CODFILIALNF, M.CODFILIAL)
                            AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
                            AND S.NUMNOTA       = M.NUMNOTA
@@ -152,6 +161,7 @@ CREATE OR REPLACE PROCEDURE P_GERA_RESSARCIMENTO_NACIONAL(PCODFILIAL IN VARCHAR2
                            AND M.NUMTRANSITEM  = MC.NUMTRANSITEM
                            AND M.CODPROD       = P.CODPROD
                            AND M.CODPROD       = PF.CODPROD(+)
+                           AND M.NUMTRANSITEM  = X.NUMTRANSITEM(+)
                            AND M.DTCANCEL IS NULL
                            AND M.QTCONT  > 0
                            AND NVL(M.CODFILIALNF, M.CODFILIAL) = PF.CODFILIAL(+)
