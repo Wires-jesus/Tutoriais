@@ -1730,7 +1730,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                     ), 2) / PCMOV.QTCONT))
                             ) * PCMOV.QTCONT) +
                             
-                            (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
+                            (CASE WHEN ((PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) AND NOT(PCMOVCOMPLE.CODMOTIVOICMSDESONERADO IN ('7', '8'))) THEN
                                    DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
                                      (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
 									 * PCMOV.QTCONT
