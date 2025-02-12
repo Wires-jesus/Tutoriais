@@ -1,1 +1,9 @@
-{"nome":"TR_WMSCALCVOLUME","tipoPLSQL":"TRIGGER","dependencias":""}
+{"nome":"TR_WMSCALCVOLUME","tipoPLSQL":"TRIGGER","dependencias":
+[
+{
+  "nome": "WMS_ATUALIZAQUANTIDADESMOV",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "4.0.01.000"
+}
+]
+}
