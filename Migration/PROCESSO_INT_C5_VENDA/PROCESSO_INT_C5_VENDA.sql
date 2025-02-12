@@ -350,7 +350,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_COBRANCA_WINTHOR AS
             ELSE
                 '0000'
          END) idcarteira,
-        NVL(o.carteiradigital,'N') carteiradigital
+        NVL(o.carteiradigital,'N') carteiradigital,
+		o.codfilial
   FROM  pccob o,
         pcclient c
  WHERE  o.codclicc = c.codcli(+)
@@ -439,7 +440,8 @@ SELECT  e.codauxiliar,
         NVL(p.percpis,0) percpis,
         NVL(p.perccofins,0) perccofins,
         p.excluiricmsbasepiscofins,
-		e.nroempresa
+		e.nroempresa,
+		e.seqproduto
   FROM  vw_int_c5_pcprodut E,
         pctabpr r,
         pctribpiscofins p
@@ -493,6 +495,9 @@ BEGIN
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
+		 AND ( (a.codfilial is null) OR (a.codfilial = (SELECT C5.CODFILIAL 
+		                                                  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5 
+														 WHERE C5.codfilialintegracao = p.NROEMPRESA)))
 		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
               (a.tipooperacaotef = substr(p.modalidadetef, 1, 2) AND
               (A.tipopagtotef = 'T' OR
@@ -512,6 +517,9 @@ BEGIN
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
+		 AND ( (a.codfilial is null) OR (a.codfilial = (SELECT C5.CODFILIAL 
+		                                                  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5 
+														 WHERE C5.codfilialintegracao = p.NROEMPRESA)))
 		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
               (a.tipooperacaotef = substr(p.modalidadetef, 1, 2) AND
               (A.tipopagtotef = 'T' OR
@@ -2019,6 +2027,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  C5.CODFILIAL = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
+   AND  case when i.seqprodcomposto is null then i.seqproduto else NULL END  = h.seqproduto(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
    AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
@@ -2413,6 +2422,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  C5.CODFILIALINTEGRACAO = v.NROEMPRESA
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
+   AND  case when i.seqprodcomposto is null then i.seqproduto else NULL END  = h.seqproduto(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
    AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
