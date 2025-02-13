@@ -5091,7 +5091,7 @@ IS
            AND NVL(C.LIBERAESTENTMERC, 'N') = 'N'
            AND trunc(C.DTMONTAGEM) > trunc(SYSDATE - 90)
            AND NVL(C.UTILIZOUPREENT, 'N') = 'N'
-        HAVING (SUM(I.QTNF - I.QTAVARIA)) > ((E.QTBLOQUEADA - E.QTINDENIZ) - pnQTDE)
+        HAVING (SUM(I.QTNF - I.QTAVARIA)) > ((E.QTBLOQUEADA - E.QTINDENIZ) - (pnQTDE - pnQTAVARIA))
       GROUP BY I.CODPROD
               ,C.CODFILIAL
               ,E.QTBLOQUEADA
@@ -5149,7 +5149,7 @@ IS
            AND NVL(C.LIBERAESTENTMERC, 'N') = 'N'
            AND trunc(C.DTMONTAGEM) > trunc(SYSDATE - 90)
            AND NVL(C.UTILIZOUPREENT, 'N') = 'N'
-        HAVING (SUM(I.QTNF - I.QTAVARIA)) > ((E.QTBLOQUEADA - E.QTINDENIZ) - pnQTDE)
+        HAVING (SUM(I.QTNF - I.QTAVARIA)) > ((E.QTBLOQUEADA - E.QTINDENIZ) - (pnQTDE - pnQTAVARIA))
       GROUP BY I.CODPROD
               ,C.CODFILIAL
               ,E.QTBLOQUEADA
