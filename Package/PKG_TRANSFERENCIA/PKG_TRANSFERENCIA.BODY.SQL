@@ -535,13 +535,7 @@ BEGIN
     ROWPCLANC.Codconta    := VNCodConta;
     ROWPCLANC.Duplic      := '1';
     ROWPCLANC.Numnota     := VNNUMNOTA;
-<<<<<<< .mine
 	ROWPCLANC.TIPOPARCEIRO := 'F';
-
-=======
-    ROWPCLANC.TIPOPARCEIRO := 'F';
-  
->>>>>>> .theirs
     INSERT INTO PCLANC VALUES ROWPCLANC;
   end if;
 
@@ -1796,13 +1790,7 @@ END;
       voPCLANC.Numtransent := voPCNFENT.NUMTRANSENT;
       voPCLANC.Codconta    := voPCNFENT.CODCONTFOR;
       voPCLANC.Numnota     := voPCNFENT.NUMNOTA;
-<<<<<<< .mine
 	  voPCLANC.TIPOPARCEIRO := 'F';
-
-=======
-      voPCLANC.TIPOPARCEIRO := 'F';
-    
->>>>>>> .theirs
       INSERT INTO PCLANC
            VALUES voPCLANC;  
     END IF;
