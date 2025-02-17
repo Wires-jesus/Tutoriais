@@ -10844,11 +10844,11 @@ IS
       END IF;
 
       --Retirando avaria da pcprodavaria pelo processo de devolução de avaria da 1302 e 1327
-      IF (((vsROTINA LIKE '%1302%') OR 
+      /*IF (((vsROTINA LIKE '%1302%') OR 
        (vsROTINA LIKE '%1327%' AND psECANCELAMENTO = 'S')) AND 
-     REGISTROS.CODOPER = 'SD') THEN       
+        REGISTROS.CODOPER = 'SD') THEN       
         PRIV_DEVOLUCAO_AVARIA(REGISTROS.CODPROD, psECANCELAMENTO, pnNUMTRANSACAO, REGISTROS.CODFILIAL);
-      END IF;
+      END IF;*/
     
     -- Inserindo informações de debug (LOG)
       P_INTERNO.INFORMACOES_LOG := 'Finalizou a lista de produtos';
