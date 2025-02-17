@@ -19,25 +19,14 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.dtofertafim,
             e.dtofertaatacini,
             e.dtofertaatacfim,
-            --NVL(e.qtunit,1) qtunit,
-            --LEAST(NVL(e.qtunit, 1), 999999.999) qtunit,
-            --LEAST(to_number(to_char(NVL(e.qtunit, 1), 9999999.999), 999999.999)) qtunit,
             LEAST(NVL(round(e.qtunit, 3), 1), 999999.999) qtunit,
             NVL(e.prazoval,0) prazoval,
-            --NVL(e.qtminimaatacado,0) qtminimaatacado,
-            --LEAST(NVL(e.qtminimaatacado, 0), 999999.999) qtminimaatacado,
-            --LEAST(to_number(to_char(NVL(e.qtminimaatacado, 0), 9999999.999), 999999.999)) qtminimaatacado,
             LEAST(NVL(round(e.qtminimaatacado, 3), 0), 999999.999) qtminimaatacado,
             NVL(e.pvendaatac,0) pvendaatac,
             NVL(e.enviabalanca, 'N') enviabalanca,
             NVL(e.unidade,p.unidade) unidade,
             NVL(NVL(e.pesobruto,p.pesobruto),0) pesobruto,
             NVL(NVL(e.pesoliq,p.pesoliq),0) pesoliq,
-
-            /*CASE WHEN p.pesovariavel NOT IN ('S', 'N') THEN
-                  'N'
-             ELSE NVL(p.pesovariavel, 'N')
-            END pesovariavel,*/
 
             CASE WHEN e.tipoembalagem = 'P' THEN
                   'S'
@@ -140,17 +129,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND NVL(f.proibidavenda, 'N') = 'N'
         --AND p.codprod >= 0
         AND LENGTH(e.codauxiliar) <= 14
-        AND NOT EXISTS (SELECT 1
-                        FROM PCEMBALAGEM PCEMB
-                        WHERE PCEMB.CODAUXILIAR = E.CODAUXILIAR
-						AND   PCEMB.CODFILIAL IN (SELECT F1.CODFILIAL FROM VW_INT_C5_OBTER_FILIAIS_C5 F1)
-                        AND   E.CODPROD <> PCEMB.CODPROD)
+        
 		AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
-                                                                  c5.CODFILIAL,
+                                                                  e.CODFILIAL,
                                                                   'N') = 'S'
-      /*  AND GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) >= DTPADRAO.ULTIMAEXECUCAO*/
+      
       AND (
            (EXISTS(SELECT 1
                    FROM PCFORMPROD CESTA
@@ -174,12 +157,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                                                                                                                FROM PCPARAMETROS2651 PAR
                                                                                                                WHERE PAR.NOME = 'DTFIMCARGA'))
  
+          
            
-           /*(GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                     NVL(f.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
-                                                                                                                  FROM PCPARAMETROS2651 PAR
-                                                                                                                  WHERE PAR.NOME = 'DTFIMCARGA'))*/
          )
 
 
@@ -328,23 +307,15 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND E.DTINATIVO IS NULL
     AND NVL(PF.PROIBIDAVENDA, 'N') = 'N'
     AND LENGTH(E.CODAUXILIAR) <= 14
-    AND NOT EXISTS (SELECT 1
-                        FROM PCEMBALAGEM PCEMB
-                        WHERE PCEMB.CODAUXILIAR = E.CODAUXILIAR
-						AND   PCEMB.CODFILIAL IN (SELECT F1.CODFILIAL FROM VW_INT_C5_OBTER_FILIAIS_C5 F1)
-                        AND   E.CODPROD <> PCEMB.CODPROD)
+    
     AND TPR.NUMREGIAO = (SELECT FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
                                                                   FC5.CODFILIAL,
                                                                   1)
                            FROM DUAL)
     AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
-                                                                  FC5.CODFILIAL,
+                                                                  e.CODFILIAL,
                                                                   'N') = 'N'
-    /*AND GREATEST(NVL(E.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(P.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(PF.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(TPR.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO)) >=
-        DTPADRAO.ULTIMAEXECUCAO*/
+    
     AND (
          (EXISTS(SELECT 1
                  FROM PCFORMPROD CESTA
@@ -375,11 +346,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                                                                                                                WHERE PAR.NOME = 'DTFIMCARGA'))
 
          
-         /*(GREATEST(NVL(e.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(p.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(TPR.dtalterc5, DTPADRAO.ULTIMAEXECUCAO),
-                 NVL(pf.dtalterc5, DTPADRAO.ULTIMAEXECUCAO)) BETWEEN (DTPADRAO.ULTIMAEXECUCAO - 10/24/60) AND (SELECT NVL(PAR.VALOR_DATA, CURRENT_TIMESTAMP)
-                                                                                                               FROM PCPARAMETROS2651 PAR
-                                                                                                               WHERE PAR.NOME = 'DTFIMCARGA'))*/
+         
        )
 )
