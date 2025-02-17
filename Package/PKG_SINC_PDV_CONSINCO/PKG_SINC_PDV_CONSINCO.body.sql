@@ -6241,6 +6241,66 @@ BEGIN
       END;
 END;  
 
+
+PROCEDURE carrega_tb_formapagtobincartao(p_id IN pccontroleconsinco.id%TYPE) as
+BEGIN
+	UPDATE monitorpdvmiddle.tb_formapagtobincartao b SET b.ATIVO = 'N'  
+	WHERE exists (select 1 
+	                from pcfinalizadora f 
+				   where f.codfinalizadora = b.NROFORMAPAGTO 
+				     and f.numbincartao is null);
+	
+	MERGE INTO monitorpdvmiddle.tb_formapagtobincartao s
+		USING (SELECT NROFORMAPAGTO, 
+                      NROBINCARTAOTEF,
+                      ATIVO
+               FROM VW_INT_C5_FORMAPAGTOBINCARTAO V,
+			        MONITORPDVMIDDLE.TB_FORMAPAGTO F
+			   WHERE F.NROFORMAPAGTO = V.NROFORMAPAGTO
+               ) b
+	ON (s.NROFORMAPAGTO = b.NROFORMAPAGTO)
+	WHEN MATCHED THEN
+	UPDATE SET		   
+		   s.NROBINCARTAOTEF = b.NROBINCARTAOTEF,
+		   s.ativo    	  = b.ativo  			   
+    WHEN NOT MATCHED THEN
+		INSERT (s.NROFORMAPAGTO,
+				s.NROBINCARTAOTEF,
+				s.ativo)
+        VALUES
+			  (b.NROFORMAPAGTO,
+			   b.NROBINCARTAOTEF,
+			   b.ativo);
+
+    INSERT INTO PCDEVLOGCONSINCO
+      (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+    VALUES
+      ('pkg_sinc_PDV_Consinco',
+       'carrega_tb_formapagtobincartao',
+       'carrega_tb_formapagtobincartao OK',
+       SYSDATE,
+       CURRENT_TIMESTAMP);
+
+    COMMIT;
+
+	EXCEPTION
+	WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_formapagtobincartao',
+           'carrega_tb_formapagtobincartao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+      END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
