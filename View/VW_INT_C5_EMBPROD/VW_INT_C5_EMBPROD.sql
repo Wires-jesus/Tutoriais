@@ -92,7 +92,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.QTMAXVENDA			
        FROM pcembalagem e,
             pcprodut p
-            --LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S'), 
             LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S' AND P.CODMARCA > 0),   
             pcprodfilial f,
             VW_INT_C5_OBTER_FILIAIS_C5 c5,
@@ -119,7 +118,6 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND e.codfilial = f.codfilial
         and e.codfilial = c5.codfilial
         AND NVL(P.REVENDA,'S') = 'S'
-        --AND NVL(P.TIPOMERC, 'L') = 'L'
         AND P.DTEXCLUSAO IS NULL
         AND (LENGTH(p.nbm) >= 2 OR p.TIPOMERC in ('KT', 'CB'))
         AND e.codprod >= 0
