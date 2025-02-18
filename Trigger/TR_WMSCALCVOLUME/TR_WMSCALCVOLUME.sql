@@ -17,7 +17,7 @@ declare
   vPercTotVolume number(8, 2);
 
   vUsaWMS                 char(1);
-  vAlterarVolumePorPedido char(1);
+  vAlterarVolumePorPedido char(1); 
   vUtilizaPreFat          char(1);
 
   vLancEmbalagensPesoVar pcparametrowms.valor%type;
@@ -34,9 +34,14 @@ begin
   /* InÃ­cio das validaÃ§Ãµes de parÃ¢metros */
   /* Valida se a filial do pedido utiliza WMS */
   select nvl(usawms, 'N')
-      into vUsaWMS
-      from pcfilial
-     where codigo = :old.codfilial;
+    into vUsaWMS
+    from pcfilial
+   where codigo = (select pcpedi.codfilialretira
+                     from pcpedi
+                    inner join pcmovendpend
+                       on pcpedi.numped = pcmovendpend.numped
+                      and pcpedi.codprod = pcmovendpend.codprod
+	                where pcpedi.numped = :new.numped);
 
     /* Somente executa os cÃ¡lculos e validaÃ§Ãµes abaixo caso a filial use WMS */
     if (vUsaWMS = 'S') then
@@ -93,7 +98,7 @@ begin
           3: NÃ£o hajam produtos que nÃ£o usem WMS
           4:  WMS utiliza integraÃ§Ã£o = 'N'
         */
-        if :new.posicao = 'F' and vUsaWMS = 'S' and vQtProdSemWMS = 0 and vUsaIntegracaoWMS = 'N' then
+        if :new.posicao = 'F' and vUsaWMS = 'S' and vQtProdSemWMS = 0 then
            --(vAlterarVolumePorPedido = 'N' or vUsaIntegracaoWMS = 'S') then
 
           /* Verifica se existem produtos frios no pedido */
