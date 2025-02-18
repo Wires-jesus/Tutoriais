@@ -1,0 +1,11 @@
+{
+  "nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "VW_INT_C5_EMBPROD",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "7.0.04.000"
+    }
+  ]
+}
