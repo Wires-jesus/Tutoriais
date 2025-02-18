@@ -9,6 +9,11 @@
             "nome": "PCARQUIVOSGERADOS",
             "tipo": "TABELA",
             "versao": "6.0.01.000"
-        }
+        },
+		{
+		  "nome": "PCMONITORTRIBUTARIOLISTATABELA",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		}
     ]
 }
