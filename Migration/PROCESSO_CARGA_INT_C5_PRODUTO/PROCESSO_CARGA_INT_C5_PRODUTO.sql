@@ -117,7 +117,7 @@ FROM (
                    MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
                    MAX(P.codprodprinc) seqfamiliaprinc
-            FROM VW_INT_C5_EMBPROD p
+            FROM VW_INT_C5_EMBPROD_MAT p
             GROUP BY p.codprod, p.descricao
 
             UNION ALL
@@ -171,7 +171,7 @@ WITH CTE_EMBALAGEM AS (
     NVL(MAX(e.pesoliq), 0) AS PESOLIQ,
     'N' AS PESOAFERIDO,
     'S' AS ATIVO
-  FROM VW_INT_C5_EMBPROD e
+  FROM VW_INT_C5_EMBPROD_MAT e
   JOIN PCDEPARAPRODC5 DEPARA 
     ON DEPARA.CODPROD = E.CODPROD 
    AND DEPARA.ATIVO = 'S'
@@ -191,7 +191,7 @@ WITH CTE_EMBALAGEM AS (
     NVL(MAX(e.pesoliq), 0) AS PESOLIQ,
     'N' AS PESOAFERIDO,
     'S' AS ATIVO
-  FROM VW_INT_C5_EMBPROD e
+  FROM VW_INT_C5_EMBPROD_MAT e
   JOIN PCDEPARAPRODC5 DEPARA 
     ON DEPARA.CODPROD = E.CODPROD 
    AND DEPARA.ATIVO = 'S'
@@ -279,7 +279,7 @@ SELECT DISTINCT DEPARA.SEQFAMILIA,
        'N' AS PESOAFERIDO,
        'S' AS ATIVO,
        E.CODPROD IDREF
-FROM VW_INT_C5_EMBPROD E,
+FROM VW_INT_C5_EMBPROD_MAT E,
      PCDEPARAPRODC5 DEPARA,
      VW_INT_C5_OBTER_FILIAIS_C5 C5
 WHERE E.CODFILIAL = C5.CODFILIAL
@@ -399,7 +399,7 @@ FROM (
                    MAX(P.descanp) descanp_prod,
                    MIN(P.CODPRODPRINC) CODPRODPRINC,
                    'S' ATIVO
-            FROM VW_INT_C5_EMBPROD p
+            FROM VW_INT_C5_EMBPROD_MAT p
             GROUP BY p.codprod, p.descricao
 
             UNION ALL
@@ -438,7 +438,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRODEMPRESA AS
          P.SEQPRODUTO SEQPRODUTO,
          0000000 estqloja,
          'S' ativo
-  FROM VW_INT_C5_EMBPROD E,
+  FROM VW_INT_C5_EMBPROD_MAT E,
        PCDEPARAPRODC5 P
   WHERE (((E.CODPROD = P.CODPROD) AND (E.CODAUXILIAR = P.CODAUXILIAR) AND (P.ATIVO = 'S'))
      OR ((E.CODPROD = P.CODPROD) AND (P.CODAUXILIAR = 0) AND (P.ATIVO = 'S')))
@@ -465,7 +465,7 @@ SELECT  distinct
            'B'
          END) tipo,
         'S' ativo
- FROM  VW_INT_C5_EMBPROD e
+ FROM  VW_INT_C5_EMBPROD_MAT e
     JOIN PCDEPARAPRODC5 P ON P.ATIVO = 'S' AND E.CODPROD = P.CODPROD
  WHERE (E.CODAUXILIAR = P.CODAUXILIAR OR P.CODAUXILIAR = 0)
 )
@@ -503,7 +503,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMSEGMENTO AS
        T.SEQFAMILIA,
        1 nrosegmento,
        'S' ativo
-  FROM  VW_INT_C5_EMBPROD e,
+  FROM  VW_INT_C5_EMBPROD_MAT e,
     MONITORPDVMIDDLE.TB_FAMILIA T
   WHERE
     E.CODPROD = T.IDREF
@@ -533,7 +533,7 @@ WITH CTE_PRECO AS (
     0 PRECONORMAL,
     'S' ATIVO
   FROM VW_INT_C5_OBTER_FILIAIS_C5 C5,
-       VW_INT_C5_EMBPROD e
+       VW_INT_C5_EMBPROD_MAT e
   JOIN PCDEPARAPRODC5 DEPARA
     ON DEPARA.CODPROD = E.CODPROD
        AND DEPARA.ATIVO = 'S'
@@ -569,12 +569,12 @@ WITH CTE_PRECO AS (
     0 PRECONORMAL,
     'S' ATIVO
   FROM VW_INT_C5_OBTER_FILIAIS_C5 C5,
-       VW_INT_C5_EMBPROD E
+       VW_INT_C5_EMBPROD_MAT E
     JOIN PCDEPARAPRODC5 P ON E.CODPROD = P.CODPROD-- AND P.ATIVO = 'S'
     WHERE
         (
             (E.CODAUXILIAR = P.CODAUXILIAR AND P.ATIVO = 'S')
-            OR (P.CODAUXILIAR = 0 AND P.ATIVO = 'S' AND E.QTUNIT = (SELECT MIN(QTUNIT) FROM VW_INT_C5_EMBPROD EMB
+            OR (P.CODAUXILIAR = 0 AND P.ATIVO = 'S' AND E.QTUNIT = (SELECT MIN(QTUNIT) FROM VW_INT_C5_EMBPROD_MAT EMB
                                                                     WHERE E.CODFILIAL = EMB.CODFILIAL
                                                                     AND E.CODPROD = EMB.CODPROD)
                                                                     )
@@ -897,7 +897,7 @@ FROM(/*SELECT BASE, SEM A VALIDAÇÃO COM A PRECOCESTAC E PRECOCESTA I QUE NEM S
        E.qtunit QTDEMBALAGEM,
        F.QTPRODMP QUANTIDADE,
        E.ATIVO
-     FROM VW_INT_C5_EMBPROD E,
+     FROM VW_INT_C5_EMBPROD_MAT E,
           PCFORMPROD F,
           PCDEPARAPRODC5 P
      WHERE E.codprod = F.CODPRODMP
@@ -917,7 +917,7 @@ FROM(/*SELECT BASE, SEM A VALIDAÇÃO COM A PRECOCESTAC E PRECOCESTA I QUE NEM S
      
      /*TRATATIVA PARA NÃO DEIXAR DESCER A CESTA CASO UM DOS ITENS ESTEJA COM PREÇO ZERADO*/
      AND   NOT EXISTS (SELECT EMB_PRECO.CODAUXILIAR
-                       FROM VW_INT_C5_EMBPROD EMB_PRECO,
+                       FROM VW_INT_C5_EMBPROD_MAT EMB_PRECO,
                             PCFORMPROD FP
                        WHERE EMB_PRECO.pvenda <= 0
                        AND EMB_PRECO.codprod = FP.CODPRODMP
