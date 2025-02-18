@@ -1,0 +1,86 @@
+DECLARE
+  vEXEC VARCHAR(4000);
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP MATERIALIZED VIEW VW_INT_C5_EMBPROD_MAT';
+ 
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;
+
+  vEXEC := 'CREATE MATERIALIZED VIEW VW_INT_C5_EMBPROD_MAT REFRESH FORCE ON DEMAND AS SELECT * FROM VW_INT_C5_EMBPROD';
+  EXECUTE IMMEDIATE vEXEC;
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX1 on VW_INT_C5_EMBPROD_MAT (CODFILIAL, CODAUXILIAR)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+  
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX2 on VW_INT_C5_EMBPROD_MAT (CODFILIAL, codprod)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX3 on VW_INT_C5_EMBPROD_MAT(CODFILIAL, codprod, codauxiliar)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX4 on VW_INT_C5_EMBPROD_MAT(CODFILIAL, codprod, codauxiliar, qtunit)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX5 on VW_INT_C5_EMBPROD_MAT(codprod, descricao)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX6 on VW_INT_C5_EMBPROD_MAT(codprod, codauxiliar)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;  
+
+  BEGIN
+    vEXEC := 'create index VW_INT_C5_EMBPROD_MAT_IDX7 on VW_INT_C5_EMBPROD_MAT(codprod, codauxiliar, qtunit)';
+    EXECUTE IMMEDIATE vEXEC;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        NULL;
+      END;  
+  END;
+END;
