@@ -693,19 +693,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,'3' AS MODALIDADE_BC_ICMS
               ,ROUND((NVL(PCMOV.BASEICMS, 0) * PCMOV.QTCONT),2) BASE_ICMS
               ,NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) AS ALIQUOTA_ICMS
-              ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND
-                         (PCNFENT.TIPODESCARGA = 'F') THEN
-                    --MELHORIA PARA PASSAR A FORMAR O VALOR DE PRODUTOS DE ACORDO COM PARAMETROS DA 132 - HIS.02054.2015
-                    CASE WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', PCFILIAL.CODIGO),'N') = 'N' THEN
-                         ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
-                               (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2)
-                          -
-                         ROUND(ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
-                               (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2) *
-                               (NVL(PCMOV.PERCDESCICMSDIF, NVL(PCMOVCOMPLE.PERDIFEREIMENTOICMS,0)) / 100), 2)
-                    ELSE
-                         0
-                    END
+              ,CASE WHEN (PCNFENT.TIPODESCARGA = 'F') THEN ROUND(NVL(PCMOVCOMPLE.VLICMS, 0) * PCMOV.QTCONT, 2)
                ELSE
                     ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
                           (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2)
@@ -1184,7 +1172,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.QBCMONODIF, 0),2) AS QBCMONODIF
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VICMSMONODIF, 0),2) AS VICMSMONODIF
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.QBCMONORET, 0),2) AS QBCMONORET
-              ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VICMSMONORET, 0),2) AS VICMSMONORET              
+              ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VICMSMONORET, 0),2) AS VICMSMONORET
               ,PCPRODUT.OBSCONTXCAMPO
               ,PCPRODUT.OBSCONTXTEXTO
               ,PCPRODUT.OBSFISCOXCAMPO
@@ -1356,7 +1344,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                             ' PFCPST: '   || TRIM(TO_CHAR(NVL(PCMOVCOMPLE.ALIQICMSFECP, 0),'999999999999999990.99')) ||
                             ' VFCPST: '   || TRIM(TO_CHAR(ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFECP, 0),2),'999999999999999990.99'))
                        END ||
-                       CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') = '61') AND 
+                       CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') = '61') AND
                                   (NVL(PCMOVCOMPLE.VICMSMONORET, 0) > 0)) THEN
                             ' ICMS monofásico sobre combustíveis cobrado anteriormente conforme Convênio ICMS 199/2022.'
                        END
@@ -1401,12 +1389,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              ELSE
                                  DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT )
                              END
-                             
+
                              - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,0), 0)  +
                               --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
                                 CASE WHEN (PCMOV.CODOPER = 'ED') THEN
                                     CASE WHEN ((NVL(PCMOVCOMPLE.PERCICMSDESONERACAO, 0) > 0) AND (NVL(PCMOVCOMPLE.VLICMSDESONERACAO, 0) > 0) ) THEN PCMOVCOMPLE.VLICMSDESONERACAO
-                                            ELSE 0 END + DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                            ELSE 0 END + DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S',
                                              (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
                                     ELSE 0 END +
 
@@ -1461,14 +1449,14 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            DECODE(NVL(PCNFENT.DEDUZIRDESONERORGAOPUB, 'N'), 'S', 0, ROUND(NVL(PCMOV.VLDESCICMISENCAO,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2)) / PCMOV.QTCONT )
                                      ELSE
                                            0
-                                     END) 
-                               - NVL(PCMOV.VLOUTRASDESP,0) 
+                                     END)
+                               - NVL(PCMOV.VLOUTRASDESP,0)
                                - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
                                    ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT) +
                                    ((ROUND(NVL(PCMOVCOMPLE.VLFECP,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
                                  ELSE
                                    NVL(PCMOV.ST, 0) + NVL(PCMOVCOMPLE.VLFECP, 0)
-                                 END 
+                                 END
                                - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
@@ -1623,9 +1611,9 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                    0,
                                                                    NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                         ), 2) / PCMOV.QTCONT)) +
-                                        
+
                                         (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) THEN
-                                           DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                           DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S',
                                              (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
                                          ELSE 0 END)
                                   ) +
@@ -1723,13 +1711,13 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                                NVL(PCMOVCOMPLE.VLDESCONTONF, 0) - NVL(PCMOV.VLREPASSE, 0)))
                                     ), 2) / PCMOV.QTCONT))
                             ) * PCMOV.QTCONT) +
-                            
+
                             (CASE WHEN ((PCNFENT.TIPODESCARGA IN ('6', '8', 'T')) AND NOT(PCMOVCOMPLE.CODMOTIVOICMSDESONERADO IN ('7', '8'))) THEN
-                                   DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S', 
+                                   DECODE(PKG_TRIBUTACAO.GET_CLIENTE_SUFRAMADO(PCNFENT.CODFORNEC, PCNFENT.DTENT), 'S',
                                      (ROUND(NVL(PCMOV.VLDESCSUFRAMA, 0) * PCMOV.QTCONT, NVL(PARAMFILIAL.OBTERCOMONUMBER('QTDCASASVLUNITARIONFE'), 2)) / PCMOV.QTCONT), 0)
 									 * PCMOV.QTCONT
                                  ELSE 0 END) +
-                            
+
                             (CASE WHEN (PCNFENT.TIPODESCARGA IN ('6','8','T')) THEN
                                  CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIARVLDESCPISCOFINSXMLDANFENFE', PCFILIAL.CODIGO) = 'N') AND
                                        ((PCCLIENT.SULFRAMA IS NOT NULL) AND (PCCLIENT.DTVENCSUFRAMA >  PCNFENT.DTENT))) THEN
@@ -1763,7 +1751,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,0 AS VALOR_DESCONTO_ADICAO
               ,PCMOV.NUMLOTE AS NUMERO_LOTE
               ,PCMOV.QTCONT AS QT_LOTE
-              ,(SELECT TRUNC(NVL(PCMOV.DATAFABRICACAO, PCLOTE.DATAFABRICACAO)) AS DATAFABRICACAO 
+              ,(SELECT TRUNC(NVL(PCMOV.DATAFABRICACAO, PCLOTE.DATAFABRICACAO)) AS DATAFABRICACAO
                 FROM   PCLOTE
                 WHERE  PCLOTE.CODPROD = PCMOV.CODPROD
                 AND    PCLOTE.CODFILIAL = NVL(PCMOV.CODFILIALRETIRA,PCMOV.CODFILIAL)
@@ -1795,19 +1783,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,'3' AS MODALIDADE_BC_ICMS
               ,ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)),2) BASE_ICMS
               ,NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) AS ALIQUOTA_ICMS
-              ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND
-                         (PCNFENT.TIPODESCARGA = 'N') THEN
-                    --MELHORIA PARA PASSAR A FORMAR O VALOR DE PRODUTOS DE ACORDO COM PARAMETROS DA 132 - HIS.02054.2015
-                    CASE WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', PCFILIAL.CODIGO),'N') = 'N' THEN
-                         ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
-                               (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2)
-                          -
-                         ROUND(ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
-                               (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2) *
-                               (NVL(PCMOV.PERCDESCICMSDIF, NVL(PCMOVCOMPLE.PERDIFEREIMENTOICMS,0)) / 100), 2)
-                    ELSE
-                         0
-                    END
+              ,CASE WHEN (PCNFENT.TIPODESCARGA in ('N', 'P')) THEN ROUND(NVL(PCMOVCOMPLE.VLICMS, 0) * PCMOV.QTCONT, 2)
                ELSE
                     ROUND(ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)), 2) *
                           (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2)
