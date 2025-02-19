@@ -1463,12 +1463,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            0
                                      END) 
                                - NVL(PCMOV.VLOUTRASDESP,0) 
-							   - (CASE WHEN PCNFENT.TIPODESCARGA = '8' AND PCMOV.CODOPER = 'ER' THEN
-                                            NVL(PCMOV.ST, 0)
-                                        ELSE
-                                            DECODE(PCMOV.CODOPER, 'ED', NVL(PCMOV.ST, 0),
-                                                                  'EN', NVL(PCMOV.ST, 0), 0) END)
-							   
+                               - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
+                                   ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT) +
+                                   ((ROUND(NVL(PCMOVCOMPLE.VLFECP,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
+                                 ELSE
+                                   NVL(PCMOV.ST, 0) + NVL(PCMOVCOMPLE.VLFECP, 0)
+                                 END 
                                - NVL(PCMOV.VLIPI, 0) -
                                DECODE(PCNFENT.TIPODESCARGA,
                                        'N',
@@ -1494,12 +1494,6 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                             0) + NVL(PCMOV.VLFRETE,
                                                       0) + NVL(PCMOV.VLOUTRASDESP,
                                                                 0))))
-                                                                -
-                             (CASE WHEN PCNFENT.TIPODESCARGA = '8' AND PCMOV.CODOPER = 'ER' AND NVL(PCMOVCOMPLE.VLFECP, 0) > 0 THEN
-                                            DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0, NVL(PCMOVCOMPLE.VLFECP, 0))
-                                        ELSE
-                                            DECODE(PCMOV.CODOPER, 'ED', (DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0, NVL(PCMOVCOMPLE.VLFECP, 0))),
-                                                                  'EN', (DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0, NVL(PCMOVCOMPLE.VLFECP, 0))), 0) END)
                END AS VALOR_COMERCIAL
               ,(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) - NVL(PCMOV.ST,
                                       0) -
