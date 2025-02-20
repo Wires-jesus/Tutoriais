@@ -495,7 +495,7 @@ BEGIN
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
-		 AND ( (a.codfilial is null) OR (a.codfilial = (SELECT C5.CODFILIAL 
+		 AND ( (NVL(a.codfilial,'99') ='99') OR (a.codfilial = (SELECT C5.CODFILIAL 
 		                                                  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5 
 														 WHERE C5.codfilialintegracao = p.NROEMPRESA)))
 		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
@@ -517,7 +517,7 @@ BEGIN
 		 AND  P.CODREDETEF = LPAD(A.CODOPERADORACARTO, 5, '0')
          AND  p.codbandeiratef = a.codbandeira(+)
          AND  p.nrocheckout = pNumeroCaixa
-		 AND ( (a.codfilial is null) OR (a.codfilial = (SELECT C5.CODFILIAL 
+		 AND ( (NVL(a.codfilial,'99') = '99') OR (a.codfilial = (SELECT C5.CODFILIAL 
 		                                                  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5 
 														 WHERE C5.codfilialintegracao = p.NROEMPRESA)))
 		 AND ((A.modalidadetef = P.MODALIDADETEF) OR
