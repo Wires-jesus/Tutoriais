@@ -6251,9 +6251,9 @@ BEGIN
 				     and f.numbincartao is null);
 	
 	MERGE INTO monitorpdvmiddle.tb_formapagtobincartao s
-		USING (SELECT NROFORMAPAGTO, 
-                      NROBINCARTAOTEF,
-                      ATIVO
+		USING (SELECT V.NROFORMAPAGTO, 
+                      V.NROBINCARTAOTEF,
+                      V.ATIVO
                FROM VW_INT_C5_FORMAPAGTOBINCARTAO V,
 			        MONITORPDVMIDDLE.TB_FORMAPAGTO F
 			   WHERE F.NROFORMAPAGTO = V.NROFORMAPAGTO
