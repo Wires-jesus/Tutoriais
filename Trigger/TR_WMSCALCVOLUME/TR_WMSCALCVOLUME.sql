@@ -38,10 +38,7 @@ begin
     from pcfilial
    where codigo = (select pcpedi.codfilialretira
                      from pcpedi
-                    inner join pcmovendpend
-                       on pcpedi.numped = pcmovendpend.numped
-                      and pcpedi.codprod = pcmovendpend.codprod
-	                where pcpedi.numped = :new.numped);
+                    where pcpedi.numped = :new.numped);
 
     /* Somente executa os cÃ¡lculos e validaÃ§Ãµes abaixo caso a filial use WMS */
     if (vUsaWMS = 'S') then
