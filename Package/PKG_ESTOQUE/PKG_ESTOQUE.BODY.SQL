@@ -7800,15 +7800,19 @@ IS
                                                                                               AND PCPRODUT.DTEXCLUSAO IS NULL))
                                    OR ((psDESBLOQPRODFAMILIA = 'N') AND (PCEST.CODPROD = pnCODPROD))))
               LOOP
-                vnQTDE := pnQTDE;             
+                IF ESTOQUE.CODPROD <> pnCODPRODPRINC AND psDESBLOQPRODFAMILIA = 'S' THEN 
+                  vnQTDE := ESTOQUE_DISPONIVEL_BLOQUEADO(ESTOQUE.CODPROD, ESTOQUE.CODFILIAL);
+                ELSE
+                  vnQTDE := pnQTDE;                       
+                END IF;            
 
                 --------------------------------------
                 -- Atualizar pendente na PCEST */
                 IF LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)) > 0 THEN 
                   P_INTERNO.CALCULA_ESTOQUE             := 'S';
-        ELSE
-          P_INTERNO.CALCULA_ESTOQUE             := 'N';
-        END IF;
+                ELSE
+                  P_INTERNO.CALCULA_ESTOQUE             := 'N';
+                END IF;
                 P_INTERNO.vtESTOQUE                   := NULL;
                 P_INTERNO.TIPO_OPERACAO               := 'B';
                 P_INTERNO.vtESTOQUE.CODFILIAL         := ESTOQUE.CODFILIAL;
