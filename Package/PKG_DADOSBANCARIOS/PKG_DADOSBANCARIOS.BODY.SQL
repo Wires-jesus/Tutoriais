@@ -356,7 +356,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
         VN_NUMERO        := 0; 
         VN_NUMEROAUX     := 0;
         VN_POSICAO       := LENGTH(TRIM(PS_PALAVRA));      
-        VN_MULTIPLICADOR := 2;
+        VN_MULTIPLICADOR := PN_BASE;
         VN_RESTO         := 0;
         VN_SOMA          := 0;
         
@@ -375,7 +375,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
           VN_LINHA4(VN_CONTADOR) := VN_NUMEROAUX;
           -- ALIMENTAR CONTADORES
           VN_CONTADOR := VN_CONTADOR + 1;
-          -- VN_MULTIPLICADOR REPRESENTA A LINHA 2 QUE SERÁ SEMPRE 2 E 1
+          -- VN_MULTIPLICADOR REPRESENTA A LINHA 2
+          -- PARA O DV1 SERÁ SEMPRE 2 E 1. PARA OS DV2 E DV3 SERÁ SEMPRE 1 E 2
           VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;
           IF VN_MULTIPLICADOR > 2 THEN
             VN_MULTIPLICADOR := 1;
@@ -711,13 +712,9 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     WHILE V_CONTADOR <= LENGTH(PS_PALAVRA)
     LOOP
       V_AUX := TO_NUMBER(SUBSTR(PS_PALAVRA,V_CONTADOR,1));
+            
+      V_AUX_MUL := V_AUX * V_LINHA2_FIXA(V_CONTADOR_LINHA_FIXA);       
       
-      IF V_CONTADOR = 5 THEN -- NAO CONSIDERAR O DAC
-        V_AUX_MUL := 0;
-        V_CONTADOR_LINHA_FIXA := V_CONTADOR_LINHA_FIXA - 1;
-      ELSE        
-        V_AUX_MUL := V_AUX * V_LINHA2_FIXA(V_CONTADOR_LINHA_FIXA);       
-      END IF;
       V_SOMA := V_SOMA + V_AUX_MUL;--SOMA DA LINHA 3
 
       V_CONTADOR := V_CONTADOR + 1;
@@ -1014,20 +1011,28 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VS_CAMPO4        VARCHAR2(20);
     VS_CAMPO5        VARCHAR2(20);
     VS_LINHADIG_TEMP VARCHAR2(65);
-  BEGIN
+    VN_BASE          NUMBER(6);
+  BEGIN        
     -- O CODIGO DE GERACAO DA LINHA DIGITAVEL Ã¿ PADRÃ¿O PARA TODOS OS BANCOS
     VS_CAMPO1 := '';
     VS_CAMPO1 := SUBSTR(PS_CODBARRA, 1, 4);
     VS_CAMPO1 := VS_CAMPO1 || SUBSTR(PS_CODBARRA, 20, 5);
     VS_CAMPO1 := VS_CAMPO1 || F_CALCULA_MODULO_10(VS_CAMPO1, 2, 'L');
 
+    -- PARA O BANCO BS2, UTILIZADO APENAS NO DV2 E DV3.
+    IF (BANCO.NUMBANCO = 218) THEN
+      VN_BASE := 1;
+    ELSE
+      VN_BASE := 2;  
+    END IF;
+
     VS_CAMPO2 := '';
     VS_CAMPO2 := SUBSTR(PS_CODBARRA, 25, 10);
-    VS_CAMPO2 := VS_CAMPO2 || F_CALCULA_MODULO_10(VS_CAMPO2, 2, 'L');
+    VS_CAMPO2 := VS_CAMPO2 || F_CALCULA_MODULO_10(VS_CAMPO2, VN_BASE, 'L');
 
     VS_CAMPO3 := '';
     VS_CAMPO3 := SUBSTR(PS_CODBARRA, 35, 10);
-    VS_CAMPO3 := VS_CAMPO3 || F_CALCULA_MODULO_10(VS_CAMPO3, 2, 'L');
+    VS_CAMPO3 := VS_CAMPO3 || F_CALCULA_MODULO_10(VS_CAMPO3, VN_BASE, 'L');
 
     VS_CAMPO4 := '';
     VS_CAMPO4 := SUBSTR(PS_CODBARRA, 5, 1);
