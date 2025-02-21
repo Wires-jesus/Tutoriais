@@ -6248,7 +6248,7 @@ BEGIN
 	WHERE exists (select 1 
 	                from pcfinalizadora f 
 				   where f.codfinalizadora = b.NROFORMAPAGTO 
-				     and f.numbincartao is null);
+				     and (f.numbincartao is null OR f.dtinativacao is not null));
 	
 	MERGE INTO monitorpdvmiddle.tb_formapagtobincartao s
 		USING (SELECT V.NROFORMAPAGTO, 
