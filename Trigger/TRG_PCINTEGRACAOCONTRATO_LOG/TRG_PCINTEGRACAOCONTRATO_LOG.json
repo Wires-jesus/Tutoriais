@@ -1,0 +1,16 @@
+{
+	"nome": "TRG_PCINTEGRACAOCONTRATO_LOG",
+	"tipoPLSQL": "TRIGGER",
+	"dependencias": [
+		{
+		  "nome": "PCINTEGRACAOCONTRATODIGITAL",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		},
+		{
+		  "nome": "PCINTEGRACAOCONTRATOLOG",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		}
+	]
+}
