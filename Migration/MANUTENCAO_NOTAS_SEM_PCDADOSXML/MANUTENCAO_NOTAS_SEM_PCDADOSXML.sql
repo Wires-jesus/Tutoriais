@@ -167,10 +167,13 @@ begin
                                itens.valor_Ii,
                                itens.valor_frete,
                                itens.valor_seguro);
+
+      commit;
     end loop;
     exception
       when others then
       null;
+    end;
   end loop;
   dbms_output.put_line('fim saidas');
   dbms_output.put_line('inicio entradas');
@@ -250,10 +253,14 @@ begin
                                itens.valor_Ii,
                                itens.valor_frete,
                                itens.valor_seguro);
+
+      commit;
     end loop;
+    exception
+      when others then
+      null;
+    end;
   end loop;
   dbms_output.put_line('fim entradas');
   commit;
-end loop;
-end loop;
 end;
