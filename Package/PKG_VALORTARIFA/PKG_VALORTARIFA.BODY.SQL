@@ -1,0 +1,596 @@
+CREATE OR REPLACE PACKAGE BODY PKG_VALORTARIFA IS
+
+PROCEDURE GRAVARLOG(pPARAMS IN OUT PCPARAMFAT%ROWTYPE, psLINHAMSG IN VARCHAR2 DEFAULT '')
+IS
+  PRAGMA AUTONOMOUS_TRANSACTION;
+  vsLINHAERRO VARCHAR2(400);
+BEGIN
+  IF pPARAMS.NUMCAR IS NULL THEN
+    pPARAMS.NUMCAR := 0;
+  END IF;
+
+  IF NVL(pPARAMS.NUMPED,0) = 0 THEN
+    pPARAMS.SEQ := 0;
+  ELSE
+    SELECT DEFSEQ_PCPARAMFAT.NEXTVAL
+    INTO pPARAMS.SEQ
+    FROM DUAL;
+  END IF;
+
+  vsLINHAERRO := '';
+  IF pPARAMS.MSG LIKE '%ORA-%' THEN 
+    vsLINHAERRO := psLINHAMSG;
+  END IF;
+
+  -- Adicionar número da linha, quando for erro ou quando for apenas uma mensagem informativa
+  pPARAMS.MSG := pPARAMS.MSG ||CHR(13)|| 
+                 CASE WHEN vsLINHAERRO <> '' THEN
+                   ' ERRO: '|| vsLINHAERRO
+                 WHEN psLINHAMSG <> '' THEN
+                   ' LINHA MSG: '|| psLINHAMSG
+                 ELSE
+                   ' LINHA: '|| psLINHAMSG
+                 END;
+
+  INSERT INTO PCPARAMFAT VALUES pPARAMS;
+
+  COMMIT;
+END GRAVARLOG;
+
+FUNCTION CALCULARNUMPARCELAS(pCODPLPAG IN NUMBER,
+                             pNUMPED IN NUMBER,
+                             p_FORMAPGTOPEDIDO IN PCFORMAPGTOPEDIDO%ROWTYPE DEFAULT NULL)
+RETURN NUMBER IS
+  vnNUMPARC NUMBER;
+  vnPRAZO1 PCPLPAG.PRAZO1%TYPE;
+  vnPRAZO2 PCPLPAG.PRAZO2%TYPE;
+  vnPRAZO3 PCPLPAG.PRAZO3%TYPE;
+  vnPRAZO4 PCPLPAG.PRAZO4%TYPE;
+  vnPRAZO5 PCPLPAG.PRAZO5%TYPE;
+  vnPRAZO6 PCPLPAG.PRAZO6%TYPE;
+  vnPRAZO7 PCPLPAG.PRAZO7%TYPE;
+  vnPRAZO8 PCPLPAG.PRAZO8%TYPE;
+  vnPRAZO9 PCPLPAG.PRAZO9%TYPE;
+  vnPRAZO10 PCPLPAG.PRAZO10%TYPE;
+  vnPRAZO11 PCPLPAG.PRAZO11%TYPE;
+  vnPRAZO12 PCPLPAG.PRAZO12%TYPE;
+  vdDTVENC1 DATE;
+  vdDTVENC2 DATE;
+  vdDTVENC3 DATE;
+  vsTIPOPARC PCPLPAG.FORMAPARCELAMENTO%TYPE;
+  vsCOBSUPPLIERCARD VARCHAR2(1);
+  ERROR_DADOS_CARREGAMENTO EXCEPTION;
+  vPEDIDO PCPEDC%ROWTYPE;
+BEGIN
+  BEGIN
+    SELECT *
+    INTO vPEDIDO
+    FROM PCPEDC
+    WHERE NUMPED = pNUMPED;
+  EXCEPTION WHEN NO_DATA_FOUND THEN
+    RAISE ERROR_DADOS_CARREGAMENTO;
+  END;
+
+  SELECT NVL(FORMAPARCELAMENTO, 'C')
+  INTO vsTIPOPARC
+  FROM PCPLPAG
+  WHERE CODPLPAG = NVL(p_FORMAPGTOPEDIDO.CODPLPAG, pCODPLPAG);
+
+  SELECT NVL(PCCOB.COBsuppliercard, 'N')
+  into vsCOBSUPPLIERCARD
+  from PCCOB, PCPEDC
+  WHERE PCPEDC.codCOB = PCCOB.codCOB
+    AND PCPEDC.NUMPED = pNUMPED;
+
+  IF vsCOBSUPPLIERCARD = 'N' THEN
+    CASE vsTIPOPARC WHEN 'C' THEN
+      vnNUMPARC := 1;
+
+      BEGIN
+        SELECT PRAZO1,
+               PRAZO2,
+               PRAZO3,
+               PRAZO4,
+               PRAZO5,
+               PRAZO6,
+               PRAZO7,
+               PRAZO8,
+               PRAZO9,
+               PRAZO10,
+               PRAZO11,
+               PRAZO12,
+               DTVENC1,
+               DTVENC2,
+               DTVENC3
+        INTO vnPRAZO1,
+             vnPRAZO2,
+             vnPRAZO3,
+             vnPRAZO4,
+             vnPRAZO5,
+             vnPRAZO6,
+             vnPRAZO7,
+             vnPRAZO8,
+             vnPRAZO9,
+             vnPRAZO10,
+             vnPRAZO11,
+             vnPRAZO12,
+             vdDTVENC1,
+             vdDTVENC2,
+             vdDTVENC3
+        FROM PCPLPAG
+        WHERE CODPLPAG = NVL(p_FORMAPGTOPEDIDO.CODPLPAG, pCODPLPAG);
+      EXCEPTION WHEN OTHERS THEN
+        RAISE;
+      END;
+
+      IF vdDTVENC1 IS NULL THEN
+        IF NVL(vnPRAZO2, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO3, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO4, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO5, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO6, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO7, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO8, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO9, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO10, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO11, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO12, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+      ELSE
+        IF vdDTVENC2 IS NOT NULL THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF vdDTVENC3 IS NOT NULL THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+      END IF;
+    WHEN 'M' THEN
+      SELECT NVL(NUMPARCELAS, 1)
+      INTO vnNUMPARC
+      FROM PCPLPAG
+      WHERE CODPLPAG = NVL(p_FORMAPGTOPEDIDO.CODPLPAG, pCODPLPAG);
+    WHEN 'F' THEN
+      SELECT COUNT(*)
+      INTO vnNUMPARC
+      FROM PCPLPAGPARCELAS
+      WHERE CODPLPAG = NVL(p_FORMAPGTOPEDIDO.CODPLPAG, pCODPLPAG);
+    WHEN 'V' THEN
+      SELECT COUNT(*)
+      INTO vnNUMPARC
+      FROM PCPEDCvcto
+      WHERE NUMPED = pNUMPED;
+    WHEN 'T' THEN
+      SELECT numeroparcelasdiafixo
+      INTO vnNUMPARC
+      FROM PCPLPAG
+      WHERE CODPLPAG = NVL(p_FORMAPGTOPEDIDO.CODPLPAG, pCODPLPAG);
+    END CASE;
+
+    IF pCODPLPAG = 99 THEN
+      BEGIN
+        vnNUMPARC := 1;
+
+        SELECT PRAZO1,
+               PRAZO2,
+               PRAZO3,
+               PRAZO4,
+               PRAZO5,
+               PRAZO6,
+               PRAZO7,
+               PRAZO8,
+               PRAZO9,
+               PRAZO10,
+               PRAZO11,
+               PRAZO12,
+               DTVENC1,
+               DTVENC2,
+               DTVENC3
+          INTO vnPRAZO1,
+               vnPRAZO2,
+               vnPRAZO3,
+               vnPRAZO4,
+               vnPRAZO5,
+               vnPRAZO6,
+               vnPRAZO7,
+               vnPRAZO8,
+               vnPRAZO9,
+               vnPRAZO10,
+               vnPRAZO11,
+               vnPRAZO12,
+               vdDTVENC1,
+               vdDTVENC2,
+               vdDTVENC3
+          FROM PCPEDC
+         WHERE NUMPED = pNUMPED;
+      EXCEPTION WHEN OTHERS THEN
+        RAISE;
+      END;
+
+      IF vdDTVENC1 IS NULL THEN
+        IF NVL(vnPRAZO2, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO3, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO4, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO5, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO6, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO7, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO8, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO9, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO10, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO11, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF NVL(vnPRAZO12, 0) > 0 THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+      ELSE
+        IF vdDTVENC2 IS NOT NULL THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+
+        IF vdDTVENC3 IS NOT NULL THEN
+          vnNUMPARC := vnNUMPARC + 1;
+        END IF;
+      END IF;
+    END IF;
+  ELSE /*COBranÃ§a suppliercard*/
+    SELECT PLANO
+    into vnNUMPARC
+    from PCSUPPLIPARAMFAT sf, PCSUPPLICLIENTE sc
+    WHERE sf.CONDFINANC = vPEDIDO.condfinanc
+      AND sf.tipocliente = sc.tipocliente
+      AND sf.condfinanc = vPEDIDO.condfinanc
+      AND sc.CODCLI = vPEDIDO.CODCLI
+      AND rownum = 1
+    ORDER BY sf.dtfaturamento;
+  END IF;
+
+  RETURN vnNUMPARC;
+EXCEPTION WHEN OTHERS THEN
+  RETURN 1;
+END CALCULARNUMPARCELAS;
+
+FUNCTION RETORNARNUMPARCELASCOBRABOLETO(vsCOBRARVLTARIFAPARC1 IN VARCHAR2,
+                                        vnNUMPARC IN NUMBER)
+  RETURN NUMBER IS
+    vnNUMPARCCOB NUMBER := 1;
+BEGIN
+  IF vsCOBRARVLTARIFAPARC1 = 'S' THEN
+    vnNUMPARCCOB := vnNUMPARC;
+  ELSE
+    vnNUMPARCCOB := vnNUMPARC - 1;
+  END IF;
+
+  IF vnNUMPARCCOB = 0 THEN
+    vnNUMPARCCOB :=  1;
+  END IF;
+
+  RETURN vnNUMPARCCOB;
+END RETORNARNUMPARCELASCOBRABOLETO;
+
+FUNCTION VALORTARIFA(pNUMPED IN NUMBER,
+                     pVLTOTGER IN NUMBER,
+                     p_FORMAPGTOPEDIDO IN PCFORMAPGTOPEDIDO%ROWTYPE DEFAULT NULL,
+                     pvsCODIGOCOBRANCA IN VARCHAR2 DEFAULT 'BK',
+                     pvsCODCOBPEDIDO IN VARCHAR2 DEFAULT NULL) 
+  RETURN NUMBER IS
+  /**********************************************************************
+   ESTA FUNCAO E UTILIZADA PELA PROCEDURE DE FATURAMENTO !!!
+   Proposito : Serve para calcular o valor de tarifa bancaria a ser incluida na base de calculo de ICMS
+  -----------------------------------------------------------------------
+                         Historico de Alteracoes
+  -----------------------------------------------------------------------
+    Data        Responsavel      Alteracao
+  ------------  ---------------  ----------------------------------------
+   28/04/2005   Sabrina          Criacao do Programa
+   21/02/2025   Eduardo Furtado  Passado a função para PACKAGE
+  ***********************************************************************/
+  vnJUROS      NUMBER;
+  vnVALOR      NUMBER;
+  vnVALORPARC  NUMBER;
+  vnNUMPARC    NUMBER;
+  vnNUMPARCCOB NUMBER;
+  -- Parametros do Sistema
+  vnMINVALORNOTA          PCCONSUM.vlmintarifabanc%TYPE;
+  vnMAXVALORNOTA          PCCONSUM.vlmaxtarifabanc%TYPE;
+  vnVALORTARIFA           PCCONSUM.vltarifa%TYPE;
+  vnVALORTARIFABOLEPIX    PCCONSUM.vltarifa%TYPE;
+  vc2SOMATARIFABANCDUPLIC PCCONSUM.somatarifabancduplic%TYPE;
+  VSSOMATXBOLETO          PCPARAMFILIAL.VALOR%TYPE;
+  vsCOBRARVLTARIFAPARC1 PCCONSUM.COBrarvltarifaparc1%TYPE;
+  vsTIPOVLMINVENDABK    VARCHAR2(2);
+  -- Dados do Pedido
+  vnCODCLI    PCPEDC.CODCLI%TYPE;
+  vnCODPLPAG  PCPEDC.CODPLPAG%TYPE;
+  vsCODCOB    PCPEDC.codCOB%TYPE;
+  vnCONDVENDA PCPEDC.condvenda%TYPE;
+  -- Dados da COBranca
+  vsBOLETO    PCCOB.BOLETO%TYPE;
+  vsBOLEPIX   PCCOB.BOLEPIX%TYPE;
+  vsTIPOTXBOL VARCHAR2(1);
+  -- Dados do cliente
+  vsISENTOTXBOLETO PCCLIENT.ISENTOtxBOLETO%TYPE;
+  vsTAXABOLETONF   PCCLIENT.TAXABOLETONF%TYPE;
+  vnPERIODICIDADE  PCCLIENT.PERIODICIDADEAGRUP%TYPE;
+  --Temp
+  vsCODFILIALPED PCPEDC.codfilial%type;
+  vsNAOCALCULARTXBOLETO PCPLPAG.naoCOBrartxBOLETO%TYPE;
+  vnCODBANCOTARIFA_COB PCCOB.CODBANCOTARIFA%TYPE;
+  vsBOLETO_COB PCCOB.BOLETO%TYPE;
+  vsBOLEPIX_COB PCCOB.BOLEPIX%TYPE;
+  vicontador NUMBER;
+  pvc2menssagen VARCHAR2(255);
+  ERROR_DADOS_CARREGAMENTO EXCEPTION;
+  -- BOLETO convencional
+  vsUSATARIFABANCARIAPORBANCO PCBANCO.USATARIFABANCARIAPORBANCO%TYPE;
+  vNVLTARIFABANCARIA_BANCO PCBANCO.VLTARIFABANCARIA%TYPE;
+  -- BOLEPIX
+  vUSATARIFABANCARIABANCOBPIX PCBANCO.USATARIFABANCARIABANCOBOLEPIX%TYPE;
+  vVLTARIFABANCARIA_BANCO_BPIX PCBANCO.VLTARIFABANCARIABOLEPIX%TYPE;
+  vPEDIDO PCPEDC%ROWTYPE;
+BEGIN
+  BEGIN
+      SELECT *
+        INTO vPEDIDO
+        FROM PCPEDC
+       WHERE NUMPED = pNUMPED;
+  EXCEPTION WHEN NO_DATA_FOUND THEN
+    RAISE ERROR_DADOS_CARREGAMENTO;
+  END;
+
+  vsCODFILIALPED        := vPEDIDO.CODFILIAL;
+  vsTIPOTXBOL           := FERRAMENTAS.PARAMETROS.getVALORALFA('CON_TIPOTXBOLETO','99');
+  vsCOBRARVLTARIFAPARC1 := FERRAMENTAS.PARAMETROS.getVALORALFA('CON_COBRARVLTARIFAPARC1','99');
+  vsTIPOVLMINVENDABK    := FERRAMENTAS.PARAMETROS.getVALORALFA('CON_TIPOVLMINVENDABK','99');
+  VSSOMATXBOLETO        := FERRAMENTAS.PARAMETROS.getVALORALFANVL('CON_SOMATXBOLETO','99','N');
+
+  CASE vsTIPOTXBOL WHEN 'P' THEN
+     BEGIN
+       vnMINVALORNOTA          := FERRAMENTAS.PARAMETROS.getVALORNUMNVL('CON_VLMAXTARIFABANC','99',0); --Atenção estas variáveis realmente são invertidas "min X max"
+       vnMAXVALORNOTA          := FERRAMENTAS.PARAMETROS.getVALORNUMNVL('CON_VLMINTARIFABANC','99',999999999); --Atenção estas variáveis realmente são invertidas "min X max"
+       vnVALORTARIFA           := FERRAMENTAS.PARAMETROS.getVALORNUM('CON_VLTARIFA','99');
+       vnVALORTARIFABOLEPIX    := FERRAMENTAS.PARAMETROS.getVALORNUM('VLTARIFABOLEPIX','99');
+       vc2SOMATARIFABANCDUPLIC := FERRAMENTAS.PARAMETROS.getVALORALFA('CON_SOMATARIFABANCDUPLIC','99');
+     EXCEPTION WHEN OTHERS THEN
+       RAISE;
+     END;
+  WHEN 'F' THEN
+    BEGIN
+      vnMINVALORNOTA          := FERRAMENTAS.PARAMETROS.getVALORNUMNVL('FIL_VLMINTARIFABANC',vsCODFILIALPED,0);
+      vnMAXVALORNOTA          := FERRAMENTAS.PARAMETROS.getVALORNUMNVL('FIL_VLMAXTARIFABANC',vsCODFILIALPED,999999999);
+      vnVALORTARIFA           := FERRAMENTAS.PARAMETROS.getVALORNUM('FIL_VLTARIFA',vsCODFILIALPED);
+      vnVALORTARIFABOLEPIX    := FERRAMENTAS.PARAMETROS.getVALORNUM('FVLTARIFABOLEPIX',vsCODFILIALPED);
+      vc2SOMATARIFABANCDUPLIC := FERRAMENTAS.PARAMETROS.getVALORALFA('FIL_SOMATARIFABANCDUPLIC',vsCODFILIALPED);
+    EXCEPTION WHEN OTHERS THEN
+      RAISE;
+    END;
+  END CASE;
+
+  SELECT CODBANCOTARIFA,
+         NVL(BOLETO, 'N'),
+         NVL(BOLEPIX, 'N')
+  INTO vnCODBANCOTARIFA_COB,
+       vsBOLETO_COB,
+       vsBOLEPIX_COB
+  FROM PCCOB
+  WHERE PCCOB.codCOB = DECODE(NVL(pvsCODCOBPEDIDO, 'X'), 'X', DECODE(vPEDIDO.codCOB, 'BK', pvsCODIGOCOBRANCA, vPEDIDO.codCOB), pvsCODCOBPEDIDO);
+
+  IF NVL(vPEDIDO.CODBANCOCM,0) <> 0 THEN
+    vnCODBANCOTARIFA_COB := vPEDIDO.CODBANCOCM;
+  END IF;
+
+  IF vnCODBANCOTARIFA_COB IS NOT NULL THEN
+    SELECT COUNT(*)
+    INTO vicontador
+    FROM PCBANCO
+    WHERE PCBANCO.codBANCO = vnCODBANCOTARIFA_COB;
+
+    IF vicontador = 0 THEN
+      pvc2menssagen := '3.0 - BANCO informado no cadastro de COBrança ' || TO_CHAR(vPEDIDO.codCOB) || ' não cadastrado.';
+      PKG_VALORTARIFA.vrPARAMETROS.NUMPED := pNUMPED;
+      PKG_VALORTARIFA.vrPARAMETROS.DATA   := SYSDATE;
+      PKG_VALORTARIFA.vrPARAMETROS.MSG    := pvc2menssagen;
+      PKG_VALORTARIFA.GRAVARLOG(PKG_VALORTARIFA.vrPARAMETROS, (CASE WHEN PKG_VALORTARIFA.vrPARAMETROS.MSG LIKE '%ORA-%' THEN DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE TO_CHAR($$PLSQL_LINE) END));
+
+      RAISE ERROR_DADOS_CARREGAMENTO;
+    ELSE
+      SELECT NVL(PCBANCO.USATARIFABANCARIAPORBANCO, 'N'),
+             NVL(PCBANCO.VLTARIFABANCARIA, 0),
+             NVL(PCBANCO.USATARIFABANCARIABANCOBOLEPIX,'N'),
+             NVL(PCBANCO.VLTARIFABANCARIABOLEPIX,0)
+      INTO vsUSATARIFABANCARIAPORBANCO, -- BOLETO convencional
+           vNVLTARIFABANCARIA_BANCO,    -- BOLETO convencional
+           vUSATARIFABANCARIABANCOBPIX, -- BOLEPIX
+           vVLTARIFABANCARIA_BANCO_BPIX -- BOLEPIX
+      FROM PCBANCO
+      WHERE PCBANCO.codBANCO = vnCODBANCOTARIFA_COB;
+
+      IF (vsBOLETO_COB = 'S') THEN
+        IF (vsUSATARIFABANCARIAPORBANCO = 'S') AND
+           (vNVLTARIFABANCARIA_BANCO > 0) THEN
+          PKG_VALORTARIFA.vrPARAMETROS.CON_VLTARIFA := vNVLTARIFABANCARIA_BANCO;
+          vnVALORTARIFA := vNVLTARIFABANCARIA_BANCO;
+        ELSE 
+          IF (vsBOLEPIX_COB = 'S') THEN
+            IF (vUSATARIFABANCARIABANCOBPIX = 'S') AND
+               (vVLTARIFABANCARIA_BANCO_BPIX > 0) THEN
+              vnVALORTARIFABOLEPIX := vVLTARIFABANCARIA_BANCO_BPIX;
+            END IF;
+          END IF;
+        END IF; -- ESLE IF
+      END IF; --IF
+    END IF; -- ELSE
+  END IF; -- IF vnNumBANCO IS NOT NULL
+
+  IF VSSOMATXBOLETO = 'S' AND vc2SOMATARIFABANCDUPLIC = 'S' THEN
+    VSSOMATXBOLETO := 'N';
+  END IF;
+
+  BEGIN
+    SELECT PCPEDC.CODCLI,
+           NVL(p_FORMAPGTOPEDIDO.CODPLPAG, PCPEDC.CODPLPAG),
+           NVL(p_FORMAPGTOPEDIDO.codCOB, PCPEDC.codCOB),
+           NVL(PCCOB.BOLETO, 'N'),
+           NVL(PCCOB.BOLEPIX,'N'),
+           NVL(PCCLIENT.ISENTOtxBOLETO, 'N'),
+           PCPEDC.condvenda,
+           NVL(PCCLIENT.PERIODICIDADEAGRUP, 0),
+           NVL(PCCLIENT.TAXABOLETONF, 'N')
+    INTO vnCODCLI,
+         vnCODPLPAG,
+         vsCODCOB,
+         vsBOLETO,
+         vsBOLEPIX,
+         vsISENTOTXBOLETO,
+         vnCONDVENDA,
+         vnPERIODICIDADE,
+         vsTAXABOLETONF
+    FROM PCPEDC, PCCOB, PCCLIENT
+    WHERE PCPEDC.NUMPED = pNUMPED
+      AND PCPEDC.CODCLI = PCCLIENT.CODCLI
+      AND NVL(p_FORMAPGTOPEDIDO.CODCOB, PCPEDC.CODCOB) = PCCOB.CODCOB;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE;
+  END;
+
+  vnJUROS := 0;
+  vnVALOR := 0;
+
+  IF vnCONDVENDA NOT IN (4, 8, 11, 13, 20) THEN
+    SELECT NVL(CALCULARNUMPARCELAS(vnCODPLPAG, pNUMPED), 1)
+    INTO vnNUMPARC
+    FROM DUAL;
+
+    PKG_VALORTARIFA.vrPARAMETROS.NUMPED := pNUMPED;
+    PKG_VALORTARIFA.vrPARAMETROS.DATA := SYSDATE;
+    PKG_VALORTARIFA.vrPARAMETROS.MSG := 'PCPREST.VLTXBOLETO - Avaliar isenção valortarifa ' ||
+                                        ' - VLTOTGER ' || pVLTOTGER ||
+                                        ' - vnNUMPARC ' || vnNUMPARC ||
+                                        ' - vsTIPOVLMINVENDABK ' || vsTIPOVLMINVENDABK ||
+                                        ' - vnVALORTARIFA ' || NVL(vnVALORTARIFA, 0) ||
+                                        ' - vnMINVALORNOTA ' || vnMINVALORNOTA ||
+                                        ' - vnMAXVALORNOTA ' || vnMAXVALORNOTA;
+    PKG_VALORTARIFA.GRAVARLOG(PKG_VALORTARIFA.vrPARAMETROS, TO_CHAR($$PLSQL_LINE));
+
+    CASE vsTIPOVLMINVENDABK WHEN 'VP' THEN
+      vnVALORPARC := TRUNC((pVLTOTGER / vnNUMPARC), 2);
+
+      IF (vnVALORPARC >= vnMINVALORNOTA) AND
+         (vnVALORPARC <= vnMAXVALORNOTA) THEN
+        vnJUROS := NVL(vnVALORTARIFA, vnVALORTARIFABOLEPIX);
+      END IF;
+    WHEN 'VT' THEN
+      IF (pVLTOTGER >= vnMINVALORNOTA) AND
+         (pVLTOTGER <= vnMAXVALORNOTA) THEN
+        vnJUROS := NVL(vnVALORTARIFA, vnVALORTARIFABOLEPIX);
+      END IF;
+          
+      DBMS_OUTPUT.put_line('VALOR DE SAÍDA: '|| vnJUROS || 'COBRANÇA: ' || vsCODCOB  );
+    END CASE;
+
+    IF vsISENTOTXBOLETO = 'S' THEN
+      vnJUROS := 0;
+    END IF;
+
+    IF (NVL(VPEDIDO.NUMPEDORIGEM, 0) > 0) AND 
+       (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_COBRATXBOLETORESTRICAOTRANSP', VPEDIDO.CODFILIAL, 'S') = 'N') THEN
+      vnJUROS := 0;
+    END IF;
+
+    vnNUMPARCCOB := RETORNARNUMPARCELASCOBRABOLETO(vsCOBRARVLTARIFAPARC1, vnNUMPARC);
+
+    IF (vsCODCOB = 'BK') OR (vsBOLETO = 'S') OR (vsBOLEPIX = 'S') THEN
+      IF (vc2SOMATARIFABANCDUPLIC = 'S') OR (VSSOMATXBOLETO = 'S') THEN
+        vnVALOR := vnJUROS * vnNUMPARCCOB;
+      END IF;
+    END IF;
+  END IF;
+
+  BEGIN
+    SELECT NVL(NAOCOBRARTXBOLETO,'N')
+    INTO vsNAOCALCULARTXBOLETO
+    FROM PCPLPAG
+    WHERE CODPLPAG = vnCODPLPAG;
+  EXCEPTION WHEN OTHERS THEN
+    vsNAOCALCULARTXBOLETO := 'N';
+  END;
+
+  IF vsNAOCALCULARTXBOLETO = 'S' THEN
+    RETURN 0;
+  END IF;
+
+  IF (vnPERIODICIDADE > 0) THEN
+    IF (vsTAXABOLETONF = 'N') THEN
+      UPDATE PCCLIENT SET TAXABOLETONF = 'S' WHERE CODCLI = vnCODCLI;
+      RETURN vnVALOR;
+    ELSE
+      RETURN 0;
+    END IF;
+  ELSE
+    RETURN vnVALOR;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  RETURN 0;
+END VALORTARIFA;
+
+
+END PKG_VALORTARIFA;
