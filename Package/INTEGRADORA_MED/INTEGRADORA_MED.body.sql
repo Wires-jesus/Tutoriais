@@ -2110,19 +2110,13 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
                        null);
   END proc_processarleitura;
 
-
-
-
-
-
-
-
-
   FUNCTION retorna_prazomedido_plpagfixo(pcodplpag IN pcplpag.codplpag%TYPE)
     RETURN NUMBER IS
     vidatavenc          INT;
     pcarencia           pcplpag.diascarencia%TYPE;
     diafixo             pcplpag.diafixo%TYPE;
+    diavencimento       pcplpag.diafixo%TYPE;    
+    ultimodiames        pcplpag.diafixo%TYPE;	
     pnumparcelas        pcplpag.numeroparcelasdiafixo%TYPE;
     vddata_vencimento   DATE;
     vddata_venc_inicial DATE;
@@ -2137,7 +2131,18 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
     vidatavenc := 0;
 
     FOR vi IN 1 .. pnumparcelas LOOP
-      SELECT TO_DATE(TO_CHAR(diafixo) || '/' ||
+	
+      SELECT TO_NUMBER(TO_CHAR(LAST_DAY(ADD_MONTHS(TRUNC(SYSDATE), vidatavenc)), 'DD'))
+        INTO ultimodiames
+        FROM DUAL;	
+		
+      IF diafixo > ultimodiames THEN
+        diavencimento := ultimodiames;
+      ELSE
+        diavencimento := diafixo;        
+      END IF;
+	
+      SELECT TO_DATE(TO_CHAR(diavencimento) || '/' ||
                      TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vidatavenc),
                              'MM/YYYY'),
                      'DD/MM/YYYY')
