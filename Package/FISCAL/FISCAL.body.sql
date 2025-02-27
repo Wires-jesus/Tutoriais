@@ -5805,8 +5805,12 @@ create or replace package body FISCAL is
           AND ((NVL(TIPOPESSOA, 'N') = P_TIPO_PESSOA) OR (TIPOPESSOA IS NULL ))
           AND (ORIGMERCTRIB IS NULL OR REGEXP_LIKE(ORIGMERCTRIB, '(^|,)' || P_ORIGEM_MERC || '($|,)'))
           AND (SITTRIBUT IS NULL OR REGEXP_LIKE(SITTRIBUT, '(^|,)' || P_SIT_TRIBUT || '($|,)'))
-          AND (CODFISCAL IS NULL OR REGEXP_LIKE(CODFISCAL, '(^|,)' || REPLACE(TO_CHAR(P_CODFISCAL), ',', '.') || '($|,)'))
-          AND (NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))
+          -- Verificar CFOP com base no DESCONSIDERARCFOP
+          AND (NVL(P.DESCONSIDERARCFOP,'N') = 'S' AND NOT REGEXP_LIKE(CODFISCAL, '(^|,)' || P_CODFISCAL || '($|,)') 
+              OR NVL(P.DESCONSIDERARCFOP,'N') = 'N' AND (CODFISCAL IS NULL OR REGEXP_LIKE(CODFISCAL, '(^|,)' || P_CODFISCAL || '($|,)')))
+          -- Verificar NCM com base no DESCONSIDERARNCM
+          AND (NVL(P.DESCONSIDERARNCM,'N') = 'S' AND NOT REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)') 
+              OR NVL(P.DESCONSIDERARNCM,'N') = 'N' AND (NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))) 
           AND ROWNUM  = 1;
 
         -- Atribui os valores para os parâmetros de saída
