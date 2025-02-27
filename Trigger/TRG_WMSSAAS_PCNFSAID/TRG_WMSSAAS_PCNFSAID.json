@@ -1,5 +1,5 @@
 {
-	"nome":"T_TRG_WMSSAAS_PCNFSAID",
+	"nome":"TRG_WMSSAAS_PCNFSAID",
 	"tipoPLSQL":"TRIGGER",
 	"dependencias":[
 	{

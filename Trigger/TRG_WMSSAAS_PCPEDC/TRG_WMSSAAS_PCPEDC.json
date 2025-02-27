@@ -1,5 +1,5 @@
 {
-	"nome":"T_TRG_WMSSAAS_PCPEDC",
+	"nome":"TRG_WMSSAAS_PCPEDC",
 	"tipoPLSQL":"TRIGGER",
 	"dependencias":[
 	{
