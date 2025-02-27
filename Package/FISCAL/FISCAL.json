@@ -28,7 +28,7 @@
         },{
             "nome": "PCBENEFICFISCALCREDPRES",
             "tipo": "TABELA",
-            "versao": "7.0.03.000"
+            "versao": "7.0.04.000"
         }, {
             "nome": "PCMOVCOMPLE",
             "tipo": "TABELA",
