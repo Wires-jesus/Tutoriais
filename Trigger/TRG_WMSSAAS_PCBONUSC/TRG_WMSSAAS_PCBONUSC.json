@@ -1,0 +1,16 @@
+{
+	"nome":"TRG_WMSSAAS_PCBONUSC",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+	{
+		"nome": "PCBONUSC",
+		"tipo": "TABELA",
+		"versao": "5.0.01.000"
+	},
+	{
+		"nome": "PCPARAMINTEGRACAOWMSSAAS",
+		"tipo": "TABELA",
+		"versao": "6.0.01.000"
+	}
+ ]
+}
