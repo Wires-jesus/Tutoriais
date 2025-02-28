@@ -18,6 +18,13 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
                                     pCODPROD                IN NUMBER,
                                     pNUMSEQ                 IN NUMBER,
                                     pQTSEPARADA             IN NUMBER,
-                                    pNUMLOTE                IN VARCHAR2);									
+                                    pNUMLOTE                IN VARCHAR2);				
+
+  PROCEDURE EFETUAR_AJUSTE_ESTOQUE(pCODFILIAL           IN VARCHAR2,
+                                      pCODPROD             IN NUMBER,
+                                      pQUANTIDADE          IN NUMBER,
+                                      pTIPO                IN VARCHAR2,
+                                      pVALIDADE            IN DATE,
+                                      pNUMLOTE             IN VARCHAR2);	
 
 END PKG_INTEGRACAOWMSSAAS;
