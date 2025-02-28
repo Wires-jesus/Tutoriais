@@ -316,5 +316,155 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     END IF;
   
   END FINALIZARSEPARACAOITEMFILA;
+  
+  PROCEDURE EFETUAR_AJUSTE_ESTOQUE(pCODFILIAL           IN VARCHAR2,
+                                        pCODPROD         IN NUMBER,
+                                        pQUANTIDADE      IN NUMBER,
+                                        pTIPO            IN VARCHAR2,
+                                        pVALIDADE        IN DATE,
+                                        pNUMLOTE         IN VARCHAR2) IS
+    v_PROX_NUM_LANCAMENTO NUMBER;
+    v_NUMTRANSENT NUMBER;
+    v_NUMTRANSVENDA NUMBER;      
+    v_CODCONTAJUSTEEST NUMBER; 
+    v_CODOPER VARCHAR2(2); 
+    v_COUNT NUMBER; 
+    v_USA_ESTOQUE_POR_LOTE VARCHAR2(1);
+    v_CODEPTO NUMBER; 
+    v_CODSEC NUMBER;
+    v_CUSTOULTENT NUMBER;
+    v_CUSTOCONT NUMBER;
+    v_CUSTOREAL NUMBER;
+    v_CUSTOFIN NUMBER;
+    v_msg_retorno    VARCHAR2(4000);
+    v_RESULTADO NUMBER;
+    v_NUMLANC NUMBER;
+    v_PRAZOVAL NUMBER;
+  
+                               
+    BEGIN
+    
+    --Carrega valores das transaÃ§Ãµes e da conta de ajuste
+    SELECT PROXNUMLANC, PROXNUMTRANSENT, PROXNUMTRANSVENDA, CODCONTAJUSTEEST 
+     INTO v_PROX_NUM_LANCAMENTO, v_NUMTRANSENT, v_NUMTRANSVENDA, v_CODCONTAJUSTEEST
+    FROM PCCONSUM FOR UPDATE;
+
+    UPDATE PCCONSUM SET PROXNUMLANC = PROXNUMLANC + 1, PROXNUMTRANSENT = PROXNUMTRANSENT + 1, PROXNUMTRANSVENDA = PROXNUMTRANSVENDA + 1;
+    
+    SELECT NVL(ESTOQUEPORLOTE, 'N'), NVL(CODEPTO,0), NVL(CODSEC,0), NVL(PRAZOVAL,0)
+    INTO v_USA_ESTOQUE_POR_LOTE, v_CODEPTO, v_CODSEC, v_PRAZOVAL
+    FROM PCPRODUT WHERE CODPROD = pCODPROD;
+    
+    --Carrega valores de custos dos produtos
+    select nvl(pcest.CUSTOULTENT,0) CUSTOULTENT, nvl(pcest.CUSTOCONT,0) CUSTOCONT, 
+    nvl(pcest.CUSTOREAL,0) CUSTOREAL, nvl(pcest.CUSTOFIN,0) CUSTOFIN 
+    INTO v_CUSTOULTENT, v_CUSTOCONT, v_CUSTOREAL, v_CUSTOFIN
+    from pcest
+    where codprod = pCODPROD
+    and codfilial = pCODFILIAL;
+    
+    
+    IF pTIPO = 'E' THEN
+    v_CODOPER := 'EA';
+    
+      IF v_USA_ESTOQUE_POR_LOTE = 'S' THEN
+      
+      
+        ---Caso seja uma entrada de um lote novo, o mesmo deve ser inserido na PCMOV
+        select count(numlote) INTO v_COUNT from pclote where codprod = pCODPROD and numlote = pNUMLOTE and codfilial = pCODFILIAL;
+      
+        IF v_COUNT = 0 THEN
+        INSERT INTO PCLOTE (CODPROD, CODFILIAL, QT, DTVALIDADE, NUMLOTE, NUMTRANSENT, QTEST, DATAFABRICACAO) 
+        VALUES (pCODPROD, pCODFILIAL, pQUANTIDADE, pVALIDADE, pNUMLOTE, v_NUMTRANSENT,0, TRUNC(pVALIDADE) - v_PRAZOVAL);
+        END IF;
+      
+      END IF;
+    
+    END IF;
+    
+    IF pTIPO = 'S' THEN
+    v_CODOPER := 'SA';
+    END IF;
+    
+    --CriaÃ§Ã£o da MovimentaÃ§Ã£o 
+    INSERT INTO PCMOV (DTMOV, CODPROD, NUMNOTA, CODOPER, QT, QTBLOQUEADA,PUNIT, CODFILIAL, CODCLI, CODUSUR, CUSTOFIN,                                                           
+    CUSTOCONT, CUSTOREAL, STATUS, CODEPTO, CODSEC,CODFORNEC, CODFUNCLANC,NUMTRANSVENDA,NUMTRANSENT, CODDEVOL, NUMLOTE )                                  
+    VALUES (TRUNC(SYSDATE),pCODPROD, 0, v_CODOPER, pQUANTIDADE, pQUANTIDADE, 
+    0, pCODFILIAL, 0, 0, v_CUSTOFIN, v_CUSTOCONT, v_CUSTOREAL, 'B', v_CODEPTO, v_CODSEC, 0, 1,DECODE(v_CODOPER, 'SA',v_NUMTRANSVENDA,0),DECODE(v_CODOPER, 'EA',v_NUMTRANSENT,0), 0,                                                
+    DECODE((SELECT NVL(ESTOQUEPORLOTE,'N') FROM PCPRODUT WHERE CODPROD = pCODPROD),'S',pNUMLOTE,NULL));  
+    
+    
+    IF pTIPO = 'E' THEN
+    
+      v_RESULTADO := PKG_ESTOQUE.LOGISTICA_ENTRADA(v_NUMTRANSENT, 'N', v_msg_retorno);
+      
+      IF v_msg_retorno <> 'OK' THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Erro ao executar LOGISTICA_ENTRADA: ' || v_msg_retorno);
+      END IF;
+
+    END IF;
+    
+    
+    
+    IF pTIPO = 'S' THEN
+    
+      v_RESULTADO := PKG_ESTOQUE.LOGISTICA_SAIDA(v_NUMTRANSVENDA, 'N', v_msg_retorno);
+      
+      IF v_msg_retorno <> 'OK' THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Erro ao executar LOGISTICA_SAIDA: ' || v_msg_retorno);
+      END IF;
+    
+    END IF;
+    
+    
+        SELECT NVL(PROXNUMLANC,0) NUMLANC, NVL(CODCONTAJUSTEEST,0) CODCONTAJUSTEEST 
+    INTO v_NUMLANC, v_CODCONTAJUSTEEST
+    FROM PCCONSUM FOR UPDATE;
+    
+    UPDATE PCCONSUM SET PROXNUMLANC = NVL(PROXNUMLANC,0) + 1;
+    
+    ----------Inserindo PCLANC------
+  INSERT INTO PCLANC
+    (RECNUM,
+     DTLANC,
+     CODCONTA,
+     CODFORNEC,
+     HISTORICO,
+     NUMNOTA,
+     DUPLIC,
+     VALOR,
+     DTVENC,
+     VPAGO,
+     DTPAGTO,
+     CODFILIAL,
+     INDICE,
+     TIPOPARCEIRO,
+     NOMEFUNC)
+  VALUES
+    (v_NUMLANC,
+     TRUNC(SYSDATE),
+     v_CODCONTAJUSTEEST,
+     0,
+     'AJUSTE DE ESTOQUE VIA INTEGRACAO WMS SAAS',
+     0,
+     '0',
+     DECODE(pTIPO, 'S', pQUANTIDADE * (-1), pQUANTIDADE),
+     TRUNC(SYSDATE),
+     DECODE(pTIPO, 'S', pQUANTIDADE * (-1), pQUANTIDADE),
+     TRUNC(SYSDATE),
+     pCODFILIAL,
+     'B',
+     'O',
+     'PCADMIN');
+    
+    
+    --Processa Centro de custo.
+    PROCESSACENTRODECUSTO(pCODFILIAL, v_CODCONTAJUSTEEST, 'FINANCEIRO',v_NUMLANC);
+    
+    
+
+    
+    END EFETUAR_AJUSTE_ESTOQUE;                                    
+                                        
 
 END PKG_INTEGRACAOWMSSAAS;
