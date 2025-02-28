@@ -816,7 +816,7 @@ BEGIN
        AND  p.seqdocto = a.seqdocto		
        AND  a.nroformapagto = pNroFormaPagto
        AND  a.nroempresa = pnroempresa
-	   AND  a.nrocheckout = pNroCheckout
+	   AND  a.nrocheckout = pNumcheckout
 	   AND  a.seqdocto = pseqdocto
        AND  ROWNUM = 1;
   
