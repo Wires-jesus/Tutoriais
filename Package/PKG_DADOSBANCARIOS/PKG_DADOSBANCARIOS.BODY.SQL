@@ -103,7 +103,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
            NVL(CODCLIENTENOBANCO, '0'),
            NVL(CODCEDENTE, '0'),
            NVL(NUMCARTEIRA3, '0'),
-           NVL(NOSSONUMBCO17DIGCOBCEFSIGCBREG,'N')
+           NVL(NOSSONUMBCO17DIGCOBCEFSIGCBREG,'N'),
+           NUMOPERACAO
     INTO BANCO
     FROM PCBANCO
     WHERE CODBANCO = PN_CODBANCO
@@ -562,7 +563,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
          END IF;
        WHEN (BANCO.NUMBANCO = 748) THEN
          CASE
-      WHEN (VN_SOMA >= 1) AND (VN_SOMA <= 9) THEN
+          WHEN (VN_SOMA >= 1) AND (VN_SOMA <= 9) THEN
              IF (VN_SOMA = 10) THEN
                VS_DIGITO := 0;
              ELSE
@@ -619,18 +620,18 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
              END IF;
            ELSE
              VS_DIGITO := 0;
-         END CASE;
-         WHEN (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 594) THEN
-           VN_DIVISAO := VN_SOMA / 10;
-           VN_DIVISAO := TRUNC(VN_DIVISAO);
-           VN_RESTO   := VN_SOMA - (VN_DIVISAO * 10);
-           VS_DIGITO := 10 - VN_RESTO;
+          END CASE;
+       WHEN (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 594) THEN
+          VN_DIVISAO := VN_SOMA / 10;
+          VN_DIVISAO := TRUNC(VN_DIVISAO);
+          VN_RESTO   := VN_SOMA - (VN_DIVISAO * 10);
+          VS_DIGITO := 10 - VN_RESTO;
 
-           IF VN_RESTO > 0 THEN
-             VS_DIGITO := 10 - VN_RESTO;
-           ELSE
-             VS_DIGITO := '0';
-           END IF;
+          IF VN_RESTO > 0 THEN
+            VS_DIGITO := 10 - VN_RESTO;
+          ELSE
+            VS_DIGITO := '0';
+          END IF;
      END CASE;
 
    END IF;
@@ -762,6 +763,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     ELSIF (BANCO.NUMBANCO = 399) AND ((BANCO.TIPOCOB = 'NR') OR (BANCO.TIPOCOB = 'NS')) AND (PN_TIPO = 'N') THEN
     -- VALIDAÃ¿Ã¿O PARA O BANCO 399 COBRANÃ¿AS 'NR' E 'NS' -- BASE 9 FIXA
       VN_MULTIPLICADOR := 9;
+    ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN 
+      VN_MULTIPLICADOR := 4;
     ELSE
       VN_MULTIPLICADOR := 2;
     END IF;
@@ -882,6 +885,18 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             WHEN (VN_MULTIPLICADOR = 1) THEN VN_MULTIPLICADOR := 3;
             ELSE VN_MULTIPLICADOR := VN_MULTIPLICADOR;
           END CASE;
+        ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'N') THEN  
+          IF VN_MULTIPLICADOR = 2 THEN
+            VN_MULTIPLICADOR := 1;
+          ELSE
+            VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;   
+          END IF;
+        ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN
+          IF VN_MULTIPLICADOR = 2 THEN
+            VN_MULTIPLICADOR := 9;
+          ELSE
+            VN_MULTIPLICADOR := VN_MULTIPLICADOR - 1;   
+          END IF;
        ELSE
 
           IF VN_MULTIPLICADOR = PN_BASE THEN
@@ -1242,9 +1257,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VN_DUPLIC           PCPREST.DUPLIC%TYPE;
   BEGIN
     -- GERAÃ¿Ã¿O DO NOSSO NÃ¿MERO PARA O BANCO SAFRA **************************************************
-    IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
-      VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 8, '0');
-      VS_DV_TEMP          := F_CALCULA_MODULO_11(VS_NOSSONUMERO, 10, 'N', VS_NOVODIGMOD10);
+    IF PS_PRIMEIRAIMPRESSAO = 'S' THEN      
+      IF BANCO.NUMBANCO = 594 THEN -- BANCO ASA        
+        VS_NOSSONUMERO    := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
+        VS_DV_TEMP        := F_CALCULA_MODULO_10(VS_NOSSONUMERO, 2, 'N'); 
+      ELSE -- BANCO SAFRA
+        VS_NOSSONUMERO    := LPAD(PN_PROXIMONOSSONUMERO, 8, '0');
+        VS_DV_TEMP        := F_CALCULA_MODULO_11(VS_NOSSONUMERO, 10, 'N', VS_NOVODIGMOD10);
+      END IF;
 
       VS_NOSSONUMERO_TEMP := VS_NOSSONUMERO || VS_DV_TEMP;
       VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_TEMP;
@@ -1265,9 +1285,20 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             PS_UTILIZAVALORBRUTO,
                                             PD_DTVENC);
     /* 20 A 20*/
-    VS_CODBARRA := VS_CODBARRA || '7';
+    IF BANCO.NUMBANCO <> 594 THEN
+      VS_CODBARRA := VS_CODBARRA || '7';
+    END IF;  
 
-    IF BANCO.TIPOCOB = 'R' THEN
+    IF BANCO.NUMBANCO = 594 THEN
+      /*20 A 23*/
+      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.AGENCIA), 4, '0');
+      /*24 A 26*/
+      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMCARTEIRA), 3, '0'); 
+      /*27 A 33*/
+      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMOPERACAO), 7, '0');
+      /*34 A 44*/
+      VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 11, '0');
+    ELSIF BANCO.TIPOCOB = 'R' THEN
       /*21 A 25*/
       VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.AGENCIA), 5, '0');
       /*26 A 34*/
@@ -1940,7 +1971,8 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
              NVL(CODCLIENTENOBANCO, '0'),
              NVL(CODCEDENTE, '0'),
              NVL(NUMCARTEIRA3, '0'),
-             NVL(NOSSONUMBCO17DIGCOBCEFSIGCBREG,'N')
+             NVL(NOSSONUMBCO17DIGCOBCEFSIGCBREG,'N'),
+             NUMOPERACAO
       INTO BANCO
       FROM PCBANCO
       WHERE CODBANCO = PN_CODBANCO;
