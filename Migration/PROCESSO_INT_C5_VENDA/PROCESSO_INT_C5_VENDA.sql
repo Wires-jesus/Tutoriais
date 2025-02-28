@@ -800,7 +800,8 @@ END;
 
 CREATE OR REPLACE FUNCTION fnc_int_c5_tipovenda_pag_venda(pNroFormaPagto NUMBER,
                                                           pnroempresa    NUMBER,
-                                                          pNumcheckout   NUMBER)
+                                                          pNumcheckout   NUMBER,
+														  pseqdocto      NUMBER)
     RETURN CHAR
 IS
     vTipoVenda CHAR(2);
@@ -811,9 +812,12 @@ BEGIN
             monitorpdvmiddle.tb_doctopagto p
      WHERE  p.nroformapagto = a.nroformapagto
        AND  p.nroempresa = a.nroempresa
-        AND p.nrocheckout = a.nrocheckout 
+        AND p.nrocheckout = a.nrocheckout
+       AND  p.seqdocto = a.seqdocto		
        AND  a.nroformapagto = pNroFormaPagto
        AND  a.nroempresa = pnroempresa
+	   AND  a.nrocheckout = pNroCheckout
+	   AND  a.seqdocto = pseqdocto
        AND  ROWNUM = 1;
   
     RETURN(vTipoVenda);
@@ -1137,7 +1141,8 @@ SELECT  CASE
    AND  i.nrocheckout = pNroCheckout
    AND  i.seqdocto = pSeqdocto
    AND  i.STATUS = 'V'
-   AND  i.seqitem = pSeqItem;
+   AND  i.seqitem = pSeqItem
+   AND ROWNUM = 1;
    
    
    
@@ -1381,7 +1386,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
             AND g.seqdocto = a.seqdocto
             AND ROWNUM = 1),1) codplpag,
 
-        (SELECT fnc_int_c5_tipovenda_pag_venda(g.nroformapagto,g.nroempresa,g.nrocheckout)
+        (SELECT fnc_int_c5_tipovenda_pag_venda(g.nroformapagto,g.nroempresa,g.nrocheckout, g.seqdocto)
            FROM monitorpdvmiddle.tb_doctopagto g
           WHERE g.nroempresa = a.nroempresa
             AND g.nrocheckout = a.nrocheckout
@@ -1672,7 +1677,7 @@ AS
         0 basebcr,
         NVL((select 
               (CASE 
-                 WHEN doctribitem.percbasecalculo < 100 AND doctribitem.percbasecalculo > 0.001 THEN
+                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
                       nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
                  ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
                END) vlrbase             
@@ -2076,7 +2081,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 basebcr,
         NVL((select 
               (CASE 
-                 WHEN doctribitem.percbasecalculo < 100 AND doctribitem.percbasecalculo > 0.001 THEN
+                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
                       nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
                  ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
                END) vlrbase             
@@ -3139,7 +3144,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLBASEIPI,
 	NVL((select 
       (CASE 
-         WHEN doctribitem.percbasecalculo < 100 THEN
+         WHEN doctribitem.percbasecalculo <= 100 THEN
               nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
          ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
        END) vlrbase             
@@ -3370,7 +3375,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLBASEIPI,
 	NVL((select 
       (CASE 
-         WHEN doctribitem.percbasecalculo < 100 THEN
+         WHEN doctribitem.percbasecalculo <= 100 THEN
               nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
          ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
        END) vlrbase             
