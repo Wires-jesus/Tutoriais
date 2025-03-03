@@ -1,1 +1,11 @@
-{"nome":"PROCESSO_INT_C5_DESC2048FIDELIDADE","tipoPLSQL":"MIGRATION","dependencias":[]}
+{
+  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCFINALIZADORAFIDELIDADE",
+      "tipo": "TABELA",
+      "versao": "7.0.01.000"
+    }
+  ]
+}
