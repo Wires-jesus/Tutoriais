@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "7.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -165,7 +165,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "7.0.02.000"
+			"versao": "7.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -425,7 +425,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.05.000"
+		  "versao": "7.0.06.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
@@ -446,11 +446,6 @@
 		  "nome": "VW_INT_C5_BINCARTAO",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "6.0.01.000"
-		},
-		{
-		  "nome": "VW_INT_C5_REGRABINCARTAO",
-		  "tipo": "OBJETO_PLSQL",
-		  "versao": "7.0.02.000"
 		}
 	]
 }
