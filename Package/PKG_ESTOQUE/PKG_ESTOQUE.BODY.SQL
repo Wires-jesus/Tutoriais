@@ -7802,17 +7802,19 @@ IS
               LOOP
                 IF ESTOQUE.CODPROD <> pnCODPRODPRINC AND psDESBLOQPRODFAMILIA = 'S' THEN 
                   vnQTDE := ESTOQUE_DISPONIVEL_BLOQUEADO(ESTOQUE.CODPROD, ESTOQUE.CODFILIAL);
+				  P_INTERNO.CALCULA_ESTOQUE             := 'S';
                 ELSE
-                  vnQTDE := pnQTDE;                       
+                  vnQTDE := pnQTDE;   
+                  -- Atualizar pendente na PCEST */
+                  IF LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)) > 0 THEN 
+                    P_INTERNO.CALCULA_ESTOQUE             := 'S';
+                  ELSE
+                    P_INTERNO.CALCULA_ESTOQUE             := 'N';
+                  END IF;				  
                 END IF;            
 
                 --------------------------------------
-                -- Atualizar pendente na PCEST */
-                IF LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)) > 0 THEN 
-                  P_INTERNO.CALCULA_ESTOQUE             := 'S';
-                ELSE
-                  P_INTERNO.CALCULA_ESTOQUE             := 'N';
-                END IF;
+                
                 P_INTERNO.vtESTOQUE                   := NULL;
                 P_INTERNO.TIPO_OPERACAO               := 'B';
                 P_INTERNO.vtESTOQUE.CODFILIAL         := ESTOQUE.CODFILIAL;
