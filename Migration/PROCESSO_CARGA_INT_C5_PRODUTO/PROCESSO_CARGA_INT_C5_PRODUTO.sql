@@ -328,7 +328,7 @@ SELECT
               /*E SE A TRIBUTACAO DO PRODUTO FILHO É DIFERENTE DA TRIBUTACAO DO PRODUTO PAI, ENTÃO SETA O SEQFAMILIA DO FILHO*/
               (
                 (SELECT F.NROTRIBUTACAO 
-                 FROM VW_INT_C5_FAMDIVISAO F 
+                 FROM VW_INT_C5_FAMDIV_MAT F 
                  WHERE F.CODPROD = TBPROD.CODPROD 
                  AND ROWNUM = 1
                 ) 
@@ -336,7 +336,7 @@ SELECT
                 <>
               
                 NVL((SELECT F.NROTRIBUTACAO 
-                     FROM VW_INT_C5_FAMDIVISAO F
+                     FROM VW_INT_C5_FAMDIV_MAT F
                      WHERE F.CODPROD = TBPROD.CODPRODPRINC
                      AND ROWNUM = 1), (SELECT F.NROTRIBUTACAO
                                        FROM MONITORPDVMIDDLE.TB_FAMDIVISAO F,
