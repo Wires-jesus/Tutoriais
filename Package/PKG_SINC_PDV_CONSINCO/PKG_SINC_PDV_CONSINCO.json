@@ -115,7 +115,12 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.08.000"
+			"versao": "7.0.09.000"
+		},
+		{
+			"nome": "PROCESSO_CARGA_INT_C5_FAMDIVISAO_MATERIALIZADA",
+			"tipo": "MIGRATION",
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
