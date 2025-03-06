@@ -2903,7 +2903,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      E.nrotributacao,
                      E.codorigemtrib,
                      E.ativo
-               FROM VW_INT_C5_FAMDIVISAO E,
+               FROM VW_INT_C5_FAMDIV_MAT E,
                     PCPRODFILIAL F,
                     VW_INT_C5_OBTER_FILIAIS_C5 c5
                WHERE E.CODPROD = F.CODPROD
