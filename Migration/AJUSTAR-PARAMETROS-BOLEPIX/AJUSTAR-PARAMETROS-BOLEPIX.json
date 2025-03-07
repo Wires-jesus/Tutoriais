@@ -1,0 +1,12 @@
+{
+	"nome":"AJUSTAR-PARAMETROS-BOLEPIX",
+	"tipoPLSQL":"MIGRATION",
+	
+	"dependencias": [
+		{
+		  "nome": "PARAMETRO",
+		  "tipo": "PARAMETRO",
+		  "versao": "7.0.02.000"
+		}
+	]
+}
