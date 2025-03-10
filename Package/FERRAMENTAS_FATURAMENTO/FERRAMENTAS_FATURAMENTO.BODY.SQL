@@ -119,6 +119,18 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                              from pcmov, pcnfsaid, pcmovcomple
                             where pcmov.numtransvenda = pNumtransvenda
                               and pcmov.numtransvenda = pcnfsaid.numtransvenda
+                              and exists(select 1
+                                           from pcpedc
+                                          where pcpedc.numped = pcnfsaid.numped
+                                            and pcpedc.numtransvenda = pcnfsaid.numtransvenda
+                                            and ((nvl(pcpedc.broker, 'N') = 'N') or
+                                                 ((nvl(pcpedc.broker, 'N') = 'S') and 
+                                                  nvl(paramfilial.obtercomovarchar2('FIL_TIPOBROKER', pcnfsaid.codfilial), 'N') = 'MAB'))
+                                            and (pcpedc.condvenda in (1,5,8,9,14) or
+                                                 pcpedc.condvenda = decode(nvl(paramfilial.obtercomovarchar2('CON_CALCULAGIROTRANSF'), 'N'), 'S', 10, 1)))
+                              and (pcmov.codoper in ('S', 'SB', 'SM') or
+                                   pcmov.codoper = decode(nvl(paramfilial.obterComovarchar2('FIL_CONSIDERAMONTAGEMGIROMERC', pcnfsaid.codfilial), 'N'), 'S', 'SP', 'S') or
+                                   pcmov.codoper = decode(nvl(paramfilial.obtercomovarchar2('CON_CALCULAGIROTRANSF'), 'N'), 'S', 'ST', 'S'))
                               and pcmov.dtmov = pcnfsaid.dtsaida
                               and pcmovcomple.numtransitem(+) = pcmov.numtransitem
                               and pcnfsaid.numped > 0) LOOP
