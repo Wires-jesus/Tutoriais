@@ -1,1 +1,7 @@
-{"nome":"PKG_DADOSBANCARIOS","tipoPLSQL":"PACKAGE","dependencias":""}
+{
+	"nome":"PKG_DADOSBANCARIOS",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias": [
+		{"nome":"PCBANCO","tipo":"TABELA","versao":"7.0.01.000"}
+	]
+}
