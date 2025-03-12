@@ -6199,7 +6199,7 @@ create or replace package body FISCAL is
                AND (P_PARAMETROS.TIPO_MERC IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.TIPO_MERC, NVL(PCTRIBUTACAO.TIPO_MERC,'N')) = P_PARAMETROS.TIPO_MERC)
                AND ROWNUM = 1;
                
-               P_MSG := 'OK; Tributação localizada na rotina 400 pelo local de consumo BR';              
+               P_MSG := 'OK; Tributação localizada na rotina 4000 pelo local de consumo BR';              
             EXCEPTION
                WHEN OTHERS THEN
                BEGIN              
