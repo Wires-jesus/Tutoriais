@@ -4,6 +4,52 @@ CREATE OR REPLACE PACKAGE FISCAL IS
    VCODFILIAL         VARCHAR2(2);
    VVLPIS_NF          NUMBER;
    VVLCOFINS_NF       NUMBER;
+   
+   
+  TYPE TIPO_TRIBUT_REFORMA IS RECORD (
+      CODFILIAL         VARCHAR2(2),
+      CODCLI            NUMBER(9),
+      UF_CLIENTE        VARCHAR2(2),
+      CODFORNEC         NUMBER(6),
+      UF_FORNECEDOR     VARCHAR2(2),
+      TIPO_OPERACAO     VARCHAR2(1),
+      DEVOLUCAO         VARCHAR2(1),
+      CODIGO_MUNICIPIO  NUMBER(10),
+      TIPO_IMPOSTO      VARCHAR2(3),      
+      --Filtros adicionais
+      CODPROD           NUMBER(6),
+      NCM               VARCHAR2(15),      
+      CONSUMIDOR_FINAL  VARCHAR2(1),
+      TIPO_EMPRESA      VARCHAR2(4),
+      TIPO_PESSOA       VARCHAR2(1),
+      CONTRIBUINTE      VARCHAR2(1),
+      ORGAO_PUBLICO     VARCHAR2(1),
+      ORIGEM_MERCADORIA VARCHAR2(1),
+      TIPO_MERC         VARCHAR2(2),
+      --Valores para formação da base de cáluclo por meio da fórmula         
+      VALOR_PRODUTO         NUMBER(18,6),
+      VALOR_ICMS_ST         NUMBER(18,6),
+      VALOR_FCP_ST          NUMBER(18,6),
+      VALOR_ICMS            NUMBER(18,6),
+      VALOR_FCP             NUMBER(18,6),
+      VALOR_IPI             NUMBER(18,6),
+      VALOR_ICMS_DESONERADO NUMBER(18,6),
+      VALOR_FRETE           NUMBER(18,6),
+      VALOR_OUTRAS_DESPESAS NUMBER(18,6),
+      VALOR_DESCONTO        NUMBER(18,6),
+      VALOR_OUTROS          NUMBER(18,6),
+      --Dados retorno
+      CODIGO_TRIBUTACAO        NUMBER(10),
+      FORMULA_BASE_CALCULO     VARCHAR2(4000),
+      BASE_CALCULO_COD_FORMULA VARCHAR2(200),
+      ALIQUOTA_COD_FORMULA     VARCHAR2(200),
+      CST                      VARCHAR2(3),
+      CCLASSTRIB               VARCHAR2(6),     
+      VALOR_BASE_TRIBUTO       NUMBER(18,6),
+      VALOR_ALIQUOTA_TRIBUTO   NUMBER(18,6),
+      VALOR_TRIBUTO            NUMBER(18,6)            
+   );   
+   
 
    FUNCTION FORMATAR_CST_ICMS(PSITTRIBUT    IN VARCHAR2,
                               PIMPORTADO    IN VARCHAR2,
@@ -282,4 +328,15 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                      ,P_ATIVARLOG    varchar2 := 'N'
                                      ,P_MSG      out varchar2)
   RETURN VARCHAR2;
+  
+
+  FUNCTION CALCULAR_CBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;
+
+  
+  FUNCTION CALCULAR_IBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;  
+
 END;
