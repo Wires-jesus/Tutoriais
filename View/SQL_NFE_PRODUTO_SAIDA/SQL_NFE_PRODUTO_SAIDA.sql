@@ -1295,17 +1295,25 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                               1,
                               'NT',
                               3,
-                              CASE WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = PCMOV.BASEICST) THEN
-                                   5
+                              CASE
+                                WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
+                                    5
+                                --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                    6
                                 ELSE
-                                   4
-                                END))
+                                    4
+                              END))
                ELSE
-                CASE WHEN (NVL(PCMOV.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = PCMOV.BASEICST) THEN
-                       5
+                CASE
+                    WHEN ((NVL(PCMOV.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0))) THEN
+                        5
+                     --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                    WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                        6
                     ELSE
-                       4
-                    END
+                        4
+                END
              END MODALIDADE_BC_ST
             ,ROUND(NVL(PCMOV.PERCIVA, NVL(PCMOV.IVA, 0)), 2) AS PERCENTUAL_MARGEM
             ,ROUND(CASE WHEN GREATEST(NVL(PCMOV.ALIQSTSAIDA,0), NVL(PCMOV.PERCBASEREDST,0), NVL(PCMOV.PERCBASEREDSTFONTE,0) ) > 0 THEN
@@ -3149,17 +3157,25 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                               1,
                               'NT',
                               3,
-                              CASE WHEN (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = PCMOVPREFAT.BASEICST) THEN
-                                   5
+                              CASE
+                                WHEN (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = NVL(PCMOVPREFAT.BASEICST, 0)) THEN
+                                    5
+                                --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                                WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) = 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
+                                    6
                                 ELSE
-                                   4
-                                END))
+                                    4
+                              END))
                ELSE
-                CASE WHEN (NVL(PCMOVPREFAT.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = PCMOVPREFAT.BASEICST) THEN
-                                   5
-                                ELSE
-                                   4
-                                END
+                CASE
+                    WHEN (NVL(PCMOVPREFAT.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = NVL(PCMOVPREFAT.BASEICST, 0)) THEN
+                        5
+                    --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                    WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) = 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
+                        6
+                    ELSE
+                        4
+                END
                END MODALIDADE_BC_ST
             ,ROUND(NVL(PCMOVPREFAT.PERCIVA, NVL(PCMOVPREFAT.IVA, 0)), 2) AS PERCENTUAL_MARGEM
             ,ROUND(CASE WHEN GREATEST(NVL(PCMOVPREFAT.PERCBASEREDST,0), NVL(PCMOVPREFAT.PERCBASEREDSTFONTE,0)) > 0 THEN

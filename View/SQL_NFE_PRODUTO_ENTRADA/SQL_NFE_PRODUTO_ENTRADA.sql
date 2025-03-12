@@ -781,11 +781,15 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              1,
                              'NT',
                              3,
-                             CASE WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = PCMOV.BASEICST) THEN
+                             CASE
+                                WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
                                    5
+                                --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND  NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                   6
                                 ELSE
                                    4
-                                END)) AS MODALIDADE_BC_ST
+                             END)) AS MODALIDADE_BC_ST
               ,ROUND(DECODE(NVL(PCMOV.IVA, 0), 0, NVL(PCMOV.PERCIVA, 0), PCMOV.IVA), 2) AS PERCENTUAL_MARGEM
               ,ROUND(DECODE(NVL(PCMOV.CODOPER, 'E'), 'ED', 100 - NVL(PCMOV.PERCBASEREDST, 0), NVL(PCMOV.PERCBASEREDST, 0)), 4) AS PERCENTUAL_REDUCAO_ST
               ,ROUND(NVL(PCMOV.BASEICST, 0) * PCMOV.QTCONT, 2) AS BASE_ST
@@ -1875,11 +1879,15 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              1,
                              'NT',
                              3,
-                             CASE WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = PCMOV.BASEICST) THEN
+                             CASE
+                                WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
                                    5
+                                --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND  NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                    6
                                 ELSE
-                                   4
-                                END)) AS MODALIDADE_BC_ST
+                                    4
+                             END)) AS MODALIDADE_BC_ST
               ,ROUND(DECODE(NVL(PCMOV.IVA, 0), 0, NVL(PCMOV.PERCIVA, 0), PCMOV.IVA), 2) AS PERCENTUAL_MARGEM
               ,ROUND(DECODE(NVL(PCMOV.CODOPER, 'E'), 'ED', 100 - NVL(PCMOV.PERCBASEREDST, 0), NVL(PCMOV.PERCBASEREDST, 0)), 4) AS PERCENTUAL_REDUCAO_ST
               ,ROUND(NVL(PCMOV.BASEICST, 0) * PCMOV.QTCONT, 2) AS BASE_ST
