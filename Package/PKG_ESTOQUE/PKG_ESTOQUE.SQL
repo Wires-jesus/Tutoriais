@@ -583,6 +583,15 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
                                          ,psNUMLOTE     IN PCMOV.NUMLOTE%TYPE
                                          ,psPROCESSO    IN VARCHAR2 DEFAULT 'I')
   RETURN NUMBER;
+ 
+  /**********************************************************************************************/
+  /* Retorna filial gerencial */
+  /**********************************************************************************************/
+  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD       IN PCMOV.CODPROD%TYPE 
+                                    ,pnNUMSEQ        IN PCMOV.NUMSEQ%TYPE                                      
+                                    ,psOPERACAO      IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE                                      
+                                    ,pnIDENTIFICADOR IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL)
+  RETURN VARCHAR2;
 
   /**********************************************************************************************/
   /* Incluir quantidade frente de loja */

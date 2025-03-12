@@ -12681,6 +12681,47 @@ END IF;
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
+  12/03/2025     DAVI BERNADO      DDESTOQUE-20081     Retorna filial gerencial
+  /***********************************************************************************************************************/
+  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD       IN PCMOV.CODPROD%TYPE    
+                                    ,pnNUMSEQ        IN PCMOV.NUMSEQ%TYPE                                  
+                                    ,psOPERACAO      IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE                                      
+                                    ,pnIDENTIFICADOR IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL)
+  RETURN VARCHAR2
+  IS
+    VSCODFILIAL_GERENCIAL PCPEDC.CODFILIAL%TYPE;
+  BEGIN
+    IF psOPERACAO = 'E' THEN
+      SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                              M.CODFILIALRETIRA, 
+                                              M.CODFILIALNF),'V',
+                                              DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, 'N'), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
+                                              DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, 'N'), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL) FILIAL_ESTOQUE
+        INTO VSCODFILIAL_GERENCIAL
+        FROM PCMOV M, PCNFENT E
+       WHERE M.CODPROD = pnCODPROD
+         AND M.NUMTRANSENT = E.NUMTRANSENT
+         AND M.NUMSEQ = pnNUMSEQ
+         AND E.NUMTRANSENT = pnIDENTIFICADOR;
+    ELSE
+      SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                              M.CODFILIALRETIRA,
+                                              M.CODFILIALNF),'V', M.CODFILIALNF, 'R', NVL(M.CODFILIALRETIRA, M.CODFILIAL), M.CODFILIAL) FILIAL_ESTOQUE
+        INTO VSCODFILIAL_GERENCIAL
+        FROM PCMOV M, PCNFSAID S
+       WHERE M.CODPROD = pnCODPROD
+         AND M.NUMTRANSVENDA = S.NUMTRANSVENDA
+         AND M.NUMSEQ = pnNUMSEQ
+         AND S.NUMTRANSVENDA = pnIDENTIFICADOR;
+    END IF;
+    
+    RETURN VSCODFILIAL_GERENCIAL;
+  END FILIAL_ESTOQUE_GERENCIAL;
+
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor             Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
   07/07/2017     Fernandes Brito   0                   Incluir Qt. Frente Loja para controle do disponível
   /***********************************************************************************************************************/
   FUNCTION FRENTELOJA_ATUALIZAR_PCEST (psCODFILIAL     IN PCPEDC.CODFILIAL%TYPE
