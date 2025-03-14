@@ -16,8 +16,10 @@ CREATE OR REPLACE TYPE t_string_agg AS OBJECT
   MEMBER FUNCTION ODCIAggregateMerge(self  IN OUT  t_string_agg,         
                                      ctx2  IN      t_string_agg)         
     RETURN NUMBER                                                        
-);                                                                       
-/                                                                        
+);  
+                                                                     
+\
+
 CREATE OR REPLACE TYPE BODY t_string_agg IS                              
                                                                          
   STATIC FUNCTION ODCIAggregateInitialize(sctx  IN OUT  t_string_agg)    
@@ -68,10 +70,11 @@ CREATE OR REPLACE TYPE BODY t_string_agg IS
   END;                                                                   
                                                                          
 END;                                                                     
-/                                                                        
+
+\
+
 CREATE OR REPLACE FUNCTION WMS_CONCAT(p_input VARCHAR2)                  
                                                                          
 RETURN VARCHAR2                                                          
                                                                          
 PARALLEL_ENABLE AGGREGATE USING t_string_agg;                            
-/
