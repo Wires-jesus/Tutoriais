@@ -18,7 +18,7 @@ CREATE OR REPLACE TYPE t_string_agg AS OBJECT
     RETURN NUMBER                                                        
 );  
                                                                      
-\                                                                        
+\
 
 CREATE OR REPLACE TYPE BODY t_string_agg IS                              
                                                                          
@@ -71,7 +71,7 @@ CREATE OR REPLACE TYPE BODY t_string_agg IS
                                                                          
 END;                                                                     
 
-\                                                                        
+\
 
 CREATE OR REPLACE FUNCTION WMS_CONCAT(p_input VARCHAR2)                  
                                                                          
