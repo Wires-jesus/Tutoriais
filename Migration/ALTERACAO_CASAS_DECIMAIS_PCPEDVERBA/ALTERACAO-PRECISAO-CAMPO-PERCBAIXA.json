@@ -1,0 +1,6 @@
+{
+    "nome": "ALTERACAO-PRECISAO-CAMPO-PERCBAIXA",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
