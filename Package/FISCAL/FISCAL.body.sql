@@ -6121,21 +6121,28 @@ create or replace package body FISCAL is
                                         P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA IS
     V_PARAMETROS TIPO_TRIBUT_REFORMA;
-    V_BASE_CALCULO_FORMULA VARCHAR2(200);
-    V_ALIQUOTA_FORMULA VARCHAR2(200);
-    V_VALOR_ALIQUOTA NUMBER(10,4);
-    V_CST VARCHAR2(3);
-    V_CLASSTRIB VARCHAR2(6);  
+    V_CODIGO_TRIBUTACAO PCTRIBUTACAO.CODIGO_TRIBUTACAO%TYPE;
+    V_BASE_CALCULO_FORMULA PCTRIBUTACAO.BASE_CALCULO%TYPE;
+    V_ALIQUOTA_FORMULA PCTRIBUTACAO.ALIQUOTA%TYPE;
+    V_VALOR_ALIQUOTA PCTRIBUTACAO.VALOR_ALIQUOTA%TYPE;
+    V_CST PCTRIBUTACAO.CST%TYPE;
+    V_CLASSTRIB PCTRIBUTACAO.CCLASSTRIB%TYPE;  
+    V_UF Varchar2(2);
   BEGIN
     V_PARAMETROS := P_PARAMETROS;
-    
+
+    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta dos dados de novos tributos. ','S');       
+        
     BEGIN    
-      SELECT NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
+      PKG_DEBUGGING_FWPC.LOG('Consultando por código de municipio: '||P_PARAMETROS.CODIGO_MUNICIPIO,'S');      
+      SELECT PCTRIBUTACAO.CODIGO_TRIBUTACAO,
+             NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
              NVL(PCTRIBUTACAO_EXCECAO.ALIQUOTA, PCTRIBUTACAO.ALIQUOTA) ALIQUOTA,
              NVL(PCTRIBUTACAO_EXCECAO.VALOR_ALIQUOTA, PCTRIBUTACAO.VALOR_ALIQUOTA) VALOR_ALIQUOTA,
              NVL(PCTRIBUTACAO_EXCECAO.CST, PCTRIBUTACAO.CST) CST,
              NVL(PCTRIBUTACAO_EXCECAO.CCLASSTRIB, PCTRIBUTACAO.CCLASSTRIB) CCLASSTRIB
-        INTO V_BASE_CALCULO_FORMULA,
+        INTO V_CODIGO_TRIBUTACAO,
+             V_BASE_CALCULO_FORMULA,
              V_ALIQUOTA_FORMULA,
              V_VALOR_ALIQUOTA,
              V_CST,
@@ -6154,16 +6161,31 @@ create or replace package body FISCAL is
          AND (P_PARAMETROS.TIPO_MERC IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.TIPO_MERC, NVL(PCTRIBUTACAO.TIPO_MERC,'N')) = P_PARAMETROS.TIPO_MERC)
          AND ROWNUM = 1;                   
          
-         P_MSG := 'OK; Tributação localizada na rotina 4000 pelo seguinte local de consumo: '||P_PARAMETROS.CODIGO_MUNICIPIO||' .';
+        
+         PKG_DEBUGGING_FWPC.LOG('OK; Tributação localizada na rotina 4000 pelo seguinte local de consumo: '||P_PARAMETROS.CODIGO_MUNICIPIO||' .','S');
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        BEGIN
-          SELECT NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
+        BEGIN           
+          V_UF := 'BR'  ;        
+          
+          IF P_PARAMETROS.CODCLI > 0 THEN
+            V_UF := P_PARAMETROS.UF_CLIENTE;
+          END IF;
+
+          IF P_PARAMETROS.CODCLI > 0 THEN
+            V_UF := P_PARAMETROS.UF_FORNECEDOR;                       
+          END IF; 
+        
+          PKG_DEBUGGING_FWPC.LOG('Pesquisando agora por UF: '||P_PARAMETROS.UF_CLIENTE,'S');          
+          
+          SELECT PCTRIBUTACAO.CODIGO_TRIBUTACAO,
+                 NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
                  NVL(PCTRIBUTACAO_EXCECAO.ALIQUOTA, PCTRIBUTACAO.ALIQUOTA) ALIQUOTA,
                  NVL(PCTRIBUTACAO_EXCECAO.VALOR_ALIQUOTA, PCTRIBUTACAO.VALOR_ALIQUOTA) VALOR_ALIQUOTA,                 
                  NVL(PCTRIBUTACAO_EXCECAO.CST, PCTRIBUTACAO.CST) CST,
                  NVL(PCTRIBUTACAO_EXCECAO.CCLASSTRIB, PCTRIBUTACAO.CCLASSTRIB) CCLASSTRIB
-            INTO V_BASE_CALCULO_FORMULA,
+            INTO V_CODIGO_TRIBUTACAO,
+                 V_BASE_CALCULO_FORMULA,
                  V_ALIQUOTA_FORMULA,
                  V_VALOR_ALIQUOTA,
                  V_CST,
@@ -6172,7 +6194,7 @@ create or replace package body FISCAL is
                  PCTRIBUTACAO_EXCECAO
            WHERE PCTRIBUTACAO.CODIGO_TRIBUTACAO = PCTRIBUTACAO_EXCECAO.CODIGO_TRIBUTACAO(+)
              AND TIPO_IMPOSTO = P_PARAMETROS.TIPO_IMPOSTO
-             AND LOCAL_CONSUMO = TO_CHAR(P_PARAMETROS.UF_CLIENTE)
+             AND LOCAL_CONSUMO = V_UF
              AND STATUS = 'A'
              AND (P_PARAMETROS.CONSUMIDOR_FINAL IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.CONSUMIDOR_FINAL, NVL(PCTRIBUTACAO.CONSUMIDOR_FINAL,'N')) = 'S')         
              AND (P_PARAMETROS.TIPO_EMPRESA IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.TIPO_EMPRESA, NVL(PCTRIBUTACAO.TIPO_EMPRESA,'N')) = P_PARAMETROS.TIPO_EMPRESA)
@@ -6182,16 +6204,19 @@ create or replace package body FISCAL is
              AND (P_PARAMETROS.TIPO_MERC IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.TIPO_MERC, NVL(PCTRIBUTACAO.TIPO_MERC,'N')) = P_PARAMETROS.TIPO_MERC)
              AND ROWNUM = 1;
              
-             P_MSG := 'OK; Tributação localizada na rotina 4000 pelo seguinte local de consumo UF: '||NVL(P_PARAMETROS.UF_CLIENTE, P_PARAMETROS.UF_FORNECEDOR)||' .';
+             PKG_DEBUGGING_FWPC.LOG('OK; Tributação localizada na rotina 4000 pelo seguinte local de consumo UF: '||V_UF||' .','S');
           EXCEPTION 
             WHEN NO_DATA_FOUND THEN             
             BEGIN
-            SELECT NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
+            PKG_DEBUGGING_FWPC.LOG('Pesquisando agora por federacao: ','S');              
+            SELECT PCTRIBUTACAO.CODIGO_TRIBUTACAO,
+                   NVL(PCTRIBUTACAO_EXCECAO.BASE_CALCULO, PCTRIBUTACAO.BASE_CALCULO) BASE_CALCULO,
                    NVL(PCTRIBUTACAO_EXCECAO.ALIQUOTA, PCTRIBUTACAO.ALIQUOTA) ALIQUOTA,
                    NVL(PCTRIBUTACAO_EXCECAO.VALOR_ALIQUOTA, PCTRIBUTACAO.VALOR_ALIQUOTA) VALOR_ALIQUOTA,
                    NVL(PCTRIBUTACAO_EXCECAO.CST, PCTRIBUTACAO.CST) CST,
                    NVL(PCTRIBUTACAO_EXCECAO.CCLASSTRIB, PCTRIBUTACAO.CCLASSTRIB) CCLASSTRIB
-              INTO V_BASE_CALCULO_FORMULA,
+              INTO V_CODIGO_TRIBUTACAO,
+                   V_BASE_CALCULO_FORMULA,
                    V_ALIQUOTA_FORMULA,
                    V_VALOR_ALIQUOTA,
                    V_CST,
@@ -6210,35 +6235,32 @@ create or replace package body FISCAL is
                AND (P_PARAMETROS.TIPO_MERC IS NULL OR NVL(PCTRIBUTACAO_EXCECAO.TIPO_MERC, NVL(PCTRIBUTACAO.TIPO_MERC,'N')) = P_PARAMETROS.TIPO_MERC)
                AND ROWNUM = 1;
                
-               P_MSG := 'OK; Tributação localizada na rotina 4000 pelo local de consumo BR';              
-            EXCEPTION
+               PKG_DEBUGGING_FWPC.LOG('OK; Tributação localizada na rotina 4000 pelo seguinte local de consumo Nação: BR','S');
+            EXCEPTION                       
                WHEN OTHERS THEN
                BEGIN              
+                 PKG_DEBUGGING_FWPC.LOG('Nenhuma configuração encontrada na rotina 4000: '||P_PARAMETROS.TIPO_IMPOSTO||' :'||SQLERRM,'S');               
                  V_BASE_CALCULO_FORMULA := '';
                  V_ALIQUOTA_FORMULA := '';
                  V_CST := '';
-                 V_CLASSTRIB := ''; 
-                
-                 P_MSG := 'ERRO; Tributação não localizada na rotina 4000.';              
+                 V_CLASSTRIB := '';                 
                END;
             END;
         END;        
-    END;    
+    END;        
     
-    
-    V_PARAMETROS.BASE_CALCULO_COD_FORMULA   := V_BASE_CALCULO_FORMULA;    
-    V_PARAMETROS.ALIQUOTA_COD_FORMULA       := V_ALIQUOTA_FORMULA;
+    V_PARAMETROS.CODIGO_TRIBUTACAO        := V_CODIGO_TRIBUTACAO;
+    V_PARAMETROS.BASE_CALCULO_COD_FORMULA := V_BASE_CALCULO_FORMULA;    
+    V_PARAMETROS.ALIQUOTA_COD_FORMULA     := V_ALIQUOTA_FORMULA;
     V_PARAMETROS.VALOR_ALIQUOTA_TRIBUTO := V_VALOR_ALIQUOTA;    
     V_PARAMETROS.CST                    := V_CST;
-    V_PARAMETROS.CCLASSTRIB             := V_CLASSTRIB;
-    
+    V_PARAMETROS.CCLASSTRIB             := V_CLASSTRIB;    
     
     RETURN(V_PARAMETROS);
   END GET_DADOS_NOVOS_TRIBUTOS;
   
   
-  FUNCTION GET_CALCULAR_NOVOS_TRIBUTOS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
-                                       P_MSG      out varchar2)
+  FUNCTION GET_CALCULAR_NOVOS_TRIBUTOS(P_PARAMETROS in TIPO_TRIBUT_REFORMA)
   RETURN TIPO_TRIBUT_REFORMA IS   
     VARIAVEL           FORMULA.RVARIAVEL;
     VFORMULA_TRIBUTOS  PCFORMULA.FORMULA%TYPE;      
@@ -6249,6 +6271,8 @@ create or replace package body FISCAL is
     
   BEGIN
     V_PARAMETROS := P_PARAMETROS;
+    
+    PKG_DEBUGGING_FWPC.LOG('Inicio do processo de cálculo dos novos tributos','S');    
   
     IF V_PARAMETROS.BASE_CALCULO_COD_FORMULA IS NOT NULL THEN
         -- Atribuir valores das variáveis        
@@ -6308,14 +6332,11 @@ create or replace package body FISCAL is
                                                                                        
         -- Calcular tributo             
         VFORMULA_TRIBUTOS  := FORMULA.SUBSTITUIFORMULAS(V_PARAMETROS.BASE_CALCULO_COD_FORMULA, RESULTADO);       
-
         VFORMULA_TRIBUTOS  := FORMULA.BUSCAVALOR(RESULTADO, V_TIPO_IMPOSTO);
 
         V_PARAMETROS.FORMULA_BASE_CALCULO := VFORMULA_TRIBUTOS;
         V_PARAMETROS.VALOR_BASE_TRIBUTO := FORMULA.CALCULARSUBFORMULA(VFORMULA_TRIBUTOS, VTVARIAVEIS);
-        V_PARAMETROS.VALOR_TRIBUTO  := ROUND(((V_PARAMETROS.VALOR_BASE_TRIBUTO * V_PARAMETROS.VALOR_ALIQUOTA_TRIBUTO)/100),6);
-               
-        P_MSG := 'OK';
+        V_PARAMETROS.VALOR_TRIBUTO  := ROUND(((V_PARAMETROS.VALOR_BASE_TRIBUTO * V_PARAMETROS.VALOR_ALIQUOTA_TRIBUTO)/100),6);               
     END IF;    
   
   
@@ -6323,15 +6344,18 @@ create or replace package body FISCAL is
     RETURN(V_PARAMETROS);
   END GET_CALCULAR_NOVOS_TRIBUTOS;
   
-  FUNCTION GET_CODIGO_MUNICIPIO(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
-                                P_MSG      out varchar2)
+  FUNCTION GET_CODIGO_MUNICIPIO(P_PARAMETROS in TIPO_TRIBUT_REFORMA)
   RETURN VARCHAR2 IS
-    V_CODIGO_MUNICIPIO NUMBER(10);
+    V_CODIGO_MUNICIPIO VARCHAR2(10);
   BEGIN
-    V_CODIGO_MUNICIPIO := 0;
+    PKG_DEBUGGING_FWPC.LOG('Inicio da consulta por código de município','S');
+
+    V_CODIGO_MUNICIPIO := '';
     
-    IF P_PARAMETROS.CODCLI IS NOT NULL THEN
+    IF P_PARAMETROS.CODCLI > 0 THEN
       BEGIN
+        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do código de município para o codcli: '||P_PARAMETROS.CODCLI,'S');        
+        
         SELECT PCCIDADE.CODIBGE
           INTO V_CODIGO_MUNICIPIO
           FROM PCCLIENT,
@@ -6339,15 +6363,27 @@ create or replace package body FISCAL is
          WHERE PCCLIENT.CODCIDADE = PCCIDADE.CODCIDADE
            AND PCCLIENT.CODCLI = P_PARAMETROS.CODCLI;
            
-        P_MSG := 'OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||P_PARAMETROS.CODCLI;   
+        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||P_PARAMETROS.CODCLI,'S');
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          P_MSG := 'ERRO: Não encontrado código de municipio para o codfornec: '||P_PARAMETROS.CODFORNEC;
+        BEGIN                     
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Não encontrado código de municipio para o CODCLI: '||P_PARAMETROS.CODCLI||' '||SQLERRM,'S');          
+          RETURN(V_CODIGO_MUNICIPIO);
+        END;  
+        WHEN OTHERS THEN
+        BEGIN  
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o código de cliente: '||P_PARAMETROS.CODCLI||' '|| SQLERRM,'S');
+          RETURN(V_CODIGO_MUNICIPIO);          
+        END;  
+          
+        RETURN(V_CODIGO_MUNICIPIO);          
       END;
     END IF;
        
-    IF P_PARAMETROS.CODCLI IS NOT NULL THEN       
+    IF P_PARAMETROS.CODFORNEC > 0 THEN       
       BEGIN
+        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do código de município para o codfornec: '||P_PARAMETROS.CODFORNEC,'S');        
+        
         SELECT PCCIDADE.CODIBGE
           INTO V_CODIGO_MUNICIPIO
           FROM PCFORNEC,
@@ -6355,10 +6391,20 @@ create or replace package body FISCAL is
          WHERE PCFORNEC.CODCIDADE = PCCIDADE.CODCIDADE
            AND PCFORNEC.CODFORNEC = P_PARAMETROS.CODFORNEC;         
 
-        P_MSG := 'OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codfornec: '||P_PARAMETROS.CODFORNEC;         
+        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codfornec: '||P_PARAMETROS.CODFORNEC,'S');        
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          P_MSG := 'ERRO: Não encontrado código de municipio para o codfornec: '||P_PARAMETROS.CODFORNEC;          
+        BEGIN  
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Não encontrado código de municipio para o codfornec: '||P_PARAMETROS.CODFORNEC||' '||SQLERRM,'S');
+          RETURN(V_CODIGO_MUNICIPIO);          
+        END;  
+        WHEN OTHERS THEN
+        BEGIN            
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o código do fornecedor: '||P_PARAMETROS.CODFORNEC||' '|| SQLERRM,'S');          
+          RETURN(V_CODIGO_MUNICIPIO);          
+        END;  
+
+        RETURN(V_CODIGO_MUNICIPIO);          
       END;      
     END IF;        
     
@@ -6372,44 +6418,100 @@ create or replace package body FISCAL is
   RETURN TIPO_TRIBUT_REFORMA IS
     V_DADOS_TRIBUTACAO TIPO_TRIBUT_REFORMA;
   BEGIN
+    BEGIN
+      PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_CBS', '1.0');
+      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo CBS para filial| '||P_PARAMETROS.CODFILIAL||
+                             ' Produto: '||P_PARAMETROS.CODPROD||
+                             ' Ncm:'||P_PARAMETROS.NCM,'S'); 
 
-    V_DADOS_TRIBUTACAO                  := P_PARAMETROS;            
-    V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBS';
-    V_DADOS_TRIBUTACAO.CODIGO_MUNICIPIO := GET_CODIGO_MUNICIPIO(V_DADOS_TRIBUTACAO, P_MSG);
-    
-    --Busca os dados de cadastro da rotina 4000
-    V_DADOS_TRIBUTACAO := GET_DADOS_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO,
-                                                   P_MSG);
 
-    --Calcula os novos impostos com base na tributação que foi encontrada                                                   
-    V_DADOS_TRIBUTACAO := GET_CALCULAR_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO,
-                                                      P_MSG);                                                   
-                                                   
-  
-    RETURN(V_DADOS_TRIBUTACAO);
+      V_DADOS_TRIBUTACAO                  := P_PARAMETROS;            
+      V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBS';
+      V_DADOS_TRIBUTACAO.CODIGO_MUNICIPIO := GET_CODIGO_MUNICIPIO(V_DADOS_TRIBUTACAO);          
+      
+      --Busca os dados de cadastro da rotina 4000
+      V_DADOS_TRIBUTACAO := GET_DADOS_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO);
+                                                 
+
+      --Calcula os novos impostos com base na tributação que foi encontrada                                                   
+      V_DADOS_TRIBUTACAO := GET_CALCULAR_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO);
+
+      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:'||
+                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO||
+                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.BASE_CALCULO_COD_FORMULA||
+                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_TRIBUTO||
+                             ' Aliquota: '||V_DADOS_TRIBUTACAO.VALOR_ALIQUOTA_TRIBUTO||      
+                             ' Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_TRIBUTO||
+                             ' CST: '||V_DADOS_TRIBUTACAO.CST||      
+                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CClassTrib      
+                             ,'S');
+      
+
+                                                     
+      PKG_DEBUGGING_FWPC.DESATIVARDEBUG;  
+
+      RETURN(V_DADOS_TRIBUTACAO);    
+      
+      P_MSG := 'OK';
+    EXCEPTION
+      WHEN OTHERS THEN        
+        BEGIN
+          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do CBS: '||SQLERRM,'S');
+          P_MSG := 'ERRO';          
+          RETURN(V_DADOS_TRIBUTACAO);                                   
+        END;                           
+    END;
   END CALCULAR_CBS;  
   
+
   
   FUNCTION CALCULAR_IBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
                         P_MSG        out varchar2)
   RETURN TIPO_TRIBUT_REFORMA IS
     V_DADOS_TRIBUTACAO TIPO_TRIBUT_REFORMA;
   BEGIN
+    BEGIN
+      PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_IBS', '1.0');
+      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo IBS para filial| '||P_PARAMETROS.CODFILIAL||
+                             ' Produto: '||P_PARAMETROS.CODPROD||
+                             ' Ncm:'||P_PARAMETROS.NCM,'S'); 
 
-    V_DADOS_TRIBUTACAO                  := P_PARAMETROS;            
-    V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IBS';
-    V_DADOS_TRIBUTACAO.CODIGO_MUNICIPIO := GET_CODIGO_MUNICIPIO(V_DADOS_TRIBUTACAO, P_MSG);
-    
-    --Busca os dados de cadastro da rotina 4000
-    V_DADOS_TRIBUTACAO := GET_DADOS_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO,
-                                                   P_MSG);
 
-    --Calcula os novos impostos com base na tributação que foi encontrada                                                   
-    V_DADOS_TRIBUTACAO := GET_CALCULAR_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO,
-                                                      P_MSG);                                                   
-                                                   
-  
-    RETURN(V_DADOS_TRIBUTACAO);
+      V_DADOS_TRIBUTACAO                  := P_PARAMETROS;            
+      V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IBS';
+      V_DADOS_TRIBUTACAO.CODIGO_MUNICIPIO := GET_CODIGO_MUNICIPIO(V_DADOS_TRIBUTACAO);          
+      
+      --Busca os dados de cadastro da rotina 4000
+      V_DADOS_TRIBUTACAO := GET_DADOS_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO);
+                                                 
+
+      --Calcula os novos impostos com base na tributação que foi encontrada                                                   
+      V_DADOS_TRIBUTACAO := GET_CALCULAR_NOVOS_TRIBUTOS(V_DADOS_TRIBUTACAO);
+
+      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:'||
+                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO||
+                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.BASE_CALCULO_COD_FORMULA||
+                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_TRIBUTO||
+                             ' Aliquota: '||V_DADOS_TRIBUTACAO.VALOR_ALIQUOTA_TRIBUTO||      
+                             ' IBS calculado: '||V_DADOS_TRIBUTACAO.VALOR_TRIBUTO||
+                             ' CST: '||V_DADOS_TRIBUTACAO.CST||      
+                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CClassTrib      
+                             ,'S');                                                       
+                                                     
+      PKG_DEBUGGING_FWPC.DESATIVARDEBUG;  
+
+      RETURN(V_DADOS_TRIBUTACAO);    
+
+      P_MSG := 'OK';      
+    EXCEPTION
+      WHEN OTHERS THEN        
+        BEGIN
+          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do IBS: '||SQLERRM,'S');          
+
+          RETURN(V_DADOS_TRIBUTACAO);                                   
+          P_MSG := 'ERRO';
+        END;                           
+    END;
   END CALCULAR_IBS;  
   
 END;
