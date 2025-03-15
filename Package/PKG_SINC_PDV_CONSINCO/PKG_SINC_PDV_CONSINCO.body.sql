@@ -6266,7 +6266,7 @@ begin
         S.NROFORMAPAGTO,
         S.ATIVO,
         S.PERCDESCONTO
-      )
+      );
 
     INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
