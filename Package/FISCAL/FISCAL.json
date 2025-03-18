@@ -57,6 +57,10 @@
             "nome": "PCTRIBUTACAO_FILTRO_NCM",
             "tipo": "TABELA",
             "versao": "7.0.01.000"
+        },{
+            "nome": "CADASTRO_4008",
+            "tipo": "MIGRATION",
+            "versao": "7.0.01.000"
         }	
     ]
 }
