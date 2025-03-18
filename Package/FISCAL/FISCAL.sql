@@ -291,7 +291,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_NCM IN VARCHAR2 DEFAULT NULL,
                                       P_ALIQCREDPRESUMIDO OUT NUMBER,                                      
                                       P_FORMULACREDPRES OUT VARCHAR2,
-                                      P_CCREDPRESUMIDO OUT VARCHAR2
+                                      P_CCREDPRESUMIDO OUT VARCHAR2,
+                                      P_IDCREDPRESUMIDO OUT NUMBER
 
     )
     RETURN VARCHAR2;
@@ -319,6 +320,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
                                         P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
                                         P_CCREDPRESUMIDO OUT PCMOVCOMPLE.CCREDPRESUMIDO%TYPE,
+                                        P_IDCREDPRESUMIDO OUT NUMBER,
                                         P_MSG OUT VARCHAR2
   )
      RETURN VARCHAR2;
