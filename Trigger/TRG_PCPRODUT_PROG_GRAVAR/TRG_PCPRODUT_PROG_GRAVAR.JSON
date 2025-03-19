@@ -6,6 +6,11 @@
             "nome": "PCPRODUT_PROGRAMADA",
             "tipo": "TABELA",
             "versao": "7.0.01.000"
+        },
+        {
+            "nome": "PCTABPR_PROGRAMADA_PCPRODUT_PROGRAMADA_SEQUENCE",
+            "tipo": "MIGRATION",
+            "versao": "7.0.01.000"
         }
     ]
 }
