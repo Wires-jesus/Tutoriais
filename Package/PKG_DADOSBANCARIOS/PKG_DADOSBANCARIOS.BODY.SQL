@@ -762,9 +762,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       VN_MULTIPLICADOR := 3;
     ELSIF (BANCO.NUMBANCO = 399) AND ((BANCO.TIPOCOB = 'NR') OR (BANCO.TIPOCOB = 'NS')) AND (PN_TIPO = 'N') THEN
     -- VALIDAÃ¿Ã¿O PARA O BANCO 399 COBRANÃ¿AS 'NR' E 'NS' -- BASE 9 FIXA
-      VN_MULTIPLICADOR := 9;
-    ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN 
-      VN_MULTIPLICADOR := 4;
+      VN_MULTIPLICADOR := 9;    
     ELSE
       VN_MULTIPLICADOR := 2;
     END IF;
@@ -892,10 +890,10 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;   
           END IF;
         ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN
-          IF VN_MULTIPLICADOR = 2 THEN
-            VN_MULTIPLICADOR := 9;
+          IF VN_MULTIPLICADOR = 9 THEN
+            VN_MULTIPLICADOR := 2;
           ELSE
-            VN_MULTIPLICADOR := VN_MULTIPLICADOR - 1;   
+            VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;   
           END IF;
        ELSE
 
@@ -1293,7 +1291,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       /*20 A 23*/
       VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.AGENCIA), 4, '0');
       /*24 A 26*/
-      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMCARTEIRA), 3, '0'); 
+      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(NVL(BANCO.NUMCARTEIRA3, BANCO.NUMCARTEIRA)), 3, '0'); 
       /*27 A 33*/
       VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMOPERACAO), 7, '0');
       /*34 A 44*/
