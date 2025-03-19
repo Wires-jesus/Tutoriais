@@ -5793,21 +5793,24 @@ create or replace package body FISCAL is
                                       P_NCM IN VARCHAR2 DEFAULT NULL,
                                       P_ALIQCREDPRESUMIDO OUT NUMBER,
                                       P_FORMULACREDPRES OUT VARCHAR2,
-                                      P_CCREDPRESUMIDO OUT VARCHAR2
+                                      P_CCREDPRESUMIDO OUT VARCHAR2,
+                                      P_IDCREDPRESUMIDO OUT NUMBER
   )
   RETURN VARCHAR2
   IS
     v_FORMULACREDPRES VARCHAR2(200);
     v_ALIQCREDPRESUMIDO NUMBER;
     V_CCREDPRESUMIDO VARCHAR2(10);
+    V_IDCREDPRESUMIDO VARCHAR2(10);
   BEGIN
     -- Query para buscar o FORMULACREDPRES
     BEGIN
-      SELECT P.FORMULACREDPRES, I.ALIQCREDPRESUMIDO, P.CCREDPRESUMIDO
-        INTO v_FORMULACREDPRES, v_ALIQCREDPRESUMIDO, V_CCREDPRESUMIDO
+      SELECT P.FORMULACREDPRES, I.ALIQCREDPRESUMIDO, P.CCREDPRESUMIDO, P.IDPRES 
+        INTO v_FORMULACREDPRES, v_ALIQCREDPRESUMIDO, V_CCREDPRESUMIDO, V_IDCREDPRESUMIDO
         FROM PCBENEFICFISCALCREDPRES P, PCBENEFICFISCALCREDPRESI I
         WHERE P.CODBENEFICIOFISCAL = I.CODBENEFICIOFISCAL
 		      AND P.CODST  = I.CODST
+          AND P.IDPRES = I.IDPRES
 		      AND P.CODBENEFICIOFISCAL = P_CODBENEFICIOFISCAL
           AND P.CODST = P_CODST
           AND I.ALIQICMSNF = P_ALIQICMSNF
@@ -5829,6 +5832,7 @@ create or replace package body FISCAL is
         P_FORMULACREDPRES := v_FORMULACREDPRES;
         P_ALIQCREDPRESUMIDO := v_ALIQCREDPRESUMIDO;
         P_CCREDPRESUMIDO := V_CCREDPRESUMIDO;
+        P_IDCREDPRESUMIDO := V_IDCREDPRESUMIDO;
 
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -5871,6 +5875,7 @@ create or replace package body FISCAL is
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
                                         P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
                                         P_CCREDPRESUMIDO OUT PCMOVCOMPLE.CCREDPRESUMIDO%TYPE,
+                                        P_IDCREDPRESUMIDO OUT NUMBER,
                                         P_MSG OUT VARCHAR2
   )
   RETURN VARCHAR2 IS
@@ -5942,7 +5947,8 @@ create or replace package body FISCAL is
         P_NCM => P_NCM,
         P_ALIQCREDPRESUMIDO => P_ALIQCREDITOPRESUMIDO,
         P_FORMULACREDPRES  => VFORMULACREDPRES,
-        P_CCREDPRESUMIDO => P_CCREDPRESUMIDO
+        P_CCREDPRESUMIDO => P_CCREDPRESUMIDO,
+        P_IDCREDPRESUMIDO => P_IDCREDPRESUMIDO
     );
 
     IF V_RESULT = 'OK' THEN
@@ -6015,7 +6021,8 @@ create or replace package body FISCAL is
   v_VLCREDITOPRESUMIDO   NUMBER;
   v_ALIQCREDITOPRESUMIDO NUMBER;
   V_CCREDPRESUMIDO VARCHAR2(10);
-  V_MSG_RETORNO VARCHAR2(200);
+  V_IDCREDPRESUMIDO NUMBER;
+  V_MSG_RETORNO VARCHAR2(200);  
 
   BEGIN
      BEGIN
@@ -6066,6 +6073,7 @@ create or replace package body FISCAL is
                                                    v_VLCREDITOPRESUMIDO,
                                                    v_ALIQCREDITOPRESUMIDO,
                                                    V_CCREDPRESUMIDO,
+                                                   V_IDCREDPRESUMIDO,
                                                    P_MSG => P_MSG);
 
        IF V_MSG_RETORNO = 'OK' THEN
@@ -6097,6 +6105,7 @@ create or replace package body FISCAL is
          -- GRAVANDO LOG
        PKG_DEBUGGING_FWPC.LOG('Chamou GET_DADOS_CREDITOPRESUMIDO retorno:','S');
        PKG_DEBUGGING_FWPC.LOG('Produto: '||DADOS_CREDITOPRESUMIDO.CODPROD||' '||P_MSG, 'S');
+       PKG_DEBUGGING_FWPC.LOG('ID Cadastro 4008: '|| V_IDCREDPRESUMIDO,'S');
        PKG_DEBUGGING_FWPC.LOG('V_BASECREDITOPRESUMIDO '||V_BASECREDITOPRESUMIDO||
                               ' v_VLCREDITOPRESUMIDO '||v_VLCREDITOPRESUMIDO||
                               ' v_ALIQCREDITOPRESUMIDO '||v_ALIQCREDITOPRESUMIDO
