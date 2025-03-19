@@ -100,7 +100,7 @@
 		{
 			"nome": "VW_INT_C5_LIM_CRED_CLIENTE",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.01.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_CLI_CONV_PERIODO",
@@ -110,7 +110,7 @@
 		{
 			"nome": "VW_INT_C5_CLI_CONV",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
@@ -150,7 +150,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "7.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
@@ -210,7 +210,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESCONTO_CLIENTE",
 			"tipo": "MIGRATION",
-			"versao": "7.0.05.000"
+			"versao": "7.0.06.000"
 		},
 		{
 			"nome": "VW_INT_C5_USUARIO_GRUPO",
