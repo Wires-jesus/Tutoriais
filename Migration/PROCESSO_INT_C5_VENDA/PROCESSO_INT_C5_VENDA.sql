@@ -1677,7 +1677,7 @@ AS
         0 basebcr,
         NVL((select 
               (CASE 
-                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo >= 0.001 THEN
+                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
                       nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
                  ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
                END) vlrbase             
@@ -2081,7 +2081,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 basebcr,
         NVL((select 
               (CASE 
-                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo >= 0.001 THEN
+                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
                       nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
                  ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
                END) vlrbase             
@@ -3144,7 +3144,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLBASEIPI,
 	NVL((select 
       (CASE 
-         WHEN doctribitem.percbasecalculo <= 100 THEN
+         WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
               nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
          ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
        END) vlrbase             
@@ -3375,7 +3375,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLBASEIPI,
 	NVL((select 
       (CASE 
-         WHEN doctribitem.percbasecalculo <= 100 THEN
+         WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
               nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
          ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
        END) vlrbase             
