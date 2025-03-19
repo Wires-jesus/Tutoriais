@@ -5,7 +5,7 @@
     {
       "nome": "PROCESSO_INT_C5_VENDA",
       "tipo": "MIGRATION",
-      "versao": "7.0.12.000"
+      "versao": "7.0.14.000"
     },
     {
       "nome": "PROCESSO_INT_C5_SEQUENCE_VENDAS",
