@@ -40,6 +40,128 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS
 
 \
 
+CREATE OR REPLACE FUNCTION FNC_INT_C5_DIASCARENCIA(pCODFINALIZADORA NUMBER)
+    RETURN NUMBER
+IS
+    vDIASCARENCIA NUMBER;
+BEGIN
+  begin
+    SELECT  NVL(P.NUMDIASCARENCIA,0)
+      INTO  vDIASCARENCIA
+    FROM PCFINALIZADORA F, PCPLPAG P
+    WHERE F.CODPLPAG = P.CODPLPAG
+    AND F.CODFINALIZADORA = pCODFINALIZADORA;
+  exception
+    WHEN OTHERS THEN
+      vDIASCARENCIA := 0;
+  END;
+    RETURN(vDIASCARENCIA);
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_DIAFIXO(pCODFINALIZADORA NUMBER)
+    RETURN NUMBER
+IS
+    vDIAFIXO NUMBER;
+BEGIN
+  begin
+    SELECT  NVL(P.DIAFIXO,0)
+      INTO  vDIAFIXO
+    FROM PCFINALIZADORA F, PCPLPAG P
+    WHERE F.CODPLPAG = P.CODPLPAG
+    AND F.CODFINALIZADORA = pCODFINALIZADORA;
+  exception
+    WHEN OTHERS THEN
+      vDIAFIXO := 0;
+  END;
+    RETURN(vDIAFIXO);
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_CALCDIAFIXO(pddtemissao  IN DATE,
+                                           pncarencia   IN NUMBER,
+                                           pndiafixo    IN NUMBER,
+                                           VDPROXDTMINIMA IN DATE
+    ) RETURN DATE IS
+    vnteste_diafixo   NUMBER(1);
+    vddata_vencimento DATE;
+    vndiafixo         NUMBER(2);
+    vnmes             NUMBER(2);
+    vb_diavalido      BOOLEAN;
+    vnultimodiames    NUMBER(2);
+BEGIN
+    
+
+    vddata_vencimento := NULL;
+    vnteste_diafixo   := 0;
+    vnmes             := 0;
+    vb_diavalido      := FALSE;
+    vndiafixo         := pndiafixo;
+
+    BEGIN
+      vnmes             := GREATEST(ROUND(MONTHS_BETWEEN(VDPROXDTMINIMA, TRUNC(SYSDATE)), 0)-1, 0);
+    EXCEPTION
+      WHEN OTHERS THEN
+        
+        RETURN TRUNC(SYSDATE);
+    END;
+
+    WHILE (NOT vb_diavalido) LOOP
+      WHILE vnteste_diafixo = 0 LOOP
+        BEGIN
+
+          SELECT EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(1) || '/' ||
+                         TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                 'MM/YYYY'),
+                         'DD/MM/YYYY')))
+            INTO vnultimodiames
+            FROM DUAL;
+
+          IF vndiafixo <= vnultimodiames THEN
+            SELECT TO_DATE(TO_CHAR(vndiafixo) || '/' ||
+                           TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                   'MM/YYYY'),
+                           'DD/MM/YYYY')
+              INTO vddata_vencimento
+              FROM DUAL;
+          ELSE
+            SELECT LAST_DAY(TO_DATE(TO_CHAR(1) || '/' ||
+                            TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                   'MM/YYYY'),
+                           'DD/MM/YYYY'))
+              INTO vddata_vencimento
+              FROM DUAL;
+          END IF;
+
+          vnteste_diafixo := 1;
+        EXCEPTION
+          WHEN OTHERS THEN
+            
+            RETURN TRUNC(SYSDATE);
+        END;
+      END LOOP;
+
+      IF ((pddtemissao + nvl(pncarencia,0)) <= vddata_vencimento) and (vddata_vencimento >= VDPROXDTMINIMA) THEN
+        vddata_vencimento := vddata_vencimento;
+        vb_diavalido := TRUE;
+      ELSE
+        if vnmes >= 99 then
+          
+          RETURN TRUNC(SYSDATE);
+        end if;
+        vndiafixo       := pndiafixo;
+        vnmes           := vnmes + 1;
+        vnteste_diafixo := 0;
+      END IF;
+
+    END LOOP;    
+    RETURN vddata_vencimento;
+END;
+
+\
+
 CREATE OR REPLACE VIEW VW_INT_C5_PISCOFINS AS 
   (SELECT  a.codtribpiscofins,
         a.percpis,
@@ -2531,9 +2653,12 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
-        TO_CHAR(NVL(r.dtvenc,
-            		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
-					),'YYYY-MM-DD') dtvenc,
+        CASE WHEN FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem) = 'CONV' AND ((SELECT NVL(PL.FORMAPARCELAMENTO,'C') FROM PCPLPAG PL WHERE PL.CODPLPAG = F.codplpag ) = 'T'  )THEN
+            TO_CHAR(FNC_INT_C5_CALCDIAFIXO(p.Dtahoremissao,FNC_INT_C5_DIASCARENCIA(p.nroformapagto), fnc_int_c5_DIAFIXO(p.nroformapagto) , TRUNC(SYSDATE)), 'YYYY-MM-DD' )
+          ELSE 
+            TO_CHAR(NVL(r.dtvenc,
+                p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))) ),'YYYY-MM-DD')
+        END dtvenc,
         NVL(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         c5.codfilial codfilial,
