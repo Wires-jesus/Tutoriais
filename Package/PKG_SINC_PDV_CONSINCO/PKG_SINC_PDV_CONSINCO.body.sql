@@ -666,10 +666,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.SEQPRODUTO,
                       P.QTDEMBALAGEM,
                       P.QUANTIDADE,
-                      P.PRECO,
+                      MIN(P.PRECO) PRECO,
                       P.ATIVO
                       
         FROM VW_INT_C5_PRODCOMPOSTO P
+        GROUP BY P.SEQPRODCOMPOSTO, P.SEQPRODUTO, P.QTDEMBALAGEM, P.QUANTIDADE, P.ATIVO
        ) b
 
       ON (s.seqproduto = b.SEQPRODUTO and s.qtdembalagem = b.qtdembalagem and s.SEQPRODCOMPOSTO = b.SEQPRODCOMPOSTO)
