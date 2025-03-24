@@ -1056,7 +1056,6 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 -- Regra para emitir dados de produtos Ativos, Inativos ou Todos. 
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
@@ -1255,7 +1254,6 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND PMOSTRARAJUSTESCUSTO = 'S'
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 -- Regra para emitir dados de produtos Ativos, Inativos ou Todos. 
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
@@ -1396,7 +1394,6 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                 AND NVL(PCMOV.NUMPED,0) = NVL(P.NUMPED,0)
                                 AND NVL(P.NUMNOTACONSIG,0) > 0
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 -- Regra para emitir dados de produtos Ativos, Inativos ou Todos. 
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
