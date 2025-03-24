@@ -1,5 +1,14 @@
 {
  "nome":"CADASTRO_4008",
  "tipoPLSQL":"MIGRATION",
- "dependencias":""
+ "dependencias": [ {
+                    "nome": "PCBENEFICFISCALCREDPRES",
+					"tipo": "TABELA",
+					"versao": "7.0.06.000"
+				   },{
+					"nome": "PCBENEFICFISCALCREDPRESI",
+					"tipo": "TABELA",
+					"versao": "7.0.03.000"
+				   }
+				]
 }
