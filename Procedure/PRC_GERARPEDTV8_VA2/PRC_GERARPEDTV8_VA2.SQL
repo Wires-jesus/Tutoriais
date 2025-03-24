@@ -331,9 +331,22 @@ BEGIN
 		 
 		 SELECT * INTO VPCPEDC FROM PCPEDC WHERE NUMPED = pnumped;
 		 
+     IF VPCPEDC.CODCLITV8 > 0 THEN	   
+       BEGIN
+         SELECT CODPRACA
+           INTO VPCPEDC.CODPRACA
+           FROM PCCLIENT
+          WHERE CODCLI = VPCPEDC.CODCLITV8;
+
+         VPCPEDC.CODCLI := VPCPEDC.CODCLITV8;
+       EXCEPTION
+         WHEN NO_DATA_FOUND THEN
+           NULL;
+       END;	
+     END IF;	 
+		 
 		 VPCPEDC.NUMPED       	  := vnproxnumped; 
-		 VPCPEDC.CODCLI           := case when (VPCPEDC.CODCLITV8 = 0) then VPCPEDC.CODCLI else NVL(VPCPEDC.CODCLITV8, VPCPEDC.CODCLI) end;		 
-		 VPCPEDC.CONDVENDA 	  	  := 8;
+		 VPCPEDC.CONDVENDA        := 8;
 		 VPCPEDC.NUMPEDENTFUT 	  := pnumped;
 		 VPCPEDC.VLATEND      	  := 0;
 		 VPCPEDC.VLTABELA     	  := 0;
