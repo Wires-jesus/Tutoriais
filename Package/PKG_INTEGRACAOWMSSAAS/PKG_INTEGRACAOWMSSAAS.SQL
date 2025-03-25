@@ -26,5 +26,7 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
                                       pTIPO                IN VARCHAR2,
                                       pVALIDADE            IN DATE,
                                       pNUMLOTE             IN VARCHAR2);	
+									  
+  FUNCTION GET_VALIDADE_MINIMA_PRODUTO(PNUMPED IN NUMBER, PCODPROD IN NUMBER) RETURN VARCHAR2; 								  
 
 END PKG_INTEGRACAOWMSSAAS;
