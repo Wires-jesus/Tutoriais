@@ -1031,9 +1031,9 @@ FROM (
                                   FROM PCCFOPEXCDESTSITTRIBUT CED
                                   WHERE CED.CODFISCAL = B.CODFISCAL
                                     AND CED.SITTRIBUT = B.SITTRIBUT)) THEN
-                  GREATEST(ROUND( (NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)) -
+                  GREATEST(ROUND( (NVL(MC.VLSUBTOTITEM,0) + ROUND(B.QTCONT * DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0)),2)) -
                            DECODE(NVL(B.BASEICMS,0), 0, 0,
-                                  DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),
+                                  DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0)),2)),
                                   (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))),2),0)
                ELSE
                   0
@@ -1053,9 +1053,9 @@ FROM (
                                   FROM PCCFOPEXCDESTSITTRIBUT CED
                                   WHERE CED.CODFISCAL = B.CODFISCAL
                                     AND CED.SITTRIBUT = B.SITTRIBUT)) THEN
-                 GREATEST(ROUND( (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)) -
+                 GREATEST(ROUND( (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0)),2)) -
                           DECODE(NVL(B.BASEICMS,0), 0, 0,
-                                 DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * NVL(B.VLFRETE,0),2)),
+                                 DECODE(NVL(B.PERCBASERED,0), 0, (NVL(MC.VLSUBTOTITEM,0)+ ROUND(B.QTCONT * DECODE(NVL(A.DOCEMISSAO,'X'), 'CE', 0, 'SF', 0, 'CF', 0, 'MF', 0, NVL(B.VLFRETE, 0)),2)),
                                         (ROUND(B.QTCONT * NVL(B.BASEICMS,0),2)))),2),0)
                ELSE
                   0
