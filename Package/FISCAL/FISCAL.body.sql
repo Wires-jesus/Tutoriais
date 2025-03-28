@@ -5808,10 +5808,7 @@ create or replace package body FISCAL is
       SELECT P.FORMULACREDPRES, I.ALIQCREDPRESUMIDO, P.CCREDPRESUMIDO, P.IDPRES 
         INTO v_FORMULACREDPRES, v_ALIQCREDPRESUMIDO, V_CCREDPRESUMIDO, V_IDCREDPRESUMIDO
         FROM PCBENEFICFISCALCREDPRES P, PCBENEFICFISCALCREDPRESI I
-        WHERE P.CODBENEFICIOFISCAL = I.CODBENEFICIOFISCAL
-		      AND P.CODST  = I.CODST
-          AND P.IDPRES = I.IDPRES
-		      AND P.CODBENEFICIOFISCAL = P_CODBENEFICIOFISCAL
+        WHERE P.IDPRES = I.IDPRES
           AND P.CODST = P_CODST
           AND I.ALIQICMSNF = P_ALIQICMSNF
           -- Filtros adicionais somente se os parâmetros não forem nulos
@@ -5826,7 +5823,8 @@ create or replace package body FISCAL is
           -- Verificar NCM com base no DESCONSIDERARNCM
           AND (NVL(P.DESCONSIDERARNCM,'N') = 'S' AND NOT REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)') 
               OR NVL(P.DESCONSIDERARNCM,'N') = 'N' AND (NCM IS NULL OR REGEXP_LIKE(NCM, '(^|,)' || P_NCM || '($|,)'))) 
-          AND ROWNUM  = 1;
+          AND ROWNUM  = 1
+          ORDER BY P.DTCADASTRO;
 
         -- Atribui os valores para os parâmetros de saída
         P_FORMULACREDPRES := v_FORMULACREDPRES;
