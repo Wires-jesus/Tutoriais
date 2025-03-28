@@ -274,7 +274,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
               DX.VUNTRIB,
               DX.VDESC,
               DX.VBC,
-              NVL(DX.VICMS,ROUND(T.VLICMS*NVL(M.QTCONT,0),2)) AS VICMS,
+              DX.VICMS,
               DX.VBCST,
               DX.VICMSST,
               DX.VICMSDIF,
