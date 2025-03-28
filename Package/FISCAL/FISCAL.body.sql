@@ -5915,11 +5915,6 @@ create or replace package body FISCAL is
         RETURN P_MSG;
     END IF;
 
-    IF P_CODBENEFICIOFISCAL IS NULL THEN
-        P_MSG := 'Erro: Código Benefício Fiscal não informado.';
-        RETURN P_MSG;
-    END IF;
-
     IF (P_CODST IS NULL) OR (P_CODST <= 0) THEN
         P_MSG := 'Erro: Código figura tributária rotina 514 não informada.';
         RETURN P_MSG;
