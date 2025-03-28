@@ -1,4 +1,4 @@
-﻿create or replace function WMS_QTUNITCXFILIAL(pCODPROD number,pCODFILIAL PCPRODFILIAL.CODFILIAL%TYPE)
+create or replace function WMS_QTUNITCXFILIAL(pCODPROD number,pCODFILIAL PCPRODFILIAL.CODFILIAL%TYPE)
   return NUMBER is
   vPesoVariavel    varchar(1);
   vQtUnitcCX       number;
