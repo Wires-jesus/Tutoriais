@@ -103,7 +103,26 @@ SELECT NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
        NVL(ME.PERCIVA, 0) PERCMVAAJUSTADOENT,
        ME.QTCONT * NVL(ME.BASEICST, 0) VLBASEICMSSTENT,
        NVL(ME.BASEICST, 0) VLBASEICMSSTENT_UNIT,
-       ME.QTCONT * NVL(ME.ST, 0) VLSTENT,
+       --- Calculando valor do St da entrada 
+       CASE                                                       
+           WHEN (SELECT NVL(MAX(COUNT(1)), 0)                   
+                     FROM PCMOV M                                 
+                        , PCMOVCOMPLE MC                          
+                    WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM        
+                      AND M.NUMTRANSENT  = ME.NUMTRANSENT          
+                      AND M.CODPROD      = ME.CODPROD              
+                      AND NVL(M.CODFILIALNF,M.CODFILIAL) = NVL(ME.CODFILIALNF,ME.CODFILIAL)
+                      AND M.DTMOV        = ME.DTMOV
+                 GROUP BY M.CODPROD                               
+                   HAVING COUNT(1) > 1) > 0                       
+              THEN NVL((SELECT MAX(NVL(MVE.QTCONT, 0))            
+                          FROM PCMOVENT MVE                       
+                         WHERE MVE.CODPROD     = ME.CODPROD        
+                           AND MVE.CODFILIAL   = NVL(ME.CODFILIALNF,ME.CODFILIAL)       
+                           AND MVE.NUMTRANSENT = ME.NUMTRANSENT), ME.QTCONT) 
+       ELSE
+          ME.QTCONT END * NVL(ME.ST, 0) VLSTENT,
+       -------------------------------     
        NVL(ME.ST, 0) VLSTENT_UNIT,
        ME.QTCONT * NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA,
        NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA_UNIT,
@@ -525,7 +544,4 @@ SELECT NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
    AND E.ESPECIE = 'NF'
    AND ME.DTCANCEL IS NULL
    AND ME.STATUS IN ('A', 'AB')
--- Últimas alterações
--- 27/03/2025 - O campo VLICMSENT passa a ter a regra de verificar se o produto existe mais de uma vez na transação, se sim, então ele busca a quantidade do PCMOVENT e não mais da PCMOV. Essa regra já existe para a quantidade na coluna QTCONTENT
--- 15/09/2024 - Implementado ajuste na geração da quantidade de saida vindo da pcmovsaid. Agora a quantidade passa a vir de um sub sql para garantir todas as quebras do PEPS
--- 15/09/2024 - Incluindo Nitemxml no campo NumSeqSai e ajuste no nvl do numseqent que agora recebe o pcmovcomple.numseqent se xitemxml null
+-- V 003 
