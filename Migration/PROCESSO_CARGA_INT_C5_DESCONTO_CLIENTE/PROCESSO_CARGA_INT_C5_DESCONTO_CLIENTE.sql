@@ -21,7 +21,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOAPARTIRPESSOA AS (
   SELECT 
        c5.codfilialintegracao seqprecoapartir,
        c.codcli seqpessoa,
-       'S' ativo
+       CASE
+         WHEN nvl(c.cliatacado, 'N') = 'S' THEN
+             'S' 
+         ELSE 'N'
+       END ativo       
   FROM pcclient c,
        MONITORPDVMIDDLE.TB_PESSOA P,
        vw_int_c5_obter_filiais_c5 c5,
@@ -29,8 +33,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PRECOAPARTIRPESSOA AS (
         FROM pccontroleconsinco s
        WHERE upper(s.objetoreferencia) IN     ('PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRECOAPARTIRPESSOA')
        ) d
- WHERE nvl(c.cliatacado, 'N') = 'S'
- AND P.SEQPESSOA = C.CODCLI
+ WHERE P.SEQPESSOA = C.CODCLI 
+ --nvl(c.cliatacado, 'N') = 'S'
  AND (NVL(C.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO OR NVL(C.DTALTERC5, D.ULTIMAEXECUCAO) >= D.ULTIMAEXECUCAO)
  AND ferramentas.f_buscarparametro_alfa('UTILIZAGATCLIATAC', c5.codfilial, 'N') = 'S'
 )
