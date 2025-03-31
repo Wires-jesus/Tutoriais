@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PACKAGE BODY PKG_REPOSICAOLOJAS
+CREATE OR REPLACE PACKAGE BODY PKG_REPOSICAOLOJAS
 /*******************************************************************************
   Nome         : PKG_REPOSICAOLOJAS
   Descricão    : Package de Procedimentos da Reposição de Lojas
