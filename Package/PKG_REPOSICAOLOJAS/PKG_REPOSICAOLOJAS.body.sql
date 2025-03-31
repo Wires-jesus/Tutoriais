@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY PKG_REPOSICAOLOJAS
+﻿CREATE OR REPLACE PACKAGE BODY PKG_REPOSICAOLOJAS
 /*******************************************************************************
   Nome         : PKG_REPOSICAOLOJAS
   Descricão    : Package de Procedimentos da Reposição de Lojas
@@ -367,6 +367,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       V_UTILIZAENDPORFILIAL         VARCHAR2(2);
       V_USATRIBUTACAOPORUF          VARCHAR2(2);
       N_CON_NUMCASASDECCUSTO        NUMBER;
+      N_CON_NUMCASASDECESTOQUE      PCCONSUM.NUMCASASDECESTOQUE%TYPE;
       -- ESPECIFICO DA 3602
       V_APLICARREDEMBFORNECREPLOJAS VARCHAR2(2);
       V_ORIGEMEMBALAGEMMASTERFORNEC VARCHAR2(2);
@@ -2049,7 +2050,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             V_ESTQDISP := ROUND((NVL(PRODUTO.QTESTGER_D,0) -
                                  NVL(PRODUTO.QTRESERV_D,0) -
                                  NVL(PRODUTO.QTBLOQUEADA_D,0))
-                                ,0);
+                                ,N_CON_NUMCASASDECESTOQUE);
             /*IF (NVL(V_ESTQDISP,0) < 0) THEN
               -- Não deixa Ficar o Estoque Negativo [Tarefa: 187283]
               V_ESTQDISP := 0;
@@ -2072,13 +2073,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   (NVL(v_QTBLOQSEMAVARIA_D,0))   + -- [Tarefa: 176264] - Considerar a Qtde. Bloqueada - Avarias no Cálculo. Não precisa converter Embalagem
                                   (NVL(PRODUTO.QTSUGCOMPRA_D,0)) +
                                   (NVL(N_QTOPERLOG_D,0))
-                                  ,0);
+                                  ,N_CON_NUMCASASDECESTOQUE);
             ELSIF (P_TIPO_SUGESTAO = 'C') THEN
               V_ESTQDISP := NVL(V_ESTQDISP,0) +
                             ROUND((NVL(N_QTD_TRANSITO_D,0))      +
                                   (NVL(PRODUTO.QTPEDIDA_D,0))    + -- [Tarefa: 173465] - Considerar a Qtde. de Pedidos de Compra no Cálculo. Não precisa converter Embalagem
                                   (NVL(v_QTBLOQSEMAVARIA_D,0))     -- [Tarefa: 176264] - Considerar a Qtde. Bloqueada - Avarias no Cálculo. Não precisa converter Embalagem
-                                  ,0);
+                                  ,N_CON_NUMCASASDECESTOQUE);
             END IF;
 
             PFORMULA_QT_SUGERIDA(V_FORMULA_QT_SUGERIDA_D,'EST. AVARIADO = ' || NVL(PRODUTO.QTINDENIZ_D,0));
