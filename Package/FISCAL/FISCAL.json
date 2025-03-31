@@ -44,7 +44,7 @@
         },{
             "nome": "PCTRIBUTACAO",
             "tipo": "TABELA",
-            "versao": "7.0.02.000"
+            "versao": "7.0.03.000"
         },{
             "nome": "PCTRIBUTACAO_EXCECAO",
             "tipo": "TABELA",
