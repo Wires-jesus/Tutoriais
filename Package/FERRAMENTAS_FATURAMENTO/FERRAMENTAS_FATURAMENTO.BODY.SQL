@@ -264,6 +264,22 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                  UNION
                  SELECT DISTINCT S.NUMTRANSVENDA
                                , S.NUMNOTA
+                               , S.CODFILIAL
+                               , S.CODFILIALNF
+                               , M.CODFILIALRETIRA
+                               , S.NUMPED
+                            FROM PCPEDC S
+                               , PCPEDI M
+                           WHERE S.NUMCAR = PNUMCARORIGEM
+                             AND S.POSICAO NOT IN ('F', 'C')
+                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                             AND S.NUMPED = M.NUMPED
+                             AND VENDAS.TIPO_TRANSFERENCIA(S.CODFILIAL
+                                                         , M.CODFILIALRETIRA
+                                                         , S.CODFILIALNF) IN('V', 'R', 'VR')
+                 UNION
+                 SELECT DISTINCT S.NUMTRANSVENDA
+                               , S.NUMNOTA
                                , M.CODFILIAL
                                , M.CODFILIALNF
                                , M.CODFILIALRETIRA
@@ -303,6 +319,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                   WHERE NUMCAR = PNUMCARORIGEM
                     AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;               
                   
+                 VLOG.NUMPED := TRANSACOES(NOTA).NUMPED;
                  VLOG.NUMNOTA := TRANSACOES(NOTA).NUMNOTA;
                  VLOG.NUMTRANSVENDA := TRANSACOES(NOTA).NUMTRANSVENDA;
                  GRAVARLOG(VLOG);
