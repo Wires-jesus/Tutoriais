@@ -1299,7 +1299,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                 WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
                                     5
                                 --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) > 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
                                     6
                                 ELSE
                                     4
@@ -1309,7 +1309,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                     WHEN ((NVL(PCMOV.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0))) THEN
                         5
                      --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                    WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                    WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) > 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
                         6
                     ELSE
                         4
@@ -3161,7 +3161,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                 WHEN (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = NVL(PCMOVPREFAT.BASEICST, 0)) THEN
                                     5
                                 --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                                WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) = 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
+                                WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) > 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
                                     6
                                 ELSE
                                     4
@@ -3171,7 +3171,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                     WHEN (NVL(PCMOVPREFAT.PAUTA, 0) > 0) AND (ROUND(NVL(PCMOVPREFAT.PAUTA, 0) * (DECODE(NVL(PCMOVPREFAT.PERCBASEREDST,0), 0, 1, PCMOVPREFAT.PERCBASEREDST/100)), 6) = NVL(PCMOVPREFAT.BASEICST, 0)) THEN
                         5
                     --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                    WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) = 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
+                    WHEN (NVL(PCMOVPREFAT.IVA, 0) = 0 AND NVL(PCMOVPREFAT.BASEICST, 0) > 0 AND NVL(PCMOVPREFAT.PAUTA, 0) = 0) THEN
                         6
                     ELSE
                         4
