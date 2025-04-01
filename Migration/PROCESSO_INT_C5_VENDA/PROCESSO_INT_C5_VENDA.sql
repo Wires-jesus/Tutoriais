@@ -2802,10 +2802,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
@@ -2813,7 +2813,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND p.seqitem = r.seqitem(+)
    AND p.nroempresa = r.nroempresa(+)
    AND p.nrocheckout = r.nrocheckout(+)
+   
    UNION ALL
+   
    SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
@@ -2929,15 +2931,17 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   
    UNION ALL
-      SELECT  d.seqdocto,
+   
+   SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
         NULL presttef,
@@ -3057,15 +3061,17 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
    --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   
    UNION ALL
+   
    SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
@@ -3178,10 +3184,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
 )
