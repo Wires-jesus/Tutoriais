@@ -785,7 +785,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
                                    5
                                 --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND  NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) > 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
                                    6
                                 ELSE
                                    4
@@ -1877,7 +1877,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                 WHEN (ROUND(NVL(PCMOV.PAUTA, 0) * (DECODE(NVL(PCMOV.PERCBASEREDST,0), 0, 1, PCMOV.PERCBASEREDST/100)), 6) = NVL(PCMOV.BASEICST, 0)) THEN
                                    5
                                 --Se IVA = 0 E BASE DE ST = BASE ICMS E SEM PAUTA E SEM LISTAS – GERAR TIPO 6
-                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND  NVL(PCMOV.BASEICST, 0) = 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
+                                WHEN (NVL(PCMOV.IVA, 0) = 0 AND NVL(PCMOV.BASEICST, 0) > 0 AND NVL(PCMOV.PAUTA, 0) = 0) THEN
                                     6
                                 ELSE
                                     4
