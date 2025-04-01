@@ -40,6 +40,128 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS
 
 \
 
+CREATE OR REPLACE FUNCTION FNC_INT_C5_DIASCARENCIA(pCODFINALIZADORA NUMBER)
+    RETURN NUMBER
+IS
+    vDIASCARENCIA NUMBER;
+BEGIN
+  begin
+    SELECT  NVL(P.DIASCARENCIA,0)
+      INTO  vDIASCARENCIA
+    FROM PCFINALIZADORA F, PCPLPAG P
+    WHERE F.CODPLPAG = P.CODPLPAG
+    AND F.CODFINALIZADORA = pCODFINALIZADORA;
+  exception
+    WHEN OTHERS THEN
+      vDIASCARENCIA := 0;
+  END;
+    RETURN(vDIASCARENCIA);
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_DIAFIXO(pCODFINALIZADORA NUMBER)
+    RETURN NUMBER
+IS
+    vDIAFIXO NUMBER;
+BEGIN
+  begin
+    SELECT  NVL(P.DIAFIXO,0)
+      INTO  vDIAFIXO
+    FROM PCFINALIZADORA F, PCPLPAG P
+    WHERE F.CODPLPAG = P.CODPLPAG
+    AND F.CODFINALIZADORA = pCODFINALIZADORA;
+  exception
+    WHEN OTHERS THEN
+      vDIAFIXO := 0;
+  END;
+    RETURN(vDIAFIXO);
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION FNC_INT_C5_CALCDIAFIXO(pddtemissao  IN DATE,
+                                           pncarencia   IN NUMBER,
+                                           pndiafixo    IN NUMBER,
+                                           VDPROXDTMINIMA IN DATE
+    ) RETURN DATE IS
+    vnteste_diafixo   NUMBER(1);
+    vddata_vencimento DATE;
+    vndiafixo         NUMBER(2);
+    vnmes             NUMBER(2);
+    vb_diavalido      BOOLEAN;
+    vnultimodiames    NUMBER(2);
+BEGIN
+    
+
+    vddata_vencimento := NULL;
+    vnteste_diafixo   := 0;
+    vnmes             := 0;
+    vb_diavalido      := FALSE;
+    vndiafixo         := pndiafixo;
+
+    BEGIN
+      vnmes             := GREATEST(ROUND(MONTHS_BETWEEN(VDPROXDTMINIMA, TRUNC(SYSDATE)), 0)-1, 0);
+    EXCEPTION
+      WHEN OTHERS THEN
+        
+        RETURN TRUNC(SYSDATE);
+    END;
+
+    WHILE (NOT vb_diavalido) LOOP
+      WHILE vnteste_diafixo = 0 LOOP
+        BEGIN
+
+          SELECT EXTRACT(DAY FROM LAST_DAY(TO_DATE(TO_CHAR(1) || '/' ||
+                         TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                 'MM/YYYY'),
+                         'DD/MM/YYYY')))
+            INTO vnultimodiames
+            FROM DUAL;
+
+          IF vndiafixo <= vnultimodiames THEN
+            SELECT TO_DATE(TO_CHAR(vndiafixo) || '/' ||
+                           TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                   'MM/YYYY'),
+                           'DD/MM/YYYY')
+              INTO vddata_vencimento
+              FROM DUAL;
+          ELSE
+            SELECT LAST_DAY(TO_DATE(TO_CHAR(1) || '/' ||
+                            TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE), vnmes),
+                                   'MM/YYYY'),
+                           'DD/MM/YYYY'))
+              INTO vddata_vencimento
+              FROM DUAL;
+          END IF;
+
+          vnteste_diafixo := 1;
+        EXCEPTION
+          WHEN OTHERS THEN
+            
+            RETURN TRUNC(SYSDATE);
+        END;
+      END LOOP;
+
+      IF ((pddtemissao + nvl(pncarencia,0)) <= vddata_vencimento) and (vddata_vencimento >= VDPROXDTMINIMA) THEN
+        vddata_vencimento := vddata_vencimento;
+        vb_diavalido := TRUE;
+      ELSE
+        if vnmes >= 99 then
+          
+          RETURN TRUNC(SYSDATE);
+        end if;
+        vndiafixo       := pndiafixo;
+        vnmes           := vnmes + 1;
+        vnteste_diafixo := 0;
+      END IF;
+
+    END LOOP;    
+    RETURN vddata_vencimento;
+END;
+
+\
+
 CREATE OR REPLACE VIEW VW_INT_C5_PISCOFINS AS 
   (SELECT  a.codtribpiscofins,
         a.percpis,
@@ -1676,11 +1798,13 @@ AS
         p.codanp anp,
         0 basebcr,
         NVL((select 
-              (CASE 
-                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo >= 0.001 THEN
-                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
-               END) vlrbase             
+			  (CASE 
+				 WHEN doctribitem.percbasecalculo <= 0.0001 THEN
+					 nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (0.0001 /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)        
+				 WHEN doctribitem.percbasecalculo <= 100  AND doctribitem.percbasecalculo >= 0.0001 THEN           
+				     nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)                       
+				 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)         
+			  END) vlrbase              
                             
              from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
              where doctribitem.nroempresa = i.nroempresa
@@ -2080,11 +2204,13 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         p.codanp anp,
         0 basebcr,
         NVL((select 
-              (CASE 
-                 WHEN doctribitem.percbasecalculo <= 100 AND doctribitem.percbasecalculo > 0.001 THEN
-                      nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-                 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
-               END) vlrbase             
+			  (CASE 
+				 WHEN doctribitem.percbasecalculo <= 0.0001 THEN
+					 nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (0.0001 /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)        
+				 WHEN doctribitem.percbasecalculo <= 100  AND doctribitem.percbasecalculo >= 0.0001 THEN           
+				     nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)                       
+				 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)         
+			  END) vlrbase               
                             
              from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
              where doctribitem.nroempresa = i.nroempresa
@@ -2531,9 +2657,12 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
-        TO_CHAR(NVL(r.dtvenc,
-            		p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
-					),'YYYY-MM-DD') dtvenc,
+        CASE WHEN FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem) = 'CONV' AND ((SELECT NVL(PL.FORMAPARCELAMENTO,'C') FROM PCPLPAG PL WHERE PL.CODPLPAG = F.codplpag ) = 'T'  )THEN
+            TO_CHAR(FNC_INT_C5_CALCDIAFIXO(TRUNC(p.Dtahoremissao),FNC_INT_C5_DIASCARENCIA(p.nroformapagto), fnc_int_c5_DIAFIXO(p.nroformapagto) , TRUNC(SYSDATE)), 'YYYY-MM-DD' )
+          ELSE 
+            TO_CHAR(NVL(r.dtvenc,
+                p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))) ),'YYYY-MM-DD')
+        END dtvenc,
         NVL(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
         c5.codfilial codfilial,
@@ -2673,10 +2802,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
@@ -2684,7 +2813,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND p.seqitem = r.seqitem(+)
    AND p.nroempresa = r.nroempresa(+)
    AND p.nrocheckout = r.nrocheckout(+)
+   
    UNION ALL
+   
    SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
@@ -2800,15 +2931,17 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   
    UNION ALL
-      SELECT  d.seqdocto,
+   
+   SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
         NULL presttef,
@@ -2928,15 +3061,17 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
    --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   
    UNION ALL
+   
    SELECT  d.seqdocto,
         NULL numgiftcard,
         'N' exportado,
@@ -3049,10 +3184,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    AND  p.nroformapagto = f.nroformapagto
    AND  C5.codfilialintegracao = d.NROEMPRESA
    AND  C5.codfilialintegracao = p.NROEMPRESA
-   AND  d.seqdocto = nf.seqdocto
-   and  d.NROCHECKOUT = nf.NROCHECKOUT
-   and  d.nroempresa = nf.nroempresa
-   and  c5.codfilialintegracao = nf.nroempresa
+   AND  d.seqdocto = nf.seqdocto(+)
+   and  d.NROCHECKOUT = nf.NROCHECKOUT(+)
+   and  d.nroempresa = nf.nroempresa(+)
+   --and  c5.codfilialintegracao = nf.nroempresa
    AND  f.codcob = v.codcob(+)
    AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
 )
@@ -3061,7 +3196,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 
 create or replace view VW_INT_C5_PCPEDIECFCESTA AS 
 (
-  SELECT 
+  SELECT distinct
     I.SEQDOCTO,
     'S' EXPORTADO,
     0 NUMPEDECF,
@@ -3143,12 +3278,14 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLDESCRODAPE,
 	0 VLBASEIPI,
 	NVL((select 
-      (CASE 
-         WHEN doctribitem.percbasecalculo <= 100 THEN
-              nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-         ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
-       END) vlrbase             
-                    
+		  (CASE 
+			 WHEN doctribitem.percbasecalculo <= 0.0001 THEN
+				 nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (0.0001 /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)        
+			 WHEN doctribitem.percbasecalculo <= 100  AND doctribitem.percbasecalculo >= 0.0001 THEN           
+			     nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)                       
+			 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)         
+		  END) vlrbase              
+                   
      from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
      where doctribitem.nroempresa = i.nroempresa
      and doctribitem.nrocheckout = i.nrocheckout
@@ -3292,7 +3429,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  I.SEQPRODCOMPOSTO IS NOT NULL
 	AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
 	UNION ALL
-	  SELECT 
+	  SELECT distinct
     I.SEQDOCTO,
     'S' EXPORTADO,
     0 NUMPEDECF,
@@ -3374,12 +3511,14 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLDESCRODAPE,
 	0 VLBASEIPI,
 	NVL((select 
-      (CASE 
-         WHEN doctribitem.percbasecalculo <= 100 THEN
-              nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo/100)) / NVL(i.QTDEMBALAGEM, 1) , 0)
-         ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)  
-       END) vlrbase             
-                    
+		  (CASE 
+			 WHEN doctribitem.percbasecalculo <= 0.0001 THEN
+				 nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (0.0001 /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)        
+			 WHEN doctribitem.percbasecalculo <= 100  AND doctribitem.percbasecalculo >= 0.0001 THEN           
+			     nvl(((i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0) ) * (doctribitem.percbasecalculo /100)) / NVL(i.QTDEMBALAGEM, 1) , 0)                       
+			 ELSE nvl( (i.VLRUNITARIO - NVL((i.vlrdesconto/ NVL(i.quantidade,1)),0) + NVL((i.vlracrescimo/ NVL(i.quantidade,1)),0)) / NVL(i.QTDEMBALAGEM, 1),0)         
+		  END) vlrbase              
+                   
      from monitorpdvmiddle.tb_doctotributacaoitem doctribitem
      where doctribitem.nroempresa = i.nroempresa
      and doctribitem.nrocheckout = i.nrocheckout

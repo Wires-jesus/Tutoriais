@@ -534,6 +534,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             VN_SOMA   := VN_SOMA * 9;          
             VN_RESTO  := VN_SOMA - (TRUNC(VN_SOMA / 10) * 10);
             VS_DIGITO := VN_RESTO;
+          ELSIF (PS_TIPO = 'DV1') THEN            
+            VN_RESTO  := MOD(VN_SOMA, 10);
+            
+            IF VN_RESTO > 0 THEN
+              VS_DIGITO := 10 - VN_RESTO;
+            ELSE
+              VS_DIGITO := '0';
+            END IF;  
           END IF;
        WHEN ((BANCO.NUMBANCO = 237) OR (BANCO.NUMBANCO = 6111)) THEN
          VN_MAIORVALOR := 1000;
@@ -762,9 +770,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       VN_MULTIPLICADOR := 3;
     ELSIF (BANCO.NUMBANCO = 399) AND ((BANCO.TIPOCOB = 'NR') OR (BANCO.TIPOCOB = 'NS')) AND (PN_TIPO = 'N') THEN
     -- VALIDAÃ¿Ã¿O PARA O BANCO 399 COBRANÃ¿AS 'NR' E 'NS' -- BASE 9 FIXA
-      VN_MULTIPLICADOR := 9;
-    ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN 
-      VN_MULTIPLICADOR := 4;
+      VN_MULTIPLICADOR := 9;    
     ELSE
       VN_MULTIPLICADOR := 2;
     END IF;
@@ -892,10 +898,10 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
             VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;   
           END IF;
         ELSIF (BANCO.NUMBANCO = 594) AND (PN_TIPO = 'C') THEN
-          IF VN_MULTIPLICADOR = 2 THEN
-            VN_MULTIPLICADOR := 9;
+          IF VN_MULTIPLICADOR = 9 THEN
+            VN_MULTIPLICADOR := 2;
           ELSE
-            VN_MULTIPLICADOR := VN_MULTIPLICADOR - 1;   
+            VN_MULTIPLICADOR := VN_MULTIPLICADOR + 1;   
           END IF;
        ELSE
 
@@ -1260,7 +1266,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     IF PS_PRIMEIRAIMPRESSAO = 'S' THEN      
       IF BANCO.NUMBANCO = 594 THEN -- BANCO ASA        
         VS_NOSSONUMERO    := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
-        VS_DV_TEMP        := F_CALCULA_MODULO_10(VS_NOSSONUMERO, 2, 'N'); 
+        VS_DV_TEMP        := F_CALCULA_MODULO_10(LPAD(BANCO.AGENCIA, 4, '0') || LPAD(NVL(BANCO.NUMCARTEIRA3, BANCO.NUMCARTEIRA), 3, '0') || VS_NOSSONUMERO, 2, 'N'); 
       ELSE -- BANCO SAFRA
         VS_NOSSONUMERO    := LPAD(PN_PROXIMONOSSONUMERO, 8, '0');
         VS_DV_TEMP        := F_CALCULA_MODULO_11(VS_NOSSONUMERO, 10, 'N', VS_NOVODIGMOD10);
@@ -1293,7 +1299,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       /*20 A 23*/
       VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.AGENCIA), 4, '0');
       /*24 A 26*/
-      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMCARTEIRA), 3, '0'); 
+      VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(NVL(BANCO.NUMCARTEIRA3, BANCO.NUMCARTEIRA)), 3, '0'); 
       /*27 A 33*/
       VS_CODBARRA := VS_CODBARRA || LPAD(NUMEROS(BANCO.NUMOPERACAO), 7, '0');
       /*34 A 44*/
@@ -1356,9 +1362,9 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
       ELSIF BANCO.NUMBANCO = '637' THEN  
         IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
           VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
-          VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(VS_NOSSONUMERO, 1, 'DV1');
-          VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;
+          VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(LPAD(BANCO.AGENCIA, 4, '0') || LPAD(NVL(BANCO.NUMCARTEIRA3, BANCO.NUMCARTEIRA), 3, '0') || VS_NOSSONUMERO, 1, 'DV1');
           VS_NOSSONUMERO_TEMP := VS_NOSSONUMERO || VS_DV_NOSSONUMERO;
+          VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;          
         ELSE
           VS_NOSSONUMERO      := TITULOS.NOSSONUMERO;
         END IF;
@@ -1402,9 +1408,9 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
         /*20 A 23*/
         VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.AGENCIA, 4, '0');
         /*24 A 26*/
-        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA3, 4, '0');
+        VS_CODBARRA := VS_CODBARRA || LPAD(NVL(BANCO.NUMCARTEIRA3, BANCO.NUMCARTEIRA), 3, '0');
         /*27 A 33*/
-        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CODCLIENTENOBANCO, 7, '0'); -- NUMERO DA OPERACAO
+        VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMOPERACAO, 7, '0');
         /*34 A 44*/
         VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 11, '0');
       END IF;
@@ -1900,7 +1906,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
       VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 10, '0');
       VS_CONTA_SEM_DV     := SUBSTR(BANCO.CONTA, 1, LENGTH(BANCO.CONTA) - 1);                        
-      VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(BANCO.AGENCIA || VS_CONTA_SEM_DV || BANCO.NUMCARTEIRA3 || VS_NOSSONUMERO, 2, 'N');
+      VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_10(VS_NOSSONUMERO, 2, 'N');
       VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;
       VS_NOSSONUMERO_TEMP := NUMEROS(VS_NOSSONUMERO);
     ELSE

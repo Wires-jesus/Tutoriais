@@ -12022,8 +12022,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                             vrValoresCusto.vnVldesccustocmv);
                    
           -- 5666.044130.2018 - Rebaixa de CMV
-          IF (NVL(vtItensPedido(viIdxItePed).VLVERBACMV,0) > 0) THEN
-            vrValoresCusto.vnVlcustofin := NVL(vrValoresCusto.vnVlcustofin,0) - NVL(vtItensPedido(viIdxItePed).VLVERBACMV,0); -- 5666.044130.2018
+          IF (NVL(vtItensPedido(viIdxItePed).VLVERBACMV,0) > 0)
+             and (NVL(vrItensPedido.VLDESCCMVPROMOCAOMED,0) = 0) THEN
+               vrValoresCusto.vnVlcustofin := NVL(vrValoresCusto.vnVlcustofin,0) - NVL(vtItensPedido(viIdxItePed).VLVERBACMV,0); -- 5666.044130.2018
           END IF;
           
           -- Verificando se existe registro de PEPS
