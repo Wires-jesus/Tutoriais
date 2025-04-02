@@ -1,5 +1,9 @@
 {"nome":"VW_INT_C5_CARTAOPRESENTE","tipoPLSQL":"VIEW","dependencias":
 	[
-
+		{
+		  "nome": "PCCADGIFTCARD",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+        }
 	]
 }
