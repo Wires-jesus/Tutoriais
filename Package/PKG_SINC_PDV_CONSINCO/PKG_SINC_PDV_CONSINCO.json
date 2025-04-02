@@ -451,6 +451,11 @@
 		  "nome": "VW_INT_C5_BINCARTAO",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "6.0.01.000"
+		},
+		{
+		  "nome": "VW_INT_C5_CARTAOPRESENTE",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.01.000"
 		}
 	]
 }

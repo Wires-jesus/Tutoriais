@@ -6298,6 +6298,70 @@ begin
       END;
 end;
 
+PROCEDURE carrega_tb_cartaopresente(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cartaopresente T
+    USING (SELECT * FROM VW_INT_C5_CARTAOPRESENTE) S 
+    ON    (T.NROCARTAO = S.NROCARTAO)
+  WHEN MATCHED THEN
+       UPDATE SET
+          T.VALOR  = S.VALOR,
+          T.STATUS = S.STATUS,
+          T.ATIVO  = S.ATIVO
+       WHERE T.VALOR  <> S.VALOR 
+       OR    T.STATUS <> S.STATUS
+       OR    T.ATIVO  <> S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+		  T.NROCARTAO,
+          T.VALOR,
+          T.STATUS,
+          T.ATIVO
+          ) 
+        VALUES(
+          S.NROCARTAO,
+          S.VALOR,
+          S.STATUS,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cartaopresente', 'carrega_tb_cartaopresente OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cartaopresente',
+           'carrega_tb_cartaopresente ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cartaopresente',
+           'carrega_tb_cartaopresente ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 
 
 PROCEDURE exec_sinc AS
