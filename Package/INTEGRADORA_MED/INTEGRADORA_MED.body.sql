@@ -29574,7 +29574,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
       VNCOUNTPEDIDOS_2 NUMBER := 0;
     BEGIN
 
-      IF GVET_REGPEDIDO(PINDICEPEDIDO).TIPOFV = 'FV' THEN
+      IF NVL(GVET_REGPEDIDO(PINDICEPEDIDO).TIPOFV,'FV') = 'FV' THEN
       
         IF NVL(REGFILIAL.NUMMAXITENSNFE, 0) > 0 AND
           NVL(GVET_REGPEDIDO(PINDICEPEDIDO).ORCAMENTO, 'N') = 'N' AND 
@@ -33900,7 +33900,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                            pcpedc.vlatend,
                            pcpedc.numitens
                       from pcpedc, pcclient
-                     where pcpedc.numpedrca = gvet_regpedido(i).numpedrca
+                     where pcpedc.numped = gvet_regpedido(i).numped
                        and pcpedc.codcli = pcclient.codcli) LOOP
 
               vsobsfinalpedido := vsobsfinalpedido || 'Pedido Winthor: ' || regped.numped || CHR(13) ||
