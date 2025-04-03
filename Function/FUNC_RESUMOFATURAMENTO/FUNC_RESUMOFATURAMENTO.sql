@@ -47596,7 +47596,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                             ||                              ' DECODE(NVL(PCMOV.TIPOITEM, ''C''),'
                             ||                                     ' ''C'','
                             ||                                     ' PCMOV.QT,'
-                            ||                                     ' PCMOV.QTCONT) * PCMOV.VLREPASSE, 0),'
+                            ||                                     ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
                             ||                              ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
                             ||  ' FROM PCMOV'
                             ||  ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100) PERCVENDA,';
@@ -47607,7 +47607,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                             ||                              ' DECODE(NVL(PCMOV.TIPOITEM, ''C''),'
                             ||                                     ' ''C'','
                             ||                                     ' PCMOV.QT,'
-                            ||                                     ' PCMOV.QTCONT) * PCMOV.VLREPASSE, 0),'
+                            ||                                     ' PCMOV.QTCONT) * PCMOV.VLREPASSE,'
                             ||                              ' PCMOV.QT * PCMOV.VLREPASSE), 2), 0))'
                             ||  ' FROM PCMOV'
                             ||  ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA)) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100) PERCVENDA,';
@@ -47621,7 +47621,7 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
            THEN
             IF P_CODEMITENTE IS NOT NULL
             THEN
-             V_SQL := V_SQL || ' SUM((((CASE WHEN (SELECT TIPOVLVENDA FROM PCPARAMPLANOVOO) = ''DEDUZIRFRETE'''
+                         V_SQL := V_SQL || ' SUM((((CASE WHEN (SELECT TIPOVLVENDA FROM PCPARAMPLANOVOO) = ''DEDUZIRFRETE'''
                             ||               ' THEN PCNFSAID.VLTOTGER - PCNFSAID.VLFRETE'
                             ||             ' WHEN (SELECT TIPOVLVENDA FROM PCPARAMPLANOVOO) = ''DEDUZIROUTRASDESP'''
                             ||               ' THEN PCNFSAID.VLTOTGER - PCNFSAID.VLOUTRASDESP'
@@ -47635,12 +47635,12 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                             ||                                           ' ''C'','
                             ||                                           ' PCMOV.QT,'
                             ||                                           ' PCMOV.QTCONT) * (PCMOV.VLREPASSE + '
-                            ||                                                             '(NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))'
+                            ||                                                             '(NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))),'
                             ||                                    ' PCMOV.QT * (PCMOV.VLREPASSE + '
                             ||                                                 '(NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
                             ||        ' FROM PCMOV, PCMOVCOMPLE'
                             ||        ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-                            ||        ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100 PERCVENDA,';
+                            ||        ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100) PERCVENDA,';
             ELSE
              V_SQL := V_SQL || ' SUM(((PCNFSAID.VLTOTGER - NVL(PCNFSAID.ICMSRETIDO, 0) - NVL(PCNFSAID.VLIPI, 0) - '
                             ||  '(SELECT SUM(NVL(ROUND(DECODE(PCNFSAID.CONDVENDA,'
@@ -47652,7 +47652,8 @@ total.CODSEC, TOTAL.CODCATEGORIA, TOTAL.CODSUBCATEGORIA, total.NUMORIGINAL, tota
                             ||                              ' PCMOV.QT * (PCMOV.VLREPASSE + (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)))), 2), 0))'
                             ||  ' FROM PCMOV, PCMOVCOMPLE'
                             ||  ' WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA'
-                            ||  ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM))) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100 PERCVENDA,';
+                            ||  ' AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)) / ' || REPLACE(TO_CHAR(NVL(VLVENDATOT, 1)), ',', '.') || ') * 100) PERCVENDA,';
+							
             END IF;
            ELSE
             V_SQL := V_SQL || ' 0 PERCVENDA,';
