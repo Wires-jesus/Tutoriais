@@ -534,6 +534,164 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
     END;
     
     RETURN 'S';
-  END;  
+  END;
+
+  FUNCTION CALCULAR_IBS_CBS_SAIDA(P_NUMTRANSVENDA IN PCMOV.NUMTRANSVENDA%TYPE)
+    RETURN VARCHAR2 IS
+  
+    V_TIPO_TRIBUT_REFORMA FISCAL.TIPO_TRIBUT_REFORMA;
+    P_MSG                 VARCHAR2(500);
+  
+  BEGIN
+    FOR MOVIMENTACAO IN (SELECT PCNFSAIDPREFAT.CODCLI,
+                                PCMOVPREFAT.CODPROD,
+                                PCNFSAIDPREFAT.UF,
+                                NVL(PCNFSAIDPREFAT.CODFILIALNF,
+                                    PCNFSAIDPREFAT.CODFILIAL) CODFILIAL,
+                                PCMOVPREFAT.PUNIT,
+                                PCMOVPREFAT.NUMTRANSITEM,
+                                PCMOVPREFAT.NUMPED,
+                                PCMOVPREFAT.NUMCAR
+                         
+                           FROM PCNFSAIDPREFAT, PCMOVPREFAT, PCMOVCOMPLEPREFAT
+                          WHERE PCNFSAIDPREFAT.NUMTRANSVENDA = PCMOVPREFAT.NUMTRANSVENDA
+                            AND PCMOVPREFAT.NUMTRANSITEM     = PCMOVCOMPLEPREFAT.NUMTRANSITEM
+                            AND PCNFSAIDPREFAT.NUMTRANSVENDA = P_NUMTRANSVENDA
+                         UNION
+                         SELECT PCNFSAID.CODCLI,
+                                PCMOV.CODPROD,
+                                PCNFSAID.UF,
+                                NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) CODFILIAL,
+                                PCMOV.PUNIT,
+                                PCMOV.NUMTRANSITEM,
+                                PCMOV.NUMPED,
+                                PCMOV.NUMCAR
+                         
+                           FROM PCNFSAID, PCMOV, PCMOVCOMPLE
+                          WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
+                            AND PCMOV.NUMTRANSITEM     = PCMOVCOMPLE.NUMTRANSITEM
+                            AND PCNFSAID.NUMTRANSVENDA = P_NUMTRANSVENDA) LOOP
+    
+      BEGIN
+      
+        V_TIPO_TRIBUT_REFORMA.CODCLI        := MOVIMENTACAO.CODCLI;
+        V_TIPO_TRIBUT_REFORMA.CODPROD       := MOVIMENTACAO.CODPROD;
+        V_TIPO_TRIBUT_REFORMA.UF_CLIENTE    := MOVIMENTACAO.UF;
+        V_TIPO_TRIBUT_REFORMA.CODFILIAL     := MOVIMENTACAO.CODFILIAL;
+        V_TIPO_TRIBUT_REFORMA.VALOR_PRODUTO := MOVIMENTACAO.PUNIT;
+        V_TIPO_TRIBUT_REFORMA.DEVOLUCAO     := 'N';
+        V_TIPO_TRIBUT_REFORMA.TIPO_OPERACAO := 'S';
+      
+        V_TIPO_TRIBUT_REFORMA := FISCAL.CALCULAR_IBS(V_TIPO_TRIBUT_REFORMA,
+                                                     P_MSG);
+      
+        UPDATE PCMOVPREFAT
+           SET VLIBS               = V_TIPO_TRIBUT_REFORMA.VALOR_TRIBUTO,
+               CSTIBS              = V_TIPO_TRIBUT_REFORMA.CST,
+               ALIQIBS             = V_TIPO_TRIBUT_REFORMA.VALOR_ALIQUOTA_TRIBUTO,
+               VLBASEIBS           = V_TIPO_TRIBUT_REFORMA.VALOR_BASE_TRIBUTO,
+               CCLASSTRIBIBS       = V_TIPO_TRIBUT_REFORMA.CCLASSTRIB,
+               CODIGOTRIBUTACAOIBS = V_TIPO_TRIBUT_REFORMA.CODIGO_TRIBUTACAO
+         WHERE PCMOVPREFAT.NUMTRANSITEM = MOVIMENTACAO.NUMTRANSITEM;
+      
+        IF SQL%ROWCOUNT = 0 THEN
+          UPDATE PCMOV
+             SET VLIBS               = V_TIPO_TRIBUT_REFORMA.VALOR_TRIBUTO,
+                 CSTIBS              = V_TIPO_TRIBUT_REFORMA.CST,
+                 ALIQIBS             = V_TIPO_TRIBUT_REFORMA.VALOR_ALIQUOTA_TRIBUTO,
+                 VLBASEIBS           = V_TIPO_TRIBUT_REFORMA.VALOR_BASE_TRIBUTO,
+                 CCLASSTRIBIBS       = V_TIPO_TRIBUT_REFORMA.CCLASSTRIB,
+                 CODIGOTRIBUTACAOIBS = V_TIPO_TRIBUT_REFORMA.CODIGO_TRIBUTACAO
+           WHERE PCMOV.NUMTRANSITEM = MOVIMENTACAO.NUMTRANSITEM;
+        
+        END IF;
+      
+        V_TIPO_TRIBUT_REFORMA := FISCAL.CALCULAR_CBS(V_TIPO_TRIBUT_REFORMA,
+                                                     P_MSG);
+      
+        UPDATE PCMOVPREFAT
+           SET VLCBS               = V_TIPO_TRIBUT_REFORMA.VALOR_TRIBUTO,
+               CSTCBS              = V_TIPO_TRIBUT_REFORMA.CST,
+               ALIQCBS             = V_TIPO_TRIBUT_REFORMA.VALOR_ALIQUOTA_TRIBUTO,
+               VLBASECBS           = V_TIPO_TRIBUT_REFORMA.VALOR_BASE_TRIBUTO,
+               CCLASSTRIBCBS       = V_TIPO_TRIBUT_REFORMA.CCLASSTRIB,
+               CODIGOTRIBUTACAOCBS = V_TIPO_TRIBUT_REFORMA.CODIGO_TRIBUTACAO
+         WHERE PCMOVPREFAT.NUMTRANSITEM = MOVIMENTACAO.NUMTRANSITEM;
+      
+        IF SQL%ROWCOUNT = 0 THEN
+          UPDATE PCMOV
+             SET VLCBS               = V_TIPO_TRIBUT_REFORMA.VALOR_TRIBUTO,
+                 CSTCBS              = V_TIPO_TRIBUT_REFORMA.CST,
+                 ALIQCBS             = V_TIPO_TRIBUT_REFORMA.VALOR_ALIQUOTA_TRIBUTO,
+                 VLBASECBS           = V_TIPO_TRIBUT_REFORMA.VALOR_BASE_TRIBUTO,
+                 CCLASSTRIBCBS       = V_TIPO_TRIBUT_REFORMA.CCLASSTRIB,
+                 CODIGOTRIBUTACAOCBS = V_TIPO_TRIBUT_REFORMA.CODIGO_TRIBUTACAO
+           WHERE PCMOV.NUMTRANSITEM = MOVIMENTACAO.NUMTRANSITEM;
+        END IF;
+      
+      EXCEPTION
+        WHEN OTHERS THEN
+          vrPARAMETROS.NUMPED := MOVIMENTACAO.NUMPED;
+          vrPARAMETROS.NUMCAR := MOVIMENTACAO.NUMCAR;
+          vrPARAMETROS.DATA   := SYSDATE;
+          vrPARAMETROS.MSG    := SQLCODE || '-' || SQLERRM || CHR(13) || P_MSG ||
+                                 'Houve problemas na atualização dos novos processos de impostos CBS / IBS' ||
+                                 to_char(MOVIMENTACAO.NUMCAR);
+        
+          GRAVARLOG(FATURAMENTO_COMPLE.vrPARAMETROS,
+                    (CASE WHEN
+                     FATURAMENTO_COMPLE.vrPARAMETROS.MSG LIKE '%ORA-%' THEN
+                     DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE
+                     TO_CHAR($$PLSQL_LINE) END));
+        
+          RETURN 'N';
+        
+      END;
+    
+    END LOOP;
+  
+    RETURN 'S';
+  END;
+
+  PROCEDURE GRAVARLOG(PPARAMS    IN OUT PCPARAMFAT%ROWTYPE,
+                      PSLINHAMSG IN VARCHAR2 DEFAULT '') IS
+    PRAGMA AUTONOMOUS_TRANSACTION;
+    VSLINHAERRO VARCHAR2(400);
+  BEGIN
+  
+    IF PPARAMS.NUMCAR IS NULL THEN
+      PPARAMS.NUMCAR := 0;
+    END IF;
+  
+    IF NVL(PPARAMS.NUMPED, 0) = 0 THEN
+      PPARAMS.SEQ := 0;
+    ELSE
+      -- Tarefa: 2600.006951.2013
+      SELECT DEFSEQ_PCPARAMFAT.NEXTVAL INTO PPARAMS.SEQ FROM DUAL;
+    END IF;
+  
+    -- Deyvid Costa - Sprint 26.02
+    VSLINHAERRO := '';
+    if PPARAMS.msg like '%ORA-%' THEN
+      -- Verifica se Ã© mensagem com erro
+      VSLINHAERRO := PSLINHAMSG;
+    END IF;
+  
+    -- Adicionar nÃºmero da linha, quando for erro ou quando for apenas uma mensagem informativa
+    PPARAMS.msg := PPARAMS.Msg || CHR(13) || CASE
+                     WHEN VSLINHAERRO <> '' THEN
+                      ' ERRO: ' || VSLINHAERRO
+                     WHEN PSLINHAMSG <> '' THEN
+                      ' LINHA MSG: ' || PSLINHAMSG
+                     ELSE
+                      ' LINHA: ' || PSLINHAMSG
+                   END;
+    -- Sprint 26.02
+  
+    INSERT INTO PCPARAMFAT VALUES PPARAMS;
+  
+    COMMIT;
+  
+  END GRAVARLOG;  
 
 END FERRAMENTAS_FATURAMENTO;
