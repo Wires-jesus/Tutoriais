@@ -7,69 +7,74 @@ CREATE OR REPLACE FUNCTION FNC_DADOS_CAMPANHAS(P_NUMVERBACAMPANHA IN NUMBER,
                                                P_MSG_RETORNO       OUT VARCHAR2,
                                                P_VLAPLICUNITARIO   OUT NUMBER)
 RETURN VARCHAR2 IS
-  V_CODDESCONTO  PCPEDI.CODDESCONTO%TYPE;
-  V_CODCOMBO     PCPEDI.CODCOMBO%TYPE;
-  V_CODPRECOFIXO PCPEDI.CODPRECOFIXO%TYPE;
-  V_CODIGOBRINDE PCPEDI.CODIGOBRINDE%TYPE;
+  V_CODDESCONTO            PCPEDI.CODDESCONTO%TYPE;
+  V_CODCOMBO               PCPEDI.CODCOMBO%TYPE;
+  V_CODPRECOFIXO           PCPEDI.CODPRECOFIXO%TYPE;
+  V_CODIGOBRINDE           PCPEDI.CODIGOBRINDE%TYPE;
+  V_CODDESCPTABELA         PCORIGEMPRECO.CODDESCPTABELA%TYPE;
+  V_CODAUTORIZACAO         PCORIGEMPRECO.CODAUTORIZACAO%TYPE;
   V_CONTREGVERBACUMULATIVA NUMBER(10);
-  V_VLVERBAAPLICUNITARIO PCAUXVERBACUMULATIVAPROD.VLVERBACMV%TYPE;
-
+  V_VLVERBAAPLICUNITARIO   PCAUXVERBACUMULATIVAPROD.VLVERBACMV%TYPE;
 BEGIN 
   V_CONTREGVERBACUMULATIVA := 0;
   V_VLVERBAAPLICUNITARIO   := 0;
-
-  SELECT NVL(CODDESCONTO, 0) CODDESCONTO,
-         NVL(CODCOMBO, 0) CODCOMBO,
-         NVL(CODPRECOFIXO, 0) CODPRECOFIXO,
-         NVL(CODIGOBRINDE, 0) CODIGOBRINDE,
-         NVL(VLVERBACMV, 0) VLVERBACMV
+  
+  SELECT NVL(I.CODDESCONTO, 0) CODDESCONTO,
+         NVL(I.CODCOMBO, 0) CODCOMBO,
+         NVL(I.CODPRECOFIXO, 0) CODPRECOFIXO,
+         NVL(I.CODIGOBRINDE, 0) CODIGOBRINDE,
+         NVL(OP.CODDESCPTABELA, 0) CODDESCPTABELA,
+         NVL(OP.CODAUTORIZACAO, 0) CODAUTORIZACAO
     INTO V_CODDESCONTO,
          V_CODCOMBO,
          V_CODPRECOFIXO,
          V_CODIGOBRINDE,
-         V_VLVERBAAPLICUNITARIO
-    FROM PCPEDI
-   WHERE NUMPED = P_NUMPED
-     AND CODPROD = P_CODPROD
-     AND NUMSEQ = P_NUMSEQ;
+         V_CODDESCPTABELA,
+         V_CODAUTORIZACAO
+    FROM PCPEDI I,
+         PCORIGEMPRECO OP
+   WHERE I.NUMPED = OP.NUMPED(+)
+     AND I.CODPROD = OP.CODPROD(+)
+     AND I.NUMSEQ = OP.NUMSEQ(+)
+     AND I.NUMPED = P_NUMPED
+     AND I.CODPROD = P_CODPROD
+     AND I.NUMSEQ = P_NUMSEQ;
   
-  IF NVL(P_NUMVERBACAMPANHA,0) <> 0
-    THEN
-      BEGIN
-        SELECT COUNT(*)
-          INTO V_CONTREGVERBACUMULATIVA
-          FROM PCAUXVERBACUMULATIVAPROD
-         WHERE NUMPED = P_NUMPED
-          AND CODPROD = P_CODPROD
-          AND NUMSEQ = P_NUMSEQ
-          AND NUMVERBACMV = P_NUMVERBACAMPANHA;         
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          V_CONTREGVERBACUMULATIVA := 0;    
-      END;
-  
+  IF NVL(P_NUMVERBACAMPANHA,0) <> 0 THEN
+    BEGIN
+      SELECT COUNT(*)
+        INTO V_CONTREGVERBACUMULATIVA
+        FROM PCAUXVERBACUMULATIVAPROD
+       WHERE NUMPED = P_NUMPED
+        AND CODPROD = P_CODPROD
+        AND NUMSEQ = P_NUMSEQ
+        AND NUMVERBACMV = P_NUMVERBACAMPANHA;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        V_CONTREGVERBACUMULATIVA := 0;
+    END;
+    
     IF V_CONTREGVERBACUMULATIVA > 0
       THEN
         BEGIN
-          SELECT NVL(VLVERBACMV,0) VLVERBACMV
+          SELECT NVL(VLVERBACMV, 0) VLVERBACMV
             INTO V_VLVERBAAPLICUNITARIO
             FROM PCAUXVERBACUMULATIVAPROD
            WHERE NUMPED = P_NUMPED
              AND CODPROD = P_CODPROD
              AND NUMSEQ = P_NUMSEQ
-             AND NUMVERBACMV = P_NUMVERBACAMPANHA;        
+             AND NUMVERBACMV = P_NUMVERBACAMPANHA;
         EXCEPTION
           WHEN OTHERS THEN
-            V_VLVERBAAPLICUNITARIO := 0;   
-        END;    
+            V_VLVERBAAPLICUNITARIO := 0;
+        END;
     END IF;
     
     P_VLAPLICUNITARIO := V_VLVERBAAPLICUNITARIO;
-    
   END IF;
-
-  IF V_CODDESCONTO <> 0 THEN  
-    BEGIN    
+  
+  IF V_CODDESCONTO <> 0 THEN
+    BEGIN
       SELECT DTINICIO,
              DTFIM
         INTO P_DTINICIOVIGENCIA,
@@ -77,7 +82,7 @@ BEGIN
         FROM PCDESCONTO
        WHERE CODDESCONTO = V_CODDESCONTO
          AND NUMVERBA = P_NUMVERBACAMPANHA;
-    
+      
       P_MSG_RETORNO := 'Desconto da 561 encontrado na PCDESCONTO.';
       RETURN 'S';
     EXCEPTION
@@ -96,12 +101,43 @@ BEGIN
         EXCEPTION
           WHEN OTHERS THEN
             P_MSG_RETORNO := 'A política de número ' || V_CODDESCONTO || ' não foi encontrada na PCDESCONTO ou PCDESCONTOLOG para essa verba.';
-            RETURN 'N';
         END;
-    END;  
+    END;
   END IF;
-
-  IF V_CODCOMBO <> 0 THEN  
+  
+  IF V_CODDESCPTABELA <> 0 THEN
+    BEGIN
+      SELECT DTINICIO,
+             DTFIM
+        INTO P_DTINICIOVIGENCIA,
+             P_DTFIMVIGENCIA
+        FROM PCDESCONTO
+       WHERE CODDESCONTO = V_CODDESCPTABELA
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
+      
+      P_MSG_RETORNO := 'Desconto da 561 encontrado na PCDESCONTO.';
+      RETURN 'S';
+    EXCEPTION
+      WHEN OTHERS THEN
+        BEGIN
+          SELECT DTINICIO,
+                 DTFIM
+            INTO P_DTINICIOVIGENCIA,
+                 P_DTFIMVIGENCIA
+            FROM PCDESCONTOLOG
+           WHERE CODDESCONTO = V_CODDESCPTABELA
+             AND NUMVERBA = P_NUMVERBACAMPANHA;
+          
+          P_MSG_RETORNO := 'Desconto da 561 encontrado em PCDESCONTOLOG.';
+          RETURN 'S';
+        EXCEPTION
+          WHEN OTHERS THEN
+            P_MSG_RETORNO := 'A política de número ' || V_CODDESCPTABELA || ' não foi encontrada na PCDESCONTO ou PCDESCONTOLOG para essa verba.';
+        END;
+    END;
+  END IF;
+  
+  IF V_CODCOMBO <> 0 THEN
     BEGIN
       SELECT DTINICIO,
              DTFIM
@@ -110,18 +146,17 @@ BEGIN
         FROM PCDESCONTOC
        WHERE CODIGO = V_CODCOMBO
          AND NUMVERBA = P_NUMVERBACAMPANHA;
-    
+      
       P_MSG_RETORNO := 'Desconto da 3306 encontrado.';
-      RETURN 'S';    
+      RETURN 'S';
     EXCEPTION
       WHEN OTHERS THEN
         P_MSG_RETORNO := 'A campanha de número ' || V_CODCOMBO || ' não foi encontrada na PCDESCONTOC para essa verba.';
-        RETURN 'N';
-    END;  
+    END;
   END IF;
-
+  
   IF V_CODPRECOFIXO <> 0 THEN
-    BEGIN    
+    BEGIN
       SELECT DTINICIOVIGENCIA,
              DTFIMVIGENCIA
         INTO P_DTINICIOVIGENCIA,
@@ -129,12 +164,12 @@ BEGIN
         FROM PCPRECOPROM
        WHERE CODPRECOPROM = V_CODPRECOFIXO
          AND NUMVERBA = P_NUMVERBACAMPANHA;
-    
+      
       P_MSG_RETORNO := 'Desconto da 357 encontrado na PCPRECOPROM.';
-      RETURN 'S';    
+      RETURN 'S';
     EXCEPTION
       WHEN OTHERS THEN
-        BEGIN        
+        BEGIN
           SELECT DTINICIOVIGENCIA,
                  DTFIMVIGENCIA
             INTO P_DTINICIOVIGENCIA,
@@ -142,18 +177,16 @@ BEGIN
             FROM PCPRECOPROMLOG
            WHERE CODPRECOPROM = V_CODPRECOFIXO
              AND NUMVERBA = P_NUMVERBACAMPANHA;
-        
+          
           P_MSG_RETORNO := 'Desconto da 357 encontrado na PCPRECOPROMLOG.';
           RETURN 'S';
-        
         EXCEPTION
           WHEN OTHERS THEN
             P_MSG_RETORNO := 'A política de número ' || V_CODPRECOFIXO || ' não foi encontrada na PCPRECOPROM ou PCPRECOPROMLOG para essa verba.';
-            RETURN 'N';          
-        END;     
-    END;  
+        END;
+    END;
   END IF;
-
+  
   IF V_CODIGOBRINDE <> 0 THEN  
     BEGIN
       SELECT DTINICIO,
@@ -163,21 +196,38 @@ BEGIN
         FROM PCBRINDEEX
        WHERE CODBREX = V_CODIGOBRINDE
          AND NUMVERBA = P_NUMVERBACAMPANHA;
-    
+      
       P_MSG_RETORNO := 'Política de brinde da 3320 encontrada.';
       RETURN 'S';
     EXCEPTION
       WHEN OTHERS THEN
         P_MSG_RETORNO := 'A política de brinde de número ' || V_CODIGOBRINDE || ' não foi encontrada na PCBRINDEEX para essa verba.';
-        RETURN 'N';      
-    END;  
+    END;
   END IF;
-
+  
+  IF V_CODAUTORIZACAO <> 0 THEN
+    BEGIN
+      SELECT TRUNC(DATAAUTORIZACAO),
+             TRUNC(DATAAUTORIZACAO)
+        INTO P_DTINICIOVIGENCIA,
+             P_DTFIMVIGENCIA
+        FROM PCAUTORI
+       WHERE NRAUTORIZACAO = V_CODAUTORIZACAO
+         AND NUMVERBA = P_NUMVERBACAMPANHA;
+      
+      P_MSG_RETORNO := 'Política de autorização de venda da 301 encontrada.';
+      RETURN 'S';
+    EXCEPTION
+      WHEN OTHERS THEN
+        P_MSG_RETORNO := 'A política de autorização de venda de número ' || V_CODAUTORIZACAO || ' não foi encontrada na PCAUTORI para essa verba.';
+      END;
+  END IF;
+  
   P_MSG_RETORNO := 'Não foi encontrada nenhuma política de desconto.';
   RETURN 'N';
 EXCEPTION
-  WHEN OTHERS THEN  
-    P_MSG_RETORNO := 'Dados não localizados na PCPEDI com os parâmetros informados. ' 
+  WHEN OTHERS THEN 
+    P_MSG_RETORNO := 'Dados não localizados na PCPEDI com os parâmetros informados. '
                      || SQLCODE || '-' || SQLERRM || '-' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
-    RETURN 'N';  
+    RETURN 'N';
 END FNC_DADOS_CAMPANHAS;
