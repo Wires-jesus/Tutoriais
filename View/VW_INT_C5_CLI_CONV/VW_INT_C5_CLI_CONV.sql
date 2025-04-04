@@ -21,6 +21,7 @@ WHERE ((F.ESPECIE = 'CNV') OR ((F.ESPECIE = 'O') AND (F.CODCOB = 'CONV')))
 AND F.dtinativacao IS NULL
 --AND NVL(C.CODCLIPRINC, C.CODCLI) = TC.SEQPESSOA
 AND C.CODCLI = TC.SEQPESSOA
+AND C.CODCLI NOT IN(1,2,3)
 /*AND (
       ((NVL(C.CODCLIPRINC, 0) <> 0) AND (C.CODCLIPRINC <> C.CODCLI) AND (codcliprinc is not null) and (codcliprinc in
       (select codcli from pcclient where codcli = codcliprinc and empresaconveniada = 'S'))  OR
