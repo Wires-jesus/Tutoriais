@@ -4,9 +4,11 @@ SELECT G.NUMGIFTCARD AS NROCARTAO,
        G.VALOR AS VALOR,
        'G' AS STATUS,
        CASE
-         WHEN G.STATUS = 'A' THEN
-              'S'
-         ELSE 'N'
+         WHEN ((G.STATUS <> 'A') OR (G.DTINATIVO IS NOT NULL) OR
+              (TRUNC(SYSDATE) >= G.DTVALIDADE)) THEN
+          'N'
+         ELSE
+          'S'
        END ATIVO
   FROM PCCADGIFTCARD G,
        (SELECT S.ULTIMAEXECUCAO
