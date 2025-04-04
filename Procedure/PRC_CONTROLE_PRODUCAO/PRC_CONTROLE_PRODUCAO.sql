@@ -1185,7 +1185,6 @@ COMMIT;
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND (PMOSTRARAJUSTESCUSTO = 'S')
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
                                           WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
@@ -1386,7 +1385,6 @@ COMMIT;
                                 AND PCMOV.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                 AND PMOSTRARAJUSTESCUSTO = 'S'
                                 AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD'
-                                AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
                                           WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
@@ -1528,7 +1526,6 @@ COMMIT;
                       AND NVL(PCMOV.NUMPED,0) = NVL(P.NUMPED,0)
                       AND NVL(P.NUMNOTACONSIG,0) > 0
                       AND DECODE(PDESCONS_ITEM_BRINDE,'S',NVL(PCMOV.TIPOMERC,'XX'),'XX') <> 'BD' 
-                      AND NVL(PCMOV.MOVESTOQUECONTABIL,'S') = 'S'
                                 AND (CASE WHEN PSTATUSPROD = 'T' 
                                           THEN 'S'
                                           WHEN PSTATUSPROD = 'A' AND (PCPRODUT.DTEXCLUSAO IS NULL OR PCPRODUT.DTEXCLUSAO > PDTFIM) 
