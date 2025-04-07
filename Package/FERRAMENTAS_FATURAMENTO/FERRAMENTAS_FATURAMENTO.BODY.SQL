@@ -638,9 +638,9 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                  'Houve problemas na atualização dos novos processos de impostos CBS / IBS' ||
                                  to_char(MOVIMENTACAO.NUMCAR);
         
-          GRAVARLOG(FATURAMENTO_COMPLE.vrPARAMETROS,
+          GRAVARLOG(vrPARAMETROS,
                     (CASE WHEN
-                     FATURAMENTO_COMPLE.vrPARAMETROS.MSG LIKE '%ORA-%' THEN
+                     vrPARAMETROS.MSG LIKE '%ORA-%' THEN
                      DBMS_UTILITY.FORMAT_ERROR_BACKTRACE ELSE
                      TO_CHAR($$PLSQL_LINE) END));
         
