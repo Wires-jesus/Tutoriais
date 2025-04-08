@@ -548,7 +548,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                 PCNFSAIDPREFAT.UF,
                                 NVL(PCNFSAIDPREFAT.CODFILIALNF,
                                     PCNFSAIDPREFAT.CODFILIAL) CODFILIAL,
-                                PCMOVPREFAT.PUNIT,
+                                PCMOVPREFAT.PUNITCONT ,
                                 PCMOVPREFAT.NUMTRANSITEM,
                                 PCMOVPREFAT.NUMPED,
                                 PCMOVPREFAT.NUMCAR
@@ -562,7 +562,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                 PCMOV.CODPROD,
                                 PCNFSAID.UF,
                                 NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) CODFILIAL,
-                                PCMOV.PUNIT,
+                                PCMOV.PUNITCONT ,
                                 PCMOV.NUMTRANSITEM,
                                 PCMOV.NUMPED,
                                 PCMOV.NUMCAR
@@ -578,7 +578,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         V_TIPO_TRIBUT_REFORMA.CODPROD       := MOVIMENTACAO.CODPROD;
         V_TIPO_TRIBUT_REFORMA.UF_CLIENTE    := MOVIMENTACAO.UF;
         V_TIPO_TRIBUT_REFORMA.CODFILIAL     := MOVIMENTACAO.CODFILIAL;
-        V_TIPO_TRIBUT_REFORMA.VALOR_PRODUTO := MOVIMENTACAO.PUNIT;
+        V_TIPO_TRIBUT_REFORMA.VALOR_PRODUTO := MOVIMENTACAO.PUNITCONT;
         V_TIPO_TRIBUT_REFORMA.DEVOLUCAO     := 'N';
         V_TIPO_TRIBUT_REFORMA.TIPO_OPERACAO := 'S';
       
