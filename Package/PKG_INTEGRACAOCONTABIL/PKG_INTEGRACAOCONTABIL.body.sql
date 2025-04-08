@@ -2884,6 +2884,7 @@ IS
             VALORICMSDIFALIQPARTILHA PCNFBASESAID.VLICMSDIFALIQPART%TYPE,
             VALORICMSUFDEST PCNFBASESAID.VLICMSUFDEST%TYPE,
             VALORICMSUFREM PCNFBASESAID.VLICMSUFREM%TYPE,
+            VALORFCPPART PCMOVCOMPLE.VLFCPPART%TYPE,            
             CODCOBRANCA PCNFSAID.CODCOB%TYPE,
             CODFISCALNF PCCFO.CODFISCAL%TYPE,
             TIPODEVENDANF PCNFSAID.CONDVENDA%TYPE,
@@ -3195,6 +3196,11 @@ IS
                         REGEXP_REPLACE (VS_FORMULA,
                                         'VALORSTBCR([^_[:alnum:]])',
                                         NVL (ITEM.VALORSTBCR, 0) || '\1');
+                                        
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (VS_FORMULA,
+                                'VALORFCPPART([^_[:alnum:]])',
+                                NVL (ITEM.VALORFCPPART, 0) || '\1');
 
                     CALCULAREXPRESSAO;
 
