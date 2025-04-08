@@ -2808,7 +2808,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL', 'GC')
    AND p.Seqdocto = r.seqdocto(+)
    AND p.seqitem = r.seqitem(+)
    AND p.nroempresa = r.nroempresa(+)
@@ -2937,7 +2937,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    --and  c5.codfilialintegracao = nf.nroempresa
   -- AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL', 'GC')
    
    UNION ALL
    
@@ -3068,7 +3068,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    --AND  C5.codfilialintegracao = c.NROEMPRESA
    AND  f.codcob = v.codcob(+)
    AND  FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_GERARTROCOCOBDIN', '99', 'N') = 'S'
-   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL', 'GC')
    
    UNION ALL
    
@@ -3189,7 +3189,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
    and  d.nroempresa = nf.nroempresa(+)
    --and  c5.codfilialintegracao = nf.nroempresa
    AND  f.codcob = v.codcob(+)
-   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL')
+   AND  d.especie IN ('NF', 'CF', 'RP', 'VG', 'PL', 'GC')
 )
 
 \
