@@ -1,0 +1,11 @@
+{
+  "nome": "MANUTENCAO_PCVIGENCIANTSEFAZ",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+	{
+		"nome": "PCVIGENCIANTSEFAZ",
+		"tipo":"TABELA",
+		"versao": "7.0.02.000"
+	}
+  ]
+}
