@@ -1,0 +1,10 @@
+{
+    "nome": "INSERT_MENU_MODULO_70",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[{
+					  "nome": "ROTINA.7000",
+					  "tipo": "ROTINA",
+					  "versao": "6.0.01.000"
+					}
+    ]
+  }
