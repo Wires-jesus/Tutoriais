@@ -200,7 +200,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCVENDACONSUMECF AS
        C5.CODFILIAL codfilial,
 	   d.NROEMPRESA NROEMPRESA,
        'NOTAFISCAL' numserieequip,
-       CASE WHEN NF.DOCEMISSAO = 'SF' THEN NF.NUMCUPOMSAT ELSE c.nronotafiscal END numcupom,
+       CASE WHEN NF.DOCEMISSAO in ('SF', 'MF') THEN NF.NUMCUPOMSAT ELSE c.nronotafiscal END numcupom,
        NVL(c.nomecliente, 'CONSUMIDOR FINAL') cliente,
        c.cnpjcpf cgcent,
        c.idestrangeiro identificacao_estrangeiro,
@@ -1595,7 +1595,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL justificativacontingencia,
         c.seriedocto numcaixafiscal,
         0 numfechamentomovcx,
-        case when nf.docemissao = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end numcupom,
+        case when nf.docemissao in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end numcupom,
         fnc_int_c5_numitens(a.seqdocto, a.nrocheckout, a.nroempresa) numitens,
         ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',a.nroempresa,1) numregiao,
         1 numviasmapasep,
@@ -2655,7 +2655,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
+        case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
         CASE WHEN FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem) = 'CONV' AND ((SELECT NVL(PL.FORMAPARCELAMENTO,'C') FROM PCPLPAG PL WHERE PL.CODPLPAG = F.codplpag ) = 'T'  )THEN
             TO_CHAR(FNC_INT_C5_CALCDIAFIXO(TRUNC(p.Dtahoremissao),FNC_INT_C5_DIASCARENCIA(p.nroformapagto), fnc_int_c5_DIAFIXO(p.nroformapagto) , TRUNC(SYSDATE)), 'YYYY-MM-DD' )
@@ -2823,7 +2823,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
+        case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 		        ,'YYYY-MM-DD') dtvenc,
@@ -2948,7 +2948,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
+        case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 		        ,'YYYY-MM-DD') dtvenc,
@@ -3079,7 +3079,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         d.sequsuario codfunccheckout,
         d.nrocheckout numcheckout,
         'NOTAFISCAL' numserieequip,
-        case when nf.DOCEMISSAO = 'SF' then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
+        case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
         TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
 		        ,'YYYY-MM-DD') dtvenc,
