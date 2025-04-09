@@ -971,9 +971,9 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.numcaixa         := r_pedido.numcaixa;
             dados_pcfilamensagem.rowpcfilamensagem.numnota          := r_pedido.numcupom;
             dados_pcfilamensagem.rowpcfilamensagem.serie            := r_pedido.serie;
-            dados_pcfilamensagem.rowpcfilamensagem.chavesefaz       := (CASE WHEN r_pedido.docemissao = 'SF' THEN r_pedido.chavesat ELSE r_pedido.chavenfe END) ;
+            dados_pcfilamensagem.rowpcfilamensagem.chavesefaz       := (CASE WHEN r_pedido.docemissao IN ('SF', 'MF') THEN r_pedido.chavesat ELSE r_pedido.chavenfe END) ;
             dados_pcfilamensagem.rowpcfilamensagem.protocolo        := r_pedido.protocoloenvio;
-            dados_pcfilamensagem.rowpcfilamensagem.contingencia     := (CASE WHEN r_pedido.docemissao = 'SF' THEN 'N' ELSE (CASE
+            dados_pcfilamensagem.rowpcfilamensagem.contingencia     := (CASE WHEN r_pedido.docemissao IN ('SF', 'MF') THEN 'N' ELSE (CASE
                                                                             WHEN r_pedido.protocoloenvio IS NULL
                                                                                 THEN 'S'
                                                                             ELSE 'N'
