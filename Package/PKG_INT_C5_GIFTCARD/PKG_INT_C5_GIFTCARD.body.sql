@@ -6,7 +6,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
              A.SEQDOCTO,
              A.NROEMPRESA,
              A.NUMGIFTCARD,
-             A.NROCHECKOUT,
+             A.NROCHECKOUT AS "NUMCAIXA",
              A.DATA,
              A.DTABERTURA,
              A.CODFUNCCX,
@@ -147,7 +147,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
         SELECT XMLELEMENT("DEFINICAOGIFTCARD",
                           XMLAGG(XMLELEMENT("PCVENDAGIFTCARDECF",
                                             XMLFOREST(A.NUMGIFTCARD,
-                                                      A.NROCHECKOUT,
+                                                      A.NROCHECKOUT AS "NUMCAIXA",
                                                       A.NUMSERIEEQUIP,
                                                       A.DATA,
                                                       A.CODFUNCCX,
@@ -174,7 +174,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
                                        P.DTVENC AS "DTVENC",
                                        P.CODCOB AS "CODCOB",
                                        P.DTEMISSAO AS "DTEMISSAO",
-                                       --P.CODFILIAL AS "CODFILIAL",
                                        C5.CODFILIAL AS "CODFILIAL",
                                        P.STATUS AS "STATUS",
                                        P.CODUSUR AS "CODUSUR",
@@ -260,7 +259,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
          AND   A.NROCHECKOUT = P.NUMCHECKOUT
         AND    A.NROEMPRESA = P.CODFILIALINTEGRACAO
          AND   A.SEQDOCTO  = P_GIFTCARD.SEQDOCTO
-         AND   A.NROCHECKOUT = P_GIFTCARD.NROCHECKOUT
+         AND   A.NROCHECKOUT = P_GIFTCARD.NUMCAIXA
          AND   A.NROEMPRESA  = P_GIFTCARD.NROEMPRESA;
 
         RETURN L_XMLTYPEGIFTCARD;
@@ -287,14 +286,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
         IS
           DADOS_PCFILAMENSAGEM PKG_SINC_PDV_CONSINCO_UTIL.TR_DADOS_PCFILAMENSAGEM;
           L_XMLTYPE            XMLTYPE;
-          DAODOSCABECALHOXML   VARCHAR2(200) := '<?XML VERSION="1.0" ENCODING="UTF-8" STANDALONE="YES"?> <ESQUEMAEXPORTACAO XMLNS:XSI="HTTP://WWW.W3.ORG/2001/XMLSCHEMA-INSTANCE" XMLNS:XSD="HTTP://WWW.W3.ORG/2001/XMLSCHEMA">';
+          DAODOSCABECALHOXML   VARCHAR2(200) := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
         BEGIN
       -- RECEBE XML DA VENDA
 
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM          := DFSEQ_PCFILAMENSAGEM.NEXTVAL;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.DATATRANSACAO       := SYSDATE;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODFILIAL           := R_GIFTCARD.CODFILIALWINTHOR;
-      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMCAIXA            := R_GIFTCARD.NROCHECKOUT;
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMCAIXA            := R_GIFTCARD.NUMCAIXA;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.NUMNOTA             := R_GIFTCARD.COO;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.SERIE               := NULL;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CHAVESEFAZ          := NULL;
@@ -302,7 +301,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CONTINGENCIA        := 'N';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDEXTERNO           := DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM || '-' ||
                                                                     R_GIFTCARD.SEQDOCTO || '-' ||
-                                                                    R_GIFTCARD.NROCHECKOUT || '-' ||
+                                                                    R_GIFTCARD.NUMCAIXA || '-' ||
                                                                     'GC';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.STATUS              := 0;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.QTPROCESSAMENTO     := NULL;
@@ -312,7 +311,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
       L_XMLTYPE := RETORNAR_XML_GIFTCARD(R_GIFTCARD);
 
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.MENSAGEM            := REPLACE(L_XMLTYPE.GETCLOBVAL(),
-                                                                            '<ESQUEMAEXPORTACAO>',
+                                                                            '<EsquemaExportacao>',
                                                                             DAODOSCABECALHOXML);
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOMENSAGEM        := 1;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.CODIGOERRO          := NULL;
