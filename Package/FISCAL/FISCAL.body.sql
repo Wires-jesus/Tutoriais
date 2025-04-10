@@ -6331,8 +6331,10 @@ create or replace package body FISCAL is
         
        IF V_PARAMETROS.TIPO_IMPOSTO = 'CBS' THEN
          V_TIPO_IMPOSTO := 'BASE_CBS';  
-       ELSE 
+       ELSIF V_PARAMETROS.TIPO_IMPOSTO = 'IBS' THEN
          V_TIPO_IMPOSTO := 'BASE_IBS';          
+       ELSE  
+         V_TIPO_IMPOSTO := 'BASE_IS';          
        END IF;  
                                                                                        
        -- Calcular tributo             
@@ -6573,6 +6575,58 @@ create or replace package body FISCAL is
         END;                           
     END;
   END CALCULAR_IBS;  
+  
+  
+  
+  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_MSG        out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA IS
+    V_DADOS_TRIBUTACAO TIPO_TRIBUT_REFORMA;
+  BEGIN
+    BEGIN
+      PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_IS', '1.0');
+      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo IS para filial| '||P_PARAMETROS.CODFILIAL||
+                             ' Produto: '||P_PARAMETROS.CODPROD||
+                             ' Ncm:'||P_PARAMETROS.NCM,'S'); 
+
+
+      V_DADOS_TRIBUTACAO                  := P_PARAMETROS;            
+      V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IS';
+      
+      --Busca os dados do cliente ou fornecedor
+      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);          
+      
+      --Busca os dados de cadastro da rotina 4000
+      V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+
+      --Calcula os novos impostos com base na tributação que foi encontrada                                                   
+      V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+
+      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo IS com os seguintes dados:'||
+                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO||
+                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.BASE_CALCULO_COD_FORMULA||
+                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_TRIBUTO||
+                             ' Aliquota: '||V_DADOS_TRIBUTACAO.VALOR_ALIQUOTA_TRIBUTO||      
+                             ' IBS calculado: '||V_DADOS_TRIBUTACAO.VALOR_TRIBUTO||
+                             ' CST: '||V_DADOS_TRIBUTACAO.CST||      
+                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CClassTrib      
+                             ,'S');                                                       
+                                                     
+      PKG_DEBUGGING_FWPC.DESATIVARDEBUG;  
+
+      P_MSG := 'OK';
+      
+      RETURN(V_DADOS_TRIBUTACAO);         
+    EXCEPTION
+      WHEN OTHERS THEN        
+        BEGIN
+          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do IS: '||SQLERRM,'S');          
+                                             
+          P_MSG := 'ERRO';
+          RETURN(V_DADOS_TRIBUTACAO);          
+        END;                           
+    END;
+  END CALCULAR_IS;  
   
 END;
 -- Alteração 14/01/2025 - Implementação do nvl no campo CST da opçao /*CONSULTA DE NOTAS SEM ITENS*/ referente ao metodo GET_CPONTA_CONTABIL_SPED

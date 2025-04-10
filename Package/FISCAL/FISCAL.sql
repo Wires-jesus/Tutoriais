@@ -343,4 +343,9 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                         P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;  
 
+
+  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;  
+
 END;
