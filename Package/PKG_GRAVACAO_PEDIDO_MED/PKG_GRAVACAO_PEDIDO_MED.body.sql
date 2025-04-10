@@ -104,13 +104,14 @@ IS PRAGMA SERIALLY_REUSABLE;
   DDVENDAS-38983        v@33.0.7
   DDVENDAS-41449        v@34.0.1
   DDVENDAS-46097        v@35.0.1
+  DDVENDAS-52385        v@37.0.1
   *****************************************/
   FUNCTION F_OBTER_VERSIONAMENTO RETURN VARCHAR2 IS
     vvVersao VARCHAR2(10);
   BEGIN
   
     -->> *** A CADA ALTERAÇÃO INCREMENTAR AQUI A VERSÃO ***
-    vvVersao := 'v@35.0.1';
+    vvVersao := 'v@37.0.1';
   
     RETURN 'MED_' || vvVersao;
     
@@ -1036,7 +1037,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                    pi_vCodFilial     IN VARCHAR2,
                                    pi_nCodMatricula  IN NUMBER,
                                    pi_nQtdePedida    IN NUMBER,
-                                   po_nNumPedOperLog OUT NUMBER) IS
+                                   po_nNumPedOperLog OUT NUMBER,
+                                   pi_nIdPrePedidoAnt IN NUMBER DEFAULT 0) IS
 
     vvSituacao              PCPEDCOMPRAOPERLOGCAB.SITUACAO%TYPE;
     vvDescricaoSituacao     VARCHAR2(255);
@@ -1114,6 +1116,11 @@ IS PRAGMA SERIALLY_REUSABLE;
           WHEN NO_DATA_FOUND THEN
             vvArquivoPed :=  'PRE-PED_' || NVL(pi_nIntegradora,0) || '_' || NVL(pi_nNumPed,0);
         END;
+        
+        -- Se reenvio, concatena o Id do Pedido anterior que foi rejeitado no nome do arquivo do pedido
+        IF (NVL(pi_nIdPrePedidoAnt,0) > 0) THEN
+          vvArquivoPed :=  vvArquivoPed || '_' || NVL(pi_nIdPrePedidoAnt,0);
+        END IF;
       END IF;
             
       -- Insere na PCPEDCOMPRAOPERLOGCAB
@@ -6962,20 +6969,46 @@ IS PRAGMA SERIALLY_REUSABLE;
     vIGNORARNFTRANSFNOTAEXTRA      PCPARAMINTEGRADORAMED.VALOR%TYPE;
     vIGNORARNFCONSIGNOTAEXTRA      PCPARAMINTEGRADORAMED.VALOR%TYPE;
     vIGNORARORGAOPUBLICOAPIFIDELIZ PCPARAMINTEGRADORAMED.VALOR%TYPE;
+    vENVIAPREPEDIDOAPI             PCLAYOUTINTEGRAVERSOPERLOG.ENVIAPREPEDIDOAPI%TYPE;
   BEGIN
     -- Inicializa Retorno
     vvRetPermitido := 'S';
     
+      -- Verifica se Envia Pré-Pedido para a API
+      BEGIN
+        SELECT PCLAYOUTINTEGRAVERSOPERLOG.ENVIAPREPEDIDOAPI
+             , PCLAYOUTINTEGRAVERSOPERLOG.IGNORAPREPEDIDOAPIORGAOPUB
+             , PCLAYOUTINTEGRAVERSOPERLOG.IGNORAPREPEDIDOAPICONSIGN
+             , PCLAYOUTINTEGRAVERSOPERLOG.IGNORAPREPEDIDOAPITRANSF
+          INTO vENVIAPREPEDIDOAPI
+             , vIGNORARORGAOPUBLICOAPIFIDELIZ
+             , vIGNORARNFCONSIGNOTAEXTRA
+             , vIGNORARNFTRANSFNOTAEXTRA
+          FROM PCINTEGRADORA
+             , PCLAYOUTINTEGRAVERSOPERLOG
+         WHERE (PCINTEGRADORA.LAYOUT      = PCLAYOUTINTEGRAVERSOPERLOG.LAYOUT)
+           AND (PCINTEGRADORA.SEQVERSAO   = PCLAYOUTINTEGRAVERSOPERLOG.SEQVERSAO)
+           AND (PCINTEGRADORA.INTEGRADORA = pi_nIntegradora);
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vENVIAPREPEDIDOAPI             := 'N';
+          vIGNORARORGAOPUBLICOAPIFIDELIZ := 'N';
+          vIGNORARNFCONSIGNOTAEXTRA      := 'N';
+          vIGNORARNFTRANSFNOTAEXTRA      := 'N';
+      END;    
+    
     -- Obtém Parâmetros da Integradora
-    vIGNORARNFTRANSFNOTAEXTRA      := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
-                                                               'IGNORARNFTRANSFNOTAEXTRA',
-                                                               'N');
-    vIGNORARNFCONSIGNOTAEXTRA      := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
-                                                               'IGNORARNFCONSIGNOTAEXTRA',
-                                                               'N');                                                               
-    vIGNORARORGAOPUBLICOAPIFIDELIZ := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
-                                                               'IGNORARORGAOPUBLICOAPIFIDELIZE',
-                                                               'N');
+    IF (NVL(vENVIAPREPEDIDOAPI,'N') <> 'S') THEN
+      vIGNORARNFTRANSFNOTAEXTRA      := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
+                                                                 'IGNORARNFTRANSFNOTAEXTRA',
+                                                                 'N');
+      vIGNORARNFCONSIGNOTAEXTRA      := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
+                                                                 'IGNORARNFCONSIGNOTAEXTRA',
+                                                                 'N');                                                               
+      vIGNORARORGAOPUBLICOAPIFIDELIZ := FOBTEM_PARAM_INTEGRADORA(pi_nIntegradora,
+                                                                 'IGNORARORGAOPUBLICOAPIFIDELIZE',
+                                                                 'N');
+    END IF;                                                                 
                                                                
     -- Se Ignora Transferência
     IF (vIGNORARNFTRANSFNOTAEXTRA = 'S') THEN
@@ -7800,7 +7833,8 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvFaturamentoIntegral          PCPEDRETORNO.FATURAMENTOINTEGRAL%TYPE,
          vnQtdeTotalPedidoFatIntegral   NUMBER,
          vnOpcaoLimitarVendaEstMin      NUMBER, -- DDMEDICA-7391
-         vnCodSupervisor                PCPEDC.CODSUPERVISOR%TYPE -- DDVENDAS-38228
+         vnCodSupervisor                PCPEDC.CODSUPERVISOR%TYPE, -- DDVENDAS-38228
+         vvDevolucaoSimbolica           PCPEDC.DEVSIMBOLICA%TYPE
          );
     vrPedido                            TRecPedido;
     -- Dados da Cobrança
@@ -11999,7 +12033,8 @@ IS PRAGMA SERIALLY_REUSABLE;
       -------------------------------------------------
       IF (vrPedido.vvOrigemPed = 'T') AND
          -- DDVENDAS-38983-(NVL(vrPedido.vnCodPromocaoMed,0) > 0) AND
-         (NVL(vrParametros.vHABILITCANALAUTORIZPBMTELEV,'N') = 'S') THEN
+         (NVL(vrParametros.vHABILITCANALAUTORIZPBMTELEV,'N') = 'S') AND
+         (NVL(vrPedido.vvDevolucaoSimbolica,'N') <> 'S') THEN
                             
         -- Se existe Integradora CA PBM
         IF (F_EXISTE_INTEGRADORA_CA_PBM = 'S') THEN
@@ -13837,6 +13872,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            , CODPROMOCAOMED
            , FRETEDESPACHO
            , CODSUPERVISOR -- DDVENDAS-38228
+           , NVL(DEVSIMBOLICA,'N')
         INTO vrPedido.vnCodCli
            , vrPedido.vnCondVenda
            , vrPedido.vnCodPlPag
@@ -13865,6 +13901,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            , vrPedido.vnCodPromocaoMed
            , vrPedido.vvFreteDespacho
            , vrPedido.vnCodSupervisor -- DDVENDAS-38228
+           , vrPedido.vvDevolucaoSimbolica
         FROM PCPEDC
        WHERE (NUMPED = pi_nNumPed); 
     EXCEPTION
@@ -13897,6 +13934,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         vrPedido.vnCodPromocaoMed              := pi_nCodPromocaoMedPedido;
         vrPedido.vvFreteDespacho               := NULL;
         vrPedido.vnCodSupervisor               := NULL; -- DDVENDAS-38228
+        vrPedido.vvDevolucaoSimbolica          := 'N';
     END;
     
     -- DDVENDAS-38228
@@ -24238,5 +24276,242 @@ IS PRAGMA SERIALLY_REUSABLE;
     END IF; -- FIM: (bPossuiVerbaPromocao)
   
   END P_REVALIDA_PROMOCAO; 
+
+  FUNCTION F_INTEGRADORA_DEVSIMB_CA_PBM(pi_nNumPed IN NUMBER) RETURN NUMBER IS
+    vnIntegradoraPedido           PCINTEGRADORA.INTEGRADORA%TYPE;
+    vnIntegradoraProduto          PCINTEGRADORA.INTEGRADORA%TYPE;
+    vGeraPrePedidoApiDevSimbolica PCLAYOUTINTEGRAVERSOPERLOG.GERAPREPEDIDOAPIDEVSIMBOLICA%TYPE;
+    TYPE TTIntegradoras           IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
+    vtIntegradoras                TTIntegradoras;
+  BEGIN
+    
+    vnIntegradoraPedido := 0;
+    
+    IF (F_EXISTE_INTEGRADORA_CA_PBM = 'S') THEN
+      
+      vnIntegradoraProduto := 0;
+      
+      FOR vc_Itens IN (SELECT PCPEDI.CODPROD 
+                         FROM PCPEDI
+                            , PCPEDC
+                        WHERE PCPEDC.NUMPED         = pi_nNumPed
+                          AND PCPEDC.NUMPED         = PCPEDI.NUMPED
+                          AND PCPEDC.CODPROMOCAOMED > 0) LOOP
+                        
+        vnIntegradoraProduto := NVL(F_INTEGRADORA_PRODUTO_CA_PBM(vc_Itens.CODPROD),0);
+        
+        IF (NOT vtIntegradoras.EXISTS(vnIntegradoraProduto)) THEN
+          vtIntegradoras(vnIntegradoraProduto) := vnIntegradoraProduto;
+        END IF;
+                        
+      END LOOP;                              
+      
+      IF (NVL(vtIntegradoras.COUNT,0) = 1) AND 
+         (NVL(vnIntegradoraProduto,0) > 0) THEN
+         
+        BEGIN
+          SELECT NVL(PCLAYOUTINTEGRAVERSOPERLOG.GERAPREPEDIDOAPIDEVSIMBOLICA,'N')
+            INTO vGeraPrePedidoApiDevSimbolica
+            FROM PCINTEGRADORA
+               , PCLAYOUTINTEGRAVERSOPERLOG
+           WHERE (PCINTEGRADORA.LAYOUT      = PCLAYOUTINTEGRAVERSOPERLOG.LAYOUT)
+             AND (PCINTEGRADORA.SEQVERSAO   = PCLAYOUTINTEGRAVERSOPERLOG.SEQVERSAO)
+             AND (PCINTEGRADORA.INTEGRADORA = vnIntegradoraProduto);
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            vGeraPrePedidoApiDevSimbolica := 'N';
+        END;
+         
+        IF (vGeraPrePedidoApiDevSimbolica = 'S') THEN
+          vnIntegradoraPedido := vnIntegradoraProduto;
+        END IF;
+
+      END IF; 
+    
+    END IF;
+    
+    RETURN vnIntegradoraPedido;
+        
+  END F_INTEGRADORA_DEVSIMB_CA_PBM; 
+  
+  FUNCTION F_PERMITE_PED_DEVSIMB_CA_PBM(pi_nNumPed IN NUMBER) RETURN VARCHAR2 IS
+    vvPermite           VARCHAR2(1);
+    vnIntegradoraCaPbm  PCINTEGRADORA.INTEGRADORA%TYPE;
+    TYPE TTIntegradoras IS TABLE OF NUMBER INDEX BY BINARY_INTEGER;
+    vtIntegradoras      TTIntegradoras;
+  BEGIN
+    
+    vvPermite := 'N';
+    
+    vnIntegradoraCaPbm := F_INTEGRADORA_DEVSIMB_CA_PBM(pi_nNumPed); 
+    
+    IF (vnIntegradoraCaPbm > 0) THEN
+      
+      vvPermite := 'S';
+            
+    END IF;
+        
+    RETURN vvPermite;
+    
+  END F_PERMITE_PED_DEVSIMB_CA_PBM;
+  
+  PROCEDURE P_GRAVAR_PEDIDO_DEVSIMB_CA_PBM(pi_nNumPed          IN NUMBER,
+                                           pi_nMatricula       IN NUMBER,
+                                           po_vOcorreramErros OUT VARCHAR2,
+                                           po_vMsgErros       OUT VARCHAR2,
+                                           po_nIdPrePedido    OUT NUMBER) IS
+    vnIntegradoraCaPbm   PCINTEGRADORA.INTEGRADORA%TYPE;
+  BEGIN
+    
+    po_vOcorreramErros := 'N';
+    po_vMsgErros       := NULL;
+    po_nIdPrePedido    := 0;
+    
+    vnIntegradoraCaPbm := F_INTEGRADORA_DEVSIMB_CA_PBM(pi_nNumPed);
+      
+    IF (vnIntegradoraCaPbm > 0) THEN
+              
+      FOR vc_Itens IN (SELECT PCPEDI.CODPROD 
+                            , PCPEDI.NUMSEQ
+                            , PCPEDI.QT
+                            , PCPEDC.CODCLI
+                            , PCPEDC.CODFILIAL
+                         FROM PCPEDI
+                            , PCPEDC
+                        WHERE PCPEDC.NUMPED         = pi_nNumPed
+                          AND PCPEDC.NUMPED         = PCPEDI.NUMPED
+                          AND PCPEDC.CODPROMOCAOMED > 0) LOOP    
+        
+        P_GRAVAR_PEDIDO_CA_PBM(pi_nNumPed,
+                               vc_Itens.CODCLI,
+                               vc_Itens.CODPROD,
+                               vc_Itens.NUMSEQ,
+                               vnIntegradoraCaPbm,
+                               vc_Itens.CODFILIAL,
+                               pi_nMatricula,
+                               vc_Itens.QT,
+                               po_nIdPrePedido);        
+        
+      END LOOP;
+        
+      UPDATE PCPEDC 
+         SET BLOQUEIOFATURAMENTO = 'S'
+       WHERE (NUMPED = pi_nNumPed);
+        
+    END IF;
+    
+  EXCEPTION
+    WHEN OTHERS THEN  
+      po_vOcorreramErros := 'S';
+      po_vMsgErros       := 'Erro ao gerar Pré-Pedido do Canal Autorizador: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);              
+  END P_GRAVAR_PEDIDO_DEVSIMB_CA_PBM;
+
+  PROCEDURE P_REENVIO_PREPEDIDO_CA_PBM(pi_nIdPrePedido     IN NUMBER,
+                                       pi_nMatricula       IN NUMBER,
+                                       po_vOcorreramErros OUT VARCHAR2,
+                                       po_vMsgErros       OUT VARCHAR2) IS
+    vnIntegradoraCaPbm    PCPEDCOMPRAOPERLOGCAB.INTEGRADORA%TYPE;
+    vnNovoIdPrePedido     PCPEDCOMPRAOPERLOGCAB.NUMPED%TYPE;
+    vnIdPrePedidoAnterior PCPEDCOMPRAOPERLOGCAB.NUMPED%TYPE;
+    vnNumPedOriginal      PCPEDCOMPRAOPERLOGCAB.NUMPEDORIGINAL%TYPE;
+    vnIntegradora         PCPEDCOMPRAOPERLOGCAB.INTEGRADORA%TYPE;
+  BEGIN
+    
+    po_vOcorreramErros := 'N';
+    po_vMsgErros       := NULL;
+    
+    BEGIN
+      SELECT PCPEDCOMPRAOPERLOGCAB.INTEGRADORA
+           , PCPEDCOMPRAOPERLOGCAB.NUMPED
+           , PCPEDCOMPRAOPERLOGCAB.NUMPEDORIGINAL
+           , PCPEDCOMPRAOPERLOGCAB.INTEGRADORA
+        INTO vnIntegradoraCaPbm
+           , vnIdPrePedidoAnterior
+           , vnNumPedOriginal
+           , vnIntegradora
+        FROM PCPEDCOMPRAOPERLOGCAB
+       WHERE (PCPEDCOMPRAOPERLOGCAB.NUMPED = pi_nIdPrePedido)
+         AND (ROWNUM = 1);
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        po_vOcorreramErros := 'S';
+        po_vMsgErros       := 'Não foi encontrado o pré-pedido de ID ' || pi_nIdPrePedido || ' para solicitação de nova autorização!';
+    END;    
+      
+    IF (po_vOcorreramErros = 'N') THEN
+      
+      DELETE FROM PCPEDCOMPRAOPERLOGCAB WHERE NUMPED = vnIdPrePedidoAnterior;
+      DELETE FROM PCPEDCOMPRAOPERLOGITE WHERE NUMPED = vnIdPrePedidoAnterior;
+      
+      FOR vc_PedidoRetorno IN (SELECT PCPEDRETORNO.NUMPEDRCA 
+                                    , PCPEDRETORNO.CODUSUR
+                                    , PCPEDRETORNO.CGCCLI
+                                    , PCPEDRETORNO.DTABERTURAPEDPALM
+                                    , PCPEDRETORNO.ARQUIVOPED
+                                    , PCPEDRETORNO.INTEGRADORA
+                                    , PCPEDRETORNO.TOKEN
+                                 FROM PCPEDRETORNO
+                                WHERE PCPEDRETORNO.NUMPED      = vnNumPedOriginal
+                                  AND PCPEDRETORNO.INTEGRADORA = vnIntegradora) LOOP
+        DELETE FROM PCPEDIFV 
+         WHERE (PCPEDIFV.NUMPEDRCA         = vc_PedidoRetorno.NUMPEDRCA)
+           AND (PCPEDIFV.CODUSUR           = vc_PedidoRetorno.CODUSUR)
+           AND (PCPEDIFV.CGCCLI            = vc_PedidoRetorno.CGCCLI)
+           AND (PCPEDIFV.DTABERTURAPEDPALM = vc_PedidoRetorno.DTABERTURAPEDPALM);
+
+        DELETE FROM PCPEDCFV 
+         WHERE (PCPEDCFV.NUMPEDRCA         = vc_PedidoRetorno.NUMPEDRCA)
+           AND (PCPEDCFV.CODUSUR           = vc_PedidoRetorno.CODUSUR)
+           AND (PCPEDCFV.CGCCLI            = vc_PedidoRetorno.CGCCLI)
+           AND (PCPEDCFV.DTABERTURAPEDPALM = vc_PedidoRetorno.DTABERTURAPEDPALM);
+
+        DELETE FROM PCMEDSEMAFOROOPERLOG 
+         WHERE (PCMEDSEMAFOROOPERLOG.ARQUIVOPED  = vc_PedidoRetorno.ARQUIVOPED)
+           AND (PCMEDSEMAFOROOPERLOG.INTEGRADORA = vc_PedidoRetorno.INTEGRADORA)
+           AND (PCMEDSEMAFOROOPERLOG.TOKEN       = vc_PedidoRetorno.TOKEN);
+      END LOOP;                                  
+      
+      DELETE FROM PCPEDRETORNO 
+       WHERE (PCPEDRETORNO.NUMPED      = vnNumPedOriginal)
+         AND (PCPEDRETORNO.INTEGRADORA = vnIntegradora);
+ 
+      FOR vc_Itens IN (SELECT PCPEDI.CODPROD 
+                            , PCPEDI.NUMSEQ 
+                            , PCPEDI.QT
+                            , PCPEDC.CODCLI
+                            , PCPEDC.CODFILIAL
+                         FROM PCPEDI
+                            , PCPEDC
+                        WHERE PCPEDC.NUMPED         = vnNumPedOriginal
+                          AND PCPEDC.NUMPED         = PCPEDI.NUMPED
+                          AND PCPEDC.CODPROMOCAOMED > 0) LOOP    
+        
+        P_GRAVAR_PEDIDO_CA_PBM(vnNumPedOriginal,
+                               vc_Itens.CODCLI,
+                               vc_Itens.CODPROD,
+                               vc_Itens.NUMSEQ,
+                               vnIntegradoraCaPbm,
+                               vc_Itens.CODFILIAL,
+                               pi_nMatricula,
+                               vc_Itens.QT,
+                               vnNovoIdPrePedido,
+                               vnIdPrePedidoAnterior);        
+        
+      END LOOP;
+      
+      UPDATE PCPEDC 
+         SET BLOQUEIOFATURAMENTO = 'S'
+       WHERE (NUMPED = vnNumPedOriginal);
+             
+      COMMIT;
+        
+    END IF;
+    
+  EXCEPTION
+    WHEN OTHERS THEN  
+      ROLLBACK;
+      po_vOcorreramErros := 'S';
+      po_vMsgErros       := 'Erro na preparação de nova autorização de Pré-Pedido do Canal Autorizador: ' || SUBSTR('Erro: ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE || ' >> ' || SQLERRM,1,240);              
+  END P_REENVIO_PREPEDIDO_CA_PBM;                                           
                                  
 END PKG_GRAVACAO_PEDIDO_MED;

@@ -368,4 +368,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                                      pi_nCodPraca         IN NUMBER,
                                      pi_nNumRegiao        IN NUMBER) RETURN BOOLEAN;
                                                                                                                                                                                           
+  FUNCTION F_PERMITE_PED_DEVSIMB_CA_PBM(pi_nNumPed IN NUMBER) RETURN VARCHAR2;
+
+  PROCEDURE P_GRAVAR_PEDIDO_DEVSIMB_CA_PBM(pi_nNumPed          IN NUMBER,
+                                           pi_nMatricula       IN NUMBER,
+                                           po_vOcorreramErros OUT VARCHAR2,
+                                           po_vMsgErros       OUT VARCHAR2,
+                                           po_nIdPrePedido    OUT NUMBER); 
+
 END PKG_GRAVACAO_PEDIDO_MED;
