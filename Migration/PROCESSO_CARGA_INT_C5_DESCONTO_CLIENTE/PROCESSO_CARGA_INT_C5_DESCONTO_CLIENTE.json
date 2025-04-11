@@ -10,7 +10,7 @@
 	{
 	  "nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
 	  "tipo": "MIGRATION",
-	  "versao": "6.0.01.000"
+	  "versao": "7.0.01.000"
 	},
 	{
 	  "nome": "PCGRUPOFIDELIDADEDESCONTO",
