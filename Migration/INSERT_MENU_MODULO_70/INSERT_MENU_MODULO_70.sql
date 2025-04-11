@@ -4,49 +4,21 @@ BEGIN
   
   DELETE FROM PCSUBMODULO WHERE CODMODULO = -70;
   
+  DELETE FROM PCMODULO WHERE CODMODULO = 70;
+  
+  DELETE FROM PCSUBMODULO WHERE CODMODULO = 70;
+  
     INSERT INTO PCMODULO
       (CODMODULO, MODULO, NUMVERSAO, DTULTVERSAO, EXIBIRMENU, AUTMENU)
     VALUES
-      (-70, 'Inteligência Tributária', NULL, NULL, 'S', 0);
+      (70, 'Inteligência Tributária', NULL, NULL, 'S', 0);
   
     INSERT INTO PCSUBMODULO
       (CODMODULO, CODSUBMODULO, SUBMODULO, EXIBIRMENU, AUTMENU)
     VALUES
-      (-70, 1, 'Inteligência Tributária', 'S', 0);
+      (70, 1, 'Inteligência Tributária', 'S', 0);
   
-    DELETE FROM PCROTINA WHERE CODIGO = 7000;
-  
-    INSERT INTO PCROTINA
-      (CODIGO
-      ,NOMEROTINA
-      ,CODMODULO
-      ,CODSUBMODULO
-      ,LOG
-      ,AJUDA
-      ,NUMSEQ
-      ,NUMULTVERSAO
-      ,DTULTVERSAO
-      ,NIVEL
-      ,STATUS
-      ,EXIBIRMENU
-      ,AUTMENU
-      ,VERSAOCOMPLETA)
-    VALUES
-      (7000
-      ,'Inteligência Tributária'
-      ,-70
-      ,1
-      ,NULL
-      ,NULL
-      ,NULL
-      ,2
-      ,SYSDATE
-      ,NULL
-      ,NULL
-      ,'S'
-      ,0
-      ,NULL);
-  
+    UPDATE PCROTINA SET CODMODULO = ABS(CODMODULO) WHERE CODIGO = 7000;  
 
   INSERT INTO PCCONTRO
     (CODUSUARIO, CODROTINA, ACESSO)
