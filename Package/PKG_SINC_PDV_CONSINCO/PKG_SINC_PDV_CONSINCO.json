@@ -200,7 +200,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
 			"tipo": "MIGRATION",
-			"versao": "7.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
