@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "7.0.02.000"
+			"versao": "7.0.04.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -60,17 +60,17 @@
 		{
 			"nome": "VW_INT_C5_EMPRESA",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.02.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.05.000"
+			"versao": "7.0.07.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.06.000"
+			"versao": "7.0.08.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -85,7 +85,7 @@
 		{
 			"nome": "VW_INT_C5_PARCELDEPTO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "6.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "VW_INT_C5_PLPAG",
@@ -95,7 +95,7 @@
 		{
 			"nome": "VW_INT_C5_PRECOFIXO_R357",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.01.000"
+			"versao": "7.0.03.000"
 		},
 		{
 			"nome": "VW_INT_C5_LIM_CRED_CLIENTE",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.18.000"
+			"versao": "7.0.19.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FAMDIVISAO_MATERIALIZADA",
@@ -125,12 +125,12 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.05.000"
+			"versao": "7.0.07.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "7.0.13.000"
+			"versao": "7.0.15.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -140,17 +140,17 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "7.0.04.000"
+			"versao": "7.0.05.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.03.000"
+			"versao": "7.0.05.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "7.0.07.000"
+			"versao": "7.0.08.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
@@ -175,17 +175,17 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
 			"tipo": "MIGRATION",
-			"versao": "4.0.21.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRECOAPARTIR",
 			"tipo": "MIGRATION",
-			"versao": "6.0.01.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2017",
 			"tipo": "MIGRATION",
-			"versao": "4.0.07.000"
+			"versao": "7.0.02.000"
 		},
 		{
 			"nome": "MANUNTECAO_PCDEPARAPLPAGC5",
