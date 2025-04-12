@@ -70,7 +70,7 @@
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.08.000"
+			"versao": "7.0.09.000"
 		},
 		{
 			"nome": "VW_INT_C5_LEITRANSP",
@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.19.000"
+			"versao": "7.0.20.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FAMDIVISAO_MATERIALIZADA",
@@ -130,7 +130,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "7.0.15.000"
+			"versao": "7.0.16.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -145,7 +145,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.05.000"
+			"versao": "7.0.06.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
@@ -410,12 +410,12 @@
         {
 		  "nome": "VW_INT_C5_LIMITEVENDAFAMILIA",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "7.0.03.000"
+		  "versao": "7.0.04.000"
 		},
 		{
 		  "nome": "VW_INT_C5_LIMITEVENDA",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "7.0.03.000"
+		  "versao": "7.0.04.000"
 		},
 		{
 		  "nome": "PROCESSO_INT_C5_AJUSTE_SEQUENCES",
