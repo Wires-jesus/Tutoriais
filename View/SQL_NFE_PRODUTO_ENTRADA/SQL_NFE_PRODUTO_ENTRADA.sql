@@ -475,12 +475,13 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                      0,
                                                      NVL(PCMOV.PTABELA,
                                                          0) - DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT)
-                                                                  ))) -
-                               NVL(PCMOV.VLOUTRASDESP,
-                                    0) - NVL(PCMOV.ST,
-                                              0) - NVL(PCMOV.VLIPI,
-                                                        0) -
-                               DECODE(PCNFENT.TIPODESCARGA,
+                                                                  )))
+                             - NVL(PCMOV.VLOUTRASDESP,0)
+                             - DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0)
+                             - NVL(PCMOV.ST,0)
+                             - NVL(PCMOVCOMPLE.VLFECP, 0)
+                             - NVL(PCMOV.VLIPI,0)
+                             - DECODE(PCNFENT.TIPODESCARGA,
                                        'F',
                                        NVL(PCMOV.VLADUANEIRA,0) + NVL(PCMOV.VLSISCOMEX,0) + NVL(PCMOV.VLIMPORTACAO,0) +
                                        NVL(PCMOV.VLOUTRASDESPIMP,0) +
@@ -492,10 +493,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                               0) + NVL(PCMOVCOMPLE.VLANTIDUMPING, 0) +  NVL(PCMOVCOMPLE.VLAFRMM, 0),
                                        0) +
                                DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                                         PCFILIAL.CODIGO), 'N')),
-                                       'N',
-                                       0,
-                                       (NVL(PCMOV.VLIMPORTACAO,0) + NVL(PCMOV.VLFRETE,0) + NVL(PCMOV.VLOUTRASDESP,0))))
+                                                                         PCFILIAL.CODIGO), 'N')), 'N', 0,
+                                       (NVL(PCMOV.VLIMPORTACAO,0) + 
+                                        NVL(PCMOV.VLFRETE,0) + 
+                                        DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0) +
+                                        NVL(PCMOV.VLOUTRASDESP,0))))
                  ELSE
                    NVL(PCMOV.PUNITCONT, 0)
                  END
@@ -532,7 +534,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND
                                (PCNFENT.TIPODESCARGA = 'F') THEN
                              --MELHORIA PARA PASSAR A FORMAR O VALOR DE PRODUTOS DE ACORDO COM PARAMETROS DA 132 - HIS.02054.2015
-                             NVL(PCMOV.PTABELA, 0)    --Pre?o de Tabela
+                             NVL(PCMOV.PTABELA, 0)    --Preço de Tabela
                              - DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DEDUCOES', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLDESCONTO, 0), 0)
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_FRETE', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLFRETE, 0), 0)
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SEGURO', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0)
@@ -546,13 +548,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOVCOMPLE.VLICMS, 0), 0)
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOVCOMPLE.VLAFRMM, 0), 0)
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SISCOMEX', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLSISCOMEX, 0), 0)
-                             --  + NVL(PCMOV.VLOUTRASDESPIMP, 0) -- vl Outras despesa importa??o
+                             --  + NVL(PCMOV.VLOUTRASDESPIMP, 0) -- vl Outras despesa importação
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DESPADUAN', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLADUANEIRA, 0), 0)
                ELSE
                  CASE WHEN (PCNFENT.TIPODESCARGA = 'F') THEN
                               (DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) -
-                                      NVL(PCMOV.VLREPASSE,0) - DECODE(PCNFENT.TIPODESCARGA, 'F', NVL(PCMOV.VLFRETE,
-                                                      0), 0)  +
+                                      NVL(PCMOV.VLREPASSE,0) - NVL(PCMOV.VLFRETE, 0)  +
                                        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                                  PCFILIAL.CODIGO),
                                                    'L'),
@@ -571,17 +572,17 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                              0,
                                                              NVL(PCMOV.PTABELA,
                                                                  0) - DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT)
-                                                                 ))) -
-                                       NVL(PCMOV.VLOUTRASDESP,
-                                            0) - NVL(PCMOV.ST,
-                                                      0) - NVL(PCMOV.VLIPI,
-                                                                0) -
-                                       DECODE(PCNFENT.TIPODESCARGA,
+                                                                 ))) 
+                                     - NVL(PCMOV.VLOUTRASDESP,0) 
+                                     - DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0)
+                                     - NVL(PCMOV.ST,0) 
+                                     - NVL(PCMOVCOMPLE.VLFECP, 0)
+                                     - NVL(PCMOV.VLIPI,0)
+                                     - DECODE(PCNFENT.TIPODESCARGA,
                                                'F',
-                                               NVL(PCMOV.VLADUANEIRA,
-                                                   0) + NVL(PCMOV.VLSISCOMEX,
-                                                            0) + NVL(PCMOV.VLIMPORTACAO,
-                                                                     0) +
+                                               NVL(PCMOV.VLADUANEIRA,0) + 
+                                               NVL(PCMOV.VLSISCOMEX,0) + 
+                                               NVL(PCMOV.VLIMPORTACAO,0) +
                                                NVL(PCMOV.VLOUTRASDESPIMP,0) +
                                                DECODE(NVL(PCMOVCOMPLE.VLPISCALCDI, 0), 0, NVL(PCMOV.VLCREDPIS, 0), NVL(PCMOVCOMPLE.VLPISCALCDI, 0)) +
                                                DECODE(NVL(PCMOVCOMPLE.VLCOFINSCALCDI, 0), 0, NVL(PCMOV.VLCREDCOFINS, 0), NVL(PCMOVCOMPLE.VLCOFINSCALCDI, 0)) +
@@ -591,14 +592,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                       0) + NVL(PCMOVCOMPLE.VLANTIDUMPING, 0) +  NVL(PCMOVCOMPLE.VLAFRMM, 0),
                                                0) +
                                        DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                                                 PCFILIAL.CODIGO),
-                                                   'N')),
-                                               'N',
-                                               0,
-                                               (NVL(PCMOV.VLIMPORTACAO,
-                                                    0) + NVL(PCMOV.VLFRETE,
-                                                              0) + NVL(PCMOV.VLOUTRASDESP,
-                                                                        0))))
+                                                                                 PCFILIAL.CODIGO),'N')), 'N', 0,
+                                               (NVL(PCMOV.VLIMPORTACAO,0) +
+                                                NVL(PCMOV.VLFRETE,0) + 
+                                                DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0) +
+                                                NVL(PCMOV.VLOUTRASDESP,0))))
                  ELSE
                    NVL(PCMOV.PUNITCONT, 0)
                  END
@@ -621,7 +619,19 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                  0),
                                     2))
                END AS VALOR_FRETE
-               ,0 AS VALOR_SEGURO
+
+               ,CASE WHEN ((PCNFENT.TIPODESCARGA = 'F') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+               (CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') THEN
+                         ROUND(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SEGURO', PCFILIAL.CODIGO),'N'), 'N', NVL(PCMOV.VLSEGURO, 0), 0) *
+                                      NVL(PCMOV.QTCONT, 0), 2)
+                    ELSE
+                         DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
+                                                                NVL(PCNFENT.CODFILIALNF, PCNFENT.CODFILIAL)),
+                                  'N')), 'S', 0,
+                              ROUND(NVL(PCMOV.VLSEGURO,0) * NVL(PCMOV.QTCONT,0),2))
+               END) 
+               ELSE 0 END AS VALOR_SEGURO
+                 
                ,CASE WHEN (PCNFENT.TIPODESCARGA = 'F') THEN
                   ROUND(DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO),'L')),
                                           'L',
@@ -1039,26 +1049,16 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                    0) AS QTUNIT
               ,ROUND(DECODE(PCNFENT.TIPODESCARGA,'F',NVL(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('SOMARVLOUTRASDESPADUANEIRAS',
                                                                   NVL(PCMOV.CODFILIALNF,
-                                                                      PCMOV.CODFILIAL)),
-                                    'N'),
-                                'S',
-                                NVL(PCMOV.VLADUANEIRA,
-                                     0) + NVL(PCMOV.VLSISCOMEX,
-                                               0) + NVL(PCMOV.VLOUTRASDESPIMP,
-                                                         0)+
+                                                                      PCMOV.CODFILIAL)),'N'),'S',
+                                NVL(PCMOV.VLADUANEIRA,0) +
+                                NVL(PCMOV.VLSISCOMEX,0) + 
+                                NVL(PCMOV.VLOUTRASDESPIMP,0)+
                                 DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                                  NVL(PCMOV.CODFILIALNF,
-                                                                      PCMOV.CODFILIAL)),
-                                    'N')),
-                                'S',
-                                     0,
-                                     NVL(PCMOV.VLOUTRASDESP,0)
-                                     ),0) +
+                                                                  NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)), 'N')), 'S', 0,
+                                     NVL(PCMOV.VLOUTRASDESP,0) +
+                                     DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0) ),0) +
                                      NVL(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('SOMARPISCOFINSVLOUTRASDESPIMP',
-                                                                  NVL(PCMOV.CODFILIALNF,
-                                                                      PCMOV.CODFILIAL)),
-                                    'S'),
-                                'S',
+                                                                  NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)), 'S'), 'S',
                                     DECODE(NVL(PCMOVCOMPLE.VLPISCALCDI, 0), 0, NVL(PCMOV.VLCREDPIS, 0), NVL(PCMOVCOMPLE.VLPISCALCDI, 0)) +
                                     DECODE(NVL(PCMOVCOMPLE.VLCOFINSCALCDI, 0), 0, NVL(PCMOV.VLCREDCOFINS, 0), NVL(PCMOVCOMPLE.VLCOFINSCALCDI, 0))),0) +
                                     NVL(PCMOVCOMPLE.VLANTIDUMPING, 0) +  NVL(PCMOVCOMPLE.VLAFRMM, 0),
@@ -1130,7 +1130,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,0 VLFCPSTRET
               ,0 PERFCPSN
               ,0 VLCREDFCPICMSSN
-              ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFECP, 0),2) VLFECP
+              ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND (PCNFENT.TIPODESCARGA = 'F') THEN
+                    ROUND(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ST', PCFILIAL.CODIGO),'N'), 'N', 0, NVL(PCMOVCOMPLE.VLFECP, 0)) * PCMOV.QTCONT, 2)
+               ELSE
+                    ROUND(NVL(PCMOVCOMPLE.VLFECP, 0) * PCMOV.QTCONT, 2)
+               END AS VLFECP
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLACRESCIMOFUNCEP, 0),2) VLACRESCIMOFUNCEP
               ,NVL(PCMOVCOMPLE.PERACRESCIMOFUNCEP, 0) AS PERACRESCIMOFUNCEP
               ,NVL(PCMOVCOMPLE.ALIQICMSFECP, 0) AS ALIQICMSFECP
@@ -1364,7 +1368,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND
                           (PCNFENT.TIPODESCARGA = 'N') THEN
                          --MELHORIA PARA PASSAR A FORMAR O VALOR DE PRODUTOS DE ACORDO COM PARAMETROS DA 132 - HIS.02054.2015
-                           NVL(PCMOV.PTABELA, 0)    --Pre?o de Tabela
+                           NVL(PCMOV.PTABELA, 0)    --Preço de Tabela
                            - DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DEDUCOES', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLDESCONTO, 0), 0)
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_FRETE', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLFRETE, 0), 0)
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SEGURO', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0)
@@ -1378,7 +1382,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOVCOMPLE.VLICMS, 0), 0)
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_AFRMM', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOVCOMPLE.VLAFRMM, 0), 0)
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SISCOMEX', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLSISCOMEX, 0), 0)
-                    --       + NVL(PCMOV.VLOUTRASDESPIMP, 0) -- vl Outras despesa importa??o
+                    --       + NVL(PCMOV.VLOUTRASDESPIMP, 0) -- vl Outras despesa importação
                            + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DESPADUAN', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLADUANEIRA, 0), 0)
                ELSE
                              --FORMA QUE ESTAVA ANTERIORMENTE
@@ -1393,7 +1397,6 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              ELSE
                                  DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT )
                              END
-
                              - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,0), 0)  +
                               --CONSIDERAR VALOR DESONERAÇÃO PARA ENTRADA DEVOLUÇÃO
                                 CASE WHEN (PCMOV.CODOPER = 'ED') THEN
@@ -1455,6 +1458,9 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            0
                                      END)
                                - NVL(PCMOV.VLOUTRASDESP,0)
+                               - (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                                     NVL(PCMOV.VLSEGURO, 0)
+                                  ELSE 0 END)
                                - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
                                    ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT) +
                                    ((ROUND(NVL(PCMOVCOMPLE.VLFECP,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
@@ -1478,20 +1484,19 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                               0) + NVL(PCMOVCOMPLE.VLANTIDUMPING, 0) +  NVL(PCMOVCOMPLE.VLAFRMM, 0),
                                        0) +
                                DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                                         PCFILIAL.CODIGO),
-                                           'N')),
-                                       'N',
-                                       0,
-                                       (NVL(PCMOV.VLIMPORTACAO,
-                                            0) + NVL(PCMOV.VLFRETE,
-                                                      0) + NVL(PCMOV.VLOUTRASDESP,
-                                                                0))))
+                                                                         PCFILIAL.CODIGO), 'N')), 'N', 0,
+                                       (NVL(PCMOV.VLIMPORTACAO,0) +
+                                        NVL(PCMOV.VLFRETE,0) +
+                                        (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                                              NVL(PCMOV.VLSEGURO, 0)
+                                         ELSE 0 END) +
+                                        NVL(PCMOV.VLOUTRASDESP,0))))
                END AS VALOR_COMERCIAL
-              ,(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) - NVL(PCMOV.ST,
-                                      0) -
-               NVL(PCMOV.VLIPI,
-                    0) - NVL(PCMOV.VLFRETE,
-                              0) -
+              ,(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT)
+              - NVL(PCMOV.ST,0)
+              - NVL(PCMOVCOMPLE.VLFECP, 0) 
+              - NVL(PCMOV.VLIPI, 0) 
+              - NVL(PCMOV.VLFRETE, 0) -
                DECODE(PCNFENT.TIPODESCARGA,
                        'N',
                        NVL(PCMOV.VLADUANEIRA,
@@ -1505,14 +1510,13 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                            0),
                        0) +
                DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                         PCFILIAL.CODIGO),
-                           'N')),
-                       'N',
-                       0,
-                       (NVL(PCMOV.VLIMPORTACAO,
-                            0) + NVL(PCMOV.VLFRETE,
-                                      0) + NVL(PCMOV.VLOUTRASDESP,
-                                                0))) +
+                                                         PCFILIAL.CODIGO), 'N')), 'N', 0,
+                       (NVL(PCMOV.VLIMPORTACAO,0) +
+                        NVL(PCMOV.VLFRETE,0) + 
+                        (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                              NVL(PCMOV.VLSEGURO, 0)
+                         ELSE 0 END) +
+                        NVL(PCMOV.VLOUTRASDESP,0))) +
                NVL(PCMOV.VLDESCPISSUFRAMA,
                     0) + NVL(PCMOV.VLDESCSUFRAMA,
                               0) + NVL(PCMOV.VLDESCICMISENCAO, 0) +
@@ -1627,6 +1631,9 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                         0
                                   END) 
                                  - NVL(PCMOV.VLOUTRASDESP,0)
+                                 - (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                                         NVL(PCMOV.VLSEGURO, 0)
+                                    ELSE 0 END)
                                  - CASE WHEN (NVL(PCMOV.CODOPER, 'E') = 'ED') THEN
                                    ((ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT) +
                                    ((ROUND(NVL(PCMOVCOMPLE.VLFECP,0) * PCMOV.QTCONT, NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT)
@@ -1649,14 +1656,13 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                       0) + NVL(PCMOVCOMPLE.VLANTIDUMPING, 0) +  NVL(PCMOVCOMPLE.VLAFRMM, 0),
                                                0) +
                                        DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
-                                                                                 PCFILIAL.CODIGO),
-                                                   'N')),
-                                               'N',
-                                               0,
-                                               (NVL(PCMOV.VLIMPORTACAO,
-                                                    0) + NVL(PCMOV.VLFRETE,
-                                                              0) + NVL(PCMOV.VLOUTRASDESP,
-                                                                        0))))
+                                                                                 PCFILIAL.CODIGO), 'N')), 'N', 0,
+                                               (NVL(PCMOV.VLIMPORTACAO,0) +
+                                                NVL(PCMOV.VLFRETE,0) +
+                                                (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                                                      NVL(PCMOV.VLSEGURO, 0)
+                                                 ELSE 0 END) +
+                                                NVL(PCMOV.VLOUTRASDESP,0))))
                END AS VALOR_TRIBUTAVEL
               ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND
                          (PCNFENT.TIPODESCARGA = 'N') THEN
@@ -1676,7 +1682,19 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                  0),
                                     2))
                END AS VALOR_FRETE
-              ,0 AS VALOR_SEGURO
+               
+              ,CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+               (CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') THEN
+                         ROUND(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_SEGURO', PCFILIAL.CODIGO),'N'), 'N', NVL(PCMOV.VLSEGURO, 0), 0) *
+                                      NVL(PCMOV.QTCONT, 0), 2)
+                    ELSE
+                         DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT, NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
+                                                                NVL(PCNFENT.CODFILIALNF, PCNFENT.CODFILIAL)),
+                                  'N')), 'S', 0,
+                              ROUND(NVL(PCMOV.VLSEGURO,0) * NVL(PCMOV.QTCONT,0),2))
+               END) 
+               ELSE 0 END AS VALOR_SEGURO
+                 
               ,ROUND((DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE, NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                               PCFILIAL.CODIGO),
                                 'L'))),
@@ -2176,9 +2194,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                            DECODE(NVL(PCNFENT.CONSIDERARIIPUNIT,
                                                       NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARIIPUNIT',
                                                           NVL(PCMOV.CODFILIALNF, PCMOV.CODFILIAL)), 'N')),
-                                                  'S',
-                                                  0,
-                                                  NVL(PCMOV.VLOUTRASDESP,0))
+                                                  'S', 0,
+                                                  NVL(PCMOV.VLOUTRASDESP,0) +
+                                                  (CASE WHEN ((PCNFENT.TIPODESCARGA = 'N') AND (NVL(PCNFENT.INFFRETESEGURONOTAN, 'N') = 'S')) THEN
+                                                        NVL(PCMOV.VLSEGURO, 0)
+                                                   ELSE 0 END))
                                         END
                                       ,0) +
                                 (CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') THEN
@@ -2273,7 +2293,11 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFCPSTRET, 0),2) VLFCPSTRET
               ,NVL(PCMOVCOMPLE.PERFCPSN, 0) PERFCPSN
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLCREDFCPICMSSN, 0),2) VLCREDFCPICMSSN
-              ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFECP, 0),2) VLFECP
+              ,CASE WHEN (NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', PCFILIAL.CODIGO),'N') = 'S') AND (PCNFENT.TIPODESCARGA = 'N') THEN
+                    ROUND(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ST', PCFILIAL.CODIGO),'N'), 'N', NVL(PCMOVCOMPLE.VLFECP, 0), 0) * PCMOV.QTCONT, 2)
+               ELSE
+                    ROUND(NVL(PCMOVCOMPLE.VLFECP, 0) * PCMOV.QTCONT, 2)
+               END AS VLFECP
               ,ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLACRESCIMOFUNCEP, 0),2) VLACRESCIMOFUNCEP
               ,NVL(PCMOVCOMPLE.PERACRESCIMOFUNCEP, 0) AS PERACRESCIMOFUNCEP
               ,NVL(PCMOVCOMPLE.ALIQICMSFECP, 0) AS ALIQICMSFECP
