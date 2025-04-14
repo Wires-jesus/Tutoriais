@@ -7,6 +7,11 @@
 	  "tipo": "TABELA",
 	  "versao": "5.0.01.000"
 	},
+  {
+	  "nome": "PCNFSAIDPREFAT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
     {
 	  "nome": "PCMONITORDFESPRESOSLOG",
 	  "tipo": "TABELA",
