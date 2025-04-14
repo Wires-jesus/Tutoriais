@@ -4,7 +4,7 @@ SELECT G.NUMGIFTCARD AS NROCARTAO,
        G.VALOR AS VALOR,
        'G' AS STATUS,
        CASE
-         WHEN ((G.STATUS <> 'A') OR (G.DTINATIVO IS NOT NULL) OR
+         WHEN ((G.STATUS not in('A', 'D')) OR (G.DTINATIVO IS NOT NULL) OR
               (TRUNC(SYSDATE) >= G.DTVALIDADE)) THEN
           'N'
          ELSE
