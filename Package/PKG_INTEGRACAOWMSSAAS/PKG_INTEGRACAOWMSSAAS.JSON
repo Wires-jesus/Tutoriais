@@ -16,7 +16,12 @@
 		{
 			"nome": "WMS_QTUNITCXFILIAL",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.01.000"
+			"versao": "6.0.01.000"
+		},
+		{
+			"nome": "PCLOGINTEGRACOESWMSSAAS",
+			"tipo": "TABELA",
+			"versao": "6.0.01.000"
 		}
 	]
 }
