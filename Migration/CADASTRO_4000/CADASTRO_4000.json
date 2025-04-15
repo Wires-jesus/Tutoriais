@@ -1,6 +1,10 @@
 {
     "nome": "CADASTRO_4000",
     "tipoPLSQL": "MIGRATION",
-    "dependencias":[
+    "dependencias":[{
+      "nome": "DICIONARIO.4000",
+      "tipo": "DICIONARIO",
+      "versao": "7.0.04.000"
+    }
     ]
 }
