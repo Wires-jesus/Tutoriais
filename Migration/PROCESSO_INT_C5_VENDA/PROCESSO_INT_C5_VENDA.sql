@@ -2644,7 +2644,7 @@ SELECT P.NROEMPRESA,
 
 CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
 ( SELECT  d.seqdocto,
-        NULL numgiftcard,
+        p.nrocreditocupom numgiftcard,
         'N' exportado,
         (CASE
             WHEN (f.especie IN ('E','R','S')) or (NVL(p.qtdparcelatef,0) > 0)
