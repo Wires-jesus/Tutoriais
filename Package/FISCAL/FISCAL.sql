@@ -348,4 +348,22 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                         P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;  
 
+
+  FUNCTION CALCULAR_CBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_USASUFIXO IN VARCHAR2,
+                        P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;
+
+  
+  FUNCTION CALCULAR_IBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                        P_USASUFIXO IN VARCHAR2,
+                        P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;  
+
+
+  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+                       P_USASUFIXO IN VARCHAR2,
+                       P_MSG      out varchar2)
+  RETURN TIPO_TRIBUT_REFORMA;  
+
 END;
