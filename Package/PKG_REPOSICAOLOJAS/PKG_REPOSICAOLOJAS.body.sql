@@ -1048,6 +1048,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 vvErroPesqParam,
                                 vvMsgErroPesqParam);
 
+      -- Parâmetro de Número de Casas Decimais do Estoque
+      POBTEM_PARAMFILIAL_NUMBER('99',
+                                'CON_NUMCASASDECESTOQUE',
+                                N_CON_NUMCASASDECESTOQUE, --> Valor do Parâmetro
+                                vvErroPesqParam,
+                                vvMsgErroPesqParam); 
+      
       -- Parâmetro de Utilizar Arredondamento da Embalagem Master dos Produtos por Fornecedor
       BEGIN
         SELECT VALOR
