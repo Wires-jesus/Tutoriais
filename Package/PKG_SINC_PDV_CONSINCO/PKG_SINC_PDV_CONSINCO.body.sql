@@ -6377,6 +6377,125 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_local(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_local T
+    USING (SELECT NROEMPRESA, SEQLOCAL, '' LOCAL_RAZAO, TIPO, ATIVO_FILIAL ATIVO 
+           FROM VW_INT_C5_PRODLOTE
+           GROUP BY NROEMPRESA, SEQLOCAL) S 
+    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.SEQLOCAL = S.SEQLOCAL)
+  WHEN MATCHED THEN
+       UPDATE SET
+             T.LOCAL  = S.LOCAL_RAZAO,
+             T.TIPO   = S.TIPO,
+             T.ATIVO  = S.ATIVO
+       WHERE T.LOCAL  <> S.LOCAL_RAZAO 
+       OR    T.TIPO   <> S.TIPO
+       OR    T.ATIVO  <> S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+		      T.NROEMPRESA,
+          T.SEQLOCAL,
+          T.LOCAL,
+          T.TIPO,
+          T.ATIVO
+          ) 
+        VALUES(
+          S.NROEMPRESA,
+          S.SEQLOCAL,
+          S.LOCAL_RAZAO,
+          S.TIPO,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_local', 'carrega_tb_local OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_local',
+           'carrega_tb_local ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_loteestoque(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_loteestoque T
+    USING (SELECT NROEMPRESA, SEQLOTEESTOQUE, SEQLOCAL, SEQPRODUTO, NROLOTEESTOQUE, DTAFABRICACAO, DTAVALIDADE, ATIVO_LOTE ATIVO  
+           FROM VW_INT_C5_PRODLOTE
+          ) S 
+    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.SEQLOTEESTOQUE = S.SEQLOTEESTOQUE)
+  WHEN MATCHED THEN
+       UPDATE SET
+             T.SEQLOCAL  = S.SEQLOCAL,
+             T.SEQPRODUTO   = S.SEQPRODUTO,
+             T.NROLOTEESTOQUE  = S.NROLOTEESTOQUE,
+             T.DTAFABRICACAO  = S.DTAFABRICACAO,
+             T.DTAVALIDADE  = S.DTAVALIDADE,
+             T.ATIVO  = S.ATIVO
+       WHERE T.SEQLOCAL  <> S.SEQLOCAL 
+       OR    T.SEQPRODUTO   <> S.SEQPRODUTO
+       OR    T.NROLOTEESTOQUE  <> S.NROLOTEESTOQUE
+       OR    T.DTAFABRICACAO  <> S.DTAFABRICACAO
+       OR    T.DTAVALIDADE  <> S.DTAVALIDADE
+       OR    T.ATIVO  = S.ATIVO
+          
+  WHEN NOT MATCHED THEN
+        INSERT(
+		      T.NROEMPRESA,
+          T.SEQLOTEESTOQUE,
+          T.SEQLOCAL,
+          T.SEQPRODUTO,
+          T.NROLOTEESTOQUE,
+          T.DTAFABRICACAO,
+          T.DTAVALIDADE,
+          T.ATIVO
+          ) 
+        VALUES(
+          S.NROEMPRESA,
+          S.SEQLOTEESTOQUE,
+          S.SEQLOCAL,
+          S.SEQPRODUTO,
+          S.NROLOTEESTOQUE,
+          S.DTAFABRICACAO,
+          S.DTAVALIDADE,
+          S.ATIVO);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_estoquelote', 'carrega_tb_estoquelote OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_estoquelote',
+           'carrega_tb_estoquelote ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
 
 
 PROCEDURE exec_sinc AS

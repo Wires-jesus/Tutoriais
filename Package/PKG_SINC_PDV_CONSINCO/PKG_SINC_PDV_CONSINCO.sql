@@ -178,6 +178,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_regraformapagto(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_cartaopresente(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_local(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_loteestoque(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE exec_sinc;
 
