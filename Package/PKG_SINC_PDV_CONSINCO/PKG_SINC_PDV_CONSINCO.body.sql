@@ -881,6 +881,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.cnpjfabricante,
                     v.eantrib,
                     v.codprod idref,
+                    v.estoqueporlote,
                     NVL(PRODPISCOFINS.EXCLUIRICMSBASEPISCOFINS, 'N') gerareducaobasepiscofins,
                     --NVL(v.seqfamiliaprinc, v.seqfamilia) seqfamiliaprinc,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOPIS,
@@ -981,6 +982,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.cnpjfabricante = B.cnpjfabricante,
                      S.eantrib = B.eantrib,
                      --S.seqfamiliaprinc = B.seqfamiliaprinc,
+                     S.estoqueporlote = B.estoqueporlote,
                      S.gerareducaobasepiscofins = B.gerareducaobasepiscofins,
                      S.idref = B.idref
 		WHERE NVL(S.familia, '-') <> NVL(B.familia, '-')
@@ -1003,6 +1005,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.eantrib, 0) <> NVL(B.eantrib, 0)
            OR NVL(S.gerareducaobasepiscofins, '-') <> NVL(B.gerareducaobasepiscofins, '-')
            OR NVL(S.idref, 0) <> NVL(B.idref, 0)
+           OR NVL(S.estoqueporlote, '-') <> NVL(B.estoqueporlote, '-')
 		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
@@ -1026,7 +1029,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.eantrib,
                      --S.seqfamiliaprinc,
                      S.gerareducaobasepiscofins,
-                     S.idref)
+                     S.idref,
+                     S.estoqueporlote)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -1049,7 +1053,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.eantrib,
                       --B.seqfamiliaprinc,
                       B.gerareducaobasepiscofins,
-                      B.idref);
+                      B.idref,
+                      B.estoqueporlote);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
