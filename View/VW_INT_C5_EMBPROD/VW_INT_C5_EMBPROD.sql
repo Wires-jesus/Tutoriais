@@ -89,7 +89,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.dtalterc5,
             p.codauxiliartrib,
             0 CODCEST,
-            e.QTMAXVENDA			
+            e.QTMAXVENDA,
+            NVL(p.estoqueporlote, 'N') estoqueporlote
        FROM pcembalagem e,
             pcprodut p
             LEFT JOIN PCMARCA M ON (P.CODMARCA = M.CODMARCA AND M.ATIVO = 'S' AND P.CODMARCA > 0),   
@@ -256,7 +257,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         E.DTALTERC5,
         P.CODAUXILIARTRIB,
         0 CODCEST, --PROVISORIO,
-        E.QTMAXVENDA		
+        E.QTMAXVENDA,
+        NVL(p.estoqueporlote, 'N') estoqueporlote					
    FROM PCTABPR TPR,
         PCEMBALAGEM E,
         PCPRODUT P
