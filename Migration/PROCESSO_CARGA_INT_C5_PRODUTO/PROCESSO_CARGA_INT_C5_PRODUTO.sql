@@ -35,7 +35,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 (
 SELECT
     DEPARA.SEQFAMILIA,
-    TBFAM."CODPROD", TBFAM."CODAUXILIAR",TBFAM."ORIGEM",TBFAM."FAMILIA",TBFAM."CODNCMSH",TBFAM."PERMITEDECIMAL",TBFAM."PERMITEMULTIPLICACAO",TBFAM."CODCEST",TBFAM."ATIVO",TBFAM."SEQMARCA",TBFAM."SEQFAMGRUPO",TBFAM."PESAVEL",TBFAM."INDESCALA",TBFAM."CNPJFABRICANTE",TBFAM."EANTRIB",TBFAM."SEQFAMILIAPRINC"
+    TBFAM."CODPROD", TBFAM."CODAUXILIAR",TBFAM."ORIGEM",TBFAM."FAMILIA",TBFAM."CODNCMSH",TBFAM."PERMITEDECIMAL",TBFAM."PERMITEMULTIPLICACAO",TBFAM."CODCEST",TBFAM."ATIVO",TBFAM."SEQMARCA",TBFAM."SEQFAMGRUPO",TBFAM."PESAVEL",TBFAM."INDESCALA",TBFAM."CNPJFABRICANTE",TBFAM."EANTRIB",TBFAM."SEQFAMILIAPRINC",TBFAM."ESTOQUEPORLOTE"
 FROM (
       SELECT
            /*NECESSÁRIO ATRIBUIR ZERO QUANDO O CODAUXILIAR ESTIVER NULO, POIS NA TABELA DEPARACODPRODC5 O CAMPO É PK(NÃO ACEITA NULO)*/
@@ -58,8 +58,8 @@ FROM (
            MIN(PROD.indescala) indescala,
            MIN(PROD.cnpjfabricante) cnpjfabricante,
            MIN(PROD.eantrib) eantrib,
-           MIN(PROD.Seqfamiliaprinc) Seqfamiliaprinc
-
+           MIN(PROD.Seqfamiliaprinc) Seqfamiliaprinc,
+           MIN(PROD.estoqueporlote) estoqueporlote  
       FROM (
             /* SELECT ORIGINAL VIEW EMBPROD */
             SELECT DISTINCT
@@ -116,7 +116,8 @@ FROM (
                    MIN(NVL(p.indescalarelevante, 'S')) indescala,
                    MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
-                   MAX(P.codprodprinc) seqfamiliaprinc
+                   MAX(P.codprodprinc) seqfamiliaprinc,
+                   NAX(P.estoqueporlote) estoqueporlote
             FROM VW_INT_C5_EMBPROD_MAT p
             GROUP BY p.codprod, p.descricao
 
@@ -148,8 +149,8 @@ FROM (
                    NVL(p.indescalarelevante, 'S') indescala,
                    fnc_remove_char_esp(p.cnpjfabricante) cnpjfabricante,
                    p.codauxiliartrib eantrib,
-                   P.codprodprinc seqfamiliaprinc
-
+                   P.codprodprinc seqfamiliaprinc,
+                   P.estoqueporlote
             FROM VW_INT_C5_EMB_DESMEMBRADAS p
            ) PROD /*TABELA VIRTUAL CRIADA PARA LISTAR REGISTROS DA VIEW EMBPROD E VW_INT_C5_EMB_DESMEMBRADAS*/
       GROUP BY PROD.IDREF /*ORDERNAÇÃO DEVE SER PELO IDREF PARA AGRUPAR O RESULTADO O UNION ALL DA TABELA VIRTUAL "PROD"*/
