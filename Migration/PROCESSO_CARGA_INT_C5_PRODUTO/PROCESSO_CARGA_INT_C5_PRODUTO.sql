@@ -117,7 +117,7 @@ FROM (
                    MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
                    MAX(P.codprodprinc) seqfamiliaprinc,
-                   NAX(P.estoqueporlote) estoqueporlote
+                   MAX(P.estoqueporlote) estoqueporlote
             FROM VW_INT_C5_EMBPROD_MAT p
             GROUP BY p.codprod, p.descricao
 
