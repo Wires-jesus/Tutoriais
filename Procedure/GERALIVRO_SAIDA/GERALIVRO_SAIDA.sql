@@ -6519,7 +6519,7 @@ GROUP BY   TAB.NUMSQL,
       -- Deletando nfs no processo do DF DTENTREGA.
       IF vnGeraDTENTREGA = 'S' THEN
        -- 1 - Deletar todas as notas no livro pelo Dtsaida. 
-       delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+       delete 
          from PCNFBASESAID
         where DTSAIDA between pDATA1 and pDATA2
           and CODFILIALNF = pPCODFILIAL
@@ -6542,7 +6542,7 @@ GROUP BY   TAB.NUMSQL,
                                                      AND S2.DTSAIDA BETWEEN pDATA1 and pDATA2 + 15
                                                      AND S2.DTSAIDA = S.DTENTREGA))
          LOOP
-            delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */
+            delete 
              from PCNFBASESAID S
             where S.NUMTRANSVENDA = DADOSNF.NUMTRANSVENDA;
             COMMIT;
@@ -6550,7 +6550,7 @@ GROUP BY   TAB.NUMSQL,
          
       ELSE 
         
-      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+      delete 
         from PCNFBASESAID
        where DTSAIDA between pDATA1 and pDATA2
          and CODFILIALNF = pPCODFILIAL
@@ -6559,7 +6559,7 @@ GROUP BY   TAB.NUMSQL,
          and ESPECIE not in ('CF', 'MR');
       COMMIT;
       ---------------------------------------------------------------------------------
-      delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ 
+      delete 
         from PCNFBASESAID
        where DTSAIDA between pDATA1 and pDATA2
          and CODFILIALNF = pPCODFILIAL
@@ -9642,7 +9642,7 @@ begin
                         AND S.DTSAIDA BETWEEN V_DATA_ANTERIOR_DTENTREGA AND DATA1)
      LOOP
         -- Excluir Nf individualmente
-        delete /*+ INDEX (PCNFBASESAID PCNFBASESAID_IDX06) */ from PCNFBASESAID
+        delete  from PCNFBASESAID
          where DTSAIDA       = DADOSNF.DTSAIDA
            and CODFILIALNF   = PCODFILIAL
            and NUMNOTA       = DADOSNF.NUMNOTA
