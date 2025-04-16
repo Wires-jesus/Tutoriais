@@ -144,7 +144,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
         RETURN XMLTYPE IS
         L_XMLTYPEGIFTCARD XMLTYPE;
       BEGIN
-        SELECT XMLELEMENT("DEFINICAOGIFTCARD",
+        SELECT XMLELEMENT("DefinicaoGiftCard",
                           XMLAGG(XMLELEMENT("PCVENDAGIFTCARDECF",
                                             XMLFOREST(A.NUMGIFTCARD,
                                                       A.NROCHECKOUT AS "NUMCAIXA",
@@ -157,7 +157,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
                                                       )
                                               )),
 
-                                  XMLELEMENT ("PARCELAS",
+                                  XMLELEMENT ("Parcela",
                                    XMLAGG (XMLELEMENT("PCPRESTECF",
                                    XMLFOREST (
                                        P.NUMGIFTCARD AS "NUMGIFTCARD",
@@ -268,8 +268,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
     BEGIN
       L_GIFTCARD := RETORNAR_XMLGIFTCARD(R_GIFTCARD);
 
-      SELECT XMLELEMENT("ESQUEMAEXPORTACAO",
-                        XMLELEMENT("GIFTCARD",
+      SELECT XMLELEMENT("EsquemaExportacao",
+                        XMLELEMENT("GiftCard",
                                    L_GIFTCARD)
                        ) ESQUEMAEXPORTACAO
 
@@ -302,10 +302,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDEXTERNO           := DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.IDMENSAGEM || '-' ||
                                                                     R_GIFTCARD.SEQDOCTO || '-' ||
                                                                     R_GIFTCARD.NUMCAIXA || '-' ||
-                                                                    'GC';
+                                                                    'VC';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.STATUS              := 0;
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.QTPROCESSAMENTO     := NULL;
-      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPODOCUMENTO       := 'GC';
+      DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPODOCUMENTO       := 'VC';
       DADOS_PCFILAMENSAGEM.ROWPCFILAMENSAGEM.TIPOOPERACAO        := 'GIFT';
 
       L_XMLTYPE := RETORNAR_XML_GIFTCARD(R_GIFTCARD);
