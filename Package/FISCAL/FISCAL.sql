@@ -317,6 +317,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                         P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
                                         P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
                                         P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
+                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- Redução Base ICMS
                                         -- Declarando as variáveis de saída
                                         P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
