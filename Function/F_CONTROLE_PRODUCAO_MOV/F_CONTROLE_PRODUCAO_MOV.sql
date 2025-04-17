@@ -30,7 +30,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO_MOV(PCODFILIAL               in v
                                                    PDESCONS_ENT_AJUSTE_ER   in varchar2 default 'N', -- 23 - (S)Excluí o lançamento CODOPER = ER (Ajuste de saída consignada rot 1437)
                                                    PDESCONS_CUSTO_NFENTCANC in varchar2 default 'N', -- 22 - (S) Descons.o custo da NF de entrada cancelada e mantem o custo anterior.
                                                    PDESCONS_ITEM_BRINDE     in varchar2 default 'S',  -- 08 - (S) Descons.o item do Estoque/Movimentação(NFs) com a informação TIPOMERC = BD.
-                                                   PSTATUSPROD              in varchar2 default 'T'  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo                                                  
+                                                   PSTATUSPROD              in varchar2 default 'T',  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo                                                  
+                                                   PCONSCUSTODEVENT_ENTVINC in varchar2 default 'N' -- 28 - Gerar custo da entrada vinculada para dev.de entrada
                                                    )
 ---------------------------------------------------------------------------------
   -- Função para retorno de movimentação de controle de produção
@@ -2448,6 +2449,7 @@ EXCEPTION
                             CHR(13) || 'ERRO ORIGINAL: ' || sqlerrm);
 END;
 ----------------------------------------------------------------------------
+-- Alt.: 17/04/2025 - Implementado novo parametro "PCONSCUSTODEVENT_ENTVINC". Ele irá substituir o custo do produto na saída devolução de compra para o custo vinculado na pcdevfornec, se não tiver vinculo, mantem-se o processo atual.
 -- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
 -- Alt.: 08/08/2024 - Implementado ajuste nos sqls AC na coluna CUSTOULTENT
 -- Alt.: 26/07/2024 - Implementado ajuste nos sqls AE e SM para considerar NVL no campo PCMOV.CODFISCAL 
