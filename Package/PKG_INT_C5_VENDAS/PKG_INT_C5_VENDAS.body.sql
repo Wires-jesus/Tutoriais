@@ -279,6 +279,7 @@ IS
                                        rowvw_pcpediecf.numccf AS  "Numccf" ,
                                        rowvw_pcpediecf.numcoo AS  "Numcoo" ,
                                        rowvw_pcpediecf.numlote AS  "Numlote" ,
+                                       rowvw_pcpediecf.dtvalidade AS  "Dtvalidade",
                                        rowvw_pcpediecf.numserieequip AS  "Numserieequip" ,
                                        rowvw_pcpediecf.numped AS  "Numped" ,
                                        rowvw_pcpediecf.numserie AS  "Numserie" ,
