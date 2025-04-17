@@ -287,7 +287,34 @@ CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPER AS
        )DTPADRAO
 
  WHERE O.codfiscal = 5102
- AND   NVL(O.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO)
+ AND   NVL(O.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+ UNION ALL
+ SELECT 55 codgeraloper,
+       SUBSTR(UPPER(O.desccfo), 1, 40) descricao,
+       SUBSTR(UPPER(O.desccfo), 1, 80) aplicacao,
+       5102 cfopestado,
+       6102 cfopforaestado,
+       'N' calculaicmsst,
+       'N' gerareducaobasest,
+       'N' calculaipi,
+       'N' tipocalculoipi,
+       'N' calculafecp,
+       'T' tipofaturamento,
+       'S' ativo,
+       O.dtalterc5 dtalterc5,
+       'N' consumidorfinal,
+       'N' vendapresencial,
+       'P' tipotributacao,
+       'S' gerareducaobasepiscofins
+  FROM PCCFO O,
+       
+       (select min(s.ultimaexecucao) ultimaexecucao
+          from pccontroleconsinco s
+         where (upper(s.objetoreferencia) =
+               'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPER')) DTPADRAO WHERE O.codfiscal = 5102
+   AND NVL(O.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+ 
+)
 
  \
 
