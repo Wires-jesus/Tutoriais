@@ -31,7 +31,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                                                PDESCONS_CUSTO_NFENTCANC in varchar2 default 'N', -- 22 - (S) Descons.o custo da NF de entrada cancelada e mantem o custo anterior.
                                                PDESCONS_ITEM_BRINDE     in varchar2 default 'S', -- 08 - (S) Descons.o item do Estoque/Movimentação(NFs) com a informação TIPOMERC = BD.
                                                PCONS_CUSTO_ZERO         in varchar2 default 'N', -- 26 - (S) Considera no estoque e movimentação entrada com custo zero. (N) mantém o custo anterior
-                                               PSTATUSPROD              in varchar2 default 'T'  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo
+                                               PSTATUSPROD              in varchar2 default 'T',  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo
+                                               PCONSCUSTODEVENT_ENTVINC in varchar2 default 'N' -- 28 - Gerar custo da entrada vinculada para dev.de entrada
                                                )
 ---------------------------------------------------------------------------------
   -- Função para retorno de movimentação de controle de produção
@@ -549,7 +550,7 @@ BEGIN
                 if PUTILIZA_PRECO_NOTA = 'S'
                 then
                   V_BASECUSTOCONT := DADOS.VALORITEMNOTA_ENT;
-                END if;
+                end if;
 
                 V_BASECUSTOCONT     := ROUND(V_BASECUSTOCONT, PNUMCASAS_UNIT);
                 V_CUSTOTOTALENTRADA := ROUND(ROUND(DADOS.QTENTRADA, PNUMCASAS_QT) *
@@ -560,8 +561,10 @@ BEGIN
                   V_SALDOQT    := (NVL(V_SALDOQT, 0) - NVL(DADOS.QTCONT, 0));
                   V_CUSTOTOTAL := ROUND(V_SALDOQT * V_CUSTOMEDIO, PNUMCASAS_TOTAL);
                 END IF;
-                
+
+              ----------------------------------------------------------------------------------------------------
               else
+              ----------------------------------------------------------------------------------------------------
                 -- Controlar saída de produção
                 -- Momento de busca do custo pelo PEPS
                 if (PUTILIZA_METODO_PEPS = 'S') AND (DADOS.CODOPER like 'S%')
@@ -582,7 +585,7 @@ BEGIN
                                                        V_SALDOQT,
                                                        V_CUSTOTOTAL,
                                                        DADOS.DTCANCEL);
-
+                                                       
                 V_CUSTOSAIDA := V_CUSTOMEDIO;
 
                 if PUTILIZA_PRECO_NOTA = 'S'
@@ -599,9 +602,38 @@ BEGIN
                 V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) *
                                            V_CUSTOSAIDA,
                                            PNUMCASAS_TOTAL);
+                ---------------------------------------------------------------------------------------------
+                -- MUDANDO CUSTO DA SAIDA DEVOLUÇÃO A FORNECEDOR SE PARAMETRO PCONSCUSTODEVENT_ENTVINC = S
+                if PCONSCUSTODEVENT_ENTVINC = 'S' then
+                 -- SAIDA DEVOLUÇÃO A FORNECEDOR -- 
+                   if (DADOS.CODOPER = 'SD') then
+    			         begin
+                      SELECT max(MC.CUSTOULTENTCONT) 
+                        INTO V_CUSTOSAIDA
+                        FROM PCMOV M, PCMOVCOMPLE MC 
+                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM 
+                         AND M.CODPROD = DADOS.CODPROD
+                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT 
+    					                                  FROM PCDEVFORNEC F 
+    									                         WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
+    		            exception 
+                       when NO_DATA_FOUND THEN
+                       V_CUSTOSAIDA := V_CUSTOMEDIO; -- Se não retornar o custo vincualdo, então volta o custo do processo atual
+                    end;    
+                    
+                      IF NVL(V_CUSTOSAIDA,0) = 0THEN 
+                         V_CUSTOSAIDA := V_CUSTOMEDIO;
+                      END IF;  
+                                                          				   
+                      V_CUSTOSAIDA := ROUND(V_CUSTOSAIDA, PNUMCASAS_UNIT);
+                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) * 
+                                                       V_CUSTOSAIDA,
+                                                       PNUMCASAS_TOTAL);
+                   end if;
+                end if;
+                ---------------------------------------------------------------------------------------------            
               END if;
             END if;
-
 
             --    V_RETORNO.extEND;
             --    V_RETORNO(V_RETORNO.count) := TIPO_CONTROLE_PRODUCAO( -- MOVIMENTAÇÃO
@@ -1080,10 +1112,39 @@ BEGIN
                 V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) *
                                            V_CUSTOSAIDA,
                                            PNUMCASAS_TOTAL);
+                                           
+                ---------------------------------------------------------------------------------------------
+                -- MUDANDO CUSTO DA SAIDA DEVOLUÇÃO A FORNECEDOR SE PARAMETRO PCONSCUSTODEVENT_ENTVINC = S
+                if PCONSCUSTODEVENT_ENTVINC = 'S' then
+                 -- SAIDA DEVOLUÇÃO A FORNECEDOR -- 
+                   if (DADOS.CODOPER = 'SD') then
+    			         begin
+                      SELECT max(MC.CUSTOULTENTCONT) 
+                        INTO V_CUSTOSAIDA
+                        FROM PCMOV M, PCMOVCOMPLE MC 
+                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM 
+                         AND M.CODPROD = DADOS.CODPROD
+                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT 
+    					                                  FROM PCDEVFORNEC F 
+    									                         WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
+    		            exception 
+                       when NO_DATA_FOUND THEN
+                       V_CUSTOSAIDA := V_CUSTOMEDIO; -- Se não retornar o custo vincualdo, então volta o custo do processo atual
+                    end;   
+                      
+                      IF NVL(V_CUSTOSAIDA,0) = 0 THEN 
+                         V_CUSTOSAIDA := V_CUSTOMEDIO;
+                      END IF;                 				   
+                      
+                      V_CUSTOSAIDA := ROUND(V_CUSTOSAIDA, PNUMCASAS_UNIT);
+                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) * 
+                                                       V_CUSTOSAIDA,
+                                                       PNUMCASAS_TOTAL);
+                   end if;
+                end if;
+                ---------------------------------------------------------------------------------------------            
               END if;
             END if;
-
-
             --    V_RETORNO.extEND;
             --    V_RETORNO(V_RETORNO.count) := TIPO_CONTROLE_PRODUCAO( -- MOVIMENTAÇÃO
             OUTROW.CODFILIAL      := SUBSTR(PCODFILIAL,0,2);
@@ -1169,7 +1230,7 @@ EXCEPTION
 END;
 ----------------------------------------------//----------------------------------------------//----------------------------------------------//----------------------------------------------//
 -- Últimas Alterações: 
-
+-- Alt.: 17/04/2025 - Implementado novo parametro "PCONSCUSTODEVENT_ENTVINC". Ele irá substituir o custo do produto na saída devolução de compra para o custo vinculado na pcdevfornec, se não tiver vinculo, mantem-se o processo atual.
 -- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
 -- Alt.: 22/01/2024 - Voltando a lista de custos de 1 a 6 e acrescentando o custo fiscal na posição 7
 ----------------------------------------------//----------------------------------------------//----------------------------------------------//----------------------------------------------//
