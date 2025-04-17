@@ -16,6 +16,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     v_COUNT                     NUMBER;
     vBODY                       VARCHAR2(500);
     vIDENTIFCADOR_OPERACAO      VARCHAR2(30);
+    V_NOW                       DATE;
 
   BEGIN
 
@@ -23,6 +24,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     vDOCUMENTOFOIGERADOFRAC := 'N';
     vDOCUMENTOFOIGERADOCX   := 'N';
     v_COUNT                 := 0;
+
+    ---AGUARDA 2 SEGUNDOS PARA INICIAR EXECUÇÃO
+    SELECT SYSDATE INTO V_NOW FROM DUAL;
+    LOOP
+      EXIT WHEN V_NOW +(2 * (1 / 86400)) <= SYSDATE;
+    END LOOP;
 
     vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP, 'yyyymmddhh24missff3');
 
@@ -131,7 +138,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                      AND FL.CODIGO = PRODFILIAL.CODFILIAL
                      AND ITEM.CODPROD = PRODFILIAL.CODPROD
                      AND ITEM.CODPROD = PRODUTO.CODPROD
-                     AND ITEM.NUMSEQ IS NOT NULL)
+                     AND ITEM.NUMSEQ IS NOT NULL
+                     AND NOT EXISTS
+                   (SELECT 1
+                            FROM PCINTEGRACAOWMSSAAS
+                           WHERE NUMDOCWINTHOR = pNUMDOCWINTHOR
+                             AND CODFILIAL = pCODFILIAL
+                             AND TIPODOCWINTHOR = pTIPODOCWINTHOR
+                             AND DTCANCELAMENTO IS NULL
+                             AND DTFIMSEPARACAO IS NULL
+                             AND DTFILAINTEGRACAO IS NOT NULL))
 
        LOOP
         --VERIFICA SE ESTÁ APTO A GERAR DOIS DOCUMENTOS (CAIXA E FRACIONADO)
@@ -142,27 +158,25 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
           --GERA DOCUMENTO COM A QUANTIDADE FRACIONADA
           IF REG.QTUNIDADESFORACAIXA > 0 THEN
-            INSERT INTO PCINTEGRACAOWMSSAASITEM
-              (NUMDOCWMSSAAS, CODPROD, QTORIG, QT, NUMSEQ)
-            VALUES
-              (vDOCWMSSAAS_FRACIONADO,
-               REG.CODPROD,
-               REG.QTUNIDADESFORACAIXA,
-               REG.QTUNIDADESFORACAIXA,
-               REG.NUMSEQ);
+
+            ENVIARDOCFILAINTEGRACAOITEM(vDOCWMSSAAS_FRACIONADO,
+                                        REG.CODPROD,
+                                        REG.QTUNIDADESFORACAIXA,
+                                        REG.QTUNIDADESFORACAIXA,
+                                        REG.NUMSEQ);
+
             vDOCUMENTOFOIGERADOFRAC := 'S';
           END IF;
 
           --GERA DOCUMENTO COM A QUANTIDADE UN(CAIXA)
           IF REG.QTUNIDADESDENTROCAIXA > 0 THEN
-            INSERT INTO PCINTEGRACAOWMSSAASITEM
-              (NUMDOCWMSSAAS, CODPROD, QTORIG, QT, NUMSEQ)
-            VALUES
-              (vDOCWMSSAAS_CAIXA,
-               REG.CODPROD,
-               REG.QTUNIDADESDENTROCAIXA,
-               REG.QTUNIDADESDENTROCAIXA,
-               REG.NUMSEQ);
+
+            ENVIARDOCFILAINTEGRACAOITEM(vDOCWMSSAAS_CAIXA,
+                                        REG.CODPROD,
+                                        REG.QTUNIDADESDENTROCAIXA,
+                                        REG.QTUNIDADESDENTROCAIXA,
+                                        REG.NUMSEQ);
+
             vDOCUMENTOFOIGERADOCX := 'S';
           END IF;
 
@@ -185,10 +199,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
           --CASO CONTRARIO GERA APENAS UM DOCUMENTO
         ELSE
-          INSERT INTO PCINTEGRACAOWMSSAASITEM
-            (NUMDOCWMSSAAS, CODPROD, QTORIG, QT, NUMSEQ)
-          VALUES
-            (REG.NUMPED, REG.CODPROD, REG.QT, REG.QT, REG.NUMSEQ);
+
+          ENVIARDOCFILAINTEGRACAOITEM(REG.NUMPED,
+                                      REG.CODPROD,
+                                      REG.QT,
+                                      REG.QT,
+                                      REG.NUMSEQ);
 
           vDOCUMENTOFOIGERADOCOMPLETO := 'S';
 
@@ -306,6 +322,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     vCODCLI                 NUMBER(12);
     vOBS                    VARCHAR2(500);
     vEXPORTAINFODOCORIGINAL VARCHAR2(2);
+    vBODY                   VARCHAR2(500);
+    vIDENTIFCADOR_OPERACAO  VARCHAR2(30);
 
   BEGIN
 
@@ -351,40 +369,57 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
        AND PED.CODCLI = CLI.CODCLI
        AND PED.NUMPED = pNUMDOCWINTHOR;
 
-    INSERT INTO PCINTEGRACAOWMSSAAS
-      (CODFILIAL,
-       NUMDOCWINTHOR,
-       TIPODOCWINTHOR,
-       NUMCAR,
-       NUMDOCWMSSAAS,
-       TIPOGERACAODOC,
-       DTFILAINTEGRACAO,
-       DATADOCWINTHOR,
-       LIBERADOINTEGRACAO,
-       TIPOINTEGRACAO,
-       CODCLI,
-       DTENTREGA,
-       OBS)
-    VALUES
-      (pCODFILIAL,
-       pNUMDOCWINTHOR,
-       pTIPODOCWINTHOR,
-       vNUMCAR,
-       pNUMDOCSAAS,
-       pTIPOGERACAODOC,
-       SYSDATE,
-       (SELECT DATA
-          FROM PCPEDC
-         WHERE NUMPED = pNUMDOCWINTHOR
-           AND ROWNUM = 1),
-       pLIBERADOPARAINTEGRACAO,
-       pTIPOINTEGRACAO,
-       vCODCLI,
-       (SELECT DTENTREGA
-          FROM PCPEDC
-         WHERE NUMPED = pNUMDOCWINTHOR
-           AND ROWNUM = 1),
-       vOBS);
+    BEGIN
+      INSERT INTO PCINTEGRACAOWMSSAAS
+        (CODFILIAL,
+         NUMDOCWINTHOR,
+         TIPODOCWINTHOR,
+         NUMCAR,
+         NUMDOCWMSSAAS,
+         TIPOGERACAODOC,
+         DTFILAINTEGRACAO,
+         DATADOCWINTHOR,
+         LIBERADOINTEGRACAO,
+         TIPOINTEGRACAO,
+         CODCLI,
+         DTENTREGA,
+         OBS)
+      VALUES
+        (pCODFILIAL,
+         pNUMDOCWINTHOR,
+         pTIPODOCWINTHOR,
+         vNUMCAR,
+         pNUMDOCSAAS,
+         pTIPOGERACAODOC,
+         SYSDATE,
+         (SELECT DATA
+            FROM PCPEDC
+           WHERE NUMPED = pNUMDOCWINTHOR
+             AND ROWNUM = 1),
+         pLIBERADOPARAINTEGRACAO,
+         pTIPOINTEGRACAO,
+         vCODCLI,
+         (SELECT DTENTREGA
+            FROM PCPEDC
+           WHERE NUMPED = pNUMDOCWINTHOR
+             AND ROWNUM = 1),
+         vOBS);
+    EXCEPTION
+      WHEN DUP_VAL_ON_INDEX THEN
+        vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP,
+                                          'yyyymmddhh24missff3');
+
+        vBODY := 'Filial: ' || pCODFILIAL || ', Documento Winthor: ' ||
+                 TO_CHAR(pNUMDOCWINTHOR) || ', Tipo Integração: ' ||
+                 pTIPOINTEGRACAO || ', Identificador: ' ||
+                 vIDENTIFCADOR_OPERACAO || ', Tipo Documento: ' ||
+                 pTIPODOCWINTHOR;
+
+        GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.ENVIARDOCFILAINTEGRACAO',
+                   'ERRO_DUPLICIDADE_INSERCAO_PCINTEGRACAOWMSSAAS',
+                   vBODY ||
+                   ', Descrição: Falha na inserção na PCINTEGRACAOWMSSAAS por violação da UK');
+    END;
 
   END ENVIARDOCFILAINTEGRACAO;
 
@@ -762,5 +797,38 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
         NULL;
     END;
   END GRAVAR_LOG;
+
+  PROCEDURE ENVIARDOCFILAINTEGRACAOITEM(pNUMDOCWMSSAAS IN NUMBER,
+                                        pCODPROD       IN NUMBER,
+                                        pQTORIG        IN NUMBER,
+                                        pQT            IN NUMBER,
+                                        pNUMSEQ        IN NUMBER) IS
+
+    vBODY                  VARCHAR2(500);
+    vIDENTIFCADOR_OPERACAO VARCHAR2(30);
+
+  BEGIN
+
+    BEGIN
+      INSERT INTO PCINTEGRACAOWMSSAASITEM
+        (NUMDOCWMSSAAS, CODPROD, QTORIG, QT, NUMSEQ)
+      VALUES
+        (pNUMDOCWMSSAAS, pCODPROD, pQTORIG, pQT, pNUMSEQ);
+    EXCEPTION
+      WHEN DUP_VAL_ON_INDEX THEN
+        vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP,
+                                          'yyyymmddhh24missff3');
+
+        vBODY := 'Identificador: ' || vIDENTIFCADOR_OPERACAO ||
+                 'Documento WMS Saas: ' || TO_CHAR(pNUMDOCWMSSAAS) ||
+                 ',Item: ' || TO_CHAR(pCODPROD);
+
+        GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.ENVIARDOCFILAINTEGRACAOITEM',
+                   'ERRO_DUPLICIDADE_INSERCAO_PCINTEGRACAOWMSSAASITEM',
+                   vBODY ||
+                   ', Descrição: Falha na inserção na PCINTEGRACAOWMSSAASITEM por violação da UK');
+    END;
+
+  END ENVIARDOCFILAINTEGRACAOITEM;
 
 END PKG_INTEGRACAOWMSSAAS;
