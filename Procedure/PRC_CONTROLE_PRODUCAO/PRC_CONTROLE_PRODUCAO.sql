@@ -31,8 +31,9 @@ CREATE OR REPLACE PROCEDURE PRC_CONTROLE_PRODUCAO(PCODFILIAL            in varch
                                                   PDESCONS_CUSTO_DEVCLI    in varchar2 default 'N',-- (S) Descons.o custo da NF de entrada devolução de cliente e mantem o custo anterior.
                                                   PDESCONS_CUSTO_NFENTCANC in varchar2 default 'N',-- (S) Descons.o custo da NF de entrada cancelada e mantem o custo anterior.
                                                   PDESCONS_ENT_AJUSTE_ER   in varchar2 default 'N',-- (S) Excluí o lançamento CODOPER = ER (Ajuste de saída consignada rot 1437)
-                                                  PDESCONS_ITEM_BRINDE     in varchar2 default 'S', -- (S) Descons.item de brinde do estoque e movimentação. 
-                                                  PSTATUSPROD              in varchar2 default 'T'  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo                                                  
+                                                  PDESCONS_ITEM_BRINDE     in varchar2 default 'S',-- (S) Descons.item de brinde do estoque e movimentação. 
+                                                  PSTATUSPROD              in varchar2 default 'T',-- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo                                                  
+                                                  PCONSCUSTODEVENT_ENTVINC in varchar2 default 'N'-- 28 - Gerar custo da entrada vinculada para dev.de entrada
                                                   ) IS
   ---------------------------------------------------------------------------------
   -- Procedure para popular tabela PCDADOS1070_TEMP
@@ -2577,6 +2578,7 @@ COMMIT;
 */-- GerarLogP2   
 END;
 ----------------------------------------------------------------------------
+-- Alt.: 17/04/2025 - Implementado novo parametro "PCONSCUSTODEVENT_ENTVINC". Ele irá substituir o custo do produto na saída devolução de compra para o custo vinculado na pcdevfornec, se não tiver vinculo, mantem-se o processo atual.
 -- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
 -- Alt.: 08/08/2024 - Implementado ajuste nos sqls AC na coluna CUSTOULTENT
 -- Alt.: 26/07/2024 - Implementado ajuste nos sqls AE e SM para considerar NVL no campo PCMOV.CODFISCAL 
