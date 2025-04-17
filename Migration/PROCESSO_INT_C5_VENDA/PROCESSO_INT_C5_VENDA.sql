@@ -2132,7 +2132,27 @@ AS
         0 VLICMSEFET,
         0 VLDESCSUFRAMA,
 		d.NROEMPRESA,
-		d.nrocheckout
+		d.nrocheckout,
+    (CASE
+      WHEN I.SEQLOTEESTOQUE > 0 THEN
+           (SELECT LT.NROLOTEESTOQUE 
+            FROM MONITORPDVMIDDLE.TB_LOTEESTOQUE LT
+            WHERE LT.SEQPRODUTO = I.SEQPRODUTO
+            AND   LT.NROEMPRESA = I.NROEMPRESA
+            AND   LT.SEQLOTEESTOQUE = SEQLOTEESTOQUE
+           )
+      ELSE NULL
+    END) NUMLOTE,
+    (CASE
+      WHEN I.SEQLOTEESTOQUE > 0 THEN
+           (SELECT LT.DTAVALIDADE 
+            FROM MONITORPDVMIDDLE.TB_LOTEESTOQUE LT
+            WHERE LT.SEQPRODUTO = I.SEQPRODUTO
+            AND   LT.NROEMPRESA = I.NROEMPRESA
+            AND   LT.SEQLOTEESTOQUE = SEQLOTEESTOQUE
+           )
+      ELSE NULL
+    END) DTVALIDADE
 FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
@@ -2526,7 +2546,27 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
         0 VLICMSEFET,
         0 VLDESCSUFRAMA,
 		d.NROEMPRESA,
-		d.nrocheckout
+		d.nrocheckout,
+    (CASE
+      WHEN I.SEQLOTEESTOQUE > 0 THEN
+           (SELECT LT.NROLOTEESTOQUE 
+            FROM MONITORPDVMIDDLE.TB_LOTEESTOQUE LT
+            WHERE LT.SEQPRODUTO = I.SEQPRODUTO
+            AND   LT.NROEMPRESA = I.NROEMPRESA
+            AND   LT.SEQLOTEESTOQUE = SEQLOTEESTOQUE
+           )
+      ELSE NULL
+    END) NUMLOTE,
+    (CASE
+      WHEN I.SEQLOTEESTOQUE > 0 THEN
+           (SELECT LT.DTAVALIDADE 
+            FROM MONITORPDVMIDDLE.TB_LOTEESTOQUE LT
+            WHERE LT.SEQPRODUTO = I.SEQPRODUTO
+            AND   LT.NROEMPRESA = I.NROEMPRESA
+            AND   LT.SEQLOTEESTOQUE = SEQLOTEESTOQUE
+           )
+      ELSE NULL
+    END) DTVALIDADE
 FROM  monitorpdvmiddle.tb_doctoitem   i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
