@@ -1772,6 +1772,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
    AND  a.nrocheckout = nf.NROCHECKOUT
    AND  c.status IN ('V', 'C')
    AND  a.replicacao = 'P'
+   AND  c.cgo = 65
    /*AND  e.protocoloenvio IS NOT NULL*/
    AND  NVL(fnc_int_c5_vltotal(a.seqdocto, a.nrocheckout, a.nroempresa), 0) > 0
    AND  fnc_int_c5_finalizadora_cab(a.seqdocto,a.nrocheckout,a.nroempresa) > 0
