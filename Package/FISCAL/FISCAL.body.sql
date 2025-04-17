@@ -21,7 +21,8 @@ create or replace package body FISCAL is
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
-                             M.BASEICMS -- Base ICMS
+                             M.BASEICMS, -- Base ICMS
+                             M.PERCBASERED -- Redução Base ICMS
                         from PCNFSAID       N,
                              PCMOV          M,
                              PCMOVCOMPLE    MC,
@@ -66,7 +67,8 @@ create or replace package body FISCAL is
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
-                             M.BASEICMS -- Base ICMS
+                             M.BASEICMS, -- Base ICMS
+                             M.PERCBASERED -- Redução Base ICMS
                         from PCNFSAIDPREFAT       N,
                              PCMOVPREFAT          M,
                              PCMOVCOMPLEPREFAT    MC,
@@ -111,7 +113,8 @@ create or replace package body FISCAL is
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
-                             M.BASEICMS -- Base ICMS
+                             M.BASEICMS, -- Base ICMS
+                             M.PERCBASERED -- Redução Base ICMS
                         from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
                        where N.NUMTRANSENT = P_NUMTRANSACAO
                          and N.NUMTRANSENT = M.NUMTRANSENT
@@ -5868,6 +5871,7 @@ create or replace package body FISCAL is
                                         P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
                                         P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
                                         P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
+                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- Redução Base ICMS
                                         -- Declarando as variáveis de saída
                                         P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
@@ -5970,6 +5974,10 @@ create or replace package body FISCAL is
         VARIAVEL.VALOR := CASE WHEN P_BASEICMS IS NULL THEN 0 ELSE P_BASEICMS END;
         FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
+        VARIAVEL.NOME  := '[PERCBASERED]';
+        VARIAVEL.VALOR := CASE WHEN P_PERCBASERED IS NULL THEN 0 ELSE P_PERCBASERED END;
+        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+
         VARIAVEL.NOME  := '[PERC_CRED_PRESUMIDO]';
         VARIAVEL.VALOR := CASE WHEN P_ALIQCREDITOPRESUMIDO IS NULL THEN 0 ELSE P_ALIQCREDITOPRESUMIDO END;
         FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
@@ -6042,7 +6050,8 @@ create or replace package body FISCAL is
                                        ' VLFRETE '||DADOS_CREDITOPRESUMIDO.VLFRETE||
                                        ' VLST '||DADOS_CREDITOPRESUMIDO.VLST||
                                        ' VLOUTROS '||DADOS_CREDITOPRESUMIDO.VLOUTROS||
-                                       ' BASEICMS '||DADOS_CREDITOPRESUMIDO.BASEICMS
+                                       ' BASEICMS '||DADOS_CREDITOPRESUMIDO.BASEICMS||
+                                       ' PERCBASERED '||DADOS_CREDITOPRESUMIDO.PERCBASERED
                                        ,'S');
 
 
@@ -6062,6 +6071,7 @@ create or replace package body FISCAL is
                                                    DADOS_CREDITOPRESUMIDO.VLST, -- Valor do ST
                                                    DADOS_CREDITOPRESUMIDO.VLOUTROS, -- Valor de outros
                                                    DADOS_CREDITOPRESUMIDO.BASEICMS, -- Base ICMS
+                                                   DADOS_CREDITOPRESUMIDO.PERCBASERED, -- Redução Base ICMS 
                                                    V_BASECREDITOPRESUMIDO,
                                                    v_VLCREDITOPRESUMIDO,
                                                    v_ALIQCREDITOPRESUMIDO,
