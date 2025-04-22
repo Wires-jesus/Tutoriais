@@ -322,6 +322,13 @@ SELECT
          /*DEFINICAO DO SEQFAMILIA DE PRODUTO PAI*/
          WHEN TBPROD.CODPROD = TBPROD.CODPRODPRINC THEN
               DEPARA.SEQFAMILIA
+         /*Se o produto principal não existir nas filiais de integração, então seta o seqfamilia do filho*/
+         WHEN (SELECT COUNT(*)
+               FROM PCPRODFILIAL PF
+               WHERE PF.CODFILIAL IN (SELECT C5.CODFILIAL FROM VW_INT_C5_OBTER_FILIAIS_C5 C5)
+               AND  TBPROD.CODPRODPRINC = PF.CODPROD
+              ) = 0 THEN
+              DEPARA.SEQFAMILIA
          /*DEFINICAO DO SEQFAMILIA DE PRODUTO FILHO, DE ACORDO COM A TRIBUTACAO DO PRODUTO PAI*/     
          WHEN /*SE O PRODUTO É FILHO...*/
               (TBPROD.CODPROD <> TBPROD.CODPRODPRINC) AND 

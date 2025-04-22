@@ -40,7 +40,8 @@ SELECT  ferramentas.f_buscarparametro_num('CODBANCOINTEGRACAOPDV',a.nroempresa,0
 									 and d.nroempresa = c.nroempresa
 									 and d.nrocheckout = c.nrocheckout
 									 and d.seqlogsegpdv = c.seqlogsegpdv
-									 and e.sequsuario = d.sequsuario) ,a.sequsuario)
+									 and e.sequsuario = d.sequsuario
+                   and rownum = 1) ,a.sequsuario)
              WHEN a.especie = 'SP'
                THEN
                           'SUPRIMENTO ROTINA: CONSINCO - NUMCAIXA: '
