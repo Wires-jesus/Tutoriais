@@ -1571,8 +1571,20 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              --  + NVL(PCMOV.VLOUTRASDESPIMP, 0) -- vl Outras despesa importa??o
                              + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_DESPADUAN', PCFILIAL.CODIGO),'N'), 'S', NVL(PCMOV.VLADUANEIRA, 0), 0)
                ELSE
-                              (DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) -
-                                      DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,
+                             --FORMA QUE ESTAVA ANTERIORMENTE
+                             (CASE WHEN (((NVL(PCMOV.VLIPI,0) + NVL(PCMOV.ST,0) + NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLDESCONTONF, 0)) > 0) AND (NVL(PCMOV.CODOPER, 'E') = 'ED') ) THEN
+                                 ((ROUND((DECODE( NVL(PCMOVCOMPLE.BONIFIC,'N') , 'S', PCMOV.PBONIFIC, PCMOV.PUNITCONT) - NVL(PCMOV.VLIPI,0) - NVL(PCMOV.ST,0) -
+                                  DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0,NVL(PCMOVCOMPLE.VLFECP, 0))
+                                 ) * PCMOV. QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(NVL(PCMOV.VLIPI,0) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(NVL(PCMOV.ST,0) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) )) / PCMOV.QTCONT
+                                 + (ROUND(DECODE(NVL(PCMOVCOMPLE.VLBASEFCPST, 0), 0, 0,NVL(PCMOVCOMPLE.VLFECP, 0)) * PCMOV.QTCONT, (CASE WHEN PCMOV.QTCONT < 1 THEN 6 ELSE NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2) END) ))
+                                 / PCMOV.QTCONT)
+                             ELSE
+                                 DECODE(PCMOVCOMPLE.BONIFIC, 'S', PCMOV.PBONIFIC, ROUND(PCMOV.PUNITCONT * PCMOV.QTCONT,2) / PCMOV.QTCONT )
+                             END
+
+                             - DECODE(PCNFENT.TIPODESCARGA, 'N', NVL(PCMOV.VLFRETE,
                                                       0), 0)  +
                                       --apenas para devolução, calculo conforme a venda -- aqui
                                       (CASE WHEN ((PCNFENT.FINALIDADENFE <> 'A') AND (PCNFENT.TIPODESCARGA IN ('6','8', 'T'))) THEN
