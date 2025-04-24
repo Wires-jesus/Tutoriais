@@ -424,58 +424,71 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
   END ENVIARDOCFILAINTEGRACAO;
 
   PROCEDURE FINALIZARSEPARACAOITEMFILA(pCODFILIAL     IN VARCHAR2,
-                                       pNUMDOCWMSSAAS IN NUMBER,
-                                       pCODPROD       IN NUMBER,
-                                       pNUMSEQ        IN NUMBER,
-                                       pQTSEPARADA    IN NUMBER,
-                                       pNUMLOTE       IN VARCHAR2) IS
+                                         pNUMDOCWMSSAAS IN NUMBER,
+                                         pCODPROD       IN NUMBER,
+                                         pNUMSEQ        IN NUMBER,
+                                         pQTSEPARADA    IN NUMBER,
+                                         pNUMLOTE       IN VARCHAR2) IS
 
-    vREGISTRO_NOVO         PCINTEGRACAOWMSSAASITEM%ROWTYPE;
-    vIDENTIFCADOR_OPERACAO VARCHAR2(30);
-    v_COUNT                NUMBER;
-    vBODY                  VARCHAR2(500);
+      vREGISTRO_NOVO         PCINTEGRACAOWMSSAASITEM%ROWTYPE;
+      vIDENTIFCADOR_OPERACAO VARCHAR2(30);
+      v_COUNT                NUMBER;
+      vBODY                  VARCHAR2(500);
 
-  BEGIN
-    vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP, 'yyyymmddhh24missff3');
+    BEGIN
+      vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP, 'yyyymmddhh24missff3');
 
-    UPDATE PCINTEGRACAOWMSSAASITEM
-       SET QTSEPARADA = pQTSEPARADA, NUMLOTE = pNUMLOTE
-     WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-       AND CODPROD = pCODPROD
-       AND NUMSEQ = pNUMSEQ
-       AND NVL(QTSEPARADA, 0) = 0;
+      UPDATE PCINTEGRACAOWMSSAASITEM
+         SET QTSEPARADA = pQTSEPARADA, NUMLOTE = pNUMLOTE
+       WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
+         AND CODPROD = pCODPROD
+         AND NUMSEQ = pNUMSEQ
+         AND NVL(QTSEPARADA, 0) = 0;
 
-    v_COUNT := SQL%ROWCOUNT;
+      v_COUNT := SQL%ROWCOUNT;
 
-    vBODY := 'Filial: ' || pCODFILIAL || ', Documento WMS Saas:' ||
-             TO_CHAR(pNUMDOCWMSSAAS) || ', Codprod: ' || TO_CHAR(pCODPROD) ||
-             ', Sequencia: ' || TO_CHAR(pNUMSEQ) || ', Qt.Separada: ' ||
-             TO_CHAR(pQTSEPARADA) || ', Lote: ' || pNUMLOTE ||
-             ', Linhas Altedas: ' || TO_CHAR(v_COUNT) ||
-             ', Identificador: ' || vIDENTIFCADOR_OPERACAO;
+      vBODY := 'Filial: ' || pCODFILIAL || ', Documento WMS Saas:' ||
+               TO_CHAR(pNUMDOCWMSSAAS) || ', Codprod: ' || TO_CHAR(pCODPROD) ||
+               ', Sequencia: ' || TO_CHAR(pNUMSEQ) || ', Qt.Separada: ' ||
+               TO_CHAR(pQTSEPARADA) || ', Lote: ' || pNUMLOTE ||
+               ', Linhas Altedas: ' || TO_CHAR(v_COUNT) ||
+               ', Identificador: ' || vIDENTIFCADOR_OPERACAO;
 
-    GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
-               'UPDATE_PCINTEGRACAOWMSSAASITEM',
-               vBODY ||
-               ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM');
+      GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
+                 'UPDATE_PCINTEGRACAOWMSSAASITEM',
+                 vBODY ||
+                 ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM');
 
-    IF v_COUNT = 0 THEN
-      FOR vREG IN (SELECT *
-                     FROM PCINTEGRACAOWMSSAASITEM
-                    WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-                      AND CODPROD = pCODPROD
-                      AND ROWNUM = 1) LOOP
-        vREGISTRO_NOVO            := vREG;
-        vREGISTRO_NOVO.NUMLOTE    := pNUMLOTE;
-        vREGISTRO_NOVO.QTSEPARADA := pQTSEPARADA;
-        INSERT INTO PCINTEGRACAOWMSSAASITEM VALUES vREGISTRO_NOVO;
+      IF v_COUNT = 0 THEN
+        ---TRATAR CENARIO ONDE PRODUTO COM MESMO LOTE E CONFERIDO DUAS VEZES.
+        UPDATE PCINTEGRACAOWMSSAASITEM
+           SET QTSEPARADA = NVL(QTSEPARADA, 0) + pQTSEPARADA
+         WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
+           AND CODPROD = pCODPROD
+           AND NUMSEQ = pNUMSEQ
+           AND NUMLOTE = pNUMLOTE
+           AND NVL(QTSEPARADA, 0) > 0;
 
-        GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
-                   'INSERT_PCINTEGRACAOWMSSAASITEM',
-                   vBODY ||
-                   ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM)');
-      END LOOP;
-    END IF;
+        v_COUNT := SQL%ROWCOUNT;
+        IF v_COUNT = 0 THEN
+          FOR vREG IN (SELECT *
+                         FROM PCINTEGRACAOWMSSAASITEM
+                        WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
+                          AND CODPROD = pCODPROD
+                          AND ROWNUM = 1) LOOP
+            vREGISTRO_NOVO            := vREG;
+            vREGISTRO_NOVO.NUMLOTE    := pNUMLOTE;
+            vREGISTRO_NOVO.QTSEPARADA := pQTSEPARADA;
+            INSERT INTO PCINTEGRACAOWMSSAASITEM VALUES vREGISTRO_NOVO;
+
+            GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
+                       'INSERT_PCINTEGRACAOWMSSAASITEM',
+                       vBODY ||
+                       ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM)');
+          END LOOP;
+        END IF;
+
+      END IF;
 
   END FINALIZARSEPARACAOITEMFILA;
 
