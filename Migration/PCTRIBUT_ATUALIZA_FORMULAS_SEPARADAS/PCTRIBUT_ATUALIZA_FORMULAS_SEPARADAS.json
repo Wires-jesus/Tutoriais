@@ -1,0 +1,11 @@
+{
+  "nome": "PCTRIBUT_ATUALIZA_FORMULAS_SEPARADAS",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCTRIBUT",
+      "tipo": "TABELA",
+      "versao": "7.0.06.000"
+    }
+  ]
+}
