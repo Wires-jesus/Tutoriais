@@ -6457,7 +6457,7 @@ END;
 PROCEDURE carrega_tb_loteestoque(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_loteestoque T
-    USING (SELECT NROEMPRESA, SEQLOTEESTOQUE, SEQLOCAL, SEQPRODUTO, NROLOTEESTOQUE, DTAFABRICACAO, DTAVALIDADE, ATIVO_LOTE ATIVO  
+    USING (SELECT NROEMPRESA, SEQLOTEESTOQUE, SEQLOCAL, SEQPRODUTO, NROLOTEESTOQUE, DTAFABRICACAO, DTAVALIDADE, DTAENTRADA, ATIVO_LOTE ATIVO  
            FROM VW_INT_C5_PRODLOTE
            WHERE SEQLOTEESTOQUE IS NOT NULL /*registros com seqloteestoque "null" indica que a tabela DEPARA não foi preenchida*/
           ) S 
@@ -6469,12 +6469,14 @@ BEGIN
              T.NROLOTEESTOQUE  = S.NROLOTEESTOQUE,
              T.DTAFABRICACAO  = S.DTAFABRICACAO,
              T.DTAVALIDADE  = S.DTAVALIDADE,
+             T.DTAENTRADA  = S.DTAENTRADA,
              T.ATIVO  = S.ATIVO
        WHERE T.SEQLOCAL  <> S.SEQLOCAL 
        OR    T.SEQPRODUTO   <> S.SEQPRODUTO
        OR    T.NROLOTEESTOQUE  <> S.NROLOTEESTOQUE
        OR    T.DTAFABRICACAO  <> S.DTAFABRICACAO
        OR    T.DTAVALIDADE  <> S.DTAVALIDADE
+       OR    T.DTAENTRADA  <> S.DTAENTRADA
        OR    T.ATIVO  <> S.ATIVO
           
   WHEN NOT MATCHED THEN
@@ -6486,6 +6488,7 @@ BEGIN
           T.NROLOTEESTOQUE,
           T.DTAFABRICACAO,
           T.DTAVALIDADE,
+          T.DTAENTRADA,
           T.ATIVO
           ) 
         VALUES(
@@ -6497,6 +6500,7 @@ BEGIN
           S.NROLOTEESTOQUE,
           S.DTAFABRICACAO,
           S.DTAVALIDADE,
+          S.DTAENTRADA,
           S.ATIVO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
