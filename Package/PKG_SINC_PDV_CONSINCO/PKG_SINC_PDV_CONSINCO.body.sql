@@ -6495,7 +6495,6 @@ BEGIN
           ) 
         VALUES(
           S.NROEMPRESA,
-          --S.SEQLOTEESTOQUE,
           (PKG_SINC_PDV_CONSINCO.obter_seqloteestoque), 
           S.SEQLOCAL,
           S.SEQPRODUTO,
