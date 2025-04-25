@@ -2554,7 +2554,8 @@ GROUP BY   TAB.NUMSQL,
               FROM PCMOVCIAP M
              WHERE M.NUMTRANSVENDA = A.NUMTRANSVENDA
                AND M.CODFISCAL = B.CODFISCAL
-               AND M.NUMNOTA = A.NUMNOTA)
+               AND M.NUMNOTA = A.NUMNOTA
+               AND M.SITTRIBUT = B.SITTRIBUT)
             , 2), 0) VLACRESCIMOFUNCEP
     ----------------------------------------------------------------
            , 0 AS VLFECP
@@ -2563,14 +2564,16 @@ GROUP BY   TAB.NUMSQL,
               FROM PCMOVCIAP M
              WHERE M.NUMTRANSVENDA = A.NUMTRANSVENDA
                AND M.CODFISCAL = B.CODFISCAL
-               AND M.NUMNOTA = A.NUMNOTA)
+               AND M.NUMNOTA = A.NUMNOTA
+               AND M.SITTRIBUT = B.SITTRIBUT)
             ,0) PERACRESCIMOFUNCEP
     ----------------------------------------------------------------
            ,(SELECT SUM(ROUND(M.QTCONT * M.BASECALCFCP, 2))
               FROM PCMOVCIAP M
              WHERE M.NUMTRANSVENDA = A.NUMTRANSVENDA
                AND M.CODFISCAL = B.CODFISCAL
-               AND M.NUMNOTA = A.NUMNOTA) VLBASEFCPICMS
+               AND M.NUMNOTA = A.NUMNOTA
+               AND M.SITTRIBUT = B.SITTRIBUT) VLBASEFCPICMS
     ----------------------------------------------------------------
            , 0 AS VLBASEFCPST
            , 0 AS ALIQICMSFECP
