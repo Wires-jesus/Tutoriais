@@ -7923,6 +7923,11 @@ end func_HoraDigitacaoPedido;
       END IF;
     END IF;
 
+    IF FOBTEM_PARAM_INTEGRADORA(p_regpedido.integradora,'PERMITIREDICAOPEDIDOSOL','N') = 'S' 
+       AND gregpedido.tipofv = 'OL' AND p_regpedido.codpromocaomed IS NULL THEN
+      p_regpedido.codpromocaomed := 999999999;
+    END IF;
+	
     p_regpedido.trocaaltdebcredrca   := gregpcconsum.trocaaltdebcredrca;
     p_Regpedido.crmaltdebcredrca     := gregpcconsum.crmaltdebcredrca;
     p_Regpedido.brokeraltdebcredrca  := gregpcconsum.brokeraltdebcredrca;
