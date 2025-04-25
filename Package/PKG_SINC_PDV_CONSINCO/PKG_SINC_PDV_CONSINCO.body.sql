@@ -6461,11 +6461,10 @@ BEGIN
            FROM VW_INT_C5_PRODLOTE
            WHERE SEQLOTEESTOQUE IS NOT NULL /*registros com seqloteestoque "null" indica que a tabela DEPARA não foi preenchida*/
           ) S 
-    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.SEQPRODUTO = S.SEQPRODUTO)
+    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.SEQLOTEESTOQUE = S.SEQLOTEESTOQUE AND T.SEQPRODUTO = S.SEQPRODUTO)
   WHEN MATCHED THEN
        UPDATE SET
              T.SEQLOCAL  = S.SEQLOCAL,
-             T.SEQPRODUTO   = S.SEQPRODUTO,
              T.NROLOTEESTOQUE  = S.NROLOTEESTOQUE,
              T.DTAFABRICACAO  = S.DTAFABRICACAO,
              T.DTAVALIDADE  = S.DTAVALIDADE,
@@ -6496,7 +6495,6 @@ BEGIN
           ) 
         VALUES(
           S.NROEMPRESA,
-          --S.SEQLOTEESTOQUE,
           (PKG_SINC_PDV_CONSINCO.obter_seqloteestoque), 
           S.SEQLOCAL,
           S.SEQPRODUTO,
