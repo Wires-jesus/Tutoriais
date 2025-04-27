@@ -1,5 +1,11 @@
 {
  "nome":"TABELA_MENSAGENS_NFE",
  "tipoPLSQL":"MIGRATION",
- "dependencias": ""
+ "dependencias": [
+  {
+    "nome": "PCMENSAGEMNFE",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+	}
+]
 }
