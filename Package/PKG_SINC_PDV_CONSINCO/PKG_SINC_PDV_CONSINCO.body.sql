@@ -6516,6 +6516,16 @@ BEGIN
           S.ESTQLOTE,
           S.ATIVO,
           S.IDREF);
+
+  UPDATE MONITORPDVMIDDLE.tb_loteestoque E
+       SET ATIVO = 'N'
+  WHERE NOT EXISTS(SELECT 1
+                   FROM PCLOTE L, VW_INT_C5_OBTER_FILIAIS_C5 C5
+                   WHERE L.CODFILIAL = C5.CODFILIAL
+                   AND   C5.CODFILIALINTEGRACAO = E.NROEMPRESA
+                   AND   L.NUMLOTE = E.NROLOTEESTOQUE
+                   AND   L.CODPROD = E.IDREF
+                   );        
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_estoquelote', 'carrega_tb_estoquelote OK', SYSDATE, CURRENT_TIMESTAMP);
