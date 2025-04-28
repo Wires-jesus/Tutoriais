@@ -6457,28 +6457,38 @@ END;
 PROCEDURE carrega_tb_loteestoque(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_loteestoque T
-    USING (SELECT NROEMPRESA, SEQLOTEESTOQUE, SEQLOCAL, SEQPRODUTO, ESTQLOTE, NROLOTEESTOQUE, DTAFABRICACAO, DTAVALIDADE, DTAENTRADA, ATIVO_LOTE ATIVO  
+    USING (SELECT NROEMPRESA, 
+                  SEQLOTEESTOQUE, 
+                  SEQLOCAL, 
+                  SEQPRODUTO, 
+                  ESTQLOTE, 
+                  NROLOTEESTOQUE, 
+                  DTAFABRICACAO, 
+                  DTAVALIDADE, 
+                  DTAENTRADA, 
+                  ATIVO_LOTE ATIVO,
+                  IDREF  
            FROM VW_INT_C5_PRODLOTE
            WHERE SEQLOTEESTOQUE IS NOT NULL /*registros com seqloteestoque "null" indica que a tabela DEPARA não foi preenchida*/
           ) S 
-    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.SEQLOTEESTOQUE = S.SEQLOTEESTOQUE AND T.SEQPRODUTO = S.SEQPRODUTO)
+    ON    (T.NROEMPRESA = S.NROEMPRESA AND T.NROLOTEESTOQUE = S.NROLOTEESTOQUE AND T.SEQPRODUTO = S.SEQPRODUTO)
   WHEN MATCHED THEN
        UPDATE SET
              T.SEQLOCAL  = S.SEQLOCAL,
-             T.NROLOTEESTOQUE  = S.NROLOTEESTOQUE,
+             T.SEQLOTEESTOQUE  = S.SEQLOTEESTOQUE,
              T.DTAFABRICACAO  = S.DTAFABRICACAO,
              T.DTAVALIDADE  = S.DTAVALIDADE,
              T.DTAENTRADA  = S.DTAENTRADA,
              T.ESTQLOTE  = S.ESTQLOTE,
              T.ATIVO  = S.ATIVO
        WHERE T.SEQLOCAL  <> S.SEQLOCAL 
-       OR    T.SEQPRODUTO   <> S.SEQPRODUTO
-       OR    T.NROLOTEESTOQUE  <> S.NROLOTEESTOQUE
+       OR    T.SEQLOTEESTOQUE  <> S.SEQLOTEESTOQUE
        OR    T.DTAFABRICACAO  <> S.DTAFABRICACAO
        OR    T.DTAVALIDADE  <> S.DTAVALIDADE
        OR    T.DTAENTRADA  <> S.DTAENTRADA
        OR    T.ESTQLOTE  <> S.ESTQLOTE
        OR    T.ATIVO  <> S.ATIVO
+       OR    T.IDREF  <> S.IDREF
           
   WHEN NOT MATCHED THEN
         INSERT(
@@ -6491,7 +6501,8 @@ BEGIN
           T.DTAVALIDADE,
           T.DTAENTRADA,
           T.ESTQLOTE,
-          T.ATIVO
+          T.ATIVO,
+          T.IDREF
           ) 
         VALUES(
           S.NROEMPRESA,
@@ -6503,7 +6514,8 @@ BEGIN
           S.DTAVALIDADE,
           S.DTAENTRADA,
           S.ESTQLOTE,
-          S.ATIVO);
+          S.ATIVO,
+          S.IDREF);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_estoquelote', 'carrega_tb_estoquelote OK', SYSDATE, CURRENT_TIMESTAMP);
