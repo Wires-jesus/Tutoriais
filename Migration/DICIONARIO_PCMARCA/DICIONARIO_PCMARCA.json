@@ -1,0 +1,6 @@
+{
+    "nome": "DICIONARIO_PCMARCA",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
