@@ -779,8 +779,7 @@ BEGIN
                BEGIN
                  UPDATE PCLOTE
                     SET QT          = (NVL(QT, 0) - NVL(:OLD.QT, 0)) + NVL(:NEW.QT, 0),
-                        QTEST       = (NVL(QTEST, 0) - NVL(:OLD.QTCONT, 0)) + NVL(:NEW.QTCONT, 0),
-                        QTBLOQUEADA = GREATEST( GREATEST(((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0) ),
+                        QTEST       = (NVL(QTEST, 0) - NVL(:OLD.QTCONT, 0)) + NVL(:NEW.QTCONT, 0),                        
                         QTINDENIZ   = GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0),
                         QTINDUSTRIA = GREATEST(((NVL(QTINDUSTRIA, 0) - NVL(:OLD.QTINDUSTRIA, 0))), 0)
                   WHERE NUMLOTE = :NEW.NUMLOTE
@@ -797,6 +796,13 @@ BEGIN
                                  NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL))
                          ELSE
                          NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
+				 IF NVL(:OLD.QTBLOQUEADA, 0) <> NVL(:NEW.QTBLOQUEADA, 0) THEN
+                   UPDATE PCLOTE
+                      SET QTBLOQUEADA = GREATEST( GREATEST(((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0) )
+                    WHERE NUMLOTE = :NEW.NUMLOTE  
+                      AND CODPROD = :NEW.CODPROD
+                      AND CODFILIAL = PKG_ESTOQUE.FILIAL_ESTOQUE_GERENCIAL(:NEW.CODPROD, :NEW.NUMSEQ, 'E', :NEW.NUMTRANSENT);                     
+                 END IF;
                EXCEPTION
                  WHEN OTHERS THEN
                    RAISE_APPLICATION_ERROR(-20003,
