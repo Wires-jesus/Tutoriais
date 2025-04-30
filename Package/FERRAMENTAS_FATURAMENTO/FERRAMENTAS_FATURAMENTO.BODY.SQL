@@ -347,6 +347,39 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
     PINFOXML T_INFOXML;
     VOBSNFE CLOB;
     vRetono VARCHAR2(1) := 'S';
+    FUNCTION OBTER_NUMTRANSITEM(PTRANS IN NUMBER, PPROD IN NUMBER, PSEQ IN NUMBER, PQTDE IN NUMBER, PPRECO IN NUMBER)
+       RETURN PCMOV.NUMTRANSITEM%TYPE IS
+       V_RETORNO PCMOV.NUMTRANSITEM%TYPE;
+       V_QTDEREG NUMBER;
+    BEGIN
+      SELECT MIN(NUMTRANSITEM) RETORNO
+           , COUNT(NUMTRANSITEM) QTDEREG
+        INTO V_RETORNO
+           , V_QTDEREG
+        FROM PCMOV
+       WHERE NUMTRANSENT = PTRANS
+         AND CODPROD = PPROD
+         AND NUMSEQ = PSEQ;
+         
+      IF V_QTDEREG > 1 THEN
+        FOR REG IN (SELECT P.NUMTRANSITEM RETORNO
+                         , PCDADOSXML.NUMTRANSITEM EXISTE
+                      FROM PCMOV P
+                         , PCDADOSXML
+                     WHERE P.NUMTRANSITEM = PCDADOSXML.NUMTRANSITEM(+)
+                       AND P.NUMTRANSENT = PTRANS
+                       AND P.CODPROD = PPROD
+                       AND P.NUMSEQ = PSEQ
+                       AND P.QTCONT = PQTDE
+                       AND NVL(P.PUNITCONT, 0) = PPRECO
+                  ORDER BY P.CODPROD, P.NUMSEQ, P.QTCONT, NVL(P.PUNITCONT, 0))
+        LOOP
+          V_RETORNO := REG.RETORNO;
+          EXIT WHEN (REG.EXISTE IS NULL);
+        END LOOP;
+      END IF;  
+      RETURN V_RETORNO;
+    END;
   BEGIN
      pMensagemRetorno := 'OK';
      BEGIN
@@ -405,6 +438,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         FOR ORIGEM IN (SELECT NFI.*
                          FROM (SELECT PCMOV.CODPROD
                                     , PCMOV.NUMSEQ
+                                    , PCMOV.QTCONT
+                                    , NVL(PCMOV.PUNITCONT, 0) PUNITCONT
                                     , PCMOV.NUMTRANSITEM
                                     , PCMOVCOMPLE.DESCRICAONFE
                                     , PCMOVCOMPLE.NITEMXML
@@ -418,6 +453,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                UNION
                                SELECT PCMOV.CODPROD
                                     , PCMOV.NUMSEQ
+                                    , PCMOV.QTCONT
+                                    , NVL(PCMOV.PUNITCONT, 0) PUNITCONT
                                     , PCMOV.NUMTRANSITEM
                                     , PCMOVCOMPLE.DESCRICAONFE
                                     , PCMOVCOMPLE.NITEMXML
@@ -427,7 +464,8 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
                                  FROM PCMOVCOMPLEPREFAT PCMOVCOMPLE
                                     , PCMOVPREFAT PCMOV
                                 WHERE PCMOVCOMPLE.NUMTRANSITEM = PCMOV.NUMTRANSITEM
-                                  AND PCMOV.NUMTRANSVENDA = REG.NUMTRANSVENDA) NFI)
+                                  AND PCMOV.NUMTRANSVENDA = REG.NUMTRANSVENDA) NFI
+                     ORDER BY CODPROD, NUMSEQ, QTCONT, PUNITCONT)
         LOOP
            PINFOXML.DESCRICAONFE := ORIGEM.DESCRICAONFE;
            PINFOXML.NITEMXML := ORIGEM.NITEMXML;
@@ -437,12 +475,11 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
            PINFOXML.XML_QTRIB := ORIGEM.XML_QTRIB;
            
            BEGIN
-             SELECT NUMTRANSITEM
-               INTO PINFOXML.NUMTRANSITEM
-               FROM PCMOV
-              WHERE NUMTRANSENT = REG.NUMTRANSENT
-                AND CODPROD = ORIGEM.CODPROD
-                AND NUMSEQ = ORIGEM.NUMSEQ;
+             PINFOXML.NUMTRANSITEM := OBTER_NUMTRANSITEM(REG.NUMTRANSENT
+                                                       , ORIGEM.CODPROD
+                                                       , ORIGEM.NUMSEQ
+                                                       , ORIGEM.QTCONT
+                                                       , ORIGEM.PUNITCONT);
                 
              IF (GRAVAR_INFOXML(PINFOXML, pMensagemRetorno) = 'N') THEN
                pMensagemRetorno := pMensagemRetorno ||' Transação de entrada: '|| REG.NUMTRANSENT 

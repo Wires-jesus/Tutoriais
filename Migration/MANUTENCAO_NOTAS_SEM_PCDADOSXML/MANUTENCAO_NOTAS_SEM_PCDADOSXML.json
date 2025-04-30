@@ -1,5 +1,16 @@
 {
   "nome": "MANUTENCAO_NOTAS_SEM_PCDADOSXML",
   "tipoPLSQL": "MIGRATION",
-  "dependencias": []
+  "dependencias": [
+	  {
+	   "nome":"NFE_PRODUTO_ENTRADA",
+	   "tipo":"OBJETO_PLSQL",
+	   "versao":"5.0.26.000"
+	  },
+	  {
+	   "nome":"NFE_PRODUTO_SAIDA",
+	   "tipo":"OBJETO_PLSQL",
+	   "versao":"5.0.21.000"
+	  }
+  ]
 }

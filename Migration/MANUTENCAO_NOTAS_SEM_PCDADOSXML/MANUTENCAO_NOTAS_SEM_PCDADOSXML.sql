@@ -1,6 +1,4 @@
 declare
-  v_numtransitem pcmovcomple.numtransitem%type;
-
   procedure grava_pcmovcomple(p_numtransitem number,
                               p_produto varchar2,
                               p_rownum number,
@@ -97,21 +95,22 @@ begin
                  where situacaonfe = 100
                    and especie = 'NF'
            and dtcancel is null
-                   and nvl(pcnfsaid.docemissao, 'x') not in ('CE','SF', 'MF', 'CF')
+                   and nvl(pcnfsaid.docemissao, 'x') not in ('CE', 'SF', 'MF', 'CF')
                    and dtsaida between trunc(sysdate - 120) and trunc(sysdate)
-                   and (select count(*)
+                   and (select count(1)
                           from pcmov
-                         where pcmov.numtransvenda = pcnfsaid.numtransvenda) <>
-                       (select count(*)
+                         where pcmov.numtransvenda = pcnfsaid.numtransvenda
+                           and pcmov.qtcont > 0) <>
+                       (select count(1)
                           from pcdadosxml
                          where numtransitem in
                                (select numtransitem
                                   from pcmov
-                                 where pcmov.numtransvenda =
-                                       pcnfsaid.numtransvenda))) loop
+                                 where pcmov.numtransvenda = pcnfsaid.numtransvenda
+                                   and pcmov.qtcont > 0))) loop
 begin
     for itens in (select rownum,
-                       codprod,
+                         codprod,
                          nvl(p.base_Icms, 0) as base_Icms,
                          nvl(p.valor_Icms, 0) as valor_Icms,
                          nvl(p.base_St, 0) as base_St,
@@ -132,26 +131,18 @@ begin
                          nvl(p.valor_seguro, 0) as valor_seguro,
                          nvl(p.valor_Produtos, 0) as valor_Produtos,
                          p.codigo_produto,
-                         p.numero_sequencia
+                         p.numero_sequencia,
+                         p.numtransitem
                     from table(cast(nfe_produto_saida(notas.numtransvenda) as tabela_nfe_produto)) p) loop
 
-      select numtransitem
-        into v_numtransitem
-        from pcmov
-       where numtransvenda = notas.numtransvenda
-         and codprod = itens.codprod
-         and numseq = itens.numero_sequencia
-         and dtmov = trunc(notas.dtsaida)
-         and rownum = 1;
-
-       grava_pcmovcomple(v_numtransitem,
+       grava_pcmovcomple(itens.numtransitem,
                          itens.produto,
                          itens.rownum,
                          itens.unidade_comercial,
                          itens.quantidade_comercial,
                          itens.quantidade_tributavel);
 
-      atualiza_grava_pcdadosxml(v_numtransitem,
+      atualiza_grava_pcdadosxml(itens.numtransitem,
                                itens.valor_Produtos,
                                itens.valor_tributavel,
                                itens.valor_desconto,
@@ -184,20 +175,22 @@ begin
                    and especie = 'NF'
                    and dtcancel is null
                    and dtent between trunc(sysdate - 120) and trunc(sysdate)
-                   and (select count(*)
+                   and (select count(1)
                           from pcmov
-                         where pcmov.numtransent = pcnfent.numtransent) <>
-                       (select count(*)
+                         where pcmov.numtransent = pcnfent.numtransent
+                           and pcmov.qtcont > 0) <>
+                       (select count(1)
                           from pcdadosxml
                          where numtransitem in
                                (select numtransitem
                                   from pcmov
-                                 where pcmov.numtransent = pcnfent.numtransent))) loop
+                                 where pcmov.numtransent = pcnfent.numtransent
+                                   and pcmov.qtcont > 0))) loop
 
 begin
-  dbms_output.put_line('nota: ' || notas.numtransent);
+    dbms_output.put_line('nota: ' || notas.numtransent);
     for itens in (select rownum,
-             codprod,
+                         codprod,
                          nvl(p.base_Icms, 0) as base_Icms,
                          nvl(p.valor_Icms, 0) as valor_Icms,
                          nvl(p.base_St, 0) as base_St,
@@ -218,26 +211,18 @@ begin
                          nvl(p.valor_seguro, 0) as valor_seguro,
                          nvl(p.valor_Produtos, 0) as valor_Produtos,
                          p.codigo_produto,
-                         p.numero_sequencia
+                         p.numero_sequencia,
+                         p.numtransitem
                     from table(cast(nfe_produto_entrada(notas.numtransent) as tabela_nfe_produto)) p) loop
 
-      select numtransitem
-        into v_numtransitem
-        from pcmov
-       where numtransent = notas.numtransent
-         and codprod = itens.codprod
-         and nvl(pcmov.numseqadicao, pcmov.numseq) = itens.numero_sequencia
-         and dtmov = trunc(notas.dtent)
-         and rownum = 1;
-
-      grava_pcmovcomple(v_numtransitem,
+      grava_pcmovcomple(itens.numtransitem,
                  itens.produto,
                  itens.rownum,
                  itens.unidade_comercial,
                  itens.quantidade_comercial,
                  itens.quantidade_tributavel);
 
-      atualiza_grava_pcdadosxml(v_numtransitem,
+      atualiza_grava_pcdadosxml(itens.numtransitem,
                                itens.valor_Produtos,
                                itens.valor_tributavel,
                                itens.valor_desconto,
