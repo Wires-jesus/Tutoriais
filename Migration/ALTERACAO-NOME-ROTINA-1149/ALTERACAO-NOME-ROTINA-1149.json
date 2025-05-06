@@ -2,10 +2,5 @@
     "nome": "ALTERACAO-NOME-ROTINA-1149",
     "tipoPLSQL": "MIGRATION",
     "dependencias":[
-      {
-        "nome": "ROTINA.1149",
-        "tipo": "ROTINA",
-        "versao": "3.0.01.000"
-      }
     ]
   }
