@@ -4,7 +4,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                                        pNUMDOCWINTHOR  IN NUMBER,
                                        pTIPOINTEGRACAO IN VARCHAR2,
                                        pTIPODOCWINTHOR IN VARCHAR2) IS
-  
+
     vDIVIDIRDOCUMENTO           VARCHAR2(2);
     vDOCWMSSAAS_FRACIONADO      NUMBER(14);
     vDOCWMSSAAS_CAIXA           NUMBER(14);
@@ -321,6 +321,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     vNUMCAR                 NUMBER(8);
     vCODCLI                 NUMBER(12);
     vOBS                    VARCHAR2(500);
+    vOBS_ORIGINAL           VARCHAR2(500);
     vEXPORTAINFODOCORIGINAL VARCHAR2(2);
     vBODY                   VARCHAR2(500);
     vIDENTIFCADOR_OPERACAO  VARCHAR2(30);
@@ -328,6 +329,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
   BEGIN
 
     vOBS                    := '';
+    vOBS_ORIGINAL           := '';
     vEXPORTAINFODOCORIGINAL := 'N';
     vNUMCAR                 := 0;
     vCODCLI                 := 0;
@@ -347,10 +349,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
         vCODCLI := 0;
     END;
 
+    SELECT NVL(OBS,'')
+    INTO vOBS_ORIGINAL
+    FROM PCPEDC WHERE NUMPED = pNUMDOCWINTHOR;
+
+
     SELECT DECODE(NVL((SELECT NVL(VALOR, 'N')
                         FROM PCPARAMINTEGRACAOWMSSAAS
                        WHERE PARAMETRO = 'EXPORTA_RAMO_ATIVIDADE_CLIENTE'
-                         AND CODFILIAL = '1'),
+                         AND CODFILIAL = pCODFILIAL),
                       'N'),
                   'S',
                   DECODE(ATIV.RAMO,
@@ -403,7 +410,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
             FROM PCPEDC
            WHERE NUMPED = pNUMDOCWINTHOR
              AND ROWNUM = 1),
-         vOBS);
+         vOBS_ORIGINAL || vOBS);
     EXCEPTION
       WHEN DUP_VAL_ON_INDEX THEN
         vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP,
