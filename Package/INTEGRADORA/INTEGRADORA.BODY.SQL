@@ -20048,7 +20048,7 @@ FUNCTION func_inseriritemcesta
                                  '3',
                                  'Produto sem estoque no momento da importação!;' || 'Qt Disponivel : ' || (itens.qt - nvl(itens.qtfalta,0)) || ' Qt Pedida : ' || (itens.qt) || ';',
                                  NULL,
-                                 null);
+                                 pcpedi.numseq);
 
               END IF;
 
