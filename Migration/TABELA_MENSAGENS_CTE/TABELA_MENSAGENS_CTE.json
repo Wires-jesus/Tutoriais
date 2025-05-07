@@ -1,5 +1,11 @@
 {
  "nome":"TABELA_MENSAGENS_CTE",
  "tipoPLSQL":"MIGRATION",
- "dependencias": ""
+ "dependencias": [
+  {
+    "nome": "PCMENSAGEMCTE",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+	}
+]
 }
