@@ -2066,7 +2066,6 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
                              (NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0)) -
                              (NVL(B.QTCONT, 0) * NVL(B.ST, 0)) -
                              ((NVL(B.QTCONT, 0)* NVL(MC.VLFECP, 0))) +
-
                              ROUND(NVL(B.QTCONT, 0)  * NVL(B.VLIPI, 0), 2) +
                              ROUND(NVL(B.QTCONT, 0)  * NVL(B.ST, 0), 2) +
                              ROUND((NVL(B.QTCONT, 0) * NVL(MC.VLFECP, 0)), 2) +
@@ -2083,6 +2082,7 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
                            + NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0)
                            + NVL(B.QTCONT, 0) * NVL(B.VLOUTROS, 0)
                            + NVL(B.QTCONT, 0) * NVL(MC.VLFECP, 0)
+                           + NVL(B.QTCONT, 0) * NVL(B.VLFRETE, 0)
                          , 2) 
               ELSE
                 ROUND(  ROUND(B.QTCONT * (NVL(B.PUNITCONT,0) - NVL(B.VLIPI,0) - NVL(B.ST,0) - NVL(MC.VLFECP,0) ),2)
@@ -2090,6 +2090,7 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
                            + ROUND((NVL(B.QTCONT, 0) * NVL(B.VLIPI, 0)), 2)
                            + ROUND((NVL(B.QTCONT, 0) * NVL(B.VLOUTROS, 0)), 2)
                            + ROUND((NVL(B.QTCONT, 0) * NVL(MC.VLFECP, 0)), 2)
+                           + ROUND((NVL(B.QTCONT, 0) * NVL(B.VLFRETE, 0)), 2)                           
                          , 2)
               END)
            END VLDESDOBRADO,
@@ -6576,4 +6577,6 @@ exception
 end;
 -- 001 - 09/10/2024 - Gravação dos campos VLPRODUTO e VLDESCONTO.
 -- 002 - 25/09/2024 - Gravação do campo NUMSQL (identificador da origem do documento no livro fiscal)
--- V07 -
+-- 003 - 07/11/2024 - Ajuste na geração do vldesdobrado para notas de devolução que não são da rotina 1303.
+-- 004 - 06/05/2025 - Ajuste no sql 5 na coluna vldesdobrado. Foi adicionado o valor do frete conforme é feito na saída.
+-- V009.2 --
