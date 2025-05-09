@@ -4,7 +4,7 @@
  "dependencias": [
   {
    "nome": "TIPO_NFE_CABECALHO",
-   "tipo":"OBJETO_PLSQL",
+   "tipo":"MIGRATION",
    "versao": "7.0.01.000"
   },
   {
