@@ -4,8 +4,8 @@
  "dependencias": [
   {
    "nome": "NFE_PRODUTO_ENTRADA",
-   "tipo":"OBJETO_PLSQL",
-   "versao": "6.0.06.000"
+   "tipo": "OBJETO_PLSQL",
+   "versao": "7.0.15.000"
   },
   {
    "nome": "TABELA_NFE_RODAPE",
