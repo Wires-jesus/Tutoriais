@@ -1,0 +1,11 @@
+{
+	"nome":"TRG_PCTRIBUTACAO_F_PRODUTO_UPD",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+  {
+    "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
+    "tipo": "TABELA",
+    "versao": "7.0.03.000"
+  }  
+ ]
+}
