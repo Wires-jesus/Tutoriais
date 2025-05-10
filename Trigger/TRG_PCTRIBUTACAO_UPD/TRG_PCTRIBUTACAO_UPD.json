@@ -1,0 +1,26 @@
+{
+	"nome":"TRG_PCTRIBUTACAO_UPD",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+	{
+    "nome": "PCTRIBUTACAO",
+    "tipo": "TABELA",
+    "versao": "7.0.05.000"
+	},
+  {
+    "nome": "PCTRIBUTACAO_EXCECAO",
+    "tipo": "TABELA",
+    "versao": "7.0.04.000"
+  },
+  {
+    "nome": "PCTRIBUTACAO_FILTRO_NCM",
+    "tipo": "TABELA",
+    "versao": "7.0.03.000"
+  },
+  {
+    "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
+    "tipo": "TABELA",
+    "versao": "7.0.03.000"
+  }  
+ ]
+}

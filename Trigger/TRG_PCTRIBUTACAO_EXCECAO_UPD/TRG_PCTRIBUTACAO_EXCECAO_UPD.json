@@ -1,0 +1,11 @@
+{
+	"nome":"TRG_PCTRIBUTACAO_EXCECAO_UPD",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+  {
+    "nome": "PCTRIBUTACAO_EXCECAO",
+    "tipo": "TABELA",
+    "versao": "7.0.04.000"
+  }
+ ]
+}
