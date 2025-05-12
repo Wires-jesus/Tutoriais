@@ -2,6 +2,11 @@
  "tipoPLSQL":"VIEW",
  "dependencias": [
   {
+   "nome": "PCMOV",
+   "tipo":"TABELA",
+   "versao": "7.0.03.000"
+  }, 
+  {
    "nome": "PCPRODUT",
    "tipo":"TABELA",
    "versao": "3.0.01.000"
@@ -15,16 +20,11 @@
    "nome": "PCPRODFILIAL",
    "tipo":"TABELA",
    "versao": "3.0.02.000"
-  },
+  }, 
   {
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
    "versao": "7.0.04.000"
-  },
-  {
-   "nome": "PCMOVCOMPLEPREFAT",
-   "tipo":"TABELA",
-   "versao": "7.0.01.000"
   }
  ]
 }

@@ -2,6 +2,16 @@
  "tipoPLSQL":"VIEW",
  "dependencias": [
   {
+   "nome": "PCMOV",
+   "tipo":"TABELA",
+   "versao": "7.0.03.000"
+  },
+  {
+   "nome": "PCMOVPREFAT",
+   "tipo":"TABELA",
+   "versao": "7.0.03.000"
+  },
+  {
    "nome": "PCMOVCOMPLE",
    "tipo":"TABELA",
    "versao": "7.0.04.000"
@@ -29,7 +39,7 @@
   {
    "nome": "SQL_NFE_CABECALHO_SAIDA",
    "tipo": "OBJETO_PLSQL",
-   "versao": "4.0.01.000"
+   "versao": "7.0.04.000"
   },
   {
    "nome": "PARAMETRO",
