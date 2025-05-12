@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 (
     SELECT
             e.codfilial,
-			   c5.codfilialintegracao,
+         c5.codfilialintegracao,
             e.dtulalterintegra,
             e.dtcadastro,
             e.dtinativo,
@@ -55,6 +55,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             e.dtultaltpvendaatac,
             p.anp anp,
             p.descanp descanp,
+            p.pglp,
+            p.pgnn,
+            p.pgni,            
             p.codprodprinc,
             (CASE
                 WHEN e.dtinativo IS NOT NULL
@@ -111,11 +114,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMDIVISAOCATEGORIA')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')
              or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
-			    or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))
+          or    (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))
              ) DTPADRAO
       WHERE p.codprod = e.codprod
         AND e.codprod = f.codprod
-		AND p.codprod = f.codprod
+    AND p.codprod = f.codprod
         AND e.codfilial = f.codfilial
         and e.codfilial = c5.codfilial
         AND NVL(P.REVENDA,'S') = 'S'
@@ -129,7 +132,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         --AND p.codprod >= 0
         AND LENGTH(e.codauxiliar) <= 14
         
-		AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+    AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   e.CODFILIAL,
                                                                   'N') = 'S'
       
@@ -163,7 +166,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
 
     UNION ALL
     SELECT E.CODFILIAL,
-	    FC5.codfilialintegracao,
+      FC5.codfilialintegracao,
         E.DTULALTERINTEGRA,
         E.DTCADASTRO,
         E.DTINATIVO,
@@ -173,10 +176,10 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         P.DESCRICAO DESCRICAO,
         E.DESCRICAOECF DESCRICAOREDUZIDA,
         CASE WHEN TIPOPRECIFICACAOFILIAL.TIPOPRECIFICACAO = 'A'  THEN 
-			(NVL(TPR.PVENDAATAC1, 0) * NVL(E.QTUNIT, 1))  
-		ELSE 
-			(NVL(TPR.PVENDA1, 0) * NVL(E.QTUNIT, 1))
-		END PVENDA,
+      (NVL(TPR.PVENDAATAC1, 0) * NVL(E.QTUNIT, 1))  
+    ELSE 
+      (NVL(TPR.PVENDA1, 0) * NVL(E.QTUNIT, 1))
+    END PVENDA,
         TPR.DTULTALTPVENDA,
         0 POFERTA,
         0 POFERTAATAC,
@@ -192,9 +195,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         --LEAST(to_number(to_char(NVL(PF.QTMINIMAATACADO, 0), 9999999.999), 999999.999)) QTMINIMAATACADO,
         LEAST(NVL(round(PF.QTMINIMAATACADO, 3), 0), 999999.999) QTMINIMAATACADO,
         CASE WHEN TIPOPRECIFICACAOFILIAL.TIPOPRECIFICACAO = 'A'  THEN 
-			(NVL(TPR.PVENDA1, 0) * NVL(E.QTUNIT, 1))
+      (NVL(TPR.PVENDA1, 0) * NVL(E.QTUNIT, 1))
         ELSE 
-			(NVL(TPR.PVENDAATAC1, 0) * NVL(E.QTUNIT, 1)) 
+      (NVL(TPR.PVENDAATAC1, 0) * NVL(E.QTUNIT, 1)) 
         END PVENDAATAC,
         NVL(E.ENVIABALANCA, 'N') ENVIABALANCA,
         NVL(E.UNIDADE, P.UNIDADE) UNIDADE,
@@ -228,6 +231,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         TPR.DTULTALTPVENDA DTULTALTPVENDAATAC,
         P.ANP ANP,
         P.DESCANP DESCANP,
+        P.PGLP,
+        P.PGNN,
+        P.PGNI,        
         P.CODPRODPRINC,
         (CASE
           WHEN E.DTINATIVO IS NOT NULL THEN
@@ -258,7 +264,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         P.CODAUXILIARTRIB,
         0 CODCEST, --PROVISORIO,
         E.QTMAXVENDA,
-        NVL(p.estoqueporlote, 'N') estoqueporlote					
+        NVL(p.estoqueporlote, 'N') estoqueporlote          
    FROM PCTABPR TPR,
         PCEMBALAGEM E,
         PCPRODUT P
@@ -290,8 +296,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODCOMPOSTO')   
              OR (UPPER(S.OBJETOREFERENCIA) =
                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECOAPARTIR')
-			 OR (UPPER(S.OBJETOREFERENCIA) =
-                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))	)
+       OR (UPPER(S.OBJETOREFERENCIA) =
+                'PKG_SINC_PDV_CONSINCO.CARREGA_TB_LIMITEVENDAFAMILIA'))  )
   DTPADRAO, (SELECT VALOR MARCAPADRAO
            FROM PCPARAMFILIAL
           WHERE NOME = 'MARCAINTEGRACAOCONSINCO'
@@ -302,16 +308,16 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
   WHERE NVL(NVL(PF.REVENDA ,P.REVENDA), 'S') = 'S'
     --AND NVL(P.TIPOMERC, 'L') = 'L'
     AND P.DTEXCLUSAO IS NULL
-	AND E.CODPROD = TPR.CODPROD
-	AND P.CODPROD = TPR.CODPROD
-	AND P.CODPROD = E.CODPROD
-	AND PF.CODPROD = TPR.CODPROD
-	AND PF.CODPROD = P.CODPROD
-    AND	PF.CODPROD = E.CODPROD
-	AND FC5.CODFILIAL = PF.CODFILIAL 
-	AND FC5.CODFILIAL = E.CODFILIAL
-	AND E.CODFILIAL = PF.CODFILIAL
-	AND TIPOPRECIFICACAOFILIAL.CODFILIAL = E.CODFILIAL
+  AND E.CODPROD = TPR.CODPROD
+  AND P.CODPROD = TPR.CODPROD
+  AND P.CODPROD = E.CODPROD
+  AND PF.CODPROD = TPR.CODPROD
+  AND PF.CODPROD = P.CODPROD
+    AND  PF.CODPROD = E.CODPROD
+  AND FC5.CODFILIAL = PF.CODFILIAL 
+  AND FC5.CODFILIAL = E.CODFILIAL
+  AND E.CODFILIAL = PF.CODFILIAL
+  AND TIPOPRECIFICACAOFILIAL.CODFILIAL = E.CODFILIAL
     AND (LENGTH(P.NBM) >= 2 OR P.TIPOMERC IN ('KT', 'CB'))
     AND E.CODPROD >= 0
     AND PF.CODPROD >= 0
