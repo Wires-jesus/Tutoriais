@@ -3,19 +3,14 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
-   "nome": "NFE_PRODUTO_ENTRADA",
-   "tipo": "OBJETO_PLSQL",
-   "versao": "7.0.15.000"
-  },
-  {
-   "nome": "TABELA_NFE_RODAPE",
-   "tipo":"OBJETO_PLSQL",
-   "versao": "5.0.01.000"
+   "nome": "TIPO_NFE_RODAPE",
+   "tipo": "MIGRATION",
+   "versao": "7.0.01.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"7.0.01.000"
+   "versao":"7.0.02.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA_COMP",

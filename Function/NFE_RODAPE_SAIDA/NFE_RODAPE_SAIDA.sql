@@ -17,87 +17,7 @@ BEGIN
   FOR RODAPE IN CR_RODAPE
   LOOP
     RETORNO.EXTEND;
-
-    RETORNO(RETORNO.COUNT) := TIPO_NFE_RODAPE(ANTT                  => NULL,
-                                              BASE_ICMS             => NULL,
-                                              BASE_ICMS_ST          => NULL,
-                                              BASE_ISS              => NULL,
-                                              CIDADE_TRANSPORTADOR  => NULL,
-                                              CNPJ_TRANSPORTADOR    => NULL,
-                                              CODMOTORISTA          => NULL,
-                                              DTENTREGA             => NULL,
-                                              END_TRANSPORTADOR     => NULL,
-                                              ESPECIEVOLUME         => NULL,
-                                              ESTADO_TRANSPORTADOR  => NULL,
-                                              IE_TRANSPORTADOR      => NULL,
-                                              MARCAVOLUME           => NULL,
-                                              MODALIDADE_FRETE      => NULL,
-                                              NOME_MOTORISTA        => NULL,
-                                              NUMCAR                => NULL,
-                                              NUM_VOLUME            => NULL,
-                                              NUMVOL                => NULL,
-                                              NUMVOLUMESCONFERENCIA => NULL,
-                                              VOLUME_PEDIDO         => NULL,
-                                              PESO_BRUTO            => NULL,
-                                              PESO_LIQUIDO          => NULL,
-                                              PLACA                 => NULL,
-                                              PLACA_UF              => NULL,
-                                              TRANSPORTADOR         => NULL,
-                                              VLDESCRODAPE          => NULL,
-                                              VALOR_COFINS          => NULL,
-                                              VALOR_DESCONTO        => NULL,
-                                              VALOR_FRETE           => NULL,
-                                              VALOR_ICMS            => NULL,
-                                              VALOR_ICMS_ST         => NULL,
-                                              VALOR_IPI             => NULL,
-                                              VALOR_II              => NULL,
-                                              VALOR_ISS             => NULL,
-                                              VALOR_OUTRO           => NULL,
-                                              VALOR_PIS             => NULL,
-                                              VALOR_TOTAL           => NULL,
-                                              VALOR_TOTAL_PRODUTOS  => NULL,
-                                              NVOL                  => NULL,
-                                              INFOADICIONALFISCO    => NULL,
-                                              NUM_VOLUME_EMB        => NULL,
-                                              DESC_PL_PAGTO         => NULL,
-                                              VLTOTALIMPOSTOS       => NULL,
-                                              VALOR_TOTAL_SEGURO    => NULL,
-                                              VALOR_TOTAL_DESONERADO => NULL,
-                                              VLFCPPART             => NULL,
-                                              VLICMSPARTDEST        => NULL,
-                                              VLICMSPARTREM         => NULL,
-                                              VLBASEFCPICMS         => NULL,
-                                              VLBASEFCPST           => NULL,
-                                              VLBCFCPSTRET          => NULL,
-                                              VLFCPSTRET            => NULL,
-                                              VLCREDFCPICMSSN       => NULL,
-                                              VLFECP                => NULL,
-                                              VLACRESCIMOFUNCEP     => NULL,
-                                              VALOR_IPI_DEVOLVIDO   => NULL,
-                                              DATACONSOLIDACAOPREFAT => NULL,
-                                              PREFATURAMENTO         => NULL,
-                                              VALOR_SERVICO_TRANSP   => NULL,
-                                              BASE_RETENCAO_ICMS_TRANSP    => NULL,
-                                              PERC_RETENCAO_ICMS_TRANSP    => NULL,
-                                              VALOR_RETENCAO_ICMS_TRANSP  => NULL,
-                                              CFOP_TRANSP      => NULL,
-                                              COD_MUN_FATO_GERADOR_TRANSP => NULL,
-                                              FINALIDADENFE => NULL,
-                                              GERAGRPRETTRIB    => NULL,
-                                              VLPISRETORGPUB    => NULL,
-                                              VLCOFINSRETORGPUB => NULL,
-                                              VLCSLLRETORGPUB   => NULL,
-                                              VLIRPJRETORGPUB   => NULL,
-                                              VLBCIRRFRETORGPUB => NULL,
-                                              QBCMONO           => NULL,
-                                              VICMSMONO         => NULL,
-                                              QBCMONORETEN      => NULL,
-                                              VICMSMONORETEN    => NULL,
-                                              QBCMONODIF        => NULL,
-                                              VICMSMONODIF      => NULL,
-                                              QBCMONORET        => NULL,
-                                              VICMSMONORET      => NULL);
-
+    RETORNO(RETORNO.COUNT)                       := TIPO_NFE_RODAPE();
     RETORNO(RETORNO.COUNT).ANTT                  := RODAPE.ANTT;
     RETORNO(RETORNO.COUNT).BASE_ICMS             := RODAPE.BASE_ICMS;
     RETORNO(RETORNO.COUNT).BASE_ICMS_ST          := RODAPE.BASE_ICMS_ST;
@@ -188,7 +108,11 @@ BEGIN
     RETORNO(RETORNO.COUNT).QBCMONODIF                  := RODAPE.QBCMONODIF;
     RETORNO(RETORNO.COUNT).VICMSMONODIF                := RODAPE.VICMSMONODIF;
     RETORNO(RETORNO.COUNT).QBCMONORET                  := RODAPE.QBCMONORET;
-    RETORNO(RETORNO.COUNT).VICMSMONORET                := RODAPE.VICMSMONORET;     
+    RETORNO(RETORNO.COUNT).VICMSMONORET                := RODAPE.VICMSMONORET;      
+    RETORNO(RETORNO.COUNT).VIS                         := RODAPE.VIS;
+    RETORNO(RETORNO.COUNT).VBCIBSCBS                   := RODAPE.VBCIBSCBS;
+    RETORNO(RETORNO.COUNT).VIBS                        := RODAPE.VIBS;
+    RETORNO(RETORNO.COUNT).VCBS                        := RODAPE.VCBS;
 
   END LOOP;
 
@@ -196,87 +120,7 @@ BEGIN
     FOR RODAPE IN CR_RODAPE_COMPL
     LOOP
       RETORNO.EXTEND;
-
-      RETORNO(RETORNO.COUNT) := TIPO_NFE_RODAPE(ANTT                  => NULL,
-                                                BASE_ICMS             => NULL,
-                                                BASE_ICMS_ST          => NULL,
-                                                BASE_ISS              => NULL,
-                                                CIDADE_TRANSPORTADOR  => NULL,
-                                                CNPJ_TRANSPORTADOR    => NULL,
-                                                CODMOTORISTA          => NULL,
-                                                DTENTREGA             => NULL,
-                                                END_TRANSPORTADOR     => NULL,
-                                                ESPECIEVOLUME         => NULL,
-                                                ESTADO_TRANSPORTADOR  => NULL,
-                                                IE_TRANSPORTADOR      => NULL,
-                                                MARCAVOLUME           => NULL,
-                                                MODALIDADE_FRETE      => NULL,
-                                                NOME_MOTORISTA        => NULL,
-                                                NUMCAR                => NULL,
-                                                NUM_VOLUME            => NULL,
-                                                NUMVOL                => NULL,
-                                                NUMVOLUMESCONFERENCIA => NULL,
-                                                VOLUME_PEDIDO         => NULL,
-                                                PESO_BRUTO            => NULL,
-                                                PESO_LIQUIDO          => NULL,
-                                                PLACA                 => NULL,
-                                                PLACA_UF              => NULL,
-                                                TRANSPORTADOR         => NULL,
-                                                VLDESCRODAPE          => NULL,
-                                                VALOR_COFINS          => NULL,
-                                                VALOR_DESCONTO        => NULL,
-                                                VALOR_FRETE           => NULL,
-                                                VALOR_ICMS            => NULL,
-                                                VALOR_ICMS_ST         => NULL,
-                                                VALOR_IPI             => NULL,
-                                                VALOR_II              => NULL,
-                                                VALOR_ISS             => NULL,
-                                                VALOR_OUTRO           => NULL,
-                                                VALOR_PIS             => NULL,
-                                                VALOR_TOTAL           => NULL,
-                                                VALOR_TOTAL_PRODUTOS  => NULL,
-                                                NVOL                  => NULL,
-                                                INFOADICIONALFISCO    => NULL,
-                                                NUM_VOLUME_EMB        => NULL,
-                                                DESC_PL_PAGTO         => NULL,
-                                                VLTOTALIMPOSTOS       => NULL,
-                                                VALOR_TOTAL_SEGURO    => NULL,
-                                                VALOR_TOTAL_DESONERADO => NULL,
-                                                VLFCPPART             => NULL,
-                                                VLICMSPARTDEST        => NULL,
-                                                VLICMSPARTREM         => NULL,
-                                                VLBASEFCPICMS         => NULL,
-                                                VLBASEFCPST           => NULL,
-                                                VLBCFCPSTRET          => NULL,
-                                                VLFCPSTRET            => NULL,
-                                                VLCREDFCPICMSSN       => NULL,
-                                                VLFECP                => NULL,
-                                                VLACRESCIMOFUNCEP     => NULL,
-                                                VALOR_IPI_DEVOLVIDO   => NULL,
-                                                DATACONSOLIDACAOPREFAT => NULL,
-                                                PREFATURAMENTO         => NULL,
-                                                VALOR_SERVICO_TRANSP      => NULL,
-                                                BASE_RETENCAO_ICMS_TRANSP   => NULL,
-                                                PERC_RETENCAO_ICMS_TRANSP   => NULL,
-                                                VALOR_RETENCAO_ICMS_TRANSP  => NULL,
-                                                CFOP_TRANSP        => NULL,
-                                                COD_MUN_FATO_GERADOR_TRANSP => NULL,
-                                                FINALIDADENFE => NULL,
-                                                GERAGRPRETTRIB    => NULL,
-                                                VLPISRETORGPUB    => NULL,
-                                                VLCOFINSRETORGPUB => NULL,
-                                                VLCSLLRETORGPUB   => NULL,
-                                                VLIRPJRETORGPUB   => NULL,
-                                                VLBCIRRFRETORGPUB => NULL,
-                                                QBCMONO           => NULL,
-                                                VICMSMONO         => NULL,
-                                                QBCMONORETEN      => NULL,
-                                                VICMSMONORETEN    => NULL,
-                                                QBCMONODIF        => NULL,
-                                                VICMSMONODIF      => NULL,
-                                                QBCMONORET        => NULL,
-                                                VICMSMONORET      => NULL);
-
+      RETORNO(RETORNO.COUNT)                       := TIPO_NFE_RODAPE();
       RETORNO(RETORNO.COUNT).ANTT                  := NULL;
       RETORNO(RETORNO.COUNT).BASE_ICMS             := RODAPE.BASE_ICMS;
       RETORNO(RETORNO.COUNT).BASE_ICMS_ST          := RODAPE.BASE_ST;
@@ -365,7 +209,10 @@ BEGIN
       RETORNO(RETORNO.COUNT).VICMSMONODIF                := 0;
       RETORNO(RETORNO.COUNT).QBCMONORET                  := 0;
       RETORNO(RETORNO.COUNT).VICMSMONORET                := 0;        
-
+      RETORNO(RETORNO.COUNT).VIS                         := 0;
+      RETORNO(RETORNO.COUNT).VBCIBSCBS                   := 0;
+      RETORNO(RETORNO.COUNT).VIBS                        := 0;
+      RETORNO(RETORNO.COUNT).VCBS                        := 0;
     END LOOP;
   END IF;
 
