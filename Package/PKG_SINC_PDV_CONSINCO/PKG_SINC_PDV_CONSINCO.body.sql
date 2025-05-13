@@ -586,6 +586,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       P.QTDDIAVALIDADE,
                       P.codanp,
                       P.descanp_prod,
+                      P.percglp,
+                      p.percgnn,
+                      p.percgni,                     
                       P.ativo,
                       P.codproduto
                      -- p.idref
@@ -600,9 +603,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  s.ativo           = b.ATIVO,
                  s.produtocomposto = b.PRODUTOCOMPOSTO,
                  s.seqfamilia      = b.SEQFAMILIA,
+                 s.codanp          = b.codanp,
+                 s.descanp         = b.descanp_prod,
+                 s.percglp         = b.percglp,
+                 s.percgnn         = b.percgnn,
+                 s.percgni         = b.percgni,
                  s.codproduto      = b.codproduto
                 -- s.idref           = b.idref
-	   WHERE NVL(s.descreduzida, '-') <> NVL(b.DESCREDUZIDA, '-')
+     WHERE NVL(s.descreduzida, '-') <> NVL(b.DESCREDUZIDA, '-')
           OR NVL(s.desccompleta, '-') <> NVL(b.DESCCOMPLETA, '-')
           OR NVL(s.ativo, '-') <> NVL(b.ATIVO, '-')
           OR NVL(s.produtocomposto, '-') <> NVL(b.PRODUTOCOMPOSTO, '-')
@@ -616,6 +624,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ATIVO,
              s.PRODUTOCOMPOSTO,
              s.SEQFAMILIA,
+             s.codanp,
+             s.descanp,
+             s.percglp,
+             s.percgnn,
+             s.percgni,             
              s.codproduto
             -- s.idref
              )
@@ -626,6 +639,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ATIVO,
              b.PRODUTOCOMPOSTO,
              b.SEQFAMILIA,
+             b.codanp,
+             b.descanp_prod,
+             b.percglp,
+             b.percgnn,  
+             b.percgni,                  
              b.codproduto
              --b.idref
              );
