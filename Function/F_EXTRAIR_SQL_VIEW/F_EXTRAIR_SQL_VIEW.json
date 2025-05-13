@@ -1,0 +1,7 @@
+{
+ "nome":"F_EXTRAIR_SQL_VIEW",
+ "tipoPLSQL":"FUNCTION",
+ "dependencias": [
+
+ ]
+}
