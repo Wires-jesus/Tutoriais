@@ -279,6 +279,7 @@ SELECT PCNFSAID.CODUSUR,
                         0)),
                    0)),
            0) QTVENDA,
+		   --INICIO_VLCUSTOFIN
        NVL(ROUND((DECODE(PCMOV.CODOPER,
                          'S',
                          (NVL(DECODE(PCNFSAID.CONDVENDA,
@@ -310,6 +311,7 @@ SELECT PCNFSAID.CODUSUR,
                          0)) * (NVL(PCMOV.CUSTOFIN, 0)),
                  2),
            0) VLCUSTOFIN,
+		   --FIM_VLCUSTOFIN
        NVL(ROUND((DECODE(PCMOV.CODOPER,
                          'S',
                          (NVL(DECODE(PCNFSAID.CONDVENDA,
@@ -372,6 +374,7 @@ SELECT PCNFSAID.CODUSUR,
                          0)) * (NVL(PCMOV.CUSTOCONT, 0)),
                  2),
            0) VLCUSTOCONT,
+		   --INICIO_VLCUSTOFINB
        NVL(ROUND((DECODE(PCMOV.CODOPER,
                          'S',
                          (NVL(DECODE(PCNFSAID.CONDVENDA,
@@ -419,6 +422,7 @@ SELECT PCNFSAID.CODUSUR,
                          0)) * (NVL(PCMOV.CUSTOFIN, 0)),
                  2),
            0) VLCUSTOFINB,
+		   --FIM_VLCUSTOFINB
        NVL(ROUND((DECODE(PCMOV.CODOPER,
                          'SB',
                          (NVL(DECODE(PCNFSAID.CONDVENDA,
@@ -471,6 +475,7 @@ SELECT PCNFSAID.CODUSUR,
                          0)) * (NVL(PCMOV.CUSTOREAL, 0)),
                  2),
            0) VLCUSTOREAL,
+		   --INICIO_VLVENDA
        ROUND(NVL(NVL((CASE
                        WHEN ROUND(PCMOVCOMPLE.VLSUBTOTITEM, 2) IS NOT NULL THEN
                         (CASE
@@ -980,6 +985,7 @@ SELECT PCNFSAID.CODUSUR,
                            2)),
                  0),
              2) VLVENDA,
+			 --FIM_VLVENDA
        NVL(NVL(PCMOV.QTCONT, 0) *
            DECODE(PCNFSAID.CONDVENDA,
                   5,
@@ -1043,6 +1049,7 @@ SELECT PCNFSAID.CODUSUR,
                                          END,
                                          0),
            0) VLBONIFIC2,
+		   --INICIO_VLIPI
        NVL((NVL(PCMOV.QT, 0) * DECODE(PCNFSAID.CONDVENDA,
                                       5,
                                       1,
@@ -1066,12 +1073,14 @@ SELECT PCNFSAID.CODUSUR,
          ELSE
           (NVL(PCMOV.VLIPI, 0) * NVL(PCMOV.QT, 0))
        END) VLIPI,
+	   --FIM_VLIPI
        (CASE
          WHEN ((PCMOV.CODOPER = 'SB')) THEN
           (NVL(PCMOV.VLIPI, 0) * NVL(PCMOV.QT, 0))
          ELSE
           0
        END) VLIPIBONIFIC,
+	   --INICIO_ICMSRETIDO
        (CASE
          WHEN ((PCMOV.CODOPER = 'SB')) THEN
           0
@@ -1089,6 +1098,7 @@ SELECT PCNFSAID.CODUSUR,
                      2),
                0))
        END) ICMSRETIDO,
+	   --FIM_ICMSRETIDO
        (CASE
          WHEN ((PCMOV.CODOPER = 'SB')) THEN
           (NVL(ROUND(DECODE(PCNFSAID.CONDVENDA,
@@ -1106,6 +1116,7 @@ SELECT PCNFSAID.CODUSUR,
          ELSE
           0
        END) ICMSRETIDOBONIFIC, /*Campos acrescentados para atender a consolidação de dados na 504 e 507*/
+	   --INICIO_VLFECP
        (CASE
          WHEN ((PCMOV.CODOPER = 'SB')) THEN
           0
@@ -1123,6 +1134,7 @@ SELECT PCNFSAID.CODUSUR,
                      2),
                0))
        END) VLFECP,
+	   --FIM_VLFECP
        (CASE
          WHEN ((PCMOV.CODOPER = 'SB')) THEN
           (NVL(ROUND(DECODE(PCNFSAID.CONDVENDA,
@@ -1162,6 +1174,7 @@ SELECT PCNFSAID.CODUSUR,
        NVL(PCNFSAID.CONSUMIDORFINAL, 'N') CONSUMIDORFINAL,
        NVL(PCNFSAID.TIPOFJ, PCCLIENT.TIPOFJ) TIPOFJ,
        NVL(PCNFSAID.IEENT, 'ISENTO') IEENT,
+	   --INICIO_VLREPASSE
        NVL(ROUND((NVL(PCMOV.VLREPASSE, 0) *
                  DECODE(PCNFSAID.CONDVENDA,
                          5,
@@ -1181,6 +1194,7 @@ SELECT PCNFSAID.CODUSUR,
                                        PCMOV.QTCONT)))),
                  2),
            0) VLREPASSE,
+		--FIM_VLREPASSE   
        PCPRODUT.DESCRICAO,
        PCPRODUT.EMBALAGEM,
        PCPRODUT.NUMORIGINAL,

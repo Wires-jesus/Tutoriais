@@ -198,6 +198,7 @@ SELECT PCFORNEC.CODFORNEC,
            0) QT,
        NVL(PCMOV.QTCONT, 0) QTCONT,
        PCPRODUT.QTUNITCX,
+	   --INICIO_VLDEVOLUCAO
        (CASE WHEN NVL(PCMOV.QT, 0) = 0 AND (PCMOV.TIPOMERC = 'L') THEN
            NVL(PCMOV.QTCONT, 0)
         ELSE
@@ -276,6 +277,7 @@ SELECT PCFORNEC.CODFORNEC,
                             0,
                             (NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))))),
              2) VLDEVOLUCAO,
+		--FIM_VLDEVOLUCAO
        (NVL(PCMOV.QT, 0) * DECODE(PCNFSAID.CONDVENDA,
                                   5,
                                   PCMOV.PUNITCONT + NVL(PCMOV.VLDESCONTO, 0) +
@@ -333,6 +335,7 @@ SELECT PCFORNEC.CODFORNEC,
                                   11,
                                   PCMOV.PUNITCONT + NVL(PCMOV.VLOUTROS, 0),
                                   0)) VLDEVOLBONIFIC151,
+		--INICIO_VLCMVDEVOL						  
        (NVL(PCMOV.QT, 0) *
        DECODE(PCNFSAID.CONDVENDA,
                1,
@@ -347,6 +350,7 @@ SELECT PCFORNEC.CODFORNEC,
                11,
                0,
                NVL(PCMOV.CUSTOFIN, 0))) VLCMVDEVOL,
+		--FIM_VLCMVDEVOL	   
        (NVL(PCMOV.QT, 0) * DECODE(PCNFSAID.CONDVENDA,
                                   1,
                                   (DECODE(NVL(PCMOVCOMPLE.BONIFIC, 'N'),
@@ -360,7 +364,9 @@ SELECT PCFORNEC.CODFORNEC,
                                   11,
                                   NVL(PCMOV.CUSTOFIN, 0),
                                   0)) VLCMVDEVOLBONIF,
+		--INICIO_VLCUSTOFIN						  
        (NVL(PCMOV.QT, 0) * NVL(PCMOV.CUSTOFIN, 0)) VLCUSTOFIN,
+	   --FIM_VLCUSTOFIN
        (NVL(PCPRODUT.VOLUME, 0) * NVL(PCMOV.QT, 0)) LITRAGEM,
        (DECODE(PCMOV.PBASERCA,
                NULL,
@@ -373,6 +379,7 @@ SELECT PCFORNEC.CODFORNEC,
        PCNFENT.CODUSURDEVOL CODUSUR,
        PCMOV.CODUSUR CODUSURMOV,
        PCPEDC.ORIGEMPED, -- DECODE(NVL(PCNFSAID.CONDVENDA,0),5,0,6,0,11,0, (PCMOV.ST * PCMOV.QT)) VLST,
+	   --INICIO_VLST
        ROUND((NVL(PCMOV.QT, 0) *
              DECODE(PCNFSAID.CONDVENDA,
                      5,
@@ -392,6 +399,8 @@ SELECT PCFORNEC.CODFORNEC,
                                    NVL(PCMOVCOMPLE.VLSTTRANSFCD, 0))),
                             0))),
              2) VLST,
+		--FIM_VLST	 
+		--INICIO_VLIPI	 
        DECODE(NVL(PCNFSAID.CONDVENDA, 0),
               5,
               0,
@@ -400,6 +409,7 @@ SELECT PCFORNEC.CODFORNEC,
               11,
               0,
               (NVL(PCMOV.VLIPI, 0) * NVL(PCMOV.QT, 0))) VLIPI,
+		--FIM_VLIPI	  
        CASE
          WHEN NVL(PCNFSAID.CONDVENDA, 0) IN (5, 6, 11) THEN
           ((NVL(PCMOV.ST, 0) + NVL(PCMOVCOMPLE.VLSTTRANSFCD, 0)) * PCMOV.QT)
@@ -412,6 +422,7 @@ SELECT PCFORNEC.CODFORNEC,
          ELSE
           0
        END VLIPI_BONIF,
+	   --INICIO_VLFECP
        ROUND((NVL(PCMOV.QT, 0) *
              DECODE(PCNFSAID.CONDVENDA,
                      5,
@@ -431,6 +442,7 @@ SELECT PCFORNEC.CODFORNEC,
                                    NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0))),
                             0))),
              2) VLFECP,
+		--FIM_VLFECP	 
        CASE
          WHEN NVL(PCNFSAID.CONDVENDA, 0) IN (5, 6, 11) THEN
           ((NVL(PCMOVCOMPLE.VLFECP, 0) + NVL(PCMOVCOMPLE.VLFECPTRANSFCD, 0)) *
@@ -449,6 +461,7 @@ SELECT PCFORNEC.CODFORNEC,
          ELSE
           PCNFENT.SITUACAONFE
        END as SITUACAONFE,
+	   --INICIO_VLREPASSE
        DECODE(NVL(PCNFSAID.CONDVENDA, 0),
               5,
               0,
@@ -457,6 +470,7 @@ SELECT PCFORNEC.CODFORNEC,
               11,
               0,
               NVL(ROUND(PCMOV.QT * PCMOV.VLREPASSE, 2), 0)) VLREPASSE,
+		--FIM_VLREPASSE	  
        PCPRODUT.NUMORIGINAL,
        PCPRODUT.PESOLIQ,
        PCCLIENT.CGCENT,
