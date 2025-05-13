@@ -1,0 +1,8 @@
+{
+	"nome":"PKG_GERAPCLANCCREDITO",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias": [
+		{"nome":"PCLANC","tipo":"TABELA","versao":"7.0.01.000"},
+        {"nome":"PCCRECLI","tipo":"TABELA","versao":"7.0.01.000"}
+	]
+}
