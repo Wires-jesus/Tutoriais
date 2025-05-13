@@ -1,3 +1,9 @@
 {"nome":"PKG_MONITOR_TRIBUTARIO_CONSULT",
  "tipoPLSQL":"PACKAGE",
- "dependencias":[]}
+ "dependencias":[
+ {
+  "nome": "F_EXTRAIR_SQL_VIEW",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "7.0.01.000"
+}
+ ]}
