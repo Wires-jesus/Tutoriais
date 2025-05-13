@@ -558,6 +558,7 @@ END;
     VSUFDESTINO   PCFILIAL.UF%TYPE;
     ROWPCNFENT    PCNFENT%ROWTYPE;
     ROWPCNFSAID   PCNFSAID%ROWTYPE;
+	error_dados_reforma_tributaria EXCEPTION;
     -- TOTALIZA VLTOTAL
 
     TYPE T_TOTAIS IS RECORD(
@@ -699,6 +700,11 @@ END;
       end IF;
 
       ROWPCNFENT.NUMVOLUME := ROWPCNFSAID.NUMVOLUME; -- (vdNumVolume);
+	  
+      -- Reforma Tributária
+      IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_ENTRADA(P_NUMTRANSENT) = 'N' THEN
+        RAISE error_dados_reforma_tributaria;
+      END IF;	  
 
       ------------------------------------------------
       INSERT INTO PCNFENT VALUES ROWPCNFENT;
@@ -1386,6 +1392,7 @@ END;
      vNumTransEntTransf   PCNFENT.NUMTRANSENT%TYPE;
      voCURSORT_TEMP  SYS_REFCURSOR;
      iTentativa          NUMBER;
+	 error_dados_reforma_tributaria EXCEPTION;
 
    FUNCTION PROXIMO_NUMNOTA(psCODFILIAL IN VARCHAR2) RETURN NUMBER
    IS vnNUMNOTA PCNFSAID.NUMNOTA%TYPE;
@@ -1732,7 +1739,7 @@ END;
                       voPCMOV.CODPROD,
                       voPCMOV.CODFILIAL,
                       voPCMOV.NUMTRANSENT);
-    END LOOP; --LISTAITENSENTRADA
+    END LOOP; --LISTAITENSENTRADA	
 
       FOR TOTALIZADORES IN (SELECT (SUM(ROUND((PCMOV.QTCONT * PCMOV.PUNITCONT), 2)) -
                                  SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLDESCONTO, 0)), 2)) +
@@ -1764,6 +1771,11 @@ END;
       voPCNFENT.VLOUTRAS   := TOTALIZADORES.VLOUTROS;
 
     END LOOP;
+	
+	-- Reforma Tributária
+    IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_ENTRADA(voPCNFENT.NUMTRANSENT) = 'N' THEN
+      RAISE error_dados_reforma_tributaria;
+    END IF;	
 
     --Inserindo o cabeçalho
     INSERT INTO PCNFENT
@@ -2478,7 +2490,8 @@ BEGIN
                   'É Cancelamento: ' || P_ECANCELAMENTO || chr(13) ||
                   'Processo abortado!';
          RAISE ExecacaoEstoque;
-      END IF;
+      END IF;	 
+	  
       --Totalizando o cabeçalho
       FOR TOTALIZADORES IN (SELECT SUM(ROUND((NVL(PUNITCONT, 0) - NVL(PCMOV.VLIPI, 0) -
                                              NVL(PCMOV.ST, 0) -
@@ -2535,6 +2548,11 @@ BEGIN
         VOPCNFSAID.BCST        := TOTALIZADORES.TOTBASEICST;
       END LOOP;
 
+      --Serviço para reforma tributária
+      IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_SAIDA(voPCNFSAID.NUMTRANSVENDA) = 'N' THEN
+        RAISE error_dados_reforma_tributaria;
+      END IF;      
+	  
       --Inserindo o novo cabeçalho
       INSERT INTO PCNFSAID
            VALUES voPCNFSAID;
@@ -2623,6 +2641,8 @@ BEGIN
 
   EXCEPTION
   WHEN ExecacaoEstoque THEN
+     raise_application_error (-20001, P_MSG);
+  WHEN error_dados_reforma_tributaria THEN
      raise_application_error (-20001, P_MSG);
   WHEN OTHERS THEN
     P_MSG := P_MSG ||dbms_utility.format_error_stack|| ' ERRO. Linha: ' ||
