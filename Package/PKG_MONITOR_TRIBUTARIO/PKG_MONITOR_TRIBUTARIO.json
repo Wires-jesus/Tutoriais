@@ -14,6 +14,26 @@
 		  "nome": "PCMONITORTRIBUTARIOLISTATABELA",
 		  "tipo": "TABELA",
 		  "versao": "7.0.01.000"
+		},
+		{
+		  "nome": "F_EXTRAIR_SQL_VIEW",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.01.000"
+		},
+		{
+		  "nome": "VIEW_VENDAS_RESUMO_FATURAMENTO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.02.000"
+		},
+		{
+		  "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.02.000"
+		},
+		{
+		  "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.02.000"
 		}
     ]
 }
