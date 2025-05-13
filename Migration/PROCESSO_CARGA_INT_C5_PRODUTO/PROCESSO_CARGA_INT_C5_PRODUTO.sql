@@ -385,6 +385,9 @@ FROM (
            MIN(PROD.QTDDIAVALIDADE) QTDDIAVALIDADE,
            MIN(PROD.codanp) codanp,
            MIN(PROD.descanp_prod) descanp_prod,
+           MIN(PROD.percglp) percglp,
+           MIN(PROD.percgnn) percgnn,
+           MIN(PROD.percgni) percgni,
            MIN(PROD.CODPRODPRINC)CODPRODPRINC,
            MIN(PROD.ATIVO) ATIVO
       FROM( 
@@ -405,6 +408,9 @@ FROM (
                    0 QTDDIAVALIDADE,
                    MAX(nvl(P.anp, 0)) codanp,
                    MAX(P.descanp) descanp_prod,
+                   MAX(nvl(P.pglp, 0)) percglp,
+                   MAX(nvl(P.pgnn, 0)) percgnn,
+                   MAX(nvl(P.pgni, 0)) percgni,
                    MIN(P.CODPRODPRINC) CODPRODPRINC,
                    'S' ATIVO
             FROM VW_INT_C5_EMBPROD_MAT p
@@ -425,6 +431,9 @@ FROM (
                    0 QTDDIAVALIDADE,
                    nvl(p.anp, 0) codanp,
                    p.descanp descanp_prod,
+                   nvl(P.pglp, 0) percglp,
+                   nvl(P.pgnn, 0) percgnn,
+                   nvl(P.pgni, 0) percgni,                   
                    NULL CODPRODPRINC,
                    'S' ATIVO
 
