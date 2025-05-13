@@ -994,7 +994,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      --S.seqfamiliaprinc = B.seqfamiliaprinc,
                      S.LOTEESTOQUE = B.estoqueporlote,
                      S.gerareducaobasepiscofins = B.gerareducaobasepiscofins,
-                     S.idref = B.idref
+                     S.idref = B.idref,
+                     S.MEDICAMENTO = B.estoqueporlote
 		WHERE NVL(S.familia, '-') <> NVL(B.familia, '-')
            OR NVL(S.permitedecimal, '-') <> NVL(B.permitedecimal, '-')
            OR NVL(S.permitemultiplicacao, '-') <> NVL(B.permitemultiplicacao, '-')
@@ -1040,7 +1041,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      --S.seqfamiliaprinc,
                      S.gerareducaobasepiscofins,
                      S.idref,
-                     S.LOTEESTOQUE)
+                     S.LOTEESTOQUE,
+                     S.MEDICAMENTO)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -1064,6 +1066,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       --B.seqfamiliaprinc,
                       B.gerareducaobasepiscofins,
                       B.idref,
+                      B.estoqueporlote,
                       B.estoqueporlote);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
