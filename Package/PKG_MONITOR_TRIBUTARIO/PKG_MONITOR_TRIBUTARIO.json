@@ -4,7 +4,7 @@
     "dependencias": [{
             "nome": "PKG_MONITOR_TRIBUTARIO_CONSULT",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.32.000"
+            "versao": "7.0.34.000"
         }, {
             "nome": "PCARQUIVOSGERADOS",
             "tipo": "TABELA",
