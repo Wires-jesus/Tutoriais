@@ -1153,12 +1153,20 @@ FROM (
                CASE 
                WHEN NVL(MC.VLSUBTOTITEM, 0) > 0
                   THEN  NVL(MC.VLSUBTOTITEM, 0)
-                       + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B')
+                       + CASE WHEN (NVL(B.PERCDESC,0) > 0) THEN 
+                              DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B')
                               , 'B', ROUND((B.PTABELA * (NVL(B.PERCDESC,0) / 100)) * ROUND(B.QT, 4),2)
                               , 0)
+                         ELSE 
+                             0 
+                         END     
                ELSE ROUND(B.QTCONT *
                             (B.PUNITCONT
-                             + DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B'), 'B', NVL(B.VLDESCONTO, 0), 0)
+                             + CASE WHEN (NVL(B.VLDESCONTO,0) > 0) THEN
+                                  DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B'), 'B', NVL(B.VLDESCONTO, 0), 0)
+                               ELSE 
+                                0 
+                               END    
                              - NVL(B.ST, 0)
                              - NVL(B.VLIPI, 0)
                              - NVL(MC.VLFECP, 0))
