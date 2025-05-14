@@ -3,6 +3,38 @@
 	"tipoPLSQL":"PACKAGE",
 	"dependencias":
 	[
-	   
+	   {
+            "nome": "PCTRIBUTACAO",
+            "tipo": "TABELA",
+            "versao": "7.0.05.000"
+        },{
+            "nome": "PCTRIBUTACAO_EXCECAO",
+            "tipo": "TABELA",
+            "versao": "7.0.04.000"
+        },{
+            "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
+        },{
+            "nome": "PCTRIBUTACAO_FILTRO_NCM",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
+        },{
+            "nome": "PCMOVCOMPLE",
+            "tipo": "TABELA",
+            "versao": "7.0.05.000"
+        },{
+            "nome": "PCMOVCOMPLEPREFAT",
+            "tipo": "TABELA",
+            "versao": "7.0.01.000"
+        },{
+            "nome": "PCMOV",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
+        },{
+            "nome": "PCMOVPREFAT",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
+        }
 	]
 }
