@@ -461,10 +461,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
               ,PCMOV M
               , PCDADOSXML DX
             WHERE 
-              EXISTS ( SELECT *
+              EXISTS ( SELECT 1
                              FROM PCMOV X
                              WHERE ' || GET_FILTRO_DATA_FORMATADA('X.DTMOV', PDATA_INICIAL, PDATA_FINAL) || '
-                               AND X.NUMTRANSITEM = T.NUMTRANSITEM )
+                               AND X.NUMTRANSITEM = T.NUMTRANSITEM 
+                               AND X.NUMTRANSITEM = M.NUMTRANSITEM )
+              AND ' || GET_FILTRO_DATA_FORMATADA('M.DTMOV', PDATA_INICIAL, PDATA_FINAL) || ' 
               AND M.NUMTRANSITEM = T.NUMTRANSITEM 
               AND DX.NUMTRANSITEM (+) = M.NUMTRANSITEM ';
   END GET_VALORES_MOV_UNIFICADA;
