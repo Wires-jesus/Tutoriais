@@ -261,7 +261,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_SAIDA(DATA1 IN DATE,
                       (B.CODFISCAL IN (5929, 6929)) THEN
                SUM(DECODE(NVL(DXML.VICMS,0),0,FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NF', B.ROWID, C.ESTENT, A.CHAVENFE),NVL(DXML.VICMS,0)))
             ELSE
-               SUM(DECODE(NVL(DXML.VICMS,0),0,DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NF', B.ROWID, C.ESTENT, A.CHAVENFE),0),NVL(DXML.VICMS,0)))
+               SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL,'S'), 'S', DECODE(NVL(DXML.VICMS, 0), 0, FISCAL.GET_DADOS_ICMS(P_CODFILIAL, 'V', 'NF', B.ROWID, C.ESTENT, A.CHAVENFE), NVL(DXML.VICMS,0))))     
             END) VLICMS,
            ------------------------------------------------------------------
            --Cria? de par?tro na 132 (GERARICMSLIVFISCFOP) - FIS-8312
@@ -9783,3 +9783,4 @@ exception
 end;
 -- 001 - 06/12/2024 - ajuste no sql 03 referente ao agrupamento do campo NUMSQL
 -- 002 - 06/12/2024 - Performance no processo de geração do sql 01 e do processo feito pela data de entrega no DF
+-- 003 - 15/05/2025 - Implementado ajuste na coluna VLICMS do sql 01 para considerar a regra do GERAICMSLIVROFISCAL.
