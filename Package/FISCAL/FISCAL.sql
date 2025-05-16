@@ -277,7 +277,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
    FUNCTION GET_DESCRICAO_NATUREZA_OP(
                                       P_CODFISCAL       NUMBER,
                                       P_CODOPER         VARCHAR2,
-                                      P_CODROTINAORIGEM NUMBER DEFAULT 0
+                                      P_CODROTINAORIGEM NUMBER DEFAULT 0,
+                                      P_CHEQUEMORADIA VARCHAR2 DEFAULT 'N'
                                       ) RETURN VARCHAR2;
                                       
    FUNCTION GET_FORMULA_CREDPRESUMIDO (
