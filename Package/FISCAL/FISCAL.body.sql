@@ -6625,7 +6625,7 @@ create or replace package body FISCAL is
                              ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.BASE_CALCULO_COD_FORMULA||
                              ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_TRIBUTO||
                              ' Aliquota: '||V_DADOS_TRIBUTACAO.VALOR_ALIQUOTA_TRIBUTO||      
-                             ' IBS calculado: '||V_DADOS_TRIBUTACAO.VALOR_TRIBUTO||
+                             ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_TRIBUTO||
                              ' CST: '||V_DADOS_TRIBUTACAO.CST||      
                              ' CClassTrib: '||V_DADOS_TRIBUTACAO.CClassTrib      
                              ,'S');                                                       
@@ -6676,7 +6676,7 @@ create or replace package body FISCAL is
         V_DADOS_TRIBUTACAO.FORMULA_VALOR_TRIBUTO := '(&BASE_CALCULO_IBS& * [ALIQUOTA_IBS] / 100)';  
     END IF;    
 
-    V_DADOS_TRIBUTACAO := CALCULAR_CBS(V_DADOS_TRIBUTACAO, P_MSG);
+    V_DADOS_TRIBUTACAO := CALCULAR_IBS(V_DADOS_TRIBUTACAO, P_MSG);
     RETURN V_DADOS_TRIBUTACAO;
   END CALCULAR_IBS;
 
@@ -6692,7 +6692,7 @@ create or replace package body FISCAL is
         V_DADOS_TRIBUTACAO.FORMULA_VALOR_TRIBUTO := '(&BASE_CALCULO_IS& * [ALIQUOTA_IS] / 100)';  
     END IF;
   
-    V_DADOS_TRIBUTACAO := CALCULAR_CBS(V_DADOS_TRIBUTACAO, P_MSG);
+    V_DADOS_TRIBUTACAO := CALCULAR_IS(V_DADOS_TRIBUTACAO, P_MSG);
     RETURN V_DADOS_TRIBUTACAO;
   END CALCULAR_IS;
 
