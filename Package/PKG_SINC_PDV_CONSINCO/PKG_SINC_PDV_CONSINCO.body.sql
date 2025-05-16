@@ -1017,6 +1017,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.gerareducaobasepiscofins, '-') <> NVL(B.gerareducaobasepiscofins, '-')
            OR NVL(S.idref, 0) <> NVL(B.idref, 0)
            OR NVL(S.LOTEESTOQUE, '-') <> NVL(B.estoqueporlote, '-')
+           OR NVL(S.MEDICAMENTO, '-') <> NVL(B.estoqueporlote, '-')
 		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
