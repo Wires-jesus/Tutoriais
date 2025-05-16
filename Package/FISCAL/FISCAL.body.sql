@@ -5740,7 +5740,7 @@ create or replace package body FISCAL is
       -- BUSCA A DESCRIÇÃO ROTINA 4014 BASEADA NOS PARÂMETROS RECEBIDOS
       BEGIN
           IF P_CHEQUEMORADIA = 'S' THEN
-            V_DESCRICAO := 'CHEQUE MORADIA';          
+            V_DESCRICAO := 'VENDA COM CHEQUE MORADIA';          
           ELSE
               SELECT DESCRICAO
               INTO V_DESCRICAO
