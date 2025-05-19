@@ -30,7 +30,7 @@
 		{
 			"nome": "P_PC_CALCULARCMV_INTEGRACAO",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.01.000"
+			"versao": "7.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
