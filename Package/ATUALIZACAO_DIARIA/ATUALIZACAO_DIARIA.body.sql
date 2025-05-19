@@ -3792,6 +3792,7 @@ BEGIN
                  ,BLOQUEIOSEFAZ = 'N'
                  ,MOTIVOBLOQ    = V_MOTIVOBLOQUEIO
             WHERE CODCLI = REGISTRO.CODCLI;
+			commit;
 
            VBLOQUEIO := 'N';
 
@@ -3963,6 +3964,7 @@ BEGIN
 
          EXECUTE IMMEDIATE VSCRIPT
                      USING REGISTRO.CODCLI;
+		 commit;
 
          /*Gravando Log de Bloqueio acordo com a variavel de controle obtem porque o bloqueio foi realizado*/
          P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(REGISTRO.CODCLI), PUSUARIO
@@ -4083,6 +4085,7 @@ BEGIN
          LOOP
            EXECUTE IMMEDIATE VSCRIPT
              USING FAMILIA.CODCLI;
+		   commit;	 
 
             P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
                                   , PUSUARIO
@@ -4197,6 +4200,7 @@ BEGIN
          LOOP
            EXECUTE IMMEDIATE VSCRIPT
              USING FAMILIA.CODCLI;
+		   commit;
 
             P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
                                   , PUSUARIO
@@ -4270,6 +4274,7 @@ BEGIN
            SET CODCOB = 'CH'
          WHERE CODCOB = 'BK'
            AND CODCLI = CLIENTE.CODCLI;
+		commit;
 
         P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(CLIENTE.CODCLI)
                                , PUSUARIO
