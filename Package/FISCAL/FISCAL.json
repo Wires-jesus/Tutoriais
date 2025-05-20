@@ -44,19 +44,19 @@
         },{
             "nome": "PCTRIBUTACAO",
             "tipo": "TABELA",
-            "versao": "7.0.03.000"
+            "versao": "7.0.06.000"
         },{
             "nome": "PCTRIBUTACAO_EXCECAO",
             "tipo": "TABELA",
-            "versao": "7.0.02.000"
+            "versao": "7.0.05.000"
         },{
             "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
             "tipo": "TABELA",
-            "versao": "7.0.01.000"
+            "versao": "7.0.03.000"
         },{
             "nome": "PCTRIBUTACAO_FILTRO_NCM",
             "tipo": "TABELA",
-            "versao": "7.0.01.000"
+            "versao": "7.0.03.000"
         },{
             "nome": "CADASTRO_4008",
             "tipo": "MIGRATION",
