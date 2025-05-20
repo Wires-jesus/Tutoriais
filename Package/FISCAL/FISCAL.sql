@@ -16,6 +16,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       DEVOLUCAO         VARCHAR2(1),
       CODIGO_MUNICIPIO  VARCHAR2(10),
       TIPO_IMPOSTO      VARCHAR2(3),
+      CODIGO_ENDERECO_CLI NUMBER(6),
       --Filtros adicionais
       CODPROD           NUMBER(6),
       NCM               VARCHAR2(15),      
@@ -30,13 +31,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VALOR_PRODUTO         NUMBER(18,6),
       VALOR_ICMS_ST         NUMBER(18,6),
       VALOR_FCP_ST          NUMBER(18,6),
-      VALOR_ICMS            NUMBER(18,6),
-      VALOR_FCP             NUMBER(18,6),
       VALOR_IPI             NUMBER(18,6),
-      VALOR_ICMS_DESONERADO NUMBER(18,6),
       VALOR_FRETE           NUMBER(18,6),
-      VALOR_OUTRAS_DESPESAS NUMBER(18,6),
-      VALOR_DESCONTO        NUMBER(18,6),
       VALOR_OUTROS          NUMBER(18,6),
       --Dados retorno
       CODIGO_TRIBUTACAO        NUMBER(10),
@@ -50,7 +46,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VALOR_BASE_TRIBUTO       NUMBER(18,6),
       VALOR_ALIQUOTA_TRIBUTO   NUMBER(18,6),
       VALOR_TRIBUTO            NUMBER(18,6)            
-   );   
+   );     
    
 
    FUNCTION FORMATAR_CST_ICMS(PSITTRIBUT    IN VARCHAR2,
