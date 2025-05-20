@@ -242,96 +242,92 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
          , CARREGAMENTOS.DIFERENTES
       FROM DUAL;
       
-      IF ((CARREGAMENTOS.ORIGEM = 'S') AND (CARREGAMENTOS.DESTINO = 'S') AND (CARREGAMENTOS.DIFERENTES = 'S')) THEN
-         SELECT NOTAS.*
-           BULK COLLECT INTO TRANSACOES
-           FROM (SELECT DISTINCT S.NUMTRANSVENDA
-                               , S.NUMNOTA
-                               , M.CODFILIAL
-                               , M.CODFILIALNF
-                               , M.CODFILIALRETIRA
-                               , S.NUMPED
-                            FROM PCNFSAID S
-                               , PCMOV M
-                           WHERE S.NUMCAR = PNUMCARORIGEM
-                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
-                             AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
-                             AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
-                             AND S.CODFILIAL = M.CODFILIAL
-                             AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
-                                                         , M.CODFILIALRETIRA
-                                                         , M.CODFILIALNF) IN('V', 'R', 'VR')
-                 UNION
-                 SELECT DISTINCT S.NUMTRANSVENDA
-                               , S.NUMNOTA
-                               , S.CODFILIAL
-                               , S.CODFILIALNF
-                               , M.CODFILIALRETIRA
-                               , S.NUMPED
-                            FROM PCPEDC S
-                               , PCPEDI M
-                           WHERE S.NUMCAR = PNUMCARORIGEM
-                             AND S.POSICAO NOT IN ('F', 'C')
-                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
-                             AND S.NUMPED = M.NUMPED
-                             AND VENDAS.TIPO_TRANSFERENCIA(S.CODFILIAL
-                                                         , M.CODFILIALRETIRA
-                                                         , S.CODFILIALNF) IN('V', 'R', 'VR')
-                 UNION
-                 SELECT DISTINCT S.NUMTRANSVENDA
-                               , S.NUMNOTA
-                               , M.CODFILIAL
-                               , M.CODFILIALNF
-                               , M.CODFILIALRETIRA
-                               , S.NUMPED
-                            FROM PCNFSAIDPREFAT S
-                               , PCMOVPREFAT M
-                           WHERE S.NUMCAR = PNUMCARORIGEM
-                             AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
-                             AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
-                             AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
-                             AND S.CODFILIAL = M.CODFILIAL
-                             AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
-                                                         , M.CODFILIALRETIRA
-                                                         , M.CODFILIALNF) IN('V', 'R', 'VR')) NOTAS;
-                                
-         IF TRANSACOES.COUNT > 0 THEN                          
-           FOR NOTA IN TRANSACOES.FIRST..TRANSACOES.LAST                                                 
-           LOOP
-              VTIPOTRANSF := VENDAS.TIPO_TRANSFERENCIA(TRANSACOES(NOTA).CODFILIAL
-                                                     , TRANSACOES(NOTA).CODFILIALRETIRA
-                                                     , TRANSACOES(NOTA).CODFILIALNF);
-              IF (VTIPOTRANSF IN('V', 'VR')) THEN 
-                 VRET := 'S';
-                  
-                 UPDATE PCTRANSFVIRT
-                    SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM
-                    AND NUMPED = TRANSACOES(NOTA).NUMPED;
-                   
-                 UPDATE PCTRANSFVIRTDEV
-                    SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM
-                    AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;
-                  
-                 UPDATE PCTRANSFVIRTFAT
-                    SET NUMCAR = PNUMCARDESTINO
-                  WHERE NUMCAR = PNUMCARORIGEM
-                    AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;               
-                  
-                 VLOG.NUMPED := TRANSACOES(NOTA).NUMPED;
-                 VLOG.NUMNOTA := TRANSACOES(NOTA).NUMNOTA;
-                 VLOG.NUMTRANSVENDA := TRANSACOES(NOTA).NUMTRANSVENDA;
-                 GRAVARLOG(VLOG);
-              ELSE
-                VRET := 'S';
-              END IF; 
-           END LOOP;
-         ELSE       
-           VRET := 'S';
-         END IF;
-      ELSE
-        PMSGRETORNO := CARREGAMENTOS.ORIGEM ||' - '|| CARREGAMENTOS.DESTINO ||' - '|| CARREGAMENTOS.DIFERENTES;
+      SELECT NOTAS.*
+        BULK COLLECT INTO TRANSACOES
+        FROM (SELECT DISTINCT S.NUMTRANSVENDA
+                            , S.NUMNOTA
+                            , M.CODFILIAL
+                            , M.CODFILIALNF
+                            , M.CODFILIALRETIRA
+                            , S.NUMPED
+                         FROM PCNFSAID S
+                            , PCMOV M
+                        WHERE S.NUMCAR = PNUMCARORIGEM
+                          AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                          AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
+                          AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
+                          AND S.CODFILIAL = M.CODFILIAL
+                          AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
+                                                      , M.CODFILIALRETIRA
+                                                      , M.CODFILIALNF) IN('V', 'R', 'VR')
+              UNION
+              SELECT DISTINCT S.NUMTRANSVENDA
+                            , S.NUMNOTA
+                            , S.CODFILIAL
+                            , S.CODFILIALNF
+                            , M.CODFILIALRETIRA
+                            , S.NUMPED
+                         FROM PCPEDC S
+                            , PCPEDI M
+                        WHERE S.NUMCAR = PNUMCARORIGEM
+                          AND S.POSICAO NOT IN ('F', 'C')
+                          AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                          AND S.NUMPED = M.NUMPED
+                          AND VENDAS.TIPO_TRANSFERENCIA(S.CODFILIAL
+                                                      , M.CODFILIALRETIRA
+                                                      , S.CODFILIALNF) IN('V', 'R', 'VR')
+              UNION
+              SELECT DISTINCT S.NUMTRANSVENDA
+                            , S.NUMNOTA
+                            , M.CODFILIAL
+                            , M.CODFILIALNF
+                            , M.CODFILIALRETIRA
+                            , S.NUMPED
+                         FROM PCNFSAIDPREFAT S
+                            , PCMOVPREFAT M
+                        WHERE S.NUMCAR = PNUMCARORIGEM
+                          AND (NVL(PNUMPED, 0) = 0 OR S.NUMPED = PNUMPED)
+                          AND (NVL(PNUMTRANSVENDA, 0) = 0 OR S.NUMTRANSVENDA = PNUMTRANSVENDA)
+                          AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
+                          AND S.CODFILIAL = M.CODFILIAL
+                          AND VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL
+                                                      , M.CODFILIALRETIRA
+                                                      , M.CODFILIALNF) IN('V', 'R', 'VR')) NOTAS;
+                             
+      IF TRANSACOES.COUNT > 0 THEN                          
+        FOR NOTA IN TRANSACOES.FIRST..TRANSACOES.LAST                                                 
+        LOOP
+           VTIPOTRANSF := VENDAS.TIPO_TRANSFERENCIA(TRANSACOES(NOTA).CODFILIAL
+                                                  , TRANSACOES(NOTA).CODFILIALRETIRA
+                                                  , TRANSACOES(NOTA).CODFILIALNF);
+           IF (VTIPOTRANSF IN('V', 'VR')) THEN 
+              VRET := 'S';
+               
+              UPDATE PCTRANSFVIRT
+                 SET NUMCAR = PNUMCARDESTINO
+               WHERE NUMCAR = PNUMCARORIGEM
+                 AND NUMPED = TRANSACOES(NOTA).NUMPED;
+                
+              UPDATE PCTRANSFVIRTDEV
+                 SET NUMCAR = PNUMCARDESTINO
+               WHERE NUMCAR = PNUMCARORIGEM
+                 AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;
+               
+              UPDATE PCTRANSFVIRTFAT
+                 SET NUMCAR = PNUMCARDESTINO
+               WHERE NUMCAR = PNUMCARORIGEM
+                 AND NUMTRANSVENDAFAT = TRANSACOES(NOTA).NUMTRANSVENDA;               
+               
+              VLOG.NUMPED := TRANSACOES(NOTA).NUMPED;
+              VLOG.NUMNOTA := TRANSACOES(NOTA).NUMNOTA;
+              VLOG.NUMTRANSVENDA := TRANSACOES(NOTA).NUMTRANSVENDA;
+              GRAVARLOG(VLOG);
+           ELSE
+             VRET := 'S';
+           END IF; 
+        END LOOP;
+      ELSE       
+        VRET := 'S';
       END IF;
     EXCEPTION
       WHEN OTHERS THEN
