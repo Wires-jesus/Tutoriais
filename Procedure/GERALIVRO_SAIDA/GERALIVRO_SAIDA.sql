@@ -1153,20 +1153,32 @@ FROM (
                CASE 
                WHEN NVL(MC.VLSUBTOTITEM, 0) > 0
                   THEN  NVL(MC.VLSUBTOTITEM, 0)
-                       + CASE WHEN (NVL(B.PERCDESC,0) > 0) THEN 
-                              DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B')
-                              , 'B', ROUND((B.PTABELA * (NVL(B.PERCDESC,0) / 100)) * ROUND(B.QT, 4),2)
-                              , 0)
-                         ELSE 
-                             0 
-                         END     
+                             +  DECODE(NVL(MC.PRECOUTILIZADONFE, NVL(NVL(DECODE(NVL(PF.PRECOUTILIZADONFE,'N'), 
+                                                                           'N',
+                                                                           '', 
+                                                                           PF.PRECOUTILIZADONFE), C.PRECOUTILIZADONFE), 
+                                                    NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', F.CODIGO), 'L'))),
+                                 'B', 
+                                  ROUND(CASE WHEN (NVL(B.VLDESCONTO,0) > 0) THEN NVL(B.VLDESCONTO, 0) ELSE 
+                                         CASE WHEN (NVL(B.PERCDESC,0) > 0) THEN 
+                                           ROUND((B.PTABELA * (NVL(B.PERCDESC,0) / 100)) * ROUND(B.QT, 4),2) ELSE 0  
+                                         END 
+                                       END, 2), 
+                                  0)                               
                ELSE ROUND(B.QTCONT *
                             (B.PUNITCONT
-                             + CASE WHEN (NVL(B.VLDESCONTO,0) > 0) THEN
-                                  DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', NVL(A.CODFILIALNF, A.CODFILIAL)), 'B'), 'B', NVL(B.VLDESCONTO, 0), 0)
-                               ELSE 
-                                0 
-                               END    
+                             +  DECODE(NVL(MC.PRECOUTILIZADONFE, NVL(NVL(DECODE(NVL(PF.PRECOUTILIZADONFE,'N'), 
+                                                                                 'N',
+                                                                                 '', 
+                                                                                 PF.PRECOUTILIZADONFE), C.PRECOUTILIZADONFE), 
+                                                          NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', F.CODIGO), 'L'))),
+                                       'B', 
+                                        ROUND(CASE WHEN (NVL(B.VLDESCONTO,0) > 0) THEN NVL(B.VLDESCONTO, 0) ELSE 
+                                               CASE WHEN (NVL(B.PERCDESC,0) > 0) THEN 
+                                                 ROUND((B.PTABELA * (NVL(B.PERCDESC,0) / 100)),2) ELSE 0  
+                                               END 
+                                             END, 2), 
+                                     0)    
                              - NVL(B.ST, 0)
                              - NVL(B.VLIPI, 0)
                              - NVL(MC.VLFECP, 0))
