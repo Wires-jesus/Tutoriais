@@ -46,6 +46,11 @@
 	  "nome": "PCPEDIECF",
 	  "tipo": "TABELA",
 	  "versao": "6.0.03.000"
+	},
+	{
+	  "nome": "PCORCAVENDAC",
+	  "tipo": "TABELA",
+	  "versao": "7.0.02.000"
 	}
   ]
 }

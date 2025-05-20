@@ -179,6 +179,42 @@ IS
           END IF;
           
         END;
+		
+		PROCEDURE atualizar_pcorcavendac(p_numpedecf number,
+                                         p_numcupom number,
+										 p_seqdocto number,
+										 p_numcheckout number,
+										 p_codempresa number) is
+          n_countorcamento  number;
+		BEGIN
+		  n_countorcamento := 0;
+		  
+		  BEGIN
+		  SELECT COUNT(1)
+          INTO n_countorcamento
+          FROM PCORCAVENDAC C
+          WHERE C.NUMDOCTOPDV = p_seqdocto, 
+            AND C.CODEMPRESAPDV = p_codempresa,
+            AND C.CODCHECKOUTPDV = p_numcheckout
+			AND C.ORCAMENTOUTILIZADO = 'S';
+		  EXCEPTION
+		  WHEN OTHERS then
+		     n_countorcamento := 0;
+		  END;
+		
+		  IF n_countorcamento > 0 THEN
+				UPDATE PCORCAVENDAC
+				   SET NUMPEDECF = p_numpedecf,        
+					   NUMCUPOM = p_numcupom,        
+					   NUMSERIEEQUIP = :NUMSERIEEQUIP,
+					   NUMCAIXA = NVL(NUMCAIXA, p_numcheckout)
+				WHERE NUMDOCTOPDV = p_seqdocto
+				  AND CODEMPRESAPDV = p_codempresa
+				  AND CODCHECKOUTPDV = p_numcheckout;
+          END IF;
+		
+		END;
+		
         -- RETORNAR_XML_VENDA
         FUNCTION retornar_xml_venda(r_pedido c_pedido%ROWTYPE)
             RETURN XMLTYPE
@@ -1118,7 +1154,8 @@ IS
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
 				atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
-                inserir_pcfilamensagem(dados_pcfilamensagem);
+                atualizar_pcorcavendac(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
+				inserir_pcfilamensagem(dados_pcfilamensagem);
 				if r_pedido.status = 'C'  then
                   PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa);
                 end if;
