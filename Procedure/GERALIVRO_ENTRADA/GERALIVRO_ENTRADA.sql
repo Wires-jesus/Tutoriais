@@ -2662,14 +2662,14 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
     ----------------------------------------------------------------
            , 0 as PERCIMPPRODUTORRURAL
     ----------------------------------------------------------------
-           ,(SELECT sum(ROUND( DECODE( NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1) * M.VLDIFALIQUOTA, 2))
+           ,(SELECT sum(ROUND( CASE WHEN A.ROTINACAD LIKE '%3422%' THEN M.QTCONT ELSE DECODE( NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1) END * M.VLDIFALIQUOTA, 2))
                FROM PCMOVCIAP M
               WHERE M.NUMTRANSENT = A.NUMTRANSENT
                 AND M.NUMNOTA = A.NUMNOTA
                 AND M.SITTRIBUT = B.SITTRIBUT
                 AND M.CODFISCAL = B.CODFISCAL) VLDIFALIQUOTA
     ----------------------------------------------------------------
-           ,(SELECT sum(ROUND( DECODE( NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1) * M.VLCREDITO, 2))
+           ,(SELECT sum(ROUND(CASE WHEN A.ROTINACAD LIKE '%3422%' THEN M.QTCONT ELSE DECODE( NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1) END * M.VLCREDITO, 2))
                FROM PCMOVCIAP M
               WHERE M.NUMTRANSENT = A.NUMTRANSENT
                 AND M.NUMNOTA = A.NUMNOTA
@@ -2776,7 +2776,8 @@ cursor C_NOTAS_PCNFBASE_TIPO1(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 
               A.CODCONT,
               A.NFENTREGAFUTURA,
               A.DTCANCEL,
-              A.SITUACAONFE
+              A.SITUACAONFE,
+              A.ROTINACAD
      order by DTENT,
               NUMTRANSENT,
               NUMNOTA;
