@@ -9,8 +9,8 @@ SELECT '01 - Credito lançado pela 3402' AS ID,
        N.DTENT DATA,
        N.NUMNOTA,
        P.DESCRICAO,
-       ROUND(DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1) * M.VLCREDITO, 2) VLCREDITO,
-       ROUND(DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT,1) * M.VLDIFALIQUOTA, 2) VLDIFALIQUOTA,
+       ROUND(DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', M.QTCONT, 1) * M.VLCREDITO, 2) VLCREDITO,
+       ROUND(DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', M.QTCONT,1) * M.VLDIFALIQUOTA, 2) VLDIFALIQUOTA,
        0 VLBAIXACRED,
        0 VLBAIXADIFALIQUOTA,
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', N.DTENT + 1, N.DTENT) DATAINICIOCIAP,
@@ -146,7 +146,7 @@ FROM (
 SELECT NVL(N.CODFILIALNF, N.CODFILIAL) CODFILIAL,
        N.NUMTRANSENT TRANSACAO,
        'ME' TIPOTRANSACAO,
-       DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',1, M.QTCONT) QTCONT,
+       DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',1, M.QTCONT) QTCONT,
        NVL(M.QTMESESCREDCIAP, NVL(PARAMFILIAL.OBTERCOMONUMBER('CON_QTMESESCREDCIAP'), 48)) QTMESESCREDCIAP,
        M.CODPROD,
        B.DATABAIXA DATA,
@@ -155,9 +155,9 @@ SELECT NVL(N.CODFILIALNF, N.CODFILIAL) CODFILIAL,
        0 VLCREDITO,
        0 VLDIFALIQUOTA,
 --------------------------------------------------------------------------------------------------------------------------
-       M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',1,M.QTCONT) VLBAIXACRED,
+       M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',1,M.QTCONT) VLBAIXACRED,
 --------------------------------------------------------------------------------------------------------------------------
-       NVL(M.VLDIFALIQUOTA, 0) / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', 1, M.QTCONT) VLBAIXADIFALIQUOTA,
+       NVL(M.VLDIFALIQUOTA, 0) / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', 1, M.QTCONT) VLBAIXADIFALIQUOTA,
 --------------------------------------------------------------------------------------------------------------------------
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', N.DTENT + 1, N.DTENT) DATAINICIOCIAP,
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', NVL(M.DTTERMINOCIAP, N.DTTERMINOCIAP) + 1, NVL(M.DTTERMINOCIAP, N.DTTERMINOCIAP)) DATAFINALCIAP,
@@ -274,7 +274,7 @@ SELECT '03.1 - Bens lançados pela 3418 com baixa Antec.pela 3410. Item tipotran
        M.VLCREDITO,
        M.VLDIFALIQUOTA,
 --------------------------------------------------------------------------------------------------------------------------
-       ROUND(M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',1, M.QTCONT), 2) +
+       ROUND(M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',1, M.QTCONT), 2) +
        DECODE(B.SEQUENCIA,
               (SELECT max(SEQUENCIA)
                  FROM PCBENSPATRIMONIAIS
@@ -282,18 +282,18 @@ SELECT '03.1 - Bens lançados pela 3418 com baixa Antec.pela 3410. Item tipotran
                   AND CODPROD = M.CODPROD
                   --AND DTTERMINOCIAP IS NULL
                   AND TIPOTRANSACAO = 'ME'),
-              ROUND((M.VLCREDITO - ROUND(M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', 1, M.QTCONT), 2) *  DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', 1, M.QTCONT)),2),
+              ROUND((M.VLCREDITO - ROUND(M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', 1, M.QTCONT), 2) *  DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', 1, M.QTCONT)),2),
               0) VLBAIXACRED,
 
 --------------------------------------------------------------------------------------------------------------------------
-       ROUND(NVL(M.VLDIFALIQUOTA, 0) / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',1, M.QTCONT), 2) +
+       ROUND(NVL(M.VLDIFALIQUOTA, 0) / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',1, M.QTCONT), 2) +
        DECODE(B.SEQUENCIA,
               (SELECT max(SEQUENCIA)
                  FROM PCBENSPATRIMONIAIS
                 WHERE NUMTRANSACAO = N.NUMTRANSENT
                   AND CODPROD = M.CODPROD
                   AND TIPOTRANSACAO = 'ME'),
-              (M.VLDIFALIQUOTA - ROUND(M.VLDIFALIQUOTA / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', 1,M.QTCONT), 2) * M.QTCONT),
+              (M.VLDIFALIQUOTA - ROUND(M.VLDIFALIQUOTA / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', 1,M.QTCONT), 2) * M.QTCONT),
               0) VLBAIXADIFALIQUOTA,
 --------------------------------------------------------------------------------------------------------------------------
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', N.DTENT + 1, N.DTENT) DATAINICIOCIAP,
@@ -461,9 +461,9 @@ UNION ALL
        0 VLCREDITO,
        0 VLDIFALIQUOTA,
        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-       ROUND(M.VLCREDITO * DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',M.QTCONT,1),2) AS VLBAIXACRED,
+       ROUND(M.VLCREDITO * DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',M.QTCONT,1),2) AS VLBAIXACRED,
        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-       ROUND(M.VLDIFALIQUOTA * DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',M.QTCONT,1),2) AS VLBAIXADIFALIQUOTA,
+       ROUND(M.VLDIFALIQUOTA * DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',M.QTCONT,1),2) AS VLBAIXADIFALIQUOTA,
        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', N.DTENT + 1, N.DTENT) DATAINICIOCIAP,
        DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', NVL(N.CODFILIALNF,N.CODFILIAL)), 'M'), 'E', NVL(M.DTTERMINOCIAP, N.DTTERMINOCIAP) + 1, NVL(M.DTTERMINOCIAP, N.DTTERMINOCIAP)) DATAFINALCIAP,
@@ -604,8 +604,8 @@ UNION ALL
        0 VLDIFALIQUOTA,
        --------------------------------------
 --       NVL(M.VLCREDITO, 0) -
-       ROUND(NVL(M.VLCREDITO, 0) * DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', M.QTCONT, 1),2) -
-       ROUND((M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',1,M.QTCONT) *
+       ROUND(NVL(M.VLCREDITO, 0) * DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', M.QTCONT, 1),2) -
+       ROUND((M.VLCREDITO / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',1,M.QTCONT) *
        ((select count(1)
           from PCBENSPATRIMONIAIS
          where NUMTRANSACAO = N.NUMTRANSENT
@@ -615,8 +615,8 @@ UNION ALL
         ))),2) VLBAIXACRED,
        --------------------------------------
 --       NVL(M.VLDIFALIQUOTA, 0) -
-       ROUND(NVL(M.VLDIFALIQUOTA, 0) * DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S',M.QTCONT,1),2) -
-       ROUND((M.VLDIFALIQUOTA / DECODE(NVL(M.GRAVADOUNITARIO,'N'), 'S', 1,M.QTCONT) *
+       ROUND(NVL(M.VLDIFALIQUOTA, 0) * DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S',M.QTCONT,1),2) -
+       ROUND((M.VLDIFALIQUOTA / DECODE(NVL(M.GRAVADOUNITARIO,'S'), 'S', 1,M.QTCONT) *
        (select count(1)
           from PCBENSPATRIMONIAIS
          where NUMTRANSACAO = N.NUMTRANSENT
@@ -681,8 +681,8 @@ SELECT '06 - Bens lançados pela 3405 com termino ciap' AS ID,
        NVL(PARAMFILIAL.OBTERCOMONUMBER('CON_QTMESESCREDCIAP'), 48) QTMESESCREDCIAP,
        N.CODPROD,
        CASE WHEN TO_CHAR(N.DTTERMINOCIAP,'YYYYMM') <= TO_CHAR(ADD_MONTHS(DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('TIPOCALCCIAP', N.CODFILIAL), 'M'), 'E', N.DATA + 1, N.DATA),NVL(PARAMFILIAL.OBTERCOMONUMBER('CON_QTMESESCREDCIAP'), 48)-1),'YYYYMM') THEN
-	       ADD_MONTHS(N.DTTERMINOCIAP,1)
-	     ELSE
+         ADD_MONTHS(N.DTTERMINOCIAP,1)
+       ELSE
          N.DTTERMINOCIAP
        END DATA,
 --       ADD_MONTHS(N.DTTERMINOCIAP, 1) DATA,
