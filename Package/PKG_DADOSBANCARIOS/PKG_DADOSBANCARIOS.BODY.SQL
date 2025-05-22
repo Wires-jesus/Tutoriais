@@ -18,6 +18,7 @@ Bancos homologados:
 218 - BS2
 594 - Banco ASA
 637 - Banco Sofisa
+133 - Banco Cresol
 
 Parâmetros de Entrada:
 PS_CODFILIAL         - Código da Filial do título selecionado (PCFILIAL)
@@ -629,7 +630,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
            ELSE
              VS_DIGITO := 0;
           END CASE;
-       WHEN (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 594) THEN
+       WHEN (BANCO.NUMBANCO = 422) OR (BANCO.NUMBANCO = 594) OR (BANCO.NUMBANCO = 133) THEN
           VN_DIVISAO := VN_SOMA / 10;
           VN_DIVISAO := TRUNC(VN_DIVISAO);
           VN_RESTO   := VN_SOMA - (VN_DIVISAO * 10);
@@ -760,6 +761,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VN_CONTADOR       NUMBER(6);
     VN_RESULTMULTIPL  NUMBER(6);
     VS_NOVODIGMOD10   VARCHAR2(1);
+    VN_AUX           NUMBER(6);
   BEGIN
     PS_NOVODIGMOD10 := '';
 
@@ -919,6 +921,15 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
         VS_DIGITO := (11 - VN_SOMA);
       ELSIF (BANCO.NUMBANCO = 399) THEN
         VN_RESTO := VN_SOMA MOD 11;
+      ELSIF (BANCO.NUMBANCO = 133) THEN
+        VN_RESTO := MOD(VN_SOMA, 11);
+
+        IF (PN_TIPO = 'C') THEN
+          VN_AUX := 11 - VN_RESTO;
+          IF (VN_AUX = 0) OR (VN_AUX = 1) OR (VN_AUX > 9) THEN
+            VN_RESTO := 11 - VN_RESTO;
+          END IF; 
+        END IF;
       ELSE
         VN_DIVISAO := VN_SOMA / 11;
         VN_DIVISAO := TRUNC(VN_DIVISAO);
@@ -1011,6 +1022,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
           WHEN (BANCO.NUMBANCO = 594) THEN
             IF (VN_RESTO = 0) OR (VN_RESTO = 1) OR (VN_RESTO > 9) THEN
               VS_DIGITO := '1';
+            ELSE
+              VS_DIGITO := 11 - VN_RESTO;
+            END IF;
+          WHEN (BANCO.NUMBANCO = 133) THEN  
+            IF VN_RESTO = 0 THEN
+              VS_DIGITO := 0;          
+            ELSIF VN_RESTO = 1 THEN
+              VS_DIGITO := 'P';
             ELSE
               VS_DIGITO := 11 - VN_RESTO;
             END IF;
@@ -1931,6 +1950,50 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
     VS_CODBARRA   := SUBSTR(VS_CODBARRA, 1, 4) || VS_DVCODBARRA || SUBSTR(VS_CODBARRA, 5, 39);
     --**********************************************************************************************
   END;
+
+  --BANCO CRESOL ***********************************************************************************
+  PROCEDURE F_GERADADOS_BANCO_133(PN_CODBANCO           IN NUMBER,
+                                  PN_VALOR              IN NUMBER,
+                                  PN_VALORLIQUIDO       IN NUMBER,
+                                  PD_DTVENC             IN DATE,
+                                  PN_PROXIMONOSSONUMERO IN NUMBER,
+                                  PS_UTILIZAVALORBRUTO  IN VARCHAR2,
+                                  PS_PRIMEIRAIMPRESSAO  IN VARCHAR2) IS
+    VS_NOSSONUMERO_TEMP VARCHAR2(30);    
+    VS_DVCODBARRA       VARCHAR2(1);   
+    VS_DV_NOSSONUMERO   VARCHAR2(1);
+    VS_NOVODIGMOD10     VARCHAR2(1);
+  BEGIN
+    -- GERAÇÃO DO NOSSO NÚMERO PARA O BANCO CRESOL *************************************************
+    IF PS_PRIMEIRAIMPRESSAO = 'S' THEN
+      VS_NOSSONUMERO      := LPAD(PN_PROXIMONOSSONUMERO, 11, '0');      
+      VS_NOSSONUMERO_TEMP := NUMEROS(VS_NOSSONUMERO);
+      VS_DV_NOSSONUMERO   := F_CALCULA_MODULO_11(LPAD(BANCO.NUMCARTEIRA, 2, '0') || VS_NOSSONUMERO, 7, 'N', VS_NOVODIGMOD10);                                    
+      VS_NOSSONUMERO      := VS_NOSSONUMERO || '-' || VS_DV_NOSSONUMERO;      
+    ELSE
+      VS_NOSSONUMERO_TEMP := NUMEROS(TITULOS.NOSSONUMERO);
+    END IF;
+    --**********************************************************************************************
+    -- GERAÇÃO DO CODIGO DE BARRAS PARA O BANCO CRESOL**********************************************
+    /*01 A 19*/ -- INICIO PADRAO COD BARRAS
+    VS_CODBARRA := F_MONTA_INICIO_CODBARRAS(PN_VALOR,
+                                            PN_VALORLIQUIDO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PD_DTVENC);
+    /*20 A 23*/                                        
+    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCONVENIO, 4, '0') ; -- Código da Cooperativa no sistema Cresol
+    /*24 A 25*/
+    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA, 2, '0');
+    /*26 A 36*/
+    VS_CODBARRA := VS_CODBARRA || LPAD(VS_NOSSONUMERO_TEMP, 11, '0');
+    /*37 A 43*/ 
+    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.CODCLIENTENOBANCO, 7, '0'); --Cedente
+    /*44 A 44*/
+    VS_CODBARRA := VS_CODBARRA || '0';
+    VS_DVCODBARRA := F_CALCULA_MODULO_11(VS_CODBARRA, 9, 'C', VS_NOVODIGMOD10);
+    VS_CODBARRA   := SUBSTR(VS_CODBARRA, 1, 4) || VS_DVCODBARRA || SUBSTR(VS_CODBARRA, 5, 39);
+    --**********************************************************************************************
+  END;
   
   --BUSCA TÃTULO(S) PARA FAZER GERAÃ¿Ã¿O *************************************************************
   PROCEDURE P_GERADADOSBANCARIOS(PS_CODFILIAL         IN VARCHAR2,
@@ -2206,7 +2269,14 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             TITULOS.DTVENC,
                                             VN_PROXIMONOSSONUMERO,
                                             PS_UTILIZAVALORBRUTO,
-                                            PS_PRIMEIRAIMPRESSAO);                                                                                        
+                                            PS_PRIMEIRAIMPRESSAO); 
+        WHEN  133 THEN F_GERADADOS_BANCO_133(PN_CODBANCO,
+                                            TITULOS.VALOR_TEMP,
+                                            TITULOS.VALOR_TEMP - TITULOS.VALORDESC,
+                                            TITULOS.DTVENC,
+                                            VN_PROXIMONOSSONUMERO,
+                                            PS_UTILIZAVALORBRUTO,
+                                            PS_PRIMEIRAIMPRESSAO);
         ELSE
             RAISE_APPLICATION_ERROR(-20101, 'Banco nÃ£o homolagado!');
       END CASE;
