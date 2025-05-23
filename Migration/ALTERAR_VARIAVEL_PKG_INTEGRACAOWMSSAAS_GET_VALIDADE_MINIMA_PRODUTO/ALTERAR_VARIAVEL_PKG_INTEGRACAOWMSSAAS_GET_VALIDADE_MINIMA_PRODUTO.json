@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERAR_VARIAVEL_PKG_INTEGRACAOWMSSAAS_GET_VALIDADE_MINIMA_PRODUTO",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }
