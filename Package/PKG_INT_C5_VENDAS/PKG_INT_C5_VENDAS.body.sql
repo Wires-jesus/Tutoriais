@@ -206,7 +206,7 @@ IS
 				UPDATE PCORCAVENDAC
 				   SET NUMPEDECF = p_numpedecf,        
 					   NUMCUPOM = p_numcupom,        
-					   NUMSERIEEQUIP = :NUMSERIEEQUIP,
+					   NUMSERIEEQUIP = 'NOTAFISCAL',
 					   NUMCAIXA = NVL(NUMCAIXA, p_numcheckout)
 				WHERE NUMDOCTOPDV = p_seqdocto
 				  AND CODEMPRESAPDV = p_codempresa
