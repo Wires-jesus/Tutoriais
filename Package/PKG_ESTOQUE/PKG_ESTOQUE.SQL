@@ -503,6 +503,15 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
   /**********************************************************************************************/
   PROCEDURE DEPOSITO_TRANSFERENCIA (pnCODREQUISICAO     IN NUMBER
                                    ,psMSG_RETORNO       OUT VARCHAR2);
+								   
+  /**********************************************************************************************
+  /* Cancelamento de Requisição
+  /**********************************************************************************************/                                  
+  FUNCTION DEP_CANCELAR_REQUISICAO (vnCODREQUISICAO  IN   PCREQUISICAODEPOSITO.CODREQUISICAO%TYPE
+                                   ,vnMOTIVO         IN   PCREQUISICAODEPOSITO.MOTIVO_CANCELAMENTO%TYPE
+                                   ,vnCODFUNC_CANCEL IN   PCREQUISICAODEPOSITO.CODFUNC_CANCEL%TYPE
+                                   ,psMSG_RETORNO    OUT  VARCHAR2)
+  RETURN NUMBER;								  
 
   /**********************************************************************************************/
   /* Validar estoque disponível para o produto */
