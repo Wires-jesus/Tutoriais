@@ -11567,6 +11567,64 @@ IS
   PRIV_GERARLOG;
   -- Procedure
   END DEPOSITO_TRANSFERENCIA;
+  
+/************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor             Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
+  22/05/2025     Davi Bernado      DDESTOQUE-20703     Criação de metodo para cancelar requisições de deposito
+  /***********************************************************************************************************************/
+  FUNCTION DEP_CANCELAR_REQUISICAO (vnCODREQUISICAO  IN   PCREQUISICAODEPOSITO.CODREQUISICAO%TYPE
+                                   ,vnMOTIVO         IN   PCREQUISICAODEPOSITO.MOTIVO_CANCELAMENTO%TYPE
+                                   ,vnCODFUNC_CANCEL IN   PCREQUISICAODEPOSITO.CODFUNC_CANCEL%TYPE
+                                   ,psMSG_RETORNO    OUT  VARCHAR2)
+  RETURN NUMBER
+  IS
+    -- Declaração das variáveis
+    vtCODREQUISICAO             PCREQUISICAODEPOSITO.CODREQUISICAO%TYPE;
+  BEGIN
+    psMSG_RETORNO := 'OK';
+    
+    BEGIN
+      --VALIDAR SE PODE CANCELAR REQUISIÇÃO
+      SELECT DISTINCT CODREQUISICAO 
+        INTO vtCODREQUISICAO
+        FROM PCREQUISICAODEPOSITO
+       WHERE CODREQUISICAO = vnCODREQUISICAO
+         AND POSICAO = 'A';
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vtCODREQUISICAO := 0;
+    END;
+    
+    IF vtCODREQUISICAO = 0 THEN
+      psMSG_RETORNO := 'Erro 1 (Cancelar Requisicao Deposito): A requisição informada não existe ou não esta mais aberta (posição = ''A'')!'||CHR(13)||
+                       'Requisição.........: '||TO_CHAR(vnCODREQUISICAO);
+      vLOG.MSG_RETORNO := psMSG_RETORNO;
+      PRIV_GERARLOG;
+      RETURN 0;
+    END IF;
+    
+    BEGIN
+      UPDATE PCREQUISICAODEPOSITO
+         SET POSICAO = 'C',
+             DT_CANCEL = SYSDATE,
+             CODFUNC_CANCEL = vnCODFUNC_CANCEL,
+             MOTIVO_CANCELAMENTO = vnMOTIVO
+       WHERE CODREQUISICAO = vnCODREQUISICAO;
+    EXCEPTION
+      WHEN OTHERS THEN
+        psMSG_RETORNO := 'Erro 2 (Cancelar Requisicao Deposito): Não foi possivel cancelar a requisição'||CHR(13)||
+                         'Motivo......: '||SQLERRM||CHR(13)||
+                         'Requisição..: '||TO_CHAR(vnCODREQUISICAO);
+        vLOG.MSG_RETORNO := psMSG_RETORNO;
+        PRIV_GERARLOG;
+        RETURN 0;
+    END;   
+    
+    psMSG_RETORNO := 'OK';
+    RETURN 1;        
+  END DEP_CANCELAR_REQUISICAO;
 
   /************************************************************************************************************************
   ------------------------------------------------------ Alterações -------------------------------------------------------
