@@ -1543,6 +1543,12 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                               NVL(PCMOV.VLSEGURO, 0)
                                          ELSE 0 END) +
                                         NVL(PCMOV.VLOUTRASDESP,0))))
+							--utilizado somente para equipe de medicamentos
+							+ (CASE WHEN PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',PCFILIAL.CODIGO) = 'L' THEN
+								NVL(PCMOVCOMPLE.VLDESCCOMERCIALICMISENCAO,0)
+							  ELSE
+								0
+							  END)
                END AS VALOR_COMERCIAL
               ,(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT)
               - NVL(PCMOV.ST,0)
