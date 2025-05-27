@@ -387,6 +387,43 @@ BEGIN
                VDATAESTOQUEINICIO,
                NVL(PCODPRODUTO,0),
                'T');
+               
+   -- 001 - INSERIR PRODUTO QUE TEM ENTRADA NO PERIODO E NÃO TEM ESTOQUE INICIAL. ITEM QUE ENTROU A PRIMEIRA VEZ
+   -- 001.1 - LIMPAR TABELA TEMPORARIA 
+   DELETE FROM PCMOVTEMP;
+   -- 001.2 - INSERINDO ITEM NA PCMOVTEMP
+   FOR DADOS IN (SELECT DISTINCT M.CODPROD    
+                           FROM PCNFENT E,
+                                PCMOV M,
+                                PCMOVCOMPLE MC,
+                                PCPRODUT P,
+                                PCPRODFILIAL PF
+                          WHERE NVL(E.CODFILIALNF, E.CODFILIAL) = NVL(M.CODFILIALNF, M.CODFILIAL)
+                            AND E.NUMTRANSENT = M.NUMTRANSENT
+                            AND E.NUMNOTA     = M.NUMNOTA
+                            AND E.CODFILIAL    = M.CODFILIAL
+                            AND M.NUMTRANSITEM  = MC.NUMTRANSITEM
+                            AND M.CODPROD     = P.CODPROD
+                            AND M.CODPROD     = PF.CODPROD(+)
+                            AND M.DTCANCEL IS NULL
+                            AND M.QTCONT  > 0
+                            AND NVL(M.CODFILIALNF, M.CODFILIAL) = PF.CODFILIAL(+)
+                            AND NVL(E.CODFILIALNF, E.CODFILIAL)   = PCODFILIAL
+                            AND E.DTENT BETWEEN PDTINICIAL AND PDTFINAL
+                            AND M.DTMOV BETWEEN PDTINICIAL AND PDTFINAL
+                            AND M.CODPROD NOT IN (SELECT CODPROD FROM PCLISTAPROD_TMP)
+                            AND DECODE(NVL(PCODPRODUTO,0), 0, 0, M.CODPROD)  = 
+                                  DECODE(NVL(PCODPRODUTO,0), 0, 0, NVL(PCODPRODUTO,0))
+                            AND M.CODPROD NOT IN (SELECT DISTINCT H.CODPROD 
+                                                    FROM PCHISTEST H
+                                                   WHERE H.CODFILIAL = PCODFILIAL
+                                                     AND H.CODPROD NOT IN (SELECT CODPROD FROM PCLISTAPROD_TMP)
+                                                     AND H.DATA = VDATAESTOQUEINICIO
+                                                     AND DECODE(NVL(PCODPRODUTO,0), 0, 0, H.CODPROD)  = 
+                                                           DECODE(NVL(PCODPRODUTO,0), 0, 0, NVL(PCODPRODUTO,0))))
+   LOOP 
+      INSERT INTO PCMOVTEMP (CODPROD) VALUES (DADOS.CODPROD);
+   END LOOP; 
 
    FOR PRODUTO_ESTOQUE IN (SELECT H.CODFILIAL,
                                   H.DATA DATA_OPERACAO,
@@ -403,7 +440,19 @@ BEGIN
                               AND H.DATA = VDATAESTOQUEINICIO
                               --AND H.CODPROD = 165800
                               AND DECODE(NVL(PCODPRODUTO,0), 0, 0, H.CODPROD)  = DECODE(NVL(PCODPRODUTO,0), 0, 0, NVL(PCODPRODUTO,0))
-                              )
+                           ----------------------------   
+                           UNION ALL 
+                           ----------------------------
+                           SELECT PCODFILIAL AS CODFILIAL,
+                                  VDATAESTOQUEINICIO DATA_OPERACAO,
+                                  H.CODPROD,
+                                  'SI' TIPO_OPERACAO,
+                                  0 QTEST,
+                                  0 VLMEDIABASEST,
+                                  0 VLMEDIAST,
+                                  0 VLMEDIAICMS,
+                                  0 VLMEDIAFCPST
+                             FROM PCMOVTEMP H)  
    LOOP
      ---------------------------------------------------------------------------------------------------------------
      ----------------------------------- Inserir os registros de Saldo inicial -------------------------------------
@@ -753,4 +802,4 @@ BEGIN
      END LOOP; --End Loop movimentação (Entrada/saída)
    END LOOP; -- End Loop Saldo Inicial PCHISTEST.
 END;
--- 26/06/2024 - GAM - V009
+-- 27/05/2025 - GAM - V 010
