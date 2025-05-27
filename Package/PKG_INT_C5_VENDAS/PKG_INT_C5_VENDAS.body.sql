@@ -193,8 +193,8 @@ IS
 		  SELECT COUNT(1)
           INTO n_countorcamento
           FROM PCORCAVENDAC C
-          WHERE C.NUMDOCTOPDV = p_seqdocto, 
-            AND C.CODEMPRESAPDV = p_codempresa,
+          WHERE C.NUMDOCTOPDV = p_seqdocto 
+            AND C.CODEMPRESAPDV = p_codempresa
             AND C.CODCHECKOUTPDV = p_numcheckout
 			AND C.ORCAMENTOUTILIZADO = 'S';
 		  EXCEPTION
