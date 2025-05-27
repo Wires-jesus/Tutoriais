@@ -135,7 +135,7 @@ FROM
                                          FROM PCDESCONTOFIDELIDADE F,
                                               PCGRUPOFIDELIDADEDESCONTO G 
                                         WHERE F.CODFIDELIDADE = G.CODFIDELIDADE
-                                          AND F.CODFIDELIDADE = P.CODFIDELIDADE)) THEN P.PERCDESCONTO
+                                          AND F.CODFIDELIDADE = P.CODFIDELIDADE)) THEN NVL(P.PERCDESCONTO,0)
                      ELSE 0
                   END
            END PERCDESCONTO,         
