@@ -9609,6 +9609,7 @@ begin
   --V_SQLERRO := 'RATEANDO DESPESAS';
   ---------------------------------------------------------------------------------
   -- RATEAR AS DESPESAS SE AINDA N?O ESTIVEREM
+ /* Retirado nessa solicitação: DDFISCAL-30012
    V_NUMNOTAINICIAL := NUMNOTA1;
    V_NUMNOTAFINAL   := NUMNOTA2;
    FOR DADOSRAT IN (SELECT NUMTRANSVENDA
@@ -9625,7 +9626,7 @@ begin
    LOOP
        FISCAL.CALCULAR_RATEIO_DESPESAS(DADOSRAT.NUMTRANSVENDA, V_SQLERRO);
        V_CONTADORREGISTRO := V_CONTADORREGISTRO + 1;
-   END LOOP;
+   END LOOP;*/
   
   ---------------------------------------------------------------------------------
   V_SQLERRO := 'BUSCANDO NOTAS FISCAIS';
