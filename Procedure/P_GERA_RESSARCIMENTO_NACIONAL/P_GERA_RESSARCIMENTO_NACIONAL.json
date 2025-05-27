@@ -9,6 +9,10 @@
             "nome": "PCHISTEST",
             "tipo": "TABELA",
             "versao": "6.0.03.000"
+        }, {
+            "nome": "PCMOVTEMP",
+            "tipo": "TABELA",
+            "versao": "6.0.04.000"
         }
     ]
 }
