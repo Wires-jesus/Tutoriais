@@ -16,6 +16,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
        SYSDATE,
        CURRENT_TIMESTAMP);
     COMMIT;
+	
   END;
 
   PROCEDURE set_inicio_execucao(p_id IN pccontroleconsinco.id%TYPE) AS
