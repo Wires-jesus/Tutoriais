@@ -615,8 +615,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           OR NVL(s.desccompleta, '-') <> NVL(b.DESCCOMPLETA, '-')
           OR NVL(s.ativo, '-') <> NVL(b.ATIVO, '-')
           OR NVL(s.produtocomposto, '-') <> NVL(b.PRODUTOCOMPOSTO, '-')
-          OR NVL(s.seqfamilia, 0) <> NVL(b.SEQFAMILIA, 0)
-          OR NVL(s.codproduto, 0) <> NVL(b.codproduto, 0)
+          OR NVL(s.seqfamilia, 0) <> NVL(b.SEQFAMILIA, 0)          
+          OR NVL(s.codanp, 0) <> NVL(b.codanp,0)
+          OR NVL(s.descanp, 0) <> NVL(b.descanp_prod,0)
+          OR NVL(s.percglp, 0) <> NVL(b.percglp, 0)
+          OR NVL(s.percgnn, 0) <> NVL(b.percgnn, 0)
+          OR NVL(s.percgni, 0) <> NVL(b.percgni, 0)
+          OR NVL(s.codproduto, 0) <> NVL(b.codproduto, 0)   
       WHEN NOT MATCHED THEN
         INSERT
             (s.SEQPRODUTO,
