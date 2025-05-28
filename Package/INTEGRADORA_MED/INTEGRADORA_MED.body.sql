@@ -5853,6 +5853,17 @@ end func_HoraDigitacaoPedido;
        end if;
       end if;
 
+      IF (p_Regpedido.integradora > 0) AND
+         ((NVL(p_Regpedido.LAYOUT,0) = 16) OR 
+          (NVL(p_Regpedido.LAYOUT,0) = 50) OR 
+          (NVL(p_Regpedido.LAYOUT,0) > 100)) THEN
+        IF (FOBTEM_PARAM_INTEGRADORA(p_regpedido.integradora,
+                                     'UTILIZARFILIALVIRTUAL',
+                                     'N') = 'S') THEN
+          p_Regpedido.codfilialnf := p_regcliente.codfilialnf;
+          PGRAVA_LOG('Aplicado codfilialnf do cliente pelo parametro UTILIZARFILIALVIRTUAL: ' || p_regcliente.codfilialnf);
+        END IF;
+      END IF;
 
      ---tarefa 131147
      if p_regpedido.codfilialnf is null then
