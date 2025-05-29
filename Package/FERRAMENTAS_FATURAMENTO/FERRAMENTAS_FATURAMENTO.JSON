@@ -41,7 +41,7 @@
             "versao": "7.0.02.000"
         },{
             "nome": "FISCAL",
-            "tipo": "PACKAGE",
+            "tipo": "OBJETO_PLSQL",
             "versao": "7.0.32.000"
         }
 	]
