@@ -35,6 +35,14 @@
             "nome": "PCMOVPREFAT",
             "tipo": "TABELA",
             "versao": "7.0.03.000"
+        },{
+            "nome": "PCMOVPREENT",
+            "tipo": "TABELA",
+            "versao": "7.0.02.000"
+        },{
+            "nome": "FISCAL",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.32.000"
         }
 	]
 }
