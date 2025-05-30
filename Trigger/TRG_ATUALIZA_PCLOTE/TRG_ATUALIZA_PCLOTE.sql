@@ -796,12 +796,22 @@ BEGIN
                                  NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL))
                          ELSE
                          NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
+						 
 				 IF NVL(:OLD.QTBLOQUEADA, 0) <> NVL(:NEW.QTBLOQUEADA, 0) THEN
                    UPDATE PCLOTE
                       SET QTBLOQUEADA = GREATEST( GREATEST(((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0) )
                     WHERE NUMLOTE = :NEW.NUMLOTE  
                       AND CODPROD = :NEW.CODPROD
-                      AND CODFILIAL = PKG_ESTOQUE.FILIAL_ESTOQUE_GERENCIAL(:NEW.CODPROD, :NEW.NUMSEQ, 'E', :NEW.NUMTRANSENT);                     
+                      AND CODFILIAL = (SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                              M.CODFILIALRETIRA, 
+                                              M.CODFILIALNF),'V',
+                                              DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',M.CODFILIAL,'N')), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
+                                              DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',M.CODFILIAL,'N')), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL) 
+                                         FROM PCMOV M, PCNFENT E
+                                        WHERE M.CODPROD = :NEW.CODPROD
+                                          AND M.NUMTRANSENT = E.NUMTRANSENT
+                                          AND M.NUMSEQ = :NEW.NUMSEQ
+                                          AND E.NUMTRANSENT = :NEW.NUMTRANSENT);                     
                  END IF;
                EXCEPTION
                  WHEN OTHERS THEN
