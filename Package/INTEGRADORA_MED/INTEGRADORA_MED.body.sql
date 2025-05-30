@@ -5855,7 +5855,6 @@ end func_HoraDigitacaoPedido;
 
       IF (p_Regpedido.integradora > 0) AND
          ((NVL(p_Regpedido.LAYOUT,0) = 16) OR 
-          (NVL(p_Regpedido.LAYOUT,0) = 50) OR 
           (NVL(p_Regpedido.LAYOUT,0) > 100)) THEN
         IF (FOBTEM_PARAM_INTEGRADORA(p_regpedido.integradora,
                                      'UTILIZARFILIALVIRTUAL',
