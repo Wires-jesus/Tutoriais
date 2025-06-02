@@ -5369,7 +5369,6 @@ create or replace package body FISCAL is
     */
     V_DATA_CORRETA DATE;
     V_TIMEZONE     VARCHAR2(100);
-    V_ZONEID       VARCHAR2(100);
 
   BEGIN
     BEGIN
@@ -5382,8 +5381,8 @@ create or replace package body FISCAL is
       END IF;
 
       BEGIN
-        --PEGA O ID DA ZONA DA UF
-        SELECT TIMEZONE
+        --PEGA O INTERVALO DA ZONA DA UF
+        SELECT REGEXP_SUBSTR(TIMEZONE, '(-?\d{2})') TIMEZONE
           INTO V_TIMEZONE
           FROM PCESTADOTIMEZONE
          WHERE UPPER(SIGLAESTADO) = UPPER(P_UF);
@@ -5393,21 +5392,8 @@ create or replace package body FISCAL is
           RETURN V_DATA_CORRETA;
       END;
 
-      --PEGA O ZONEID PADRÃO DE ACORDO COM O TIME ZONE
-      IF (V_TIMEZONE = 'UTC-05:00') THEN
-         V_ZONEID := 'America/Lima';
-      ELSIF (V_TIMEZONE = 'UTC-04:00') THEN
-         V_ZONEID := 'America/Caracas';
-      ELSIF (V_TIMEZONE = 'UTC-03:00') THEN
-         V_ZONEID := 'America/Sao_Paulo';
-      ELSE
-         V_ZONEID := '';
-      END IF;
-
       --FAZ O CÁLCULO DE ACORDO COM O TIMEZONE DA UF
-      SELECT CAST(CAST(FROM_TZ(CAST(SYSDATE AS TIMESTAMP),
-                               TZ_OFFSET('America/Sao_Paulo')) AS TIMESTAMP WITH TIME ZONE) AT TIME ZONE
-                  TO_CHAR(V_ZONEID) AS DATE) AS HORA_AJUSTADA
+      SELECT CAST(((CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + NUMTODSINTERVAL(V_TIMEZONE, 'HOUR')) AS DATE) AS HORA_AJUSTADA
         INTO V_DATA_CORRETA
         FROM DUAL;
 
