@@ -5,12 +5,12 @@
   {
    "nome": "TABELA_CTE_IDENTIFICACAO",
    "tipo":"OBJETO_PLSQL",
-   "versao": "7.0.01.000"
+   "versao": "7.0.02.000"
   },
   {
    "nome": "PCNFSAID",
    "tipo":"TABELA",
-   "versao": "6.0.04.000"
+   "versao": "7.0.07.000"
   },
   {
    "nome": "CTE_EMITENTE",
@@ -31,6 +31,11 @@
    "nome": "NFE_RODAPE_SAIDA",
    "tipo":"OBJETO_PLSQL",
    "versao": "5.0.03.000"
+  },
+  {
+   "nome": "PCNFENT",
+   "tipo":"TABELA",
+   "versao": "7.0.12.000"
   }
  ]
 }
