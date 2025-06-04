@@ -6,6 +6,11 @@
    "nome": "TABELA_CTE_IMPOSTO",
    "tipo":"OBJETO_PLSQL",
    "versao": "7.0.02.000"
+  },
+  {
+   "nome": "PCNFBASE",
+   "tipo":"TABELA",
+   "versao": "7.0.02.000"
   }
  ]
 }
