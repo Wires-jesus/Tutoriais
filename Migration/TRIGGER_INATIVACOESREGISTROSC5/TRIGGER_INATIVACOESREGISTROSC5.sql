@@ -5,6 +5,9 @@ DECLARE
 BEGIN
   IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', :OLD.CODFILIAL, 'N') = 'S' THEN
     BEGIN
+	/*
+	    Essa trigger existe para marcar embalagens que tiveram alteração de QTUNIT e QTMINIMAATACADO
+    */
       SELECT SEQPRODUTO
 		INTO VSEQPRODUTO
       FROM
