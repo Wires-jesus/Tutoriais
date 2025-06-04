@@ -1862,10 +1862,10 @@ AS
         'N' emoferta,
         'N' enviaraliqreducaopiscofins,
         h.excluiricmsbasepiscofins,
-        v.fabricante,
+        f.fabricante,
         NULL idcancel,
         NULL importado,
-        v.indescalarelevante indescalarelevante,
+        f.indescalarelevante indescalarelevante,
         0 iva,
         NULL logerro,
         NULL md5paf,
@@ -1883,7 +1883,7 @@ AS
         NULL numserie,
         NULL numseriesat,
         NULL origemitem,
-        v.origmerctrib,
+        NVL(f.origmerctrib, 0) origmerctrib,
         0 pauta,
         NVL((select pedidoi.pbaserca 
 			  from pcpedi pedidoi, pcembalagem emb
@@ -1998,7 +1998,7 @@ AS
         NULL qtminatacvenda,
         0 qtsaidavasilhame,
         0 qtlitragem,
-        v.qtunit qtunitemb,
+        i.QTDEMBALAGEM qtunitemb,
         2099 rotinalanc,
         (CASE
             WHEN LENGTH(a.sittribut) < 2
@@ -2215,8 +2215,8 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
       OR 
         i.SEQPRODCOMPOSTO IS NULL 
     )
-    AND P.codprod = f.codprod
-    AND ea.codfilial = f.codfilial
+    AND v.codprod = f.codprod
+    AND ea.codigo = f.codfilial
    UNION ALL 
    SELECT  i.SEQDOCTO,
         'N' exportado,
@@ -2421,7 +2421,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         NULL qtminatacvenda,
         0 qtsaidavasilhame,
         0 qtlitragem,
-        v.qtunit qtunitemb,
+        i.QTDEMBALAGEM qtunitemb,
         2099 rotinalanc,
         (CASE
             WHEN LENGTH(a.sittribut) < 2
