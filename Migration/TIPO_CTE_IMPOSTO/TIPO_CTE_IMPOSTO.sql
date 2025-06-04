@@ -38,12 +38,16 @@ CREATE OR REPLACE TYPE TIPO_CTE_IMPOSTO AS OBJECT
      VBC                          NUMBER(15,2),
      PIBSUF                       NUMBER(7,4),
      VIBSUF                       NUMBER(15,2),
-     PREDALIQ                     NUMBER(7,4),
-     PALIQEFET                    NUMBER(7,4),
      PIBSMUN                      NUMBER(7,4),
      VIBSMUN                      NUMBER(15,2),
      PCBS                         NUMBER(7,4),
      VCBS                         NUMBER(15,2),
+     PREDALIQ_IBSUF               NUMBER(7,4),
+     PALIQEFET_IBSUF              NUMBER(7,4),
+     PREDALIQ_IBSMUN              NUMBER(7,4),
+     PALIQEFET_IBSMUN             NUMBER(7,4),
+     PREDALIQ_CBS                 NUMBER(7,4),
+     PALIQEFET_CBS                NUMBER(7,4),
      
      CONSTRUCTOR FUNCTION TIPO_CTE_IMPOSTO(SELF IN OUT NOCOPY TIPO_CTE_IMPOSTO)
        RETURN SELF AS RESULT
