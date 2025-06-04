@@ -932,7 +932,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       WHEN NVL(PRODPISCOFINS.EXCLUIRICMSBASEPISCOFINS, 'N') = 'S' THEN
                            0
                       ELSE 100 
-                    END)  PERCBASECOFINS
+                    END)  PERCBASECOFINS,
+					(CASE
+					  WHEN V.PESAVEL = 'S' THEN
+					    'S'
+					  ELSE 
+					    'N'
+					  END) VENDAFRACAO
 
              FROM VW_INT_C5_FAMILIA v, 
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
@@ -1019,7 +1025,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.LOTEESTOQUE = B.estoqueporlote,
                      S.gerareducaobasepiscofins = B.gerareducaobasepiscofins,
                      S.idref = B.idref,
-                     S.MEDICAMENTO = B.estoqueporlote
+                     S.MEDICAMENTO = B.estoqueporlote,
+					 S.VENDAFRACAO = B.VENDAFRACAO
 		WHERE NVL(S.familia, '-') <> NVL(B.familia, '-')
            OR NVL(S.permitedecimal, '-') <> NVL(B.permitedecimal, '-')
            OR NVL(S.permitemultiplicacao, '-') <> NVL(B.permitemultiplicacao, '-')
@@ -1042,6 +1049,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.idref, 0) <> NVL(B.idref, 0)
            OR NVL(S.LOTEESTOQUE, '-') <> NVL(B.estoqueporlote, '-')
            OR NVL(S.MEDICAMENTO, '-') <> NVL(B.estoqueporlote, '-')
+		   OR NVL(S.VENDAFRACAO,'-') <> NVL(B.VENDAFRACAO, '-')
 		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
@@ -1067,7 +1075,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.gerareducaobasepiscofins,
                      S.idref,
                      S.LOTEESTOQUE,
-                     S.MEDICAMENTO)
+                     S.MEDICAMENTO,
+					 S.VENDAFRACAO)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -1092,7 +1101,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.gerareducaobasepiscofins,
                       B.idref,
                       B.estoqueporlote,
-                      B.estoqueporlote);
+                      B.estoqueporlote,
+					  B.VENDAFRACAO);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
