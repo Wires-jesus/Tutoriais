@@ -2217,6 +2217,8 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
     )
     AND v.codprod = f.codprod
     AND ea.codigo = f.codfilial
+    AND c5.codigofilial = f.codfilial
+    AND p.codproduto = v.codprod
    UNION ALL 
    SELECT  i.SEQDOCTO,
         'N' exportado,
@@ -2612,7 +2614,7 @@ FROM  monitorpdvmiddle.tb_doctoitem      i,
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = v.NROEMPRESA
+   AND  C5.CODFILIALINTEGRACAO = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.seqproduto else NULL END  = h.seqproduto(+)
@@ -2644,6 +2646,8 @@ FROM  monitorpdvmiddle.tb_doctoitem      i,
   )
    AND ea.codigo = f.codfilial
    AND v.codprod = f.codprod
+   AND c5.codigofilial = f.codfilial
+   AND p.codproduto = v.codprod
 )
    
 \
