@@ -1258,7 +1258,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 'R'
                WHEN f.especie LIKE ('POS%') THEN
                 'S'
-			   WHEN f.especie = 'CART' THEN
+			   WHEN (f.especie = 'CART') or ((f.especie = 'O') and (f.codcob = 'C')) THEN
                 'N'			   
                WHEN (f.especie = 'CNV') or ((f.especie = 'O') and (f.codcob = 'CONV')) THEN
                 'V'
