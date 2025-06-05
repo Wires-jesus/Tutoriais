@@ -2255,7 +2255,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         0 basemexiva,
         0 bciss,
         NULL brinde,
-        v.cnpjfabricante,
+        f.cnpjfabricante,
         NULL codagregacao,
         (case WHEN i.seqprodcomposto IS NOT null
           THEN FNC_INT_C5_CODAUXPRODCOMPOSTO(i.seqprodcomposto , i.nroempresa)
@@ -2274,7 +2274,13 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         0 codcontrolevasilhame,
         C5.CODFILIAL codfilial,
         NULL codfilialretira,
-        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'A')) codecf,
+        (select percaliquota
+           from monitorpdvmiddle.tb_doctotributacaoitem
+          where nroempresa = i.nroempresa
+            and nrocheckout = i.nrocheckout
+            and seqdocto = i.seqdocto
+            and seqitem = i.seqitem
+            and seqtipotributacao = 1) codecf,
         i.cfop codfiscal,
         v.codfornec,
         d.sequsuario codfunccx,
@@ -2297,10 +2303,10 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         'N' emoferta,
         'N' enviaraliqreducaopiscofins,
         h.excluiricmsbasepiscofins,
-        v.fabricante,
+        f.fabricante,
         NULL idcancel,
         NULL importado,
-        v.indescalarelevante indescalarelevante,
+        f.indescalarelevante indescalarelevante,
         0 iva,
         NULL logerro,
         NULL md5paf,
@@ -2318,14 +2324,14 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         NULL numserie,
         NULL numseriesat,
         NULL origemitem,
-        v.origmerctrib,
+        NVL(f.origmerctrib, 0) origmerctrib,
         0 pauta,
         NVL((select pedidoi.pbaserca 
 			  from pcpedi pedidoi, pcembalagem emb
 			 where pedidoi.numped = i.NROPREVENDA
 			   and emb.codprod = pedidoi.codprod
 			   and emb.codprod = v.codprod
-			   and emb.codfilial = c5.codfilial
+			   and emb.codfilial = v.codfilial
 			   and emb.codauxiliar = pedidoi.codauxiliar
 			   and emb.qtunit = i.QTDEMBALAGEM
 			   and pedidoi.codprod = v.codprod
@@ -2582,21 +2588,22 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
            )
       ELSE NULL
     END) DTVALIDADE
-FROM  monitorpdvmiddle.tb_doctoitem   i,
-        monitorpdvmiddle.tb_docto       d,
-        monitorpdvmiddle.tb_doctocupom  c,
-        monitorpdvmiddle.tb_produto     p,
-        vw_int_c5_trib_pis h,
-        vw_int_c5_pcprodut              v,
-        pcconsolidatributacao           a,
-        monitorpdvmiddle.tb_empresa     e,
-        pcfilial ea,
+FROM  monitorpdvmiddle.tb_doctoitem      i,
+        monitorpdvmiddle.tb_docto        d,
+        monitorpdvmiddle.tb_doctocupom   c,
+        monitorpdvmiddle.tb_produto      p,
+        vw_int_c5_trib_pis               h,
+        pcprodut                         v, --vw_int_c5_pcprodut       v,
+        pcconsolidatributacao            a,
+        monitorpdvmiddle.tb_empresa      e,
+        pcfilial                         ea,
+        pcprodfilial                     f,
 		VW_INT_C5_OBTER_FILIAIS_C5  C5
  WHERE  i.seqdocto = d.seqdocto
    AND  i.nroempresa = d.nroempresa
    AND  i.nrocheckout = d.nrocheckout
-   AND  v.codfilial = ea.codigo
-   AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
+   --AND  v.codfilial = ea.codigo
+   --AND  v.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END 
    AND  p.seqproduto = CASE WHEN i.seqprodcomposto is null THEN i.seqproduto ELSE i.seqprodcomposto END
    AND  d.seqdocto = c.seqdocto
    AND  d.nroempresa = c.nroempresa
@@ -2610,7 +2617,7 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.seqproduto else NULL END  = h.seqproduto(+)
    AND  case when i.seqprodcomposto is null then i.codacesso else NULL END  = h.codauxiliar(+)
-   AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
+   --AND  case when i.seqprodcomposto is null then v.codauxiliar else 1 end = case when i.seqprodcomposto is null then i.codacesso else 1 END
    and  i.nroempresa = h.nroempresa(+)
    AND  e.nroempresa = d.nroempresa
    AND  i.nroempresa = e.nroempresa
@@ -2635,6 +2642,8 @@ FROM  monitorpdvmiddle.tb_doctoitem   i,
       OR 
         i.SEQPRODCOMPOSTO IS NULL 
   )
+   AND ea.codigo = f.codfilial
+   AND v.codprod = f.codprod
 )
    
 \
