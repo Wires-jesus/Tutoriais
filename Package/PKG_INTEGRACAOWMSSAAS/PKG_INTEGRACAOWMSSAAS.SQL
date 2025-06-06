@@ -21,11 +21,25 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
                                        pNUMLOTE       IN VARCHAR2);
 
   PROCEDURE EFETUAR_AJUSTE_ESTOQUE(pCODFILIAL  IN VARCHAR2,
-                                   pCODPROD    IN NUMBER,
-                                   pQUANTIDADE IN NUMBER,
-                                   pTIPO       IN VARCHAR2,
-                                   pVALIDADE   IN DATE,
-                                   pNUMLOTE    IN VARCHAR2);
+                                     pCODPROD    IN NUMBER,
+                                     pQUANTIDADE IN NUMBER,
+                                     pTIPO       IN VARCHAR2,
+                                     pVALIDADE   IN VARCHAR2,
+                                     pNUMLOTE    IN VARCHAR2);
+
+    PROCEDURE EFETUAR_TROCA_ESTOQUE_AVARIA(pCODFILIAL  IN VARCHAR2,
+                                           pCODPROD    IN NUMBER,
+                                           pQUANTIDADE IN NUMBER,
+                                           pTIPO       IN VARCHAR2,
+                                           pNUMLOTE    IN VARCHAR2);
+
+    PROCEDURE GERAR_PENDENCIA_MOV_ESTOQUE(pCODFILIAL  IN VARCHAR2,
+                                          pCODPROD    IN NUMBER,
+                                          pCODOPER    IN VARCHAR2,
+                                          pQUANTIDADE IN NUMBER,
+                                          pORIGEM     IN VARCHAR2,
+                                          pNUMLOTE    IN VARCHAR2,
+                                          pVALIDADE   IN VARCHAR2);
 
   FUNCTION GET_VALIDADE_MINIMA_PRODUTO(PNUMPED  IN NUMBER,
                                        PCODPROD IN NUMBER) RETURN VARCHAR2;

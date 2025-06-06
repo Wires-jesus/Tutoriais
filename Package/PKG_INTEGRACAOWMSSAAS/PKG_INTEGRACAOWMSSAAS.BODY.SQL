@@ -349,10 +349,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
         vCODCLI := 0;
     END;
 
-    SELECT NVL(OBS,'')
-    INTO vOBS_ORIGINAL
-    FROM PCPEDC WHERE NUMPED = pNUMDOCWINTHOR;
-
+    SELECT NVL(OBS, '')
+      INTO vOBS_ORIGINAL
+      FROM PCPEDC
+     WHERE NUMPED = pNUMDOCWINTHOR;
 
     SELECT DECODE(NVL((SELECT NVL(VALOR, 'N')
                         FROM PCPARAMINTEGRACAOWMSSAAS
@@ -431,71 +431,71 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
   END ENVIARDOCFILAINTEGRACAO;
 
   PROCEDURE FINALIZARSEPARACAOITEMFILA(pCODFILIAL     IN VARCHAR2,
-                                         pNUMDOCWMSSAAS IN NUMBER,
-                                         pCODPROD       IN NUMBER,
-                                         pNUMSEQ        IN NUMBER,
-                                         pQTSEPARADA    IN NUMBER,
-                                         pNUMLOTE       IN VARCHAR2) IS
+                                       pNUMDOCWMSSAAS IN NUMBER,
+                                       pCODPROD       IN NUMBER,
+                                       pNUMSEQ        IN NUMBER,
+                                       pQTSEPARADA    IN NUMBER,
+                                       pNUMLOTE       IN VARCHAR2) IS
 
-      vREGISTRO_NOVO         PCINTEGRACAOWMSSAASITEM%ROWTYPE;
-      vIDENTIFCADOR_OPERACAO VARCHAR2(30);
-      v_COUNT                NUMBER;
-      vBODY                  VARCHAR2(500);
+    vREGISTRO_NOVO         PCINTEGRACAOWMSSAASITEM%ROWTYPE;
+    vIDENTIFCADOR_OPERACAO VARCHAR2(30);
+    v_COUNT                NUMBER;
+    vBODY                  VARCHAR2(500);
 
-    BEGIN
-      vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP, 'yyyymmddhh24missff3');
+  BEGIN
+    vIDENTIFCADOR_OPERACAO := TO_CHAR(SYSTIMESTAMP, 'yyyymmddhh24missff3');
 
+    UPDATE PCINTEGRACAOWMSSAASITEM
+       SET QTSEPARADA = pQTSEPARADA, NUMLOTE = pNUMLOTE
+     WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
+       AND CODPROD = pCODPROD
+       AND NUMSEQ = pNUMSEQ
+       AND NVL(QTSEPARADA, 0) = 0;
+
+    v_COUNT := SQL%ROWCOUNT;
+
+    vBODY := 'Filial: ' || pCODFILIAL || ', Documento WMS Saas:' ||
+             TO_CHAR(pNUMDOCWMSSAAS) || ', Codprod: ' || TO_CHAR(pCODPROD) ||
+             ', Sequencia: ' || TO_CHAR(pNUMSEQ) || ', Qt.Separada: ' ||
+             TO_CHAR(pQTSEPARADA) || ', Lote: ' || pNUMLOTE ||
+             ', Linhas Altedas: ' || TO_CHAR(v_COUNT) ||
+             ', Identificador: ' || vIDENTIFCADOR_OPERACAO;
+
+    GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
+               'UPDATE_PCINTEGRACAOWMSSAASITEM',
+               vBODY ||
+               ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM');
+
+    IF v_COUNT = 0 THEN
+      ---TRATAR CENARIO ONDE PRODUTO COM MESMO LOTE E CONFERIDO DUAS VEZES.
       UPDATE PCINTEGRACAOWMSSAASITEM
-         SET QTSEPARADA = pQTSEPARADA, NUMLOTE = pNUMLOTE
+         SET QTSEPARADA = NVL(QTSEPARADA, 0) + pQTSEPARADA
        WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
          AND CODPROD = pCODPROD
          AND NUMSEQ = pNUMSEQ
-         AND NVL(QTSEPARADA, 0) = 0;
+         AND NUMLOTE = pNUMLOTE
+         AND NVL(QTSEPARADA, 0) > 0;
 
       v_COUNT := SQL%ROWCOUNT;
-
-      vBODY := 'Filial: ' || pCODFILIAL || ', Documento WMS Saas:' ||
-               TO_CHAR(pNUMDOCWMSSAAS) || ', Codprod: ' || TO_CHAR(pCODPROD) ||
-               ', Sequencia: ' || TO_CHAR(pNUMSEQ) || ', Qt.Separada: ' ||
-               TO_CHAR(pQTSEPARADA) || ', Lote: ' || pNUMLOTE ||
-               ', Linhas Altedas: ' || TO_CHAR(v_COUNT) ||
-               ', Identificador: ' || vIDENTIFCADOR_OPERACAO;
-
-      GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
-                 'UPDATE_PCINTEGRACAOWMSSAASITEM',
-                 vBODY ||
-                 ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM');
-
       IF v_COUNT = 0 THEN
-        ---TRATAR CENARIO ONDE PRODUTO COM MESMO LOTE E CONFERIDO DUAS VEZES.
-        UPDATE PCINTEGRACAOWMSSAASITEM
-           SET QTSEPARADA = NVL(QTSEPARADA, 0) + pQTSEPARADA
-         WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-           AND CODPROD = pCODPROD
-           AND NUMSEQ = pNUMSEQ
-           AND NUMLOTE = pNUMLOTE
-           AND NVL(QTSEPARADA, 0) > 0;
+        FOR vREG IN (SELECT *
+                       FROM PCINTEGRACAOWMSSAASITEM
+                      WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
+                        AND CODPROD = pCODPROD
+                        AND ROWNUM = 1) LOOP
+          vREGISTRO_NOVO            := vREG;
+          vREGISTRO_NOVO.NUMLOTE    := pNUMLOTE;
+          vREGISTRO_NOVO.QTSEPARADA := pQTSEPARADA;
+          INSERT INTO PCINTEGRACAOWMSSAASITEM VALUES vREGISTRO_NOVO;
 
-        v_COUNT := SQL%ROWCOUNT;
-        IF v_COUNT = 0 THEN
-          FOR vREG IN (SELECT *
-                         FROM PCINTEGRACAOWMSSAASITEM
-                        WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-                          AND CODPROD = pCODPROD
-                          AND ROWNUM = 1) LOOP
-            vREGISTRO_NOVO            := vREG;
-            vREGISTRO_NOVO.NUMLOTE    := pNUMLOTE;
-            vREGISTRO_NOVO.QTSEPARADA := pQTSEPARADA;
-            INSERT INTO PCINTEGRACAOWMSSAASITEM VALUES vREGISTRO_NOVO;
-
-            GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
-                       'INSERT_PCINTEGRACAOWMSSAASITEM',
-                       vBODY ||
-                       ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM)');
-          END LOOP;
-        END IF;
-
+          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.FINALIZARSEPARACAOITEMFILA',
+                     'INSERT_PCINTEGRACAOWMSSAASITEM',
+                     vBODY ||
+                     ', Descrição: Finalização da separação na tabela PCINTEGRACAOWMSSAASITEM)');
+        END LOOP;
       END IF;
+
+    END IF;
 
   END FINALIZARSEPARACAOITEMFILA;
 
@@ -503,8 +503,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                                    pCODPROD    IN NUMBER,
                                    pQUANTIDADE IN NUMBER,
                                    pTIPO       IN VARCHAR2,
-                                   pVALIDADE   IN DATE,
-                                   pNUMLOTE    IN VARCHAR2) IS
+                                   --pVALIDADE   IN DATE,
+                                   pVALIDADE IN VARCHAR2,
+                                   pNUMLOTE  IN VARCHAR2) IS
     v_PROX_NUM_LANCAMENTO  NUMBER;
     v_NUMTRANSENT          NUMBER;
     v_NUMTRANSVENDA        NUMBER;
@@ -524,7 +525,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
     v_PRAZOVAL             NUMBER;
 
   BEGIN
-
     --Carrega valores das transaÃ§Ãµes e da conta de ajuste
     SELECT PROXNUMLANC,
            PROXNUMTRANSENT,
@@ -587,11 +587,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
             (pCODPROD,
              pCODFILIAL,
              pQUANTIDADE,
-             pVALIDADE,
+             TO_DATE(pVALIDADE, 'dd/mm/yyyy'),
              pNUMLOTE,
              v_NUMTRANSENT,
              0,
-             TRUNC(pVALIDADE) - v_PRAZOVAL);
+             TRUNC(TO_DATE(pVALIDADE, 'dd/mm/yyyy')) - v_PRAZOVAL);
         END IF;
 
       END IF;
@@ -732,6 +732,185 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                           v_NUMLANC);
 
   END EFETUAR_AJUSTE_ESTOQUE;
+
+  PROCEDURE EFETUAR_TROCA_ESTOQUE_AVARIA(pCODFILIAL  IN VARCHAR2,
+                                         pCODPROD    IN NUMBER,
+                                         pQUANTIDADE IN NUMBER,
+                                         pTIPO       IN VARCHAR2,
+                                         pNUMLOTE    IN VARCHAR2) IS
+    v_NUMTRANSENT          NUMBER(10);
+    v_NUMTRANSVENDA        NUMBER(10);
+    v_USA_ESTOQUE_POR_LOTE VARCHAR2(2);
+    VSRETORNO              VARCHAR2(1000);
+    PSMSG_RETORNO          VARCHAR2(6000);
+    v_LOTE                 VARCHAR2(15);
+
+  BEGIN
+
+    SELECT PROXNUMTRANSENT, PROXNUMTRANSVENDA
+      INTO v_NUMTRANSENT, v_NUMTRANSVENDA
+      FROM PCCONSUM
+       FOR UPDATE;
+
+    UPDATE PCCONSUM
+       SET PROXNUMTRANSENT   = PROXNUMTRANSENT + 1,
+           PROXNUMTRANSVENDA = PROXNUMTRANSVENDA + 1;
+
+    SELECT NVL(ESTOQUEPORLOTE, 'N')
+      INTO v_USA_ESTOQUE_POR_LOTE
+      FROM PCPRODUT
+     WHERE CODPROD = pCODPROD;
+
+    v_LOTE := pNUMLOTE;
+
+    IF v_USA_ESTOQUE_POR_LOTE = 'N' THEN
+      v_LOTE := NULL;
+    END IF;
+
+    IF pTIPO = 'E' THEN
+
+      VSRETORNO := PKG_ESTOQUE.BLOQUEIO_INCLUIR(PNIDENTIFICADOR => v_NUMTRANSENT,
+                                                PSCODFILIAL     => pCODFILIAL,
+                                                PNCODPROD       => pCODPROD,
+                                                PNNUMSEQ        => 0,
+                                                PNQTDE          => 0,
+                                                PNQTAVARIA      => pQUANTIDADE,
+                                                PSOPERACAO      => 'IG',
+                                                psCODOPER       => 'EA',
+                                                psOBSERVACAO    => 'ENTRADA DE AVARIA',
+                                                psNUMLOTE       => v_LOTE,
+                                                PSMSG_RETORNO   => PSMSG_RETORNO);
+
+      IF VSRETORNO <> 'S' THEN
+        raise_application_error(-20002,
+                                'NÃO FOI POSSIVEL INCLUIR BLOQUEIO DE AVARIA');
+      END IF;
+
+      UPDATE PCMOVAVARIA
+         SET CODFUNCLANC = 1
+       WHERE NUMTRANSENT = v_NUMTRANSENT
+         AND CODFUNCLANC IS NULL;
+
+    END IF;
+
+    IF pTIPO = 'S' THEN
+
+      VSRETORNO := PKG_ESTOQUE.BLOQUEIO_BAIXAR(PNIDENTIFICADOR => v_NUMTRANSVENDA,
+                                               PSCODFILIAL     => pCODFILIAL,
+                                               PNCODPROD       => pCODPROD,
+                                               PNNUMSEQ        => 0,
+                                               PNQTDE          => 0,
+                                               PNQTAVARIA      => pQUANTIDADE,
+                                               PSOPERACAO      => 'BG',
+                                               psCODOPER       => 'SR',
+                                               psOBSERVACAO    => 'SAIDA DE AVARIA',
+                                               psNUMLOTE       => v_LOTE,
+                                               PSMSG_RETORNO   => PSMSG_RETORNO);
+
+      IF VSRETORNO <> 'S' THEN
+        raise_application_error(-20002,
+                                'NÃO FOI POSSIVEL BAIXAR BLOQUEIO DE AVARIA');
+      END IF;
+
+      UPDATE PCMOVAVARIA
+         SET CODFUNCLANC = 1
+       WHERE NUMTRANSENT = v_NUMTRANSVENDA
+         AND CODFUNCLANC IS NULL;
+
+    END IF;
+
+  END EFETUAR_TROCA_ESTOQUE_AVARIA;
+
+  PROCEDURE GERAR_PENDENCIA_MOV_ESTOQUE(pCODFILIAL  IN VARCHAR2,
+                                        pCODPROD    IN NUMBER,
+                                        pCODOPER    IN VARCHAR2,
+                                        pQUANTIDADE IN NUMBER,
+                                        pORIGEM     IN VARCHAR2,
+                                        pNUMLOTE    IN VARCHAR2,
+                                        pVALIDADE   IN VARCHAR2) IS
+    vIDENTIFICADOR        NUMBER;
+    vCODFILIAL            VARCHAR2(2) := pCODFILIAL;
+    vCODPROD              NUMBER := pCODPROD;
+    vCODOPER              VARCHAR2(1) := pCODOPER;
+    vQT                   NUMBER := pQUANTIDADE;
+    vORIGEM               VARCHAR2(50) := pORIGEM;
+    vNUMLOTE              VARCHAR2(20) := pNUMLOTE;
+    vDATAVALIDADE         DATE;
+    vLOTE                 VARCHAR2(15);
+    vUSA_ESTOQUE_POR_LOTE VARCHAR2(2);
+
+  BEGIN
+
+    SELECT NVL(ESTOQUEPORLOTE, 'N')
+      INTO vUSA_ESTOQUE_POR_LOTE
+      FROM PCPRODUT
+     WHERE CODPROD = pCODPROD;
+
+    IF vUSA_ESTOQUE_POR_LOTE = 'N' THEN
+      vLOTE         := NULL;
+      vDATAVALIDADE := NULL;
+    END IF;
+
+    IF vUSA_ESTOQUE_POR_LOTE = 'S' THEN
+      vLOTE         := pNUMLOTE;
+      vDATAVALIDADE := TO_DATE(pVALIDADE, 'yyyymmdd');
+
+      /*CASO SEJA UMA TROCA DE ESTOQUE O LOTE INFORMADO JÁ DEVE EXISTIR*/
+      IF pORIGEM LIKE '%AVARIA%' THEN
+        SELECT DTVALIDADE
+          INTO vDATAVALIDADE
+          FROM PCLOTE
+         WHERE CODFILIAL = pCODFILIAL
+           AND CODPROD = pCODPROD
+           AND NUMLOTE = pNUMLOTE;
+      END IF;
+
+    END IF;
+
+    IF vCODOPER = 'E' THEN
+      SELECT NVL(PROXNUMTRANSENT, 1)
+        INTO vIDENTIFICADOR
+        FROM PCCONSUM
+         FOR UPDATE;
+
+      UPDATE PCCONSUM SET PROXNUMTRANSENT = NVL(PROXNUMTRANSENT, 1) + 1;
+
+    ELSIF vCODOPER = 'S' THEN
+      SELECT NVL(PROXNUMTRANSVENDA, 1)
+        INTO vIDENTIFICADOR
+        FROM PCCONSUM
+         FOR UPDATE;
+
+      UPDATE PCCONSUM
+         SET PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
+    END IF;
+
+    INSERT INTO PCMOVESTOQUEWMSSAAS
+      (IDENTIFICADOR,
+       CODFILIAL,
+       CODPROD,
+       CODOPER,
+       QT,
+       ORIGEM,
+       NUMLOTE,
+       DATAVALIDADE,
+       DATACRIACAO,
+       DTCANCEL,
+       DTFINALIZACAO)
+    VALUES
+      (vIDENTIFICADOR,
+       vCODFILIAL,
+       vCODPROD,
+       vCODOPER,
+       vQT,
+       vORIGEM,
+       vLOTE,
+       vDATAVALIDADE,
+       SYSDATE,
+       NULL,
+       NULL);
+
+  END GERAR_PENDENCIA_MOV_ESTOQUE;
 
   FUNCTION GET_VALIDADE_MINIMA_PRODUTO(PNUMPED  IN NUMBER,
                                        PCODPROD IN NUMBER) RETURN VARCHAR2 IS
