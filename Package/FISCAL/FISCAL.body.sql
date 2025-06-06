@@ -2261,6 +2261,7 @@ create or replace package body FISCAL is
                           ,VLFCPICMS
                           ,VLFCPST
                           ,VLICMSDESONERACAO
+                          ,VLSTBCR
                       from (select N.CODFILIAL
                                   ,M.CODPROD
                                   ,M.ROWID IDREGISTRO
@@ -2407,6 +2408,7 @@ create or replace package body FISCAL is
                                   ,MAX(NVL(MC.VLACRESCIMOFUNCEP, 0)) AS VLFCPICMS
                                   ,MAX(NVL(MC.VLFECP, 0)) AS VLFCPST
                                   ,MAX(NVL(MC.VLICMSDESONERACAO,0)) VLICMSDESONERACAO
+                                  ,MAX(DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0)) AS VLSTBCR
                               from PCNFENT     N
                                   ,PCMOV       M
                                   ,PCESTCOM    E
@@ -2519,7 +2521,7 @@ create or replace package body FISCAL is
                                           ,DADOS.VLFCPICMS
                                           ,DADOS.VLICMSDESONERACAO
                                           ,DADOS.DTEMISSAO
-                                          ,0
+                                          ,DADOS.VLSTBCR
                                           ,0
                                           ,0
                                           ,0
