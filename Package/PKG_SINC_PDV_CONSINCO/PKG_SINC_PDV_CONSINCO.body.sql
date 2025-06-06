@@ -2394,6 +2394,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 e.nroregtributacao,
                 e.percaliquota,
                 e.situacaotributacao,
+				e.situacaosimples,
                 e.percisento,
                 e.perctributado,
                 e.percoutro,
@@ -2424,6 +2425,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       UPDATE SET
              s.percaliquota          = b.percaliquota,
              s.situacaotributacao    = b.situacaotributacao,
+			 s.situacaosimples       = b.situacaosimples, 
              s.percisento            = b.percisento,
              s.perctributado         = b.perctributado,
              s.percoutro             = b.percoutro,
@@ -2444,8 +2446,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.CODBENEFICIODESONICMS = b.CODBENEFICIODESONICMS,
              s.codobservacao         = b.codobservacao,
              s.IDREF                 = b.IDREF
-	    WHERE NVL(s.percaliquota, 0)         <> NVL(b.percaliquota, 0)
+	    WHERE NVL(s.percaliquota, 0)       <> NVL(b.percaliquota, 0)
          OR NVL(s.situacaotributacao, '-') <> NVL(b.situacaotributacao, '-')
+		 OR NVL(s.situacaosimples, '-')    <> NVL(b.situacaosimples, '-')
          OR NVL(s.percisento, 0)           <> NVL(b.percisento, 0)
          OR NVL(s.perctributado, 0)        <> NVL(b.perctributado, 0)
          OR NVL(s.percoutro, 0)            <> NVL(b.percoutro, 0)
@@ -2475,6 +2478,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 s.nroregtributacao,
                 s.percaliquota,
                 s.situacaotributacao,
+				s.situacaosimples,
                 s.percisento,
                 s.perctributado,
                 s.percoutro,
@@ -2503,6 +2507,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.nroregtributacao,
                  b.percaliquota,
                  b.situacaotributacao,
+				 b.situacaosimples,
                  b.percisento,
                  b.perctributado,
                  b.percoutro,
