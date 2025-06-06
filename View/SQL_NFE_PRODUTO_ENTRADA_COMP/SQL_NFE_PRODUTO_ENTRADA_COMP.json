@@ -1,4 +1,10 @@
 {"nome":"SQL_NFE_PRODUTO_ENTRADA_COMP",
  "tipoPLSQL":"VIEW",
- "dependencias": ""
+ "dependencias": [
+  {
+   "nome": "PCNFBASE",
+   "tipo":"TABELA",
+   "versao": "7.0.02.000"
+  }
+ ]
 }

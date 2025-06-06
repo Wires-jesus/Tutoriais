@@ -5,5 +5,15 @@
   "nome": "PCINSCRICAOST",
   "tipo": "TABELA",
   "versao": "4.0.01.000"
-}
+ },
+ {
+  "nome": "PCNFSAID",
+  "tipo": "TABELA",
+  "versao": "7.0.08.000"
+ },
+ {
+  "nome": "PCNFSAIDPREFAT",
+  "tipo": "TABELA",
+  "versao": "7.0.03.000"
+ } 
  ]}
