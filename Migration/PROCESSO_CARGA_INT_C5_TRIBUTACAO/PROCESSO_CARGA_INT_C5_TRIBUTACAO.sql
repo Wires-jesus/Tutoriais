@@ -11,6 +11,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
                    '0' || NVL(t.sittributecf, t.sittributpf) 
               else NVL(t.sittributecf, t.sittributpf)
             end)  situacaotributacao,
+		    (case
+              when (Length(t.sittributsimplesnac) = 2 then
+                   '0' || t.sittributsimplesnac 
+              else t.sittributsimplesnac
+            end) SITUACAOSIMPLES,
             c.percisento,
             c.perctributado,
             c.percoutro,
@@ -87,6 +92,7 @@ SELECT  distinct
         NROREGTRIBUTACAO,
         PERCALIQUOTA,
         SITUACAOTRIBUTACAO,
+		SITUACAOSIMPLES,
         PERCISENTO,
         PERCTRIBUTADO,
         PERCOUTRO,
@@ -125,6 +131,7 @@ SELECT  distinct
         NROREGTRIBUTACAO,
         PERCALIQUOTA,
         SITUACAOTRIBUTACAO,
+		SITUACAOSIMPLES,
         PERCISENTO,
         PERCTRIBUTADO,
         PERCOUTRO,
