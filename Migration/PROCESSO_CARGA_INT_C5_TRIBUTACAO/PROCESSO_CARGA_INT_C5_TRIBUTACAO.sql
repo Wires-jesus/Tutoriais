@@ -12,7 +12,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
               else NVL(t.sittributecf, t.sittributpf)
             end)  situacaotributacao,
 		    (case
-              when (Length(t.sittributsimplesnac) = 2 then
+              when Length(t.sittributsimplesnac) = 2 then
                    '0' || t.sittributsimplesnac 
               else t.sittributsimplesnac
             end) SITUACAOSIMPLES,
