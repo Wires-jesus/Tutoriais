@@ -1915,7 +1915,7 @@ AS
             and seqitem = i.seqitem
             and seqtipotributacao = 1) percicm,
         0 percicmsefet,
-        v.comissao percom,
+        nvl(v.pcomrep1,0) percom,
         0 percredbaseefet,
         0 perctributosestadual,
         0 perctributosmunicipal,
@@ -2217,7 +2217,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
     )
     AND v.codprod = f.codprod
     AND ea.codigo = f.codfilial
-    AND c5.codigofilial = f.codfilial
+    AND c5.codfilial = f.codfilial
     AND p.codproduto = v.codprod
    UNION ALL 
    SELECT  i.SEQDOCTO,
@@ -2646,7 +2646,7 @@ FROM  monitorpdvmiddle.tb_doctoitem      i,
   )
    AND ea.codigo = f.codfilial
    AND v.codprod = f.codprod
-   AND c5.codigofilial = f.codfilial
+   AND c5.codfilial = f.codfilial
    AND p.codproduto = v.codprod
 )
    
@@ -3282,7 +3282,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     C5.CODFILIAL CODFILIAL,
     D.SEQUSUARIO CODFUNCCX,
     NULL NUMPED,
-    v.CODPROD CODPROD,
+    P_ACAB.CODPROD CODPROD,
     ( SELECT min(x.seqitem) 
       FROM monitorpdvmiddle.tb_doctoitem X 
       WHERE x.seqdocto = i.seqdocto 
@@ -3296,7 +3296,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     (I.VLRUNITARIO / NVL(I.QTDEMBALAGEM, 1)) PTABELA,
     ((I.VLRUNITARIO - (NVL(I.VLRDESCONTO,0)/NVL(I.QUANTIDADE,1)) + (NVL(I.VLRACRESCIMO,0)/NVL(I.QUANTIDADE,1)) )/NVL(I.QTDEMBALAGEM, 1)) PVENDA,
     A.CODST,
-    NVL(V.pcomrep1,0) PERCOM,
+    V.COMISSAO PERCOM,
     A.ALIQICMS1,
     A.ALIQICMS2,
     (CASE WHEN LENGTH(A.SITTRIBUT) < 2 THEN 
@@ -3457,19 +3457,18 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     MONITORPDVMIDDLE.TB_DOCTOCUPOM  C,
     MONITORPDVMIDDLE.TB_PRODUTO     P,
     VW_INT_C5_TRIB_PIS              H,
-    pcprodut                        V,  --VW_INT_C5_PCPRODUT              V,
+    VW_INT_C5_PCPRODUT              V,
     PCCONSOLIDATRIBUTACAO           A,
     MONITORPDVMIDDLE.TB_EMPRESA     E,
     PCFILIAL                        EA,
-	--VW_INT_C5_PCPRODUT              P_ACAB,
-	VW_INT_C5_OBTER_FILIAIS_C5      C5,
-	PCDEPARAPRODC5                  DC5
+	VW_INT_C5_PCPRODUT              P_ACAB,
+	VW_INT_C5_OBTER_FILIAIS_C5      C5
   WHERE  I.SEQDOCTO = D.SEQDOCTO
     AND  C5.CODFILIALINTEGRACAO = I.NROEMPRESA
     AND  C5.CODFILIALINTEGRACAO = D.NROEMPRESA
 	AND  C5.CODFILIALINTEGRACAO = C.NROEMPRESA
 	AND  C5.CODFILIALINTEGRACAO = E.NROEMPRESA
-	AND  C5.CODFILIALINTEGRACAO = V.CODFILIAL
+	AND  C5.CODFILIALINTEGRACAO = V.NROEMPRESA
 	AND  C5.CODFILIAL = V.CODFILIAL
     AND  I.NROEMPRESA = D.NROEMPRESA
     AND  I.NROCHECKOUT = D.NROCHECKOUT
@@ -3477,13 +3476,13 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  D.SEQDOCTO = C.SEQDOCTO
     AND  D.NROEMPRESA = C.NROEMPRESA
     AND  D.NROCHECKOUT = C.NROCHECKOUT
-    AND  I.NROEMPRESA = C5.codfilialintegracao
+    AND  I.NROEMPRESA = V.NROEMPRESA
     AND  I.CODACESSO = V.CODAUXILIAR
-    AND  I.SEQPRODUTO = DC5.SEQPRODUTO
-	AND  I.NROEMPRESA = C5.codfilialintegracao
-    AND  I.SEQPRODCOMPOSTO = DC5.SEQPRODUTO
-	AND  V.CODFILIAL = C5.CODFILIAL
-	AND  ea.codigo = C5.CODFILIALINTEGRACAO
+    AND  I.SEQPRODUTO = V.SEQPRODUTO
+	AND  I.NROEMPRESA = P_ACAB.NROEMPRESA
+    AND  I.SEQPRODCOMPOSTO = P_ACAB.SEQPRODUTO
+	AND  P_ACAB.CODFILIAL = C5.CODFILIAL
+	AND  P_ACAB.NROEMPRESA = C5.CODFILIALINTEGRACAO
     AND  I.NROTRIBUTACAO = A.CODST
     AND  I.NROTRIBUTACAO = H.CODST(+)
     AND  I.CODACESSO = H.CODAUXILIAR(+)
@@ -3497,8 +3496,6 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  I.STATUS = 'V'
     AND  I.SEQPRODCOMPOSTO IS NOT NULL
 	AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
-	AND DC5.codprod = v.codprod
-	AND p.codproduto = v.codprod
 	UNION ALL
 	  SELECT distinct
     I.SEQDOCTO,
