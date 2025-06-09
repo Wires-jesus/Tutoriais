@@ -33,12 +33,20 @@ declare
 begin
   /* InÃ­cio das validaÃ§Ãµes de parÃ¢metros */
   /* Valida se a filial do pedido utiliza WMS */
-  select nvl(usawms, 'N')
-    into vUsaWMS
-    from pcfilial
-   where codigo = (select pcpedi.codfilialretira
-                     from pcpedi
-                    where pcpedi.numped = :new.numped);
+  BEGIN
+    select nvl(usawms, 'N')
+      into vUsaWMS
+      from pcfilial
+     where codigo = (select pcpedi.codfilialretira
+                       from pcpedi, pcfilial
+                      where pcpedi.numped = :new.numped
+                        and pcfilial.usawms = 'S' 
+                        and rownum = 1
+                        and pcfilial.codigo = pcpedi.codfilialretira);
+   EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vUsaWMS := 'N';    
+   END;
 
     /* Somente executa os cÃ¡lculos e validaÃ§Ãµes abaixo caso a filial use WMS */
     if (vUsaWMS = 'S') then
