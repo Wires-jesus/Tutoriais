@@ -1981,7 +1981,7 @@ PS_PRIMEIRAIMPRESSAO - Determina se deve ser gerado o nosso numero (S) ou soment
                                             PS_UTILIZAVALORBRUTO,
                                             PD_DTVENC);
     /*20 A 23*/                                        
-    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCONVENIO, 4, '0') ; -- Código da Cooperativa no sistema Cresol
+    VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.AGENCIA, 4, '0') ; -- Código da Cooperativa no sistema Cresol = Agência
     /*24 A 25*/
     VS_CODBARRA := VS_CODBARRA || LPAD(BANCO.NUMCARTEIRA, 2, '0');
     /*26 A 36*/
