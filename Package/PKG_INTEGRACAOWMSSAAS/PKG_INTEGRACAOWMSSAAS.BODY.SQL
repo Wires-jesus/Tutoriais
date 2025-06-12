@@ -822,93 +822,110 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
   END EFETUAR_TROCA_ESTOQUE_AVARIA;
 
   PROCEDURE GERAR_PENDENCIA_MOV_ESTOQUE(pCODFILIAL  IN VARCHAR2,
-                                        pCODPROD    IN NUMBER,
-                                        pCODOPER    IN VARCHAR2,
-                                        pQUANTIDADE IN NUMBER,
-                                        pORIGEM     IN VARCHAR2,
-                                        pNUMLOTE    IN VARCHAR2,
-                                        pVALIDADE   IN VARCHAR2) IS
-    vIDENTIFICADOR        NUMBER;
-    vCODFILIAL            VARCHAR2(2) := pCODFILIAL;
-    vCODPROD              NUMBER := pCODPROD;
-    vCODOPER              VARCHAR2(1) := pCODOPER;
-    vQT                   NUMBER := pQUANTIDADE;
-    vORIGEM               VARCHAR2(50) := pORIGEM;
-    vNUMLOTE              VARCHAR2(20) := pNUMLOTE;
-    vDATAVALIDADE         DATE;
-    vLOTE                 VARCHAR2(15);
-    vUSA_ESTOQUE_POR_LOTE VARCHAR2(2);
+                                          pCODPROD    IN NUMBER,
+                                          pCODOPER    IN VARCHAR2,
+                                          pQUANTIDADE IN NUMBER,
+                                          pORIGEM     IN VARCHAR2,
+                                          pNUMLOTE    IN VARCHAR2,
+                                          pVALIDADE   IN VARCHAR2) IS
+      vIDENTIFICADOR        NUMBER;
+      vCODFILIAL            VARCHAR2(2) := pCODFILIAL;
+      vCODPROD              NUMBER := pCODPROD;
+      vCODOPER              VARCHAR2(1) := pCODOPER;
+      vQT                   NUMBER := pQUANTIDADE;
+      vORIGEM               VARCHAR2(50) := pORIGEM;
+      vNUMLOTE              VARCHAR2(20) := pNUMLOTE;
+      vDATAVALIDADE         DATE;
+      vLOTE                 VARCHAR2(15);
+      vUSA_ESTOQUE_POR_LOTE VARCHAR2(2);
 
-  BEGIN
+    BEGIN
 
-    SELECT NVL(ESTOQUEPORLOTE, 'N')
-      INTO vUSA_ESTOQUE_POR_LOTE
-      FROM PCPRODUT
-     WHERE CODPROD = pCODPROD;
+      SELECT NVL(ESTOQUEPORLOTE, 'N')
+        INTO vUSA_ESTOQUE_POR_LOTE
+        FROM PCPRODUT
+       WHERE CODPROD = pCODPROD;
 
-    IF vUSA_ESTOQUE_POR_LOTE = 'N' THEN
-      vLOTE         := NULL;
-      vDATAVALIDADE := NULL;
-    END IF;
-
-    IF vUSA_ESTOQUE_POR_LOTE = 'S' THEN
-      vLOTE         := pNUMLOTE;
-      vDATAVALIDADE := TO_DATE(pVALIDADE, 'yyyymmdd');
-
-      /*CASO SEJA UMA TROCA DE ESTOQUE O LOTE INFORMADO JÁ DEVE EXISTIR*/
-      IF pORIGEM LIKE '%AVARIA%' THEN
-        SELECT DTVALIDADE
-          INTO vDATAVALIDADE
-          FROM PCLOTE
-         WHERE CODFILIAL = pCODFILIAL
-           AND CODPROD = pCODPROD
-           AND NUMLOTE = pNUMLOTE;
+      IF vUSA_ESTOQUE_POR_LOTE = 'N' THEN
+        vLOTE         := NULL;
+        vDATAVALIDADE := NULL;
       END IF;
 
-    END IF;
+      IF vUSA_ESTOQUE_POR_LOTE = 'S' THEN
+        vLOTE         := pNUMLOTE;
 
-    IF vCODOPER = 'E' THEN
-      SELECT NVL(PROXNUMTRANSENT, 1)
-        INTO vIDENTIFICADOR
-        FROM PCCONSUM
-         FOR UPDATE;
+        /*CASO SEJA UMA TROCA DE ESTOQUE O LOTE INFORMADO JÁ DEVE EXISTIR*/
+        IF pORIGEM LIKE '%AVARIA%' THEN
+          BEGIN
+            SELECT DTVALIDADE
+              INTO vDATAVALIDADE
+              FROM PCLOTE
+             WHERE CODFILIAL = pCODFILIAL
+               AND CODPROD = pCODPROD
+               AND NUMLOTE = pNUMLOTE;
+          EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+              raise_application_error(-20002, 'VALIDADE DO LOTE INFORMADO NÃO ENCONTRADA');
+          END;
+        ELSE
+          /*CASO SEJA UM AJUSTE DE ESTOQUE A VALIDADE DEVE SER INFORMADA*/
+          IF vDATAVALIDADE = 'VAL_NAO_INFO' THEN
+          raise_application_error (-20002,'VALIDADE DO LOTE NÃO INFORMADA' );
+          END IF;
 
-      UPDATE PCCONSUM SET PROXNUMTRANSENT = NVL(PROXNUMTRANSENT, 1) + 1;
+          BEGIN
+          vDATAVALIDADE := TO_DATE(pVALIDADE, 'yyyymmdd');
+      EXCEPTION
+          WHEN OTHERS THEN
+              raise_application_error(-20002, 'ERRO AO CONVERTER VALIDADE INFORMADA: ' || SQLERRM);
+      END;
 
-    ELSIF vCODOPER = 'S' THEN
-      SELECT NVL(PROXNUMTRANSVENDA, 1)
-        INTO vIDENTIFICADOR
-        FROM PCCONSUM
-         FOR UPDATE;
+        END IF;
 
-      UPDATE PCCONSUM
-         SET PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
-    END IF;
+      END IF;
 
-    INSERT INTO PCMOVESTOQUEWMSSAAS
-      (IDENTIFICADOR,
-       CODFILIAL,
-       CODPROD,
-       CODOPER,
-       QT,
-       ORIGEM,
-       NUMLOTE,
-       DATAVALIDADE,
-       DATACRIACAO,
-       DTCANCEL,
-       DTFINALIZACAO)
-    VALUES
-      (vIDENTIFICADOR,
-       vCODFILIAL,
-       vCODPROD,
-       vCODOPER,
-       vQT,
-       vORIGEM,
-       vLOTE,
-       vDATAVALIDADE,
-       SYSDATE,
-       NULL,
-       NULL);
+      IF vCODOPER = 'E' THEN
+        SELECT NVL(PROXNUMTRANSENT, 1)
+          INTO vIDENTIFICADOR
+          FROM PCCONSUM
+           FOR UPDATE;
+
+        UPDATE PCCONSUM SET PROXNUMTRANSENT = NVL(PROXNUMTRANSENT, 1) + 1;
+
+      ELSIF vCODOPER = 'S' THEN
+        SELECT NVL(PROXNUMTRANSVENDA, 1)
+          INTO vIDENTIFICADOR
+          FROM PCCONSUM
+           FOR UPDATE;
+
+        UPDATE PCCONSUM
+           SET PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
+      END IF;
+
+      INSERT INTO PCMOVESTOQUEWMSSAAS
+        (IDENTIFICADOR,
+         CODFILIAL,
+         CODPROD,
+         CODOPER,
+         QT,
+         ORIGEM,
+         NUMLOTE,
+         DATAVALIDADE,
+         DATACRIACAO,
+         DTCANCEL,
+         DTFINALIZACAO)
+      VALUES
+        (vIDENTIFICADOR,
+         vCODFILIAL,
+         vCODPROD,
+         vCODOPER,
+         vQT,
+         vORIGEM,
+         vLOTE,
+         vDATAVALIDADE,
+         SYSDATE,
+         NULL,
+         NULL);
 
   END GERAR_PENDENCIA_MOV_ESTOQUE;
 
