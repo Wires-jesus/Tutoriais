@@ -1,0 +1,6 @@
+{
+    "nome": "PARAMETRO_HORARIOPROCESSABOLEPIX",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+}
