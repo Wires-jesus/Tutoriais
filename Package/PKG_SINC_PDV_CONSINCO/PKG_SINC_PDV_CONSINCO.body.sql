@@ -6595,6 +6595,22 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_cctcenario(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenario
+    USING (
+      SELECT 
+        CODIGO_TRIBUTACAO,
+        TIPO_IMPOSTO,
+        TINICIALVALIDADE,
+        DTFINALVALIDADE,
+        TOTALPONTOS
+      FROM VW_INT_C5_CENARIO_TRIBUTACAO
+    )
+
+
+END;
+
 
 PROCEDURE exec_sinc AS
 
