@@ -25,7 +25,7 @@ BEGIN
 
   /*
   Verifica se há pendencia no WMS para o carregamento, se retornar 'S' que dizer que há pendencia, 'N' o processo WMS foi realizado
-  Data da ultima alteração: 19/06/2012
+  Data da ultima alteração: 07/06/2025
   */
 
  IF NVL(VNUMCAR, 0) > 0 THEN
@@ -64,6 +64,7 @@ BEGIN
     FROM PCWMS
    WHERE PCWMS.NUMPED IN (SELECT NUMPED FROM PCPEDC WHERE NUMCAR = VNUMCAR)
      AND DTCANCEL IS NULL
+     AND CODOPER LIKE 'S%'
      AND NVL(MAPAGERADO, 'N') = 'N';
 
   IF VCOUNT > 0 THEN
@@ -118,7 +119,56 @@ BEGIN
     IF VCOUNT > 0 THEN
       RETURN 'S';
     END IF;
-  END IF;
+  END IF;  
+  
+  --Verificando se as caixas foram todas embarcadas (Rotinas 3711, 3723 e 3735)
+  SELECT COUNT(1)
+    INTO VCOUNT
+    FROM PCPARAMETROWMS
+   WHERE CODFILIAL IN (SELECT MIN(nvl(pcpedi.CODFILIALretira, PCPEDC.codfilial)) FROM PCPEDC, pcpedi
+                                 WHERE pcpedc.NUMCAR = VNUMCAR
+                                 and pcpedc.numped= pcpedi.numped
+                                 and pcpedc.numcar = pcpedi.numcar)
+     AND NOME = 'LIBERACARGAAPOSCXSEMBARCADAS'
+     AND VALOR = 'S';
+
+  IF VCOUNT > 0 THEN
+    SELECT COUNT(1)
+      INTO VCOUNT
+      FROM PCWMSVINCULOCAIXA W
+     WHERE W.NUMOS IN
+           (SELECT DISTINCT M.NUMOS
+              FROM PCMOVENDPEND M
+             WHERE M.NUMCAR = VNUMCAR
+               AND M.DTESTORNO IS NULL
+               AND M.CODFUNCAUTFAT IS NULL
+               AND M.CODOPER LIKE 'S%'
+               AND M.DATALIBFAT IS NULL
+               AND M.TIPOOS IN
+                   (SELECT TO_NUMBER(NVL(SUBSTR(NOME, 14, 2), 0)) AS TIPOOS
+                      FROM PCPARAMETROWMS
+                     WHERE NOME IN ('TIPOOSCONFEMB9',
+                                    'TIPOOSCONFEMB10',
+                                    'TIPOOSCONFEMB11',
+                                    'TIPOOSCONFEMB12',
+                                    'TIPOOSCONFEMB13',
+                                    'TIPOOSCONFEMB14',
+                                    'TIPOOSCONFEMB15',
+                                    'TIPOOSCONFEMB16',
+                                    'TIPOOSCONFEMB17',
+                                    'TIPOOSCONFEMB18',
+                                    'TIPOOSCONFEMB19',
+                                    'TIPOOSCONFEMB20',
+                                    'TIPOOSCONFEMB22')
+                       AND CODFILIAL = (SELECT MIN(CODFILIAL)
+                                          FROM PCPEDC
+                                         WHERE NUMCAR = VNUMCAR)
+                       AND VALOR = 'S'))
+       AND W.EMBARCADO = 'N';
+    IF VCOUNT > 0 THEN
+      RETURN 'S';
+    END IF;
+  END IF;  
 
   --Verificando se todas as Ordens de serviço foram finalizadas, validando por numero carregamento
   SELECT COUNT(1)
@@ -250,6 +300,7 @@ BEGIN
     FROM PCWMS
    WHERE PCWMS.NUMPED IN (SELECT NUMPED FROM PCPEDC WHERE NUMPED = VNUMPED)
      AND DTCANCEL IS NULL
+     AND CODOPER LIKE 'S%'
      AND NVL(MAPAGERADO, 'N') = 'N';
 
   IF VCOUNT > 0 THEN
@@ -287,7 +338,7 @@ BEGIN
                                           FROM PCMOVENDPEND
                                          WHERE NUMPED = VNUMPED)
                        AND VALOR = 'S'))
-	   AND NVL (V.VOLUMECORTADO,'N') = 'N'
+     AND NVL (V.VOLUMECORTADO,'N') = 'N'
        AND V.EMBARCADO = 'N';
     IF VCOUNT > 0 THEN
       RETURN 'S';
