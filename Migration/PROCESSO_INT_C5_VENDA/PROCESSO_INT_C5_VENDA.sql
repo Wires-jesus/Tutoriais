@@ -1483,6 +1483,30 @@ END;
 
 \
 
+CREATE OR REPLACE FUNCTION FNC_INT_C5_CODCLIORCA(pSeqDocto NUMBER,
+                                                  pNroEmpresa NUMBER,
+                                                  pNroCheckout NUMBER)
+RETURN number
+IS 
+   vCODCLI NUMBER;
+BEGIN
+   vCODCLI := 1;
+   BEGIN
+     SELECT C.CODCLI
+	 INTO vCODCLI
+	 FROM PCORCAVENDAC C
+	 WHERE C.NUMDOCTOPDV = pSeqDocto
+	   AND C.CODEMPRESAPDV = pNroEmpresa
+	   AND C.CODCHECKOUTPDV = pNroCheckout;
+   EXCEPTION
+	   WHEN OTHERS THEN
+		vCODCLI := 1;
+   END;
+   RETURN vCODCLI;
+END;
+
+\
+
 CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
 (SELECT  a.seqdocto,
         nf.chavenf chavenfe,
@@ -1494,7 +1518,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         'X' serieecf,
         'N' exportado,
         nf.ambiente ambientenfce,
-        NVL(c.seqpessoa,1) codcli,
+        NVL(c.seqpessoa,FNC_INT_C5_CODCLIORCA(a.seqdocto, a.NROEMPRESA,a.nrocheckout)) codcli,
         CASE WHEN NF.DOCEMISSAO = 'CE' THEN 'NOTAFISCAL' ELSE TO_CHAR(NF.NUMSERIESAT) END  numserieequip,
         a.sequsuario codemitente,
         C5.CODFILIAL codfilial,
