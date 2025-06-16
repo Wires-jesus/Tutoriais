@@ -32,7 +32,7 @@ WITH CTE_EMBPROD AS (
 		 e.codauxiliar, 
 		 e.qtunit,
 		 e.tipoembalagem,
-		 LEAST(NVL(round(PF.QTMINIMAATACADO, 3), 0), 999999.999) QTMINIMAATACADO,
+		 LEAST(NVL(round(PF.QTMINIMAATACADO, 3), 0), 999999.999) QTMINIMAATACADO
     FROM PCTABPR TPR,
          PCEMBALAGEM E,
          PCPRODUT P,
