@@ -458,7 +458,7 @@
 		  "versao": "7.0.05.000"
 		},
 		{
-		  "nome": "VW_CCT_CONDICAO ",
+		  "nome": "VW_CCT_CONDICAO",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "7.0.01.000"
 		}
