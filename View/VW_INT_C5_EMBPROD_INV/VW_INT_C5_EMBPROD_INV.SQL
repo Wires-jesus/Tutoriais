@@ -1,7 +1,12 @@
 CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD_INV
 AS 
 WITH CTE_EMBPROD AS (
-  SELECT e.codprod, e.codfilial, e.codauxiliar, e.qtunit, e.tipoembalagem
+  SELECT e.codprod,
+         e.codfilial,
+		 e.codauxiliar,
+		 e.qtunit,
+		 e.tipoembalagem,
+		 LEAST(NVL(round(e.qtminimaatacado, 3), 0), 999999.999) QTMINIMAATACADO
     FROM pcembalagem e,
          pcprodut p,
          pcprodfilial f,
@@ -22,7 +27,12 @@ WITH CTE_EMBPROD AS (
      AND PRECOPOREMBALAGEM.CODFILIAL = c5.codfilial
      AND PRECOPOREMBALAGEM.VALOR = 'S'
   UNION ALL
-  SELECT e.codprod, e.codfilial, e.codauxiliar, e.qtunit , e.tipoembalagem
+  SELECT e.codprod,
+         e.codfilial,
+		 e.codauxiliar, 
+		 e.qtunit,
+		 e.tipoembalagem,
+		 LEAST(NVL(round(PF.QTMINIMAATACADO, 3), 0), 999999.999) QTMINIMAATACADO,
     FROM PCTABPR TPR,
          PCEMBALAGEM E,
          PCPRODUT P,
@@ -72,7 +82,36 @@ SELECT DISTINCT T.CODPROD,
          WHERE DTINATIVO IS NULL
          GROUP BY CODPROD, CODFILIAL) AUX,
        (SELECT COUNT(*), E2.SEQPRODUTO, E2.QTDEMBALAGEM, E2.NROEMPRESA
-          FROM VW_INT_C5_PRODPRECO E2
+          FROM (SELECT
+    DEPARA.SEQPRODUTO SEQPRODUTO,
+    C5.CODFILIALINTEGRACAO NROEMPRESA,
+    NVL(E.QTUNIT, 1) QTDEMBALAGEM
+  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5,
+       CTE_EMBPROD e
+  JOIN PCDEPARAPRODC5 DEPARA
+    ON DEPARA.CODPROD = E.CODPROD
+       AND DEPARA.ATIVO = 'S'
+       AND (DEPARA.CODAUXILIAR = E.CODAUXILIAR OR DEPARA.CODAUXILIAR = 0)
+       AND E.QTUNIT <> E.QTMINIMAATACADO
+   WHERE C5.CODFILIAL = E.CODFILIAL
+  UNION ALL
+  SELECT
+    p.SEQPRODUTO SEQPRODUTO,
+    C5.CODFILIALINTEGRACAO NROEMPRESA,
+    NVL(E.QTMINIMAATACADO, 1) QTDEMBALAGEM
+  FROM VW_INT_C5_OBTER_FILIAIS_C5 C5,
+       CTE_EMBPROD E
+    JOIN PCDEPARAPRODC5 P ON E.CODPROD = P.CODPROD-- AND P.ATIVO = 'S'
+    WHERE
+        (
+            (E.CODAUXILIAR = P.CODAUXILIAR AND P.ATIVO = 'S')
+            OR (P.CODAUXILIAR = 0 AND P.ATIVO = 'S' AND E.QTUNIT = (SELECT MIN(QTUNIT) FROM CTE_EMBPROD EMB
+                                                                    WHERE E.CODFILIAL = EMB.CODFILIAL
+                                                                    AND E.CODPROD = EMB.CODPROD)
+                                                                    )
+        )
+    AND E.QTMINIMAATACADO >= 1
+    AND C5.CODFILIAL = E.CODFILIAL) E2
          GROUP BY E2.SEQPRODUTO, E2.QTDEMBALAGEM, E2.NROEMPRESA
         HAVING COUNT(*) > 1) E_PRECO,
        PCDEPARAPRODC5 C5
