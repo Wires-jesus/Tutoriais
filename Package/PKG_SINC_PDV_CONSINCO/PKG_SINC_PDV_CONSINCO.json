@@ -456,6 +456,11 @@
 		  "nome": "VW_INT_C5_CARTAOPRESENTE",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "7.0.05.000"
+		},
+		{
+		  "nome": "VW_INT_C5_CCTCENARIO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.01.000"
 		}
 	]
 }
