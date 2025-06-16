@@ -6596,7 +6596,6 @@ BEGIN
 END;
 
 
-
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
