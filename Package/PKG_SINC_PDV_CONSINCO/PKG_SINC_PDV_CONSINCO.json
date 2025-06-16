@@ -115,7 +115,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "7.0.55.000"
+			"versao": "7.0.56.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FAMDIVISAO_MATERIALIZADA",
@@ -130,7 +130,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "7.0.51.000"
+			"versao": "7.0.52.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
@@ -459,6 +459,11 @@
 		},
 		{
 		  "nome": "VW_CCT_CONDICAO",
+		  "tipo": "OBJETO_PLSQL",
+		  "versao": "7.0.01.000"
+		},
+		{
+		  "nome": "VW_INT_C5_CCTCENARIO",
 		  "tipo": "OBJETO_PLSQL",
 		  "versao": "7.0.01.000"
 		}
