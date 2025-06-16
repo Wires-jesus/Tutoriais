@@ -8,6 +8,5 @@
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.02.000"
       },
-	  {"nome": "PCTABPR","tipo": "TABELA","versao": "4.0.01.000"},
-	  {"nome": "VW_INT_C5_EMBPROD_INV","tipo": "OBJETO_PLSQL","versao": "7.0.02.000"}
+	  {"nome": "PCTABPR","tipo": "TABELA","versao": "4.0.01.000"}
 ]}

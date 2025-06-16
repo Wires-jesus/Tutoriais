@@ -118,24 +118,20 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
              ) DTPADRAO
       WHERE p.codprod = e.codprod
         AND e.codprod = f.codprod
-        AND p.codprod = f.codprod
+    AND p.codprod = f.codprod
         AND e.codfilial = f.codfilial
         and e.codfilial = c5.codfilial
+        AND NVL(P.REVENDA,'S') = 'S'
         AND P.DTEXCLUSAO IS NULL
         AND (LENGTH(p.nbm) >= 2 OR p.TIPOMERC in ('KT', 'CB'))
         AND e.codprod >= 0
         AND f.codprod >= 0
+        AND NVL(e.enviafrentecaixa,'S') = 'S'
+        AND e.dtinativo IS NULL
+        AND NVL(f.proibidavenda, 'N') = 'N'
         --AND p.codprod >= 0
         AND LENGTH(e.codauxiliar) <= 14
-        AND NOT EXISTS (SELECT 1 
-		                  FROM VW_INT_C5_EMBPROD_INV I
-						 WHERE I.CODPROD = P.CODPROD
-						 UNION ALL 
-						 SELECT 1 
-		                  FROM VW_INT_C5_EMBPROD_INV I
-						 WHERE I.CODPROD = E.CODPROD
-						   AND I.CODFILIAL = E.CODFILIAL
-						   AND I.CODAUXILIAR = E.CODAUXILIAR)
+        
     AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   e.CODFILIAL,
                                                                   'N') = 'S'
@@ -309,7 +305,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
             (SELECT VALOR TIPOPRECIFICACAO, CODFILIAL
            FROM PCPARAMFILIAL
           WHERE NOME = 'FIL_TIPOPRECIFICACAO') TIPOPRECIFICACAOFILIAL
-  WHERE P.DTEXCLUSAO IS NULL
+  WHERE NVL(NVL(PF.REVENDA ,P.REVENDA), 'S') = 'S'
+    --AND NVL(P.TIPOMERC, 'L') = 'L'
+    AND P.DTEXCLUSAO IS NULL
   AND E.CODPROD = TPR.CODPROD
   AND P.CODPROD = TPR.CODPROD
   AND P.CODPROD = E.CODPROD
@@ -323,16 +321,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND (LENGTH(P.NBM) >= 2 OR P.TIPOMERC IN ('KT', 'CB'))
     AND E.CODPROD >= 0
     AND PF.CODPROD >= 0
+    AND NVL(E.ENVIAFRENTECAIXA, 'S') = 'S'
+    AND E.DTINATIVO IS NULL
+    AND NVL(PF.PROIBIDAVENDA, 'N') = 'N'
     AND LENGTH(E.CODAUXILIAR) <= 14
-	AND NOT EXISTS (SELECT 1 
-				  FROM VW_INT_C5_EMBPROD_INV I
-				 WHERE I.CODPROD = P.CODPROD
-				 UNION ALL 
-				 SELECT 1 
-				  FROM VW_INT_C5_EMBPROD_INV I
-				 WHERE I.CODPROD = E.CODPROD
-				   AND I.CODFILIAL = E.CODFILIAL
-				   AND I.CODAUXILIAR = E.CODAUXILIAR)
+    
     AND TPR.NUMREGIAO = (SELECT FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
                                                                   FC5.CODFILIAL,
                                                                   1)

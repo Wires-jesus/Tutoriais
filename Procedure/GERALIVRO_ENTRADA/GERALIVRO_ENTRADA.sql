@@ -2232,10 +2232,7 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
                                           + NVL(B.VLOUTRASDESP,0)),2)
                                           + ROUND(B.QTCONT * 
                                                  (GREATEST(NVL(B.VLDESCONTO,0) 
-                                                    - (DECODE( NVL(MC.PRECOUTILIZADONFE, 
-                                                           NVL(NVL(DECODE(NVL(PF.PRECOUTILIZADONFE,'N'), 'N', '', PF.PRECOUTILIZADONFE), 
-                                                                   C.PRECOUTILIZADONFE), 
-                                                               NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', COALESCE(A.CODFILIALNF,A.CODFILIAL)), 'L'))),
+                                                    - (DECODE( NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
                                                                'B',
                                                                 0,
                                                                 NVL(B.VLDESCONTO,0))),0)),2)) END VLPRODUTO, 
@@ -2245,13 +2242,10 @@ cursor C_NOTAS_DEVOLNFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in dat
               SUM(NVL(XML.VDESC,0)) > 0 THEN SUM(NVL(XML.VDESC,0)) 
             ELSE                                                                               
               SUM(GREATEST((B.QTCONT * (NVL(B.VLDESCONTO,0) 
-                                      - DECODE(NVL(MC.PRECOUTILIZADONFE, 
-                                           NVL(NVL(DECODE(NVL(PF.PRECOUTILIZADONFE,'N'), 'N', '', PF.PRECOUTILIZADONFE), 
-                                                   C.PRECOUTILIZADONFE), 
-                                               NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', COALESCE(A.CODFILIALNF,A.CODFILIAL)), 'L'))),
+                                      - DECODE(NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',COALESCE(A.CODFILIALNF,A.CODFILIAL)),'B'),
                                                'B',
                                                 0,
-                                                NVL(B.VLDESCONTO,0)))),0)) END VLDESCONTO               
+                                                NVL(B.VLDESCONTO,0)))),0)) END VLDESCONTO                
       from PCNFENT      A,
            PCMOV        B,
            PCMOVCOMPLE  MC,
