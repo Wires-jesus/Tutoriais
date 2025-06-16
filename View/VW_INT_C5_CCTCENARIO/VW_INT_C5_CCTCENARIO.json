@@ -1,0 +1,9 @@
+{"nome":"VW_INT_C5_CCTCENARIO","tipoPLSQL":"VIEW","dependencias":
+	[
+		{
+		"nome": "PCTRIBUTACAO",
+		"tipo": "TABELA",
+		"versao": "7.0.07.000"
+		}
+	]
+}
