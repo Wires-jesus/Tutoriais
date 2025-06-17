@@ -6595,6 +6595,135 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_cctcenario(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenario T
+    USING (SELECT * FROM VW_INT_C5_CCTCENARIO) S
+    ON (T.SEQCENARIO = S.SEQCENARIO)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      T.SEQCENARIO = S.SEQCENARIO,
+      T.DESCRICAO = S.DESCRICAO,
+      T.ORIENTACAO = S.ORIENTACAO
+      T.DTINICIALVALIDADE = S.DTINICIALVALIDADE,
+      T.DTFINALVALIDADE = S.DTFINALVALIDADE,
+      T.TOTALPONTOS = S.TOTALPONTOS,
+      T.STATUS = S.STATUS
+    WHERE 
+      NVL(T.DTULTALTER, TO_DATE('01-01-1994','DD-MM-YYYY'))  <> NVL(S.DTULTALTER, TO_DATE('01-01-1994','DD-MM-YYYY'))
+    WHEN NOT MATCHED THEN
+        INSERT(
+          T.SEQCENARIO,
+          T.DESCRICAO,
+          T.ORIENTACAO,
+          T.DTINICIALVALIDADE,
+          T.DTFINALVALIDADE,
+          T.TOTALPONTOS,
+          T.STATUS) 
+        VALUES(
+          S.SEQCENARIO,
+          S.DESCRICAO,
+          S.ORIENTACAO,
+          S.DTINICIALVALIDADE,
+          S.DTFINALVALIDADE,
+          S.TOTALPONTOS,
+          S.STATUS);
+    
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenario', 'carrega_tb_cctcenario OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenario',
+           'carrega_tb_cctcenario ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenario',
+           'carrega_tb_cctcenario ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_cctcondicao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcondicao t
+  USING (
+    SELECT 
+      d.SEQCONDICAO, 
+      d.IDENTIFICADOR, 
+      d.PESOBUSCA, 
+      d.ATIVO,
+      0 as NROCARGA 
+    FROM VW_CCT_CONDICAO d
+  ) s
+  ON (t.SEQCONDICAO = s.SEQCONDICAO)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      t.IDENTIFICADOR = s.IDENTIFICADOR,
+      t.PESOBUSCA = s.PESOBUSCA,
+      t.ATIVO = s.ATIVO,
+      t.NROCARGA = s.NROCARGA
+  WHEN NOT MATCHED THEN
+    INSERT (SEQCONDICAO, IDENTIFICADOR, PESOBUSCA, ATIVO, NROCARGA)
+    VALUES (s.SEQCONDICAO, s.IDENTIFICADOR, s.PESOBUSCA, s.ATIVO, s.NROCARGA);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcondicao', 'carrega_tb_cctcondicao OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcondicao',
+           'carrega_tb_cctcondicao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcondicao',
+           'carrega_tb_cctcondicao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+END carrega_tb_cctcondicao;
 
 PROCEDURE exec_sinc AS
 
@@ -6682,31 +6811,5 @@ PROCEDURE exec_sinc AS
         RAISE;
       END;
   END;
-
-CREATE OR REPLACE PROCEDURE carrega_tb_cctcondicao(p_id IN pccontroleconsinco.id%TYPE) AS
-BEGIN
-  MERGE INTO monitorpdvmiddle.tb_cctcondicao t
-  USING (
-    SELECT 
-      d.SEQCONDICAO, 
-      d.IDENTIFICADOR, 
-      d.PESOBUSCA, 
-      d.ATIVO,
-      0 as NROCARGA 
-    FROM VW_CCT_CONDICAO d
-  ) s
-  ON (t.SEQCONDICAO = s.SEQCONDICAO)
-  WHEN MATCHED THEN
-    UPDATE SET 
-      t.IDENTIFICADOR = s.IDENTIFICADOR,
-      t.PESOBUSCA = s.PESOBUSCA,
-      t.ATIVO = s.ATIVO,
-      t.NROCARGA = s.NROCARGA
-  WHEN NOT MATCHED THEN
-    INSERT (SEQCONDICAO, IDENTIFICADOR, PESOBUSCA, ATIVO, NROCARGA)
-    VALUES (s.SEQCONDICAO, s.IDENTIFICADOR, s.PESOBUSCA, s.ATIVO, s.NROCARGA);
-  
-  COMMIT;
-END carrega_tb_cctcondicao;
 
 END PKG_SINC_PDV_CONSINCO;   
