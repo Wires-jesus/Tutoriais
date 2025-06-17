@@ -2638,7 +2638,7 @@ FROM  monitorpdvmiddle.tb_doctoitem      i,
    AND  C5.CODFILIALINTEGRACAO = d.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = c.NROEMPRESA
    AND  C5.CODFILIALINTEGRACAO = e.NROEMPRESA
-   AND  C5.CODFILIALINTEGRACAO = v.codfilial
+   --AND  C5.CODFILIALINTEGRACAO = v.codfilial
    AND  i.nrotributacao = a.codst
    AND  i.nrotributacao = h.codst(+)
    AND  case when i.seqprodcomposto is null then i.seqproduto else NULL END  = h.seqproduto(+)
