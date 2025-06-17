@@ -6602,15 +6602,12 @@ BEGIN
     ON (T.SEQCENARIO = S.SEQCENARIO)
   WHEN MATCHED THEN
     UPDATE SET 
-      T.SEQCENARIO = S.SEQCENARIO,
       T.DESCRICAO = S.DESCRICAO,
-      T.ORIENTACAO = S.ORIENTACAO
+      T.ORIENTACAO = S.ORIENTACAO,
       T.DTINICIALVALIDADE = S.DTINICIALVALIDADE,
       T.DTFINALVALIDADE = S.DTFINALVALIDADE,
-      T.TOTALPONTOS = S.TOTALPONTOS,
-      T.STATUS = S.STATUS
-    WHERE 
-      NVL(T.DTULTALTER, TO_DATE('01-01-1994','DD-MM-YYYY'))  <> NVL(S.DTULTALTER, TO_DATE('01-01-1994','DD-MM-YYYY'))
+      T.PONTOSBUSCA = S.TOTALPONTOS,
+      T.ATIVO = S.STATUS
     WHEN NOT MATCHED THEN
         INSERT(
           T.SEQCENARIO,
@@ -6618,8 +6615,9 @@ BEGIN
           T.ORIENTACAO,
           T.DTINICIALVALIDADE,
           T.DTFINALVALIDADE,
-          T.TOTALPONTOS,
-          T.STATUS) 
+          T.PONTOSBUSCA,
+          T.ATIVO,
+          T.NROCARGA) 
         VALUES(
           S.SEQCENARIO,
           S.DESCRICAO,
@@ -6627,7 +6625,8 @@ BEGIN
           S.DTINICIALVALIDADE,
           S.DTFINALVALIDADE,
           S.TOTALPONTOS,
-          S.STATUS);
+          S.STATUS,
+          0);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenario', 'carrega_tb_cctcenario OK', SYSDATE, CURRENT_TIMESTAMP);
