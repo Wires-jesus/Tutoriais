@@ -1474,7 +1474,6 @@ RETURN NUMBER
                         AND P.NROEMPRESA = pnroempresa
                         AND P.QTDEMBALAGEM = 1
                         AND P.ATIVO = 'S'
-                        AND P.DTAHORALTERACAO IS NULL
                       ORDER BY P.DTAHORINCLUSAO DESC
                   )
                   WHERE ROWNUM = 1;
