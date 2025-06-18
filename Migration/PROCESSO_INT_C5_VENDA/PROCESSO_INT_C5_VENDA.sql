@@ -1461,24 +1461,28 @@ END;
 CREATE OR REPLACE FUNCTION FNC_INT_C5_CODAUXPRODCOMPOSTO(pseqprodcomposto NUMBER,
                                                                    pnroempresa NUMBER)
 RETURN NUMBER
-IS 
-	vCODAUXILIAR NUMBER;
-BEGIN
-  vCODAUXILIAR := 0;
-  BEGIN
-	SELECT 
-		P.CODACESSO
-	INTO vCODAUXILIAR
-	FROM 
-		MONITORPDVMIDDLE.TB_PRODCODIGO P
-	WHERE P.SEQPRODUTO = pseqprodcomposto
-	AND P.NROEMPRESA = pnroempresa
-	AND P.QTDEMBALAGEM = 1;
-  EXCEPTION
-  WHEN OTHERS THEN
-   vCODAUXILIAR := 0;
-  END;	
-	RETURN vCODAUXILIAR;
+ IS
+    vCODAUXILIAR NUMBER := 0;
+          BEGIN
+              BEGIN
+                  SELECT CODACESSO
+                  INTO vCODAUXILIAR
+                  FROM (
+                      SELECT P.CODACESSO
+                      FROM MONITORPDVMIDDLE.TB_PRODCODIGO P
+                      WHERE P.SEQPRODUTO = pseqprodcomposto
+                        AND P.NROEMPRESA = pnroempresa
+                        AND P.QTDEMBALAGEM = 1
+                        AND P.ATIVO = 'S'
+                        AND P.DTAHORALTERACAO IS NULL
+                      ORDER BY P.DTAHORINCLUSAO DESC
+                  )
+                  WHERE ROWNUM = 1;
+              EXCEPTION
+                  WHEN OTHERS THEN
+                      vCODAUXILIAR := 0;
+              END;
+    RETURN vCODAUXILIAR;
 END;
 
 \
