@@ -6720,7 +6720,8 @@ BEGIN
            CURRENT_TIMESTAMP);
         COMMIT;
         RAISE;
-END carrega_tb_cctcondicao;
+  END;
+END;
 
 PROCEDURE exec_sinc AS
 
