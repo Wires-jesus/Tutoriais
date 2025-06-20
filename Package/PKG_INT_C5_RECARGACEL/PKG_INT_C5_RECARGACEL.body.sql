@@ -280,7 +280,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                        p.numtranspagdigital AS "Numtranspagdigital",
                                        p.nsupagdigital AS "Nsupagdigital",
                                        p.nomecarteiradigital AS "Nomecarteiradigital",
-                                       p.dtemissao AS "Vpago",
+                                       p.dtemissao AS "Dtpag",
+									   p.valor AS "Vpago",
                                        p.carteiradigital AS "Carteiradigital" ))))            
                                  )
                          --  )
