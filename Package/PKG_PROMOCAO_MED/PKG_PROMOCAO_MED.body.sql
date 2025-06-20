@@ -6779,7 +6779,19 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnPTABELACONTRATO             PCORCAVENDAI.PTABELA%TYPE,        -- DDVENDAS-32472
          vnNUMVERBAREBCMV              PCORCAVENDAI.NUMVERBAREBCMV%TYPE,
          vnNUMITEMPED                  PCORCAVENDAI.NUMITEMPED%TYPE,
-         nQTCOMBOVIRTUAL               PCORCAVENDAI.QTCOMBOVIRTUAL%TYPE		 
+         nQTCOMBOVIRTUAL               PCORCAVENDAI.QTCOMBOVIRTUAL%TYPE,
+         VNCODCBS                      PCORCAVENDAI.CODCBS%TYPE,
+         VNBASECBS                     PCORCAVENDAI.BASECBS%TYPE,
+         VNALIQCBS                     PCORCAVENDAI.ALIQCBS%TYPE,
+         VNVLCBS                       PCORCAVENDAI.VLCBS%TYPE,
+         VNCODIBS                      PCORCAVENDAI.CODIBS%TYPE,
+         VNBASEIBS                     PCORCAVENDAI.BASEIBS%TYPE,
+         VNALIQIBS                     PCORCAVENDAI.ALIQIBS%TYPE,
+         VNVLIBS                       PCORCAVENDAI.VLIBS%TYPE,
+         VNCODIS                       PCORCAVENDAI.CODIS%TYPE,
+         VNBASEIS                      PCORCAVENDAI.BASEIS%TYPE,
+         VNALIQIS                      PCORCAVENDAI.ALIQIS%TYPE,
+         VNVLIS                        PCORCAVENDAI.VLIS%TYPE
          );
     vrDadosOrcaI                       TRecDadosOrcaI;
 
@@ -6844,6 +6856,24 @@ IS PRAGMA SERIALLY_REUSABLE;
     -- Validação Controlados - DDMEDICA-735
     viQtOcorrenciasControlados         INTEGER;
     vvMsgOcorrenciasControlados        VARCHAR2(2000);
+    -- Mensagem Retorno Calculo CBS
+    vvMensagemRetornoCBS               VARCHAR2(2000);
+    -- Somar o valor do CBS no Preço de Venda
+    vbSomarImpostoCBS                  VARCHAR2(1);
+    -- Valor do CBS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
+    vnValorCBS                         NUMBER(18,6);
+    -- Mensagem Retorno Calculo IBS
+    vvMensagemRetornoIBS               VARCHAR2(2000);
+    -- Somar o valor do IBS no Preço de Venda
+    vbSomarImpostoIBS                  VARCHAR2(1);
+    -- Valor do IBS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
+    vnValorIBS                         NUMBER(18,6);
+    -- Mensagem Retorno Calculo IS
+    vvMensagemRetornoIS                VARCHAR2(2000);
+    -- Somar o valor do IS no Preço de Venda
+    vbSomarImpostoIS                   VARCHAR2(1);
+    -- Valor do IS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
+    vnValorIS                          NUMBER(18,6);
 
     -- Array para Inclusão de Itens
     TYPE TRecIncluiItens               IS RECORD(
@@ -6903,7 +6933,19 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvDescricaoProdutoDanfe       PCPEDI.PRODDESCRICAODANFE%TYPE,         
          vnNumverbarebcmv              pcpedi.numverbarebcmv%TYPE,
          vnNumItemPed                  pcpedi.NUMITEMPED%TYPE,
-         nQTCOMBOVIRTUAL               pcpedi.QTCOMBOVIRTUAL%TYPE
+         nQTCOMBOVIRTUAL               pcpedi.QTCOMBOVIRTUAL%TYPE,
+         vnCodCBS                      PCPEDI.CODCBS%TYPE,
+         vnBaseCBS                     PCPEDI.BASECBS%TYPE,
+         vnAliqCBS                     PCPEDI.ALIQCBS%TYPE,
+         vnVlCBS                       PCPEDI.VLCBS%TYPE,
+         vnCodIBS                      PCPEDI.CODIBS%TYPE,
+         vnBaseIBS                     PCPEDI.BASEIBS%TYPE,
+         vnAliqIBS                     PCPEDI.ALIQIBS%TYPE,
+         vnVlIBS                       PCPEDI.VLIBS%TYPE,
+         vnCodIS                       PCPEDI.CODIS%TYPE,
+         vnBaseIS                      PCPEDI.BASEIS%TYPE,
+         vnAliqIS                      PCPEDI.ALIQIS%TYPE,
+         vnVlIS                        PCPEDI.VLIS%TYPE
          );
     TYPE TTvIncluiItens                IS TABLE OF TRecIncluiItens INDEX BY BINARY_INTEGER;
     vtIncluiItens                      TTvIncluiItens;
@@ -7333,7 +7375,19 @@ IS PRAGMA SERIALLY_REUSABLE;
          vPRODDESCRICAOCONTRATO    PCPEDI.PRODDESCRICAOCONTRATO%TYPE,
          nNUMVERBAREBCMV           PCPEDI.NUMVERBAREBCMV%TYPE,
          nNUMITEMPED               PCPEDI.NUMITEMPED%TYPE,
-         nQTCOMBOVIRTUAL           PCPEDI.QTCOMBOVIRTUAL%TYPE
+         nQTCOMBOVIRTUAL           PCPEDI.QTCOMBOVIRTUAL%TYPE,
+         nCodCBS                   PCPEDI.CODCBS%TYPE,
+         nBaseCBS                  PCPEDI.BASECBS%TYPE,
+         nAliqCBS                  PCPEDI.ALIQCBS%TYPE,
+         nVlCBS                    PCPEDI.VLCBS%TYPE,
+         nCodIBS                   PCPEDI.CODIBS%TYPE,
+         nBaseIBS                  PCPEDI.BASEIBS%TYPE,
+         nAliqIBS                  PCPEDI.ALIQIBS%TYPE,
+         nVlIBS                    PCPEDI.VLIBS%TYPE,
+         nCodIS                    PCPEDI.CODIS%TYPE,
+         nBaseIS                   PCPEDI.BASEIS%TYPE,
+         nAliqIS                   PCPEDI.ALIQIS%TYPE,
+         nVlIS                     PCPEDI.VLIS%TYPE
          );
     vrItemPedido                   TRecItemPedido;
     vrLimpaItemPedido              TRecItemPedido;
@@ -10604,7 +10658,19 @@ IS PRAGMA SERIALLY_REUSABLE;
                     END PTABELACONTRATO,
                     PCORCAVENDAI.NUMVERBAREBCMV,
                     PCORCAVENDAI.NUMITEMPED,
-                    PCORCAVENDAI.QTCOMBOVIRTUAL
+                    PCORCAVENDAI.QTCOMBOVIRTUAL,
+                    PCORCAVENDAI.CODCBS,
+                    PCORCAVENDAI.BASECBS,
+                    PCORCAVENDAI.ALIQCBS,
+                    PCORCAVENDAI.VLCBS,
+                    PCORCAVENDAI.CODIBS,
+                    PCORCAVENDAI.BASEIBS,
+                    PCORCAVENDAI.ALIQIBS,
+                    PCORCAVENDAI.VLIBS,
+                    PCORCAVENDAI.CODIS,
+                    PCORCAVENDAI.BASEIS,
+                    PCORCAVENDAI.ALIQIS,
+                    PCORCAVENDAI.VLIS
                FROM PCORCAVENDAI
                    ,PCORCAVENDAC
                    ,PCPRODUT
@@ -10657,6 +10723,18 @@ IS PRAGMA SERIALLY_REUSABLE;
             vtIncluiItens(viIdxNew).vnNumverbarebcmv           := vrDadosOrcaI.vnNUMVERBAREBCMV;
             vtIncluiItens(viIdxNew).vnNumItemPed               := vrDadosOrcaI.vnNUMITEMPED;
             vtIncluiItens(viIdxNew).nQTCOMBOVIRTUAL            := vrDadosOrcaI.nQTCOMBOVIRTUAL;
+            vtIncluiItens(viIdxNew).vnCodCBS                   := vrDadosOrcaI.VNCODCBS;
+            vtIncluiItens(viIdxNew).vnBaseCBS                  := vrDadosOrcaI.VNBASECBS;
+            vtIncluiItens(viIdxNew).vnAliqCBS                  := vrDadosOrcaI.VNALIQCBS;
+            vtIncluiItens(viIdxNew).vnVlCBS                    := vrDadosOrcaI.VNVLCBS;
+            vtIncluiItens(viIdxNew).vnCodIBS                   := vrDadosOrcaI.VNCODIBS;
+            vtIncluiItens(viIdxNew).vnBaseIBS                  := vrDadosOrcaI.VNBASEIBS;
+            vtIncluiItens(viIdxNew).vnAliqIBS                  := vrDadosOrcaI.VNALIQIBS;
+            vtIncluiItens(viIdxNew).vnVlIBS                    := vrDadosOrcaI.VNVLIBS;
+            vtIncluiItens(viIdxNew).vnCodIS                    := vrDadosOrcaI.VNCODIS;
+            vtIncluiItens(viIdxNew).vnBaseIS                   := vrDadosOrcaI.VNBASEIS;
+            vtIncluiItens(viIdxNew).vnAliqIS                   := vrDadosOrcaI.VNALIQIS;
+            vtIncluiItens(viIdxNew).vnVlIS                     := vrDadosOrcaI.VNVLIS;
             -- Controle de Rejeição
             vvRegistroValido := 'S';
             --vvMsgRejeicao    := NULL;
@@ -11549,6 +11627,19 @@ IS PRAGMA SERIALLY_REUSABLE;
             if vvTipoPromocaoPedido = 'K' THEN
               vrItemPedido.nQTCOMBOVIRTUAL := PI_NQTCOMBOS;
             END IF;
+
+            vrItemPedido.nCodCBS := vtIncluiItens(viNumSeq).VNCODCBS;
+            vrItemPedido.nBaseCBS := vtIncluiItens(viNumSeq).VNBASECBS;
+            vrItemPedido.nAliqCBS := vtIncluiItens(viNumSeq).VNALIQCBS;
+            vrItemPedido.nVlCBS := vtIncluiItens(viNumSeq).VNVLCBS;
+            vrItemPedido.nCodIBS := vtIncluiItens(viNumSeq).VNCODIBS;
+            vrItemPedido.nBaseIBS := vtIncluiItens(viNumSeq).VNBASEIBS;
+            vrItemPedido.nAliqIBS := vtIncluiItens(viNumSeq).VNALIQIBS;
+            vrItemPedido.nVlIBS := vtIncluiItens(viNumSeq).VNVLIBS;
+            vrItemPedido.nCodIS := vtIncluiItens(viNumSeq).VNCODIS;
+            vrItemPedido.nBaseIS := vtIncluiItens(viNumSeq).VNBASEIS;
+            vrItemPedido.nAliqIS := vtIncluiItens(viNumSeq).VNALIQIS;
+            vrItemPedido.nVlIS := vtIncluiItens(viNumSeq).VNVLIS;
             
             IF (pi_nTipoChamada IN (3,18)) THEN
               -- Log do Item
@@ -14259,6 +14350,285 @@ IS PRAGMA SERIALLY_REUSABLE;
                                          + NVL(vrItemPedido.nSTPBASERCA,0) 
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
                                          + NVL(vrItemPedido.nVLFECP,0);
+              
+              -- Calcular o imposto CBS sobre o preço de venda
+              SELECT CODIGO_TRIBUTACAO
+                   , VALOR_BASE_TRIBUTO
+                   , VALOR_ALIQUOTA_TRIBUTO
+                   , VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vrItemPedido.nCodCBS
+                   , vrItemPedido.nBaseCBS
+                   , vrItemPedido.nAliqCBS
+                   , vrItemPedido.nVlCBS
+                   , vvMensagemRetornoCBS
+                   , vbSomarImpostoCBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPVENDA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IBS sobre o preço de venda
+              SELECT CODIGO_TRIBUTACAO
+                   , VALOR_BASE_TRIBUTO
+                   , VALOR_ALIQUOTA_TRIBUTO
+                   , VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vrItemPedido.nCodIBS
+                   , vrItemPedido.nBaseIBS
+                   , vrItemPedido.nAliqIBS
+                   , vrItemPedido.nVlIBS
+                   , vvMensagemRetornoIBS
+                   , vbSomarImpostoIBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPVENDA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IS sobre o preço de venda
+              SELECT CODIGO_TRIBUTACAO
+                   , VALOR_BASE_TRIBUTO
+                   , VALOR_ALIQUOTA_TRIBUTO
+                   , VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vrItemPedido.nCodIS
+                   , vrItemPedido.nBaseIS
+                   , vrItemPedido.nAliqIS
+                   , vrItemPedido.nVlIS
+                   , vvMensagemRetornoIS
+                   , vbSomarImpostoIS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
+                                                      pi_nCodCli,
+                                                      vrItemPedido.nCODPROD,
+                                                      vrItemPedido.nCODST,
+                                                      0,
+                                                      vrItemPedido.nPVENDA,
+                                                      (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                      NVL(vrItemPedido.nVLFECP, 0),
+                                                      NVL(vrItemPedido.nVLIPI, 0),
+                                                      0,
+                                                      0,
+                                                      vrRegiao.nNUMREGIAO));
+              
+              IF vvMensagemRetornoCBS = 'OK' THEN
+                IF vbSomarImpostoCBS = 'S' THEN
+                  vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlCBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIBS = 'OK' THEN
+                IF vbSomarImpostoIBS = 'S' THEN
+                  vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlIBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIS = 'OK' THEN
+                IF vbSomarImpostoIS = 'S' THEN
+                  vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlIS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
+                RAISE e_Tratado;
+              END IF;
+              
+              -- Calcular o imposto CBS sobre o preço de tabela
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorCBS
+                   , vvMensagemRetornoCBS
+                   , vbSomarImpostoCBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPTABELA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IBS sobre o preço de tabela
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorIBS
+                   , vvMensagemRetornoIBS
+                   , vbSomarImpostoIBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPTABELA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IS sobre o preço de tabela
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorIS
+                   , vvMensagemRetornoIS
+                   , vbSomarImpostoIS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
+                                                      pi_nCodCli,
+                                                      vrItemPedido.nCODPROD,
+                                                      vrItemPedido.nCODST,
+                                                      0,
+                                                      vrItemPedido.nPTABELA,
+                                                      (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                      NVL(vrItemPedido.nVLFECP, 0),
+                                                      NVL(vrItemPedido.nVLIPI, 0),
+                                                      0,
+                                                      0,
+                                                      vrRegiao.nNUMREGIAO));
+              
+              IF vvMensagemRetornoCBS = 'OK' THEN
+                IF vbSomarImpostoCBS = 'S' THEN
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorCBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIBS = 'OK' THEN
+                IF vbSomarImpostoIBS = 'S' THEN
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorIBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIS = 'OK' THEN
+                IF vbSomarImpostoIS = 'S' THEN
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorIS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
+                RAISE e_Tratado;
+              END IF;
+              
+              -- Calcular o imposto CBS sobre o preço base do RCA
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorCBS
+                   , vvMensagemRetornoCBS
+                   , vbSomarImpostoCBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPBASERCA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IBS sobre o preço base do RCA
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorIBS
+                   , vvMensagemRetornoIBS
+                   , vbSomarImpostoIBS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
+                                                       pi_nCodCli,
+                                                       vrItemPedido.nCODPROD,
+                                                       vrItemPedido.nCODST,
+                                                       0,
+                                                       vrItemPedido.nPBASERCA,
+                                                       (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                       NVL(vrItemPedido.nVLFECP, 0),
+                                                       NVL(vrItemPedido.nVLIPI, 0),
+                                                       0,
+                                                       0,
+                                                       vrRegiao.nNUMREGIAO));
+              
+              -- Calcular o imposto IS sobre o preço base do RCA
+              SELECT VALOR_TRIBUTO
+                   , SOMATOTALNF
+                   , MSG
+                INTO vnValorIS
+                   , vvMensagemRetornoIS
+                   , vbSomarImpostoIS
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
+                                                      pi_nCodCli,
+                                                      vrItemPedido.nCODPROD,
+                                                      vrItemPedido.nCODST,
+                                                      0,
+                                                      vrItemPedido.nPBASERCA,
+                                                      (NVL(vrItemPedido.nST, 0) + NVL(vrItemPedido.nVLICMSSTRETANTERIOR, 0)),
+                                                      NVL(vrItemPedido.nVLFECP, 0),
+                                                      NVL(vrItemPedido.nVLIPI, 0),
+                                                      0,
+                                                      0,
+                                                      vrRegiao.nNUMREGIAO));
+              
+              IF vvMensagemRetornoCBS = 'OK' THEN
+                IF vbSomarImpostoCBS = 'S' THEN
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorCBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIBS = 'OK' THEN
+                IF vbSomarImpostoIBS = 'S' THEN
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorIBS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
+                RAISE e_Tratado;
+              END IF;
+              
+              IF vvMensagemRetornoIS = 'OK' THEN
+                IF vbSomarImpostoIS = 'S' THEN
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorIS, 0);
+                END IF;
+              ELSE
+                po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
+                RAISE e_Tratado;
+              END IF;
 
               ----------------------------------------------------------------------------
               -- SOMA O REPASSE NO FINAL
@@ -14921,6 +15291,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                            , VLICMSSTRETANTERIOR      = vrItemPedido.nVLICMSSTRETANTERIOR                           
                            , STCLIENTEGNRE            = vrItemPedido.nSTCLIENTEGNRE
                            , PMPFMEDICAMENTO          = vrItemPedido.nPMPFMEDICAMENTO
+                           , CODCBS                   = vrItemPedido.nCodCBS
+                           , BASECBS                  = vrItemPedido.nBaseCBS
+                           , ALIQCBS                  = vrItemPedido.nAliqCBS
+                           , VLCBS                    = vrItemPedido.nVlCBS
+                           , CODIBS                   = vrItemPedido.nCodIBS
+                           , BASEIBS                  = vrItemPedido.nBaseIBS
+                           , ALIQIBS                  = vrItemPedido.nAliqIBS
+                           , VLIBS                    = vrItemPedido.nVlIBS
+                           , CODIS                    = vrItemPedido.nCodIS
+                           , BASEIS                   = vrItemPedido.nBaseIS
+                           , ALIQIS                   = vrItemPedido.nAliqIS
+                           , VLIS                     = vrItemPedido.nVlIS
                        WHERE (NUMPED        = pi_nNumPed)
                          AND (CODPROD       = vrItemPedido.nCODPROD)
                          AND (NVL(NUMSEQ,0) = vrItemPedido.nNUMSEQ);
@@ -14947,6 +15329,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                            , CODACORDOPARCERIA      = vrItemPedido.nCODACORDOPARCERIA
                            , PERCDESCACORDOPARCERIA = vrItemPedido.nPERCDESCACORDOPARCERIA
                            , VLICMSSTRETANTERIOR    = vrItemPedido.nVLICMSSTRETANTERIOR
+                           , CODCBS                 = vrItemPedido.nCODCBS
+                           , CODIBS                 = vrItemPedido.nCODIBS
+                           , CODIS                  = vrItemPedido.nCODIS
+                           , VLCBS                  = vrItemPedido.nVLCBS
+                           , VLIBS                  = vrItemPedido.nVLIBS
+                           , VLIS                   = vrItemPedido.nVLIS
                        WHERE (NUMPED  = pi_nNumPed)
                          AND (CODPROD = vrItemPedido.nCODPROD)
                          AND (NUMSEQ  = vrItemPedido.nNUMSEQ);
@@ -15070,6 +15458,18 @@ IS PRAGMA SERIALLY_REUSABLE;
 										 , VLICMSSTRETANTERIOR      = vrItemPedido.nVLICMSSTRETANTERIOR                           
 										 , STCLIENTEGNRE            = vrItemPedido.nSTCLIENTEGNRE
 										 , PMPFMEDICAMENTO          = vrItemPedido.nPMPFMEDICAMENTO
+										 , CODCBS                   = vrItemPedido.nCodCBS
+										 , BASECBS                  = vrItemPedido.nBaseCBS
+										 , ALIQCBS                  = vrItemPedido.nAliqCBS
+										 , VLCBS                    = vrItemPedido.nVlCBS
+										 , CODIBS                   = vrItemPedido.nCodIBS
+										 , BASEIBS                  = vrItemPedido.nBaseIBS
+										 , ALIQIBS                  = vrItemPedido.nAliqIBS
+										 , VLIBS                    = vrItemPedido.nVlIBS
+										 , CODIS                    = vrItemPedido.nCodIS
+										 , BASEIS                   = vrItemPedido.nBaseIS
+										 , ALIQIS                   = vrItemPedido.nAliqIS
+										 , VLIS                     = vrItemPedido.nVlIS
 								   WHERE (NUMPED         = pi_nNumPed)
 									 AND (CODPROD        = vrItemPedido.nCODPROD)
 									 AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
@@ -15167,6 +15567,18 @@ IS PRAGMA SERIALLY_REUSABLE;
 										 , VLICMSSTRETANTERIOR      = vrItemPedido.nVLICMSSTRETANTERIOR                           
 										 , STCLIENTEGNRE            = vrItemPedido.nSTCLIENTEGNRE
 										 , PMPFMEDICAMENTO          = vrItemPedido.nPMPFMEDICAMENTO
+										 , CODCBS                   = vrItemPedido.nCodCBS
+										 , BASECBS                  = vrItemPedido.nBaseCBS
+										 , ALIQCBS                  = vrItemPedido.nAliqCBS
+										 , VLCBS                    = vrItemPedido.nVlCBS
+										 , CODIBS                   = vrItemPedido.nCodIBS
+										 , BASEIBS                  = vrItemPedido.nBaseIBS
+										 , ALIQIBS                  = vrItemPedido.nAliqIBS
+										 , VLIBS                    = vrItemPedido.nVlIBS
+										 , CODIS                    = vrItemPedido.nCodIS
+										 , BASEIS                   = vrItemPedido.nBaseIS
+										 , ALIQIS                   = vrItemPedido.nAliqIS
+										 , VLIS                     = vrItemPedido.nVlIS
 								   WHERE (NUMPED          = pi_nNumPed)
 									 AND (CODPROD         = vrItemPedido.nCODPROD)
 									 AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
@@ -15194,6 +15606,12 @@ IS PRAGMA SERIALLY_REUSABLE;
 								   , CODACORDOPARCERIA      = vrItemPedido.nCODACORDOPARCERIA
 								   , PERCDESCACORDOPARCERIA = vrItemPedido.nPERCDESCACORDOPARCERIA
 								   , VLICMSSTRETANTERIOR    = vrItemPedido.nVLICMSSTRETANTERIOR
+								   , CODCBS                 = vrItemPedido.nCODCBS
+								   , CODIBS                 = vrItemPedido.nCODIBS
+								   , CODIS                  = vrItemPedido.nCODIS
+								   , VLCBS                  = vrItemPedido.nVLCBS
+								   , VLIBS                  = vrItemPedido.nVLIBS
+								   , VLIS                   = vrItemPedido.nVLIS
 							   WHERE (NUMPED  = pi_nNumPed)
 								 AND (CODPROD = vrItemPedido.nCODPROD)
 								 AND (NUMSEQ  = vrItemPedido.nNUMSEQ);
@@ -15422,6 +15840,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , NUMVERBAREBCMV
                               , NUMITEMPED
                               , QTCOMBOVIRTUAL
+                              , CODCBS
+                              , BASECBS
+                              , ALIQCBS
+                              , VLCBS
+                              , CODIBS
+                              , BASEIBS
+                              , ALIQIBS
+                              , VLIBS
+                              , CODIS
+                              , BASEIS
+                              , ALIQIS
+                              , VLIS
                               )
                         VALUES( pi_nNumPed                            -- NUMPED
                               , vrItemPedido.nCODPROD                 -- CODPROD
@@ -15569,8 +15999,20 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrItemPedido.vPRODDESCRICAODANFE
                               , vrItemPedido.vPRODDESCRICAOCONTRATO
                               , vrItemPedido.nNUMVERBAREBCMV
-							  , vrItemPedido.nNUMITEMPED
+                              , vrItemPedido.nNUMITEMPED
                               , vrItemPedido.nQTCOMBOVIRTUAL
+                              , vrItemPedido.nCODCBS
+                              , vrItemPedido.nBASECBS
+                              , vrItemPedido.nALIQCBS
+                              , vrItemPedido.nVLCBS
+                              , vrItemPedido.nCODIBS
+                              , vrItemPedido.nBASEIBS
+                              , vrItemPedido.nALIQIBS
+                              , vrItemPedido.nVLIBS
+                              , vrItemPedido.nCODIS
+                              , vrItemPedido.nBASEIS
+                              , vrItemPedido.nALIQIS
+                              , vrItemPedido.nVLIS
                               );
 
                     -- Insere Origem Preço
@@ -15617,6 +16059,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , CODACORDOPARCERIA      = vrItemPedido.nCODACORDOPARCERIA
                          , PERCDESCACORDOPARCERIA = vrItemPedido.nPERCDESCACORDOPARCERIA
                          , VLICMSSTRETANTERIOR    = vrItemPedido.nVLICMSSTRETANTERIOR
+                         , CODCBS                 = vrItemPedido.nCODCBS
+                         , CODIBS                 = vrItemPedido.nCODIBS
+                         , CODIS                  = vrItemPedido.nCODIS
+                         , VLCBS                  = vrItemPedido.nVLCBS
+                         , VLIBS                  = vrItemPedido.nVLIBS
+                         , VLIS                   = vrItemPedido.nVLIS
                      WHERE (NUMPED  = pi_nNumPed)
                        AND (CODPROD = vrItemPedido.nCODPROD)
                        AND (NUMSEQ  = vrItemPedido.nNUMSEQ);
