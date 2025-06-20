@@ -3829,6 +3829,7 @@ create or replace package body FISCAL is
       VALOR_RATEIO_OUTRAS_UNITARIO PCMOV.VLOUTROS%type;
       VALOR_FRETE_RATEADO          PCMOV.VLFRETE%type;
       VALOR_RATEIO_FRETE_UNITARIO  PCMOV.VLFRETE%type;
+      V_IMPORTADOXML               PCNFENT.IMPORTADOXML%type;
 
       ID_ULTIMO_REGISTRO_PCMOV       rowid;
       ID_ULTIMO_REGISTRO_PCMOVCOMPLE PCMOVCOMPLE.NUMTRANSITEM%type;
@@ -3851,12 +3852,14 @@ create or replace package body FISCAL is
                   ELSE
                     0
                   END ) AS VALOR_STOUTRAS
+             ,MAX(NVL(PCNFENT.IMPORTADOXML,'N')) as IMPORTADOXML     
         into VALOR_TOTAL_FRETE
             ,VALOR_TOTAL_PRODUTOS
             ,VALOR_TOTAL_ACRESCIMOPF
             ,VALOR_TOTAL_REPASSE
             ,VALOR_TOTAL_OUTROS
             ,VALOR_TOTAL_STOUTRAS
+            ,V_IMPORTADOXML
         from PCNFENT
             ,PCMOV
             ,PCMOVCOMPLE
@@ -3903,6 +3906,7 @@ create or replace package body FISCAL is
                                ELSE
                                  0
                                END AS ITEM_VLSTOUTRAS
+                               ,NVL(PCNFENT.IMPORTADOXML,'N') IMPORTADOXML 
                           from PCMOV
                               ,PCNFENT
                               ,PCMOVCOMPLE
@@ -3963,10 +3967,10 @@ create or replace package body FISCAL is
                   if ROUND(NVL(REGISTROS.ITEM_BASE_ICMS,0) * NVL(REGISTROS.ITEM_QUANTIDADE,0), 2) > 0 and (NVL(REGISTROS.ITEM_ALIQUOTA_ICMS,0) > 0)
                   then
                      update PCMOVCOMPLE
-                        set PCMOVCOMPLE.VLBASEOUTROS = NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) -
-                                                       (NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) * (NVL(REGISTROS.PERC_REDUCAO_OUTRASDESP,0) / 100))
-                           ,PCMOVCOMPLE.VLBASEFRETE  = NVL(VALOR_RATEIO_FRETE_UNITARIO,0) -
-                                                       (NVL(VALOR_RATEIO_FRETE_UNITARIO,0) * (NVL(REGISTROS.PERC_REDUCAO_OUTRASDESP,0) / 100))
+                        set PCMOVCOMPLE.VLBASEOUTROS = DECODE(REGISTROS.IMPORTADOXML,'S',0, NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) -
+                                                       (NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) * (NVL(REGISTROS.PERC_REDUCAO_OUTRASDESP,0) / 100)))
+                           ,PCMOVCOMPLE.VLBASEFRETE  = DECODE(REGISTROS.IMPORTADOXML,'S',0,NVL(VALOR_RATEIO_FRETE_UNITARIO,0) -
+                                                       (NVL(VALOR_RATEIO_FRETE_UNITARIO,0) * (NVL(REGISTROS.PERC_REDUCAO_OUTRASDESP,0) / 100)))
                       where PCMOVCOMPLE.NUMTRANSITEM = REGISTROS.ITEM_NUMTRANSITEM;
 
                       GEROU_OUTROS_FRETE_ULTIMO_REG := 'S';
@@ -4006,8 +4010,8 @@ create or replace package body FISCAL is
 
           IF GEROU_OUTROS_FRETE_ULTIMO_REG = 'S' THEN
              update PCMOVCOMPLE
-             set PCMOVCOMPLE.VLBASEOUTROS = NVL(PCMOVCOMPLE.VLBASEOUTROS,0) + NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) -
-                                           (NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) * (NVL(PERC_REDUCAO_OUTRASDESP,0) / 100))
+             set PCMOVCOMPLE.VLBASEOUTROS = DECODE(V_IMPORTADOXML,'S',0,NVL(PCMOVCOMPLE.VLBASEOUTROS,0) + NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) -
+                                           (NVL(VALOR_RATEIO_OUTRAS_UNITARIO,0) * (NVL(PERC_REDUCAO_OUTRASDESP,0) / 100)))
              where PCMOVCOMPLE.NUMTRANSITEM = ID_ULTIMO_REGISTRO_PCMOVCOMPLE;
           END IF;
       end if;
@@ -4022,8 +4026,8 @@ create or replace package body FISCAL is
           where rowid = ID_ULTIMO_REGISTRO_PCMOV;
         IF GEROU_OUTROS_FRETE_ULTIMO_REG = 'S' THEN
            update PCMOVCOMPLE
-              set PCMOVCOMPLE.VLBASEFRETE = NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(VALOR_RATEIO_FRETE_UNITARIO,0) -
-                                          (NVL(VALOR_RATEIO_FRETE_UNITARIO,0) * (NVL(PERC_REDUCAO_OUTRASDESP,0) / 100))
+              set PCMOVCOMPLE.VLBASEFRETE = DECODE(V_IMPORTADOXML,'S',0,NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(VALOR_RATEIO_FRETE_UNITARIO,0) -
+                                          (NVL(VALOR_RATEIO_FRETE_UNITARIO,0) * (NVL(PERC_REDUCAO_OUTRASDESP,0) / 100)))
             where PCMOVCOMPLE.NUMTRANSITEM = ID_ULTIMO_REGISTRO_PCMOVCOMPLE;
         END IF;
       end if;
