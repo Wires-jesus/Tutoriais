@@ -5971,7 +5971,8 @@ end;
                          SUM(ROUND(M.QTCONT * NVL(M.VLFRETE, 0), 2)) VLFRETE,
                          SUM(ROUND(M.QTCONT * DECODE(M.CODOPER, 'ET', NVL(M.VLOUTRASDESP, 0), 
                                               CASE WHEN (A.ROTINACAD NOT LIKE '%1423%') AND
-                                                        (A.ROTINACAD NOT LIKE '%1303%') AND 
+                                                        (A.ROTINACAD NOT LIKE '%1303%') AND
+                                                        (A.ROTINACAD NOT LIKE '%1346%') AND  
                                                          M.CODOPER = 'ED' THEN
                                                    NVL(M.VLOUTROS, 0)
                                               ELSE             
