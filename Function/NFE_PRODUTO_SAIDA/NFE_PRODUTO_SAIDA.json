@@ -5,12 +5,12 @@
   {
    "nome": "TIPO_NFE_PRODUTO",
    "tipo": "MIGRATION",
-   "versao": "7.0.03.000"
+   "versao": "7.0.04.000"
   },
   {
    "nome":"SQL_NFE_PRODUTO_SAIDA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"7.0.07.000"
+   "versao":"7.0.08.000"
   },
   {
    "nome":"SQL_NFE_PRODUTO_SAIDA_CIAP",
