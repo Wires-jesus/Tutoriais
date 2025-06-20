@@ -54,4 +54,6 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
                                         pQT            IN NUMBER,
                                         pNUMSEQ        IN NUMBER);
 
+  PROCEDURE CANCELAR_SEPARACAO_PEDIDO(pNUMDOCWMSSAAS   IN NUMBER);
+
 END PKG_INTEGRACAOWMSSAAS;
