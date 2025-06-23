@@ -93,13 +93,13 @@ CREATE OR REPLACE TYPE TIPO_NFE_RODAPE AS OBJECT (
     QBCMONODIF               NUMBER(22,10), 
     VICMSMONODIF             NUMBER(22,10),
     QBCMONORET               NUMBER(22,10),   
-    VICMSMONORET             NUMBER(22,10),   
-    
+    VICMSMONORET             NUMBER(22,10),    
     VIS                      NUMBER(15,2),
     VBCIBSCBS                NUMBER(15,2),
-    VIBS                     NUMBER(15,2),
+    VIBSMUN                  NUMBER(15,2),
+    VIBSUF                   NUMBER(15,2),	
     VCBS                     NUMBER(15,2),
-    
+
     CONSTRUCTOR FUNCTION TIPO_NFE_RODAPE(SELF IN OUT NOCOPY TIPO_NFE_RODAPE)
       RETURN SELF AS RESULT );
 \
