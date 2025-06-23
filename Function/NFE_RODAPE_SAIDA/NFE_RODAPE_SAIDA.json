@@ -5,7 +5,7 @@
   {
    "nome": "TIPO_NFE_RODAPE",
    "tipo": "MIGRATION",
-   "versao": "7.0.01.000"
+   "versao": "7.0.02.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_SAIDA",
