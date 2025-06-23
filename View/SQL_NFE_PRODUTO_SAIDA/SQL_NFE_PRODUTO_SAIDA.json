@@ -4,12 +4,12 @@
   {
    "nome": "PCMOV",
    "tipo":"TABELA",
-   "versao": "7.0.04.000"
+   "versao": "7.0.05.000"
   },
   {
    "nome": "PCMOVPREFAT",
    "tipo":"TABELA",
-   "versao": "7.0.04.000"
+   "versao": "7.0.05.000"
   },
   {
    "nome": "PCMOVCOMPLE",
