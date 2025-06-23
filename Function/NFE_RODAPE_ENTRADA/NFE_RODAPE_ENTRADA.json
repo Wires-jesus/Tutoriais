@@ -5,12 +5,12 @@
   {
    "nome": "TIPO_NFE_RODAPE",
    "tipo": "MIGRATION",
-   "versao": "7.0.01.000"
+   "versao": "7.0.02.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao":"7.0.02.000"
+   "versao":"7.0.03.000"
   },
   {
    "nome":"SQL_NFE_RODAPE_ENTRADA_COMP",
