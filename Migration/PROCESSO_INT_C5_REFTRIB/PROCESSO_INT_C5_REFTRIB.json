@@ -1,0 +1,21 @@
+{
+  "nome": "PROCESSO_INT_C5_REFTRIB",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCTRIBUTACAO",
+      "tipo": "TABELA",
+      "versao": "7.0.07.000"
+    },
+    {
+      "nome": "PCTRIBUTACAO_FILTRO_NCM",
+      "tipo": "TABELA",
+      "versao": "7.0.03.000"
+    },
+    {
+      "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
+      "tipo": "TABELA",
+      "versao": "7.0.03.000"
+    }
+  ]
+}
