@@ -1,9 +1,14 @@
 {"nome":"SQL_NFE_RODAPE_ENTRADA",
  "tipoPLSQL":"VIEW",
  "dependencias":[
- {
-  "nome": "NFE_PRODUTO_ENTRADA",
-  "tipo": "OBJETO_PLSQL",
-  "versao": "7.0.16.000"
-}
+  {
+   "nome": "NFE_PRODUTO_ENTRADA",
+   "tipo": "OBJETO_PLSQL",
+   "versao": "7.0.26.000"
+  },
+  {
+   "nome": "PCNFENT",
+   "tipo": "TABELA",
+   "versao": "7.0.12.000"
+  }
  ]}
