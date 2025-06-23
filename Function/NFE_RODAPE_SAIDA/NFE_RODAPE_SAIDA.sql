@@ -212,10 +212,9 @@ BEGIN
       RETORNO(RETORNO.COUNT).VICMSMONORET                := 0;        
       RETORNO(RETORNO.COUNT).VIS                         := 0;
       RETORNO(RETORNO.COUNT).VBCIBSCBS                   := 0;
-      RETORNO(RETORNO.COUNT).VIBS                        := 0;
-      RETORNO(RETORNO.COUNT).VCBS                        := 0;
       RETORNO(RETORNO.COUNT).VIBSUF                      := 0;
 	  RETORNO(RETORNO.COUNT).VIBSMUN                     := 0;
+      RETORNO(RETORNO.COUNT).VCBS                        := 0; 
     END LOOP;
   END IF;
 
