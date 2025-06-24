@@ -1,0 +1,54 @@
+CREATE OR REPLACE FUNCTION PROX_DIAUTIL_FILIAL (PDTINICIAL             IN   DATE DEFAULT TRUNC (SYSDATE) 
+                                                ,PFILIAL               IN   VARCHAR2
+                                                ,PUTILIZADIAFILIALUTIL IN VARCHAR2)
+RETURN DATE
+IS 
+   VCONTADOR         NUMBER;
+   VDTPROXDIAUTIL    DATE;
+BEGIN
+   VDTPROXDIAUTIL := PDTINICIAL;
+
+   IF PUTILIZADIAFILIALUTIL = 'S' THEN
+        SELECT PCDIASUTEIS.DATA
+        INTO   VDTPROXDIAUTIL
+        FROM   PCDIASUTEIS
+        WHERE  PCDIASUTEIS.DATA = (SELECT MIN (PCDIASUTEIS.DATA)
+                                             FROM   PCDIASUTEIS
+                                             WHERE  PCDIASUTEIS.DATA >= PDTINICIAL
+                                             AND    NVL(PCDIASUTEIS.DIAFINANCEIRO, 'S') = 'S' 
+                                             AND    CODFILIAL = PFILIAL);     
+   ELSE
+     SELECT COUNT (*)
+     INTO   VCONTADOR
+     FROM   PCDATAS
+     WHERE  PCDATAS.DATA >= PDTINICIAL
+     AND NVL (PCDATAS.diautil, 'S') = 'S';
+
+     IF VCONTADOR = 0
+     THEN
+        IF TO_CHAR (PDTINICIAL, 'D') = '1'
+        THEN
+           VDTPROXDIAUTIL := PDTINICIAL + 1;
+        ELSIF TO_CHAR (PDTINICIAL, 'D') = '7'
+        THEN
+           VDTPROXDIAUTIL := PDTINICIAL + 2;
+        ELSE
+           VDTPROXDIAUTIL := PDTINICIAL;
+        END IF;
+     ELSE
+        SELECT PCDATAS.DATA
+        INTO   VDTPROXDIAUTIL
+        FROM   PCDATAS
+        WHERE  PCDATAS.DATA = (SELECT MIN (PCDATAS.DATA)
+                               FROM   PCDATAS
+                               WHERE  PCDATAS.DATA >= PDTINICIAL
+                               AND    NVL (PCDATAS.diautil, 'S') = 'S');
+     END IF;     
+   END IF;  
+
+   RETURN VDTPROXDIAUTIL;
+EXCEPTION
+   WHEN OTHERS
+   THEN
+      RETURN PDTINICIAL;
+END;
