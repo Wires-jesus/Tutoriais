@@ -34,7 +34,7 @@ IS
               FROM PCPRESTANTECIPADA
              WHERE CODFILIAL           = PCODFILIAL
                AND CODCLI              = PCODCLI
-               AND NVL(NUMPED,NUMORCA) = PNUMPED;
+               AND NVL(NUMORCA,NUMPED) = PNUMPED;
 
         RETURN VCURSOR;
     END;
@@ -132,7 +132,7 @@ IS
                , PCROTINAI                                     
            WHERE PCCONTROI.CODROTINA   = 1295
              AND PCCONTROI.CODUSUARIO  = VMATRICULA
-             AND PCROTINAI.CODCONTROLE = 2
+             AND PCROTINAI.CODCONTROLE = 4
              AND PCCONTROI.CODROTINA   = PCROTINAI.CODROTINA   
              AND PCCONTROI.CODCONTROLE = PCROTINAI.CODCONTROLE;
         EXCEPTION
@@ -171,22 +171,22 @@ IS
                         FROM PCPRESTANTECIPADA
                        WHERE CODFILIAL           = PCODFILIAL
                          AND CODCLI              = PCODCLI
-                         AND NVL(NUMPED,NUMORCA) = PNUMPED)
+                         AND NVL(NUMORCA,NUMPED) = PNUMPED)
         LOOP
             IF (DADOS.STATUSPGTO IN ('AGUARDANDO PAGAMENTO','PAGO')) THEN
 
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
                 
-                    SELECT POSICAO 
-                      INTO VPOSICAO
-                      FROM PCPEDC 
-                     WHERE NUMPED = PNUMPED;               
+					SELECT POSICAO 
+					  INTO VPOSICAO
+					  FROM PCORCAVENDAC 
+					 WHERE NUMORCA = PNUMPED;
                      
                     IF VPOSICAO IS NULL THEN
-                        SELECT POSICAO 
-                          INTO VPOSICAO
-                          FROM PCORCAVENDAC 
-                         WHERE NUMORCA = PNUMPED;
+						SELECT POSICAO 
+						  INTO VPOSICAO
+						  FROM PCPEDC 
+						 WHERE NUMPED = PNUMPED;               
                     END IF;
                     
                     IF VPOSICAO IN ('M','L') THEN
@@ -260,6 +260,7 @@ IS
             --------------------------------------------------------------------            
             
         END LOOP;
+        COMMIT WORK;
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
