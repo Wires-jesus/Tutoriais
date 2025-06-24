@@ -9,14 +9,12 @@ BEGIN
    VDTPROXDIAUTIL := PDTINICIAL;
 
    IF PUTILIZADIAFILIALUTIL = 'S' THEN
-        SELECT PCDIASUTEIS.DATA
-        INTO   VDTPROXDIAUTIL
-        FROM   PCDIASUTEIS
-        WHERE  PCDIASUTEIS.DATA = (SELECT MIN (PCDIASUTEIS.DATA)
-                                             FROM   PCDIASUTEIS
-                                             WHERE  PCDIASUTEIS.DATA >= PDTINICIAL
-                                             AND    NVL(PCDIASUTEIS.DIAFINANCEIRO, 'S') = 'S' 
-                                             AND    CODFILIAL = PFILIAL);     
+     SELECT DISTINCT(MIN (PCDIASUTEIS.DATA))
+       INTO   VDTPROXDIAUTIL
+       FROM   PCDIASUTEIS
+       WHERE  PCDIASUTEIS.DATA >= PDTINICIAL
+       AND    NVL(PCDIASUTEIS.DIAFINANCEIRO, 'S') = 'S' 
+       AND    CODFILIAL = PFILIAL;     
    ELSE
      SELECT COUNT (*)
      INTO   VCONTADOR
