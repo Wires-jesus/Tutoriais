@@ -1,5 +1,12 @@
 {
 	"nome" : "PKG_VALORTARIFA",
 	"tipoPLSQL" : "PACKAGE",
-	"dependencias" : ""
+	"dependencias" :
+     [
+	   {
+		  "nome": "PCBANCO",
+		  "tipo": "TABELA",
+		  "versao": "7.0.02.000"
+	   }
+	]
 }
