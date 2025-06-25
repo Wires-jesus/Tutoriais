@@ -25,7 +25,7 @@ BEGIN
   IF col_count = 0 THEN
      
      -- Incluindo as colunas de bkp
-    vSQL := 'ALTER TABLE PCDESPESAIMPCE ADD VALOR_BKP NUMBER(12,6)';
+    vSQL := 'ALTER TABLE PCDESPESAIMPCE ADD VLREALIZADO_BKP NUMBER(12,6)';
     EXECUTE IMMEDIATE vSQL;
   END IF;
       
