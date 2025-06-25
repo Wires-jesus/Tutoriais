@@ -6791,7 +6791,13 @@ IS PRAGMA SERIALLY_REUSABLE;
          VNCODIS                       PCORCAVENDAI.CODIS%TYPE,
          VNBASEIS                      PCORCAVENDAI.BASEIS%TYPE,
          VNALIQIS                      PCORCAVENDAI.ALIQIS%TYPE,
-         VNVLIS                        PCORCAVENDAI.VLIS%TYPE
+         VNVLIS                        PCORCAVENDAI.VLIS%TYPE,
+         VNVLCBSPTABELA                PCORCAVENDAI.VLCBSPTABELA%TYPE,
+         VNVLIBSPTABELA                PCORCAVENDAI.VLIBSPTABELA%TYPE,
+         VNVLISPTABELA                 PCORCAVENDAI.VLISPTABELA%TYPE,
+         VNVLCBSPBASERCA               PCORCAVENDAI.VLCBSPBASERCA%TYPE,
+         VNVLIBSPBASERCA               PCORCAVENDAI.VLIBSPBASERCA%TYPE,
+         VNVLISPBASERCA                PCORCAVENDAI.VLISPBASERCA%TYPE
          );
     vrDadosOrcaI                       TRecDadosOrcaI;
 
@@ -6860,20 +6866,14 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvMensagemRetornoCBS               VARCHAR2(2000);
     -- Somar o valor do CBS no Preço de Venda
     vbSomarImpostoCBS                  VARCHAR2(1);
-    -- Valor do CBS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
-    vnValorCBS                         NUMBER(18,6);
     -- Mensagem Retorno Calculo IBS
     vvMensagemRetornoIBS               VARCHAR2(2000);
     -- Somar o valor do IBS no Preço de Venda
     vbSomarImpostoIBS                  VARCHAR2(1);
-    -- Valor do IBS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
-    vnValorIBS                         NUMBER(18,6);
     -- Mensagem Retorno Calculo IS
     vvMensagemRetornoIS                VARCHAR2(2000);
     -- Somar o valor do IS no Preço de Venda
     vbSomarImpostoIS                   VARCHAR2(1);
-    -- Valor do IS (usado para armazenar o valor cálculo sobre o PTABELA e PBASERCA
-    vnValorIS                          NUMBER(18,6);
 
     -- Array para Inclusão de Itens
     TYPE TRecIncluiItens               IS RECORD(
@@ -6945,7 +6945,13 @@ IS PRAGMA SERIALLY_REUSABLE;
          vnCodIS                       PCPEDI.CODIS%TYPE,
          vnBaseIS                      PCPEDI.BASEIS%TYPE,
          vnAliqIS                      PCPEDI.ALIQIS%TYPE,
-         vnVlIS                        PCPEDI.VLIS%TYPE
+         vnVlIS                        PCPEDI.VLIS%TYPE,
+         vnVlCBSPTabela                PCPEDI.VLCBSPTABELA%TYPE,
+         vnVlIBSPTabela                PCPEDI.VLIBSPTABELA%TYPE,
+         vnVlISPTabela                 PCPEDI.VLISPTABELA%TYPE,
+         vnVlCBSPBaseRCA               PCPEDI.VLCBSPBASERCA%TYPE,
+         vnVlIBSPBaseRCA               PCPEDI.VLIBSPBASERCA%TYPE,
+         vnVlISPBaseRCA                PCPEDI.VLISPBASERCA%TYPE
          );
     TYPE TTvIncluiItens                IS TABLE OF TRecIncluiItens INDEX BY BINARY_INTEGER;
     vtIncluiItens                      TTvIncluiItens;
@@ -7387,7 +7393,13 @@ IS PRAGMA SERIALLY_REUSABLE;
          nCodIS                    PCPEDI.CODIS%TYPE,
          nBaseIS                   PCPEDI.BASEIS%TYPE,
          nAliqIS                   PCPEDI.ALIQIS%TYPE,
-         nVlIS                     PCPEDI.VLIS%TYPE
+         nVlIS                     PCPEDI.VLIS%TYPE,
+         nVlCBSPTabela             PCPEDI.VLCBSPTABELA%TYPE,
+         nVlIBSPTabela             PCPEDI.VLIBSPTABELA%TYPE,
+         nVlISPTabela              PCPEDI.VLISPTABELA%TYPE,
+         nVlCBSPBaseRCA            PCPEDI.VLCBSPBASERCA%TYPE,
+         nVlIBSPBaseRCA            PCPEDI.VLIBSPBASERCA%TYPE,
+         nVlISPBaseRCA             PCPEDI.VLISPBASERCA%TYPE
          );
     vrItemPedido                   TRecItemPedido;
     vrLimpaItemPedido              TRecItemPedido;
@@ -10670,7 +10682,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     PCORCAVENDAI.CODIS,
                     PCORCAVENDAI.BASEIS,
                     PCORCAVENDAI.ALIQIS,
-                    PCORCAVENDAI.VLIS
+                    PCORCAVENDAI.VLIS,
+                    PCORCAVENDAI.VLCBSPTABELA,
+                    PCORCAVENDAI.VLIBSPTABELA,
+                    PCORCAVENDAI.VLISPTABELA,
+                    PCORCAVENDAI.VLCBSPBASERCA,
+                    PCORCAVENDAI.VLIBSPBASERCA,
+                    PCORCAVENDAI.VLISPBASERCA
                FROM PCORCAVENDAI
                    ,PCORCAVENDAC
                    ,PCPRODUT
@@ -10735,6 +10753,12 @@ IS PRAGMA SERIALLY_REUSABLE;
             vtIncluiItens(viIdxNew).vnBaseIS                   := vrDadosOrcaI.VNBASEIS;
             vtIncluiItens(viIdxNew).vnAliqIS                   := vrDadosOrcaI.VNALIQIS;
             vtIncluiItens(viIdxNew).vnVlIS                     := vrDadosOrcaI.VNVLIS;
+            vtIncluiItens(viIdxNew).vnVlCBSPTabela             := vrDadosOrcaI.VNVLCBSPTABELA;
+            vtIncluiItens(viIdxNew).vnVlIBSPTabela             := vrDadosOrcaI.VNVLIBSPTABELA;
+            vtIncluiItens(viIdxNew).vnVlISPTabela              := vrDadosOrcaI.VNVLISPTABELA;
+            vtIncluiItens(viIdxNew).vnVlCBSPBaseRCA            := vrDadosOrcaI.VNVLCBSPBASERCA;
+            vtIncluiItens(viIdxNew).vnVlIBSPBaseRCA            := vrDadosOrcaI.VNVLIBSPBASERCA;
+            vtIncluiItens(viIdxNew).vnVlISPBaseRCA             := vrDadosOrcaI.VNVLISPBASERCA;
             -- Controle de Rejeição
             vvRegistroValido := 'S';
             --vvMsgRejeicao    := NULL;
@@ -11640,6 +11664,12 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrItemPedido.nBaseIS := vtIncluiItens(viNumSeq).VNBASEIS;
             vrItemPedido.nAliqIS := vtIncluiItens(viNumSeq).VNALIQIS;
             vrItemPedido.nVlIS := vtIncluiItens(viNumSeq).VNVLIS;
+            vrItemPedido.nVlCBSPTabela := vtIncluiItens(viNumSeq).VNVLCBSPTABELA;
+            vrItemPedido.nVlIBSPTabela := vtIncluiItens(viNumSeq).VNVLIBSPTABELA;
+            vrItemPedido.nVlISPTabela := vtIncluiItens(viNumSeq).VNVLISPTABELA;
+            vrItemPedido.nVlCBSPBaseRCA := vtIncluiItens(viNumSeq).VNVLCBSPBASERCA;
+            vrItemPedido.nVlIBSPBaseRCA := vtIncluiItens(viNumSeq).VNVLIBSPBASERCA;
+            vrItemPedido.nVlISPBaseRCA := vtIncluiItens(viNumSeq).VNVLISPBASERCA;
             
             IF (pi_nTipoChamada IN (3,18)) THEN
               -- Log do Item
@@ -14460,7 +14490,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorCBS
+                INTO vrItemPedido.nVlCBSPTabela
                    , vvMensagemRetornoCBS
                    , vbSomarImpostoCBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
@@ -14480,7 +14510,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorIBS
+                INTO vrItemPedido.nVlIBSPTabela
                    , vvMensagemRetornoIBS
                    , vbSomarImpostoIBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
@@ -14500,7 +14530,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorIS
+                INTO vrItemPedido.nVlISPTabela
                    , vvMensagemRetornoIS
                    , vbSomarImpostoIS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
@@ -14518,7 +14548,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoCBS = 'OK' THEN
                 IF vbSomarImpostoCBS = 'S' THEN
-                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorCBS, 0);
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlCBSPTabela, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
@@ -14527,7 +14557,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoIBS = 'OK' THEN
                 IF vbSomarImpostoIBS = 'S' THEN
-                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorIBS, 0);
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlIBSPTabela, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
@@ -14536,7 +14566,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoIS = 'OK' THEN
                 IF vbSomarImpostoIS = 'S' THEN
-                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vnValorIS, 0);
+                  vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlISPTabela, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
@@ -14547,7 +14577,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorCBS
+                INTO vrItemPedido.nVlCBSPBaseRCA
                    , vvMensagemRetornoCBS
                    , vbSomarImpostoCBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
@@ -14567,7 +14597,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorIBS
+                INTO vrItemPedido.nVlIBSPBaseRCA
                    , vvMensagemRetornoIBS
                    , vbSomarImpostoIBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
@@ -14587,7 +14617,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               SELECT VALOR_TRIBUTO
                    , SOMATOTALNF
                    , MSG
-                INTO vnValorIS
+                INTO vrItemPedido.nVlISPBaseRCA
                    , vvMensagemRetornoIS
                    , vbSomarImpostoIS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
@@ -14605,7 +14635,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoCBS = 'OK' THEN
                 IF vbSomarImpostoCBS = 'S' THEN
-                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorCBS, 0);
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlCBSPBaseRCA, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
@@ -14614,7 +14644,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoIBS = 'OK' THEN
                 IF vbSomarImpostoIBS = 'S' THEN
-                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorIBS, 0);
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlIBSPBaseRCA, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
@@ -14623,7 +14653,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               
               IF vvMensagemRetornoIS = 'OK' THEN
                 IF vbSomarImpostoIS = 'S' THEN
-                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vnValorIS, 0);
+                  vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlISPBaseRCA, 0);
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
@@ -15303,6 +15333,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                            , BASEIS                   = vrItemPedido.nBaseIS
                            , ALIQIS                   = vrItemPedido.nAliqIS
                            , VLIS                     = vrItemPedido.nVlIS
+                           , VLCBSPTABELA             = vrItemPedido.nVlCBSPTabela
+                           , VLIBSPTABELA             = vrItemPedido.nVlIBSPTabela
+                           , VLISPTABELA              = vrItemPedido.nVlISPTabela
+                           , VLCBSPBASERCA            = vrItemPedido.nVlCBSPBaseRCA
+                           , VLIBSPBASERCA            = vrItemPedido.nVlIBSPBaseRCA
+                           , VLISPBASERCA             = vrItemPedido.nVlISPBaseRCA
                        WHERE (NUMPED        = pi_nNumPed)
                          AND (CODPROD       = vrItemPedido.nCODPROD)
                          AND (NVL(NUMSEQ,0) = vrItemPedido.nNUMSEQ);
@@ -15470,6 +15506,12 @@ IS PRAGMA SERIALLY_REUSABLE;
 										 , BASEIS                   = vrItemPedido.nBaseIS
 										 , ALIQIS                   = vrItemPedido.nAliqIS
 										 , VLIS                     = vrItemPedido.nVlIS
+										 , VLCBSPTABELA             = vrItemPedido.nVlCBSPTabela
+										 , VLIBSPTABELA             = vrItemPedido.nVlIBSPTabela
+										 , VLISPTABELA              = vrItemPedido.nVlISPTabela
+										 , VLCBSPBASERCA            = vrItemPedido.nVlCBSPBaseRCA
+										 , VLIBSPBASERCA            = vrItemPedido.nVlIBSPBaseRCA
+										 , VLISPBASERCA             = vrItemPedido.nVlISPBaseRCA
 								   WHERE (NUMPED         = pi_nNumPed)
 									 AND (CODPROD        = vrItemPedido.nCODPROD)
 									 AND (CODPROMOCAOMED = vrItemPedido.nCODPROMOCAOMED);
@@ -15579,6 +15621,12 @@ IS PRAGMA SERIALLY_REUSABLE;
 										 , BASEIS                   = vrItemPedido.nBaseIS
 										 , ALIQIS                   = vrItemPedido.nAliqIS
 										 , VLIS                     = vrItemPedido.nVlIS
+										 , VLCBSPTABELA             = vrItemPedido.nVlCBSPTabela
+										 , VLIBSPTABELA             = vrItemPedido.nVlIBSPTabela
+										 , VLISPTABELA              = vrItemPedido.nVlISPTabela
+										 , VLCBSPBASERCA            = vrItemPedido.nVlCBSPBaseRCA
+										 , VLIBSPBASERCA            = vrItemPedido.nVlIBSPBaseRCA
+										 , VLISPBASERCA             = vrItemPedido.nVlISPBaseRCA
 								   WHERE (NUMPED          = pi_nNumPed)
 									 AND (CODPROD         = vrItemPedido.nCODPROD)
 									 AND (CODPROMOCAOMED  = vrItemPedido.nCODPROMOCAOMED)
@@ -15852,6 +15900,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , BASEIS
                               , ALIQIS
                               , VLIS
+                              , VLCBSPTABELA
+                              , VLIBSPTABELA
+                              , VLISPTABELA
+                              , VLCBSPBASERCA
+                              , VLIBSPBASERCA
+                              , VLISPBASERCA
                               )
                         VALUES( pi_nNumPed                            -- NUMPED
                               , vrItemPedido.nCODPROD                 -- CODPROD
@@ -16013,6 +16067,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrItemPedido.nBASEIS
                               , vrItemPedido.nALIQIS
                               , vrItemPedido.nVLIS
+                              , vrItemPedido.nVlCBSPTabela
+                              , vrItemPedido.nVlIBSPTabela
+                              , vrItemPedido.nVlISPTabela
+                              , vrItemPedido.nVlCBSPBaseRCA
+                              , vrItemPedido.nVlIBSPBaseRCA
+                              , vrItemPedido.nVlISPBaseRCA
                               );
 
                     -- Insere Origem Preço
