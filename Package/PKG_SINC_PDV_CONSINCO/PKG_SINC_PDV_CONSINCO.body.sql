@@ -99,6 +99,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN vSeq;
   END;
 
+  FUNCTION OBTER_SEQCENARIOCONDICAO RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    VSQL := 'SELECT DFSEQ_INT_C5_CCTCENCOND.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;
+
+  FUNCTION OBTER_SEQCENARIOCONDICAOITEM RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    VSQL := 'SELECT DFSEQ_INT_C5_CCTCENCONDITEM.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;  
+
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
                             pCALLSTACK   CLOB) IS
@@ -6598,16 +6618,30 @@ END;
 PROCEDURE carrega_tb_cctcenario(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcenario T
-    USING (SELECT * FROM VW_INT_C5_CCTCENARIO) S
+    USING (SELECT
+             SEQCENARIO,
+             DESCRICAO,
+             ORIENTACAO,
+             DTAINICIALVALIDADE,
+             DTAFINALVALIDADE,
+             TOTALPONTOS,
+             ATIVO
+           FROM VW_INT_C5_CCTCENARIO) S
     ON (T.SEQCENARIO = S.SEQCENARIO)
   WHEN MATCHED THEN
     UPDATE SET 
       T.DESCRICAO = S.DESCRICAO,
       T.ORIENTACAO = S.ORIENTACAO,
-      T.DTAINICIALVALIDADE = S.DTINICIALVALIDADE,
-      T.DTAFINALVALIDADE = S.DTFINALVALIDADE,
+      T.DTAINICIALVALIDADE = S.DTAINICIALVALIDADE,
+      T.DTAFINALVALIDADE = S.DTAFINALVALIDADE,
       T.PONTOSBUSCA = S.TOTALPONTOS,
-      T.ATIVO = S.STATUS
+      T.ATIVO = S.ATIVO
+    WHERE NVL(T.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
+     OR NVL(T.ORIENTACAO, '-') <> NVL(S.ORIENTACAO, '-')
+     OR NVL(T.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+     OR NVL(T.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+     OR NVL(T.PONTOSBUSCA, -1) <> NVL(S.TOTALPONTOS, -1)
+     OR NVL(T.ATIVO, '-') <> NVL(S.ATIVO, '-')
     WHEN NOT MATCHED THEN
         INSERT(
           T.SEQCENARIO,
@@ -6616,17 +6650,15 @@ BEGIN
           T.DTAINICIALVALIDADE,
           T.DTAFINALVALIDADE,
           T.PONTOSBUSCA,
-          T.ATIVO,
-          T.NROCARGA) 
+          T.ATIVO) 
         VALUES(
           S.SEQCENARIO,
           S.DESCRICAO,
           S.ORIENTACAO,
-          S.DTINICIALVALIDADE,
-          S.DTFINALVALIDADE,
+          S.DTAINICIALVALIDADE,
+          S.DTAFINALVALIDADE,
           S.TOTALPONTOS,
-          S.STATUS,
-          0);
+          S.ATIVO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenario', 'carrega_tb_cctcenario OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -6716,6 +6748,161 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctcondicao',
            'carrega_tb_cctcondicao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE CARREGA_TB_CCTCENARIOCONDICAO(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenariocondicao CC 
+  USING (
+    SELECT
+      SEQCENARIO,
+      SEQCONDICAO,
+      PONTOSBUSCA,
+      ATIVO
+    FROM VW_INT_C5_CCTCENARIOCONDICAO
+  ) S
+  ON (CC.SEQCENARIO = S.SEQCENARIO AND CC.SEQCONDICAO = S.SEQCONDICAO)
+  WHEN MATCHED THEN
+  UPDATE 
+  SET CC.ATIVO = S.ATIVO,
+      CC.PONTOSBUSCA = S.PONTOSBUSCA
+  WHERE NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+     OR NVL(CC.PONTOSBUSCA, -1) <> NVL(S.PONTOSBUSCA, -1)  
+  WHEN NOT MATCHED THEN
+  INSERT 
+  ( SEQCENARIOCONDICAO,
+    SEQCENARIO,
+    SEQCONDICAO,
+    PONTOSBUSCA,
+    ATIVO
+  )
+  VALUES
+  ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCENARIOCONDICAO),
+     S.SEQCENARIO,
+     S.SEQCONDICAO,
+     S.PONTOSBUSCA,
+     S.ATIVO
+  )
+  
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIO C
+  SET PONTOSBUSCA = SUM(SELECT PONTOSBUSCA FROM MONITORPDVMIDDLE.tb_cctcenariocondicao CC WHERE CC.SEQCENARIO = C.SEQCENARIO);
+
+  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenariocondicao', 'carrega_tb_cctcenariocondicao OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+      BEGIN
+        PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenariocondicao',
+           'carrega_tb_cctcenariocondicao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+      END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenariocondicao',
+           'carrega_tb_cctcenariocondicao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE CARREGA_TB_CCTCENCONDITEM(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenariocondicaoitem CC 
+  USING (
+    SELECT
+      SEQCENARIOCONDICAO,
+      VALOR,
+      INDTIPOIDENTIDADE,
+      IDENTIFICADOR,
+      ATIVO
+    FROM VW_INT_C5_CCTCENCONDITEM
+  ) S
+  ON (CC.SEQCENARIOCONDICAO = S.SEQCENARIOCONDICAO)
+  WHEN MATCHED THEN
+  UPDATE 
+  SET CC.VALOR = S.VALOR,
+      CC.INDTIPOIDENTIDADE = S.INDTIPOIDENTIDADE,
+      CC.IDENTIFICADOR = S.IDENTIFICADOR,
+      CC.ATIVO = S.ATIVO      
+  WHERE NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+     OR NVL(CC.VALOR, '-') <> NVL(S.VALOR, '-')  
+     OR NVL(CC.INDTIPOIDENTIDADE, '-') <> NVL(S.INDTIPOIDENTIDADE, '-')  
+     OR NVL(CC.IDENTIFICADOR, '-') <> NVL(S.IDENTIFICADOR, '-')  
+  WHEN NOT MATCHED THEN
+  INSERT 
+  ( SEQCENARIOCONDICAOITEM,
+    SEQCENARIOCONDICAO,
+    VALOR,
+    INDTIPOIDENTIDADE,
+    IDENTIFICADOR,
+    ATIVO
+  )
+  VALUES
+  ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCENARIOCONDICAOITEM),
+    S.SEQCENARIOCONDICAO,
+    S.VALOR,
+    S.INDTIPOIDENTIDADE,
+    S.IDENTIFICADOR,
+    S.ATIVO
+  )
+  
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIO C
+  SET PONTOSBUSCA = SUM(SELECT PONTOSBUSCA FROM MONITORPDVMIDDLE.tb_cctcenariocondicao CC WHERE CC.SEQCENARIO = C.SEQCENARIO);
+
+  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenariocondicaoitem', 'carrega_tb_cctcenariocondicaoitem OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+      BEGIN
+        PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenariocondicaoitem',
+           'carrega_tb_cctcenariocondicaoitem ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+      END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenariocondicaoitem',
+           'carrega_tb_cctcenariocondicaoitem ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
