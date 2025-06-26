@@ -5,22 +5,22 @@
   {
     "nome": "PCDOCFISCAL_WS",
     "tipo": "TABELA",
-    "versao": "5.0.01.000"
+    "versao": "7.0.01.000"
   },
   {
     "nome": "PCDOCFISCAL_ESTADOS",
     "tipo": "TABELA",
-    "versao": "5.0.01.000"
+    "versao": "7.0.01.000"
   },
   {
     "nome": "PCDOCFISCAL_AMBIENTE",
     "tipo": "TABELA",
-    "versao": "5.0.01.000"
+    "versao": "7.0.01.000"
   },
   {
     "nome": "PCDOCFISCAL_SERVICOS",
     "tipo": "TABELA",
-    "versao": "5.0.01.000"
+    "versao": "7.0.01.000"
   }      
 ]
 }
