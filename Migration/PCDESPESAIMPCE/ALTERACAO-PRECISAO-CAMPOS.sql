@@ -22,7 +22,7 @@ BEGIN
   WHERE table_name = 'PCDESPESAIMPCE'
   AND column_name = 'VLREALIZADO_BKP';
   
-  IF col_count = 0 THEN
+  IF col_count1 = 0 THEN
      
      -- Incluindo as colunas de bkp
     vSQL := 'ALTER TABLE PCDESPESAIMPCE ADD VLREALIZADO_BKP NUMBER(12,6)';
