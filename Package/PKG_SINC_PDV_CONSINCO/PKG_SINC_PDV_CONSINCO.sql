@@ -189,6 +189,10 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   
   PROCEDURE carrega_tb_cctcondicao(p_id IN pccontroleconsinco.id%TYPE);
 
+  PROCEDURE carrega_tb_cctcenariocondicao(p_id IN pccontroleconsinco.id%TYPE);
+
+  PROCEDURE carrega_tb_cctcenconditem(p_id IN pccontroleconsinco.id%TYPE);
+
   PROCEDURE exec_sinc;
 
   --PROCEDURE exec_sinc_PRECO;
