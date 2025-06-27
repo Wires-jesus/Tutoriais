@@ -110,7 +110,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
               T.ESPECIE,
               T.DTSAIDANF,
               T.VLTOTAL,
-              T.NUMNOTA
+              T.NUMNOTA,
+              T.CHAVENFE
             FROM PCNFSAID T, PCDEVFORNEC D
             WHERE T.NUMTRANSVENDA = D.NUMTRANSVENDA(+)
               AND ' || GET_FILTRO_DATA_FORMATADA('DTSAIDA', PDATA_INICIAL, PDATA_FINAL);
@@ -345,14 +346,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
               NUMTRANSENT NUMTRANSACAO, 
               CODFILIAL, 
               CODFILIALNF, 
-              ESPECIE 
+              ESPECIE,
+              CHAVENFE    
             FROM PCTMPMONNFENT
             UNION
               SELECT ''S'' CODOPER, 
               NUMTRANSVENDA NUMTRANSACAO, 
               CODFILIAL, 
               CODFILIALNF, 
-              ESPECIE 
+              ESPECIE,
+              CHAVENFE 
             FROM PCTMPMONNFSAID ';
   END GET_VALORES_NFENTSAID;
 
@@ -454,6 +457,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
                   AND ES.CODFILIAL = M.CODFILIAL
                   AND ES.CODOPER = SUBSTR(M.CODOPER, 1, 1)
               ) ESPECIE
+              ,(
+                SELECT ES.CHAVENFE
+                FROM PCTMPMONNFENTSAID ES
+                WHERE
+                  ES.NUMTRANSACAO = M.NUMTRANSVENDA
+                  AND ES.CODFILIAL = M.CODFILIAL
+                  AND ES.CODOPER = SUBSTR(M.CODOPER, 1, 1)
+              ) CHAVENFE
               ,M.PERPIS
               ,M.PERCOFINS
               ,ROUND(M.VLBASEPISCOFINS*NVL(M.QTCONT,0),2) AS VLBASEPISCOFINS
