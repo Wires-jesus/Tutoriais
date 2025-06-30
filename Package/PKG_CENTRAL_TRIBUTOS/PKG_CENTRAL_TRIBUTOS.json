@@ -3,8 +3,8 @@
     "tipoPLSQL": "PACKAGE",
     "dependencias": [{
             "nome": "FISCAL",
-            "tipo": "PACKAGE",
-            "versao": "7.0.30.000"
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.35.000"
         }	
     ]
 }
