@@ -1,0 +1,10 @@
+{
+    "nome": "FISCAL",
+    "tipoPLSQL": "PACKAGE",
+    "dependencias": [{
+            "nome": "FISCAL",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.35.000"
+        }	
+    ]
+}
