@@ -2,6 +2,10 @@
     "nome": "PKG_CENTRAL_TRIBUTOS",
     "tipoPLSQL": "PACKAGE",
     "dependencias": [{
+            "nome": "PKG_CENTRAL_TRIBUTOS_CONSULTAS",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.01.000"
+        }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.35.000"
