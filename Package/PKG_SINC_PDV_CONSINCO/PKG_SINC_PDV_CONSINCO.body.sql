@@ -6706,7 +6706,7 @@ BEGIN
       d.IDENTIFICADOR, 
       d.PESOBUSCA, 
       d.ATIVO
-    FROM VW_CCT_CONDICAO d
+    FROM VW_INT_C5_CCTCONDICAO d
   ) s
   ON (t.SEQCONDICAO = s.SEQCONDICAO)
   WHEN MATCHED THEN
@@ -6899,6 +6899,64 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctcenconditem',
            'carrega_tb_cctcenconditem ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE CARREGA_TB_CCTIMPOSTO(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctimposto CC
+  USING (
+    SELECT 
+      SEQIMPOSTO, 
+      DESCRICAO, 
+      ATIVO
+    FROM VW_INT_C5_CCTIMPOSTO 
+  ) S
+  ON (CC.SEQIMPOSTO = S.SEQIMPOSTO)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.DESCRICAO = S.DESCRICAO,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (SEQIMPOSTO, DESCRICAO, ATIVO)
+    VALUES (S.SEQIMPOSTO, S.DESCRICAO, S.ATIVO);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctimposto', 'carrega_tb_cctimposto OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctimposto',
+           'carrega_tb_cctimposto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctimposto',
+           'carrega_tb_cctimposto ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
