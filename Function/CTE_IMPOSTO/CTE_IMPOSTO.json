@@ -3,8 +3,8 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
-   "nome": "TABELA_CTE_IMPOSTO",
-   "tipo":"OBJETO_PLSQL",
+   "nome": "TIPO_CTE_IMPOSTO",
+   "tipo":"MIGRATION",
    "versao": "7.0.03.000"
   },
   {
