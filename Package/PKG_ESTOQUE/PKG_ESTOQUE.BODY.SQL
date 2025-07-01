@@ -2556,26 +2556,56 @@ IS
   IS-- Declaração das variáveis internas
     vnCODDEPOSITO_VENDA PCESTOQUEDEPOSITO.CODDEPOSITO%TYPE;
   BEGIN
-    -- Padrão de venda
-    BEGIN
-      SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
-        INTO vnCODDEPOSITO_VENDA
-        FROM PCESTOQUEDEPOSITO
-       WHERE PCESTOQUEDEPOSITO.CODFILIAL = P_INTERNO.CODFILIAL
-         AND PCESTOQUEDEPOSITO.PADRAOVENDA = 'S';
-    EXCEPTION
-      WHEN OTHERS THEN
-        P_INTERNO.MSG_RETORNO := 'Erro 1 - Buscar Padrão de Venda: O parâmetro "Estoque da filial controlado por depósito" esta marcado como "Sim",'||CHR(13)||
-                                 'porem não existe depósito padrão para venda informado para este processo na filial selecionada!'||CHR(13)||
-                                 'Identificador: '||TO_CHAR(P_INTERNO.IDENTIFICADOR)||CHR(13)||
-                                 'Cód. Filial..: '||P_INTERNO.CODFILIAL||CHR(13)||
-                                 'Cód. Produto.: '||P_INTERNO.CODPROD||CHR(13)||
-                                 'Operação.....: '||P_INTERNO.TIPO_OPERACAO||CHR(13)||
-                                 'MSG Original.: '||SQLERRM;
-    END;
-    -- Inserindo informações de debug (LOG)
-    P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||' - Buscou o depósito padrão para venda!';
-    PRIV_GERARLOG;
+    IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'N') = 'V' THEN  
+      -- Padrão de venda
+      BEGIN
+        SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+          INTO vnCODDEPOSITO_VENDA
+          FROM PCESTOQUEDEPOSITO
+         WHERE PCESTOQUEDEPOSITO.CODFILIAL = P_INTERNO.CODFILIAL
+           AND PCESTOQUEDEPOSITO.PADRAOVENDA = 'S';
+      EXCEPTION
+        WHEN OTHERS THEN
+          P_INTERNO.MSG_RETORNO := 'Erro 1 - Buscar Padrão de Venda: O parâmetro "Estoque da filial controlado por depósito" esta marcado como "Sim",'||CHR(13)||
+                                   'porem não existe depósito padrão para venda informado para este processo na filial selecionada!'||CHR(13)||
+                                   'Identificador: '||TO_CHAR(P_INTERNO.IDENTIFICADOR)||CHR(13)||
+                                   'Cód. Filial..: '||P_INTERNO.CODFILIAL||CHR(13)||
+                                   'Cód. Produto.: '||P_INTERNO.CODPROD||CHR(13)||
+                                   'Operação.....: '||P_INTERNO.TIPO_OPERACAO||CHR(13)||
+                                   'MSG Original.: '||SQLERRM;
+      END;
+      -- Inserindo informações de debug (LOG)
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||' - Buscou o depósito padrão para venda!';
+      PRIV_GERARLOG;
+    ELSIF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'N') = 'E' THEN
+      BEGIN
+        SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+          INTO vnCODDEPOSITO_VENDA
+          FROM PCESTOQUEDEPOSITO
+         WHERE PCESTOQUEDEPOSITO.CODFILIAL = P_INTERNO.CODFILIAL
+           AND PCESTOQUEDEPOSITO.PADRAOECOMMERCE = 'S';
+           
+        IF vnCODDEPOSITO_VENDA IS NULL THEN
+          SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+            INTO vnCODDEPOSITO_VENDA
+            FROM PCESTOQUEDEPOSITO
+           WHERE PCESTOQUEDEPOSITO.CODFILIAL = P_INTERNO.CODFILIAL
+             AND PCESTOQUEDEPOSITO.PADRAOVENDA = 'S';
+        END IF;
+      EXCEPTION
+        WHEN OTHERS THEN
+          P_INTERNO.MSG_RETORNO := 'Erro 2 - Buscar Padrão de Venda: O parâmetro "Estoque da filial controlado por depósito" esta marcado como "Sim",'||CHR(13)||
+                                   'porem não existe depósito padrão para venda informado para este processo na filial selecionada!'||CHR(13)||
+                                   'Identificador: '||TO_CHAR(P_INTERNO.IDENTIFICADOR)||CHR(13)||
+                                   'Cód. Filial..: '||P_INTERNO.CODFILIAL||CHR(13)||
+                                   'Cód. Produto.: '||P_INTERNO.CODPROD||CHR(13)||
+                                   'Operação.....: '||P_INTERNO.TIPO_OPERACAO||CHR(13)||
+                                   'MSG Original.: '||SQLERRM;
+      END;
+      -- Inserindo informações de debug (LOG)
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||' - Buscou o depósito padrão para Ecommerce!';
+      PRIV_GERARLOG;
+    END IF;
     -- Retorno
     RETURN vnCODDEPOSITO_VENDA;
   -- Função
@@ -18541,11 +18571,19 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
 
           IF (REGISTROS.CODOPER = 'ET' AND REGISTROS.NUMPED IS NOT NULL) THEN
 
-             SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
-              INTO P_INTERNO.CODDEPOSITO
-              FROM PCESTOQUEDEPOSITO
-             WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
-               AND PCESTOQUEDEPOSITO.Padraovenda = 'S';
+            IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'V') = 'V' THEN
+              SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+                INTO P_INTERNO.CODDEPOSITO
+                FROM PCESTOQUEDEPOSITO
+               WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
+                 AND PCESTOQUEDEPOSITO.PADRAOVENDA = 'S';
+            ELSIF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'V') = 'E' THEN
+              SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+                INTO P_INTERNO.CODDEPOSITO
+                FROM PCESTOQUEDEPOSITO
+               WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
+                 AND PCESTOQUEDEPOSITO.PADRAOECOMMERCE = 'S';
+            END IF;
 
             UPDATE PCMOV
                SET PCMOV.CODDEPOSITO = P_INTERNO.CODDEPOSITO
@@ -19784,12 +19822,20 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         IF REGISTROS.CODOPER <> 'SI' AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('UTILIZAESTOQUEDEPOSITO',P_INTERNO.CODFILIAL,'N') = 'S' THEN
 
           IF (REGISTROS.CODOPER = 'S' AND  vsTIPO_TRANSFERENCIA IN ('R','V','VR')) THEN
-
-            SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
-              INTO P_INTERNO.CODDEPOSITO
-              FROM PCESTOQUEDEPOSITO
-             WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
-               AND PCESTOQUEDEPOSITO.Padraovenda = 'S';
+              
+            IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'V') = 'V' THEN
+              SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+                INTO P_INTERNO.CODDEPOSITO
+                FROM PCESTOQUEDEPOSITO
+               WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
+                 AND PCESTOQUEDEPOSITO.PADRAOVENDA = 'S';
+            ELSIF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('DEPPADRAOVENDAEXTERNA',P_INTERNO.CODFILIAL,'V') = 'E' THEN
+              SELECT PCESTOQUEDEPOSITO.CODDEPOSITO
+                INTO P_INTERNO.CODDEPOSITO
+                FROM PCESTOQUEDEPOSITO
+               WHERE PCESTOQUEDEPOSITO.CODFILIAL = REGISTROS.CODFILIALCONTABIL
+                 AND PCESTOQUEDEPOSITO.PADRAOECOMMERCE = 'S';
+            END IF;
 
             UPDATE PCPEDI
                SET PCPEDI.CODDEPOSITO = P_INTERNO.CODDEPOSITO

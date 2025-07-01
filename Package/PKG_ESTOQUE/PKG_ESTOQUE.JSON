@@ -22,6 +22,16 @@
 		  "nome": "PCREQUISICAODEPOSITO",
 		  "tipo": "TABELA",
 		  "versao": "7.0.01.000"
-	   }
+	   },
+	   {
+          "nome": "PCESTOQUEDEPOSITO",
+          "tipo": "TABELA",
+          "versao": "7.0.01.000"
+       },
+	   {
+          "nome": "PARAMETRO",
+          "tipo": "PARAMETRO",
+          "versao": "7.0.92.000"
+       }
 	]
 }
