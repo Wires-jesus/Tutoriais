@@ -6964,6 +6964,67 @@ BEGIN
   END;
 END;
 
+PROCEDURE CARREGA_TB_CCTFORMULA(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctformula CC
+  USING (
+    SELECT 
+      SEQFORMULA, 
+      DESCRICAO,
+      BASE, 
+      ATIVO
+    FROM VW_INT_C5_CCTFORMULA 
+  ) S
+  ON (CC.SEQFORMULA = S.SEQFORMULA)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.DESCRICAO = S.DESCRICAO,
+      CC.BASE = S.BASE,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
+       OR NVL(CC.BASE, '-') <> NVL(S.BASE, '-')
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (SEQFORMULA, DESCRICAO, BASE, ATIVO)
+    VALUES (S.SEQFORMULA, S.DESCRICAO, S.BASE, S.ATIVO);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctformula', 'carrega_tb_cctformula OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctformula',
+           'carrega_tb_cctformula ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctformula',
+           'carrega_tb_cctformula ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
