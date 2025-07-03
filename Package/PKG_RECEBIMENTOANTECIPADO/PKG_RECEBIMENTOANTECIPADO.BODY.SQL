@@ -171,14 +171,16 @@ IS
             IF (DADOS.STATUSPGTO IN ('AGUARDANDO PAGAMENTO','PAGO')) THEN
 
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
-
-					SELECT POSICAO 
-					  INTO VPOSICAO
-					  FROM PCORCAVENDAC 
-					 WHERE NUMORCA   = DADOS.NUMORCA
-                       AND CODCLI    = DADOS.CODCLI
-                       AND CODFILIAL = DADOS.CODFILIAL;
-
+                    
+                    IF DADOS.NUMORCA IS NOT NULL THEN
+                        SELECT POSICAO 
+                          INTO VPOSICAO
+                          FROM PCORCAVENDAC 
+                         WHERE NUMORCA   = DADOS.NUMORCA
+                           AND CODCLI    = DADOS.CODCLI
+                           AND CODFILIAL = DADOS.CODFILIAL;
+                    END IF;
+                    
                     IF VPOSICAO IS NULL THEN
 						SELECT POSICAO 
 						  INTO VPOSICAO
@@ -278,6 +280,7 @@ IS
         VROTINA        PCMOVCR.ROTINALANCAMENTO%TYPE;     
         VHORA          PCMOVCR.HORA%TYPE;
         VMINUTO        PCMOVCR.MINUTO%TYPE;  
+        VVLSALDO       PCMOVCR.VLSALDO%TYPE;
         VMATRICULA     PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE;
         VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
     BEGIN
@@ -302,7 +305,7 @@ IS
                              A.NUMPED,                                          /*04*/
                              A.NUMORCA,                                         /*05*/
                              A.COBANTECIPADA,                                   /*06*/
-                             A.QUITAPCPREST,                                    /*07*/
+                             NVL(A.QUITAPCPREST,'N') QUITAPCPREST,              /*07*/
                              A.VALOR,                                           /*08*/
                              A.VLRCREDITOABATIDO,                               /*09*/
                              A.VALORPEDIDO,                                     /*10*/
@@ -341,7 +344,16 @@ IS
 
             COMMIT WORK;   
 
-            IF (DADOS.QUITAPCPREST = 'S') THEN            
+            IF (DADOS.QUITAPCPREST = 'S') THEN    
+            
+                SELECT VLSALDO 
+                  INTO VVLSALDO  
+                  FROM PCMOVCR
+                 WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
+                                   FROM PCMOVCR 
+                                  WHERE CODBANCO = DADOS.CODBCOCOBANTECIPADA
+                                    AND CODCOB   = DADOS.CODMOEDACOBANTECIPADA)
+                   FOR UPDATE;                                    
 
                 INSERT INTO PCMOVCR(NUMTRANS,                                       /*01*/
                                     DATA,                                           /*02*/
@@ -372,7 +384,7 @@ IS
                                     'D',
                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
                                     0,
-                                    DADOS.VALOR,                                    --NECESSARIO RECALCULAR O SALDO PARA COLOCAR
+                                    (VVLSALDO + DADOS.VALOR),
                                     VHORA,
                                     VMINUTO,
                                     VMATRICULA,
