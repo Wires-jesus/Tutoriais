@@ -102,11 +102,8 @@ IS
     END; --CONSULTA_STATUS
 
     ----------------------------------------------------------------------------
-    PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM   OUT VARCHAR2,
-                                    PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
-                                    PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
-                                    PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE
-                                    )
+    PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
+                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE)
     IS
         VNUMTRANSPAGADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
         VUSUARIO              PCEMPR.USUARIOBD%TYPE;
@@ -116,10 +113,10 @@ IS
         VPERMISSAO            VARCHAR2(1);
         VACESSO               PCCONTROI.ACESSO%TYPE;
     BEGIN
-       
+
         VUSUARIO  := SYS_CONTEXT('USERENV', 'OS_USER');
         PMENSAGEM := 'Pagamento antecipado não encontrado!';
-       
+
         SELECT PCEMPR.MATRICULA
           INTO VMATRICULA
           FROM PCEMPR
@@ -143,13 +140,13 @@ IS
           WHEN OTHERS THEN
             VACESSO := 'N';
         END;
-           
+
         IF (VACESSO = 'N') THEN
-            VMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno (530 - 1295 - Permitir efetuar estorno do pagamento digital). Processo não será concluído!';
-            RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);                
+            PMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno (530 - 1295 - Permitir efetuar estorno do pagamento digital). Processo não será concluído!';            
             ROLLBACK;
+            RETURN;
         END IF;
-         
+
         FOR DADOS IN (SELECT NUMTRANSPAGADIANTADO,             /*01*/
                              CODCLI,                           /*02*/
                              CODFILIAL,                        /*03*/
@@ -169,41 +166,46 @@ IS
                              DTESTORNO,                        /*17*/
                              NUMTRANSESTORNO                   /*18*/
                         FROM PCPRESTANTECIPADA
-                       WHERE CODFILIAL           = PCODFILIAL
-                         AND CODCLI              = PCODCLI
-                         AND NVL(NUMORCA,NUMPED) = PNUMPED)
+                       WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGADIANTADO)
         LOOP
             IF (DADOS.STATUSPGTO IN ('AGUARDANDO PAGAMENTO','PAGO')) THEN
 
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
-                
+
 					SELECT POSICAO 
 					  INTO VPOSICAO
 					  FROM PCORCAVENDAC 
-					 WHERE NUMORCA = PNUMPED;
-                     
+					 WHERE NUMORCA   = DADOS.NUMORCA
+                       AND CODCLI    = DADOS.CODCLI
+                       AND CODFILIAL = DADOS.CODFILIAL;
+
                     IF VPOSICAO IS NULL THEN
 						SELECT POSICAO 
 						  INTO VPOSICAO
 						  FROM PCPEDC 
-						 WHERE NUMPED = PNUMPED;               
+						 WHERE NUMPED    = DADOS.NUMPED
+                           AND CODCLI    = DADOS.CODCLI
+                           AND CODFILIAL = DADOS.CODFILIAL;               
                     END IF;
-                    
+
                     IF VPOSICAO IN ('M','L') THEN
-                        VMENSAGEM := 'Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
-                        RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
+                        PMENSAGEM := 'Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
+                        ROLLBACK;
+                        RETURN;
                     END IF;
-                    
+
                     IF VPOSICAO IN ('F') THEN 
-                        VMENSAGEM := 'Não é possível cancelar pois o pedido já foi faturado.';
-                        RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
+                        PMENSAGEM := 'Não é possível cancelar pois o pedido já foi faturado.';
+                        ROLLBACK;
+                        RETURN;
                     END IF;                
-                    
+
                     IF VPERMISSAO = 'N' THEN
-                        VMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
-                        RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);                
+                        PMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
+                        ROLLBACK;
+                        RETURN;
                     END IF;                       
-                    
+
                 END IF;
 
                 SELECT DFSEQ_PCPRESTANTECIPADA.NEXTVAL
@@ -253,12 +255,12 @@ IS
                        NUMTRANSESTORNO      = VNUMTRANSPAGADIANTADO,
                        STATUSPGTO           = 'CANCELADO'
                  WHERE NUMTRANSPAGADIANTADO = DADOS.NUMTRANSPAGADIANTADO;
-                 
+
                  PMENSAGEM := 'Cancelamento concluído com sucesso';
-                 
+
             END IF; 
             --------------------------------------------------------------------            
-            
+
         END LOOP;
         COMMIT WORK;
     EXCEPTION
@@ -266,4 +268,165 @@ IS
             VMENSAGEM := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, 'Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
     END; --SOLICITA_CANCELAMENTO
+
+    ----------------------------------------------------------------------------
+    PROCEDURE ATUALIZAR_STATUS(PMENSAGEM              OUT VARCHAR2,
+                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE)
+    IS
+        VUSUARIO       PCEMPR.USUARIOBD%TYPE;
+        VNUMTRANS      PCMOVCR.NUMTRANS%TYPE;
+        VROTINA        PCMOVCR.ROTINALANCAMENTO%TYPE;     
+        VHORA          PCMOVCR.HORA%TYPE;
+        VMINUTO        PCMOVCR.MINUTO%TYPE;  
+        VMATRICULA     PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE;
+        VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
+    BEGIN
+        VUSUARIO  := SYS_CONTEXT('USERENV', 'OS_USER');
+        VROTINA   := SYS_CONTEXT('USERENV', 'MODULE');
+
+        SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
+               EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) 
+          INTO VHORA,VMINUTO
+          FROM DUAL;
+
+        PMENSAGEM := 'Atualização realizada com sucesso!';     
+
+        SELECT PCEMPR.MATRICULA
+          INTO VMATRICULA
+          FROM PCEMPR
+         WHERE UPPER(PCEMPR.USUARIOBD) = UPPER(VUSUARIO);
+
+        FOR DADOS IN (SELECT A.NUMTRANSPAGADIANTADO,                            /*01*/
+                             A.CODCLI,                                          /*02*/
+                             A.CODFILIAL,                                       /*03*/
+                             A.NUMPED,                                          /*04*/
+                             A.NUMORCA,                                         /*05*/
+                             A.COBANTECIPADA,                                   /*06*/
+                             A.QUITAPCPREST,                                    /*07*/
+                             A.VALOR,                                           /*08*/
+                             A.VLRCREDITOABATIDO,                               /*09*/
+                             A.VALORPEDIDO,                                     /*10*/
+                             A.CODCOBPGTO,                                      /*11*/
+                             A.STATUSPGTO,                                      /*12*/
+                             A.DTEMISSAOPED,                                    /*13*/
+                             A.DTGERACAOPGTO,                                   /*14*/
+                             A.MATRICULAGERACAO,                                /*15*/
+                             A.MATRICULAESTORNO,                                /*16*/
+                             A.DTESTORNO,                                       /*17*/
+                             A.NUMTRANSESTORNO,                                 /*18*/
+                             A.DTPGTO,                                          /*19*/
+                             C.CODBCOCOBANTECIPADA,                             /*20*/
+                             C.CODMOEDACOBANTECIPADA                            /*21*/                   
+                        FROM PCPRESTANTECIPADA       A,
+                             PCCOB                   C                   
+                       WHERE A.CODCOBPGTO            = C.CODCOB
+                         AND A.NUMTRANSPAGADIANTADO  = PNUMTRANSPAGADIANTADO)
+        LOOP   
+            IF DADOS.CODBCOCOBANTECIPADA IS NULL THEN
+                PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
+                ROLLBACK;
+                RETURN;
+            END IF;               
+            IF ((DADOS.CODMOEDACOBANTECIPADA IS NULL) AND (DADOS.QUITAPCPREST = 'S')) THEN
+                PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
+                ROLLBACK;
+                RETURN;
+            END IF;           
+
+            SELECT NVL(PROXNUMTRANS,1)
+              INTO VNUMTRANS 
+              FROM PCCONSUM FOR UPDATE;
+            UPDATE PCCONSUM
+               SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+
+            COMMIT WORK;   
+
+            IF (DADOS.QUITAPCPREST = 'S') THEN            
+
+                INSERT INTO PCMOVCR(NUMTRANS,                                       /*01*/
+                                    DATA,                                           /*02*/
+                                    CODBANCO,                                       /*03*/
+                                    CODCOB,                                         /*04*/
+                                    CODFILIAL,                                      /*05*/
+                                    VALOR,                                          /*06*/
+                                    TIPO,                                           /*07*/
+                                    HISTORICO,                                      /*08*/
+                                    NUMCARR,                                        /*09*/
+                                    VLSALDO,                                        /*10*/
+                                    HORA,                                           /*11*/
+                                    MINUTO,                                         /*12*/
+                                    CODFUNC,                                        /*13*/
+                                    INDICE,                                         /*14*/
+                                    HISTORICO2,                                     /*15*/
+                                    CODROTINALANC,                                  /*16*/
+                                    ESTORNO,                                        /*17*/
+                                    CODCLI,                                         /*18*/
+                                    DATACOMPLETA,                                   /*19*/
+                                    ROTINALANCAMENTO)                               /*20*/
+                             VALUES(VNUMTRANS,
+                                    TRUNC(SYSDATE),
+                                    DADOS.CODBCOCOBANTECIPADA,
+                                    DADOS.CODMOEDACOBANTECIPADA,
+                                    DADOS.CODFILIAL,
+                                    DADOS.VALOR,
+                                    'D',
+                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                    0,
+                                    DADOS.VALOR,                                    --NECESSARIO RECALCULAR O SALDO PARA COLOCAR
+                                    VHORA,
+                                    VMINUTO,
+                                    VMATRICULA,
+                                    'B',
+                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                    1295,
+                                    'N',
+                                    DADOS.CODCLI,
+                                    SYSDATE,
+                                    VROTINA); 
+
+            END IF; --VQUITAPCPREST
+
+            INSERT INTO PCCRECLI(CODCLI,                                        /*01*/
+                                 DTLANC,										/*02*/
+                                 CODFILIAL,                                     /*03*/
+                                 VALOR,                                         /*04*/
+                                 CODFUNC,                                       /*05*/
+                                 HORA,                                          /*06*/
+                                 MINUTO,                                        /*07*/
+                                 HISTORICO,                                     /*08*/
+                                 CODFUNCLANC,                                   /*09*/
+                                 NUMERARIO,                                     /*10*/
+                                 CODMOVIMENTO,                                  /*11*/
+                                 NUMTRANS,                                      /*12*/
+                                 CODROTINA,                                     /*13*/
+                                 SITUACAO,                                      /*14*/
+                                 ROTINAINSERT,                                  /*15*/
+                                 ROTINAULTIMAALTERACAO)                         /*16*/
+                          VALUES(DADOS.CODCLI,
+                                 TRUNC(SYSDATE),
+                                 DADOS.CODFILIAL,
+                                 DADOS.VALOR,
+                                 VMATRICULA,
+                                 VHORA,
+                                 VMINUTO,
+                                 'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                 VMATRICULA,
+                                 'S',
+                                 DADOS.CODBCOCOBANTECIPADA,
+                                 VNUMTRANS,
+                                 1295,
+                                 'A',
+                                 VROTINA,
+                                 VROTINA);
+
+            UPDATE PCPRESTANTECIPADA
+               SET DTCONFIRMACAOPGTO    = TRUNC(SYSDATE),
+                   DTPGTO               = DADOS.DTPGTO,
+                   MATRICULACONFIRMACAO = VMATRICULA,
+                   STATUSPGTO           = 'PAGO',
+                   NUMTRANS             = VNUMTRANS
+             WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGADIANTADO;
+        END LOOP;
+        COMMIT WORK;
+    END; --ATUALIZAR_STATUS
 END;
