@@ -44,10 +44,13 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
     PIPELINED;
     ----------------------------------------------------------------------------
 
-    PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM   OUT VARCHAR2,
-                                    PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
-                                    PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
-                                    PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE									
-                                   );
+    PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
+                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE);
+
+    ----------------------------------------------------------------------------
+
+    PROCEDURE ATUALIZAR_STATUS(PMENSAGEM   OUT VARCHAR2,
+                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE);                                                                   
+    ----------------------------------------------------------------------------
 
 END PKG_RECEBIMENTOANTECIPADO;
