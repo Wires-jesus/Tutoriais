@@ -1,10 +1,21 @@
 {
 	"nome":"PKG_TRANSFERENCIA",
 	"tipoPLSQL":"PACKAGE",
-	"dependencias":[{
-            "nome": "FERRAMENTAS_FATURAMENTO",
-            "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.12.000"
-        }	
+	"dependencias":[
+    {
+      "nome": "PKG_CENTRAL_TRIBUTOS",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "7.0.03.000"
+    },
+    {
+      "nome": "PCMOV",
+      "tipo":"TABELA",
+      "versao": "7.0.06.000"
+    },
+    {
+      "nome": "PCTRIBUTACAO",
+      "tipo":"TABELA",
+      "versao": "7.0.10.000"
+    }
 	]	
 }

@@ -547,7 +547,7 @@ END;
                          P_CODFILIALNF         VARCHAR2,
                          P_VBDESTACAIPIENTRADA IN BOOLEAN) IS
 
-    vnValorTotalEntrada NUMBER;
+    vnValorTotalEntrada PCNFENT.VLTOTAL%TYPE;
 
     VSUFORIGEM    PCFILIAL.UF%TYPE;
     VNCODFORNEC   PCFILIAL.CODFORNEC%TYPE;
@@ -573,6 +573,9 @@ END;
                SUM(ROUND((QTCONT * NVL(VLOUTROS, 0)), 2)) +
                SUM(ROUND((QTCONT * NVL(ST, 0)), 2)) +
                SUM(ROUND((QTCONT * NVL(VLIPI, 0)), 2))+
+               SUM(ROUND((QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_CBS, 'N'), 'S', NVL(PCMOV.VLCBS, 0), 0)), 2))+
+               SUM(ROUND((QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IBS, 'N'), 'S', NVL(PCMOV.VLIBS, 0), 0)), 2))+
+               SUM(ROUND((QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IS, 'N'), 'S', NVL(PCMOV.VLIS, 0), 0)), 2))+              
                SUM(ROUND((QTCONT * NVL(VLFECP, 0)), 2))) VLTOTAL,
                (SUM(ROUND((QTCONT * NVL(ST, 0)), 2))) VLST,
                (SUM(ROUND((QTCONT * NVL(BASEICST, 0)), 2))) BASEICST,
@@ -699,16 +702,32 @@ END;
         End IF;
       end IF;
 
-      ROWPCNFENT.NUMVOLUME := ROWPCNFSAID.NUMVOLUME; -- (vdNumVolume);
-	  
-      -- Reforma Tributária
-      IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_ENTRADA(P_NUMTRANSENT) = 'N' THEN
-        RAISE error_dados_reforma_tributaria;
-      END IF;	  
+      ROWPCNFENT.NUMVOLUME := ROWPCNFSAID.NUMVOLUME; -- (vdNumVolume); 
 
       ------------------------------------------------
       INSERT INTO PCNFENT VALUES ROWPCNFENT;
       ------------------------------------------------
+      
+      DECLARE -- Reforma Tributária
+        P_PARAMETROS_CENTRAL_TRIBUTOS PKG_CENTRAL_TRIBUTOS.T_PARAMETROS_CENTRAL_TRIBUTOS;
+      BEGIN         
+        P_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_FILIAL    := NVL(ROWPCNFENT.CODFILIALNF, ROWPCNFENT.CODFILIAL);
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_NOTA      := ROWPCNFENT.NUMNOTA;
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO := ROWPCNFENT.NUMTRANSENT;
+        P_PARAMETROS_CENTRAL_TRIBUTOS.TIPOMOVIMENTO    := 'E';
+        P_PARAMETROS_CENTRAL_TRIBUTOS.DEVOLUCAO        := 'N';
+        P_PARAMETROS_CENTRAL_TRIBUTOS.PRE_FATURAMENTO  := 'N';
+        
+        P_PARAMETROS_CENTRAL_TRIBUTOS := PKG_CENTRAL_TRIBUTOS.CALCULAR_E_GRAVAR_TODOS_TRIB(P_PARAMETROS_CENTRAL_TRIBUTOS);
+        vnValorTotalEntrada := TOTALIZA_ENT(ROWPCNFENT.NUMTRANSENT).COL.VLTOTAL;
+        UPDATE PCNFENT
+           SET VLTOTAL = vnValorTotalEntrada
+         WHERE NUMTRANSENT = ROWPCNFENT.NUMTRANSENT;
+      EXCEPTION
+        WHEN OTHERS THEN
+          P_MSG := P_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO;
+          RAISE error_dados_reforma_tributaria;
+      END;
 
       -- Vínculo com a PCNFSAID
       UPDATE PCNFSAID
@@ -1235,6 +1254,7 @@ END;
         ROWPCMOV_ET.DATAESTOQUE := '';
       END IF;
       ROWPCMOV_ET.ROTINACAD := OBTER_NOME_PROGRAMA;
+      ROWPCMOV_ET.VITEM := ROWPCMOV_ET.PUNITCONT;
       --------------------------- INSERIR PCMOV - CODOPER = 'ET' ----------------------------------
       INSERT INTO PCMOV ROWPCMOV_ET VALUES ROWPCMOV_ET;
       ---------------------------------------------------------------------------------------------
@@ -1706,16 +1726,17 @@ END;
         voPCMOV.CODFISCAL := TRANSF.TRIBUTACAO.COL.CODFISCALTRANSFENTINTER;
       END IF;
 
-     voPCMOV.SITTRIBUT := TRANSF.TRIBUTACAO.COL.SITTRIBUT;
-     voPCMOV.PAGTOGNRENOMEDOREMETENTE := TRANSF.TRIBUTACAO.COL.PAGTONOMEDESTTRANSF;
+      voPCMOV.SITTRIBUT := TRANSF.TRIBUTACAO.COL.SITTRIBUT;
+      voPCMOV.PAGTOGNRENOMEDOREMETENTE := TRANSF.TRIBUTACAO.COL.PAGTONOMEDESTTRANSF;
    
-  IF NVL(VOPCMOV.BASEICMS,0) > 0 THEN
-    voPCMOV.BASEICMS := voPCMOV.BASEICMS  + NVL((NVL(voPCMOV.VLOUTROS,0) - ( NVL(voPCMOV.VLOUTROS,0) * ((100 - NVL(voPCMOV.PERCBASERED,0))/100)))
-             + (NVL(voPCMOV.VLFRETE,0) - ( NVL(voPCMOV.VLFRETE,0) * ((100 - NVL(voPCMOV.PERCBASERED,0))/100))),0);
-             
-    LISTAITENSENTRADA.VLICMS :=   voPCMOV.BASEICMS * (voPCMOV.PERCICM/100);
-  END IF; 
+      IF NVL(VOPCMOV.BASEICMS,0) > 0 THEN
+        voPCMOV.BASEICMS := voPCMOV.BASEICMS  + NVL((NVL(voPCMOV.VLOUTROS,0) - ( NVL(voPCMOV.VLOUTROS,0) * ((100 - NVL(voPCMOV.PERCBASERED,0))/100)))
+                 + (NVL(voPCMOV.VLFRETE,0) - ( NVL(voPCMOV.VLFRETE,0) * ((100 - NVL(voPCMOV.PERCBASERED,0))/100))),0);
+                   
+        LISTAITENSENTRADA.VLICMS :=   voPCMOV.BASEICMS * (voPCMOV.PERCICM/100);
+      END IF; 
 
+      voPCMOV.VITEM := voPCMOV.PUNITCONT;
    
       --Inserindo PCMOV
       INSERT INTO PCMOV
@@ -1741,7 +1762,7 @@ END;
                       voPCMOV.NUMTRANSENT);
     END LOOP; --LISTAITENSENTRADA	
 
-      FOR TOTALIZADORES IN (SELECT (SUM(ROUND((PCMOV.QTCONT * PCMOV.PUNITCONT), 2)) -
+    FOR TOTALIZADORES IN (SELECT (SUM(ROUND((PCMOV.QTCONT * PCMOV.PUNITCONT), 2)) -
                                  SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLDESCONTO, 0)), 2)) +
                                  SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLFRETE, 0)), 2)) +
                                  SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLOUTROS, 0)), 2)) +
@@ -1771,15 +1792,46 @@ END;
       voPCNFENT.VLOUTRAS   := TOTALIZADORES.VLOUTROS;
 
     END LOOP;
-	
-	-- Reforma Tributária
-    IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_ENTRADA(voPCNFENT.NUMTRANSENT) = 'N' THEN
-      RAISE error_dados_reforma_tributaria;
-    END IF;	
 
     --Inserindo o cabeçalho
     INSERT INTO PCNFENT
          VALUES voPCNFENT;
+         
+    DECLARE -- Reforma Tributária
+      P_PARAMETROS_CENTRAL_TRIBUTOS PKG_CENTRAL_TRIBUTOS.T_PARAMETROS_CENTRAL_TRIBUTOS;
+    BEGIN         
+      P_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_FILIAL    := NVL(voPCNFENT.CODFILIALNF, voPCNFENT.CODFILIAL);
+      P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_NOTA      := voPCNFENT.NUMNOTA;
+      P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO := voPCNFENT.NUMTRANSENT;
+      P_PARAMETROS_CENTRAL_TRIBUTOS.TIPOMOVIMENTO    := 'E';
+      P_PARAMETROS_CENTRAL_TRIBUTOS.DEVOLUCAO        := 'N';
+      P_PARAMETROS_CENTRAL_TRIBUTOS.PRE_FATURAMENTO  := 'N';
+      
+      P_PARAMETROS_CENTRAL_TRIBUTOS := PKG_CENTRAL_TRIBUTOS.CALCULAR_E_GRAVAR_TODOS_TRIB(P_PARAMETROS_CENTRAL_TRIBUTOS);
+      
+      FOR TOTALIZADORES IN (SELECT (SUM(ROUND((PCMOV.QTCONT * PCMOV.PUNITCONT), 2)) -
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLDESCONTO, 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLFRETE, 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLOUTROS, 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.ST, 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_CBS, 'N'), 'S', NVL(PCMOV.VLCBS, 0), 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IBS, 'N'), 'S', NVL(PCMOV.VLIBS, 0), 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IS, 'N'), 'S', NVL(PCMOV.VLIS, 0), 0)), 2)) +
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOV.VLIPI, 0)), 2))+
+                                    SUM(ROUND((PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFECP, 0)), 2))) VLTOTAL
+                             FROM PCMOV, PCMOVCOMPLE
+                            WHERE PCMOV.NUMTRANSENT = voPCNFENT.NUMTRANSENT
+                              AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM)
+      LOOP
+       UPDATE PCNFENT
+          SET VLTOTAL = TOTALIZADORES.VLTOTAL
+        WHERE NUMTRANSENT = voPCNFENT.NUMTRANSENT;
+      END LOOP;      
+    EXCEPTION
+      WHEN OTHERS THEN
+        P_MSG := P_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO;
+        RAISE error_dados_reforma_tributaria;
+    END;
 
     IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('GERARFINANCTRANSFFILRETIRA', 
                                           poPCNFSAID.CODFILIAL,
@@ -2463,6 +2515,7 @@ BEGIN
 
         voPCMOV.SITTRIBUT :=  TRANSF.TRIBUTACAO.COL.SITTRIBUTTRANSF;        
 
+        voPCMOV.VITEM := voPCMOV.PUNITCONT;
         --Inserindo PCMOV
         INSERT INTO PCMOV
              VALUES voPCMOV;
@@ -2547,15 +2600,52 @@ BEGIN
         VOPCNFSAID.ICMSRETIDO  := TOTALIZADORES.TOTVLST;
         VOPCNFSAID.BCST        := TOTALIZADORES.TOTBASEICST;
       END LOOP;
-
-      --Serviço para reforma tributária
-      IF FERRAMENTAS_FATURAMENTO.CALCULAR_IBS_CBS_SAIDA(voPCNFSAID.NUMTRANSVENDA) = 'N' THEN
-        RAISE error_dados_reforma_tributaria;
-      END IF;      
 	  
       --Inserindo o novo cabeçalho
       INSERT INTO PCNFSAID
            VALUES voPCNFSAID;
+           
+      DECLARE -- Reforma Tributária
+        P_PARAMETROS_CENTRAL_TRIBUTOS PKG_CENTRAL_TRIBUTOS.T_PARAMETROS_CENTRAL_TRIBUTOS;
+      BEGIN         
+        P_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_FILIAL    := NVL(voPCNFSAID.CODFILIALNF, voPCNFSAID.CODFILIAL);
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_NOTA      := voPCNFSAID.NUMNOTA;
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO := voPCNFSAID.NUMTRANSVENDA;
+        P_PARAMETROS_CENTRAL_TRIBUTOS.TIPOMOVIMENTO    := 'S';
+        P_PARAMETROS_CENTRAL_TRIBUTOS.DEVOLUCAO        := 'N';
+        P_PARAMETROS_CENTRAL_TRIBUTOS.PRE_FATURAMENTO  := 'N';
+        
+        P_PARAMETROS_CENTRAL_TRIBUTOS := PKG_CENTRAL_TRIBUTOS.CALCULAR_E_GRAVAR_TODOS_TRIB(P_PARAMETROS_CENTRAL_TRIBUTOS);
+        
+        FOR TOTALIZADORES IN (SELECT SUM(ROUND((NVL(PUNITCONT, 0) - NVL(PCMOV.VLIPI, 0) -
+                                               NVL(PCMOV.ST, 0) -
+                                               decode(NVL(PCMOVCOMPLE.Utilizoumotorcalculo, 'N'), 'S',
+                                                       NVL(PCMOVCOMPLE.VLFECP, 0), 0)) * QTCONT, 2)) +
+                                      SUM(ROUND(NVL(PCMOV.VLIPI, 0) * QTCONT, 2)) +
+                                      SUM(ROUND(NVL(PCMOV.ST, 0) * QTCONT, 2)) +
+                                      SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_CBS, 'N'), 'S', NVL(PCMOV.VLCBS, 0), 0)), 2)) +
+                                      SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IBS, 'N'), 'S', NVL(PCMOV.VLIBS, 0), 0)), 2)) +
+                                      SUM(ROUND((PCMOV.QTCONT * DECODE(NVL(PCMOV.SOMATOTALNF_IS, 'N'), 'S', NVL(PCMOV.VLIS, 0), 0)), 2)) +
+                                      SUM(ROUND(decode(NVL(PCMOVCOMPLE.Utilizoumotorcalculo, 'N'), 'S',
+                                                       NVL(PCMOVCOMPLE.VLFECP, 0), 0) * QTCONT, 2))  +
+                                     SUM(ROUND((NVL(PCMOV.VLOUTROS, 0) * PCMOV.QT), 2))+
+                                     SUM(ROUND((NVL(PCMOV.VLFRETE, 0) * PCMOV.QT), 2)) VLTOTAL
+                                FROM PCMOV, PCMOVCOMPLE
+                               WHERE PCMOV.NUMTRANSVENDA = voPCNFSAID.NUMTRANSVENDA
+                                 AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM
+                                 AND PCMOV.QT > 0)
+        LOOP
+          UPDATE PCNFSAID
+             SET VLTOTAL   = TOTALIZADORES.VLTOTAL
+               , VLTOTALNF = TOTALIZADORES.VLTOTAL
+               , VLTOTGER  = TOTALIZADORES.VLTOTAL
+           WHERE NUMTRANSVENDA = voPCNFSAID.NUMTRANSVENDA;
+        END LOOP;        
+      EXCEPTION
+        WHEN OTHERS THEN
+          P_MSG := P_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO;
+          RAISE error_dados_reforma_tributaria;
+      END;
 
       --Transferir estoque
       BEGIN
