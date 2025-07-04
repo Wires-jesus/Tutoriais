@@ -164,7 +164,7 @@ BEGIN
                                           FROM PCPEDC
                                          WHERE NUMCAR = VNUMCAR)
                        AND VALOR = 'S'))
-       AND W.EMBARCADO = 'N';
+       AND NVL(W.EMBARCADO, 'N') = 'N';
     IF VCOUNT > 0 THEN
       RETURN 'S';
     END IF;
