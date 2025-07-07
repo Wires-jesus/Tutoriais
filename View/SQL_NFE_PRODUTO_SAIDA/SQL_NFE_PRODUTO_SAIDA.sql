@@ -325,17 +325,17 @@ SELECT ALIQUOTA_COFINS
       ,PROD_RASTREADO
       ,VLBASEFCPICMS
       ,VLBASEFCPST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLBCFCPSTRET
        END AS VLBCFCPSTRET
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          PERFCPSTRET
        END AS PERFCPSTRET
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLFCPSTRET
@@ -373,17 +373,17 @@ SELECT ALIQUOTA_COFINS
       ,PERCSTRET_PCEST
       ,VLICMSBCR_PCEST
       ,STBCR_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLBCFCPSTRET_PCEST
        END AS VLBCFCPSTRET_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          PERFCPSTRET_PCEST
        END AS PERFCPSTRET_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLFCPSTRET_PCEST
@@ -633,7 +633,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                   ' PFCPST: '   || TRIM(TO_CHAR(NVL(PCMOVCOMPLE.ALIQICMSFECP, 0),'999999999999999990.99')) ||
                   ' VFCPST: '   || TRIM(TO_CHAR(ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLFECP, 0),2),'999999999999999990.99'))
              END ||
-             CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') IN ('60','500')) AND (SQL_NFE_CABECALHO_SAIDA.CONTRIBUINTE = 'S')) THEN
+             CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') IN ('60','500')) AND (NVL(PCNFSAID.CONTRIBUINTE, PCCLIENT.CONTRIBUINTE) = 'S')) THEN
                  CASE WHEN NVL(PCMOVCOMPLE.VLFCPSTRET, 0) > 0 THEN
                       ' VBCFCPSTRET: ' || TRIM(TO_CHAR(ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLBCFCPSTRET, 0),2),'999999999999999990.99')) ||
                       ' PFCPSTRET: '   || TRIM(TO_CHAR(NVL(PCMOVCOMPLE.PERFCPSTRET, 0),'999999999999999990.99')) ||
@@ -690,8 +690,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                END ||
              CASE WHEN ((NVL(PCMOV.SITTRIBUT, '55') = '61') AND 
                         (NVL(PCMOVCOMPLE.VICMSMONORET, 0) > 0) AND 
-                        (SQL_NFE_CABECALHO_SAIDA.CONSUMIDOR_FINAL = 'S') AND
-                        (SQL_NFE_CABECALHO_SAIDA.CONTRIBUINTE = 'N')) THEN
+                        ((CASE WHEN (NVL(PCPEDC.VENDALOCESTRANG, 'N') = 'S') THEN 'S'
+                               ELSE NVL(PCCLIENT.CONSUMIDORFINAL, 'N') END) = 'S') AND
+                        (NVL(PCNFSAID.CONTRIBUINTE, PCCLIENT.CONTRIBUINTE) = 'N')) THEN
                   ' ICMS monofásico sobre combustíveis cobrado anteriormente conforme Convênio ICMS 199/2022.'
              END
             ) AS INFO_TECNICA
@@ -729,7 +730,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
             ,PCMOV.QTCONT AS QUANTIDADE
             ,PCMOV.QTCONT
             ,CASE
-               WHEN (ORGAO_PUBLICO = 'S') THEN
+               WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                 DECODE(NVL(PCNFSAID.DEDUZIRDESONERORGAOPUB, 'N'),
                       'S',
                        ROUND((PCMOV.PTABELA
@@ -842,11 +845,13 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                 ELSE
                   0
                 END +
-             CASE WHEN (ORGAO_PUBLICO = 'S') THEN
+             CASE WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                               AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                              ELSE 'N' END) = 'S') THEN
                   0
              ELSE
                   DECODE(PCMOV.CODOPER, 'SD',
-                         -- Saida de Devolu??o
+                         -- Saida de Devolução
                          (NVL(PCMOV.VLDESCONTO,0) +
                           NVL(NVL(PCMOV.VLDESCSUFRAMA,PCMOV.VLSUFRAMA),0)),
                          -- Normal
@@ -951,7 +956,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                      0)) *
                                  PCMOV.QTCONT,
                                  2)))
-               WHEN (ORGAO_PUBLICO = 'S') THEN
+               WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                 ROUND(PCMOV.QTCONT *
                       (PCMOV.PTABELA + NVL(PCMOV.VLDESCRODAPE,
                                            0) +
@@ -964,52 +971,6 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                       NVL(PCMOV.VLDESCPISSUFRAMA,
                            0))) * PCMOV.QTCONT ,2)
              END AS PRECO_PRODUTO
-           /*               -- Campo n?o utilizado
-            ,CASE
-               WHEN (ORGAO_PUBLICO = 'S') THEN
-                ROUND(PCMOV.QTCONT *
-                      (PCMOV.PTABELA + NVL(PCMOV.VLDESCRODAPE,
-                                           0) +
-                      NVL(PCMOV.VLDESCICMISENCAO,
-                           0)),
-                      2)
-               ELSE
-                ROUND((DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT) - NVL(PCMOV.ST,
-                                             0) -
-                      NVL(PCMOVIMPOSTOS.VLICMSCOMPLEMENTAR,
-                           0) - NVL(PCMOV.VLIPI,
-                                     0) - DECODE(PCMOV.CODOPER, 'SD', NVL(PCMOV.VLFRETE,0),0)
-                                                                  - NVL(PCMOV.VLREPASSE,0)+
-                      NVL(PCMOV.VLDESCPISSUFRAMA,
-                           0) + DECODE(PCMOV.CODOPER, 'SD', 0, NVL(PCMOV.VLDESCSUFRAMA,
-                               0)) + NVL(PCMOV.VLSUFRAMA,
-                                               0) +
-                      NVL(PCMOV.VLDESCREDUCAOCOFINS,
-                                     0) + NVL(PCMOV.VLDESCREDUCAOPIS,
-                                               0)  ) * PCMOV.QTCONT +
-                                              ROUND(DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE, NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
-                                                                PCFILIAL.CODIGO),
-                                  'L'))),
-                              'L',
-                              0,
-                                                        'LR',
-                                           NVL(PCMOV.VLREPASSE,0),
-                                           NVL(PCMOV.VLREPASSE,0) +
-                              DECODE(NVL(PCMOV.PTABELA,
-                                         0),
-                                     0,
-                                     0,
-                                     DECODE(SIGN(NVL(PCMOV.PTABELA,
-                                                     0) - DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT)),
-                                            -1,
-                                            0,
-                                            NVL(PCMOV.PTABELA,
-                                                0) - NVL(DECODE(PCMOVCOMPLE.BONIFIC, 'S',PCMOV.PBONIFIC, PCMOV.PUNITCONT),
-                                                         0))+ NVL(PCMOV.VLDESCICMISENCAO,
-                     0)))* PCMOV.QTCONT,2)
-                     ,2)
-             END AS VALOR_PRODUTOS
-               --*/
             ,CASE WHEN (LENGTH(PCPRODUT.CODAUXILIARTRIB) <= NVL(PCPRODUT.GTINCODAUXILIARTRIB,0)) THEN
                       LPAD(TO_CHAR(PCPRODUT.CODAUXILIARTRIB), PCPRODUT.GTINCODAUXILIARTRIB,'0')
                   WHEN (LENGTH(PCPRODUT.CODAUXILIAR) <= NVL(PCPRODUT.GTINCODAUXILIAR,0)) THEN
@@ -1020,11 +981,13 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
             ,ROUND(NVL(PCMOV.VLFRETE ,0) * QTCONT,2) AS VALOR_FRETE
             ,ROUND((PCMOV.QTCONT * NVL(PCMOV.VLSEGURO,0)),2) AS VALOR_SEGURO
             ,CASE
-                     WHEN (ORGAO_PUBLICO = 'S') THEN
+                     WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                       0
                      ELSE
                      DECODE(PCMOV.CODOPER, 'SD',
-                         -- Saida de Devolu??o
+                         -- Saida de Devolução
                          ROUND(((ROUND(NVL(PCMOV.VLDESCONTO,0) * PCMOV.QTCONT ,2) / PCMOV.QTCONT) + NVL(NVL(PCMOV.VLDESCSUFRAMA,PCMOV.VLSUFRAMA),0)) * PCMOV.QTCONT, 2),
                          -- Normal
                          CASE WHEN (PCNFSAID.CONDVENDA = 4 OR NVL(PCNFSAID.NUMCUPOM,0) > 0)
@@ -1143,7 +1106,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                     PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                     0
                ELSE
-                    DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOV.VLDESCRODAPE, 0),
+                    DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOV.VLDESCRODAPE, 0),
                                                ROUND(PCMOV.QTCONT * (NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE,0) + NVL(PCMOVCOMPLE.VLBASEOUTROS,0)),2))
                END
                 AS BASE_ICMS
@@ -1162,11 +1127,15 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                   PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                   0
                 ELSE
-                  (ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
+                  (ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
                             NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE, 0) + NVL(PCMOVCOMPLE.VLBASEOUTROS, 0))
                             * pcmov.QTCONT , 2) * (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2))
                    -
-                  (ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
+                  (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
                             NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE, 0) + NVL(PCMOVCOMPLE.VLBASEOUTROS, 0))
                             * PCMOV.QTCONT, 2) * (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2) *
                           (NVL(PCMOVCOMPLE.PERDIFEREIMENTOICMS,NVL(PCMOV.PERCDESCICMSDIF,0))/100), 2))
@@ -1177,7 +1146,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                       PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                  0
            ELSE
-                (ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
+                (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
                           NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE, 0) + NVL(PCMOVCOMPLE.VLBASEOUTROS, 0))
                          * PCMOV.QTCONT, 2) * (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2), 2))
            END AS VALOR_ICMS_OPERACAO
@@ -1237,7 +1208,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                                 NVL(PCMOV.VLBASEIPI,
                                                     0),
                                                 0))) +
-                          DECODE(ORGAO_PUBLICO,
+                          DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                   'S',
                                   NVL(PCMOV.VLDESCRODAPE,
                                       0),
@@ -1245,7 +1218,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                           NVL(PCMOV.VLBASEIPI,
                               0)) * PCMOV.QTCONT,
                    2) AS BASE_IPI
-            ,ROUND((DECODE(ORGAO_PUBLICO,
+            ,ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                            'S',
                            NVL(PCMOV.VLDESCRODAPE,
                                0),
@@ -1377,14 +1352,18 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                                                        PCFILIAL.CODIGO),
                                          'S'),
                                      'S',
-                                     (DECODE(ORGAO_PUBLICO,
+                                     (DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                              'S',
                                              NVL(PCMOV.VLDESCRODAPE,
                                                  0),
                                              0) + NVL(PCMOV.BASEICST,
                                                        0)),
                                      0),
-                              DECODE(ORGAO_PUBLICO,
+                              DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                      'S',
                                      NVL(PCMOV.VLDESCRODAPE,
                                          0),
@@ -1398,14 +1377,18 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                                                        PCFILIAL.CODIGO),
                                          'S'),
                                      'S',
-                                     (DECODE(ORGAO_PUBLICO,
+                                     (DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                              'S',
                                              NVL(PCMOV.VLDESCRODAPE,
                                                  0),
                                              0) + NVL(PCMOV.ST,
                                                        0)),
                                      0),
-                              DECODE(ORGAO_PUBLICO,
+                              DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                      'S',
                                      NVL(PCMOV.VLDESCRODAPE,
                                          0),
@@ -1695,7 +1678,9 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
             ,NVL(PCMOVCOMPLE.VLITEMTRIBUTOS,0) VLTOTALIMPOSTOSFEDERAL
             ,NVL(PCMOVCOMPLE.VLITEMTRIBUTOSEST,0) VLTOTALIMPOSTOSESTADUAL
             ,NVL(PCMOVCOMPLE.VLITEMTRIBUTOSMUNIC,0) VLTOTALIMPOSTOSMUNICIPAL
-            ,(ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
+            ,(ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOV.VLDESCRODAPE, 0), 0) +
                           NVL(PCMOV.BASEICMS, 0) + NVL(PCMOVCOMPLE.VLBASEFRETE, 0) + NVL(PCMOVCOMPLE.VLBASEOUTROS, 0))
                           * PCMOV.QTCONT, 2) * (NVL(NVL(PCMOV.PERCICMCP, PCMOV.PERCICM), 0) / 100), 2) *
                         (NVL(PCMOVCOMPLE.PERDIFEREIMENTOICMS,NVL(PCMOV.PERCDESCICMSDIF,0))/100), 2))
@@ -1813,8 +1798,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
             ,ROUND(PCMOV.QTCONT * NVL(PCEST.VLBCFCPSTRET, 0),2) VLBCFCPSTRET_PCEST
             ,NVL(PCEST.PERFCPSTRET, 0) PERFCPSTRET_PCEST
             ,ROUND(PCMOV.QTCONT * NVL(PCEST.VLFCPSTRET, 0),2) VLFCPSTRET_PCEST
-            ,SQL_NFE_CABECALHO_SAIDA.SIGLA_UF_E
-            ,SQL_NFE_CABECALHO_SAIDA.SIGLA_UF_D
+            ,(CASE WHEN (NVL(PCNFSAID.UFFILIAL, PCFILIAL.UF) = 'CE' AND (PCMOV.CODFISCAL BETWEEN 5000 AND 5999)) THEN 1 ELSE 0 END) RETIDO_CE
             ,CASE WHEN NVL(PCMOVCOMPLE.VLITEMTRIBUTOS,0) > 0 THEN
                    DECODE(NVL(PARAMFILIAL.ObterComoVarchar2('PERMITEINFOLEITRANSPCONSFINAL', PCFILIAL.CODIGO), 'N'),  'S',
                    DECODE(NVL(PCCLIENT.CONSUMIDORFINAL, 'N'), 'S', ' VL.APROX.TRIB. FEDERAL: ' || LTRIM(to_char((NVL(PCMOVCOMPLE.VLITEMTRIBUTOS,0) * PCMOV.QTCONT),'999999999999999990.99')), ''),
@@ -1931,16 +1915,14 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
             ,PCPEDIDADOSVEICULOS
             ,PCCLIENT
             ,PCEQUIPAMENTO
-            ,SQL_NFE_CABECALHO_SAIDA
             ,PCPRODFILIAL
             ,PCEST
             ,PCTRIBUT
       WHERE  PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
-      AND    PCMOV.NUMTRANSVENDA = SQL_NFE_CABECALHO_SAIDA.NUM_TRANSACAO
       AND    PCMOV.CODPROD = PCPRODUT.CODPROD
       AND    PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
       AND    PCNFSAID.NUMNOTA = PCMOV.NUMNOTA
-      AND    PCMOV.CODCLI = PCCLIENT.CODCLI(+)
+      AND    NVL(PCNFSAID.CODCLINF, PCNFSAID.CODCLI) = PCCLIENT.CODCLI(+)
       AND    PCMOV.CODEQUIPAMENTO = PCEQUIPAMENTO.CODEQUIPAMENTO(+)
       AND    PCMOV.CODPROD = PCTABPR.CODPROD(+)
       AND    PCMOV.CODAUXILIAR = PCEMBALAGEM.CODAUXILIAR(+)
@@ -2286,17 +2268,17 @@ SELECT ALIQUOTA_COFINS
       ,PROD_RASTREADO
       ,VLBASEFCPICMS
       ,VLBASEFCPST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLBCFCPSTRET
        END AS VLBCFCPSTRET
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          PERFCPSTRET
        END AS PERFCPSTRET
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLFCPSTRET
@@ -2334,17 +2316,17 @@ SELECT ALIQUOTA_COFINS
       ,PERCSTRET_PCEST
       ,VLICMSBCR_PCEST
       ,STBCR_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLBCFCPSTRET_PCEST
        END AS VLBCFCPSTRET_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          PERFCPSTRET_PCEST
        END AS PERFCPSTRET_PCEST
-      ,CASE WHEN (SIGLA_UF_E = 'CE' AND SIGLA_UF_D = 'CE') THEN
+      ,CASE WHEN (RETIDO_CE = 1) THEN
          0--NÃO DEVE GERAR FCP ST RET PARA UF = CE
        ELSE
          VLFCPSTRET_PCEST
@@ -2592,7 +2574,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                   ' PFCPST: '   || TRIM(TO_CHAR(NVL(PCMOVCOMPLEPREFAT.ALIQICMSFECP, 0),'999999999999999990.99')) ||
                   ' VFCPST: '   || TRIM(TO_CHAR(ROUND(PCMOVPREFAT.QTCONT * NVL(PCMOVCOMPLEPREFAT.VLFECP, 0),2),'999999999999999990.99'))
              END ||
-             CASE WHEN ((NVL(PCMOVPREFAT.SITTRIBUT, '55') IN ('60','500')) AND (SQL_NFE_CABECALHO_SAIDA.CONTRIBUINTE = 'S')) THEN
+             CASE WHEN ((NVL(PCMOVPREFAT.SITTRIBUT, '55') IN ('60','500')) AND (NVL(PCNFSAIDPREFAT.CONTRIBUINTE, PCCLIENT.CONTRIBUINTE) = 'S')) THEN
                  CASE WHEN NVL(PCMOVCOMPLEPREFAT.VLFCPSTRET, 0) > 0 THEN
                       ' VBCFCPSTRET: ' || TRIM(TO_CHAR(ROUND(PCMOVPREFAT.QTCONT * NVL(PCMOVCOMPLEPREFAT.VLBCFCPSTRET, 0),2),'999999999999999990.99')) ||
                       ' PFCPSTRET: '   || TRIM(TO_CHAR(NVL(PCMOVCOMPLEPREFAT.PERFCPSTRET, 0),'999999999999999990.99')) ||
@@ -2649,8 +2631,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                END ||
              CASE WHEN ((NVL(PCMOVPREFAT.SITTRIBUT, '55') = '61') AND 
                         (NVL(PCMOVCOMPLEPREFAT.VICMSMONORET, 0) > 0) AND 
-                        (SQL_NFE_CABECALHO_SAIDA.CONSUMIDOR_FINAL = 'S') AND
-                        (SQL_NFE_CABECALHO_SAIDA.CONTRIBUINTE = 'N')) THEN
+                        ((CASE WHEN (NVL(PCPEDC.VENDALOCESTRANG, 'N') = 'S') THEN 'S'
+                               ELSE NVL(PCCLIENT.CONSUMIDORFINAL, 'N') END) = 'S') AND
+                        (NVL(PCNFSAIDPREFAT.CONTRIBUINTE, PCCLIENT.CONTRIBUINTE) = 'N')) THEN
                   ' ICMS monofásico sobre combustíveis cobrado anteriormente conforme Convênio ICMS 199/2022.'
              END
             ) AS INFO_TECNICA
@@ -2688,7 +2671,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
             ,PCMOVPREFAT.QTCONT AS QUANTIDADE
             ,PCMOVPREFAT.QTCONT
             ,CASE
-               WHEN (ORGAO_PUBLICO = 'S') THEN
+               WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                 DECODE(NVL(PCNFSAIDPREFAT.DEDUZIRDESONERORGAOPUB, 'N'),
                       'S',
                        ROUND((PCMOVPREFAT.PTABELA
@@ -2802,11 +2787,13 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                 ELSE
                     0
                 END  +
-             CASE WHEN (ORGAO_PUBLICO = 'S') THEN
+             CASE WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                   0
              ELSE
                   DECODE(PCMOVPREFAT.CODOPER, 'SD',
-                         -- Saida de Devolu??o
+                         -- Saida de Devolução
                          (NVL(PCMOVPREFAT.VLDESCONTO,0) +
                           NVL(NVL(PCMOVPREFAT.VLDESCSUFRAMA,PCMOVPREFAT.VLSUFRAMA),0)),
                          -- Normal
@@ -2912,7 +2899,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                      0)) *
                                  PCMOVPREFAT.QTCONT,
                                  2)))
-               WHEN (ORGAO_PUBLICO = 'S') THEN
+               WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                 ROUND(PCMOVPREFAT.QTCONT *
                       (PCMOVPREFAT.PTABELA + NVL(PCMOVPREFAT.VLDESCRODAPE,
                                            0) +
@@ -2925,52 +2914,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                       NVL(PCMOVPREFAT.VLDESCPISSUFRAMA,
                            0))) * PCMOVPREFAT.QTCONT ,2)
              END AS PRECO_PRODUTO
-           /*               -- Campo n?o utilizado
-            ,CASE
-               WHEN (ORGAO_PUBLICO = 'S') THEN
-                ROUND(PCMOVPREFAT.QTCONT *
-                      (PCMOVPREFAT.PTABELA + NVL(PCMOVPREFAT.VLDESCRODAPE,
-                                           0) +
-                      NVL(PCMOVPREFAT.VLDESCICMISENCAO,
-                           0)),
-                      2)
-               ELSE
-                ROUND((DECODE(PCMOVCOMPLEPREFAT.BONIFIC, 'S',PCMOVPREFAT.PBONIFIC, PCMOVPREFAT.PUNITCONT) - NVL(PCMOVPREFAT.ST,
-                                             0) -
-                      NVL(PCMOVIMPOSTOS.VLICMSCOMPLEMENTAR,
-                           0) - NVL(PCMOVPREFAT.VLIPI,
-                                     0) - DECODE(PCMOVPREFAT.CODOPER, 'SD', NVL(PCMOVPREFAT.VLFRETE,0),0)
-                                                                  - NVL(PCMOVPREFAT.VLREPASSE,0)+
-                      NVL(PCMOVPREFAT.VLDESCPISSUFRAMA,
-                           0) + DECODE(PCMOVPREFAT.CODOPER, 'SD', 0, NVL(PCMOVPREFAT.VLDESCSUFRAMA,
-                               0)) + NVL(PCMOVPREFAT.VLSUFRAMA,
-                                               0) +
-                      NVL(PCMOVPREFAT.VLDESCREDUCAOCOFINS,
-                                     0) + NVL(PCMOVPREFAT.VLDESCREDUCAOPIS,
-                                               0)  ) * PCMOVPREFAT.QTCONT +
-                                              ROUND(DECODE(NVL(PCMOVCOMPLEPREFAT.PRECOUTILIZADONFE, NVL(PCCLIENT.PRECOUTILIZADONFE,NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
-                                                                PCFILIAL.CODIGO),
-                                  'L'))),
-                              'L',
-                              0,
-                                                        'LR',
-                                           NVL(PCMOVPREFAT.VLREPASSE,0),
-                                           NVL(PCMOVPREFAT.VLREPASSE,0) +
-                              DECODE(NVL(PCMOVPREFAT.PTABELA,
-                                         0),
-                                     0,
-                                     0,
-                                     DECODE(SIGN(NVL(PCMOVPREFAT.PTABELA,
-                                                     0) - DECODE(PCMOVCOMPLEPREFAT.BONIFIC, 'S',PCMOVPREFAT.PBONIFIC, PCMOVPREFAT.PUNITCONT)),
-                                            -1,
-                                            0,
-                                            NVL(PCMOVPREFAT.PTABELA,
-                                                0) - NVL(DECODE(PCMOVCOMPLEPREFAT.BONIFIC, 'S',PCMOVPREFAT.PBONIFIC, PCMOVPREFAT.PUNITCONT),
-                                                         0))+ NVL(PCMOVPREFAT.VLDESCICMISENCAO,
-                     0)))* PCMOVPREFAT.QTCONT,2)
-                     ,2)
-             END AS VALOR_PRODUTOS
-               --*/
+          
             ,CASE WHEN (LENGTH(PCPRODUT.CODAUXILIARTRIB) <= NVL(PCPRODUT.GTINCODAUXILIARTRIB,0)) THEN
                       LPAD(TO_CHAR(PCPRODUT.CODAUXILIARTRIB), PCPRODUT.GTINCODAUXILIARTRIB,'0')
                   WHEN (LENGTH(PCPRODUT.CODAUXILIAR) <= NVL(PCPRODUT.GTINCODAUXILIAR,0)) THEN
@@ -2981,11 +2925,13 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
             ,ROUND(NVL(PCMOVPREFAT.VLFRETE ,0) * QTCONT,2) AS VALOR_FRETE
             ,ROUND((PCMOVPREFAT.QTCONT * NVL(PCMOVPREFAT.VLSEGURO,0)),2) AS VALOR_SEGURO
             ,CASE
-                     WHEN (ORGAO_PUBLICO = 'S') THEN
+                     WHEN ((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END) = 'S') THEN
                       0
                      ELSE
                      DECODE(PCMOVPREFAT.CODOPER, 'SD',
-                         -- Saida de Devolu??o
+                         -- Saida de Devolução
                          ROUND(((ROUND(NVL(PCMOVPREFAT.VLDESCONTO,0) * PCMOVPREFAT.QTCONT ,2) / PCMOVPREFAT.QTCONT) + NVL(NVL(PCMOVPREFAT.VLDESCSUFRAMA, PCMOVPREFAT.VLSUFRAMA),0)) * PCMOVPREFAT.QTCONT, 2),
                          -- Normal
                          CASE WHEN (PCNFSAIDPREFAT.CONDVENDA = 4 OR NVL(PCNFSAIDPREFAT.NUMCUPOM,0) > 0)
@@ -3104,7 +3050,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                         PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                         0
                    ELSE
-                        DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0),
+                        DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0),
                                                    ROUND(PCMOVPREFAT.QTCONT * (NVL(PCMOVPREFAT.BASEICMS, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEFRETE,0) + NVL(PCMOVCOMPLEPREFAT.VLBASEOUTROS,0)),2))
                    END
               AS BASE_ICMS
@@ -3123,11 +3071,15 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                       PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                     0
                ELSE
-                    (ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
+                    (ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
                               NVL(PCMOVPREFAT.BASEICMS, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEFRETE, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEOUTROS, 0))
                               * PCMOVPREFAT.QTCONT , 2) * (NVL(NVL(PCMOVPREFAT.PERCICMCP, PCMOVPREFAT.PERCICM), 0) / 100), 2))
                      -
-                    (ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
+                    (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
                               NVL(PCMOVPREFAT.BASEICMS, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEFRETE, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEOUTROS, 0))
                               * PCMOVPREFAT.QTCONT, 2) * (NVL(NVL(PCMOVPREFAT.PERCICMCP, PCMOVPREFAT.PERCICM), 0) / 100), 2) *
                             (NVL(PCMOVCOMPLEPREFAT.PERDIFEREIMENTOICMS,NVL(PCMOVPREFAT.PERCDESCICMSDIF,0))/100), 2))
@@ -3138,7 +3090,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                       PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', PCFILIAL.CODIGO) IN  ('E', 'S') THEN
                  0
            ELSE
-                (ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
+                (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
                           NVL(PCMOVPREFAT.BASEICMS, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEFRETE, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEOUTROS, 0))
                          * PCMOVPREFAT.QTCONT, 2) * (NVL(NVL(PCMOVPREFAT.PERCICMCP, PCMOVPREFAT.PERCICM), 0) / 100), 2), 2))
            END AS VALOR_ICMS_OPERACAO
@@ -3198,7 +3152,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                                 NVL(PCMOVPREFAT.VLBASEIPI,
                                                     0),
                                                 0))) +
-                          DECODE(ORGAO_PUBLICO,
+                          DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                   'S',
                                   NVL(PCMOVPREFAT.VLDESCRODAPE,
                                       0),
@@ -3206,7 +3162,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                           NVL(PCMOVPREFAT.VLBASEIPI,
                               0)) * PCMOVPREFAT.QTCONT,
                    2) AS BASE_IPI
-            ,ROUND((DECODE(ORGAO_PUBLICO,
+            ,ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                            'S',
                            NVL(PCMOVPREFAT.VLDESCRODAPE,
                                0),
@@ -3338,14 +3296,18 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                                                        PCFILIAL.CODIGO),
                                          'S'),
                                      'S',
-                                     (DECODE(ORGAO_PUBLICO,
+                                     (DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                              'S',
                                              NVL(PCMOVPREFAT.VLDESCRODAPE,
                                                  0),
                                              0) + NVL(PCMOVPREFAT.BASEICST,
                                                        0)),
                                      0),
-                              DECODE(ORGAO_PUBLICO,
+                              DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                      'S',
                                      NVL(PCMOVPREFAT.VLDESCRODAPE,
                                          0),
@@ -3359,14 +3321,18 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                                                        PCFILIAL.CODIGO),
                                          'S'),
                                      'S',
-                                     (DECODE(ORGAO_PUBLICO,
+                                     (DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                              'S',
                                              NVL(PCMOVPREFAT.VLDESCRODAPE,
                                                  0),
                                              0) + NVL(PCMOVPREFAT.ST,
                                                        0)),
                                      0),
-                              DECODE(ORGAO_PUBLICO,
+                              DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END),
                                      'S',
                                      NVL(PCMOVPREFAT.VLDESCRODAPE,
                                          0),
@@ -3656,7 +3622,9 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
             ,NVL(PCMOVCOMPLEPREFAT.VLITEMTRIBUTOS,0) VLTOTALIMPOSTOSFEDERAL
             ,NVL(PCMOVCOMPLEPREFAT.VLITEMTRIBUTOSEST,0) VLTOTALIMPOSTOSESTADUAL
             ,NVL(PCMOVCOMPLEPREFAT.VLITEMTRIBUTOSMUNIC,0) VLTOTALIMPOSTOSMUNICIPAL
-            ,(ROUND(ROUND(ROUND((DECODE(ORGAO_PUBLICO, 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
+            ,(ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(PCCLIENT.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PCPEDC.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(PCMOVPREFAT.VLDESCRODAPE, 0), 0) +
                           NVL(PCMOVPREFAT.BASEICMS, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEFRETE, 0) + NVL(PCMOVCOMPLEPREFAT.VLBASEOUTROS, 0))
                           * PCMOVPREFAT.QTCONT, 2) * (NVL(NVL(PCMOVPREFAT.PERCICMCP, PCMOVPREFAT.PERCICM), 0) / 100), 2) *
                         (NVL(PCMOVCOMPLEPREFAT.PERDIFEREIMENTOICMS,NVL(PCMOVPREFAT.PERCDESCICMSDIF,0))/100), 2))
@@ -3773,8 +3741,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
             ,ROUND(PCMOVPREFAT.QTCONT * NVL(PCEST.VLBCFCPSTRET, 0),2) VLBCFCPSTRET_PCEST
             ,NVL(PCEST.PERFCPSTRET, 0) PERFCPSTRET_PCEST
             ,ROUND(PCMOVPREFAT.QTCONT * NVL(PCEST.VLFCPSTRET, 0),2) VLFCPSTRET_PCEST
-            ,SQL_NFE_CABECALHO_SAIDA.SIGLA_UF_E
-            ,SQL_NFE_CABECALHO_SAIDA.SIGLA_UF_D
+            ,(CASE WHEN (NVL(PCNFSAIDPREFAT.UFFILIAL, PCFILIAL.UF) = 'CE' AND (PCMOVPREFAT.CODFISCAL BETWEEN 5000 AND 5999)) THEN 1 ELSE 0 END) RETIDO_CE
             ,CASE WHEN NVL(PCMOVCOMPLEPREFAT.VLITEMTRIBUTOS,0) > 0 THEN
                    DECODE(NVL(PARAMFILIAL.ObterComoVarchar2('PERMITEINFOLEITRANSPCONSFINAL', PCFILIAL.CODIGO), 'N'),  'S',
                    DECODE(NVL(PCCLIENT.CONSUMIDORFINAL, 'N'), 'S', 'VL.APROX.TRIB. FEDERAL: ' || LTRIM(to_char((NVL(PCMOVCOMPLEPREFAT.VLITEMTRIBUTOS,0) * PCMOVPREFAT.QTCONT),'999999999999999990.99')), ''),
@@ -3891,16 +3858,14 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
             ,PCPEDIDADOSVEICULOS
             ,PCCLIENT
             ,PCEQUIPAMENTO
-            ,SQL_NFE_CABECALHO_SAIDA
             ,PCPRODFILIAL
             ,PCEST
             ,PCTRIBUT
       WHERE  PCMOVPREFAT.NUMTRANSITEM = PCMOVCOMPLEPREFAT.NUMTRANSITEM(+)
-      AND    PCMOVPREFAT.NUMTRANSVENDA = SQL_NFE_CABECALHO_SAIDA.NUM_TRANSACAO
       AND    PCMOVPREFAT.CODPROD = PCPRODUT.CODPROD
       AND    PCNFSAIDPREFAT.NUMTRANSVENDA = PCMOVPREFAT.NUMTRANSVENDA
       AND    PCNFSAIDPREFAT.NUMNOTA = PCMOVPREFAT.NUMNOTA
-      AND    PCMOVPREFAT.CODCLI = PCCLIENT.CODCLI(+)
+      AND    NVL(PCNFSAIDPREFAT.CODCLINF, PCNFSAIDPREFAT.CODCLI) = PCCLIENT.CODCLI(+)
       AND    PCMOVPREFAT.CODEQUIPAMENTO = PCEQUIPAMENTO.CODEQUIPAMENTO(+)
       AND    PCMOVPREFAT.CODPROD = PCTABPR.CODPROD(+)
       AND    PCMOVPREFAT.CODAUXILIAR = PCEMBALAGEM.CODAUXILIAR(+)
