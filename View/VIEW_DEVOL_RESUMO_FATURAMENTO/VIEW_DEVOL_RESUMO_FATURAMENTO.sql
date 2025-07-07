@@ -350,7 +350,8 @@ SELECT PCFORNEC.CODFORNEC,
                11,
                0,
                NVL(PCMOV.CUSTOFIN, 0))) VLCMVDEVOL,
-		--FIM_VLCMVDEVOL	   
+		--FIM_VLCMVDEVOL
+    --INICIO_VLCMVDEVOLBONIF
        (NVL(PCMOV.QT, 0) * DECODE(PCNFSAID.CONDVENDA,
                                   1,
                                   (DECODE(NVL(PCMOVCOMPLE.BONIFIC, 'N'),
@@ -364,7 +365,8 @@ SELECT PCFORNEC.CODFORNEC,
                                   11,
                                   NVL(PCMOV.CUSTOFIN, 0),
                                   0)) VLCMVDEVOLBONIF,
-		--INICIO_VLCUSTOFIN						  
+    --FIM_VLCMVDEVOLBONIF
+		--INICIO_VLCUSTOFIN
        (NVL(PCMOV.QT, 0) * NVL(PCMOV.CUSTOFIN, 0)) VLCUSTOFIN,
 	   --FIM_VLCUSTOFIN
        (NVL(PCPRODUT.VOLUME, 0) * NVL(PCMOV.QT, 0)) LITRAGEM,
