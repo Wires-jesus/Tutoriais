@@ -1884,8 +1884,8 @@ AS
             AND codauxiliar = i.codacesso) custoultent,
         TO_CHAR(d.dtamovimento,'YYYY-MM-DD') data,
         NULL dtexportacao,
-        p.descanp descanp,
-        p.desccompleta descricaopaf,
+        REGEXP_REPLACE(p.descanp, '[^[:alnum:] ]', '') descanp,
+        REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
         'N' emoferta,
         'N' enviaraliqreducaopiscofins,
         h.excluiricmsbasepiscofins,
@@ -1969,6 +1969,7 @@ AS
               AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
               AND F.SEQPRODUTO = X.SEQPRODUTO
               AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+			  AND F.ATIVO = 'S'
               AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
             ELSE
             (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
@@ -1986,6 +1987,7 @@ AS
           AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+		  AND F.ATIVO = 'S'
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
          CASE WHEN i.PROMOCAO = 'S' THEN
@@ -2003,6 +2005,7 @@ AS
             AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
             AND F.SEQPRODUTO = X.SEQPRODUTO
             AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO
+			AND F.ATIVO = 'S'
             AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO)
           ELSE
           ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) 
@@ -2017,7 +2020,8 @@ AS
           THEN (i.quantidade * NVL(i.QTDEMBALAGEM,1)) /
                   NVL((SELECT C.QUANTIDADE 
                     FROM MONITORPDVMIDDLE.TB_PRODCOMPOSTO C
-                  WHERE C.seqprodcomposto = i.seqprodcomposto 
+                  WHERE C.seqprodcomposto = i.seqprodcomposto
+				    AND C.ATIVO = 'S'
                     AND c.SEQPRODUTO = i.SEQPRODUTO),1)
           ELSE (i.quantidade * NVL(i.QTDEMBALAGEM,1))
         END) qt,
@@ -2327,8 +2331,8 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
             AND codauxiliar = i.codacesso) custoultent,
         TO_CHAR(d.dtamovimento,'YYYY-MM-DD') data,
         NULL dtexportacao,
-        p.descanp descanp,
-        p.desccompleta descricaopaf,
+        REGEXP_REPLACE(p.descanp, '[^[:alnum:] ]', '') descanp,
+        REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
         'N' emoferta,
         'N' enviaraliqreducaopiscofins,
         h.excluiricmsbasepiscofins,
@@ -2406,6 +2410,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+		  AND F.ATIVO = 'S'
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
@@ -2423,6 +2428,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+		  AND F.ATIVO = 'S'
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
          CASE WHEN i.PROMOCAO = 'S' THEN
@@ -2440,6 +2446,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+		  AND F.ATIVO = 'S'
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
@@ -2448,7 +2455,8 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         THEN (i.quantidade * NVL(i.QTDEMBALAGEM,1)) /
                 NVL((SELECT C.QUANTIDADE 
                   FROM MONITORPDVMIDDLE.TB_PRODCOMPOSTO C
-                WHERE C.seqprodcomposto = i.seqprodcomposto 
+                WHERE C.seqprodcomposto = i.seqprodcomposto
+                  AND C.ATIVO = 'S'				
                   AND c.SEQPRODUTO = i.SEQPRODUTO),1)
         ELSE (i.quantidade * NVL(i.QTDEMBALAGEM,1))
         END) qt,
@@ -3426,7 +3434,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLICMSPART,
 	0 PERCBASEDPART,
 	0 ALIQINTERORIGPART,
-	p.desccompleta descricaopaf,
+    REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
 	(CASE
 	WHEN a.SITTRIBUT IN ('00','20','90')
 		 AND
@@ -3504,7 +3512,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  D.SEQDOCTO = C.SEQDOCTO
     AND  D.NROEMPRESA = C.NROEMPRESA
     AND  D.NROCHECKOUT = C.NROCHECKOUT
-    AND  C5.CODFILIAL = V.CODFILIAL
+    --AND  C5.CODFILIAL = V.CODFILIAL
     --AND  I.CODACESSO = V.CODAUXILIAR
     --AND  I.SEQPRODUTO = DC5.SEQPRODUTO
     --AND  C5.CODFILIAL = P_ACAB.CODFILIAL
@@ -3660,7 +3668,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	0 VLICMSPART,
 	0 PERCBASEDPART,
 	0 ALIQINTERORIGPART,
-	p.desccompleta descricaopaf,
+    REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
 	(CASE
 	WHEN a.SITTRIBUT IN ('00','20','90')
 		 AND
@@ -3739,7 +3747,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
     AND  D.SEQDOCTO = C.SEQDOCTO
     AND  D.NROEMPRESA = C.NROEMPRESA
     AND  D.NROCHECKOUT = C.NROCHECKOUT
-    AND  C5.CODFILIAL = V.CODFILIAL
+    --AND  C5.CODFILIAL = V.CODFILIAL
     --AND  I.CODACESSO = V.CODAUXILIAR
     --AND  I.SEQPRODUTO = DC5.SEQPRODUTO
     --AND  C5.CODFILIAL = P_ACAB.CODFILIAL
