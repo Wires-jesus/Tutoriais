@@ -1000,7 +1000,7 @@ IS
                 := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
         BEGIN
             -- recebe xml da VENDA
-            l_xmltype := retornar_xml_venda (r_pedido);
+            
 
             dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
             dados_pcfilamensagem.rowpcfilamensagem.datatransacao    := SYSDATE;
@@ -1026,9 +1026,7 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento  := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := r_pedido.docemissao;
             dados_pcfilamensagem.rowpcfilamensagem.tipooperacao     := 'VEND';
-            dados_pcfilamensagem.rowpcfilamensagem.mensagem         :=  REPLACE (l_xmltype.getclobval (),
-                                                                                 '<EsquemaExportacao>',
-                                                                                 daodoscabecalhoxml);
+            
             dados_pcfilamensagem.rowpcfilamensagem.seqdocto         := r_pedido.seqdocto;                                                                     
             dados_pcfilamensagem.rowpcfilamensagem.tipomensagem     := 1;
             dados_pcfilamensagem.rowpcfilamensagem.codigoerro       := NULL;
@@ -1036,7 +1034,10 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
             dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL; 
 			dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(r_pedido.data, 'YYYY-MM-DD');
-
+            l_xmltype := retornar_xml_venda (r_pedido);
+			dados_pcfilamensagem.rowpcfilamensagem.mensagem         :=  REPLACE (l_xmltype.getclobval (),
+                                                                                 '<EsquemaExportacao>',
+                                                                                 daodoscabecalhoxml);
             RETURN dados_pcfilamensagem;
         END retornar_pcfilamensagem;
 
