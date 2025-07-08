@@ -4,7 +4,7 @@
     "dependencias": [{
             "nome": "PKG_MONITOR_TRIBUTARIO_CONSULT",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.36.000"
+            "versao": "7.0.37.000"
         }, {
             "nome": "PCARQUIVOSGERADOS",
             "tipo": "TABELA",
@@ -28,12 +28,12 @@
 		{
 		  "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "7.0.02.000"
+		  "versao": "7.0.03.000"
 		},
 		{
-		  "nome": "VIEW_DEVOL_RESUMO_FATURAMENTO",
+		  "nome": "VIEW_DEVOL_RESUMO_FATURAVULSA",
 		  "tipo": "OBJETO_PLSQL",
-		  "versao": "7.0.02.000"
+		  "versao": "7.0.03.000"
 		}
     ]
 }
