@@ -15,7 +15,8 @@ CREATE OR REPLACE PACKAGE FERRAMENTAS_FATURAMENTO IS
   
   TYPE T_ATUALIZAR_TOTAIS_VENDA IS RECORD(  
     codigoProduto           pcest.codprod%type,
-    codigoFilial            pcest.codfilial%type,  
+    codigoFilial            pcest.codfilial%type,
+    numregiao               pcmov.numregiao%type,	
     quantidadeVendaDia      pcest.qtvenddia%type,
     quantidadeVendaSemana   pcest.qtvendsemana%type,
     quantidadeVendaMes      pcest.qtvendmes%type,
