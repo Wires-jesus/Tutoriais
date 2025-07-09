@@ -35,6 +35,39 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         RAISE;
     END;
   END;
+  
+  PROCEDURE atualizarPcGiro(pParametros      IN T_ATUALIZAR_TOTAIS_VENDA,
+                                 pMensagemRetorno OUT VARCHAR2) IS
+  BEGIN
+    --Este método já recebe todos os campos e valores calculados, apenas atualiza no banco de dados
+    pMensagemRetorno := 'OK';        
+        BEGIN
+          -- 11 - Cria ou atualiza dos registros na tabela PCGIRO
+          UPDATE pcgiro
+             SET giro = giro + nvl(pParametros.QuantidadeVendaDia, 0)
+           WHERE codprod =  pParametros.codigoProduto
+             AND codfilial = pParametros.CodigoFilial
+             AND numregiao = pParametros.numregiao;
+        
+          IF SQL%ROWCOUNT = 0 THEN
+            -- Caso seja um registro novo sera um insert
+            INSERT INTO pcgiro
+              (codprod, numregiao, giro, codfilial)
+            VALUES
+              (pParametros.codigoProduto,
+               pParametros.numregiao,
+               nvl(pParametros.QuantidadeVendaDia, 0),
+               pParametros.CodigoFilial);
+          END IF;
+        EXCEPTION
+          WHEN OTHERS THEN
+            pMensagemRetorno := 'Erro ao atualizar totais de venda na tabela PCGIRO (Produto: ' ||  pParametros.codigoProduto 
+                             || ', filial: ' || pParametros.CodigoFilial 
+                             || ', Numregiao: ' || pParametros.numregiao || '). Erro orignal: ' ||
+                            SQLERRM;
+            RAISE;
+        END;        
+  END;  
 
   FUNCTION buscarEatualizarTotaisVenda(pNumtransvenda   in pcnfsaid.numtransvenda%type,
                                        pMensagemRetorno OUT VARCHAR2)
@@ -53,6 +86,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
       for movimentacao in (select pcmov.codprod,
                                   pcmov.codfilial,
                                   pcmov.numnota,
+								  pcmov.numregiao,
                                   pcmov.custoreal,
                                   pcmov.custofin,
                                   nvl(pcmov.qtcont, 0) qtcont,
@@ -168,7 +202,10 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         vAtualizarTotaisVenda.ValorCustoRealMes       := (movimentacao.qtvenda * movimentacao.custoreal);
         vAtualizarTotaisVenda.ValorCustoFinanceiroDia := (movimentacao.qtvenda * movimentacao.custofin);
         vAtualizarTotaisVenda.ValorCustoFinanceiroMes := (movimentacao.qtvenda * movimentacao.custofin);
-        atualizarTotaisVenda(vAtualizarTotaisVenda, pMensagemRetorno);
+        atualizarTotaisVenda(vAtualizarTotaisVenda, pMensagemRetorno);	
+       
+	    AtualizarPcGiro(vAtualizarTotaisVenda, pMensagemRetorno);
+				
       END LOOP;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
