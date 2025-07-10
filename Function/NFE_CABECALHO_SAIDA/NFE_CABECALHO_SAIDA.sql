@@ -85,7 +85,8 @@ BEGIN
               TIPOEMISSAO,
               ORDEM,
               UTILIZANFE,
-              UTILIZASRVTERCEIROS 
+              UTILIZASRVTERCEIROS,
+              INDVAREJO 
         FROM (SELECT PCNFSAID.NUMTRANSVENDA,
                      PCNFSAID.NUMNOTA,
                      PCNFSAID.TIPOEMISSAO,
@@ -144,7 +145,8 @@ BEGIN
                               TIPOEMISSAO,
                               ORDEM,
                               UTILIZANFE,
-                              UTILIZASRVTERCEIROS
+                              UTILIZASRVTERCEIROS,
+                              INDVAREJO
                 FROM (SELECT PCNFSAIDPREFAT.NUMTRANSVENDA,
                              PCNFSAIDPREFAT.NUMNOTA,
                              PCNFSAIDPREFAT.TIPOEMISSAO,
