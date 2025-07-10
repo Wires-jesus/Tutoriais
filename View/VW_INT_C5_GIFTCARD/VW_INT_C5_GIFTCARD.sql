@@ -34,7 +34,7 @@ SELECT  A.SEQDOCTO,
                                               P.NROEMPRESA,
                                               P.NROCARTAO,
                                               P.NROCREDITOCUPOM) B, MONITORPDVMIDDLE.TB_DOCTOCREDITOCUPOM C 
- WHERE  0 = 0
+ WHERE  1 = 1
    AND  A.REPLICACAO = 'P'
    AND  A.SEQDOCTO = B.SEQDOCTO
    AND  A.NROEMPRESA = B.NROEMPRESA
