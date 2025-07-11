@@ -1,0 +1,10 @@
+{
+ "nome":"JOB_AJUSTE_DATA_PCMOV_PCNFSAID",
+ "tipoPLSQL":"MIGRATION",
+ "dependencias":[
+	{
+	  "nome": "PRC_AJUSTAR_DATA",
+	  "tipo": "PROCEDURE",
+	  "versao": "7.0.01.000"
+	}
+]}
