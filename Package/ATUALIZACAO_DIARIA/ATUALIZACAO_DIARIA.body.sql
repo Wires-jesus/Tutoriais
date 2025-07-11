@@ -3821,7 +3821,7 @@ BEGIN
        VATUALIZAR := FALSE;
        VSCRIPT    := '';
        VSCRIPT_C  := '';
-	   VCODIGOINSERIDO := NULL;
+	   VCODIGOINSERIDO := '-1;';
 
        /*Bloqueio definitivo*/
        IF (VICLIENTECOMATRASO = 1) AND (NVL(VNUMDIASCLIATRASO, 0) > 0) THEN
@@ -4203,30 +4203,28 @@ BEGIN
            EXECUTE IMMEDIATE VSCRIPT
              USING FAMILIA.CODCLI;
 		   commit;
-		   
-           IF INSTR(VCODIGOINSERIDO, TO_CHAR(FAMILIA.CODCLI) || ';') > 0 THEN
-             CONTINUE;
-           END IF;
 
-            P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
-                                  , PUSUARIO
-                                  , '504'
-                                  , SUBSTR('BLOQ. ORIGINADO CLIENTE ' || FAMILIA.CODCLI || ' (CODCLIPRINC=' || REGISTRO.CODCLIPRINC || ')', 1, 60)
-                                  , FAMILIA.VLIMCREDANT
-                                  , FAMILIA.VBLOQUEIOANT
-                                  , FAMILIA.VDTREGLIMANT
-                                  , FAMILIA.VDTVENCLIMANT
-                                  , FAMILIA.VOBSANT
-                                  , FAMILIA.VPRAZOANT
-                                  , FAMILIA.VCODCOBANT
-                                  , FAMILIA.VCODPLPAGANT
-                                  );
-								  
-           IF VCODIGOINSERIDO IS NULL THEN
-             VCODIGOINSERIDO := TO_CHAR(FAMILIA.CODCLI) || ';';
-           ELSE
-             VCODIGOINSERIDO := VCODIGOINSERIDO || TO_CHAR(FAMILIA.CODCLI) || ';';
-           END IF;								  
+           IF INSTR(VCODIGOINSERIDO, TO_CHAR(FAMILIA.CODCLI) || ';') = 0 THEN
+             P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
+                                    , PUSUARIO
+                                    , '504'
+                                    , SUBSTR('BLOQ. ORIGINADO CLIENTE ' || FAMILIA.CODCLI || ' (CODCLIPRINC=' || REGISTRO.CODCLIPRINC || ')', 1, 60)
+                                    , FAMILIA.VLIMCREDANT
+                                    , FAMILIA.VBLOQUEIOANT
+                                    , FAMILIA.VDTREGLIMANT
+                                    , FAMILIA.VDTVENCLIMANT
+                                    , FAMILIA.VOBSANT
+                                    , FAMILIA.VPRAZOANT
+                                    , FAMILIA.VCODCOBANT
+                                    , FAMILIA.VCODPLPAGANT
+                                    );
+
+             IF VCODIGOINSERIDO IS NULL THEN
+               VCODIGOINSERIDO := TO_CHAR(FAMILIA.CODCLI) || ';';
+             ELSE
+               VCODIGOINSERIDO := VCODIGOINSERIDO || TO_CHAR(FAMILIA.CODCLI) || ';';
+             END IF;
+           END IF;
          END LOOP; /*Fim do Processo de loop dos clientes vinculados ao cliente principal */
        END IF; /*Fim do processo REGISTRO.BLOQUEIO = 'S' */
      END LOOP;/*Fim Processo de loop Bloqueando clientes da Familia Independente se é ou não o Cliente Principal*/
