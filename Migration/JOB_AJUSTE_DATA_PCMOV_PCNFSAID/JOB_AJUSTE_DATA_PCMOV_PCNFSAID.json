@@ -4,7 +4,7 @@
  "dependencias":[
 	{
 	  "nome": "PRC_AJUSTAR_DATA",
-	  "tipo": "PROCEDURE",
+	  "tipo": "OBJETO_PLSQL",
 	  "versao": "7.0.01.000"
 	}
 ]}
