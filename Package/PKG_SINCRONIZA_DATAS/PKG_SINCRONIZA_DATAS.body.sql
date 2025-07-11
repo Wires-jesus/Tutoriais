@@ -19,7 +19,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINCRONIZA_DATAS AS
         RETURN v_count;
     EXCEPTION
         WHEN OTHERS THEN
-            DBMS_OUTPUT.PUT_LINE('Erro ao contar discrepâncias: ' || SQLERRM);
+            --DBMS_OUTPUT.PUT_LINE('Erro ao contar discrepâncias: ' || SQLERRM);
             RETURN -1;
     END contar_discrepancias;
 
@@ -30,10 +30,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINCRONIZA_DATAS AS
         v_error_count NUMBER := 0;
         v_start_time TIMESTAMP := SYSTIMESTAMP;
     BEGIN
-        DBMS_OUTPUT.PUT_LINE('Iniciando sincronização de datas a partir de ' || TO_CHAR(p_data_inicio, 'DD-MON-YYYY'));
+       -- DBMS_OUTPUT.PUT_LINE('Iniciando sincronização de datas a partir de ' || TO_CHAR(p_data_inicio, 'DD-MON-YYYY'));
         
         v_count_before := contar_discrepancias(p_data_inicio);
-        DBMS_OUTPUT.PUT_LINE('Registros com discrepância encontrados: ' || v_count_before);
+       -- DBMS_OUTPUT.PUT_LINE('Registros com discrepância encontrados: ' || v_count_before);
         
         FOR r IN (
             SELECT nf.numtransvenda
@@ -66,20 +66,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINCRONIZA_DATAS AS
             EXCEPTION
                 WHEN OTHERS THEN
                     v_error_count := v_error_count + 1;
-                    DBMS_OUTPUT.PUT_LINE('Erro ao atualizar numtransvenda ' || r.numtransvenda || ': ' || SQLERRM);
+                    --DBMS_OUTPUT.PUT_LINE('Erro ao atualizar numtransvenda ' || r.numtransvenda || ': ' || SQLERRM);
             END;
         END LOOP;
         
         COMMIT;
         v_count_after := contar_discrepancias(p_data_inicio);
         
-        DBMS_OUTPUT.PUT_LINE('Processo concluído. Registros atualizados: ' || v_updated_rows);
-        DBMS_OUTPUT.PUT_LINE('Erros encontrados: ' || v_error_count);
-        DBMS_OUTPUT.PUT_LINE('Tempo total: ' || EXTRACT(SECOND FROM (SYSTIMESTAMP - v_start_time)) || ' segundos');
+        --DBMS_OUTPUT.PUT_LINE('Processo concluído. Registros atualizados: ' || v_updated_rows);
+        --DBMS_OUTPUT.PUT_LINE('Erros encontrados: ' || v_error_count);
+        --DBMS_OUTPUT.PUT_LINE('Tempo total: ' || EXTRACT(SECOND FROM (SYSTIMESTAMP - v_start_time)) || ' segundos');
     EXCEPTION
         WHEN OTHERS THEN
             ROLLBACK;
-            DBMS_OUTPUT.PUT_LINE('ERRO GRAVE: ' || SQLERRM);
+           -- DBMS_OUTPUT.PUT_LINE('ERRO GRAVE: ' || SQLERRM);
             RAISE;
     END sincronizar_datas_saida;
 END PKG_SINCRONIZA_DATAS;
