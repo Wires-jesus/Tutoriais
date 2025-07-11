@@ -410,6 +410,7 @@ where numos IN (SELECT NUMOS
                               end)) qt
                     from pcpedi, pcprodut
                    where pcpedi.numped = :new.numped
+				     and pcprodut.tipomerc <> 'PA'
                      and pcpedi.codProd = pcprodut.codProd
                      and nvl(pcprodut.pesoVariavel, 'N') <> 'S'
                    group by pcpedi.codProd,
@@ -457,6 +458,7 @@ where numos IN (SELECT NUMOS
                             end)) qt
                   from pcpedi, pcprodut
                  where numped = :new.numped
+				   and pcprodut.tipomerc <> 'PA'
                    and pcpedi.codProd = pcprodut.codProd
                    and nvl(pcprodut.pesoVariavel, 'N') <> 'S'
                  group by pcpedi.codProd,
