@@ -4,8 +4,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
    VCODFILIAL         VARCHAR2(2);
    VVLPIS_NF          NUMBER;
    VVLCOFINS_NF       NUMBER;
-   
-   
+
+
   TYPE TIPO_TRIBUT_REFORMA IS RECORD (
       CODFILIAL         VARCHAR2(2),
       CODCLI            NUMBER(9),
@@ -15,11 +15,11 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       TIPO_OPERACAO     VARCHAR2(1),
       DEVOLUCAO         VARCHAR2(1),
       CODIGO_MUNICIPIO  VARCHAR2(10),
-      TIPO_IMPOSTO      VARCHAR2(3),
+      TIPO_IMPOSTO      VARCHAR2(6),
       CODIGO_ENDERECO_CLI NUMBER(6),
       --Filtros adicionais
       CODPROD           NUMBER(6),
-      NCM               VARCHAR2(15),      
+      NCM               VARCHAR2(15),
       CONSUMIDOR_FINAL  VARCHAR2(1),
       TIPO_EMPRESA      VARCHAR2(4),
       TIPO_PESSOA       VARCHAR2(1),
@@ -27,27 +27,50 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       ORGAO_PUBLICO     VARCHAR2(1),
       ORIGEM_MERCADORIA VARCHAR2(1),
       TIPO_MERC         VARCHAR2(2),
-      --Valores para formação da base de cáluclo por meio da fórmula         
+      --Valores para formação da base de cáluclo por meio da fórmula
       VALOR_PRODUTO         NUMBER(18,6),
       VALOR_ICMS_ST         NUMBER(18,6),
       VALOR_FCP_ST          NUMBER(18,6),
       VALOR_IPI             NUMBER(18,6),
       VALOR_FRETE           NUMBER(18,6),
       VALOR_OUTROS          NUMBER(18,6),
-      --Dados retorno
-      CODIGO_TRIBUTACAO        NUMBER(10),
-      FORMULA_BASE_CALCULO     VARCHAR2(4000),
-      FORMULA_VALOR_TRIBUTO    VARCHAR2(50),
-      BASE_CALCULO_COD_FORMULA VARCHAR2(200),
-      SOMATOTALNF              VARCHAR2(1),
-      ALIQUOTA_COD_FORMULA     VARCHAR2(200),
-      CST                      VARCHAR2(3),
-      CCLASSTRIB               VARCHAR2(6),     
-      VALOR_BASE_TRIBUTO       NUMBER(18,6),
-      VALOR_ALIQUOTA_TRIBUTO   NUMBER(18,6),
-      VALOR_TRIBUTO            NUMBER(18,6)            
-   );     
-   
+      --Dados retorno  CBSIBS
+      CODIGO_TRIBUTACAO_CBSIBS        NUMBER(10),
+      FORMULA_BASE_CALCULO_CBSIBS     VARCHAR2(4000),
+      FORMULA_VALOR_TRIBUTO_CBSIBS    VARCHAR2(50),
+      COD_FORMULA_BASE_CBSIBS VARCHAR2(200),
+      SOMATOTALNF_CBSIBS              VARCHAR2(1),
+      CST_CBSIBS                      VARCHAR2(3),
+      CCLASSTRIB_CBSIBS               VARCHAR2(6),
+      VALOR_BASE_CBSIBS               NUMBER(18,6),      
+      --Retorno valores CBS
+      PERC_CBS                NUMBER(7,4),
+      PERC_RED_CBS            NUMBER(7,4),
+      ALIQ_EFETIVA_CBS        NUMBER(7,4),
+      VALOR_CBS               NUMBER(18,6),            
+      --Retorno valores IBS UF
+      PERC_IBS_UF             NUMBER(7,4),
+      PERC_RED_ALIQ_IBS_UF    NUMBER(7,4),
+      ALIQ_EFETIVA_IBS_UF     NUMBER(7,4),
+      VALOR_IBS_UF            NUMBER(18,6),      
+      --Retorno valores IBS    
+      PERC_IBS_MUN           NUMBER(7,4),
+      PERC_RED_ALIQ_IBS_MUN  NUMBER(7,4),
+      ALIQ_EFETIVA_IBS_MUN   NUMBER(7,4),
+      VALOR_IBS_MUN          NUMBER(18,6),      
+      --Retornos valores IS
+      CODIGO_TRIBUTACAO_IS        NUMBER(10),
+      FORMULA_BASE_CALCULO_IS     VARCHAR2(4000),
+      FORMULA_VALOR_TRIBUTO_IS    VARCHAR2(50),
+      COD_FORMULA_BASE_CALCULO_IS VARCHAR2(200),
+      SOMATOTALNF_IS              VARCHAR2(1),
+      CST_IS                      VARCHAR2(3),
+      CCLASSTRIB_IS               VARCHAR2(6),
+      VALOR_BASE_IS               NUMBER(18,6),
+      PERC_IS                     NUMBER(7,4),
+      VALOR_IS                    NUMBER(18,6)
+   );
+
 
    FUNCTION FORMATAR_CST_ICMS(PSITTRIBUT    IN VARCHAR2,
                               PIMPORTADO    IN VARCHAR2,
@@ -276,7 +299,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_CODROTINAORIGEM NUMBER DEFAULT 0,
                                       P_CHEQUEMORADIA VARCHAR2 DEFAULT 'N'
                                       ) RETURN VARCHAR2;
-                                      
+
    FUNCTION GET_FORMULA_CREDPRESUMIDO (
                                       P_CODBENEFICIOFISCAL IN VARCHAR2,
                                       P_CODST IN NUMBER,
@@ -288,7 +311,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                       P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL,
                                       P_CODFISCAL IN NUMBER DEFAULT NULL,
                                       P_NCM IN VARCHAR2 DEFAULT NULL,
-                                      P_ALIQCREDPRESUMIDO OUT NUMBER,                                      
+                                      P_ALIQCREDPRESUMIDO OUT NUMBER,
                                       P_FORMULACREDPRES OUT VARCHAR2,
                                       P_CCREDPRESUMIDO OUT VARCHAR2,
                                       P_IDCREDPRESUMIDO OUT NUMBER
@@ -330,38 +353,31 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                                      ,P_ATIVARLOG    varchar2 := 'N'
                                      ,P_MSG      out varchar2)
   RETURN VARCHAR2;
-  
 
-  FUNCTION CALCULAR_CBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+
+  FUNCTION CALCULAR_TODOS_TRIBUTOS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                         P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;
 
-  
-  FUNCTION CALCULAR_IBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+  FUNCTION CALCULAR_CBSIBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                         P_MSG      out varchar2)
-  RETURN TIPO_TRIBUT_REFORMA;  
+  RETURN TIPO_TRIBUT_REFORMA;
 
 
-  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                         P_MSG      out varchar2)
-  RETURN TIPO_TRIBUT_REFORMA;  
+  RETURN TIPO_TRIBUT_REFORMA;
 
 
-  FUNCTION CALCULAR_CBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+  FUNCTION CALCULAR_CBSIBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                         P_USASUFIXO IN VARCHAR2,
                         P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;
 
-  
-  FUNCTION CALCULAR_IBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
-                        P_USASUFIXO IN VARCHAR2,
-                        P_MSG      out varchar2)
-  RETURN TIPO_TRIBUT_REFORMA;  
 
-
-  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,  
+  FUNCTION CALCULAR_IS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                        P_USASUFIXO IN VARCHAR2,
                        P_MSG      out varchar2)
-  RETURN TIPO_TRIBUT_REFORMA;  
+  RETURN TIPO_TRIBUT_REFORMA;
 
 END;
