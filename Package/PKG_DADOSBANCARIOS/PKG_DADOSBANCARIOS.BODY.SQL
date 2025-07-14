@@ -20,6 +20,7 @@ Bancos homologados:
 637 - Banco Sofisa
 133 - Banco Cresol
 212 - Banco Original
+246 - Banco ABC
 
 Parâmetros de Entrada:
 PS_CODFILIAL         - Código da Filial do título selecionado (PCFILIAL)
