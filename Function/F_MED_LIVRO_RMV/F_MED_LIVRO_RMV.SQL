@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE FUNCTION F_MED_LIVRO_RMV(pi_vCodFilial      IN VARCHAR2,
+CREATE OR REPLACE FUNCTION F_MED_LIVRO_RMV(pi_vCodFilial      IN VARCHAR2,
                          pi_vDataInicial    IN VARCHAR2,
                          pi_vDataFinal      IN VARCHAR2,
                          pi_vInListas       IN VARCHAR2,
