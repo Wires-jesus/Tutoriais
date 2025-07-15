@@ -51,13 +51,24 @@ create or replace package body PKG_FWPC_FISCAL is
                              MC.VLBASEPARTDEST,
                              MC.ALIQINTERORIGPART,
                              M.CODFISCAL,
-                             (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) AS BASEICMS,
+                             -- COLUNA BASEICMS -------------------------------------------------------------------------                             
+                             CASE WHEN TO_NUMBER(NVL(PD.CONDVENDA, N.CONDVENDA)) = 8 
+                                  AND NVL(M.BASEICMS, 0) = 0
+                                  AND (CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S') OR 
+                                                  (PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8CONTAORDEM', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S')) THEN 'SIM'
+                                       ELSE DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO') END) = 'SIM' THEN NVL(M.PUNITCONT,0)
+                             ELSE (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) END BASEICMS,
+                             ----------------------------------------------------------------------------------------------
+                             -- CALCULAPARTILHA --------------------------------------------------------------------------
                              DECODE(TO_NUMBER(NVL(PD.CONDVENDA, N.CONDVENDA))
                                   , 7, DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'NAO', 'S', 'SIM')
-                                  , 8, DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO')
+                                  , 8, CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S') OR 
+                                                  (PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8CONTAORDEM', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S')) THEN 'SIM'
+                                            ELSE DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO') END
                                   , 13, DECODE(FI.DESTACARIMPOSTOSVENDATV13, 'N', 'NAO', 'SIM')
                                   , 14, DECODE(FI.DESTACARIMPOSTOSVENDATV14, 'N', 'NAO', 'SIM')
                                   , 'SIM') AS CALCULAPARTILHA,
+                             ----------------------------------------------------------------------------------------------                                  
                              'N' PREFATURAMENTO,
                              N.NUMTRANSVENDA NUMTRANS
                         from PCNFSAID       N,
@@ -135,13 +146,24 @@ create or replace package body PKG_FWPC_FISCAL is
                              MC.VLBASEPARTDEST,
                              MC.ALIQINTERORIGPART,
                              M.CODFISCAL,
-                             (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) AS BASEICMS,
+                             -- COLUNA BASEICMS --------------------------------------------------------------------------                            
+                             CASE WHEN TO_NUMBER(NVL(PD.CONDVENDA, N.CONDVENDA)) = 8 
+                                  AND NVL(M.BASEICMS, 0) = 0
+                                  AND (CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S') OR 
+                                                  (PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8CONTAORDEM', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S')) THEN 'SIM'
+                                       ELSE DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO') END) = 'SIM' THEN NVL(M.PUNITCONT,0)
+                             ELSE (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) END BASEICMS,
+                             ---------------------------------------------------------------------------------------------
+                             -- CALCULAPARTILHA --------------------------------------------------------------------------
                              DECODE(TO_NUMBER(NVL(PD.CONDVENDA, N.CONDVENDA))
                                   , 7, DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'NAO', 'S', 'SIM')
-                                  , 8, DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO')
+                                  , 8, CASE WHEN ((PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S') OR 
+                                                  (PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8CONTAORDEM', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S')) THEN 'SIM'
+                                            ELSE DECODE(NVL(PD.CONTAORDEM, N.CONTAORDEM), 'N', 'SIM', 'S', 'NAO') END
                                   , 13, DECODE(FI.DESTACARIMPOSTOSVENDATV13, 'N', 'NAO', 'SIM')
                                   , 14, DECODE(FI.DESTACARIMPOSTOSVENDATV14, 'N', 'NAO', 'SIM')
                                   , 'SIM') AS CALCULAPARTILHA,
+                             ---------------------------------------------------------------------------------------------                                  
                              'S' PREFATURAMENTO,
                              N.NUMTRANSVENDA NUMTRANS
                         from PCNFSAIDPREFAT    N,
@@ -213,7 +235,16 @@ create or replace package body PKG_FWPC_FISCAL is
                              MC.VLBASEPARTDEST,
                              MC.ALIQINTERORIGPART,
                              M.CODFISCAL,
-                             (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) AS BASEICMS,
+                             -- BASEICMS ------------------------------------------------------------------------
+                             CASE WHEN (SELECT MAX(S.CONDVENDA) FROM PCNFSAID S, PCESTCOM E 
+                                         WHERE S.NUMTRANSVENDA = E.NUMTRANSVENDA 
+                                           AND E.NUMTRANSENT = N.NUMTRANSENT) = 8
+                                    AND ((PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S') OR 
+                                         (PARAMFILIAL.OBTERCOMOVARCHAR2('CALCICMSPARTTV8CONTAORDEM', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'S'))
+                                    AND NVL(M.BASEICMS,0) = 0 THEN NVL(M.PUNITCONT,0) 
+                              ELSE 
+                                    (NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) END BASEICMS, 
+                             -------------------------------------------------------------------------------------                                        
                              'SIM' AS CALCULAPARTILHA,
                              'N' PREFATURAMENTO,
                              N.NUMTRANSENT NUMTRANS
@@ -3697,10 +3728,9 @@ create or replace package body PKG_FWPC_FISCAL is
      end;
      RETURN(V_RETURN);
   end;
-
-
-  ---------------------------
-
--- Alteração 30/10/2023 - Implementado "ICMSPARTILHA_CALCULAR_1_8"
--- Alteração 17/03/2023 ICMSPARTILHA_CALCULAR_1_6 e ICMSPARTILHA_CALCULAR_1_7
+---------------------------------------------------------------------------------------------------
+-- Alteração 11/07/2025 - Implementação dos parametros 3843 E 3849 no processo de recalcular Difal.
+--                        colunas BASEICMS e CALCULAPARTILHA                          
+-- v001 
+---------------------------------------------------------------------------------------------------
 end PKG_FWPC_FISCAL;
