@@ -1284,6 +1284,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                 'V'
                WHEN f.especie = 'CRE' THEN
                 'I'
+			   WHEN (f.especie = 'GTC') or ((f.especie = 'O') and (f.CODCOB = 'GIFT')) THEN
+                'I'			   
                WHEN COALESCE(c.carteiradigital, 'N') = 'S' THEN
                 'G'
                ELSE
