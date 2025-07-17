@@ -125,50 +125,40 @@ BEGIN
   SELECT COUNT(1)
     INTO VCOUNT
     FROM PCPARAMETROWMS
-   WHERE CODFILIAL IN (SELECT MIN(nvl(pcpedi.CODFILIALretira, PCPEDC.codfilial)) FROM PCPEDC, pcpedi
-                                 WHERE pcpedc.NUMCAR = VNUMCAR
-                                 and pcpedc.numped= pcpedi.numped
-                                 and pcpedc.numcar = pcpedi.numcar)
+   WHERE CODFILIAL IN (SELECT MIN(NVL(PCPEDI.CODFILIALRETIRA, PCPEDC.CODFILIAL)) FROM PCPEDC, PCPEDI
+                        WHERE PCPEDC.NUMCAR = VNUMCAR
+                          AND PCPEDC.NUMPED= PCPEDI.NUMPED
+                          AND PCPEDC.NUMCAR = PCPEDI.NUMCAR)
      AND NOME = 'LIBERACARGAAPOSCXSEMBARCADAS'
      AND VALOR = 'S';
+
 
   IF VCOUNT > 0 THEN
     SELECT COUNT(1)
       INTO VCOUNT
-      FROM PCWMSVINCULOCAIXA W
-     WHERE W.NUMOS IN
-           (SELECT DISTINCT M.NUMOS
-              FROM PCMOVENDPEND M
-             WHERE M.NUMCAR = VNUMCAR
-               AND M.DTESTORNO IS NULL
-               AND M.CODFUNCAUTFAT IS NULL
-               AND M.CODOPER LIKE 'S%'
-               AND M.DATALIBFAT IS NULL
-               AND M.TIPOOS IN
-                   (SELECT TO_NUMBER(NVL(SUBSTR(NOME, 14, 2), 0)) AS TIPOOS
-                      FROM PCPARAMETROWMS
-                     WHERE NOME IN ('TIPOOSCONFEMB9',
-                                    'TIPOOSCONFEMB10',
-                                    'TIPOOSCONFEMB11',
-                                    'TIPOOSCONFEMB12',
-                                    'TIPOOSCONFEMB13',
-                                    'TIPOOSCONFEMB14',
-                                    'TIPOOSCONFEMB15',
-                                    'TIPOOSCONFEMB16',
-                                    'TIPOOSCONFEMB17',
-                                    'TIPOOSCONFEMB18',
-                                    'TIPOOSCONFEMB19',
-                                    'TIPOOSCONFEMB20',
-                                    'TIPOOSCONFEMB22')
-                       AND CODFILIAL = (SELECT MIN(CODFILIAL)
-                                          FROM PCPEDC
-                                         WHERE NUMCAR = VNUMCAR)
-                       AND VALOR = 'S'))
-       AND NVL(W.EMBARCADO, 'N') = 'N';
+      FROM PCWMSVINCULOCAIXA W, PCWMSCAIXA C, PCMOVENDPEND M
+     WHERE W.CODCAIXA            = C.CODCAIXA
+       AND W.NUMOS               = M.NUMOS
+       AND M.DTESTORNO           IS NULL
+       AND M.CODFUNCAUTFAT       IS NULL
+       AND M.CODOPER             LIKE 'S%'
+       AND M.DATALIBFAT          IS NULL
+       AND C.STATUS              <> 'T'
+       AND W.NUMCAR              = VNUMCAR
+       AND NVL(W.EMBARCADO, 'N') <> 'S'
+       AND M.TIPOOS              IN (SELECT TO_NUMBER(NVL(SUBSTR(NOME, 16, 2), 0)) AS TIPOOS
+                                       FROM PCPARAMETROWMS
+                                      WHERE NOME IN ('TIPOOSVINCULOCX9', 'TIPOOSVINCULOCX10','TIPOOSVINCULOCX11','TIPOOSVINCULOCX12','TIPOOSVINCULOCX13',
+                                                     'TIPOOSVINCULOCX14','TIPOOSVINCULOCX15','TIPOOSVINCULOCX16','TIPOOSVINCULOCX17','TIPOOSVINCULOCX18',
+                                                     'TIPOOSVINCULOCX19','TIPOOSVINCULOCX20','TIPOOSVINCULOCX21','TIPOOSVINCULOCX22')
+                                        AND CODFILIAL = (SELECT MIN(CODFILIAL)
+                                                           FROM PCPEDC
+                                                          WHERE NUMCAR = VNUMCAR)
+                                        AND VALOR = 'S');
     IF VCOUNT > 0 THEN
       RETURN 'S';
     END IF;
-  END IF;  
+  END IF;
 
   --Verificando se todas as Ordens de serviço foram finalizadas, validando por numero carregamento
   SELECT COUNT(1)
