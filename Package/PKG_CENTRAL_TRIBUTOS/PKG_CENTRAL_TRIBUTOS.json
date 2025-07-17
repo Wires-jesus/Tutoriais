@@ -4,11 +4,23 @@
     "dependencias": [{
             "nome": "PKG_CENTRAL_TRIBUTOS_CONSULTAS",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.02.000"
+            "versao": "7.0.03.000"
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.37.000"
-        }	
+        }, {
+			"nome": "PCNFBASE",
+			"tipo": "TABELA",
+			"versao": "7.0.03.000"
+		}, {
+			"nome": "PCMOV",
+			"tipo": "TABELA",
+			"versao": "7.0.06.000"
+		}, {
+			"nome": "PCMOVPREFAT",
+			"tipo": "TABELA",
+			"versao": "7.0.07.000"
+		}	
     ]
 }
