@@ -4,7 +4,9 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
   CURSOR C_DADOS_NF_SAIDA_NORMAL(P_CODFILIAL IN VARCHAR2,
                                  P_NUMEROTRANSACAO IN NUMBER,
                                  P_NUMERONOTA IN NUMBER) IS
-    (SELECT N.NUMTRANSVENDA,
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            N.NUMTRANSVENDA,
             N.CODCLI,
             NULL NUMTRANSENT,
             NULL CODFORNEC,
@@ -41,7 +43,9 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
   CURSOR C_DADOS_NF_ENTRADA_DEVOLUCAO(P_CODFILIAL IN VARCHAR2,
                                      P_NUMEROTRANSACAO IN NUMBER,
                                      P_NUMERONOTA IN NUMBER) IS
-    (SELECT NULL NUMTRANSVENDA,
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            NULL NUMTRANSVENDA,
             NULL CODCLI,
             N.NUMTRANSENT,
             N.CODFORNEC,
@@ -72,15 +76,17 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and M.DTCANCEL is null
        and M.QTCONT > 0
    );
-   
+
 
   CURSOR C_DADOS_NF_SAIDA_PREFAT(P_CODFILIAL IN VARCHAR2,
                                           P_NUMEROTRANSACAO IN NUMBER,
                                           P_NUMERONOTA IN NUMBER) IS
-    (SELECT N.NUMTRANSVENDA,
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            N.NUMTRANSVENDA,
             N.CODCLI,
             NULL NUMTRANSENT,
-            NULL CODFORNEC,            
+            NULL CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
             M.PERCICM,
@@ -120,7 +126,38 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and CLIENTE.CODCLI(+) = NVL(N.CODCLINF, N.CODCLI)
        and FI.CODIGO(+) = NVL(N.CODFILIALNF, N.CODFILIAL)
        and M.DTCANCEL is null
-       and M.QTCONT > 0   
+       and M.QTCONT > 0
    );
    
+  CURSOR C_DADOS_CTE_SAIDA(P_CODFILIAL IN VARCHAR2,
+                           P_NUMEROTRANSACAO IN NUMBER,
+                           P_NUMERONOTA IN NUMBER) IS
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            N.NUMTRANSVENDA,
+            N.CODCLI,
+            NULL NUMTRANSENT,
+            NULL CODFORNEC,
+            0 CODPROD,
+            0 NUMTRANSITEM,
+            0 PERCICM,
+            0 SITTRIBUT,
+            0 CODFISCAL,
+            0  NCM,
+            N.VLTOTAL,
+            0 VLIPI,
+            0 VLFRETE,
+            0 VLST,
+            0 VLFECP,
+            0 VLOUTROS,
+            0 BASEICMS,
+            0 PERCBASERED
+       from PCNFSAID       N
+      where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
+        and N.ESPECIE IN ('CT', 'CO')
+        and N.NUMTRANSVENDA = P_NUMEROTRANSACAO
+        and N.NUMNOTA       = P_NUMERONOTA
+    );   
+   
+
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
