@@ -71,7 +71,7 @@ DESENVOLVIDO POR PAULO GONÇALVES EM 15-MAI-2016
                              WHERE C.CODCLI =  pfCODCLI
                              AND   C.DTDESCONTO IS NULL
                              AND   C.DTESTORNO IS NULL
-                             AND   C.SITUACAO IS NULL
+                             AND   NVL(C.SITUACAO,'A') IN ('A')
                              AND   ((PARAMFILIAL.OBTERCOMOVARCHAR2('USACREDCLITODASFILIAIS') = 'S') OR (C.CODFILIAL = psFILIAL))
                              AND   NVL(C.NUMPED,0) = DECODE(NVL(pfNUMPED, 0), 0, 0, NVL(pfNUMPED, 0))
                              ORDER BY C.VALOR)
