@@ -84,7 +84,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
                     P.Codfunccheckout "Codfunccheckout",
                     P.Numcheckout "Numcheckout",
                     P.Numserieequip "Numserieequip",
-                    P.Duplic "Duplic",
+                    P.Seqdocto "Duplic",
                     P.Codcli "Codcli",
                     P.Valor "Valor",
                     P.Dtvenc "Dtvenc",
@@ -110,7 +110,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_GIFTCARD IS
                     P.Valorcomtroco "Valorcomtroco",
                     P.Idpagamento "Idpagamento",
                     P.Idpagamento "Idpagamentolocal",
-                    P.Codcobsefaz "Codcobsefaz"
+                    P.Codcobsefaz "Codcobsefaz",
+					3 "Tipodoc"
         )))) Parcelas
      INTO L_XMLTYPEGIFTCARD
      FROM VW_INT_C5_PCPRESTECF P
