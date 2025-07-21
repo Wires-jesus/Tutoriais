@@ -40,43 +40,6 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
         and M.QTCONT > 0
     );
 
-  CURSOR C_DADOS_NF_ENTRADA_DEVOLUCAO(P_CODFILIAL IN VARCHAR2,
-                                     P_NUMEROTRANSACAO IN NUMBER,
-                                     P_NUMERONOTA IN NUMBER) IS
-    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
-            N.NUMNOTA,
-            NULL NUMTRANSVENDA,
-            NULL CODCLI,
-            N.NUMTRANSENT,
-            N.CODFORNEC,
-            M.CODPROD,
-            M.NUMTRANSITEM,
-            M.PERCICM,
-            M.SITTRIBUT,
-            M.CODFISCAL,
-            M.NBM NCM,
-            M.PUNITCONT,
-            M.VLIPI,
-            M.VLFRETE,
-            M.ST VLST,
-            MC.VLFECP,
-            M.VLOUTROS,
-            M.BASEICMS,
-            M.PERCBASERED
-      from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
-     where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
-       and N.NUMTRANSENT   = P_NUMEROTRANSACAO
-       and N.NUMNOTA       = P_NUMERONOTA
-       and N.NUMTRANSENT   = M.NUMTRANSENT
-       and N.NUMNOTA = M.NUMNOTA
-       AND P.CODPROD = M.CODPROD
-       and N.NUMNOTA = M.NUMNOTA
-       and MC.NUMTRANSITEM(+) = M.NUMTRANSITEM
-       and N.TIPODESCARGA in ('6', '8', 'T')
-       and M.DTCANCEL is null
-       and M.QTCONT > 0
-   );
-
 
   CURSOR C_DADOS_NF_SAIDA_PREFAT(P_CODFILIAL IN VARCHAR2,
                                           P_NUMEROTRANSACAO IN NUMBER,
@@ -158,6 +121,82 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
         and N.NUMTRANSVENDA = P_NUMEROTRANSACAO
         and N.NUMNOTA       = P_NUMERONOTA
     );   
+    
+  CURSOR C_DADOS_NF_ENTRADA_DEVOLUCAO(P_CODFILIAL IN VARCHAR2,
+                                     P_NUMEROTRANSACAO IN NUMBER,
+                                     P_NUMERONOTA IN NUMBER) IS
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            NULL NUMTRANSVENDA,
+            NULL CODCLI,
+            N.NUMTRANSENT,
+            N.CODFORNEC,
+            M.CODPROD,
+            M.NUMTRANSITEM,
+            M.PERCICM,
+            M.SITTRIBUT,
+            M.CODFISCAL,
+            M.NBM NCM,
+            M.PUNITCONT,
+            M.VLIPI,
+            M.VLFRETE,
+            M.ST VLST,
+            MC.VLFECP,
+            M.VLOUTROS,
+            M.BASEICMS,
+            M.PERCBASERED
+      from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
+     where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
+       and N.NUMTRANSENT   = P_NUMEROTRANSACAO
+       and N.NUMNOTA       = P_NUMERONOTA
+       and N.NUMTRANSENT   = M.NUMTRANSENT
+       and N.NUMNOTA = M.NUMNOTA
+       AND P.CODPROD = M.CODPROD
+       and N.NUMNOTA = M.NUMNOTA
+       and MC.NUMTRANSITEM(+) = M.NUMTRANSITEM
+       and N.TIPODESCARGA in ('6', '8', 'T')
+       and M.DTCANCEL is null
+       and M.QTCONT > 0
+   );
+   
+   
+   
+  CURSOR C_DADOS_NF_ENTRADA_NORMAL(P_CODFILIAL IN VARCHAR2,
+                                   P_NUMEROTRANSACAO IN NUMBER,
+                                   P_NUMERONOTA IN NUMBER) IS
+    (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
+            N.NUMNOTA,
+            NULL NUMTRANSVENDA,
+            NULL CODCLI,
+            N.NUMTRANSENT,
+            N.CODFORNEC,
+            M.CODPROD,
+            M.NUMTRANSITEM,
+            M.PERCICM,
+            M.SITTRIBUT,
+            M.CODFISCAL,
+            M.NBM NCM,
+            M.PUNITCONT,
+            M.VLIPI,
+            M.VLFRETE,
+            M.ST VLST,
+            MC.VLFECP,
+            M.VLOUTROS,
+            M.BASEICMS,
+            M.PERCBASERED
+      from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
+     where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
+       and N.NUMTRANSENT   = P_NUMEROTRANSACAO
+       and N.NUMNOTA       = P_NUMERONOTA
+       and N.NUMTRANSENT   = M.NUMTRANSENT
+       and N.NUMNOTA = M.NUMNOTA
+       AND P.CODPROD = M.CODPROD
+       and N.NUMNOTA = M.NUMNOTA
+       and MC.NUMTRANSITEM(+) = M.NUMTRANSITEM
+       and N.TIPODESCARGA not in ('6', '8', 'F', 'N','P', 'C', 'T')
+       and M.DTCANCEL is null
+       and M.QTCONT > 0
+   );       
    
 
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
