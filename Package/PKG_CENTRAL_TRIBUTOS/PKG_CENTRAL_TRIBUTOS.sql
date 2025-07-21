@@ -9,9 +9,9 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS AS
      NUMERO_PEDIDO             NUMBER,
 
      TIPOMOVIMENTO             VARCHAR2(1),
-     DEVOLUCAO                 VARCHAR2(1),
-     PRE_FATURAMENTO           VARCHAR2(1),
-     ESPECIE                   VARCHAR2(2),
+     DEVOLUCAO                 VARCHAR2(1) := 'N',
+     PRE_FATURAMENTO           VARCHAR2(1) := 'N',
+     ESPECIE                   VARCHAR2(2) := 'NF',
 
      CODIGO_MENSAGEM_RETORNO   NUMBER,
      MENSAGEM_RETORNO          VARCHAR2(4000)
