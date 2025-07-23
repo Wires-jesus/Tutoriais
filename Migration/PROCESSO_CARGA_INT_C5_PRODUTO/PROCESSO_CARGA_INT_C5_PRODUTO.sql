@@ -425,8 +425,8 @@ FROM (
                    p.codauxiliar IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
                    'D' ORIGEM,
                    p.codprod codproduto,
-                   fnc_remove_char_esp(p.descricao) desccompleta,
-                   SUBSTR((fnc_remove_char_esp(p.descricao)),1,24) descreduzida,
+                   fnc_remove_char_esp(NVL(p.descricaoreduzida,p.descricao)) desccompleta,
+                   SUBSTR((fnc_remove_char_esp(NVL(p.descricaoreduzida,p.descricao))),1,24) descreduzida,
                    'N' produtocomposto,
                    0 QTDDIAVALIDADE,
                    nvl(p.anp, 0) codanp,

@@ -12,14 +12,14 @@ SELECT
         D.COO,
         'C' ORIGEMFATURA,
         'E' STATUS,
-        PG.CODREDETEF CODOPERRECARGACEL,
+        MAX(NVL(PG.CODREDETEF,'0')) CODOPERRECARGACEL,
         
         CASE
-          WHEN TO_NUMBER(PG.CODREDETEF) = 266 THEN
+          WHEN TO_NUMBER(MAX(NVL(PG.CODREDETEF,'0'))) = 266 THEN
                'D'
-          WHEN TO_NUMBER(PG.CODREDETEF) = 269 THEN 
+          WHEN TO_NUMBER(MAX(NVL(PG.CODREDETEF,'0'))) = 269 THEN 
                'B'    
-          WHEN TO_NUMBER(PG.CODREDETEF) = 52 THEN      
+          WHEN TO_NUMBER(MAX(NVL(PG.CODREDETEF,'0'))) = 52 THEN      
                'T'
           ELSE ''
        END TIPOFATURA
@@ -31,8 +31,6 @@ SELECT
  AND    D.NROCHECKOUT = PG.NROCHECKOUT
  AND    D.REPLICACAO = 'P'
  AND    D.ESPECIE IN ('PL')
- AND    PG.VALOR > 0
- AND    ROWNUM > 1
  GROUP BY 
         D.SEQDOCTO,
         D.NROEMPRESA,
@@ -40,6 +38,5 @@ SELECT
         D.SEQUSUARIO,
         D.DTAHOREMISSAO,
         D.DTAMOVIMENTO,
-        D.COO,
-        PG.CODREDETEF
+        D.COO
 )
