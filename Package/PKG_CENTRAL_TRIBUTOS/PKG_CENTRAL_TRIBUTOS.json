@@ -8,11 +8,11 @@
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.39.000"
+            "versao": "7.0.40.000"
         }, {
 			"nome": "PCNFBASE",
 			"tipo": "TABELA",
-			"versao": "7.0.03.000"
+			"versao": "7.0.05.000"
 		}, {
 			"nome": "PCMOV",
 			"tipo": "TABELA",

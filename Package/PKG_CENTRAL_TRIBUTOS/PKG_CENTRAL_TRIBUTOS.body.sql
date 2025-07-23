@@ -193,8 +193,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           'ALIQCBS                 = :13, ' ||
           'PREDALIQCBS             = :14, ' ||
           'PALIQEFETCBS            = :15, ' ||
-          'VLCBS                   = :16 ' ||
-          'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :17 AND NUMTRANSITEM = :18 AND CODPROD = :19'
+          'VLCBS                   = :16,' ||
+          'SOMATOTALNF_CBS         = :17,' ||
+          'SOMATOTALNF_IBS         = :18 ' ||                    
+          'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :19 AND NUMTRANSITEM = :20 AND CODPROD = :21'
         USING
           P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
           P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :2
@@ -212,9 +214,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :14
           P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :15
           P_DADOS_TRIBUTOS.VALOR_CBS,                -- :16
-          P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :17
-          P_LISTA_DADOS_NOTAS.NUMTRANSITEM,          -- :18
-          P_LISTA_DADOS_NOTAS.CODPROD                -- :19
+          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :17
+          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :18                    
+          P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :19
+          P_LISTA_DADOS_NOTAS.NUMTRANSITEM,          -- :20
+          P_LISTA_DADOS_NOTAS.CODPROD                -- :21
           ;
 
       PKG_DEBUGGING_FWPC.LOG('Linhas atualizadas para CBSIBS: ' || SQL%ROWCOUNT, 'S');
@@ -233,8 +237,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
       EXECUTE IMMEDIATE
         'UPDATE ' || V_TABELA || ' SET ' ||
         'CODIGOTRIBUTACAOIS = :1, CSTIS = :2, CCLASSTRIBIS = :3, ' ||
-        'VLBASEIS = :4, ALIQIS = :5, VLIS = :6 ' ||
-        'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :7 AND NUMTRANSITEM = :8 AND CODPROD = :9'
+        'VLBASEIS = :4, ALIQIS = :5, VLIS = :6, SOMATOTALNF_IS = :7 ' ||
+        'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :8 AND NUMTRANSITEM = :9 AND CODPROD = :10'
       USING
         P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_IS,
         P_DADOS_TRIBUTOS.CST_IS,
@@ -242,6 +246,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
         P_DADOS_TRIBUTOS.VALOR_BASE_IS,
         P_DADOS_TRIBUTOS.PERC_IS,
         P_DADOS_TRIBUTOS.VALOR_IS,
+        P_DADOS_TRIBUTOS.SOMATOTALNF_IS,        
         P_LISTA_DADOS_NOTAS.NUMTRANSACAO,
         P_LISTA_DADOS_NOTAS.NUMTRANSITEM,
         P_LISTA_DADOS_NOTAS.CODPROD;
@@ -311,9 +316,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
 
                   'PCBS             = :12,' ||
                   'PREDALIQ_CBS     = :13,' ||
-                  'PALIQEFET_CBS    = :14, ' ||
-                  'VCBS             = :15 ' ||                   
-          'WHERE NUMTRANSVENDA = :16 '
+                  'PALIQEFET_CBS    = :14,' ||
+                  'VCBS             = :15,' ||                   
+                  'SOMATOTALNF      = :16 ' ||                  
+          'WHERE NUMTRANSVENDA = :17 '
         USING
           P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :1
           P_DADOS_TRIBUTOS.CCLASSTRIB_CBSIBS,        -- :2
@@ -333,7 +339,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :13
           P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :14
           P_DADOS_TRIBUTOS.VALOR_CBS,                -- :15
-          P_LISTA_DADOS_NOTAS.NUMTRANSACAO           -- :16
+          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :16          
+          P_LISTA_DADOS_NOTAS.NUMTRANSACAO           -- :17
           ;
 
       PKG_DEBUGGING_FWPC.LOG('Linhas atualizadas para CBSIBS: ' || SQL%ROWCOUNT, 'S');
@@ -402,7 +409,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
       V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem5;
       V_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO        := cMensagem5;
     END IF;
-    
+
     RETURN P_PARAMETROS_CENTRAL_TRIBUTOS;
 
   EXCEPTION
@@ -522,7 +529,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
       V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem5;
       V_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO        := cMensagem5;
     END IF;
-    
+
     RETURN V_PARAMETROS_CENTRAL_TRIBUTOS;    
   EXCEPTION
      WHEN OTHERS THEN
