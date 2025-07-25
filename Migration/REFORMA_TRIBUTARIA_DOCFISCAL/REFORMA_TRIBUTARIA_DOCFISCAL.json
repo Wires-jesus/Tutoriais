@@ -5,22 +5,22 @@
 	  {
 	   "nome":"NFE_CABECALHO_ENTRADA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.05.000"
+	   "versao":"7.0.06.000"
 	  },
 	  {
 	   "nome":"NFE_CABECALHO_SAIDA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.07.000"
+	   "versao":"7.0.09.000"
 	  },	  
 	  {
 	   "nome":"NFE_PRODUTO_ENTRADA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.26.000"
+	   "versao":"7.0.27.000"
 	  },
 	  {
 	   "nome":"NFE_PRODUTO_SAIDA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.12.000"
+	   "versao":"7.0.14.000"
 	  },	  
 	  {
 	   "nome":"NFE_RODAPE_ENTRADA",
@@ -40,12 +40,12 @@
 	  {
 	   "nome":"CTE_IDENTIFICACAO",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.04.000"
+	   "versao":"7.0.06.000"
 	  },
 	  {
 	   "nome":"CTE_IMPOSTO",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.02.000"
+	   "versao":"7.0.03.000"
 	  },
 	  {
 	   "nome":"TABELA_MENSAGENS_MDFE",
@@ -55,7 +55,7 @@
 	  {
 	   "nome":"TABELA_MENSAGENS_CTE",
 	   "tipo":"MIGRATION",
-	   "versao":"7.0.05.000"
+	   "versao":"7.0.08.000"
 	  },
 	  {
 	   "nome":"TABELA_MENSAGENS_NFE",
@@ -70,17 +70,17 @@
 	  {
 	   "nome":"FISCAL",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.33.000"
+	   "versao":"7.0.40.000"
 	  },
 	  {
 	   "nome": "PCNFBASE",
 	   "tipo":"TABELA",
-	   "versao": "7.0.02.000"
+	   "versao": "7.0.05.000"
 	  },
 	  {
 	   "nome": "PCNFBASEPREFAT",
 	   "tipo":"TABELA",
-	   "versao": "7.0.01.000"
+	   "versao": "7.0.04.000"
 	  },
 	  {
 	   "nome": "PCMOVCIAP",
@@ -90,27 +90,27 @@
 	  {
 	   "nome": "PCMOV",
 	   "tipo":"TABELA",
-	   "versao": "7.0.04.000"
+	   "versao": "7.0.07.000"
 	  },
 	  {
 	   "nome": "PCMOVPREFAT",
 	   "tipo":"TABELA",
-	   "versao": "7.0.04.000"
+	   "versao": "7.0.08.000"
 	  },
 	  {
 	   "nome": "PCNFENT",
 	   "tipo":"TABELA",
-	   "versao": "7.0.14.000"
+	   "versao": "7.0.17.000"
 	  },
 	  {
 	   "nome": "PCNFSAID",
 	   "tipo":"TABELA",
-	   "versao": "7.0.08.000"
+	   "versao": "7.0.13.000"
 	  },
 	  {
 	   "nome": "PCNFSAIDPREFAT",
 	   "tipo":"TABELA",
-	   "versao": "7.0.03.000"
+	   "versao": "7.0.07.000"
 	  }
   ]
 }
