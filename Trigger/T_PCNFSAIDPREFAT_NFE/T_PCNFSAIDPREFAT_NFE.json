@@ -1,5 +1,5 @@
 {
-	"nome":"T_PCNFSAID_NFE",
+	"nome":"T_PCNFSAIDPREFAT_NFE",
 	"tipoPLSQL":"TRIGGER",
 	"dependencias":[
  {
