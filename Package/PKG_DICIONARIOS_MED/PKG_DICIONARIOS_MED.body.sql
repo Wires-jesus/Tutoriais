@@ -6425,6 +6425,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                                               vnIva,
                                               vnPercBaseRedSt
                                               );
+
+                        -- Calcula o Repasse
+                        PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_RegiaoFilial.CODFILIALST,
+                                                           vc_RegiaoFilial.CODCLIST,
+                                                           vc_RegiaoFilial.NUMREGIAO,
+                                                           1,    -- pi_nCondVenda,
+                                                           vc_Produto.CODPROD,
+                                                           NULL, --pi_nCodSt
+                                                           vnPrecoFabrica,
+                                                           NVL(vc_PrecoPromocionalFaixaQtde.PRECOPROMOCIONAL,0),
+                                                           NULL, --pi_vTipoAplicRepasseFilial
+                                                           'N',  --pi_vCriticaObrigatorio
+                                                           vnIntegradora,
+                                                           'F',
+                                                           vvTipoFv,
+                                                           vvMensagemRepasse,
+                                                           vvTipoRepasse,
+                                                           vnValorRepasse);
                                                                                       
                         INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                                   ( CODSISTEMA
@@ -6443,7 +6461,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   , TIPOPRECODESCONTO
                                   , CODFILIALST
                                   , PRECOFABRICA
-                                  , VLST )
+                                  , VLST
+                                  , VLREPASSE )
                            VALUES ( pi_vCodSistema
                                   , vc_RegiaoFilial.NUMREGIAO
                                   , vnCodCondicaoVenda
@@ -6460,7 +6479,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                   , vvTipoPrecoDescFaixaQtde
                                   , vc_RegiaoFilial.CODFILIALST
                                   , vnPrecoFabrica
-                                  , vnValorSt );
+                                  , vnValorSt
+                                  , vnValorRepasse );
                                   
                         -- Insere Restrição do Produto - DDMEDICA-5511
                         P_INSERE_RESTRICAO_PRODUTO(pi_vCodSistema,
@@ -14534,6 +14554,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                   vnIva,
                                                   vnPercBaseRedSt
                                                 );
+
+                            -- Calcula o Repasse
+                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                                                               vc_Produto.CODCLIST,
+                                                               vc_Produto.NUMREGIAO,
+                                                               1,    -- pi_nCondVenda,
+                                                               vc_Produto.CODPROD,
+                                                               NULL, --pi_nCodSt
+                                                               vnPrecoFabrica,
+                                                               vnPrecoLiquido,
+                                                               NULL, --pi_vTipoAplicRepasseFilial
+                                                               'N',  --pi_vCriticaObrigatorio
+                                                               vnIntegradora,
+                                                               'F',
+                                                               vvTipoFv,
+                                                               vvMensagemRepasse,
+                                                               vvTipoRepasse,
+                                                               vnValorRepasse);
   
                             INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                                       ( CODSISTEMA
@@ -14552,7 +14590,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       , TIPOPRECODESCONTO
                                       , CODFILIALST
                                       , PRECOFABRICA
-                                      , VLST )
+                                      , VLST
+                                      , VLREPASSE )
                                VALUES ( pi_vCodSistema
                                       , vc_Produto.NUMREGIAO
                                       , vnCodCondicaoVenda
@@ -14569,7 +14608,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       , vvTipoPrecoDescFaixaQtde
                                       , vc_Produto.CODFILIAL
                                       , vnPrecoFabrica
-                                      , vnValorSt );
+                                      , vnValorSt
+                                      , vnValorRepasse );
   
                           END LOOP; -- Fim c_DescontoFaixaQtde
   
@@ -14615,6 +14655,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                   vnIva,
                                                   vnPercBaseRedSt
                                                   );
+
+                            -- Calcula o Repasse
+                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                                                               vc_Produto.CODCLIST,
+                                                               vc_Produto.NUMREGIAO,
+                                                               1,    -- pi_nCondVenda,
+                                                               vc_Produto.CODPROD,
+                                                               NULL, --pi_nCodSt
+                                                               vnPrecoFabrica,
+                                                               NVL(vc_PrecoPromocionalFaixaQtde.PRECOPROMOCIONAL,0),
+                                                               NULL, --pi_vTipoAplicRepasseFilial
+                                                               'N',  --pi_vCriticaObrigatorio
+                                                               vnIntegradora,
+                                                               'F',
+                                                               vvTipoFv,
+                                                               vvMensagemRepasse,
+                                                               vvTipoRepasse,
+                                                               vnValorRepasse);
   
                             INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                                       ( CODSISTEMA
@@ -14633,7 +14691,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       , TIPOPRECODESCONTO
                                       , CODFILIALST
                                       , PRECOFABRICA
-                                      , VLST )
+                                      , VLST
+                                      , VLREPASSE )
                                VALUES ( pi_vCodSistema
                                       , vc_Produto.NUMREGIAO
                                       , vnCodCondicaoVenda
@@ -14650,7 +14709,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       , vvTipoPrecoDescFaixaQtde
                                       , vc_Produto.CODFILIAL
                                       , vnPrecoFabrica
-                                      , vnValorSt );
+                                      , vnValorSt
+                                      , vnValorRepasse );
   
                           END LOOP; -- Fim c_PrecoPromocionalFaixaQtde
   
@@ -15195,6 +15255,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                                       vnPercBaseRedSt
                                     );
 
+                      -- Calcula o Repasse
+                      PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                                                         vc_Produto.CODCLIST,
+                                                         vc_Produto.NUMREGIAO,
+                                                         1,    -- pi_nCondVenda,
+                                                         vc_Produto.CODPROD,
+                                                         NULL, --pi_nCodSt
+                                                         vnPrecoFabrica,
+                                                         vnPrecoLiquido,
+                                                         NULL, --pi_vTipoAplicRepasseFilial
+                                                         'N',  --pi_vCriticaObrigatorio
+                                                         vnIntegradora,
+                                                         'F',
+                                                         vvTipoFv,
+                                                         vvMensagemRepasse,
+                                                         vvTipoRepasse,
+                                                         vnValorRepasse);												  									
+
                       INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                                 ( CODSISTEMA
                                 , NUMREGIAO
@@ -15214,7 +15292,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 , PRECOFABRICA
                                 , VLST 
                                 , CUSTOFINANCEIRO -- DDMEDICA-5980
-                                , PERCMARKUPMED ) -- DDMEDICA-5980
+                                , PERCMARKUPMED   -- DDMEDICA-5980
+                                , VLREPASSE )
                          VALUES ( pi_vCodSistema
                                 , vc_Produto.NUMREGIAO
                                 , vnCodCondicaoVenda
@@ -15239,7 +15318,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                                 , vnPrecoFabrica
                                 , vnValorSt
                                 , vnCustoFinanceiroMkp -- DDMEDICA-5980
-                                , vnPercMarkupMed );   -- DDMEDICA-5980
+                                , vnPercMarkupMed      -- DDMEDICA-5980
+                                , vnValorRepasse );
                   END IF;
 
                   -- Preço Promocional por Faixa de Quantidade ----------------------------------------
@@ -15281,6 +15361,24 @@ IS PRAGMA SERIALLY_REUSABLE;
                                           vnPercBaseRedSt
                                           );
 
+                    -- Calcula o Repasse
+                    PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIAL,
+                                                       vc_Produto.CODCLIST,
+                                                       vc_Produto.NUMREGIAO,
+                                                       1,    -- pi_nCondVenda,
+                                                       vc_Produto.CODPROD,
+                                                       NULL, --pi_nCodSt
+                                                       vnPrecoFabrica,
+                                                       NVL(vnPrecoPromocional,0),
+                                                       NULL, --pi_vTipoAplicRepasseFilial
+                                                       'N',  --pi_vCriticaObrigatorio
+                                                       vnIntegradora,
+                                                       'F',
+                                                       vvTipoFv,
+                                                       vvMensagemRepasse,
+                                                       vvTipoRepasse,
+                                                       vnValorRepasse);
+
                     INSERT INTO PCMED_VIEWOLCONDVENDAPROD_FTMP
                               ( CODSISTEMA
                               , NUMREGIAO
@@ -15298,7 +15396,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , TIPOPRECODESCONTO
                               , CODFILIALST
                               , PRECOFABRICA
-                              , VLST )
+                              , VLST
+                              , VLREPASSE )
                        VALUES ( pi_vCodSistema
                               , vc_Produto.NUMREGIAO
                               , vnCodCondicaoVenda
@@ -15321,7 +15420,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vvTipoPrecoDesconto
                               , vc_Produto.CODFILIAL
                               , vnPrecoFabrica
-                              , vnValorSt );
+                              , vnValorSt
+                              , vnValorRepasse );
 
                   END IF; -- Fim Condição Tipo de Promoção por Faixa
     
