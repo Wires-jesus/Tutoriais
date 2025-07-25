@@ -21,6 +21,10 @@
 			"nome": "PCMOVPREFAT",
 			"tipo": "TABELA",
 			"versao": "7.0.07.000"
+		}, {
+			"nome": "PCPEDI",
+			"tipo": "TABELA",
+			"versao": "7.0.06.000"
 		}	
     ]
 }
