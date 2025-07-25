@@ -7,10 +7,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
+            N.NUMPED,            
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
+            M.NUMSEQ,            
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -46,10 +48,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
+            N.NUMPED,            
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
+            M.NUMSEQ,            
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -96,10 +100,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
+            N.NUMPED,            
             N.CODCLI,
             NULL CODFORNEC,
             0 CODPROD,
             0 NUMTRANSITEM,
+            0 NUMSEQ,            
             0 PERCICM,
             0 SITTRIBUT,
             0 CODFISCAL,
@@ -125,10 +131,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSENT NUMTRANSACAO,
+            NULL NUMPED,            
             NULL CODCLI,
             N.CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
+            M.NUMSEQ,            
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -163,10 +171,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSENT NUMTRANSACAO,
+            NULL NUMPED,
             NULL CODCLI,
             N.CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
+            M.NUMSEQ,
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -191,7 +201,41 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and N.TIPODESCARGA not in ('6', '8', 'F', 'N','P', 'C', 'T')
        and M.DTCANCEL is null
        and M.QTCONT > 0
+   );  
+   
+
+
+  CURSOR C_DADOS_PEDIDO(P_CODFILIAL IN VARCHAR2,
+                        P_NUMPED IN NUMBER) IS
+    (SELECT C.CODFILIAL,
+            C.NUMNOTA,
+            C.NUMTRANSVENDA NUMTRANSACAO,
+            C.NUMPED,
+            C.CODCLI,
+            NULL CODFORNEC,
+            PI.CODPROD,
+            NULL NUMTRANSITEM,
+            PI.NUMSEQ,
+            0 PERCICM,
+            NULL SITTRIBUT,
+            NULL CODFISCAL,
+            NULL NCM,
+            PI.PVENDA PUNITCONT,
+            PI.VLIPI,
+            PI.VLFRETE,
+            PI.ST VLST,
+            PI.VLFECP,
+            PI.VLOUTROS,
+            NULL BASEICMS,
+            PI.PERCBASERED
+      from PCPEDC C, 
+           PCPEDI PI
+     where C.CODFILIAL = P_CODFILIAL
+       and C.NUMPED    = P_NUMPED
+       and C.NUMPED    = PI.NUMPED
+       AND C.CODFILIAL = C.CODFILIAL
    );       
+        
    
 
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
