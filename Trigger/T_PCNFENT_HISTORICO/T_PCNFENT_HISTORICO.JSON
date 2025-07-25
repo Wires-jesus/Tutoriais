@@ -1,0 +1,5 @@
+{
+	"nome":"T_PCNFENT_HISTORICO",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":""
+}

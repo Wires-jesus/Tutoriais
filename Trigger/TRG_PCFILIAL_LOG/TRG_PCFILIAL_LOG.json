@@ -1,0 +1,5 @@
+{
+	"nome":"TRG_PCFILIAL_LOG",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":""
+}

@@ -1,0 +1,11 @@
+{
+	"nome":"T_PCNFSAIDPREFAT_NFE",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+ {
+  "nome": "PCMEDIATEMPOAPROVACAONFE",
+  "tipo": "TABELA",
+  "versao": "6.0.02.000"
+}
+ ]
+}
