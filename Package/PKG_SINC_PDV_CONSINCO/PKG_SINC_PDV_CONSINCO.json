@@ -65,7 +65,7 @@
 		{
 			"nome": "VW_INT_C5_EMBPROD",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "7.0.09.000"
+			"versao": "7.0.13.000"
 		},
 		{
 			"nome": "VW_INT_C5_EMB_DESMEMBRADAS",

@@ -4,9 +4,15 @@
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.02.000"
       },
-	{
-		"nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
-		"tipo": "MIGRATION",
-		"versao": "7.0.09.000"
-	}
+
+      {
+            "nome": "VW_INT_C5_EMBPROD",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.13.000"
+      },
+	  {
+		  "nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
+		  "tipo": "MIGRATION",
+		  "versao": "7.0.04.000"
+	  }
 ]}
