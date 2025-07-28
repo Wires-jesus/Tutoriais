@@ -138,6 +138,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
            (EXISTS(SELECT 1
                    FROM PCFORMPROD CESTA
                    WHERE (CESTA.CODPRODMP = E.CODPROD OR CESTA.CODPRODACAB = E.CODPROD)
+                   AND CESTA.CODPRODACAB = P.CODPROD
+                   AND CESTA.CODAUXILIARMP IS NOT NULL
                   )
            )
           
@@ -333,6 +335,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
          (EXISTS(SELECT 1
                  FROM PCFORMPROD CESTA
                  WHERE (CESTA.CODPRODMP = E.CODPROD OR CESTA.CODPRODACAB = E.CODPROD)
+                 AND CESTA.CODPRODACAB = P.CODPROD
+                 AND CESTA.CODAUXILIARMP IS NOT NULL
                 )
          )
          
