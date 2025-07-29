@@ -202,6 +202,7 @@ CREATE OR REPLACE PACKAGE BODY FERRAMENTAS_FATURAMENTO IS
         vAtualizarTotaisVenda.ValorCustoRealMes       := (movimentacao.qtvenda * movimentacao.custoreal);
         vAtualizarTotaisVenda.ValorCustoFinanceiroDia := (movimentacao.qtvenda * movimentacao.custofin);
         vAtualizarTotaisVenda.ValorCustoFinanceiroMes := (movimentacao.qtvenda * movimentacao.custofin);
+		vAtualizarTotaisVenda.numregiao               := movimentacao.numregiao;
         atualizarTotaisVenda(vAtualizarTotaisVenda, pMensagemRetorno);	
        
 	    AtualizarPcGiro(vAtualizarTotaisVenda, pMensagemRetorno);
