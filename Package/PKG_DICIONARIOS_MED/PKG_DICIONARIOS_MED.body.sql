@@ -14556,7 +14556,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                 );
 
                             -- Calcula o Repasse
-                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIAL,
                                                                vc_Produto.CODCLIST,
                                                                vc_Produto.NUMREGIAO,
                                                                1,    -- pi_nCondVenda,
@@ -14657,7 +14657,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                   );
 
                             -- Calcula o Repasse
-                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                            PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIAL,
                                                                vc_Produto.CODCLIST,
                                                                vc_Produto.NUMREGIAO,
                                                                1,    -- pi_nCondVenda,
@@ -15256,7 +15256,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                     );
 
                       -- Calcula o Repasse
-                      PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIALST,
+                      PKG_MEDICAMENTOS.P_OBTEM_VLREPASSE(vc_Produto.CODFILIAL,
                                                          vc_Produto.CODCLIST,
                                                          vc_Produto.NUMREGIAO,
                                                          1,    -- pi_nCondVenda,
