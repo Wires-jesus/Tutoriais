@@ -18796,7 +18796,7 @@ IS PRAGMA SERIALLY_REUSABLE;
            AND (TIPOCODIGOPRINCIPAL = vc_PromocaoAlterada.TIPOCODIGOPRINCIPAL)
            AND (CODIGOPRINCIPAL     = vc_PromocaoAlterada.CODIGOPRINCIPAL);
       END IF;     
-    END LOOP;                                   
+    END LOOP;                       
     -- Depois muda os registros para excluídos (detalhes)
     UPDATE PCCONFIGSISTCONDOPERLOG
        SET NOVAOPERACAO = 'E'
