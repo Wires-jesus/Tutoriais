@@ -1,0 +1,54 @@
+CREATE OR REPLACE TRIGGER TRG_PCCESTPRODUTO
+  BEFORE INSERT OR UPDATE OR DELETE ON PCCESTPRODUTO
+  REFERENCING NEW AS NEW OLD AS OLD
+  FOR EACH ROW
+DECLARE
+  CHAVE    VARCHAR2(2000);
+  ACAO     VARCHAR2(10);
+  CODLOG   NUMBER;
+BEGIN
+  IF INSERTING THEN
+    CHAVE  := '|CODCESTPROD=' || NVL(:NEW.CODCESTPROD,'') ||
+              '|CODSEQCEST='  || NVL(:NEW.CODSEQCEST,'')  ||
+              '|CODPROD='     || NVL(:NEW.CODPROD,'')      ||
+              '|TIPOPROD='    || NVL(:NEW.TIPOPROD,'')     || '|';
+    ACAO   := 'INSERT';
+    CODLOG := :NEW.CODPROD;
+
+  ELSIF UPDATING THEN
+    CHAVE  := '|CODCESTPROD=' || NVL(:NEW.CODCESTPROD,'') ||
+              '|CODSEQCEST='  || NVL(:NEW.CODSEQCEST,'')  ||
+              '|CODPROD='     || NVL(:NEW.CODPROD,'')      ||
+              '|TIPOPROD='    || NVL(:NEW.TIPOPROD,'')     || '|';
+    ACAO   := 'UPDATE';
+    CODLOG := :NEW.CODPROD;
+
+  ELSIF DELETING THEN
+    CHAVE  := '|CODCESTPROD=' || NVL(:OLD.CODCESTPROD,'') ||
+              '|CODSEQCEST='  || NVL(:OLD.CODSEQCEST,'')  ||
+              '|CODPROD='     || NVL(:OLD.CODPROD,'')      ||
+              '|TIPOPROD='    || NVL(:OLD.TIPOPROD,'')     || '|';
+    ACAO   := 'DELETE';
+    CODLOG := :OLD.CODPROD;
+  END IF;
+
+  INSERT INTO PCLOGALTERACAODADOS (
+    DATA,
+    TABELA,
+    PROGRAMA,
+    TERMINAL,
+    OSUSER,
+    OBSERVACOES,
+    OBSERVACOES2,
+    CODIGO
+  ) VALUES (
+    SYSDATE,
+    'PCCESTPRODUTO',
+    SYS_CONTEXT('USERENV', 'MODULE'),
+    SYS_CONTEXT('USERENV', 'TERMINAL'),
+    SYS_CONTEXT('USERENV', 'OS_USER'),
+    ACAO,
+    CHAVE,
+    CODLOG
+  );
+END;
