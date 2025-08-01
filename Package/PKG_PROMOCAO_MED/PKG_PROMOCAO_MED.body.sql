@@ -14392,8 +14392,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , vrItemPedido.nBaseCBS
                    , vrItemPedido.nAliqCBS
                    , vrItemPedido.nVlCBS
+                   , vbSomarImpostoCBS				   
                    , vvMensagemRetornoCBS
-                   , vbSomarImpostoCBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14418,8 +14418,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , vrItemPedido.nBaseIBS
                    , vrItemPedido.nAliqIBS
                    , vrItemPedido.nVlIBS
+				   , vbSomarImpostoIBS
                    , vvMensagemRetornoIBS
-                   , vbSomarImpostoIBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14444,8 +14444,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , vrItemPedido.nBaseIS
                    , vrItemPedido.nAliqIS
                    , vrItemPedido.nVlIS
+				   , vbSomarImpostoIS
                    , vvMensagemRetornoIS
-                   , vbSomarImpostoIS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
                                                       pi_nCodCli,
                                                       vrItemPedido.nCODPROD,
@@ -14491,8 +14491,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlCBSPTabela
-                   , vvMensagemRetornoCBS
-                   , vbSomarImpostoCBS
+					, vbSomarImpostoCBS
+					, vvMensagemRetornoCBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14511,8 +14511,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlIBSPTabela
-                   , vvMensagemRetornoIBS
                    , vbSomarImpostoIBS
+				   , vvMensagemRetornoIBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14531,8 +14531,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlISPTabela
-                   , vvMensagemRetornoIS
                    , vbSomarImpostoIS
+				   , vvMensagemRetornoIS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
                                                       pi_nCodCli,
                                                       vrItemPedido.nCODPROD,
@@ -14578,8 +14578,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlCBSPBaseRCA
-                   , vvMensagemRetornoCBS
                    , vbSomarImpostoCBS
+				   , vvMensagemRetornoCBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_CBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14598,8 +14598,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlIBSPBaseRCA
-                   , vvMensagemRetornoIBS
                    , vbSomarImpostoIBS
+				   , vvMensagemRetornoIBS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IBS(pi_vCodFilial,
                                                        pi_nCodCli,
                                                        vrItemPedido.nCODPROD,
@@ -14618,8 +14618,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    , SOMATOTALNF
                    , MSG
                 INTO vrItemPedido.nVlISPBaseRCA
-                   , vvMensagemRetornoIS
                    , vbSomarImpostoIS
+				   , vvMensagemRetornoIS
                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IS(pi_vCodFilial,
                                                       pi_nCodCli,
                                                       vrItemPedido.nCODPROD,
