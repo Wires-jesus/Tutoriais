@@ -1219,8 +1219,7 @@ FROM (
         or  NVL(A.CONDVENDA, 0) <> 14)
        and NVL(A.CODFILIALNF, A.CODFILIAL) = F.CODIGO
        and (A.TIPOVENDA <> 'DF' and B.CODOPER <> 'SD')
-       and NVL(substr(a.chavenfe, 21,2), 'X') = '65'
-       AND A.DTSAIDA >= (SELECT MIN(DTSAIDA) FROM PCNFSAID)
+       and NVL(substr(a.chavenfe, 21,2), 'X') = '65'       
 ) TAB
 GROUP BY   TAB.NUMSQL,
            TAB.CODFILIAL,
