@@ -1,0 +1,10 @@
+{
+    "nome": "PKG_XML",
+    "tipoPLSQL": "PACKAGE",
+    "dependencias": [{
+            "nome": "PCMOVPREENT",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
+        }
+    ]
+}
