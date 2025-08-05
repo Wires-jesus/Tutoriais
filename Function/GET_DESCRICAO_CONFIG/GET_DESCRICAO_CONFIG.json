@@ -1,0 +1,5 @@
+{
+	"nome":"GET_DESCRICAO_CONFIG",
+	"tipoPLSQL":"FUNCTION",
+	"dependencias":""
+}
