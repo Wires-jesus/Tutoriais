@@ -3002,6 +3002,14 @@ WHERE NOT EXISTS(SELECT 1
   
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+    /*Tratativa para atualizar a view materializada FAMDIVISAO na primeira carga*/
+    SELECT COUNT(*) into vCount FROM MONITORPDVMIDDLE.TB_FAMDIVISAO;
+    
+    IF vCount = 0 THEN
+      begin DBMS_MVIEW.REFRESH('VW_INT_C5_FAMDIV_MAT'); END;
+      carrega_tb_produto(12);
+    END IF;
+    
     MERGE INTO monitorpdvmiddle.tb_famdivisao s
         USING (SELECT distinct 
                      E.seqfamilia,
