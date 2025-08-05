@@ -68,7 +68,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       CCLASSTRIB_IS               VARCHAR2(6),
       VALOR_BASE_IS               NUMBER(18,6),
       PERC_IS                     NUMBER(7,4),
-      VALOR_IS                    NUMBER(18,6)
+      VALOR_IS                    NUMBER(18,6),
+      VLTOTALIBS                  NUMBER(15,2)
    );
 
 
