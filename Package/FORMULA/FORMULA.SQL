@@ -34,6 +34,11 @@ CREATE OR REPLACE PACKAGE FORMULA IS
 
   FUNCTION CalcularSubFormula(pFormula           in clob,
                     ptbVariaveis       in tbVariaveis) RETURN Varchar2;
+  PROCEDURE AtribuiValorFormula(prVariaveis in rVariavel,
+                         ptbVariaveis in out tbVariaveis);
+
+  FUNCTION SubstituiVariaveisF(pFormula IN CLOB,
+                               pVariaveis IN tbVariaveis) RETURN CLOB;
 
   --G_SUBSTITUIR_FORMULA BOOLEAN DEFAULT TRUE;
 END;
