@@ -151,9 +151,7 @@ BEGIN
                                       WHERE NOME IN ('TIPOOSVINCULOCX9', 'TIPOOSVINCULOCX10','TIPOOSVINCULOCX11','TIPOOSVINCULOCX12','TIPOOSVINCULOCX13',
                                                      'TIPOOSVINCULOCX14','TIPOOSVINCULOCX15','TIPOOSVINCULOCX16','TIPOOSVINCULOCX17','TIPOOSVINCULOCX18',
                                                      'TIPOOSVINCULOCX19','TIPOOSVINCULOCX20','TIPOOSVINCULOCX21','TIPOOSVINCULOCX22')
-                                        AND CODFILIAL = (SELECT MIN(CODFILIAL)
-                                                           FROM PCPEDC
-                                                          WHERE NUMCAR = VNUMCAR)
+                                        AND CODFILIAL = M.CODFILIAL
                                         AND VALOR = 'S');
     IF VCOUNT > 0 THEN
       RETURN 'S';
