@@ -7,7 +7,7 @@ CREATE OR REPLACE PACKAGE BODY FORMULA IS
   
   function IsCodFormula(pFormula in clob) return boolean is
   begin
-    return not (instr(pFormula, '[') > 0 or instr(pFormula, '#') > 0);
+    return not (instr(pFormula, '[') > 0 or instr(pFormula, '#') > 0 or instr(pFormula, '&') > 0);
   end; 
 
   FUNCTION BuscaFormula(pCodFormula in Varchar2) Return clob IS
@@ -360,6 +360,35 @@ CREATE OR REPLACE PACKAGE BODY FORMULA IS
       INTO vnRetorno;
     RETURN vnRetorno;
   END;
+ 
+  Function SubstituiVariaveisF(pFormula     in clob,
+                              pVariaveis   in tbVariaveis) RETURN clob IS
+    vsFormula clob := pFormula;
+    i         number;
+    vsmsgerro varchar2(4000);
+  BEGIN
+    -- Varre a fórmula substituindo variáveis por valores conhecidos
+    -- Caso alguma não seja informada, dispara-se uma exceção
+    vsmsgerro := '';
+    i         := 0;
+    LOOP
+      EXIT WHEN i > pVariaveis.last;
+
+      IF pVariaveis(i).Valor IS NULL THEN
+        vsmsgerro := vsmsgerro||'Nome: '|| pVariaveis(i).Nome||' Valor: '||pVariaveis(i).Valor;
+      ELSE
+        -- Ricardo -> Passar a utilizar o novo método de substituição de variáveis
+        vsFormula := ReplaceAllVariaveis(vsFormula, pVariaveis(i));
+      END IF;
+      i := i + 1;
+    END LOOP;
+
+    if vsmsgerro <> '' then
+      raise_application_error(-20000, 'O valor de (' || pVariaveis(i).Nome || ') não foi informado'||CHR(13)||vsmsgerro );
+    END IF;
+
+    Return vsFormula;
+  END;															 
 
   FUNCTION CalcularSubFormula (pFormula           in clob,
                     ptbVariaveis       in tbVariaveis) RETURN Varchar2 IS
@@ -372,6 +401,10 @@ CREATE OR REPLACE PACKAGE BODY FORMULA IS
     settarNLS();
 
     vsFormula := SubstituiFormulas(vsFormula);
+	vsFormula := SubstituiVariaveisf(vsFormula,ptbVariaveis);
+    if (instr(vsFormula, '#') > 0) then
+       vsFormula := SubstituiFormulas(vsFormula);
+    end if;	
     vsFormula := SubstituiVariaveis(vsFormula, ptbVariaveis);
 
     vtbResult(i).Nome  := 'RESULTADO';
@@ -449,6 +482,10 @@ CREATE OR REPLACE PACKAGE BODY FORMULA IS
     end if;   
 
     vsFormula := SubstituiFormulas(vsFormula);
+	vsFormula := SubstituiVariaveisf(vsFormula,vtbVariaveis);
+    if instr(vsFormula, '#') > 0 then
+      vsFormula := SubstituiFormulas(vsFormula);
+    end if;											 
     vsFormula := SubstituiVariaveis(vsFormula, vtbVariaveis, vrIdentificar);
    
 
@@ -484,7 +521,36 @@ CREATE OR REPLACE PACKAGE BODY FORMULA IS
 
       Return Calcular(pFormula,vtbVariaveis); -- Muito importante enviar pFormulaOriginal
    */
+  END;
+  
+ PROCEDURE AtribuiValorFormula(prVariaveis in rVariavel,
+                         ptbVariaveis in out tbVariaveis) IS
+    i NUMBER := 0;
+    vsvalorTemp varchar2(4000);
+  BEGIN
+   LOOP
 
+     begin
+       vsvalorTemp := trim(prVariaveis.Valor);
+     EXCEPTION
+       WHEN OTHERS THEN
+         vsvalorTemp := prVariaveis.Valor;
+     end;
+
+     IF ptbVariaveis(i).Nome = prVariaveis.Nome THEN
+       ptbVariaveis(i).Valor := vsvalorTemp;
+       EXIT;
+     ELSIF i = ptbVariaveis.Last THEN
+       ptbVariaveis(i+1).Nome := prVariaveis.Nome;
+       ptbVariaveis(i+1).Valor := vsvalorTemp;
+       EXIT;
+     END IF;
+     i := i + 1;
+   END LOOP;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      ptbVariaveis(i).Nome := prVariaveis.Nome;
+      ptbVariaveis(i).Valor := vsvalorTemp;
 
   END;
 
