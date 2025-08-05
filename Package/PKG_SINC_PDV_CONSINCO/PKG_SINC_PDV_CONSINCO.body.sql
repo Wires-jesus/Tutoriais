@@ -3001,6 +3001,7 @@ WHERE NOT EXISTS(SELECT 1
   END;
   
   PROCEDURE carrega_tb_famdivisao(p_id IN pccontroleconsinco.id%TYPE) AS
+    vCount number;
   BEGIN
     /*Tratativa para atualizar a view materializada FAMDIVISAO na primeira carga*/
     SELECT COUNT(*) into vCount FROM MONITORPDVMIDDLE.TB_FAMDIVISAO;
