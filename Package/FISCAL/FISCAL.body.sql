@@ -6405,7 +6405,7 @@ create or replace package body FISCAL is
       V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_PARAMETROS.ALIQ_EFETIVA_CBS)/100),6);
       V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_PARAMETROS.ALIQ_EFETIVA_IBS_UF)/100),6);
       V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_PARAMETROS.ALIQ_EFETIVA_IBS_MUN)/100),6);
-      
+      V_PARAMETROS.VLTOTALIBS    := V_PARAMETROS.VALOR_IBS_UF + V_PARAMETROS.VALOR_IBS_MUN;
       
     END CALCULAR_VALOR_CBSIBS;      
     /*Fim sub funções/procedures*/
@@ -6701,6 +6701,8 @@ create or replace package body FISCAL is
                              ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN||
                              ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN||
                              
+                             ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS||
+                             
                              ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS||
                              ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS||
                              ' CST: '||V_DADOS_TRIBUTACAO.CST_IS||
@@ -6769,7 +6771,9 @@ create or replace package body FISCAL is
                              
                              ' Perc IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_IBS_MUN||
                              ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN||
-                             ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN                        
+                             ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN|| 
+                             
+                             ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS                       
                              ,'S');
 
 
