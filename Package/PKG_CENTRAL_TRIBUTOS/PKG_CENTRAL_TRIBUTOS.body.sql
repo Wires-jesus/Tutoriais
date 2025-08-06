@@ -314,8 +314,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           'PALIQEFETCBS            = :15, ' ||
           'VLCBS                   = :16,' ||
           'SOMATOTALNF_CBS         = :17,' ||
-          'SOMATOTALNF_IBS         = :18 ' ||                    
-          'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :19 AND NUMTRANSITEM = :20 AND CODPROD = :21'
+          'SOMATOTALNF_IBS         = :18,' ||   
+          'VLIBS                   = :19' ||                   
+          'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :20 AND NUMTRANSITEM = :21 AND CODPROD = :22'
         USING
           P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
           P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :2
@@ -334,10 +335,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :15
           P_DADOS_TRIBUTOS.VALOR_CBS,                -- :16
           P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :17
-          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :18                    
-          P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :19
-          P_LISTA_DADOS_NOTAS.NUMTRANSITEM,          -- :20
-          P_LISTA_DADOS_NOTAS.CODPROD                -- :21
+          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :18 
+          P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :19                    
+          P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :20
+          P_LISTA_DADOS_NOTAS.NUMTRANSITEM,          -- :21
+          P_LISTA_DADOS_NOTAS.CODPROD                -- :22
           ;
 
       PKG_DEBUGGING_FWPC.LOG('Linhas atualizadas para CBSIBS: ' || SQL%ROWCOUNT, 'S');
@@ -437,8 +439,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
                   'PREDALIQ_CBS     = :13,' ||
                   'PALIQEFET_CBS    = :14,' ||
                   'VCBS             = :15,' ||                   
-                  'SOMATOTALNF      = :16 ' ||                  
-          'WHERE NUMTRANSVENDA = :17 '
+                  'SOMATOTALNF      = :16,' || 
+                  'VLTOTALIBS       = :17 ' ||                 
+          'WHERE NUMTRANSVENDA = :18 '
         USING
           P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :1
           P_DADOS_TRIBUTOS.CCLASSTRIB_CBSIBS,        -- :2
@@ -458,8 +461,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :13
           P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :14
           P_DADOS_TRIBUTOS.VALOR_CBS,                -- :15
-          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :16          
-          P_LISTA_DADOS_NOTAS.NUMTRANSACAO           -- :17
+          P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :16  
+          P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :17        
+          P_LISTA_DADOS_NOTAS.NUMTRANSACAO           -- :18
           ;
 
       PKG_DEBUGGING_FWPC.LOG('Linhas atualizadas para CBSIBS: ' || SQL%ROWCOUNT, 'S');
