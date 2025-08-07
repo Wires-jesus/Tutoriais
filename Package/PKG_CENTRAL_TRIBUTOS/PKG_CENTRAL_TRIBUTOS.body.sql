@@ -708,7 +708,45 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
         RETURN V_PARAMETROS_CENTRAL_TRIBUTOS;        
      END;                      
   END CALCULAR_E_GRAVAR_TODOS_TRIB;
+  
 
+PROCEDURE CALC_E_GRAVAR_TODOS_TRIB_TEST(P_CODIGO_FILIAL           IN  VARCHAR2,
+                                        P_NUMERO_NOTA             IN  NUMBER,
+                                        P_NUMERO_TRANSACAO        IN  NUMBER,
+                                        P_NUMERO_PEDIDO           IN  NUMBER,
+                                        P_TIPOMOVIMENTO           IN  VARCHAR2,
+                                        P_DEVOLUCAO               IN  VARCHAR2,
+                                        P_PRE_FATURAMENTO         IN  VARCHAR2,
+                                        P_ESPECIE                 IN  VARCHAR2,
+                                        P_CODIGO_MENSAGEM_RETORNO OUT NUMBER,
+                                        P_MENSAGEM_RETORNO        OUT VARCHAR2) IS
 
+  -- Declaração e inicialização do record
+  V_PARAMETROS PKG_CENTRAL_TRIBUTOS.T_PARAMETROS_CENTRAL_TRIBUTOS;
+
+BEGIN
+  -- Inicialização manual dos campos (não pode deixar implícito)
+  V_PARAMETROS.CODIGO_FILIAL        := P_CODIGO_FILIAL;
+  V_PARAMETROS.NUMERO_NOTA          := NVL(P_NUMERO_NOTA, 0);
+  V_PARAMETROS.NUMERO_TRANSACAO     := NVL(P_NUMERO_TRANSACAO, 0);
+  V_PARAMETROS.NUMERO_PEDIDO        := NVL(P_NUMERO_PEDIDO, 0);
+  V_PARAMETROS.TIPOMOVIMENTO        := P_TIPOMOVIMENTO;
+  V_PARAMETROS.DEVOLUCAO            := NVL(P_DEVOLUCAO, 'N');
+  V_PARAMETROS.PRE_FATURAMENTO      := NVL(P_PRE_FATURAMENTO, 'N');
+  V_PARAMETROS.ESPECIE              := NVL(P_ESPECIE, 'NF');
+
+  -- Chamada da função principal
+  V_PARAMETROS := PKG_CENTRAL_TRIBUTOS.CALCULAR_E_GRAVAR_TODOS_TRIB(V_PARAMETROS);
+
+  -- Retorno de saída
+  P_CODIGO_MENSAGEM_RETORNO := V_PARAMETROS.CODIGO_MENSAGEM_RETORNO;
+  P_MENSAGEM_RETORNO        := V_PARAMETROS.MENSAGEM_RETORNO;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    P_CODIGO_MENSAGEM_RETORNO := -1;
+    P_MENSAGEM_RETORNO        := 'Erro: ' || SQLERRM;
+
+END CALC_E_GRAVAR_TODOS_TRIB_TEST;
 
 END PKG_CENTRAL_TRIBUTOS;
