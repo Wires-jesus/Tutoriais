@@ -24,94 +24,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
              a.CODIGO,
              a.SEQUSUARIO,
              a.COO,
-             a.OPERADORA,
-             p.numgiftcard AS "Numgiftcard",
-             p.exportado AS "Exportado",
-             ROWNUM AS "Prestecf",
-             p.presttef AS "Presttef",
-             p.codfunccheckout AS "Codfunccheckout",
-             p.numcheckout AS "Numcheckout",
-             p.numserieequip AS "Numserieequip",
-             p.duplic AS "Duplic",
-             p.codcli AS "Codcli",
-             p.valor AS "Valor",
-             p.dtvenc AS "Dtvenc",
-             p.codcob AS "Codcob",
-             p.dtemissao AS "Dtemissao",
-             p.codfilial AS "Codfilial",
-             p.status AS "Status",
-             p.codusur AS "Codusur",
-             p.dtvencorig AS "Dtvencorig",
-             p.operacao AS "Operacao",
-             p.boleto AS "Boleto",
-             p.numbanco AS "Numbanco",
-             p.numagencia AS "Numagencia",
-             p.numcheque AS "Numcheque",
-             p.codsupervisor AS "Codsupervisor",
-             p.codbarra AS "Codbarra",
-             p.valororig AS "Valororig",
-             p.codcoborig AS "Codcoborig",
-             p.vltxboleto AS "Vltxboleto",
-             p.codfilialnf AS "Codfilialnf",
-             p.numcontacorrente AS "Numcontacorrente",
-             p.prest AS "Prest",
-             p.numcar AS "Numcar",
-             p.numtransvenda AS "Numtransvenda",
-             p.numped AS "Numped",
-             p.importado AS "Importado",
-             p.dtexportacao AS "Dtexportacao",
-             p.numcaixafiscal AS "Numcaixafiscal",
-             p.nsutef AS "Nsutef",
-             p.numecf AS "Numecf",
-             p.parcelamentotef AS "Parcelamentotef",
-             p.prestef AS "Prestef",
-             p.codadmcartao AS "Codadmcartao",
-             p.tipooperacaotef AS "Tipooperacaotef",
-             p.codbandeiratef AS "Codbandeiratef",
-             p.dtbaixa AS "Dtbaixa",
-             p.codautorizacaotef AS "Codautorizacaotef",
-             p.numccf AS "Numccf",
-             p.linhadig AS "Linhadig",
-             p.vlmexiva AS "Vlmexiva",
-             p.assinatura AS "Assinatura",
-             p.numgnf AS "Numgnf",
-             p.numseriesat AS "Numseriesat",
-             p.cnpjcredenccartao AS "Cnpjcredenccartao",
-             p.numcartaocrm AS "Numcartaocrm",
-             p.nsuhost AS "Nsuhost",
-             p.valorcontravale AS "Valorcontravale",
-             p.compensacaobco AS "Compensacaobco",
-             p.cgccpfch AS "Cgccpfch",
-             p.dvagencia AS "Dvagencia",
-             p.dvconta AS "Dvconta",
-             p.dvcheque AS "Dvcheque",
-             p.numfechamentomovcx AS "Numfechamentomovcx",
-             p.dtmovimentocx AS "Dtmovimentocx",
-             p.codautoricredtef AS "Codautoricredtef",
-             p.dtemissaoorig AS "Dtemissaoorig",
-             p.codigocontravale AS "Codigocontravale",
-             p.retornocrm1via AS "Retornocrm1via",
-             p.retornocrm2via AS "Retornocrm2via",
-             p.numprotocolochq AS "Numprotocolochq",
-             p.valorcomtroco AS "Valorcomtroco",
-             p.idpagamento AS "Idpagamento",
-             p.serialpos AS "Serialpos",
-             p.idrespfiscal AS "Idrespfiscal",
-             p.bandeiracartao AS "Bandeiracartao",
-             p.codcobsefaz AS "Codcobsefaz",
-             p.md5paf AS "Md5paf",
-             p.tipodoc AS "Tipodoc",
-             p.dtcxmot AS "Dtcxmot",
-             p.tipocorban AS "Tipocorban",
-             p.autorizacaopagamentopontos AS "Autorizacaopagamentopontos",
-             p.autorizacaoacumulopontos AS "Autorizacaoacumulopontos",
-             p.somatxboleto AS "Somatxboleto",
-             p.codusur2 AS "Codusur2",
-             p.processadortranspagdigital AS "Processadortranspagdigital",
-             p.numtranspagdigital AS "Numtranspagdigital",
-             p.nsupagdigital AS "Nsupagdigital",
-             p.nomecarteiradigital AS "Nomecarteiradigital",
-             p.carteiradigital AS "Carteiradigital"
+             a.OPERADORA
        FROM VW_INT_C5_RECARGACEL a,
             vw_int_c5_pcprestecf p,
             VW_INT_C5_OBTER_FILIAIS_C5 C5
@@ -157,145 +70,39 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
       RETURN XMLTYPE IS
       l_xmlesquema      XMLTYPE;
       l_recargacel   XMLTYPE;
+      l_recargaprest XMLTYPE;
 
       -- Recarga celular e Vale Gás
       FUNCTION retornar_xmlRecargaCel(p_recargacel c_recargacel%ROWTYPE)
         RETURN XMLTYPE IS
         l_xmltyperecarga XMLTYPE;
       BEGIN
-        SELECT XMLELEMENT("DefinicaoRecarga",
-                          XMLAGG(XMLELEMENT("Recarga",
-                                            XMLFOREST(a.DTAHOREMISSAO AS "Data",
-                                                      --a.NROEMPRESA AS "Codfilial",
-                                                      C5.CODFILIAL AS "Codfilial",
-                                                      a.SEQUSUARIO AS "Codfunccx",
-                                                      a.NROCHECKOUT AS "Numcaixa",
-                                                      a.CODOPERRECARGACEL AS "Codoperrecargacel",
-                                                      NULL AS "Exportado",
-                                                      NULL AS "Dtexportacao",
-                                                      'NotaFiscal' AS "Numserieequip",
-                                                      a.COO AS "Numcupom",
-                                                      a.NSUTEF AS "Nsu",
-                                                      a.OPERADORA AS "Operadora",
-                                                      a.VALOR AS "Valor",
-                                                      p_recargacel.numpedecf AS "Numpedecf",
-                                                      NULL AS "Numtransvenda",
-                                                      a.DTAHOREMISSAO AS "Dtmovimentocx",
-                                                      a.seqdocto AS "Numfechamentomovcx",
-                                                      a.TIPOOPERACAO AS "Tipooperacao",
-                                                      a.INFPRODUTO AS "Infproduto",
-                                                      NULL AS "Recnum"
-                                                      )
-                                              )),
-                                              
-                                  XMLELEMENT ("Parcelas",
-                                   XMLAGG (XMLELEMENT("PCPRESTECF",
-                                   XMLFOREST (
-                                       p.numgiftcard AS "Numgiftcard",
-                                       p.exportado AS "Exportado",
-                                       p_recargacel.numpedecf AS "Numpedecf",
-                                       ROWNUM AS "Prestecf",
-                                       p.presttef AS "Presttef",
-                                       p.codfunccheckout AS "Codfunccheckout",
-                                       p.numcheckout AS "Numcheckout",
-                                       p.numserieequip AS "Numserieequip",
-                                       a.COO AS "Duplic",
-                                       p.codcli AS "Codcli",
-                                       p.valor AS "Valor",
-                                       p.dtvenc AS "Dtvenc",
-                                       p.codcob AS "Codcob",
-                                       p.dtemissao AS "Dtemissao",
-                                       --p.codfilial AS "Codfilial",
-                                       C5.codfilial AS "Codfilial",
-                                       p.status AS "Status",
-                                       p.codusur AS "Codusur",
-                                       p.dtvencorig AS "Dtvencorig",
-                                       p.operacao AS "Operacao",
-                                       p.boleto AS "Boleto",
-                                       p.numbanco AS "Numbanco",
-                                       p.numagencia AS "Numagencia",
-                                       p.numcheque AS "Numcheque",
-                                       p.codsupervisor AS "Codsupervisor",
-                                       p.codbarra AS "Codbarra",
-                                       p.valororig AS "Valororig",
-                                       p.codcoborig AS "Codcoborig",
-                                       p.vltxboleto AS "Vltxboleto",
-                                       --p.codfilialnf AS "Codfilialnf",
-                                       C5.codfilial AS "Codfilialnf",
-                                       p.numcontacorrente AS "Numcontacorrente",
-                                       p.prest AS "Prest",
-                                       p.numcar AS "Numcar",
-                                       p.numtransvenda AS "Numtransvenda",
-                                       p.numped AS "Numped",
-                                       p.importado AS "Importado",
-                                       p.dtexportacao AS "Dtexportacao",
-                                       p.numcaixafiscal AS "Numcaixafiscal",
-                                       p.nsutef AS "Nsutef",
-                                       p.numecf AS "Numecf",
-                                       p.parcelamentotef AS "Parcelamentotef",
-                                       p.prestef AS "Prestef",
-                                       p.codadmcartao AS "Codadmcartao",
-                                       p.tipooperacaotef AS "Tipooperacaotef",
-                                       p.codbandeiratef AS "Codbandeiratef",
-                                       p.dtbaixa AS "Dtbaixa",
-                                       p.codautorizacaotef AS "Codautorizacaotef",
-                                       p.numccf AS "Numccf",
-                                       p.linhadig AS "Linhadig",
-                                       p.vlmexiva AS "Vlmexiva",
-                                       p.assinatura AS "Assinatura",
-                                       p.numgnf AS "Numgnf",
-                                       p.numseriesat AS "Numseriesat",
-                                       p.cnpjcredenccartao AS "Cnpjcredenccartao",
-                                       p.numcartaocrm AS "Numcartaocrm",
-                                       p.nsuhost AS "Nsuhost",
-                                       p.valorcontravale AS "Valorcontravale",
-                                       p.compensacaobco AS "Compensacaobco",
-                                       p.cgccpfch AS "Cgccpfch",
-                                       p.dvagencia AS "Dvagencia",
-                                       p.dvconta AS "Dvconta",
-                                       p.dvcheque AS "Dvcheque",
-                                       p.numfechamentomovcx AS "Numfechamentomovcx",
-                                       p.dtmovimentocx AS "Dtmovimentocx",
-                                       p.codautoricredtef AS "Codautoricredtef",
-                                       p.dtemissaoorig AS "Dtemissaoorig",
-                                       p.codigocontravale AS "Codigocontravale",
-                                       p.retornocrm1via AS "Retornocrm1via",
-                                       p.retornocrm2via AS "Retornocrm2via",
-                                       p.numprotocolochq AS "Numprotocolochq",
-                                       p.valorcomtroco AS "Valorcomtroco",
-                                       p.idpagamento AS "Idpagamento",
-                                       p.serialpos AS "Serialpos",
-                                       p.idrespfiscal AS "Idrespfiscal",
-                                       p.bandeiracartao AS "Bandeiracartao",
-                                       p.codcobsefaz AS "Codcobsefaz",
-                                       p.md5paf AS "Md5paf",
-                                       p.tipodoc AS "Tipodoc",
-                                       p.dtcxmot AS "Dtcxmot",
-                                       p.tipocorban AS "Tipocorban",
-                                       p.autorizacaopagamentopontos AS "Autorizacaopagamentopontos",
-                                       p.autorizacaoacumulopontos AS "Autorizacaoacumulopontos",
-                                       p.somatxboleto AS "Somatxboleto",
-                                       p.codusur2 AS "Codusur2",
-                                       p.processadortranspagdigital AS "Processadortranspagdigital",
-                                       p.numtranspagdigital AS "Numtranspagdigital",
-                                       p.nsupagdigital AS "Nsupagdigital",
-                                       p.nomecarteiradigital AS "Nomecarteiradigital",
-                                       p.dtemissao AS "Dtpag",
-									   p.valor AS "Vpago",
-                                       p.carteiradigital AS "Carteiradigital" ))))            
-                                 )
-                         --  )
+        SELECT XMLELEMENT("Recarga",
+                  XMLFOREST(a.DTAHOREMISSAO AS "Data",
+                            C5.CODFILIAL AS "Codfilial",
+                            a.SEQUSUARIO AS "Codfunccx",
+                            a.NROCHECKOUT AS "Numcaixa",
+                            a.CODOPERRECARGACEL AS "Codoperrecargacel",
+                            NULL AS "Exportado",
+                            NULL AS "Dtexportacao",
+                            'NotaFiscal' AS "Numserieequip",
+                            a.COO AS "Numcupom",
+                            a.NSUTEF AS "Nsu",
+                            a.OPERADORA AS "Operadora",
+                            a.VALOR AS "Valor",
+                            p_recargacel.numpedecf AS "Numpedecf",
+                            NULL AS "Numtransvenda",
+                            a.DTAHOREMISSAO AS "Dtmovimentocx",
+                            a.seqdocto AS "Numfechamentomovcx",
+                            a.TIPOOPERACAO AS "Tipooperacao",
+                            a.INFPRODUTO AS "Infproduto",
+                            NULL AS "Recnum"
+                            )
+                    ) recarga
            INTO l_xmltyperecarga
          FROM VW_INT_C5_RECARGACEL a,
-              vw_int_c5_pcprestecf p,
               VW_INT_C5_OBTER_FILIAIS_C5 C5
          WHERE a.NROEMPRESA = C5.CODFILIALINTEGRACAO
-         --AND   p.codfilial = C5.CODFILIALINTEGRACAO
-         AND   p.CODFILIALINTEGRACAO = C5.CODFILIALINTEGRACAO
-         AND   a.seqdocto = p.seqdocto
-         AND   a.NROCHECKOUT = p.numcheckout
-        --AND   a.NROEMPRESA = p.codfilial
-        AND    a.NROEMPRESA = p.CODFILIALINTEGRACAO
          AND   a.seqdocto  = p_recargacel.seqdocto
          AND   a.NROCHECKOUT = p_recargacel.NROCHECKOUT
          AND   a.nroempresa  = p_recargacel.nroempresa;
@@ -303,15 +110,152 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
         RETURN l_xmltyperecarga;
       END retornar_xmlRecargaCel;
 
+      FUNCTION retorna_xmlPrest(p_recargacel c_recargacel%ROWTYPE)
+      RETURN XMLTYPE IS
+        l_xmltypeprest XMLTYPE;
+      BEGIN
+       
+       SELECT XMLELEMENT("Parcelas",
+                  XMLAGG(XMLELEMENT("PCPRESTECF",
+                                    XMLFOREST(p.numgiftcard AS "Numgiftcard",
+                                              p.exportado AS "Exportado",
+                                              p_recargacel.numpedecf AS
+                                              "Numpedecf",
+                                              ROWNUM AS "Prestecf",
+                                              p.presttef AS "Presttef",
+                                              p.codfunccheckout AS
+                                              "Codfunccheckout",
+                                              p.numcheckout AS "Numcheckout",
+                                              p.numserieequip AS
+                                              "Numserieequip",
+                                              p_recargacel.COO AS "Duplic",
+                                              p.codcli AS "Codcli",
+                                              p.valor AS "Valor",
+                                              p.dtvenc AS "Dtvenc",
+                                              p.codcob AS "Codcob",
+                                              p.dtemissao AS "Dtemissao",
+                                              p.codfilial AS "Codfilial",
+                                              p.status AS "Status",
+                                              p.codusur AS "Codusur",
+                                              p.dtvencorig AS "Dtvencorig",
+                                              p.operacao AS "Operacao",
+                                              p.boleto AS "Boleto",
+                                              p.numbanco AS "Numbanco",
+                                              p.numagencia AS "Numagencia",
+                                              p.numcheque AS "Numcheque",
+                                              p.codsupervisor AS
+                                              "Codsupervisor",
+                                              p.codbarra AS "Codbarra",
+                                              p.valororig AS "Valororig",
+                                              p.codcoborig AS "Codcoborig",
+                                              p.vltxboleto AS "Vltxboleto",
+                                              p.codfilial AS "Codfilialnf",
+                                              p.numcontacorrente AS
+                                              "Numcontacorrente",
+                                              p.prest AS "Prest",
+                                              p.numcar AS "Numcar",
+                                              p.numtransvenda AS
+                                              "Numtransvenda",
+                                              p.numped AS "Numped",
+                                              p.importado AS "Importado",
+                                              p.dtexportacao AS "Dtexportacao",
+                                              p.numcaixafiscal AS
+                                              "Numcaixafiscal",
+                                              p.nsutef AS "Nsutef",
+                                              p.numecf AS "Numecf",
+                                              p.parcelamentotef AS
+                                              "Parcelamentotef",
+                                              p.prestef AS "Prestef",
+                                              p.codadmcartao AS "Codadmcartao",
+                                              p.tipooperacaotef AS
+                                              "Tipooperacaotef",
+                                              p.codbandeiratef AS
+                                              "Codbandeiratef",
+                                              p.dtbaixa AS "Dtbaixa",
+                                              p.codautorizacaotef AS
+                                              "Codautorizacaotef",
+                                              p.numccf AS "Numccf",
+                                              p.linhadig AS "Linhadig",
+                                              p.vlmexiva AS "Vlmexiva",
+                                              p.assinatura AS "Assinatura",
+                                              p.numgnf AS "Numgnf",
+                                              p.numseriesat AS "Numseriesat",
+                                              p.cnpjcredenccartao AS
+                                              "Cnpjcredenccartao",
+                                              p.numcartaocrm AS "Numcartaocrm",
+                                              p.nsuhost AS "Nsuhost",
+                                              p.valorcontravale AS
+                                              "Valorcontravale",
+                                              p.compensacaobco AS
+                                              "Compensacaobco",
+                                              p.cgccpfch AS "Cgccpfch",
+                                              p.dvagencia AS "Dvagencia",
+                                              p.dvconta AS "Dvconta",
+                                              p.dvcheque AS "Dvcheque",
+                                              p.numfechamentomovcx AS
+                                              "Numfechamentomovcx",
+                                              p.dtmovimentocx AS
+                                              "Dtmovimentocx",
+                                              p.codautoricredtef AS
+                                              "Codautoricredtef",
+                                              p.dtemissaoorig AS
+                                              "Dtemissaoorig",
+                                              p.codigocontravale AS
+                                              "Codigocontravale",
+                                              p.retornocrm1via AS
+                                              "Retornocrm1via",
+                                              p.retornocrm2via AS
+                                              "Retornocrm2via",
+                                              p.numprotocolochq AS
+                                              "Numprotocolochq",
+                                              p.valorcomtroco AS
+                                              "Valorcomtroco",
+                                              p.idpagamento AS "Idpagamento",
+                                              p.serialpos AS "Serialpos",
+                                              p.idrespfiscal AS "Idrespfiscal",
+                                              p.bandeiracartao AS
+                                              "Bandeiracartao",
+                                              p.codcobsefaz AS "Codcobsefaz",
+                                              p.md5paf AS "Md5paf",
+                                              p.tipodoc AS "Tipodoc",
+                                              p.dtcxmot AS "Dtcxmot",
+                                              p.tipocorban AS "Tipocorban",
+                                              p.autorizacaopagamentopontos AS
+                                              "Autorizacaopagamentopontos",
+                                              p.autorizacaoacumulopontos AS
+                                              "Autorizacaoacumulopontos",
+                                              p.somatxboleto AS "Somatxboleto",
+                                              p.codusur2 AS "Codusur2",
+                                              p.processadortranspagdigital AS
+                                              "Processadortranspagdigital",
+                                              p.numtranspagdigital AS
+                                              "Numtranspagdigital",
+                                              p.nsupagdigital AS
+                                              "Nsupagdigital",
+                                              p.nomecarteiradigital AS
+                                              "Nomecarteiradigital",
+                                              p.dtemissao AS "Vpago",
+                                              p.carteiradigital AS
+                                              "Carteiradigital")))) PREST
+            INTO l_xmltypeprest
+            FROM VW_INT_C5_PCPRESTECF p
+          WHERE p.SEQDOCTO = p_recargacel.seqdocto
+            AND p.NROCHECKOUT = p_recargacel.NROCHECKOUT
+            AND p.NROEMPRESA = p.NROEMPRESA;
+
+       RETURN l_xmltypeprest;
+      END retorna_xmlPrest;
+
     BEGIN
       l_recargacel := retornar_xmlRecargaCel(r_recargacel);
+      l_recargaprest := retorna_xmlPrest(r_recargacel);
       
       SELECT XMLELEMENT("EsquemaExportacao",
-                        XMLELEMENT("Recargas",
-                                   l_recargacel)
-                       ) esquemaexportacao
-      
-      
+                XMLELEMENT("Recargas",
+                        XMLELEMENT("DefinicaoRecarga",
+                                   l_recargacel,
+                                   l_recargaprest)
+                       )) esquemaexportacao
         INTO l_xmlesquema
         FROM DUAL;
 
