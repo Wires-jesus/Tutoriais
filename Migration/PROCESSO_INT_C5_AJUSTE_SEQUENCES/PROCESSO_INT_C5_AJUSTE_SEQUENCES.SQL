@@ -12,7 +12,8 @@ BEGIN
                            ('DFSEQ_PCDEPARACATEGORIAC5',
                             'DFSEQ_PCDEPARAEMBALAGENSC5',
                             'DFSEQ_PCDEPARAPLPAGC5',
-                            'DFSEQ_PCDEPARAREGIAOC5')) LOOP
+                            'DFSEQ_PCDEPARAREGIAOC5',
+                            'DFSEQ_PCDEPARATRIBUTACAOC5')) LOOP
                             
   IF SEQUENCES.CACHE_SIZE > 0 THEN
     vscript := 'DROP SEQUENCE '|| SEQUENCES.SEQUENCE_NAME ||' ';
