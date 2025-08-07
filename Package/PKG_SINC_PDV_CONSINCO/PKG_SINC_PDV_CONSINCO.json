@@ -420,7 +420,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_AJUSTE_SEQUENCES",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.01.000"
+		  "versao": "7.0.02.000"
 		},
 		{
 		  "nome": "PROCESSO_INT_C5_REFTRIB",
@@ -465,6 +465,11 @@
 		{
 		  "nome": "PCDEPARATRIBUTACAOC5",
 		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		},
+		{
+		  "nome": "PROCESSO_CARGA_INT_C5_SEQ_PCDEPARATRIBUTACAOC5",
+		  "tipo": "MIGRATION",
 		  "versao": "7.0.01.000"
 		}
 	]
