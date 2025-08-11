@@ -3678,12 +3678,12 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	   AND  TC5.TIPO_IMPOSTO = 'IS'
 	   AND  TC5.ATIVO = 'S'
 	   AND ROWNUM = 1) Codigotributacaois,
-	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CST') CSTCBS,
+	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CST') CSTIS,
 	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CCLASSTRIB') Cclasstribis,
 	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'VLRBASE'),'0')) Vlbaseis,
 	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'PERCALIQUOTA'),'0')) Aliqis,
-	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'VLRIMPOSTO'),'0')) Vlis,
-	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'PERALIQEFETIVA'),'0'))  Aliqespecificais,
+	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'VLRIMPOSTO'),'0')) Vlis,
+	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'PERALIQEFETIVA'),'0'))  Aliqespecificais,
 	  
 	/* CBS */
 	fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'CST') CSTCBS,
@@ -3985,12 +3985,12 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
 	   AND  TC5.TIPO_IMPOSTO = 'IS'
 	   AND  TC5.ATIVO = 'S'
 	   AND ROWNUM = 1) Codigotributacaois,
-	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CST') CSTCBS,
+	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CST') CSTISS,
 	  fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'CCLASSTRIB') Cclasstribis,
 	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'VLRBASE'),'0')) Vlbaseis,
 	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'PERCALIQUOTA'),'0')) Aliqis,
-	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'VLRIMPOSTO'),'0')) Vlis,
-	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'PERALIQEFETIVA'),'0'))  Aliqespecificais , 
+	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'VLRIMPOSTO'),'0')) Vlis,
+	  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 23, 'PERALIQEFETIVA'),'0'))  Aliqespecificais , 
 	/* CBS */
 	fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'CST') CSTCBS,
 	fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 24, 'CCLASSTRIB') Cclasstribcbs,
