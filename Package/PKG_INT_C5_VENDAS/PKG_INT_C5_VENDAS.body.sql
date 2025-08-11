@@ -3,10 +3,10 @@ IS
     PROCEDURE inserir_pcfilamensagem (p_pcfilamensagem tr_dados_pcfilamensagem)
     IS
         dados_pcfilamensagem   tr_dados_pcfilamensagem;
-		VCONT NUMBER;
-		vTERMINAL VARCHAR2(100) ;
+    VCONT NUMBER;
+    vTERMINAL VARCHAR2(100) ;
     BEGIN
-	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+      vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
         dados_pcfilamensagem.rowpcfilamensagem.idmensagem           := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         dados_pcfilamensagem.rowpcfilamensagem.datatransacao        := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         dados_pcfilamensagem.rowpcfilamensagem.codfilial            := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -28,27 +28,27 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.pdvorigem            := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
         dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
-		dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO        := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
-		dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
+    dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO        := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
+    dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
         ----
-		
-		BEGIN
-		  SELECT COUNT(1)
-		    INTO VCONT
-		   FROM PCFILAMENSAGEM
-		  WHERE SEQDOCTO = dados_pcfilamensagem.rowpcfilamensagem.seqdocto
-		    AND NUMCAIXA = dados_pcfilamensagem.rowpcfilamensagem.numcaixa
-		    AND CODFILIAL = dados_pcfilamensagem.rowpcfilamensagem.codfilial
-			AND TIPOOPERACAO = dados_pcfilamensagem.rowpcfilamensagem.tipooperacao;
-		END;
-		
-		IF VCONT = 0 THEN
-		  INSERT INTO
+
+    BEGIN
+      SELECT COUNT(1)
+        INTO VCONT
+       FROM PCFILAMENSAGEM
+      WHERE SEQDOCTO = dados_pcfilamensagem.rowpcfilamensagem.seqdocto
+        AND NUMCAIXA = dados_pcfilamensagem.rowpcfilamensagem.numcaixa
+        AND CODFILIAL = dados_pcfilamensagem.rowpcfilamensagem.codfilial
+      AND TIPOOPERACAO = dados_pcfilamensagem.rowpcfilamensagem.tipooperacao;
+    END;
+
+    IF VCONT = 0 THEN
+      INSERT INTO
             pcfilamensagem s
-		  VALUES
-			dados_pcfilamensagem.rowpcfilamensagem;
-		
-		END IF; 
+      VALUES
+      dados_pcfilamensagem.rowpcfilamensagem;
+
+    END IF;
 
     ----
     END inserir_pcfilamensagem;
@@ -60,17 +60,17 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
-		VCONT NUMBER;
-		vTERMINAL VARCHAR2(100) ;
-		vIDMENSAGEM NUMBER;
+    VCONT NUMBER;
+    vTERMINAL VARCHAR2(100) ;
+    vIDMENSAGEM NUMBER;
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
-		 vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
-		ELSE 
-		 vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
-		END IF;
-	    vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+     vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
+    ELSE
+     vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
+    END IF;
+      vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
         rowpcfilamensagemerro.idmensagem            := vIDMENSAGEM;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -91,28 +91,28 @@ IS
         rowpcfilamensagemerro.dataultimaalteracao   := p_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao;
         rowpcfilamensagemerro.pdvorigem             := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         rowpcfilamensagemerro.qtreprocessado        := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
-		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
-		rowpcfilamensagemerro.DATADOCUMENTO         := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
+    rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
+    rowpcfilamensagemerro.DATADOCUMENTO         := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
-		rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
-        
-		BEGIN
-		  SELECT COUNT(1)
-		    INTO VCONT
-		    FROM PCFILAMENSAGEMERRO
-		   WHERE SEQDOCTO = rowpcfilamensagemerro.seqdocto
-		    AND NUMCAIXA = rowpcfilamensagemerro.numcaixa
-		    AND CODFILIAL = rowpcfilamensagemerro.codfilial
-			AND TIPOOPERACAO = rowpcfilamensagemerro.tipooperacao;
-		END;
+    rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
+
+    BEGIN
+      SELECT COUNT(1)
+        INTO VCONT
+        FROM PCFILAMENSAGEMERRO
+       WHERE SEQDOCTO = rowpcfilamensagemerro.seqdocto
+        AND NUMCAIXA = rowpcfilamensagemerro.numcaixa
+        AND CODFILIAL = rowpcfilamensagemerro.codfilial
+      AND TIPOOPERACAO = rowpcfilamensagemerro.tipooperacao;
+    END;
         ----
-		IF VCONT = 0 THEN
-		  INSERT INTO
+    IF VCONT = 0 THEN
+      INSERT INTO
             pcfilamensagemerro s
           VALUES
             rowpcfilamensagemerro;
-		END IF;
-		
+    END IF;
+
         --COMMIT;
     ----
     END inserir_pcfilamensagem_erro;
@@ -130,26 +130,26 @@ IS
              WHERE c.seqdocto  = DECODE(p_seqdocto,0,c.seqdocto,p_seqdocto)
                AND c.NUMCAIXA  = DECODE(p_nrocheckout,0,c.NUMCAIXA ,p_nrocheckout)
                AND c.nroempresa = DECODE(p_nroempresa,0,c.nroempresa,p_nroempresa)
-			   AND NOT EXISTS (SELECT 1
+         AND NOT EXISTS (SELECT 1
                                  FROM PCFILAMENSAGEM M
-								WHERE M.SEQDOCTO = c.seqdocto
-								  AND M.NUMCAIXA = c.numcaixa
-								  AND M.CODFILIAL = c.codfilial
-								  AND M.TIPOOPERACAO  = 'VEND'
-								UNION ALL
-							   SELECT 1
-								 FROM PCFILAMENSAGEMHISTORICO MH
-								WHERE MH.SEQDOCTO = c.seqdocto
-								  AND MH.NUMCAIXA = TO_CHAR(c.numcaixa)
-								  AND MH.CODFILIAL = c.codfilial
-								  AND MH.TIPOOPERACAO  = 'VEND'
-								UNION ALL
-							   SELECT 1
-								 FROM PCFILAMENSAGEMERRO ME
-								WHERE ME.SEQDOCTO = c.seqdocto
-								  AND ME.NUMCAIXA = c.numcaixa
-								  AND ME.CODFILIAL = c.codfilial
-								  AND ME.TIPOOPERACAO  = 'VEND');
+                WHERE M.SEQDOCTO = c.seqdocto
+                  AND M.NUMCAIXA = c.numcaixa
+                  AND M.CODFILIAL = c.codfilial
+                  AND M.TIPOOPERACAO  = 'VEND'
+                UNION ALL
+                 SELECT 1
+                 FROM PCFILAMENSAGEMHISTORICO MH
+                WHERE MH.SEQDOCTO = c.seqdocto
+                  AND MH.NUMCAIXA = TO_CHAR(c.numcaixa)
+                  AND MH.CODFILIAL = c.codfilial
+                  AND MH.TIPOOPERACAO  = 'VEND'
+                UNION ALL
+                 SELECT 1
+                 FROM PCFILAMENSAGEMERRO ME
+                WHERE ME.SEQDOCTO = c.seqdocto
+                  AND ME.NUMCAIXA = c.numcaixa
+                  AND ME.CODFILIAL = c.codfilial
+                  AND ME.TIPOOPERACAO  = 'VEND');
 
         r_pedido             c_pedido%ROWTYPE;
         l_xmltype            XMLTYPE;
@@ -160,7 +160,7 @@ IS
           n_countcreditocliente  number;
         BEGIN
           n_countcreditocliente := 0;
-          
+
           SELECT COUNT(*)
           INTO n_countcreditocliente
           FROM vw_int_c5_pcprestecf
@@ -168,7 +168,7 @@ IS
            AND vw_int_c5_pcprestecf.nroempresa = p_codempresa
            AND vw_int_c5_pcprestecf.numcheckout = p_numcheckout
            AND vw_int_c5_pcprestecf.codcob = 'CRED';
-                    
+
           if n_countcreditocliente > 0 then
             UPDATE PCCRECLI SET NUMPEDECF = p_numpedecf, NUMCUPOM = p_numcupom
             where
@@ -177,44 +177,44 @@ IS
                    and codempresapdv = p_codempresa
                    and dtdesconto is not null;
           END IF;
-          
+
         END;
-		
-		PROCEDURE atualizar_pcorcavendac(p_numpedecf number,
+
+    PROCEDURE atualizar_pcorcavendac(p_numpedecf number,
                                          p_numcupom number,
-										 p_seqdocto number,
-										 p_numcheckout number,
-										 p_codempresa number) is
+                     p_seqdocto number,
+                     p_numcheckout number,
+                     p_codempresa number) is
           n_countorcamento  number;
-		BEGIN
-		  n_countorcamento := 0;
-		  
-		  BEGIN
-		  SELECT COUNT(1)
+    BEGIN
+      n_countorcamento := 0;
+
+      BEGIN
+      SELECT COUNT(1)
           INTO n_countorcamento
           FROM PCORCAVENDAC C
-          WHERE C.NUMDOCTOPDV = p_seqdocto 
+          WHERE C.NUMDOCTOPDV = p_seqdocto
             AND C.CODEMPRESAPDV = p_codempresa
             AND C.CODCHECKOUTPDV = p_numcheckout
-			AND C.ORCAMENTOUTILIZADO = 'S';
-		  EXCEPTION
-		  WHEN OTHERS then
-		     n_countorcamento := 0;
-		  END;
-		
-		  IF n_countorcamento > 0 THEN
-				UPDATE PCORCAVENDAC
-				   SET NUMPEDECF = p_numpedecf,        
-					   NUMCUPOM = p_numcupom,        
-					   NUMSERIEEQUIP = 'NOTAFISCAL',
-					   NUMCAIXA = NVL(NUMCAIXA, p_numcheckout)
-				WHERE NUMDOCTOPDV = p_seqdocto
-				  AND CODEMPRESAPDV = p_codempresa
-				  AND CODCHECKOUTPDV = p_numcheckout;
+      AND C.ORCAMENTOUTILIZADO = 'S';
+      EXCEPTION
+      WHEN OTHERS then
+         n_countorcamento := 0;
+      END;
+
+      IF n_countorcamento > 0 THEN
+        UPDATE PCORCAVENDAC
+           SET NUMPEDECF = p_numpedecf,
+             NUMCUPOM = p_numcupom,
+             NUMSERIEEQUIP = 'NOTAFISCAL',
+             NUMCAIXA = NVL(NUMCAIXA, p_numcheckout)
+        WHERE NUMDOCTOPDV = p_seqdocto
+          AND CODEMPRESAPDV = p_codempresa
+          AND CODCHECKOUTPDV = p_numcheckout;
           END IF;
-		
-		END;
-		
+
+    END;
+
         -- RETORNAR_XML_VENDA
         FUNCTION retornar_xml_venda(r_pedido c_pedido%ROWTYPE)
             RETURN XMLTYPE
@@ -226,7 +226,7 @@ IS
             l_xmldoceletronico     XMLTYPE;
             l_xmlconsumidorfinal   XMLTYPE;
             l_xmllogdadospessoas   XMLTYPE;
-			l_xmlitenscesta        XMLTYPE;
+      l_xmlitenscesta        XMLTYPE;
             v_numpedecf            NUMBER;
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLITENS )
@@ -417,29 +417,56 @@ IS
                                        rowvw_pcpediecf.vlsubtotitem AS  "Vlsubtotitem" ,
                                        rowvw_pcpediecf.vlricmssimplesnac AS  "Vlricmssimplesnac" ,
                                        rowvw_pcpediecf.vpart AS  "Vpart",
-									   rowvw_pcpediecf.percipi as "Percipi",
-									   rowvw_pcpediecf.perfretecmv AS "Perfretecmv",
-									   rowvw_pcpediecf.vlbaseipi AS "Vlbaseipi",
-									   rowvw_pcpediecf.basedifaliquotas AS "Basedifaliquotas",
-									   rowvw_pcpediecf.percdifaliquotas AS "Percdifaliquotas",
-									   rowvw_pcpediecf.vldifaliquotas AS "Vldifaliquotas",
-									   rowvw_pcpediecf.vldescorgaopub AS "Vldescorgaopub",
-									   rowvw_pcpediecf.percipiecf AS "Percipiecf",
-									   rowvw_pcpediecf.baseipiecf AS "Baseipiecf",
-									   rowvw_pcpediecf.qtvendidavasilhame AS "Qtvendidavasilhame",
-									   rowvw_pcpediecf.vlacrescvasilhame AS "Vlacrescvasilhame",
-									   rowvw_pcpediecf.percicmssimplesnac AS "Percicmssimplesnac",
-									   rowvw_pcpediecf.vlbasepartdest AS "Vlbasepartdest",
-									   rowvw_pcpediecf.vlfcppart AS "Vlfcppart",
-									   rowvw_pcpediecf.vlicmspartdest AS "Vlicmspartdest",
-									   rowvw_pcpediecf.percprovpart AS "Percprovpart",
-									   rowvw_pcpediecf.vlicmspart AS "Vlicmspart",
-									   rowvw_pcpediecf.vlcredfcpicmssn AS "Vlcredfcpicmssn",
-									   rowvw_pcpediecf.vlfecp AS "Vlfecp",
-									   rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
-									   rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
-									   rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa"
-									   ))))
+                     rowvw_pcpediecf.percipi as "Percipi",
+                     rowvw_pcpediecf.perfretecmv AS "Perfretecmv",
+                     rowvw_pcpediecf.vlbaseipi AS "Vlbaseipi",
+                     rowvw_pcpediecf.basedifaliquotas AS "Basedifaliquotas",
+                     rowvw_pcpediecf.percdifaliquotas AS "Percdifaliquotas",
+                     rowvw_pcpediecf.vldifaliquotas AS "Vldifaliquotas",
+                     rowvw_pcpediecf.vldescorgaopub AS "Vldescorgaopub",
+                     rowvw_pcpediecf.percipiecf AS "Percipiecf",
+                     rowvw_pcpediecf.baseipiecf AS "Baseipiecf",
+                     rowvw_pcpediecf.qtvendidavasilhame AS "Qtvendidavasilhame",
+                     rowvw_pcpediecf.vlacrescvasilhame AS "Vlacrescvasilhame",
+                     rowvw_pcpediecf.percicmssimplesnac AS "Percicmssimplesnac",
+                     rowvw_pcpediecf.vlbasepartdest AS "Vlbasepartdest",
+                     rowvw_pcpediecf.vlfcppart AS "Vlfcppart",
+                     rowvw_pcpediecf.vlicmspartdest AS "Vlicmspartdest",
+                     rowvw_pcpediecf.percprovpart AS "Percprovpart",
+                     rowvw_pcpediecf.vlicmspart AS "Vlicmspart",
+                     rowvw_pcpediecf.vlcredfcpicmssn AS "Vlcredfcpicmssn",
+                     rowvw_pcpediecf.vlfecp AS "Vlfecp",
+                     rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
+                     rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
+                     rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa",
+                     rowvw_pcpediecf.CODIGOTRIBUTACAOIS AS "Codigotributacaois",
+                     rowvw_pcpediecf.CSTIS AS "Cstis",
+                     rowvw_pcpediecf.CCLASSTRIBIS AS "Cclasstribis",
+                     rowvw_pcpediecf.VLBASEIS AS "Vlbaseis",
+                     rowvw_pcpediecf.ALIQIS AS "Aliqis",
+                     rowvw_pcpediecf.ALIQESPECIFICAIS AS "Aliqespecificais",
+                     rowvw_pcpediecf.UNIDADETRIB AS "Unidadetrib",
+                     rowvw_pcpediecf.Xml_qttrib AS "Xml_qttrib",
+                     rowvw_pcpediecf.VLIS AS "Vlis",
+                     rowvw_pcpediecf.CODIGOTRIBUTACAOCBSIBS AS "Codigotributacaocbsibs",
+                     rowvw_pcpediecf.CSTIBSCBS AS "Cstibscbs",
+                     rowvw_pcpediecf.CCLASSTRIBIBSCBS AS "Cclasstribibscbs",
+                     rowvw_pcpediecf.VLBASEIBSCBS AS "Vlbaseibscbs",
+                     rowvw_pcpediecf.IBSUF AS "Ibsuf",
+                     rowvw_pcpediecf.PDIFIBSUF AS "Pdifibsuf",
+                     rowvw_pcpediecf.VDIFIBSUF AS "Vdifibsuf",
+                     rowvw_pcpediecf.PREDALIQIBSUF AS "Predaliqibsuf",
+                     rowvw_pcpediecf.PALIQEFETIBSUF AS "Paliqefetibsuf",
+                     rowvw_pcpediecf.VIBSUF AS "Vibsuf",
+                     rowvw_pcpediecf.PIBSMUN AS "Pibsmun",
+                     rowvw_pcpediecf.PDIFIBSMUN AS "Pdifibsmun" ,
+                     rowvw_pcpediecf.VDIFIBSMUN AS "Vdifibsmun" ,
+                     rowvw_pcpediecf.PREDALIQIBSMUN AS "Predaliqibsmun" ,
+                     rowvw_pcpediecf.PALIQEFETIBSMUN AS "Paliqefetibsmun" ,
+                     rowvw_pcpediecf.VIBSMUN AS "Vibsmun" ,
+                     rowvw_pcpediecf.ALIQCBS AS "Aliqcbs",
+                     rowvw_pcpediecf.VLCBS AS "Vlcbs"
+                     ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
                  WHERE rowvw_pcpediecf.seqdocto = p_pedido.seqdocto
@@ -620,8 +647,8 @@ IS
                                    p_pedido.vltabela AS "Vltabela",
                                    p_pedido.vlsubtotal AS "Vlsubtotal",
                                    p_pedido.vltotalcomtroco AS "Vltotalcomtroco" ,
-								   0 AS "Multiplospedidos",
-								   0 AS "Idprevenda" )))
+                   0 AS "Multiplospedidos",
+                   0 AS "Idprevenda" )))
                   INTO l_xmlcabecalho
                   FROM DUAL;
 
@@ -631,8 +658,8 @@ IS
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLPARCELAS )
             FUNCTION retornar_xmlparcelas(p_numpedecf NUMBER,
                                           p_seqdocto  NUMBER,
-										  p_numcheckout NUMBER,
-										  p_nroempresa NUMBER)
+                      p_numcheckout NUMBER,
+                      p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeparcela   XMLTYPE;
@@ -734,7 +761,7 @@ IS
                   INTO l_xmltypeparcela
                   FROM vw_int_c5_pcprestecf p
                  WHERE p.seqdocto = p_seqdocto
-				   AND p.numcheckout = p_numcheckout
+           AND p.numcheckout = p_numcheckout
                    AND P.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypeparcela;
@@ -743,8 +770,8 @@ IS
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLDOCELETRONICO )
             FUNCTION retornar_xmldoceletronico(p_numpedecf NUMBER,
                                                p_seqdocto  NUMBER,
-											   p_numcaixa NUMBER,
-											   p_nroempresa NUMBER)
+                         p_numcaixa NUMBER,
+                         p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypedoceletronico   XMLTYPE;
@@ -768,7 +795,7 @@ IS
                   INTO l_xmltypedoceletronico
                   FROM vw_int_c5_pcdoceletronico a
                  WHERE a.seqdocto = p_seqdocto
-				   AND a.numcaixa = p_numcaixa
+           AND a.numcaixa = p_numcaixa
                    AND a.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypedoceletronico;
@@ -777,8 +804,8 @@ IS
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLCONSUMIDORFINAL )
             FUNCTION retornar_xmlconsumidorfinal(p_numpedecf NUMBER,
                                                  p_seqdocto NUMBER,
-												 p_numcaixa NUMBER,
-												 p_nroempresa NUMBER)
+                         p_numcaixa NUMBER,
+                         p_nroempresa NUMBER)
                 RETURN XMLTYPE
             IS
                 l_xmltypeconsumidorfinal   XMLTYPE;
@@ -814,17 +841,17 @@ IS
                   INTO l_xmltypeconsumidorfinal
                   FROM vw_int_c5_pcvendaconsumecf a
                  WHERE a.seqdocto = p_seqdocto
-				   AND a.numcaixa = p_numcaixa
+           AND a.numcaixa = p_numcaixa
                    AND a.nroempresa = p_nroempresa;
 
                 RETURN l_xmltypeconsumidorfinal;
             END retornar_xmlconsumidorfinal;
-			
-            FUNCTION retornar_xmlitenscesta(p_numpedecf number, p_pedido c_pedido%rowtype) 
+
+            FUNCTION retornar_xmlitenscesta(p_numpedecf number, p_pedido c_pedido%rowtype)
             RETURN XMLTYPE is
               l_xmlItensCesta XMLTYPE;
             BEGIN
-              SELECT 
+              SELECT
                 XMLELEMENT(
                   "ItensCesta",
                   XMLAGG(
@@ -853,7 +880,7 @@ IS
                         VW.ALIQICMS2              AS "Aliqicms2",
                         VW.SITTRIBUT              AS "Sittribut",
                         VW.CODFISCAL              AS "Codfiscal",
-						VW.CODECF                 AS "Codecf",
+            VW.CODECF                 AS "Codecf",
                         VW.PBASERCA               AS "Pbaserca",
                         VW.BASEICST               AS "Baseicst",
                         VW.STCLIENTEGNRE          AS "Stclientegnre",
@@ -864,8 +891,8 @@ IS
                         VW.VLDESCSUFRAMA          AS "Vldescsuframa",
                         VW.VLCUSTOREP             AS "Vlcustorep",
                         VW.VLCUSTOCONT            AS "Vlcustocont",
-						VW.VLCUSTOFIN             AS "Vlcustofin",
-						VW.VLCUSTOREAL            AS "Vlcustoreal",
+            VW.VLCUSTOFIN             AS "Vlcustofin",
+            VW.VLCUSTOREAL            AS "Vlcustoreal",
                         VW.VLDESCCUSTOCMV         AS "Vldesccustocmv",
                         VW.PERDESCTAB             AS "Perdesctab",
                         VW.IVA                    AS "Iva",
@@ -929,7 +956,33 @@ IS
                         VW.BASEBCR                AS "Basebcr",
                         VW.STBCR                  AS "Stbcr",
                         VW.CODFORNEC              AS "Codfornec",
-                        VW.VLDESCITEM             AS "Vldescitem"
+                        VW.VLDESCITEM             AS "Vldescitem",
+            VW.CODIGOTRIBUTACAOIS     AS "Codigotributacaois",
+            VW.CSTIS                  AS "Cstis",
+            VW.CCLASSTRIBIS           AS "Cclasstribis",
+            VW.VLBASEIS               AS "Vlbaseis",
+            VW.ALIQIS                 AS "Aliqis",
+            VW.ALIQESPECIFICAIS       AS "Aliqespecificais",
+            VW.UNIDADETRIB            AS "Unidadetrib",
+            VW.Xml_qttrib              AS "Xml_qttrib",
+            VW.VLIS                   AS "Vlis",
+            VW.CODIGOTRIBUTACAOCBSIBS AS "Codigotributacaocbsibs",
+            VW.CSTIBSCBS              AS "Cstibscbs",
+            VW.CCLASSTRIBIBSCBS       AS "Cclasstribibscbs",
+            VW.VLBASEIBSCBS           AS "Vlbaseibscbs",
+            VW.IBSUF                  AS "Ibsuf",
+            VW.PDIFIBSUF              AS "Pdifibsuf",
+            VW.VDIFIBSUF              AS "Vdifibsuf",
+            VW.PREDALIQIBSUF          AS "Predaliqibsuf",
+            VW.PALIQEFETIBSUF         AS "Paliqefetibsuf",
+            VW.VIBSUF                 AS "Vibsuf",
+            VW.PIBSMUN                AS "Pibsmun",
+            VW.PDIFIBSMUN             AS "Pdifibsmun" ,
+            VW.VDIFIBSMUN             AS "Vdifibsmun" ,
+            VW.PREDALIQIBSMUN         AS "Predaliqibsmun" ,
+            VW.PALIQEFETIBSMUN        AS "Paliqefetibsmun" ,
+            VW.VIBSMUN                AS "Vibsmun" ,
+            VW.VLCBS                  AS "Vlcbs"
                       )
                     )
                   )
@@ -942,7 +995,7 @@ IS
 
               RETURN l_xmlItensCesta;
 
-            END RETORNAR_XMLITENSCESTA;			
+            END RETORNAR_XMLITENSCESTA;
 
             -- RETORNAR_XML_VENDA ( RETORNAR_XMLLOGDADOSPESSOAS )
             FUNCTION retornar_xmllogdadospessoas (p_numpedecf    NUMBER,
@@ -970,7 +1023,7 @@ IS
             l_xmlparcela            := retornar_xmlparcelas(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa);
             l_xmldoceletronico      := retornar_xmldoceletronico(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa );
             l_xmlconsumidorfinal    := retornar_xmlconsumidorfinal(v_numpedecf,r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa );
-			l_xmlitenscesta         := retornar_xmlitenscesta(v_numpedecf, r_pedido);
+      l_xmlitenscesta         := retornar_xmlitenscesta(v_numpedecf, r_pedido);
 
             --L_XMLLOGDADOSPESSOAS := RETORNAR_XMLLOGDADOSPESSOAS(V_NUMPEDECF, R_PEDIDO.SEQDOCTO);
 
@@ -981,7 +1034,7 @@ IS
                                            l_xmldoceletronico,
                                            l_xmllogdadospessoas,
                                            l_xmlitens,
-										   l_xmlitenscesta,
+                       l_xmlitenscesta,
                                            l_xmlcabecalho))
                        pedido
               INTO l_xmlesquema
@@ -1000,7 +1053,7 @@ IS
                 := '<?xml version="1.0" encoding="UTF-8" standalone="yes"?> <EsquemaExportacao xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">';
         BEGIN
             -- recebe xml da VENDA
-            
+
 
             dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
             dados_pcfilamensagem.rowpcfilamensagem.datatransacao    := SYSDATE;
@@ -1026,16 +1079,16 @@ IS
             dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento  := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.tipodocumento    := r_pedido.docemissao;
             dados_pcfilamensagem.rowpcfilamensagem.tipooperacao     := 'VEND';
-            
-            dados_pcfilamensagem.rowpcfilamensagem.seqdocto         := r_pedido.seqdocto;                                                                     
+
+            dados_pcfilamensagem.rowpcfilamensagem.seqdocto         := r_pedido.seqdocto;
             dados_pcfilamensagem.rowpcfilamensagem.tipomensagem     := 1;
             dados_pcfilamensagem.rowpcfilamensagem.codigoerro       := NULL;
             dados_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao := SYSDATE;
             dados_pcfilamensagem.rowpcfilamensagem.pdvorigem        := 'PDV SUPERMERCADOS';
-            dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL; 
-			dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(r_pedido.data, 'YYYY-MM-DD');
+            dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado   := NULL;
+      dados_pcfilamensagem.rowpcfilamensagem.datadocumento    := TO_DATE(r_pedido.data, 'YYYY-MM-DD');
             l_xmltype := retornar_xml_venda (r_pedido);
-			dados_pcfilamensagem.rowpcfilamensagem.mensagem         :=  REPLACE (l_xmltype.getclobval (),
+      dados_pcfilamensagem.rowpcfilamensagem.mensagem         :=  REPLACE (l_xmltype.getclobval (),
                                                                                  '<EsquemaExportacao>',
                                                                                  daodoscabecalhoxml);
             RETURN dados_pcfilamensagem;
@@ -1141,23 +1194,23 @@ IS
             p_r_pedido.vlatend          := p_r_pedido.vltotal;
             p_r_pedido.vlsubtotal       := ROUND(p_r_pedido.vltotal,2);
             p_r_pedido.vltotalcomtroco  := p_r_pedido.vltotal;
-			p_r_pedido.numpedecf        := defseq_numpedecf.NEXTVAL;
+      p_r_pedido.numpedecf        := defseq_numpedecf.NEXTVAL;
         END;
     BEGIN
         ------------- INÍCIO LOOP C_PEDIDO ---------------
         EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ''.,''';
 
-		FOR r_pedido IN c_pedido
+    FOR r_pedido IN c_pedido
         LOOP
             BEGIN
                 -- REGRAS DO CABEÇALHO DA NF DE VENDA
                 adicionarregrascabecalhonf (r_pedido);
                 -- insere os dados da PCFILAMENSAGEM
                 dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
-				atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
+        atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
                 atualizar_pcorcavendac(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
-				inserir_pcfilamensagem(dados_pcfilamensagem);
-				if r_pedido.status = 'C'  then
+        inserir_pcfilamensagem(dados_pcfilamensagem);
+        if r_pedido.status = 'C'  then
                   PKG_INT_C5_CANCELAMENTO.PROCESSAR_CANCELAMENTO(r_pedido.seqdocto, r_pedido.numcaixa, r_pedido.nroempresa);
                 end if;
 
