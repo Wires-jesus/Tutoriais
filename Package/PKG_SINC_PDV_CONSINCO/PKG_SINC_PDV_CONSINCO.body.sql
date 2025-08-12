@@ -7123,7 +7123,7 @@ BEGIN
     );
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcodigotributario', 'carrega_tb_cctcodigotributario OK', SYSDATE, CURRENT_TIMESTAMP);
 
   COMMIT;
 
@@ -7136,8 +7136,8 @@ BEGIN
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcenconditem',
-           'carrega_tb_cctcenconditem ALERTA',
+           'carrega_tb_cctcodigotributario',
+           'carrega_tb_cctcodigotributario ALERTA',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
@@ -7150,8 +7150,8 @@ BEGIN
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcenconditem',
-           'carrega_tb_cctcenconditem ERRO',
+           'carrega_tb_cctcodigotributario',
+           'carrega_tb_cctcodigotributario ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
