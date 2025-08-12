@@ -117,7 +117,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     
     EXECUTE IMMEDIATE VSQL INTO vSeq;
     RETURN vSeq;
-  END;  
+  END;
 
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
@@ -6879,6 +6879,14 @@ BEGIN
       S.SEQCENARIO,
       S.ATIVO
     );
+
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
+  SET CCT.ATIVO = 'N'
+  WHERE EXISTS (
+    SELECT 1 FROM PCDEPARAPRODC5 DEPARA WHERE TO_CHAR(DEPARA.SEQPRODUTO) = CCT.VALOR AND DEPARA.ATIVO = 'N'
+  )
+    AND CCT.IDENTIFICADOR = 'PRODUTO'
+    AND CCT.ATIVO = 'S';  
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
