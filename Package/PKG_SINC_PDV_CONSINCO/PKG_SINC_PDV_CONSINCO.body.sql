@@ -119,6 +119,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN vSeq;
   END;
 
+  FUNCTION OBTER_SEQCODIGOTRIBUTACAO RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    VSQL := 'SELECT DFSEQ_INT_C5_CCTCODIGOTRIBUTACAO.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;  
+
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
                             pCALLSTACK   CLOB) IS
@@ -7054,6 +7064,94 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctformula',
            'carrega_tb_cctformula ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE CARREGA_TB_CCTCODIGOTRIBUTARIO(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcodigotributario CC 
+  USING (
+    SELECT
+      SEQCODIGOTRIBUTARIO,
+      CODIGO,
+      DESCRICAO,
+      INDTIPOCODIGO,
+      DTAINICIALVALIDADE,
+      DTAFINALVALIDADE,
+      ATIVO,
+      IDREF
+    FROM VW_INT_C5_CCTCODIGOTRIBUTACAO
+  ) S
+  ON (CC.IDREF = S.IDREF AND CC.CODIGO = S.CODIGO)
+  WHEN MATCHED THEN
+    UPDATE
+    SET CC.DESCRICAO = S.DESCRICAO,
+        CC.ATIVO = S.ATIVO,
+        CC.INDTIPOCODIGO = S.INDTIPOCODIGO,
+        CC.DTAINICIALVALIDADE = S.DTAINICIALVALIDADE,
+        CC.DTAFINALVALIDADE = S.DTAFINALVALIDADE
+    WHERE NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+       OR NVL(CC.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
+       OR NVL(CC.INDTIPOCODIGO, -1) <> NVL(S.INDTIPOCODIGO, -1)
+       OR NVL(CC.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+       OR NVL(CC.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+
+  WHEN NOT MATCHED THEN
+    INSERT
+    ( SEQCODIGOTRIBUTARIO,
+      CODIGO,
+      DESCRICAO,
+      INDTIPOCODIGO,
+      DTAINICIALVALIDADE,
+      DTAFINALVALIDADE,
+      ATIVO,
+      IDREF
+    )
+    VALUES
+    ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCODIGOTRIBUTACAO),
+      S.CODIGO,
+      S.DESCRICAO,
+      S.INDTIPOCODIGO,
+      S.DTAINICIALVALIDADE,
+      S.DTAFINALVALIDADE,
+      S.ATIVO,
+      S.IDREF
+    );
+
+  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcodigotributario', 'carrega_tb_cctcodigotributario OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+      BEGIN
+        PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcodigotributario',
+           'carrega_tb_cctcodigotributario ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+      END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcodigotributario',
+           'carrega_tb_cctcodigotributario ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
