@@ -129,6 +129,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN vSeq;
   END;  
 
+  FUNCTION OBTER_SEQCENARIOIMPOSTO RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    VSQL := 'SELECT DFSEQ_INT_C5_CCTCENARIOIMPOSTO.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;  
+
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
                             pCALLSTACK   CLOB) IS
@@ -6776,7 +6786,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE CARREGA_TB_CCTCENARIOCONDICAO(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_cctcenariocondicao(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcenariocondicao CC 
   USING (
@@ -6850,7 +6860,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE CARREGA_TB_CCTCENCONDITEM(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_cctcenconditem(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcenariocondicaoitem CC 
   USING (
@@ -6952,7 +6962,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE CARREGA_TB_CCTIMPOSTO(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_cctimposto(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctimposto CC
   USING (
@@ -7010,7 +7020,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE CARREGA_TB_CCTFORMULA(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_cctformula(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctformula CC
   USING (
@@ -7071,7 +7081,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE CARREGA_TB_CCTCODIGOTRIBUTARIO(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE carrega_tb_cctcodigotributario(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcodigotributario CC 
   USING (
@@ -7152,6 +7162,99 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctcodigotributario',
            'carrega_tb_cctcodigotributario ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_cctcenarioimposto(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenarioimposto CC 
+  USING (SELECT * FROM VW_INT_C5_CCTCENARIOIMPOSTO) S
+  ON (CC.SEQCENARIOIMPOSTO = S.SEQCENARIOIMPOSTO)
+  WHEN MATCHED THEN
+    UPDATE
+    SET CC.SEQCENARIO    = S.SEQCENARIO,
+        CC.SEQIMPOSTO    = S.SEQIMPOSTO,
+        CC.SEQCODTRIBCST = S.SEQCODTRIBCST,
+        CC.CODTRIBCST    = S.CODTRIBCST,
+        CC.CODTRIBCCLASSTRIB = S.CODTRIBCCLASSTRIB,
+        CC.PERALIQ = S.PERALIQ,
+        CC.PERALIQRED = S.PERALIQRED,
+        CC.SEQFORMULA = S.SEQFORMULA,
+        CC.ATIVO = S.ATIVO,
+        CC.IDREF = S.IDREF
+    WHERE NVL(CC.SEQCENARIO, -1) <> NVL(S.SEQCENARIO, -1)
+       OR NVL(CC.SEQIMPOSTO, -1) <> NVL(S.SEQIMPOSTO, -1)
+       OR NVL(CC.SEQCODTRIBCST, -1) <> NVL(S.SEQCODTRIBCST, -1)
+       OR NVL(CC.CODTRIBCST, -1) <> NVL(S.CODTRIBCST, -1)
+       OR NVL(CC.CODTRIBCCLASSTRIB, -1) <> NVL(S.CODTRIBCCLASSTRIB, -1)
+       OR NVL(CC.PERALIQ, -1) <> NVL(S.PERALIQ, -1)
+       OR NVL(CC.PERALIQRED, -1) <> NVL(S.PERALIQRED, -1)
+       OR NVL(CC.SEQFORMULA, -1) <> NVL(S.SEQFORMULA, 1)
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+       OR NVL(CC.IDREF, '-') <> NVL(S.IDREF, '-')
+
+  WHEN NOT MATCHED THEN
+    INSERT
+    ( CC.SEQCENARIOIMPOSTO,
+      CC.SEQCENARIO,
+      CC.SEQIMPOSTO,
+      CC.SEQCODTRIBCST,
+      CC.CODTRIBCST,
+      CC.CODTRIBCCLASSTRIB,
+      CC.PERALIQ,
+      CC.PERALIQRED,
+      CC.SEQFORMULA,
+      CC.ATIVO,
+      CC.IDREF
+    )
+    VALUES
+    ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCENARIOIMPOSTO),
+      S.SEQCENARIO,
+      S.SEQIMPOSTO,
+      S.SEQCODTRIBCST,
+      S.CODTRIBCST,
+      S.CODTRIBCCLASSTRIB,
+      S.PERALIQ,
+      S.PERALIQRED,
+      S.SEQFORMULA,
+      S.ATIVO,
+      S.IDREF
+    );
+
+  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenarioimposto', 'carrega_tb_cctcenarioimposto OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+      BEGIN
+        PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenarioimposto',
+           'carrega_tb_cctcenarioimposto ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+      END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenarioimposto',
+           'carrega_tb_cctcenarioimposto ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
