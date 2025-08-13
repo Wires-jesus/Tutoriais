@@ -117,26 +117,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     
     EXECUTE IMMEDIATE VSQL INTO vSeq;
     RETURN vSeq;
-  END;
-
-  FUNCTION OBTER_SEQCODIGOTRIBUTACAO RETURN NUMBER IS
-   vSeq NUMBER := 0;
-   VSQL VARCHAR2(2000);
-  BEGIN
-    VSQL := 'SELECT DFSEQ_INT_C5_CCTCODIGOTRIBUTACAO.NEXTVAL FROM DUAL';
-    
-    EXECUTE IMMEDIATE VSQL INTO vSeq;
-    RETURN vSeq;
-  END;  
-
-  FUNCTION OBTER_SEQCENARIOIMPOSTO RETURN NUMBER IS
-   vSeq NUMBER := 0;
-   VSQL VARCHAR2(2000);
-  BEGIN
-    VSQL := 'SELECT DFSEQ_INT_C5_CCTCENARIOIMPOSTO.NEXTVAL FROM DUAL';
-    
-    EXECUTE IMMEDIATE VSQL INTO vSeq;
-    RETURN vSeq;
   END;  
 
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
@@ -6786,7 +6766,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE carrega_tb_cctcenariocondicao(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE CARREGA_TB_CCTCENARIOCONDICAO(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcenariocondicao CC 
   USING (
@@ -6860,7 +6840,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE carrega_tb_cctcenconditem(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE CARREGA_TB_CCTCENCONDITEM(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctcenariocondicaoitem CC 
   USING (
@@ -6870,8 +6850,7 @@ BEGIN
       INDTIPOIDENTIDADE,
       IDENTIFICADOR,
       SEQCENARIO,
-      ATIVO,
-      IDREF
+      ATIVO
     FROM VW_INT_C5_CCTCENCONDITEM
   ) S
   ON (CC.SEQCENARIOCONDICAO = S.SEQCENARIOCONDICAO AND CC.VALOR = S.VALOR)
@@ -6889,8 +6868,7 @@ BEGIN
       INDTIPOENTIDADE,
       IDENTIFICADOR,
       SEQCENARIO,
-      ATIVO,
-      IDREF
+      ATIVO
     )
     VALUES
     ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCENARIOCONDICAOITEM),
@@ -6899,31 +6877,8 @@ BEGIN
       S.INDTIPOIDENTIDADE,
       S.IDENTIFICADOR,
       S.SEQCENARIO,
-      S.ATIVO,
-      S.IDREF
+      S.ATIVO
     );
-
-  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
-  SET CCT.ATIVO = 'N'
-  WHERE EXISTS (
-    SELECT 1 FROM PCDEPARAPRODC5 DEPARA WHERE TO_CHAR(DEPARA.SEQPRODUTO) = CCT.VALOR AND DEPARA.ATIVO = 'N'
-  )
-    AND CCT.IDENTIFICADOR = 'PRODUTO'
-    AND CCT.ATIVO = 'S';  
-
-  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
-  SET CCT.ATIVO = 'N'
-  WHERE EXISTS (
-    SELECT 1 FROM PCTRIBUTACAO TRIB 
-    WHERE TRIB.CODIGO_TRIBUTACAO = CCT.IDREF 
-      AND TRIB.DTINATIVACAO IS NULL 
-      AND (CASE WHEN TRIB.TIPO_LOCAL_CONSUMO = 'G' 
-             THEN TO_CHAR(NVL(TRIB.LOCAL_CONSUMO_GERAL, 'BR'))
-             ELSE TO_CHAR(TRIB.LOCAL_CONSUMO_MUNICIPIO)
-           END) <> CCT.VALOR
-  )
-    AND CCT.IDENTIFICADOR = 'UFORIGEM'
-    AND CCT.ATIVO = 'S';
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -6962,7 +6917,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE carrega_tb_cctimposto(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE CARREGA_TB_CCTIMPOSTO(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctimposto CC
   USING (
@@ -7020,7 +6975,7 @@ BEGIN
   END;
 END;
 
-PROCEDURE carrega_tb_cctformula(p_id IN pccontroleconsinco.id%TYPE) AS
+PROCEDURE CARREGA_TB_CCTFORMULA(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_cctformula CC
   USING (
@@ -7074,187 +7029,6 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctformula',
            'carrega_tb_cctformula ERRO',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-        RAISE;
-  END;
-END;
-
-PROCEDURE carrega_tb_cctcodigotributario(p_id IN pccontroleconsinco.id%TYPE) AS
-BEGIN
-  MERGE INTO monitorpdvmiddle.tb_cctcodigotributario CC 
-  USING (
-    SELECT
-      SEQCODIGOTRIBUTARIO,
-      CODIGO,
-      DESCRICAO,
-      INDTIPOCODIGO,
-      DTAINICIALVALIDADE,
-      DTAFINALVALIDADE,
-      ATIVO,
-      IDREF
-    FROM VW_INT_C5_CCTCODIGOTRIBUTACAO
-  ) S
-  ON (CC.IDREF = S.IDREF AND CC.CODIGO = S.CODIGO)
-  WHEN MATCHED THEN
-    UPDATE
-    SET CC.DESCRICAO = S.DESCRICAO,
-        CC.ATIVO = S.ATIVO,
-        CC.INDTIPOCODIGO = S.INDTIPOCODIGO,
-        CC.DTAINICIALVALIDADE = S.DTAINICIALVALIDADE,
-        CC.DTAFINALVALIDADE = S.DTAFINALVALIDADE
-    WHERE NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
-       OR NVL(CC.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
-       OR NVL(CC.INDTIPOCODIGO, -1) <> NVL(S.INDTIPOCODIGO, -1)
-       OR NVL(CC.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
-       OR NVL(CC.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
-
-  WHEN NOT MATCHED THEN
-    INSERT
-    ( SEQCODIGOTRIBUTARIO,
-      CODIGO,
-      DESCRICAO,
-      INDTIPOCODIGO,
-      DTAINICIALVALIDADE,
-      DTAFINALVALIDADE,
-      ATIVO,
-      IDREF
-    )
-    VALUES
-    ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCODIGOTRIBUTACAO),
-      S.CODIGO,
-      S.DESCRICAO,
-      S.INDTIPOCODIGO,
-      S.DTAINICIALVALIDADE,
-      S.DTAFINALVALIDADE,
-      S.ATIVO,
-      S.IDREF
-    );
-
-  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcodigotributario', 'carrega_tb_cctcodigotributario OK', SYSDATE, CURRENT_TIMESTAMP);
-
-  COMMIT;
-
-  EXCEPTION
-    WHEN E_FK_VIOLATION THEN
-      BEGIN
-        PRC_RECORD_ALERTA(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcodigotributario',
-           'carrega_tb_cctcodigotributario ALERTA',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-      END;
-    WHEN OTHERS THEN
-    BEGIN
-        prc_record_error(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcodigotributario',
-           'carrega_tb_cctcodigotributario ERRO',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-        RAISE;
-  END;
-END;
-
-PROCEDURE carrega_tb_cctcenarioimposto(p_id IN pccontroleconsinco.id%TYPE) AS
-BEGIN
-  MERGE INTO monitorpdvmiddle.tb_cctcenarioimposto CC 
-  USING (SELECT * FROM VW_INT_C5_CCTCENARIOIMPOSTO) S
-  ON (CC.SEQCENARIOIMPOSTO = S.SEQCENARIOIMPOSTO)
-  WHEN MATCHED THEN
-    UPDATE
-    SET CC.SEQCENARIO    = S.SEQCENARIO,
-        CC.SEQIMPOSTO    = S.SEQIMPOSTO,
-        CC.SEQCODTRIBCST = S.SEQCODTRIBCST,
-        CC.CODTRIBCST    = S.CODTRIBCST,
-        CC.CODTRIBCCLASSTRIB = S.CODTRIBCCLASSTRIB,
-        CC.PERALIQ = S.PERALIQ,
-        CC.PERALIQRED = S.PERALIQRED,
-        CC.SEQFORMULA = S.SEQFORMULA,
-        CC.ATIVO = S.ATIVO,
-        CC.IDREF = S.IDREF
-    WHERE NVL(CC.SEQCENARIO, -1) <> NVL(S.SEQCENARIO, -1)
-       OR NVL(CC.SEQIMPOSTO, -1) <> NVL(S.SEQIMPOSTO, -1)
-       OR NVL(CC.SEQCODTRIBCST, -1) <> NVL(S.SEQCODTRIBCST, -1)
-       OR NVL(CC.CODTRIBCST, -1) <> NVL(S.CODTRIBCST, -1)
-       OR NVL(CC.CODTRIBCCLASSTRIB, -1) <> NVL(S.CODTRIBCCLASSTRIB, -1)
-       OR NVL(CC.PERALIQ, -1) <> NVL(S.PERALIQ, -1)
-       OR NVL(CC.PERALIQRED, -1) <> NVL(S.PERALIQRED, -1)
-       OR NVL(CC.SEQFORMULA, -1) <> NVL(S.SEQFORMULA, 1)
-       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
-       OR NVL(CC.IDREF, '-') <> NVL(S.IDREF, '-')
-
-  WHEN NOT MATCHED THEN
-    INSERT
-    ( CC.SEQCENARIOIMPOSTO,
-      CC.SEQCENARIO,
-      CC.SEQIMPOSTO,
-      CC.SEQCODTRIBCST,
-      CC.CODTRIBCST,
-      CC.CODTRIBCCLASSTRIB,
-      CC.PERALIQ,
-      CC.PERALIQRED,
-      CC.SEQFORMULA,
-      CC.ATIVO,
-      CC.IDREF
-    )
-    VALUES
-    ( (PKG_SINC_PDV_CONSINCO.OBTER_SEQCENARIOIMPOSTO),
-      S.SEQCENARIO,
-      S.SEQIMPOSTO,
-      S.SEQCODTRIBCST,
-      S.CODTRIBCST,
-      S.CODTRIBCCLASSTRIB,
-      S.PERALIQ,
-      S.PERALIQRED,
-      S.SEQFORMULA,
-      S.ATIVO,
-      S.IDREF
-    );
-
-  INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenarioimposto', 'carrega_tb_cctcenarioimposto OK', SYSDATE, CURRENT_TIMESTAMP);
-
-  COMMIT;
-
-  EXCEPTION
-    WHEN E_FK_VIOLATION THEN
-      BEGIN
-        PRC_RECORD_ALERTA(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcenarioimposto',
-           'carrega_tb_cctcenarioimposto ALERTA',
-           SYSDATE,
-           CURRENT_TIMESTAMP);
-        COMMIT;
-      END;
-    WHEN OTHERS THEN
-    BEGIN
-        prc_record_error(p_id);
-        ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
-          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
-        VALUES
-          ('pkg_sinc_PDV_Consinco',
-           'carrega_tb_cctcenarioimposto',
-           'carrega_tb_cctcenarioimposto ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
