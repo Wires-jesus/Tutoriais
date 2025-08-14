@@ -47,17 +47,20 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       PERC_CBS                NUMBER(7,4),
       PERC_RED_CBS            NUMBER(7,4),
       ALIQ_EFETIVA_CBS        NUMBER(7,4),
-      VALOR_CBS               NUMBER(18,6),            
+      VALOR_CBS               NUMBER(18,6),  
+      FORMULA_VALOR_TRIBUTO_CBS VARCHAR2(50),         
       --Retorno valores IBS UF
       PERC_IBS_UF             NUMBER(7,4),
       PERC_RED_ALIQ_IBS_UF    NUMBER(7,4),
       ALIQ_EFETIVA_IBS_UF     NUMBER(7,4),
-      VALOR_IBS_UF            NUMBER(18,6),      
+      VALOR_IBS_UF            NUMBER(18,6),  
+      FORMULA_VALOR_TRIBUTO_IBS_UF VARCHAR2(50),    
       --Retorno valores IBS    
       PERC_IBS_MUN           NUMBER(7,4),
       PERC_RED_ALIQ_IBS_MUN  NUMBER(7,4),
       ALIQ_EFETIVA_IBS_MUN   NUMBER(7,4),
-      VALOR_IBS_MUN          NUMBER(18,6),      
+      VALOR_IBS_MUN          NUMBER(18,6),  
+      FORMULA_VALOR_TRIBUTO_IBS_MUN VARCHAR2(50),        
       --Retornos valores IS
       CODIGO_TRIBUTACAO_IS        NUMBER(10),
       FORMULA_BASE_CALCULO_IS     VARCHAR2(4000),
