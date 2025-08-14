@@ -2262,6 +2262,7 @@ create or replace package body FISCAL is
                           ,VLFCPST
                           ,VLICMSDESONERACAO
                           ,VLSTBCR
+                          ,VLICMSPARTDEST
                       from (select N.CODFILIAL
                                   ,M.CODPROD
                                   ,M.ROWID IDREGISTRO
@@ -2409,6 +2410,7 @@ create or replace package body FISCAL is
                                   ,MAX(NVL(MC.VLFECP, 0)) AS VLFCPST
                                   ,MAX(NVL(MC.VLICMSDESONERACAO,0)) VLICMSDESONERACAO
                                   ,MAX(DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0)) AS VLSTBCR
+                                  ,MAX(NVL(MCE.VLICMSPARTDEST,0)) VLICMSPARTDEST
                               from PCNFENT     N
                                   ,PCMOV       M
                                   ,PCESTCOM    E
@@ -2542,7 +2544,7 @@ create or replace package body FISCAL is
                                           ,0
                                           ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                           ,0
-                                          ,0)
+                                          ,DADOS.VLICMSPARTDEST)
             then
                if LENGTH(VMENSAGENS || CHR(13) || VMSG_ITEM) <= 3800
                then
@@ -2591,7 +2593,8 @@ create or replace package body FISCAL is
                               NVL(M.VLDESCSUFRAMA, 0) VLPRODUTO
                              ,NVL(M.VLFRETE, 0) VLFRETE
                              ,NVL(M.VLOUTROS, 0) VLDESPESA
-                             ,DECODE(PARAMFILIAL.OBTERCOMOVARCHAR2('CON_USATRIBUTACAOPORUF')
+                             -- CODTRIBPISCOFINS -- 
+                             ,NVL(DECODE(PARAMFILIAL.OBTERCOMOVARCHAR2('CON_USATRIBUTACAOPORUF')
                                     ,'S'
                                     ,(select CODTRIBPISCOFINS
                                        from PCTABTRIB T
@@ -2601,7 +2604,9 @@ create or replace package body FISCAL is
                                     ,(select CODTRIBPISCOFINS
                                        from PCTABPR T
                                       where T.CODPROD = M.CODPROD
-                                        and T.NUMREGIAO = NVL(PRC.NUMREGIAO, PR.NUMREGIAO))) CODTRIBPISCOFINS
+                                        and T.NUMREGIAO = NVL(PRC.NUMREGIAO, PR.NUMREGIAO))) 
+                                  ,MC.CODTRIBPISCOFINS) AS CODTRIBPISCOFINS       
+                             ----------------------     
                              ,NVL(N.TIPOFJ, C.TIPOFJ) TIPOFJ
                              ,NVL(C.PISCOFINSCUMULATIVO, 'N') PISCOFINSCUMULATIVO
                              ,N.CODFORNEC AS CODCLI
@@ -2629,6 +2634,7 @@ create or replace package body FISCAL is
                              ,NVL(MC.VLACRESCIMOFUNCEP, 0) AS VLFCPICMS
                              ,NVL(MC.VLFECP, 0) AS VLFCPST
                              ,NVL(MC.VLICMSDESONERACAO,0) VLICMSDESONERACAO
+                             ,NVL(MC.VLICMSPARTDEST,0) VLICMSPARTDEST
                          from PCNFENT     N
                              ,PCMOV       M
                              ,PCMOVCOMPLE MC
@@ -2704,7 +2710,7 @@ create or replace package body FISCAL is
                                           ,0
                                           ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                           ,0
-                                          ,0)
+                                          ,DADOS.VLICMSPARTDEST)
             then
                if LENGTH(VMENSAGENS || CHR(13) || VMSG_ITEM) <= 3800
                then
@@ -6936,4 +6942,5 @@ create or replace package body FISCAL is
 
 
 END;
--- Alteração 14/01/2025 - Implementação do nvl no campo CST da opçao /*CONSULTA DE NOTAS SEM ITENS*/ referente ao metodo GET_CPONTA_CONTABIL_SPED
+-- v001 
+-- Alteração 14/08/2025 - Implentação metodo recalculo pis cofins para Dev. de venda.
