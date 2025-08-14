@@ -17,9 +17,15 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   FUNCTION obter_seqloteestoque RETURN NUMBER;
 
-  FUNCTION OBTER_SEQCENARIOCONDICAO RETURN NUMBER;
+  FUNCTION obter_seqcenariocondicao RETURN NUMBER;
 
-  FUNCTION OBTER_SEQCENARIOCONDICAOITEM RETURN NUMBER;
+  FUNCTION obter_seqcenariocondicaoitem RETURN NUMBER;
+
+  FUNCTION obter_seqcodigotributacao RETURN NUMBER;
+
+  FUNCTION obter_seqcenarioimposto RETURN NUMBER;
+  
+  FUNCTION obter_seqcenarioimpostomun RETURN NUMBER;
 
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
@@ -206,6 +212,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_cctcenarioimposto(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE carrega_tb_regradestino(p_id IN pccontroleconsinco.id%TYPE);  
+
+  PROCEDURE carrega_tb_cctcenarioimpmun(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE exec_sinc;
 
