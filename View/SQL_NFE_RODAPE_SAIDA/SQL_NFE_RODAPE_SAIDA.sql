@@ -366,48 +366,17 @@ SELECT PCNFSAIDPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                    WHERE  PCPRODUT.CODPROD = PCMOVPREFAT.CODPROD
                    AND    PCMOVPREFAT.NUMTRANSVENDA = PCNFSAIDPREFAT.NUMTRANSVENDA))) AS PESO_LIQUIDO
       ,NVL(PCNFSAIDPREFAT.TOTPESOAGRUPADO,
-           PCNFSAIDPREFAT.TOTPESO) AS
+           PCNFSAIDPREFAT.TOTPESO) AS PESO_BRUTO
        ------------------ VEICULO --------------------
-      ,
-
-       (SELECT PCVEICUL.ANTT AS ANTT
+      , (SELECT PCVEICUL.ANTT AS ANTT
         FROM   PCVEICUL
         WHERE  PCVEICUL.CODVEICULO =
                NVL(PCNFSAIDPREFAT.CODVEICULO,
                    PCCARREG.CODVEICULO)) AS ANTT
       ,NVL(
-       PCNFSAIDPREFAT.UFPLACAVEIC, PCFILIAL.UF)/*,
-       (SELECT PCVEICUL.UFPLACAVEICULO AS UFPLACAVEICUL
-        FROM   PCVEICUL
-        WHERE  PCVEICUL.CODVEICULO =
-               NVL(PCNFSAIDPREFAT.CODVEICULO,
-                   PCCARREG.CODVEICULO)))*/
-                   AS PLACA_UF
+       PCNFSAIDPREFAT.UFPLACAVEIC, PCFILIAL.UF) AS PLACA_UF
       ,
-       --NVL(
-       PCNFSAIDPREFAT.PLACAVEIC
-       /*(SELECT PCVEICUL.PLACA AS PLACA
-        FROM   PCVEICUL
-        WHERE  PCVEICUL.CODVEICULO =
-               NVL(PCNFSAIDPREFAT.CODVEICULO,
-                   PCCARREG.CODVEICULO)))*/ AS PLACA
-
-       /*
-                                     VEICULO.ANTT,
-                                     NVL(PCNFSAIDPREFAT.PLACAVEIC, DECODE(NVL(VEICULO.UFPLACAVEICULO,
-                                                'XX'),
-                                            'XX',
-                                            NULL,
-                                            NVL(PCNFSAIDPREFAT.PLACAVEIC,
-                                                DECODE(NVL(PCCARREG.NUMCAR,
-                                                           0),
-                                                       0,
-                                                       NULL,
-                                                       DECODE(PRODUTO.COD_OPERACAO,
-                                                              'SD',
-                                                              NULL,
-                                                              VEICULO.PLACA))))) AS PLACA,
-                                     NVL(PCNFSAIDPREFAT.UFPLACAVEIC,VEICULO.UFPLACAVEICULO) AS PLACA_UF*/
+       PCNFSAIDPREFAT.PLACAVEIC AS PLACA
        ------------------ GRUPO DE VOLUMES -----------
       ,NVL(PCNFSAIDPREFAT.NUMVOLUME,
            1) NUM_VOLUME
@@ -427,10 +396,6 @@ SELECT PCNFSAIDPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
           NVL(PCNFSAIDPREFAT.NUMVOLUME, 0)
          END as NUMVOL
        ,SUM(PRODUTO.QTD_EMBALAGEM) AS NUM_VOLUME_EMB
-      -- Fim Variavel NVol - Padrão XML e DANFe
-      /*,NVL(NVL(PCNFSAIDPREFAT.NUMVOLUME,
-               PCNFSAIDPREFAT.TOTVOLUMEAGRUPADO),
-           SUM(PRODUTO.QUANTIDADE_COMERCIAL)) AS NUMVOL*/ --Realizado acima conforme tarefa: 157328
       ,SUM(PRODUTO.NUMVOLUMESCONFERENCIA) AS NUMVOLUMESCONFERENCIA
       ,PCNFSAIDPREFAT.DTENTREGA
       ,PCNFSAIDPREFAT.NUMCAR
