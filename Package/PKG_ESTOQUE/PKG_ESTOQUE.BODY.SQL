@@ -7803,10 +7803,7 @@ IS
                                    , PCEST.CODPROD
                                    , NVL(PCEST.QTESTGER, 0) QTESTGER
                                    , NVL(PCEST.QTBLOQUEADA, 0) SALDO_ESTANTERIOR
-                                   , CASE WHEN vsUSAWMS = 'S' THEN 
-                                       GREATEST(NVL(PCEST.QTINDENIZ, 0), NVL(WMS_QTFALTAAVARAIASEMDEVPEND(PCEST.CODPROD, PCEST.CODFILIAL, 'A'), 0))  
-                                     ELSE
-                                       NVL(PCEST.QTINDENIZ, 0) END SALDO_ESTINDENIZ
+                                   , NVL(PCEST.QTINDENIZ, 0) SALDO_ESTINDENIZ
                                    , NVL(WMS_QTFALTAAVARAIASEMDEVPEND(PCEST.CODPROD, PCEST.CODFILIAL, 'A'), 0) SALDO_WMSAVARIADO
                                    , CASE WHEN PNQTENTRADABONUS > 0 THEN
                                        GREATEST((PCEST.QTBLOQUEADA - NVL(PNQTENTRADABONUS, 0)), GREATEST(
@@ -7851,7 +7848,7 @@ IS
                 P_INTERNO.vtESTOQUE.CODPROD           := ESTOQUE.CODPROD;
                 P_INTERNO.vtESTOQUE.CODDEVOL          := pnCODDEVOL;
                 P_INTERNO.vtESTOQUE.MOTIVOBLOQESTOQUE := 'LIBERANDO APÓS PRECIFICAR';
-                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0));               
+                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := GREATEST(ESTOQUE.SALDO_ESTINDENIZ, LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)));               
                 PRIV_ATUALIZAR_ESTOQUE;
                 -- Validar se conseguiu atualizar o estoque
                 IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
