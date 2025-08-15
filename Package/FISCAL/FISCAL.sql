@@ -4,7 +4,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
    VCODFILIAL         VARCHAR2(2);
    VVLPIS_NF          NUMBER;
    VVLCOFINS_NF       NUMBER;
-
+   
+  TYPE TIPO_GRUPO_COMPRA_GOV IS RECORD ( 
+     TIPO_ORGAOPUBLICO VARCHAR2(2),
+     PERC_RED_ORGAO_PUB   NUMBER(18,6));    
 
   TYPE TIPO_TRIBUT_REFORMA IS RECORD (
       CODFILIAL         VARCHAR2(2),
@@ -72,7 +75,9 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VALOR_BASE_IS               NUMBER(18,6),
       PERC_IS                     NUMBER(7,4),
       VALOR_IS                    NUMBER(18,6),
-      VLTOTALIBS                  NUMBER(15,2)
+      VLTOTALIBS                  NUMBER(15,2),
+      -- Retorno valores Compra Governamental
+      COMPRA_GOVERNAMENTAL        TIPO_GRUPO_COMPRA_GOV
    );
 
 
