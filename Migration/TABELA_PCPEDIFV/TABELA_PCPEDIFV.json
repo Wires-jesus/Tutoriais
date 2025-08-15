@@ -1,0 +1,11 @@
+{
+ "nome":"TABELA_PCPEDIFV",
+ "tipoPLSQL":"MIGRATION",
+  "dependencias":[
+    {
+      "nome": "PCPEDIFV",
+      "tipo": "TABELA",
+      "versao": "6.0.02.000"
+    }
+  ]
+}
