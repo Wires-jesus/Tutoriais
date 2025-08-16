@@ -1,17 +1,16 @@
 BEGIN
 	DECLARE
-	v_bkp_name  VARCHAR2(30);
-	v_total     NUMBER := 0;
-	v_backup    NUMBER := 0;
-	v_div       NUMBER := 0; 
-	v_len15     NUMBER := 0; 
+	v_total  NUMBER := 0;
+	v_div    NUMBER := 0; 
+	v_len15  NUMBER := 0; 
 	BEGIN
-	v_bkp_name := 'PCPEDIFV_BKP_' || TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS');
-	EXECUTE IMMEDIATE 'CREATE TABLE '||v_bkp_name||' AS SELECT * FROM PCPEDIFV';
 
 	SELECT COUNT(*) INTO v_total FROM PCPEDIFV;
-	EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM '||v_bkp_name INTO v_backup;
-	DBMS_OUTPUT.PUT_LINE('Backup criado: '||v_bkp_name||' | linhas orig='||v_total||' bkp='||v_backup);
+	DBMS_OUTPUT.PUT_LINE('Iniciando migration em PCPEDIFV | linhas='||v_total);
+
+	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV ADD (NUMPEDCLI_NUM_BKP NUMBER(22))';
+	EXECUTE IMMEDIATE 'UPDATE PCPEDIFV SET NUMPEDCLI_NUM_BKP = NUMPEDCLI';
+	DBMS_OUTPUT.PUT_LINE('Backup em coluna NUMPEDCLI_NUM_BKP criado.');
 
 	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV ADD (NUMPEDCLI_VC VARCHAR2(15))';
 	EXECUTE IMMEDIATE q'[
@@ -37,20 +36,19 @@ BEGIN
 	IF v_div > 0 OR v_len15 > 0 THEN
 		RAISE_APPLICATION_ERROR(-20001,
 		'Falha na checagem mínima: divergencias='||v_div||' | >15='||v_len15||
-		'. Tabela de backup mantida: '||v_bkp_name);
+		'. Backup de coluna mantido (NUMPEDCLI_NUM_BKP).');
 	END IF;
 
 	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV RENAME COLUMN NUMPEDCLI TO NUMPEDCLI_NUM';
 	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV RENAME COLUMN NUMPEDCLI_VC TO NUMPEDCLI';
 
 	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV DROP COLUMN NUMPEDCLI_NUM';
-	EXECUTE IMMEDIATE 'DROP TABLE '||v_bkp_name||' PURGE';
+	EXECUTE IMMEDIATE 'ALTER TABLE PCPEDIFV DROP COLUMN NUMPEDCLI_NUM_BKP';
 
-	DBMS_OUTPUT.PUT_LINE('Migration executada com sucesso!');
+	DBMS_OUTPUT.PUT_LINE('Migration executada e limpa com sucesso');
 	EXCEPTION
 	WHEN OTHERS THEN
-		DBMS_OUTPUT.PUT_LINE('ERRO: '||SQLERRM||' | Backup mantido: '||COALESCE(v_bkp_name,'(n/d)'));
+		DBMS_OUTPUT.PUT_LINE('ERRO: '||SQLERRM||'. Backup em coluna preservado (NUMPEDCLI_NUM_BKP). CONTATE O SUPORTE PARA RESTAURAÇÃO');
 		RAISE;
 	END;
-	
 END;
