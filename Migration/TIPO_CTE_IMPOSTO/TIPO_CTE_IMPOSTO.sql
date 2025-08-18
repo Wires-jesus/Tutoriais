@@ -59,6 +59,12 @@ CREATE OR REPLACE TYPE TIPO_CTE_IMPOSTO AS OBJECT
      SOMATOTALNF                  VARCHAR2(1),
      VLTOTALIBS                   NUMBER(15,2),
      ALIQEFETREGIBSMUN            NUMBER(7,4),
+     PALIQIBSUF                   NUMBER(7,4),
+     VTRIBIBSUF                   NUMBER(15,2),
+     PALIQIBSMUN                  NUMBER(7,4),
+     VTRIBIBSMUN                  NUMBER(15,2),
+     PALIQCBS                     NUMBER(7,4),
+     VTRIBCBS                     NUMBER(15,2),
      
      CONSTRUCTOR FUNCTION TIPO_CTE_IMPOSTO(SELF IN OUT NOCOPY TIPO_CTE_IMPOSTO)
        RETURN SELF AS RESULT
