@@ -69,6 +69,14 @@
             "nome": "FORMULA",
             "tipo": "OBJETO_PLSQL",
             "versao": "7.0.01.000"
+        },{
+            "nome": "PCFORNEC",
+            "tipo": "TABELA",
+            "versao": "7.0.04.000"
+        },{
+            "nome": "PCCLIENT",
+            "tipo": "TABELA",
+            "versao": "7.0.03.000"
         } 
     ]
 }
