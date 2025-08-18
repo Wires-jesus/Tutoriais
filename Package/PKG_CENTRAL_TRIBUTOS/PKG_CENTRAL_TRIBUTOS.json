@@ -8,7 +8,7 @@
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.42.000"
+            "versao": "7.0.45.000"
         }, {
 			"nome": "PCNFBASE",
 			"tipo": "TABELA",
