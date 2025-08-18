@@ -14,7 +14,9 @@ CREATE OR REPLACE PACKAGE PKG_LIMITECREDITO IS
   FUNCTION RETORNA_LIMITE_CRED_DISPONIVEL(CODIGOCLIENTE          NUMBER,
                                           UTILIZALIMITEEXTRA     BOOLEAN DEFAULT TRUE,
                                           UTILIZALIMITEPARCEIROS BOOLEAN DEFAULT FALSE,
-                                          NUMEROPEDIDOATUAL      NUMBER DEFAULT 0)
+                                          NUMEROPEDIDOATUAL      NUMBER DEFAULT 0,
+                                          CODIGORCA              NUMBER DEFAULT 0,
+                                          CODIGOEMITENTE         NUMBER DEFAULT 0)
     RETURN NUMBER;
 
   FUNCTION RETORNA_LIMITE_CREDITO_CLIENTE(CODIGOCLIENTE NUMBER) RETURN NUMBER;
