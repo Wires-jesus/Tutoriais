@@ -425,7 +425,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_REFTRIB",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.18.000"
+		  "versao": "7.0.19.000"
 		},
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_GRUPO_CLIENTE",
