@@ -279,8 +279,36 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
     END IF;            
   END GRAVAR_PCPEDI_TRIBUTO;  
   
+  -- Procedimento genérico para gravar cabeçalho
+  PROCEDURE GRAVAR_CABECALHO_NF(P_DADOS_TRIBUTOS IN FISCAL.TIPO_TRIBUT_REFORMA,
+                                P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMETROS_CENTRAL_TRIBUTOS) IS
+  V_TRANSACAO VARCHAR2(15);
+  V_TABELA VARCHAR2(15);
+  BEGIN
+    IF P_PARAMETROS_CENTRAL_TRIBUTOS.TIPOMOVIMENTO = 'S' THEN
+      V_TABELA := 'PCNFSAID';
+      V_TRANSACAO := 'NUMTRANSVENDA';
+    ELSE
+      V_TABELA := 'PCNFENT';
+      V_TRANSACAO := 'NUMTRANSENT';
+    END IF;
 
-  -- Procedimento genérico para gravar tributos, usa SQL dinâmico para atualizar campos variando por prefixo (CBS, IBS, IS)
+      EXECUTE IMMEDIATE
+        'UPDATE ' || V_TABELA || ' SET ' ||
+        'TPENTEGOV  = :1, ' ||
+         'PREDUTOR  = :2 ' ||
+         'WHERE '||V_TRANSACAO||' = :3'||
+         '  AND NUMNOTA = :4'
+      USING
+        P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO,  -- :1
+        P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB, -- :2
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO,           -- :3
+        P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_NOTA                 -- :4
+        ;
+  END GRAVAR_CABECALHO_NF;
+
+  -- Procedimento genérico para gravar tributos, usa SQL dinâmico para atualizar 
+  -- campos variando por prefixo (CBS, IBS, IS)
   PROCEDURE GRAVAR_PCMOV_TRIBUTO(
     P_DADOS_TRIBUTOS IN FISCAL.TIPO_TRIBUT_REFORMA,
     P_LISTA_DADOS_NOTAS IN PKG_CENTRAL_TRIBUTOS_CONSULTAS.C_DADOS_NF_SAIDA_NORMAL%ROWTYPE,
@@ -306,16 +334,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
           'PALIQEFETIBSUF          = :7, ' ||
           'VIBSUF                  = :8, ' ||
           'PIBSMUN                 = :9, ' ||
-          'PREDALIQIBSMUN          = :10, ' ||
-          'PALIQEFETIBSMUN         = :11, ' ||
-          'VIBSMUN                 = :12, ' ||
-          'ALIQCBS                 = :13, ' ||
-          'PREDALIQCBS             = :14, ' ||
-          'PALIQEFETCBS            = :15, ' ||
+          'PREDALIQIBSMUN          = :10,' ||
+          'PALIQEFETIBSMUN         = :11,' ||
+          'VIBSMUN                 = :12,' ||
+          'ALIQCBS                 = :13,' ||
+          'PREDALIQCBS             = :14,' ||
+          'PALIQEFETCBS            = :15,' ||
           'VLCBS                   = :16,' ||
           'SOMATOTALNF_CBS         = :17,' ||
           'SOMATOTALNF_IBS         = :18,' ||   
-          'VLIBS                   = :19' ||                   
+          'VLIBS                   = :19'  ||                   
           'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :20 AND NUMTRANSITEM = :21 AND CODPROD = :22'
         USING
           P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
@@ -537,6 +565,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
 
       vAchouRegistro := True;      
     END LOOP;
+    
+    -- Gravar dados cabeçalhoNF " PCNFSAID / PCNFSAIDPREFAT / PCNFENT "
+    IF (P_PARAMETROS_CENTRAL_TRIBUTOS.ESPECIE = 'NF') AND
+       (P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO > 0) THEN
+      GRAVAR_CABECALHO_NF(V_DADOS_TRIBUTACAO,
+                          P_PARAMETROS_CENTRAL_TRIBUTOS);
+    END IF;    
 
     PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
 
@@ -688,6 +723,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
       
       vAchouRegistro := True;
     END LOOP;
+    
+    -- Gravar dados cabeçalhoNF "PCNFSAID / PCNFSAIDPREFAT / PCNFENT"
+    IF (P_PARAMETROS_CENTRAL_TRIBUTOS.ESPECIE = 'NF') AND
+       (P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO > 0) THEN
+      GRAVAR_CABECALHO_NF(V_DADOS_TRIBUTACAO,
+                          P_PARAMETROS_CENTRAL_TRIBUTOS);
+    END IF;    
    
     IF vAchouRegistro THEN      
       V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem1;
@@ -750,3 +792,5 @@ EXCEPTION
 END CALC_E_GRAVAR_TODOS_TRIB_TEST;
 
 END PKG_CENTRAL_TRIBUTOS;
+-- v001 
+-- Alteração 18/08/2025 - Implentação de novas regras para o processo Compra Governamental
