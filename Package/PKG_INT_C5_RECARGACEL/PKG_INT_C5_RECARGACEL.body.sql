@@ -234,7 +234,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INT_C5_RECARGACEL IS
                                               "Nsupagdigital",
                                               p.nomecarteiradigital AS
                                               "Nomecarteiradigital",
-                                              p.dtemissao AS "Vpago",
+                                              p.valor AS "Vpago",
                                               p.carteiradigital AS
                                               "Carteiradigital")))) PREST
             INTO l_xmltypeprest
