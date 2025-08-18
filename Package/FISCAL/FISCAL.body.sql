@@ -6437,7 +6437,7 @@ create or replace package body FISCAL is
       end if;
       
       -- Cálculo para Orgão Publico --
-      IF V_PARAMETROS.ORGAO_PUBLICO = 'S' AND V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB > 0 THEN 
+      IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO IS NOT NULL AND V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB > 0 THEN 
          V_PARAMETROS.ALIQ_EFETIVA_IBS_UF := (V_PARAMETROS.ALIQ_EFETIVA_IBS_UF * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100))); 
       END IF;      
       
@@ -6962,6 +6962,6 @@ create or replace package body FISCAL is
 
 
 END;
--- v001 
+-- v002 
 -- Alteração 14/08/2025 - Implentação metodo recalculo pis cofins para Dev. de venda.
 -- Alteração 15/08/2025 - Implentação de novas regras para o processo Compra Governamental
