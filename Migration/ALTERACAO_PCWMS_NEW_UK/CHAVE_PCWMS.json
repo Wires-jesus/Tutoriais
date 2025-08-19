@@ -2,5 +2,20 @@
     "nome": "CHAVE_PCWMS",
     "tipoPLSQL": "MIGRATION",
     "dependencias":[
+		{
+		  "nome": "PC_LOG_MIGRACAO_PCWMS",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		}
+		{
+		  "nome": "PC_BKP_MIGRACAO_PCWMS",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		}	
+		{
+		  "nome": "PC_BKP_MIGRACAO_PCWMS_ORIGINAL",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+		}
      ]
   }
