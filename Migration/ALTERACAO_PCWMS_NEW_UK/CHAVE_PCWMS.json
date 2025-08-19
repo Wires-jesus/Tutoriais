@@ -1,0 +1,6 @@
+{
+    "nome": "CHAVE_PCWMS",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+     ]
+  }
