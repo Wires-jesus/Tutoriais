@@ -7205,6 +7205,13 @@ BEGIN
       S.IDREF
     );
 
+  UPDATE MONITORPDVMIDDLE.TB_CCTCODIGOTRIBUTARIO CCT
+  SET CCT.ATIVO = 'N'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM PCTRIBUTACAO T WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF AND ((CCT.CODIGO = T.CST) OR (CCT.CODIGO = T.CCLASSTRIB))
+  )
+    AND CCT.ATIVO = 'S'; 
+
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcodigotributario', 'carrega_tb_cctcodigotributario OK', SYSDATE, CURRENT_TIMESTAMP);
 
@@ -7378,6 +7385,18 @@ BEGIN
       S.ATIVO,
       S.IDREF
     );
+
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOIMPOSTOMUN CCTC
+  SET CCTC.ATIVO = 'N'
+  WHERE EXISTS(SELECT 1 
+				       FROM PCTRIBUTACAO T 
+				       WHERE (
+				   		             (T.TIPO_LOCAL_CONSUMO = 'M' AND T.LOCAL_CONSUMO_MUNICIPIO <> CCTC.CODIBGE AND T.CODIGO_TRIBUTACAO = CCTC.IDREF) 
+	 				              OR (T.TIPO_LOCAL_CONSUMO = 'G' AND T.LOCAL_CONSUMO_GERAL <> CCTC.UF AND T.CODIGO_TRIBUTACAO = CCTC.IDREF)
+	 				             AND (T.TIPO_LOCAL_CONSUMO = 'G' AND T.LOCAL_CONSUMO_GERAL <> 'BR' AND T.CODIGO_TRIBUTACAO = CCTC.IDREF)
+	 				            )
+				)  
+    AND CCTC.ATIVO = 'S';
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenaimpostomun', 'carrega_tb_cctcenaimpostomun OK', SYSDATE, CURRENT_TIMESTAMP);
