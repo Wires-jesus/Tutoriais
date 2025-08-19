@@ -16643,7 +16643,17 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
     p_regorigempreco.codfilialnf := p_regpedido.codfilialnf;
     p_regorigempreco.origempreco := '1';
 
-
+    begin
+      select                         
+            p.codfilialretira
+       into 
+            p_regproduto.codfilialretira 
+       from pcprodfilial p
+       where codfilial = p_regpedido.codfilial
+       and   codprod = p_regitem.codprod;
+       exception when others then
+        NULL;
+    end;
 
 
     --tarefa 135797
