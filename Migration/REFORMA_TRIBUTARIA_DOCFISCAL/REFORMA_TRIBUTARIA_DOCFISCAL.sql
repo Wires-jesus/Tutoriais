@@ -10,7 +10,7 @@ BEGIN
      datanotificacao)
   values
     (dfseq_pccentronotificdocfiscal.nextval,
-     'infoinfoinfoinfoinfoinfoinfoinfoinfoinfo',
+     'info',
      'Objetos da Reforma Tributaria para o DocFiscal atualizados com sucesso!',
      'Todos os objetos necessários para o DocFiscal, referentes a reforma tributaria, foram atualizados com sucesso em ' ||
      to_char(sysdate, 'DD/MM/YYYY HH24:MI:SS') || '.',
