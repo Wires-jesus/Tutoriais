@@ -5,7 +5,7 @@
 		{
 		  "nome": "PC_LOG_MIGRACAO_PCWMS",
 		  "tipo": "TABELA",
-		  "versao": "7.0.01.000"
+		  "versao": "7.0.02.000"
 		},
 		{
 		  "nome": "PC_BKP_MIGRACAO_PCWMS",
