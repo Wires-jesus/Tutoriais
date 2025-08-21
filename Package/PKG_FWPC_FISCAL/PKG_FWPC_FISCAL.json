@@ -1,5 +1,10 @@
 {
     "nome": "PKG_FWPC_FISCAL",
     "tipoPLSQL": "PACKAGE",
-    "dependencias": ""
+    "dependencias": [{
+            "nome": "T_ICMS_PARTILHA_FISCAL",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.01.000"
+        } 
+    ]
 }
