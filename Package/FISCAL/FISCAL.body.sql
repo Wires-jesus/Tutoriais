@@ -6177,14 +6177,14 @@ create or replace package body FISCAL is
              PCTRIBUTACAO.CST,
              PCTRIBUTACAO.CCLASSTRIB,
              --Retorno valores IBS UF
-             PCTRIBUTACAO.PERC_IBS_UF,
-             PCTRIBUTACAO.PERC_RED_IBS_UF,
+             NVL(PCTRIBUTACAO.PERC_IBS_UF,0) PERC_IBS_UF,
+             NVL(PCTRIBUTACAO.PERC_RED_IBS_UF,0) PERC_RED_IBS_UF,
              --Retorno valores IBS Municipio  
-             PCTRIBUTACAO.PERC_IBS_MUN,
-             PCTRIBUTACAO.PERC_RED_IBS_MUN,
+             NVL(PCTRIBUTACAO.PERC_IBS_MUN,0) PERC_IBS_MUN,
+             NVL(PCTRIBUTACAO.PERC_RED_IBS_MUN,0) PERC_RED_IBS_MUN,
              --Retorno valores CBS
-             PCTRIBUTACAO.PERC_CBS,
-             PCTRIBUTACAO.PERC_RED_CBS,
+             NVL(PCTRIBUTACAO.PERC_CBS,0) PERC_CBS, 
+             NVL(PCTRIBUTACAO.PERC_RED_CBS,0) PERC_RED_CBS,
              --Retornos valores IS
              PCTRIBUTACAO.CODIGO_TRIBUTACAO,
              PCTRIBUTACAO.BASE_CALCULO,
