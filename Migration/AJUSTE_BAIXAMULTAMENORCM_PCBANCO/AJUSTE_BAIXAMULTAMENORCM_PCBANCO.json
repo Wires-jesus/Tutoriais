@@ -1,0 +1,9 @@
+{
+	"nome":"AJUSTE_BAIXAMULTAMENORCM_PCBANCO",
+	"tipoPLSQL":"MIGRATION",
+	
+	"dependencias": [
+		{
+		}
+	]
+}
