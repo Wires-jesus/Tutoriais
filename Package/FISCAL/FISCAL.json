@@ -64,7 +64,7 @@
         },{
             "nome": "PKG_FWPC_FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.01.000"
+            "versao": "7.0.02.000"
         },{
             "nome": "FORMULA",
             "tipo": "OBJETO_PLSQL",
