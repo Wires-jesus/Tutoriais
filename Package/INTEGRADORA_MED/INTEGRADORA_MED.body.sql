@@ -32638,6 +32638,17 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                  'S',
                                  vsmensagembrinde,
                                  vsgeroubrinde);
+						  FOR vc_Bonificacao IN (SELECT NUMPED
+                                                   FROM PCPEDC
+                                                  WHERE (NUMPEDRCA         = gvet_regpedido(i).numpedrca)
+                                                    AND (CODCLI            = gvet_regpedido(i).codcli)
+                                                    AND (DTABERTURAPEDPALM = gvet_regpedido(i).dtaberturapedpalm)
+                                                    AND (CONDVENDA         = 5)) LOOP
+                            UPDATE PCPEDC 
+                               SET STATUSPROCESSAMENTOMED = 'F'
+                             WHERE (NUMPED = vc_Bonificacao.NUMPED);                      
+                            COMMIT;
+                          END LOOP;
                           COMMIT;
                           -- DDMEDICA-2349 - Recalcula ST da Bonificação
                           IF (vsgeroubrinde = 'S') AND -- DDMEDICA-6666
