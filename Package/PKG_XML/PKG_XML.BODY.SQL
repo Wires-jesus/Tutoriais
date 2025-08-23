@@ -18,26 +18,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
     VALOR NUMBER(18, 6);
     vNLS_SESSION_PARAMETERS VARCHAR2(2);
   BEGIN
-    
+
     SELECT VALUE
       INTO vNLS_SESSION_PARAMETERS
       FROM NLS_SESSION_PARAMETERS
      WHERE PARAMETER = 'NLS_NUMERIC_CHARACTERS';
-    
+
     IF vNLS_SESSION_PARAMETERS = ',.' THEN
-      
+
       SELECT TO_NUMBER(REPLACE(SVALOR, '.', ',')) AS VALOR
-        INTO VALOR   
+        INTO VALOR
         FROM DUAL;
-        
+
     ELSE
-       
+
       SELECT TO_NUMBER(REPLACE(SVALOR, ',', '.')) AS VALOR
-        INTO VALOR   
+        INTO VALOR
         FROM DUAL;
-        
+
     END IF;
-    
+
     RETURN(VALOR);
   EXCEPTION
     WHEN OTHERS THEN
@@ -52,21 +52,21 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
       INTO vNLS_SESSION_PARAMETERS
       FROM NLS_SESSION_PARAMETERS
      WHERE PARAMETER = 'NLS_NUMERIC_CHARACTERS';
-    
+
     IF vNLS_SESSION_PARAMETERS = ',.' THEN
-    
+
     SELECT (TO_NUMBER(REPLACE(SVALOR, '.', ',')) / NQUANTIDADE) AS VALOR
       INTO VALOR
       FROM DUAL;
-      
+
     ELSE
-      
+
       SELECT (TO_NUMBER(REPLACE(SVALOR, ',', '.')) / NQUANTIDADE) AS VALOR
       INTO VALOR
       FROM DUAL;
-      
-    END IF;  
-    
+
+    END IF;
+
     RETURN(VALOR);
   EXCEPTION
     WHEN OTHERS THEN
@@ -540,7 +540,35 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
                        TABELA_ITEM.gCBS_pCBS,
                        TABELA_ITEM.gCBS_vCBS,
                        TABELA_ITEM.RASTREIO,
-                       TABELA_ITEM.TAGICMS60
+                       TABELA_ITEM.TAGICMS60,
+                       TABELA_ITEM.CSTIS,
+                       TABELA_ITEM.vBCIS,
+                       TABELA_ITEM.pIS,
+                       TABELA_ITEM.pISEspec,
+                       TABELA_ITEM.vIS,
+                       TABELA_ITEM.CClassTribIS,
+                       TABELA_ITEM.PDif_IBSUF, 
+                       TABELA_ITEM.VDif_IBSUF,
+                       TABELA_ITEM.PRedAliq_IBSUF,
+                       TABELA_ITEM.PALIQEFET_IBSUF,                                
+                       TABELA_ITEM.PDif_IBSMun, 
+                       TABELA_ITEM.VDif_IBSMun,                                
+                       TABELA_ITEM.PDif_CBS, 
+                       TABELA_ITEM.VDif_CBS,
+                       TABELA_ITEM.PRedAliq_CBS,
+                       TABELA_ITEM.PAliqEfet_CBS,
+                       TABELA_ITEM.pAliqEfetRegIBSUF,
+                       TABELA_ITEM.vTribRegIBSUF,
+                       TABELA_ITEM.PAliqEfetRegIBSMun,
+                       TABELA_ITEM.vTribRegIBSMun,
+                       TABELA_ITEM.PAliqEfetRegCBS,
+                       TABELA_ITEM.VTribRegCBS,
+                       TABELA_ITEM.PAliqIBSUF_GOV,
+                       TABELA_ITEM.VTribIBSUF_GOV,
+                       TABELA_ITEM.PAliqIBSMun_GOV,
+                       TABELA_ITEM.VTribIBSMun_GOV,
+                       TABELA_ITEM.PAliqCBS_GOV,
+                       TABELA_ITEM.VTribCBS_GOV
                   FROM PCNFENTXML XMLX,
                        XMLTable(XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe'),
                                 '/nfeProc/NFe/infNFe/det' PASSING
@@ -714,7 +742,38 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
                                 '/det/imposto/IBSCBS/gIBSCBS/gCBS/vCBS/text()',
                                 TAGICMS60 varchar2(2) PATH
                                 '/det/imposto/ICMS//ICMS60',
-                                RASTREIO XMLTYPE PATH '/det/prod/rastro') TABELA_ITEM
+                                RASTREIO XMLTYPE PATH '/det/prod/rastro',
+                                CSTIS varchar2(3) PATH 'Det/Imposto/IS_/CSTIS/text()',
+                                vBCIS varchar2(20) PATH 'Det/Imposto/IS_/vBCIS/text()',
+                                pIS   varchar2(20) PATH 'Det/Imposto/IS_/pIS/text()',
+                                pISEspec varchar2(20) PATH 'Det/Imposto/IS_/pISEspec/text()',
+                                vIS varchar2(20) PATH 'Det/Imposto/IS_/vIS/text()',
+                                CClassTribIS varchar2(20) PATH 'Det/Imposto/IS_/CClassTribIS/text()',
+                                PDif_IBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/gIBSUF/GDif/PDif/text()', 
+                                VDif_IBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/gIBSUF/GDif/VDif/text()',
+                                PRedAliq_IBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/gIBSUF/GRed/PRedAliq/text()',
+                                PALIQEFET_IBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/gIBSUF/GRed/pAliqEfet/text()',
+                                
+                                PDif_IBSMun varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GIBSMun/GDif/PDif/text()', 
+                                VDif_IBSMun varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GIBSMun/GDif/VDif/text()',
+                                
+                                PDif_CBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GCBS/GDif/PDif/text()', 
+                                VDif_CBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GCBS/GDif/VDif/text()',
+                                PRedAliq_CBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GCBS/GRed/PRedAliq/text()',
+                                PAliqEfet_CBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GCBS/GRed/PAliqEfet/text()',
+                                pAliqEfetRegIBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/pAliqEfetRegIBSUF/text()',
+                                vTribRegIBSUF varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/vTribRegIBSUF/text()',
+                                PAliqEfetRegIBSMun varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/PAliqEfetRegIBSMun/text()',
+                                vTribRegIBSMun varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/vTribRegIBSMun/text()',
+                                PAliqEfetRegCBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/PAliqEfetRegCBS/text()',
+                                VTribRegCBS varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribRegular/VTribRegCBS/text()',
+                                PAliqIBSUF_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/PAliqIBSUF/text()',
+                                VTribIBSUF_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/VTribIBSUF/text()',
+                                PAliqIBSMun_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/PAliqIBSMun/text()',
+                                VTribIBSMun_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/VTribIBSMun/text()',
+                                PAliqCBS_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/PAliqCBS/text()',
+                                VTribCBS_GOV varchar2(20) PATH 'Det/Imposto/IBSCBS/gIBSCBS/GTribCompraGov/VTribCBS/text()'
+                                )TABELA_ITEM
                  WHERE XMLX.CHAVENFE = SCHAVENFE) LOOP
       RINCLUIR                     := 1;
       ITENS.NITEM                  := REG.NITEM;
@@ -815,6 +874,34 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
       ITENS.gCBS_pCBS              := TONUMERO(REG.gCBS_pCBS);
       ITENS.gCBS_vCBS              := TONUMERO(REG.gCBS_vCBS, ITENS.QCOM);
       ITENS.TAGICMS60              := 'N';
+      ITENS.CSTIS                  := REG.CSTIS;
+      ITENS.vBCIS                  := TONUMERO(REG.vBCIS, ITENS.QCOM);
+      ITENS.pIS                    := TONUMERO(REG.pIS);
+      ITENS.pISEspec               := TONUMERO(REG.pISEspec);
+      ITENS.vIS                    := TONUMERO(REG.vIS, ITENS.QCOM);
+      ITENS.CClassTribIS           := REG.CClassTribIS;
+      ITENS.PDif_IBSUF             := TONUMERO(REG.PDif_IBSUF); 
+      ITENS.VDif_IBSUF             := TONUMERO(REG.VDif_IBSUF, ITENS.QCOM);
+      ITENS.PRedAliq_IBSUF         := TONUMERO(REG.PRedAliq_IBSUF);
+      ITENS.PALIQEFET_IBSUF        := TONUMERO(REG.PALIQEFET_IBSUF);                                
+      ITENS.PDif_IBSMun            := TONUMERO(REG.PDif_IBSMun); 
+      ITENS.VDif_IBSMun            := TONUMERO(REG.VDif_IBSMun, ITENS.QCOM);                                
+      ITENS.PDif_CBS               := TONUMERO(REG.PDif_CBS); 
+      ITENS.VDif_CBS               := TONUMERO(REG.VDif_CBS, ITENS.QCOM);
+      ITENS.PRedAliq_CBS           := TONUMERO(REG.PRedAliq_CBS);
+      ITENS.PAliqEfet_CBS          := TONUMERO(REG.PAliqEfet_CBS);
+      ITENS.pAliqEfetRegIBSUF      := TONUMERO(REG.pAliqEfetRegIBSUF);
+      ITENS.vTribRegIBSUF          := TONUMERO(REG.vTribRegIBSUF, ITENS.QCOM);
+      ITENS.PAliqEfetRegIBSMun     := TONUMERO(REG.PAliqEfetRegIBSMun);
+      ITENS.vTribRegIBSMun         := TONUMERO(REG.vTribRegIBSMun, ITENS.QCOM);
+      ITENS.PAliqEfetRegCBS        := TONUMERO(REG.PAliqEfetRegCBS);
+      ITENS.VTribRegCBS            := TONUMERO(REG.VTribRegCBS, ITENS.QCOM);
+      ITENS.PAliqIBSUF_GOV         := TONUMERO(REG.PAliqIBSUF_GOV);
+      ITENS.VTribIBSUF_GOV         := TONUMERO(REG.VTribIBSUF_GOV, ITENS.QCOM);
+      ITENS.PAliqIBSMun_GOV        := TONUMERO(REG.PAliqIBSMun_GOV);
+      ITENS.VTribIBSMun_GOV       := TONUMERO(REG.VTribIBSMun_GOV, ITENS.QCOM);
+      ITENS.PAliqCBS_GOV           := TONUMERO(REG.PAliqCBS_GOV);
+      ITENS.VTribCBS_GOV           := TONUMERO(REG.VTribCBS_GOV, ITENS.QCOM);
       IF REG.TAGICMS60 IS NOT NULL THEN
         ITENS.TAGICMS60 := 'S';
       END IF;
