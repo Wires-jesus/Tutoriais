@@ -993,6 +993,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                          -- Normal
                          CASE WHEN (PCNFSAID.CONDVENDA = 4 OR NVL(PCNFSAID.NUMCUPOM,0) > 0)
                          THEN
+                         ROUND((
                          DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE,NVL(NVL(DECODE(NVL(PCPRODFILIAL.PRECOUTILIZADONFE, 'N'), 'N','',PCPRODFILIAL.PRECOUTILIZADONFE),PCCLIENT.PRECOUTILIZADONFE),NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                PCFILIAL.CODIGO),
                                  'L'))),
@@ -1000,7 +1001,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                    0) + NVL(PCMOV.VLDESCREDUCAOPIS,
                                               0))
                                               , 'LR', 0,
-                             ROUND(PCMOV.QTCONT * NVL(PCMOVCOMPLE.VLSUBTOTDESCONTO,0), 2) )
+                             NVL(PCMOVCOMPLE.VLSUBTOTDESCONTO,0)) * PCMOV.QTCONT), 2 )
                          ELSE ROUND((DECODE(NVL(PCMOVCOMPLE.PRECOUTILIZADONFE, NVL(NVL(DECODE(NVL(PCPRODFILIAL.PRECOUTILIZADONFE, 'N'), 'N','',PCPRODFILIAL.PRECOUTILIZADONFE),PCCLIENT.PRECOUTILIZADONFE),NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                PCFILIAL.CODIGO),
                                  'L'))),
@@ -2938,6 +2939,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                          -- Normal
                          CASE WHEN (PCNFSAIDPREFAT.CONDVENDA = 4 OR NVL(PCNFSAIDPREFAT.NUMCUPOM,0) > 0)
                          THEN
+                         ROUND((
                          DECODE(NVL(PCMOVCOMPLEPREFAT.PRECOUTILIZADONFE,NVL(NVL(DECODE(NVL(PCPRODFILIAL.PRECOUTILIZADONFE, 'N'), 'N','',PCPRODFILIAL.PRECOUTILIZADONFE),PCCLIENT.PRECOUTILIZADONFE),NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                PCFILIAL.CODIGO),
                                  'L'))),
@@ -2945,7 +2947,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                    0) + NVL(PCMOVPREFAT.VLDESCREDUCAOPIS,
                                               0))
                                               , 'LR', 0,
-                             ROUND(PCMOVPREFAT.QTCONT * NVL(PCMOVCOMPLEPREFAT.VLSUBTOTDESCONTO,0), 2) )
+                             NVL(PCMOVCOMPLEPREFAT.VLSUBTOTDESCONTO,0)) * PCMOVPREFAT.QTCONT), 2 )
                          ELSE ROUND((DECODE(NVL(PCMOVCOMPLEPREFAT.PRECOUTILIZADONFE, NVL(NVL(DECODE(NVL(PCPRODFILIAL.PRECOUTILIZADONFE, 'N'), 'N','',PCPRODFILIAL.PRECOUTILIZADONFE),PCCLIENT.PRECOUTILIZADONFE),NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE',
                                                                PCFILIAL.CODIGO),
                                  'L'))),
