@@ -7101,6 +7101,7 @@ BEGIN
       SEQFORMULA, 
       DESCRICAO,
       BASE, 
+      ALIQUOTA,
       ATIVO
     FROM VW_INT_C5_CCTFORMULA 
   ) S
@@ -7109,13 +7110,15 @@ BEGIN
     UPDATE SET 
       CC.DESCRICAO = S.DESCRICAO,
       CC.BASE = S.BASE,
+      CC.ALIQUOTA = S.ALIQUOTA,
       CC.ATIVO = S.ATIVO
     WHERE NVL(CC.DESCRICAO, '-') <> NVL(S.DESCRICAO, '-')
        OR NVL(CC.BASE, '-') <> NVL(S.BASE, '-')
+       OR NVL(CC.ALIQUOTA, '-') <> NVL(S.ALIQUOTA, '-')
        OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
   WHEN NOT MATCHED THEN
-    INSERT (SEQFORMULA, DESCRICAO, BASE, ATIVO)
-    VALUES (S.SEQFORMULA, S.DESCRICAO, S.BASE, S.ATIVO);
+    INSERT (SEQFORMULA, DESCRICAO, BASE, ALIQUOTA, ATIVO)
+    VALUES (S.SEQFORMULA, S.DESCRICAO, S.BASE, S.ALIQUOTA, S.ATIVO);
   
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctformula', 'carrega_tb_cctformula OK', SYSDATE, CURRENT_TIMESTAMP);
