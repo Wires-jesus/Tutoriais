@@ -29,8 +29,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       CONTRIBUINTE      VARCHAR2(1),
       ORGAO_PUBLICO     VARCHAR2(1),
       ORIGEM_MERCADORIA VARCHAR2(1),
-      TIPO_MERC         VARCHAR2(2),
-      DATA              DATE, 
+      TIPO_MERC         VARCHAR2(2), 
       --Valores para formação da base de cáluclo por meio da fórmula
       VALOR_PRODUTO         NUMBER(18,6),
       VALOR_ICMS_ST         NUMBER(18,6),
