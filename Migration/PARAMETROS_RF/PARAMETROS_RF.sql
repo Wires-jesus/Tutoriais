@@ -106,7 +106,9 @@ BEGIN
   
   INSERT_DATA('VISUALIZAR_LOCAIS_ATRIBUIDOS', 'N', NULL, 'Visualizar local e contagens atribuídas ao usuário?', 'INVENTARIO', 'BOOLEAN'); 
 
-  INSERT_DATA('UTILIZA_ENDERECO_STAGE', 'N', NULL, 'Usa endereço de Stage (Localização do pedido)', 'EXPEDICAO', 'BOOLEAN'); 
+  INSERT_DATA('UTILIZA_ENDERECO_STAGE', 'N', NULL, 'Usa endereço de Stage (Localização do pedido)', 'EXPEDICAO', 'BOOLEAN');
+
+  INSERT_DATA('MANTER_LOTES_ATRIBUIDOS', 'N', NULL, 'Manter lotes atribuídos antes da separação/conferência do RF?', 'EXPEDICAO', 'BOOLEAN'); 
 END;
 
 
