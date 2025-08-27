@@ -10625,7 +10625,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    ,PCORCAVENDAI.CODPROMOCAOMED
                    ,PCORCAVENDAI.INICIOINTERVALODESCQUANT
                    ,( (NVL(PCORCAVENDAI.PVENDA,0)  
-                      - NVL(PCORCAVENDAI.ST,0) 
+                      - NVL(PCORCAVENDAI.ST,0)
+                      - NVL(PCORCAVENDAI.VLIPI,0)
                       - NVL(PCORCAVENDAI.VLICMSSTRETANTERIOR,0) 
                       - NVL(PCORCAVENDAI.VLREPASSE,0) 
                       - NVL(PCORCAVENDAI.VLICMSPART,0) 
@@ -10656,7 +10657,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                    ,PCORCAVENDAI.ST
                    ,CASE WHEN (NVL(PCORCAVENDAC.CODCONTRATO,0) > 0) THEN
                       ( (NVL(PCORCAVENDAI.PTABELA,0)  
-                        - NVL(PCORCAVENDAI.ST,0) 
+                        - NVL(PCORCAVENDAI.ST,0)
+                        - NVL(PCORCAVENDAI.VLIPI,0) 
                         - NVL(PCORCAVENDAI.VLICMSSTRETANTERIOR,0) 
                         - NVL(PCORCAVENDAI.VLREPASSE,0) 
                         - NVL(PCORCAVENDAI.VLICMSPART,0) 
@@ -13214,7 +13216,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- Se tiver Percentual de IPI
               IF (NVL(vnPERCIPI_REDUZIDO,0) > 0) THEN
 
-                vnVLIPI_pvenda            := vnPVENDA_SEMIPI * (vnPERCIPI_REDUZIDO / 100);
+                vnVLIPI_pvenda            := NVL(vrItemPedido.nPTABELA,0) * (vnPERCIPI_REDUZIDO / 100); 
                 vrProduto_O.nPERCIPIVENDA := vnPERCIPI_REDUZIDO;
 
               END IF;
@@ -14247,7 +14249,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                     pi_nCondVenda,
                                                     100, -- pi_nPercVenda
                                                     vrItemPedido.nCODST,
-                                                    (NVL(vrItemPedido.nPVENDA,0) - NVL(vrItemPedido.nVLIPI,0)), -->> *** PASSA O PVENDA ***
+                                                    (NVL(vrItemPedido.nPVENDA,0)), -->> *** PASSA O PVENDA ***
                                                     NVL(vrItemPedido.nVLIPI,0),   -- pi_nValorIpi
                                                     vrItemPedido.nPRECOMAXCONSUM,
                                                     vrCustoProduto_O.nVALORULTENT,
@@ -14361,12 +14363,14 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- SOMA O ST AO PVENDA (idem FUNCEP MED-1090) (idem ST Recolhido Anteriormente DDMEDICA-7697)
               vrItemPedido.nPVENDA    := NVL(vrItemPedido.nPVENDA,0)  
                                          + NVL(vrItemPedido.nST,0) 
+                                         + NVL(vrItemPedido.nVLIPI,0)
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
                                          + NVL(vrItemPedido.nVLFECP,0);
 
               -- Soma ao PTabela o ST calculado sobre o PVenda (idem FUNCEP MED-1090) (idem ST Recolhido Anteriormente DDMEDICA-7697)
               vrItemPedido.nPTABELA   := NVL(vrItemPedido.nPTABELA,0)  
-                                         + NVL(vrItemPedido.nST,0) 
+                                         + NVL(vrItemPedido.nST,0)
+                                         + NVL(vrItemPedido.nVLIPI,0) 
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
                                          + NVL(vrItemPedido.nVLFECP,0);
 
@@ -14715,15 +14719,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                              (vrItemPedido.nPVENDA
                                                               - nvl(vrItemPedido.nST,0)
                                                               - nvl(vrItemPedido.nVLIPI,0)
-                                                              - nvl(vrItemPedido.nVLFECP,0)),
+                                                              - nvl(vrItemPedido.nVLFECP,0)
+                                                              - nvl(vrItemPedido.nVLREPASSE,0)),
                                                              (vrItemPedido.nPTABELA
                                                               - nvl(vrItemPedido.nST,0)
                                                               - nvl(vrItemPedido.nVLIPI,0)
-                                                              - nvl(vrItemPedido.nVLFECP,0)),
+                                                              - nvl(vrItemPedido.nVLFECP,0)
+                                                              - nvl(vrItemPedido.nVLREPASSE,0)),
                                                              (vrItemPedido.nPBASERCA
                                                               - nvl(vrItemPedido.nST,0)
                                                               - nvl(vrItemPedido.nVLIPI,0)
-                                                              - nvl(vrItemPedido.nVLFECP,0)),
+                                                              - nvl(vrItemPedido.nVLFECP,0)
+                                                              - nvl(vrItemPedido.nVLREPASSE,0)),
                                                              vrItemPedido.nQT,
                                                              vrItemPedido.nVLDESCREDUCAOPIS,
                                                              vrItemPedido.nPERCDESCPIS,
