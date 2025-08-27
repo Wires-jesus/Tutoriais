@@ -7438,6 +7438,64 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_cctconfiguracao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctconfiguracao CC
+  USING (
+    SELECT 
+      SEQCONFIGURACAO, 
+      INDTIPOAMBIENTE,
+      ATIVO
+    FROM VW_INT_C5_CCTCONFIGURACAO
+  ) S
+  ON (CC.SEQCONFIGURACAO = S.SEQCONFIGURACAO)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.INDTIPOAMBIENTE = S.INDTIPOAMBIENTE,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.INDTIPOAMBIENTE, '-') <> NVL(S.INDTIPOAMBIENTE, '-')
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (SEQCONFIGURACAO, INDTIPOAMBIENTE, ATIVO)
+    VALUES (S.SEQCONFIGURACAO, S.INDTIPOAMBIENTE, S.ATIVO);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctconfiguracao', 'carrega_tb_cctconfiguracao OK', SYSDATE, CURRENT_TIMESTAMP);
+
+  COMMIT;
+
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctconfiguracao',
+           'carrega_tb_cctconfiguracao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctconfiguracao',
+           'carrega_tb_cctconfiguracao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS

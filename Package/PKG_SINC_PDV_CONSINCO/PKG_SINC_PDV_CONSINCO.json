@@ -170,7 +170,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "7.0.23.000"
+			"versao": "7.0.24.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -425,7 +425,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_REFTRIB",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.21.000"
+		  "versao": "7.0.22.000"
 		},
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_GRUPO_CLIENTE",
