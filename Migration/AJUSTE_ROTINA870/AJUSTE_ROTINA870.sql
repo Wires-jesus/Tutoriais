@@ -1,0 +1,15 @@
+DECLARE
+    v_count NUMBER;
+BEGIN
+
+    SELECT COUNT(*) INTO v_count
+    FROM PCROTDESCONTINUADAS
+    WHERE CODIGO = 870;
+
+    IF v_count > 0 THEN
+        DELETE FROM PCROTDESCONTINUADAS
+        WHERE CODIGO = 870;
+
+        COMMIT;
+    END IF;
+END;
