@@ -129,7 +129,7 @@ IS
                , PCROTINAI                                     
            WHERE PCCONTROI.CODROTINA   = 1295
              AND PCCONTROI.CODUSUARIO  = VMATRICULA
-             AND PCROTINAI.CODCONTROLE = 4
+             AND PCROTINAI.CODCONTROLE = 1
              AND PCCONTROI.CODROTINA   = PCROTINAI.CODROTINA   
              AND PCCONTROI.CODCONTROLE = PCROTINAI.CODCONTROLE;
         EXCEPTION
@@ -283,6 +283,7 @@ IS
         VVLSALDO       PCMOVCR.VLSALDO%TYPE;
         VMATRICULA     PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE;
         VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
+        VVLTOTAL       PCPRESTANTECIPADA.VALOR%TYPE; 
     BEGIN
         VUSUARIO  := SYS_CONTEXT('USERENV', 'OS_USER');
         VROTINA   := SYS_CONTEXT('USERENV', 'MODULE');
@@ -342,6 +343,25 @@ IS
             UPDATE PCCONSUM
                SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
 
+            IF (DADOS.NUMORCA IS NULL) THEN
+                SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)
+                  INTO VVLTOTAL
+                  FROM PCPEDC C, 
+                       PCFILIAL F              
+                 WHERE C.CODFILIAL          = F.CODIGO            
+                   AND C.JSONTPD_PAGAMENTO IS NOT NULL   
+                   AND C.DTCANCEL          IS NULL                
+                   AND NUMPED               = DADOS.NUMPED;
+            ELSE
+                SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)                       
+                  INTO VVLTOTAL
+                  FROM PCORCAVENDAC C, 
+                       PCFILIAL F        
+                 WHERE C.CODFILIAL          = F.CODIGO            
+                   AND C.JSONTPD_PAGAMENTO IS NOT NULL   
+                   AND NUMORCA              = DADOS.NUMORCA;   
+            END IF;
+
             COMMIT WORK;   
 
             IF (DADOS.QUITAPCPREST = 'S') THEN    
@@ -380,7 +400,7 @@ IS
                                     DADOS.CODBCOCOBANTECIPADA,
                                     DADOS.CODMOEDACOBANTECIPADA,
                                     DADOS.CODFILIAL,
-                                    DADOS.VALOR,
+                                    VVLTOTAL,
                                     'D',
                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
                                     0,
@@ -417,7 +437,7 @@ IS
                           VALUES(DADOS.CODCLI,
                                  TRUNC(SYSDATE),
                                  DADOS.CODFILIAL,
-                                 DADOS.VALOR,
+                                 VVLTOTAL,
                                  VMATRICULA,
                                  VHORA,
                                  VMINUTO,
@@ -436,7 +456,8 @@ IS
                    DTPGTO               = DADOS.DTPGTO,
                    MATRICULACONFIRMACAO = VMATRICULA,
                    STATUSPGTO           = 'PAGO',
-                   NUMTRANS             = VNUMTRANS
+                   NUMTRANS             = VNUMTRANS,
+                   VALOR                = VVLTOTAL
              WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGADIANTADO;
         END LOOP;
         COMMIT WORK;
