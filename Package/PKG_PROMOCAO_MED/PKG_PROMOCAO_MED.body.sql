@@ -14365,14 +14365,16 @@ IS PRAGMA SERIALLY_REUSABLE;
                                          + NVL(vrItemPedido.nST,0) 
                                          + NVL(vrItemPedido.nVLIPI,0)
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
-                                         + NVL(vrItemPedido.nVLFECP,0);
+                                         + NVL(vrItemPedido.nVLFECP,0)
+                                         + NVL(vrItemPedido.nVLREPASSE,0);
 
               -- Soma ao PTabela o ST calculado sobre o PVenda (idem FUNCEP MED-1090) (idem ST Recolhido Anteriormente DDMEDICA-7697)
               vrItemPedido.nPTABELA   := NVL(vrItemPedido.nPTABELA,0)  
                                          + NVL(vrItemPedido.nST,0)
                                          + NVL(vrItemPedido.nVLIPI,0) 
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
-                                         + NVL(vrItemPedido.nVLFECP,0);
+                                         + NVL(vrItemPedido.nVLFECP,0)
+                                         + NVL(vrItemPedido.nVLREPASSE,0);
 
               -- ST que foi somado no Preço de Tabela
               vrItemPedido.nSTPTABELA :=  NVL(vrItemPedido.nST,0);
@@ -14383,8 +14385,10 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- SOMA O STPBASERCA AO PBASERCA (idem FUNCEP MED-1090) (idem ST Recolhido Anteriormente DDMEDICA-7697)
               vrItemPedido.nPBASERCA  := NVL(vrItemPedido.nPBASERCA,0)
                                          + NVL(vrItemPedido.nSTPBASERCA,0) 
+                                         + NVL(vrItemPedido.nVLIPI,0)
                                          + NVL(vrItemPedido.nVLICMSSTRETANTERIOR,0) -- DDMEDICA-7697
-                                         + NVL(vrItemPedido.nVLFECP,0);
+                                         + NVL(vrItemPedido.nVLFECP,0)
+                                         + NVL(vrItemPedido.nVLREPASSE,0);
               
               -- Calcular o imposto CBS sobre o preço de venda
               SELECT CODIGO_TRIBUTACAO
@@ -14669,12 +14673,6 @@ IS PRAGMA SERIALLY_REUSABLE;
               -- SOMA O REPASSE NO FINAL
               ----------------------------------------------------------------------------
 
-              -- Soma ao PTabela o VLREPASSE
-              vrItemPedido.nPTABELA  := NVL(vrItemPedido.nPTABELA,0) + NVL(vrItemPedido.nVLREPASSE,0);
-              -- Soma ao PVenda o VLREPASSE
-              vrItemPedido.nPVENDA   := NVL(vrItemPedido.nPVENDA,0) + NVL(vrItemPedido.nVLREPASSE,0);
-              -- Soma ao PBaseRCA o VLREPASSE
-              vrItemPedido.nPBASERCA := NVL(vrItemPedido.nPBASERCA,0) + NVL(vrItemPedido.nVLREPASSE,0);
 
               -- ARREDONDA O PREÇO DE TABELA E PREÇO DE VENDA --
               -----------------------------------------------
