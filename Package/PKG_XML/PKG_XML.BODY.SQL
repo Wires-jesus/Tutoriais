@@ -343,6 +343,56 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
 
     RETURN;
   END LER_CABECALHO;
+  
+  FUNCTION CODPRODUTOPOREAN(SCODFILIAL IN PCPRODUT.CODFILIAL%TYPE
+                            , NCODFORNEC IN PCXMLEAN.CODFORNEC%TYPE
+                            , CEAN IN VARCHAR2
+                            , USALOTE OUT PCPRODUT.ESTOQUEPORLOTE%TYPE) RETURN PCPRODUT.CODPROD%TYPE
+         IS CODIGO PCPRODUT.CODPROD%TYPE;
+    BEGIN
+      BEGIN
+        SELECT PCPRODUT.CODPROD
+              , NVL(PCPRODUT.ESTOQUEPORLOTE, 'N') USALOTE
+          INTO CODIGO
+             , USALOTE
+          FROM PCPRODUT,
+               (SELECT CODPROD, NIVEL
+                  FROM (
+                        -- 1º nível: CODFILIAL + CODFORNEC + EANXML
+                        SELECT CODPROD, 1 AS NIVEL
+                          FROM PCXMLEAN
+                         WHERE CODFILIAL = SCODFILIAL
+                           AND CODFORNEC = NCODFORNEC
+                           AND EANXML = NVL(CEAN,0)
+                        UNION ALL
+                        -- 2º nível: CODFORNEC + EANXML
+                        SELECT CODPROD, 2 AS NIVEL
+                          FROM PCXMLEAN
+                         WHERE CODFORNEC = NCODFORNEC
+                           AND EANXML = NVL(CEAN,0)
+                        UNION ALL
+                        -- 3º nível: CODFILIAL + EANXML
+                        SELECT CODPROD, 3 AS NIVEL
+                          FROM PCXMLEAN
+                         WHERE CODFILIAL = SCODFILIAL
+                           AND EANXML = NVL(CEAN,0)
+                        UNION ALL
+                        -- 4º nível: apenas EANXML
+                        SELECT CODPROD, 4 AS NIVEL
+                          FROM PCXMLEAN
+                         WHERE EANXML = NVL(CEAN,0))
+                  ORDER BY NIVEL) PRODUTOEAN
+          WHERE PCPRODUT.CODPROD = PRODUTOEAN.CODPROD
+            AND ROWNUM = 1;
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          BEGIN
+            CODIGO := 0;
+            LOG_PROCESS('Produto não encontrado. Filial: '||SCODFILIAL||'e Cód.Barra: '||CEAN, 'P');
+          END;
+      END;         
+      RETURN (CODIGO);
+    END CODPRODUTOPOREAN;
 
   FUNCTION CODPRODUTO(SCODFILIAL IN PCPRODUT.CODFILIAL%TYPE,
                       NCODFORNEC IN PCCODFABRICA.CODFORNEC%TYPE,
@@ -438,6 +488,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
     CABECALHO  ROW_CABECALHO;
     USALOTE    PCPRODUT.ESTOQUEPORLOTE%TYPE;
     SOMENTE253 PCFORNEC.UTILIZAFATOR253%TYPE;
+	TIPOPESQUISAAUTOMATICA PCFORNEC.TIPOPESQUISAAUTOMATICA%TYPE;
     RINCLUIR   NUMBER := 1;
   BEGIN
     VCHAVENFE := SCHAVENFE;
@@ -449,7 +500,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
               'S'
              ELSE
               'N'
-           END) SOMENTE253
+           END) SOMENTE253,
+		 NVL(PCFORNEC.TIPOPESQUISAAUTOMATICA, 'F') TIPOPESQUISAAUTOMATICA
       INTO SOMENTE253
       FROM PCFORNEC
      WHERE PCFORNEC.CODFORNEC = CABECALHO.CODFORNEC;
@@ -785,12 +837,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
       ITENS.CPROD                  := REG.CPROD;
       ITENS.CEAN                   := NVL(SONUMERO(REG.CEAN),
                                           SONUMERO(REG.CEANTRIB));
-      ITENS.CODPROD                := CODPRODUTO(CABECALHO.CODFILIAL,
-                                                 CABECALHO.CODFORNEC,
-                                                 ITENS.CPROD,
-                                                 ITENS.CEAN,
-                                                 SOMENTE253,
-                                                 USALOTE);
+										  
+	  IF TIPOPESQUISAAUTOMATICA = 'E' THEN
+         ITENS.CODPROD := CODPRODUTOPOREAN(CABECALHO.CODFILIAL,CABECALHO.CODFORNEC,ITENS.CEAN,USALOTE);
+      ELSE
+         ITENS.CODPROD := CODPRODUTO(CABECALHO.CODFILIAL,CABECALHO.CODFORNEC, ITENS.CPROD,ITENS.CEAN,SOMENTE253,  USALOTE);  
+      END IF;
+	  
       ITENS.NFCI                   := REG.NFCI;
       ITENS.NCM                    := REG.NCM;
       ITENS.CEST                   := REG.CEST;
