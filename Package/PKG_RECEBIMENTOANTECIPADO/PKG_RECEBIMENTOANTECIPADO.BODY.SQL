@@ -154,7 +154,7 @@ IS
                              NUMORCA,                          /*05*/
                              COBANTECIPADA,                    /*06*/
                              QUITAPCPREST,                     /*07*/
-                             VALOR,                            /*08*/
+                             (VALOR * -1)       VALOR,         /*08*/
                              VLRCREDITOABATIDO,                /*09*/
                              VALORPEDIDO,                      /*10*/
                              CODCOBPGTO,                       /*11*/
@@ -239,7 +239,7 @@ IS
                                               DADOS.NUMORCA,                    /*05*/
                                               DADOS.COBANTECIPADA,              /*06*/
                                               DADOS.QUITAPCPREST,               /*07*/
-                                              (DADOS.VALOR * -1),               /*08*/
+                                              DADOS.VALOR,                      /*08*/
                                               DADOS.VLRCREDITOABATIDO,          /*09*/
                                               DADOS.VALORPEDIDO,                /*10*/
                                               DADOS.CODCOBPGTO,                 /*11*/
