@@ -239,7 +239,7 @@ IS
                                               DADOS.NUMORCA,                    /*05*/
                                               DADOS.COBANTECIPADA,              /*06*/
                                               DADOS.QUITAPCPREST,               /*07*/
-                                              (DADOS.VALOR*-1),                 /*08*/
+                                              (DADOS.VALOR * -1),               /*08*/
                                               DADOS.VLRCREDITOABATIDO,          /*09*/
                                               DADOS.VALORPEDIDO,                /*10*/
                                               DADOS.CODCOBPGTO,                 /*11*/
