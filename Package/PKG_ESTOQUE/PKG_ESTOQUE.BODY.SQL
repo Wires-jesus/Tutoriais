@@ -7848,7 +7848,7 @@ IS
                 P_INTERNO.vtESTOQUE.CODPROD           := ESTOQUE.CODPROD;
                 P_INTERNO.vtESTOQUE.CODDEVOL          := pnCODDEVOL;
                 P_INTERNO.vtESTOQUE.MOTIVOBLOQESTOQUE := 'LIBERANDO APÓS PRECIFICAR';
-                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := GREATEST(ESTOQUE.SALDO_ESTINDENIZ, LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0)));               
+                P_INTERNO.vtESTOQUE.QTBLOQUEADA       := LEAST(vnQTDE, GREATEST(ESTOQUE.QTESTGER, 0));               
                 PRIV_ATUALIZAR_ESTOQUE;
                 -- Validar se conseguiu atualizar o estoque
                 IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
