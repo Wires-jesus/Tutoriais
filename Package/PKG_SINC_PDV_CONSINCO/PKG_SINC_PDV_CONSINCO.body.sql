@@ -6894,7 +6894,7 @@ BEGIN
     );
   
   UPDATE MONITORPDVMIDDLE.TB_CCTCENARIO C
-  SET PONTOSBUSCA = (SELECT SUM(PONTOSBUSCA) FROM MONITORPDVMIDDLE.tb_cctcenariocondicao CC WHERE CC.SEQCENARIO = C.SEQCENARIO);
+  SET PONTOSBUSCA = (SELECT SUM(PONTOSBUSCA) FROM MONITORPDVMIDDLE.tb_cctcenariocondicao CC WHERE CC.SEQCENARIO = C.SEQCENARIO AND CC.SEQCONDICAO IN (1, 3, 8));
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenariocondicao', 'carrega_tb_cctcenariocondicao OK', SYSDATE, CURRENT_TIMESTAMP);
