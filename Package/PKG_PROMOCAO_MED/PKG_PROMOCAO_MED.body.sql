@@ -14471,6 +14471,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoCBS = 'OK' THEN
                 IF vbSomarImpostoCBS = 'S' THEN
                   vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlCBS, 0);
+				ELSE
+                  vrItemPedido.nCodCBS := 0;
+                  vrItemPedido.nBaseCBS := 0;
+                  vrItemPedido.nAliqCBS := 0;
+                  vrItemPedido.nVlCBS := 0;
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
@@ -14480,6 +14485,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIBS = 'OK' THEN
                 IF vbSomarImpostoIBS = 'S' THEN
                   vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlIBS, 0);
+                ELSE
+                  vrItemPedido.nCodIBS := 0;
+                  vrItemPedido.nBaseIBS := 0;
+                  vrItemPedido.nAliqIBS := 0;
+                  vrItemPedido.nVlIBS := 0;				
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
@@ -14489,6 +14499,11 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIS = 'OK' THEN
                 IF vbSomarImpostoIS = 'S' THEN
                   vrItemPedido.nPVENDA := vrItemPedido.nPVENDA + NVL(vrItemPedido.nVlIS, 0);
+                ELSE
+                  vrItemPedido.nCodIS := 0;
+                  vrItemPedido.nBaseIS := 0;
+                  vrItemPedido.nAliqIS := 0;
+                  vrItemPedido.nVlIS := 0;				
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
@@ -14558,6 +14573,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoCBS = 'OK' THEN
                 IF vbSomarImpostoCBS = 'S' THEN
                   vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlCBSPTabela, 0);
+                ELSE
+                  vrItemPedido.nVlCBSPTabela := 0;				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
@@ -14567,6 +14584,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIBS = 'OK' THEN
                 IF vbSomarImpostoIBS = 'S' THEN
                   vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlIBSPTabela, 0);
+                ELSE
+                  vrItemPedido.nVlIBSPTabela := 0;				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
@@ -14576,6 +14595,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIS = 'OK' THEN
                 IF vbSomarImpostoIS = 'S' THEN
                   vrItemPedido.nPTABELA := vrItemPedido.nPTABELA + NVL(vrItemPedido.nVlISPTabela, 0);
+                ELSE
+                  vrItemPedido.nVlISPTabela := 0;				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
@@ -14645,6 +14666,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoCBS = 'OK' THEN
                 IF vbSomarImpostoCBS = 'S' THEN
                   vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlCBSPBaseRCA, 0);
+                ELSE
+                  vrItemPedido.nVlCBSPBaseRCA := 0;  				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto CBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoCBS;
@@ -14654,6 +14677,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIBS = 'OK' THEN
                 IF vbSomarImpostoIBS = 'S' THEN
                   vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlIBSPBaseRCA, 0);
+                 ELSE
+                  vrItemPedido.nVlIBSPBaseRCA := 0;				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IBS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIBS;
@@ -14663,6 +14688,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF vvMensagemRetornoIS = 'OK' THEN
                 IF vbSomarImpostoIS = 'S' THEN
                   vrItemPedido.nPBASERCA := vrItemPedido.nPBASERCA + NVL(vrItemPedido.nVlISPBaseRCA, 0);
+                 ELSE
+                  vrItemPedido.nVlISPBaseRCA := 0;				  
                 END IF;
               ELSE
                 po_vMotivoNaoPodeGravar := 'Problemas ao pesquisar o imposto IS do Produto ' || NVL(vrItemPedido.nCODPROD, 0) || ': ' || vvMensagemRetornoIS;
