@@ -3,6 +3,11 @@
   "tipoPLSQL": "MIGRATION",
   "dependencias": [
     {
+      "nome": "PCVERSAOBD",
+      "tipo": "TABELA",
+      "versao": "4.0.01.000"
+    },	  
+    {
       "nome": "PCAUXCAMPANHACUMULATIVAPROD",
       "tipo": "TABELA",
       "versao": "7.0.01.000"
