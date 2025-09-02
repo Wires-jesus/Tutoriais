@@ -40,8 +40,8 @@ DECLARE
     vLOG_GRAVADO := 'N';
     
     IF (NVL(vNUMPED, 0) > 0) AND (vLOG_GRAVADO = 'N') THEN
-      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL)' || CHR(13) ||
-                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL || ')';
+      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL  || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
       EXECUTE IMMEDIATE vSQL;
       DELETE FROM PCWMS WHERE NUMPED = vNUMPED AND CODFILIAL = vCODFILIAL;
       COMMIT;
@@ -49,8 +49,8 @@ DECLARE
     END IF;
     
     IF (NVL(vNUMNOTA, 0) > 0) AND (vLOG_GRAVADO = 'N') THEN
-      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL)' || CHR(13) ||
-                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL || ')';
+      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL  || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
       EXECUTE IMMEDIATE vSQL;
       DELETE FROM PCWMS WHERE NUMNOTA = vNUMNOTA AND CODFILIAL = vCODFILIAL;
       COMMIT;
@@ -58,8 +58,8 @@ DECLARE
     END IF;
     
     IF (NVL(vNUMTRANSVENDA, 0) > 0) AND (vLOG_GRAVADO = 'N') THEN
-      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL)' || CHR(13) ||
-                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL || ')';
+      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, CODPROD, NUMLOTE, CODFILIAL, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL  || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
       EXECUTE IMMEDIATE vSQL;
       DELETE FROM PCWMS WHERE NUMTRANSVENDA = vNUMTRANSVENDA AND CODFILIAL = vCODFILIAL;
       COMMIT;
@@ -67,8 +67,8 @@ DECLARE
     END IF;
     
     IF (NVL(vNUMTRANSENT, 0) > 0) AND (vLOG_GRAVADO = 'N') THEN
-      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL)' || CHR(13) ||
-                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ',' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL || ')';
+      vSQL := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                        '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ',' || vCODPROD || ', ' || '''' || vNUMLOTE || '''' || ', ' || vCODFILIAL  || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
       EXECUTE IMMEDIATE vSQL;
       DELETE FROM PCWMS WHERE NUMTRANSENT = vNUMTRANSENT AND CODFILIAL = vCODFILIAL;
       COMMIT;
@@ -459,35 +459,86 @@ BEGIN
   
   
   BEGIN
+    /* ATUALIZANDO O CÓDIGO NUMCAR QUE ESTÃO COMO ZERO PARA NULL */
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMCAR = NULL WHERE NUMCAR = 0';
     EXECUTE IMMEDIATE vSQL;
+    COMMIT;    
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMCAR = NULL WHERE NUMCAR = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
     COMMIT;
+    
+    /* ATUALIZANDO O CÓDIGO NUMPED QUE ESTÃO COMO ZERO PARA NULL */
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMPED = NULL WHERE NUMPED = 0';
     EXECUTE IMMEDIATE vSQL;
-    COMMIT;
+    COMMIT;    
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMPED = NULL WHERE NUMPED = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
+    
+    /* ATUALIZANDO O CÓDIGO NUMNOTA QUE ESTÃO COMO ZERO PARA NULL */    
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMNOTA = NULL WHERE NUMNOTA = 0';
     EXECUTE IMMEDIATE vSQL;
-    COMMIT;
+    COMMIT;    
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMNOTA = NULL WHERE NUMNOTA = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
+    
+    /* ATUALIZANDO O CÓDIGO NUMTRANSENT QUE ESTÃO COMO ZERO PARA NULL */    
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMTRANSENT = NULL WHERE NUMTRANSENT = 0';
     EXECUTE IMMEDIATE vSQL;
     COMMIT;
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMTRANSENT = NULL WHERE NUMTRANSENT = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
+    
+    /* ATUALIZANDO O CÓDIGO NUMTRANSVENDA QUE ESTÃO COMO ZERO PARA NULL */
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMTRANSVENDA = NULL WHERE NUMTRANSVENDA = 0';
     EXECUTE IMMEDIATE vSQL;
+    COMMIT;    
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMTRANSVENDA = NULL WHERE NUMTRANSVENDA = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
     COMMIT;
+    
+    /* ATUALIZANDO O CÓDIGO NUMLOTE QUE ESTÃO COMO ZERO PARA NULL */
     vSQL := 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMLOTE = NULL WHERE NUMLOTE = ''0''';
     EXECUTE IMMEDIATE vSQL;
     COMMIT;
-    DELETE FROM PCWMS WHERE 1 = 1;
-    COMMIT;
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'UPDATE PC_BKP_MIGRACAO_PCWMS SET NUMLOTE = NULL WHERE NUMLOTE = 0' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
+    
+    /* CRIANDO A CHAVE PARA A TABELA DE MIGRAÇÃO AONDE OS DADOS FORAM TRATADOS */    
     vSQL := 'ALTER TABLE PC_BKP_MIGRACAO_PCWMS ADD CONSTRAINT UK_PCWMS_CHAVE UNIQUE (CODPROD, NUMCAR, NUMLOTE, NUMPED, NUMNOTA, CODFILIAL, NUMTRANSENT, NUMTRANSVENDA, CODOPER)';
     EXECUTE IMMEDIATE vSQL;
     COMMIT;
-    vSQL := 'INSERT INTO PCWMS (' || vCampos || ') ' || 'SELECT ' || vCampos || ' FROM PC_BKP_MIGRACAO_PCWMS WHERE 1 = 1';	
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'ALTER TABLE PC_BKP_MIGRACAO_PCWMS ADD CONSTRAINT UK_PCWMS_CHAVE UNIQUE (CODPROD, NUMCAR, NUMLOTE, NUMPED, NUMNOTA, CODFILIAL, NUMTRANSENT, NUMTRANSVENDA, CODOPER)' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
+    
+    /* PASSANDO OS DADOS DE VOLTA PARA A TABELA PCWMS COM OS DADOS TRATADOS */    
+    vSQL := 'INSERT INTO PCWMS (' || vCampos || ') ' || 'SELECT ' || vCampos || ' FROM PC_BKP_MIGRACAO_PCWMS WHERE 1 = 1';  
     EXECUTE IMMEDIATE vSQL;    
     COMMIT;
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'INSERT INTO PCWMS (' || vCampos || ') ' || 'SELECT ' || vCampos || ' FROM PC_BKP_MIGRACAO_PCWMS WHERE 1 = 1' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;
+    
+    /* CRIANDO A CHAVE NA TABELA PCWMS COM OS DADOS TRATADOS */    
     vSQL := 'ALTER TABLE PCWMS ADD CONSTRAINT UK_CHAVE_PCWMS UNIQUE (CODPROD, NUMCAR, NUMLOTE, NUMPED, NUMNOTA, CODFILIAL, NUMTRANSENT, NUMTRANSVENDA, CODOPER)';
     EXECUTE IMMEDIATE vSQL;
     COMMIT;
+    vQry     := 'INSERT INTO PC_LOG_MIGRACAO_PCWMS (ID, NUMPED, NUMNOTA, NUMTRANSVENDA, NUMTRANSENT, CODPROD, NUMLOTE, CODFILIAL, ERR_NUMBER, ERR_MSG, QRY_EM_EXECUCAO, DATA_DO_LOG, HORA_DO_LOG)' || CHR(13) ||
+                    '            VALUES (' || vCONTADOR || ', ' || NVL(vNUMPED, 0) || ', ' ||  NVL(VNUMNOTA, 0) || ', ' ||  NVL(VNUMTRANSVENDA, 0) || ', ' || NVL(vNUMTRANSENT, 0) || ', ' || NVL(vCODPROD, 0) || ', ' ||  '''' || vNUMLOTE || '''' || ', ' || NVL(vCODFILIAL, 0) || ', ' || '''' || v_ERORRCODE || '''' || ', ' ||  '''' || v_ERRMSG || '''' || ',' || '''' || 'ALTER TABLE PCWMS ADD CONSTRAINT UK_CHAVE_PCWMS UNIQUE (CODPROD, NUMCAR, NUMLOTE, NUMPED, NUMNOTA, CODFILIAL, NUMTRANSENT, NUMTRANSVENDA, CODOPER)' || '''' || ',' || '''' || TO_CHAR(SYSDATE, 'DD-MM-YYYY') || '''' || ', ' || '''' || TO_CHAR(SYSDATE, 'HH24: MI: SS') || '''' || ')';
+    EXECUTE IMMEDIATE vQry;
+    COMMIT;    
   END;
   
 
