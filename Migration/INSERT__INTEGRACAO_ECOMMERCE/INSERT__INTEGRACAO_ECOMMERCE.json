@@ -1,0 +1,16 @@
+{
+    "nome": "INSERT__INTEGRACAO_ECOMMERCE",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+      {
+        "nome": "PCINTEGRAECOMMERCE_LAYOUTC",
+        "tipo": "TABELA",
+        "versao": "7.0.03.000"
+      },
+      {
+        "nome": "PCINTEGRAECOMMERCE_LAYOUTI",
+        "tipo": "TABELA",
+        "versao": "7.0.04.000"
+      }
+          ]
+  }
