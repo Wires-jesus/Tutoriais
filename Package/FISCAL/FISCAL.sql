@@ -45,24 +45,24 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       SOMATOTALNF_CBSIBS              VARCHAR2(1),
       CST_CBSIBS                      VARCHAR2(3),
       CCLASSTRIB_CBSIBS               VARCHAR2(6),
-      VALOR_BASE_CBSIBS               NUMBER(18,6),      
+      VALOR_BASE_CBSIBS               NUMBER(23,10),
       --Retorno valores CBS
       PERC_CBS                NUMBER(7,4),
       PERC_RED_CBS            NUMBER(7,4),
       ALIQ_EFETIVA_CBS        NUMBER(7,4),
-      VALOR_CBS               NUMBER(18,6),  
+      VALOR_CBS               NUMBER(23,10),
       FORMULA_VALOR_TRIBUTO_CBS VARCHAR2(50),         
       --Retorno valores IBS UF
       PERC_IBS_UF             NUMBER(7,4),
       PERC_RED_ALIQ_IBS_UF    NUMBER(7,4),
       ALIQ_EFETIVA_IBS_UF     NUMBER(7,4),
-      VALOR_IBS_UF            NUMBER(18,6),  
+      VALOR_IBS_UF            NUMBER(23,10),
       FORMULA_VALOR_TRIBUTO_IBS_UF VARCHAR2(50),    
       --Retorno valores IBS    
       PERC_IBS_MUN           NUMBER(7,4),
       PERC_RED_ALIQ_IBS_MUN  NUMBER(7,4),
       ALIQ_EFETIVA_IBS_MUN   NUMBER(7,4),
-      VALOR_IBS_MUN          NUMBER(18,6),  
+      VALOR_IBS_MUN          NUMBER(23,10),
       FORMULA_VALOR_TRIBUTO_IBS_MUN VARCHAR2(50),        
       --Retornos valores IS
       CODIGO_TRIBUTACAO_IS        NUMBER(10),
@@ -72,10 +72,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       SOMATOTALNF_IS              VARCHAR2(1),
       CST_IS                      VARCHAR2(3),
       CCLASSTRIB_IS               VARCHAR2(6),
-      VALOR_BASE_IS               NUMBER(18,6),
+      VALOR_BASE_IS               NUMBER(23,10),
       PERC_IS                     NUMBER(7,4),
-      VALOR_IS                    NUMBER(18,6),
-      VLTOTALIBS                  NUMBER(15,2),
+      VALOR_IS                    NUMBER(23,10),
+      VLTOTALIBS                  NUMBER(23,10),
       -- Retorno valores Compra Governamental
       COMPRA_GOVERNAMENTAL        TIPO_GRUPO_COMPRA_GOV
    );
