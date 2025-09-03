@@ -6028,17 +6028,16 @@ create or replace package body FISCAL is
   V_CCREDPRESUMIDO VARCHAR2(10);
   V_IDCREDPRESUMIDO NUMBER;
   V_MSG_RETORNO VARCHAR2(200);
+  V_Entrou BOOLEAN := FALSE; 
 
   BEGIN
      BEGIN
+       PKG_DEBUGGING_FWPC.ATIVARDEBUG('Cálculo de crédito presumido', '1.0',P_NUMTRANSACAO);
+       PKG_DEBUGGING_FWPC.LOG('Chamada da função CALCULAR_CREDITOPRESUMIDO','S');
        FOR DADOS_CREDITOPRESUMIDO IN CONSULTA_DADOS_CREDPRESUMIDO(P_NUMTRANSACAO,
                                                                    P_TIPOMOV)
        LOOP
-
-       IF P_ATIVARLOG = 'S' THEN
-         PKG_DEBUGGING_FWPC.ATIVARDEBUG('Cálculo de crédito presumido', '1.0',P_NUMTRANSACAO);
-       END IF;
-
+       V_Entrou := TRUE;
        PKG_DEBUGGING_FWPC.LOG('Dados : CODBENEFICIOFISCAL '||DADOS_CREDITOPRESUMIDO.CODBENEFICIOFISCAL||
                                        ' CODST '||DADOS_CREDITOPRESUMIDO.CODST||
                                        ' PERCICM '||DADOS_CREDITOPRESUMIDO.PERCICM||
@@ -6110,7 +6109,7 @@ create or replace package body FISCAL is
        END IF;
 
          -- GRAVANDO LOG
-       PKG_DEBUGGING_FWPC.LOG('Chamou GET_DADOS_CREDITOPRESUMIDO retorno:','S');
+       PKG_DEBUGGING_FWPC.LOG('Chamou GET_DADOS_CREDITOPRESUMIDO','S');
        PKG_DEBUGGING_FWPC.LOG('Produto: '||DADOS_CREDITOPRESUMIDO.CODPROD||' '||P_MSG, 'S');
        PKG_DEBUGGING_FWPC.LOG('ID Cadastro 4008: '|| V_IDCREDPRESUMIDO,'S');
        PKG_DEBUGGING_FWPC.LOG('V_BASECREDITOPRESUMIDO '||V_BASECREDITOPRESUMIDO||
@@ -6118,6 +6117,10 @@ create or replace package body FISCAL is
                               ' v_ALIQCREDITOPRESUMIDO '||v_ALIQCREDITOPRESUMIDO
                               ,'S');
        END LOOP;
+       
+       IF NOT v_entrou THEN
+         PKG_DEBUGGING_FWPC.LOG('Não retornou dados da função CONSULTA_DADOS_CREDPRESUMIDO','S');
+       END IF;
 
        V_RETURN := 'S';
        -- DESABILITANDO SERVIÇO LOG
