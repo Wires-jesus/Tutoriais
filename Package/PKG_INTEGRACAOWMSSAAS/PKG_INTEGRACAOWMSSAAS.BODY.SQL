@@ -1340,4 +1340,79 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
       END HORARIO_VALIDO_PARA_INTEGRACAO;
 
+      PROCEDURE EFETUAR_MOV_POR_TIPO_ESTOQUE(pCODFILIAL  IN VARCHAR2,
+                                               pCODPROD    IN NUMBER,
+                                               pQUANTIDADE IN NUMBER,
+                                               pNUMLOTE    IN VARCHAR2,
+                                               pTIPO_ESTOQUE_ORIGEM  IN VARCHAR2,
+                                               pTIPO_ESTOQUE_DESTINO  IN VARCHAR2) IS
+        vNUMTRANSENT  NUMBER(10);
+        VSRETORNO     VARCHAR2(60);
+        PSMSG_RETORNO VARCHAR2(6000);
+
+        vTIPO_ESTOQUE_ORIGEM_BLOQUEIO VARCHAR2(1);
+        vTIPO_ESTOQUE_DESTINO_BLOQUEIO VARCHAR2(1);
+
+        BEGIN
+
+        SELECT DECODE(COUNT(1), 0, 'N', 'S')
+        INTO vTIPO_ESTOQUE_ORIGEM_BLOQUEIO
+        FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
+        WHERE CODFILIAL = '1'
+        AND TIPOESTOQUE = pTIPO_ESTOQUE_ORIGEM;
+
+
+        SELECT DECODE(COUNT(1), 0, 'N', 'S')
+        INTO vTIPO_ESTOQUE_DESTINO_BLOQUEIO
+        FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
+        WHERE CODFILIAL = '1'
+        AND TIPOESTOQUE = pTIPO_ESTOQUE_DESTINO;
+
+        /**SE A TROCA DO TIPO DE ESTOQUE FOR DE NORMAL PARA UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, ENTÃO EFETUAR BLOQUEIO**/
+        IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'N' AND vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'S' THEN
+
+          VSRETORNO := PKG_ESTOQUE.BLOQUEIO_INCLUIR(PNIDENTIFICADOR => 0,
+                                                  PSCODFILIAL     => pCODFILIAL,
+                                                  PNCODPROD       => pCODPROD ,
+                                                  PNNUMSEQ        => 0,
+                                                  PNQTDE          => pQUANTIDADE,
+                                                  PNQTAVARIA      => 0,
+                                                  PSOPERACAO      => 'IU',
+                                                  psCODOPER       => 'IG',
+                                                  psOBSERVACAO    => 'BLOQUEIO DE ESTOQUE',
+                                                  psNUMLOTE       => pNUMLOTE,
+                                                  PSMSG_RETORNO   => PSMSG_RETORNO);
+
+
+         IF VSRETORNO <> 'S' THEN
+            raise_application_error (-20002,'Não foi possível efetuar bloqueio' );
+         END IF;
+
+         END IF;
+
+
+         /**SE A TROCA DO TIPO DE ESTOQUE FOR DE UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, PARA UM TIPO DE ESTOQUE NÃO MAPEADO PARA BLOQUEIO, ENTÃO DESBLOQUEAR**/
+        IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'S' AND vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'N' THEN
+
+          VSRETORNO := PKG_ESTOQUE.BLOQUEIO_BAIXAR(PNIDENTIFICADOR => 0,
+                                                  PSCODFILIAL     => pCODFILIAL,
+                                                  PNCODPROD       => pCODPROD ,
+                                                  PNNUMSEQ        => 0,
+                                                  PNQTDE          => pQUANTIDADE,
+                                                  PNQTAVARIA      => 0,
+                                                  PSOPERACAO      => 'BU',
+                                                  psCODOPER       => 'BG',
+                                                  psOBSERVACAO    => 'DESBLOQUEIO DE ESTOQUE',
+                                                  psNUMLOTE       => pNUMLOTE,
+                                                  PSMSG_RETORNO   => PSMSG_RETORNO);
+
+
+         IF VSRETORNO <> 'S' THEN
+            raise_application_error (-20002,'Não foi possível efetuar desbloqueio');
+         END IF;
+
+        END IF;
+
+      END EFETUAR_MOV_POR_TIPO_ESTOQUE;
+
 END PKG_INTEGRACAOWMSSAAS;

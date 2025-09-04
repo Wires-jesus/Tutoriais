@@ -22,6 +22,11 @@
 			"nome": "PCLOGINTEGRACOESWMSSAAS",
 			"tipo": "TABELA",
 			"versao": "6.0.01.000"
+		},
+		{
+			"nome": "PCMAPEAMENTOTIPOESTOQUEWMSSAAS",
+			"tipo": "TABELA",
+			"versao": "6.0.01.000"
 		}
 	]
 }
