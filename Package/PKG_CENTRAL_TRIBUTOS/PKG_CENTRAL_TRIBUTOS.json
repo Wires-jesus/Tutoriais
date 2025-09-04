@@ -8,7 +8,7 @@
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.53.000"
+            "versao": "8.0.01.000"
         }, {
 			"nome": "PCNFBASE",
 			"tipo": "TABELA",
@@ -16,15 +16,51 @@
 		}, {
 			"nome": "PCMOV",
 			"tipo": "TABELA",
-			"versao": "7.0.06.000"
+			"versao": "8.0.01.000"
 		}, {
 			"nome": "PCMOVPREFAT",
 			"tipo": "TABELA",
-			"versao": "7.0.07.000"
+			"versao": "8.0.01.000"
 		}, {
 			"nome": "PCPEDI",
 			"tipo": "TABELA",
-			"versao": "7.0.06.000"
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCMOVPREENT",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCORCAVENDAI",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCORCAVENDAICESTA",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCMOVCIAP",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCTABPR",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCPEDICESTA",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCORIGEMPRECO",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCPEDIECF",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		}, {
+			"nome": "PCPEDIECFCESTA",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
 		}	
     ]
 }
