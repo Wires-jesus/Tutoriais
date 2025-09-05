@@ -58,4 +58,11 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
 
   FUNCTION HORARIO_VALIDO_PARA_INTEGRACAO(pCODFILIAL  IN VARCHAR2) RETURN VARCHAR2;
 
+  PROCEDURE EFETUAR_MOV_POR_TIPO_ESTOQUE(pCODFILIAL  IN VARCHAR2,
+                                                    pCODPROD    IN NUMBER,
+                                                    pQUANTIDADE IN NUMBER,
+                                                    pNUMLOTE    IN VARCHAR2,
+                                                    pTIPO_ESTOQUE_ORIGEM  IN VARCHAR2,
+                                                    pTIPO_ESTOQUE_DESTINO  IN VARCHAR2);
+
 END PKG_INTEGRACAOWMSSAAS;
