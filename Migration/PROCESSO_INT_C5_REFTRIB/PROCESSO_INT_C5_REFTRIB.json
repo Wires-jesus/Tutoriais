@@ -7,20 +7,80 @@
       "tipo": "TABELA",
       "versao": "7.0.11.000"
     },
+	{
+	  "nome": "PCSITTRIBUT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.02.000"
+	},
     {
       "nome": "PCTRIBUTACAO_FILTRO_NCM",
       "tipo": "TABELA",
-      "versao": "7.0.03.000"
+      "versao": "7.0.04.000"
     },
     {
       "nome": "PCTRIBUTACAO_FILTRO_PRODUTO",
       "tipo": "TABELA",
-      "versao": "7.0.03.000"
+      "versao": "7.0.04.000"
     },
     {
       "nome": "PCDEPARATRIBUTACAOC5",
       "tipo": "TABELA",
       "versao": "7.0.01.000"
-    }
+    },
+	{
+	  "nome": "CADASTRO_4000",
+	  "tipo": "MIGRATION",
+	  "versao": "7.0.03.000"
+	},
+	{
+	  "nome": "ROTINA.4000",
+	  "tipo": "ROTINA",
+	  "versao": "7.0.03.000"
+	},
+	{
+	  "nome": "PCTRIBUTACAO_EXCECAO",
+	  "tipo": "TABELA",
+	  "versao": "7.0.05.000"
+	},
+	{
+	  "nome": "TRG_PCTRIBUTACAO_EXCECAO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "TRG_PCTRIBUTACAO_F_NCM",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "TRG_PCTRIBUTACAO_F_PRODUTO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "TRG_PCTRIBUTACAO",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "DICIONARIO.4000",
+	  "tipo": "DICIONARIO",
+	  "versao": "7.0.34.000"
+	},
+	{
+	  "nome": "PCDICIONARIOITEM",
+	  "tipo": "TABELA",
+	  "versao": "5.0.01.000"
+	},
+	{
+	  "nome": "PCDICIONARIOITEMROTCUST",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "TABELA_PCDICIONARIOITEMROT",
+	  "tipo": "MIGRATION",
+	  "versao": "5.0.01.000"
+	}
   ]
 }
