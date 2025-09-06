@@ -595,7 +595,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                           AND MOV.CODFILIAL IN(' || PSCODFILIAL || ')
                           AND DATA >= ''' || PDDATAINI || '''
                           AND DATA <= ''' || PDDATAFIM || '''
-                          ) MOV
+                          ) MOV WHERE PERCOM <> 0
                    GROUP BY PERCOM  ';
 
       EXECUTE IMMEDIATE VSSQL BULK COLLECT
