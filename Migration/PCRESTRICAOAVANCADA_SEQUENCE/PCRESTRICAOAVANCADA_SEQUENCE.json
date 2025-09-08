@@ -1,0 +1,5 @@
+{
+	"nome": "PCRESTRICAOAVANCADA_SEQUENCE",
+	"tipoPLSQL": "MIGRATION",
+	"dependencias": []
+}
