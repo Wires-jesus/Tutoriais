@@ -7856,6 +7856,11 @@ IS
                   PRIV_GERARLOG;
                   RETURN 'N';
                 END IF;
+				
+				IF CONTROLANUMEROSERIE.FUNC_CONTROLA_NUMERO_SERIE(ESTOQUE.CODFILIAL, ESTOQUE.CODPROD) = 'S' THEN 
+                  CONTROLANUMEROSERIE.LIBERAR_ESTOQUE_BLOQUEADO(ESTOQUE.CODFILIAL, ESTOQUE.CODPROD);
+                END IF;
+				
                 -- Se controla estoque por lote
                 IF (vsESTOQUEPORLOTE = 'S') THEN
                   -- Baixar lote
