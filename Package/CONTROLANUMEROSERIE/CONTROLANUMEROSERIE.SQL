@@ -38,5 +38,9 @@ CREATE OR REPLACE package CONTROLANUMEROSERIE is
                                    P_CODPROD   PCMOV.CODPROD%TYPE,
                                    P_NUMSEQ    PCMOV.NUMSEQ%TYPE)
   RETURN varchar2;
+  
+  PROCEDURE LIBERAR_ESTOQUE_BLOQUEADO(p_CODFILIAL PCNUMEROSERIE.CODFILIAL%TYPE,
+                                      p_CODPROD   PCNUMEROSERIE.CODPROD%TYPE,
+                                      p_NUMSERIE  PCNUMEROSERIE.NUMSERIE%TYPE DEFAULT NULL);
                                    
 end;
