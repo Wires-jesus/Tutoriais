@@ -30,7 +30,13 @@ IS
 								WHERE ME.SEQDOCTO = a.seqdocto
 								  AND ME.NUMCAIXA = a.numcaixa
 								  AND ME.CODFILIAL = a.codfilial
-								  AND ME.TIPOOPERACAO IN ('CANP','CANT'));
+								  AND ME.TIPOOPERACAO IN ('CANP','CANT'))
+				AND EXISTS (SELECT 1
+								 FROM PCFILAMENSAGEMHISTORICO MHS
+								WHERE MHS.SEQDOCTO = a.seqdocto
+								  AND MHS.NUMCAIXA = TO_CHAR(a.numcaixa)
+								  AND MHS.CODFILIAL = a.codfilial
+								  AND MHS.TIPOOPERACAO IN ('VEND'));								  ;
 
         r_canc_cabecalho       c_canc_cabecalho%ROWTYPE;
         l_xmltype              XMLTYPE;
