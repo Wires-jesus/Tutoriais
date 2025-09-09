@@ -37,6 +37,7 @@ IS
 								  AND MHS.NUMCAIXA = TO_CHAR(a.numcaixa)
 								  AND MHS.CODFILIAL = a.codfilial
 								  AND MHS.TIPOOPERACAO IN ('VEND'));
+								  
 
         r_canc_cabecalho       c_canc_cabecalho%ROWTYPE;
         l_xmltype              XMLTYPE;
