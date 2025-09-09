@@ -601,7 +601,7 @@ BEGIN
   
   EXCEPTION
     WHEN OTHERS THEN
-      RAISE_APPLICATION_ERROR(-20001, ('ERRO'));
+      RAISE_APPLICATION_ERROR(-20001, ('Erro na execução: ' || SQLCODE || ' - ' || SQLERRM));
   END;
 
   RETURN 'OK';
