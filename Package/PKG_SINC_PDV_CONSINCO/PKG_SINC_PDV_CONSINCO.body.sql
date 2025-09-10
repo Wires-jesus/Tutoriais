@@ -6980,7 +6980,6 @@ BEGIN
   UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
   SET CCT.ATIVO = 'N'
   WHERE CCT.ATIVO = 'S'
-    AND CCT.VALOR <> '0'
     AND (( CCT.IDENTIFICADOR = 'PRODUTO'
             AND (
                   EXISTS (
@@ -7022,6 +7021,29 @@ BEGIN
                       AND T.DTEXCLUSAO IS NULL
                 )
         ));
+
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
+  SET CCT.ATIVO = 'S'
+  WHERE CCT.ATIVO = 'N'
+    AND CCT.VALOR = '0'
+    AND (( CCT.IDENTIFICADOR = 'PRODUTO'
+            AND (
+                  NOT EXISTS (
+                    SELECT 1
+                    FROM PCTRIBUTACAO_FILTRO_PRODUTO T
+                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
+                      AND T.DTEXCLUSAO IS NULL
+                  )
+          ))
+          OR ( CCT.IDENTIFICADOR = 'NCM'
+                AND NOT EXISTS (
+                  SELECT 1
+                    FROM PCTRIBUTACAO_FILTRO_NCM T
+                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
+                      AND T.DTEXCLUSAO IS NULL
+                )
+        )
+  );       
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -7384,7 +7406,7 @@ BEGIN
        OR NVL(CC.UF, '-') <> NVL(S.UF, '-')
        OR NVL(CC.PERALIQ, -1) <> NVL(S.PERALIQ, -1)
        OR NVL(CC.PERALIQRED, -1) <> NVL(S.PERALIQRED, -1)
-       OR NVL(CC.SEQFORMULA, -1) <> NVL(S.SEQFORMULA, 1)
+       OR NVL(CC.SEQFORMULA, -1) <> NVL(S.SEQFORMULA, -1)
        OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
        OR NVL(CC.IDREF, -1) <> NVL(S.IDREF, -1)
 
