@@ -1683,6 +1683,7 @@ create or replace package body FISCAL is
       V_DTSAIDA        date;
       V_FINALIDADE     VARCHAR2(1);
       V_AGREGARFCPBASEPISCOFINSSAIDA VARCHAR2(1);
+      V_DEDUZIRICMSBASEPISCOFINS varchar2(1);      
    begin
      -- PEGANDO CODFILIAL DA NOTA FISCAL ------------------------------
       begin
@@ -1691,6 +1692,7 @@ create or replace package body FISCAL is
                ,DESPESASRATEADA
                ,DTSAIDA
                ,NVL(FINALIDADENFE, 'N') AS FINALIDADENFE
+               ,NVL(DEDUZIRICMSBASEPISCOFINS,'N') DEDUZIRICMSBASEPISCOFINS
            FROM PCNFSAID
           WHERE NUMTRANSVENDA = NUMTRANSACAO
           UNION ALL
@@ -1698,6 +1700,7 @@ create or replace package body FISCAL is
                ,DESPESASRATEADA
                ,DTSAIDA
                ,NVL(FINALIDADENFE, 'N') AS FINALIDADENFE
+               ,'N' AS DEDUZIRICMSBASEPISCOFINS
            FROM PCNFSAIDPREFAT
           WHERE NUMTRANSVENDA = NUMTRANSACAO
             AND DATACONSOLIDACAOPREFAT IS NULL
@@ -1706,10 +1709,12 @@ create or replace package body FISCAL is
              , DESPESASRATEADA
              , DTSAIDA
              , FINALIDADENFE
+             , DEDUZIRICMSBASEPISCOFINS
           INTO VCODFILIAL
              , VDESPESA_RATEADA
              , V_DTSAIDA
              , V_FINALIDADE
+             , V_DEDUZIRICMSBASEPISCOFINS
           FROM NFSAID;
 
       exception
@@ -1725,10 +1730,12 @@ create or replace package body FISCAL is
       end if;
 
       -- Atualizar pcnfsaid se parâmetro 4085(EXCLUIRICMSBASEPISCOFINS) como Sim.
-      if (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, V_DTSAIDA)='S') then
-         update PCNFSAID
-            set DEDUZIRICMSBASEPISCOFINS = 'S'
-          where NUMTRANSVENDA = NUMTRANSACAO;
+      if V_DEDUZIRICMSBASEPISCOFINS = 'N' 
+        AND PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, V_DTSAIDA) = 'S' 
+      then
+         UPDATE PCNFSAID
+            SET DEDUZIRICMSBASEPISCOFINS = 'S'
+          WHERE NUMTRANSVENDA = NUMTRANSACAO;
       end if;
 
       -- Buscando parâmetro da filial
@@ -6971,4 +6978,5 @@ create or replace package body FISCAL is
 
 END;
 -- v.2025.003 
+-- Alteração 10/09/2025 - Ajuste de performance no metodo CALCULARPISCOFINS_VENDA.
 -- Alteração 21/08/2025 - Implentações metodo GET_DADOS_TRIBUTOS_REFORMA
