@@ -20,17 +20,17 @@
 	{
 	  "nome": "PCFILAMENSAGEM",
 	  "tipo": "TABELA",
-	  "versao": "7.0.01.000"
+	  "versao": "7.0.02.000"
 	},
 	{
 	  "nome": "PCFILAMENSAGEMHISTORICO",
 	  "tipo": "TABELA",
-	  "versao": "7.0.01.000"
+	  "versao": "7.0.02.000"
 	},
 	{
 	  "nome": "PCFILAMENSAGEMERRO",
 	  "tipo": "TABELA",
-	  "versao": "7.0.01.000"
+	  "versao": "7.0.02.000"
 	},
 	{
 	  "nome": "VW_INT_C5_NFESAT",
