@@ -631,52 +631,77 @@ CREATE OR REPLACE PACKAGE BODY CONTROLANUMEROSERIE IS
   
   PROCEDURE LIBERAR_ESTOQUE_BLOQUEADO(p_CODFILIAL PCNUMEROSERIE.CODFILIAL%TYPE,
                                       p_CODPROD   PCNUMEROSERIE.CODPROD%TYPE,
+                                      p_NUMBONUS  PCBONUSC.nUMBONUS%TYPE DEFAULT 0,
                                       p_NUMSERIE  PCNUMEROSERIE.NUMSERIE%TYPE DEFAULT NULL)
   IS
     VNEXISTE NUMBER;
   BEGIN
-    FOR DADOS IN (SELECT N.NUMSERIE, 
-                         N.CODFILIAL, 
-                         N.CODPROD 
-                    FROM PCNUMEROSERIE N 
-                   WHERE N.CODFILIAL = p_CODFILIAL 
-                     AND N.CODPROD = p_CODPROD 
-                     AND N.AVARIA = 'N'
-                     AND N.BLOQUEIO = 'S'
-                     AND (NVL(p_NUMSERIE, ' ') = ' ' OR N.NUMSERIE = p_NUMSERIE))
-    LOOP
-      BEGIN
+  
+    IF p_NUMBONUS = 0 THEN 
+      FOR DADOS IN (SELECT MS.NUMSERIE, 
+                           I.CODFILIAL, 
+                           I.CODPROD              
+                      FROM PCMOVNUMEROSERIE MS, PCMOV I, PCBONUSC C, PCMOVCOMPLE MC
+                     WHERE C.NUMBONUS = I.NUMBONUS
+                       AND I.CODFILIAL = C.CODFILIAL
+                       AND I.CODPROD = p_CODPROD
+                       AND I.CODFILIAL = p_CODFILIAL            
+                       AND I.CODOPER LIKE 'E%'
+                       AND MC.NUMTRANSITEM = I.NUMTRANSITEM
+                       AND MC.NUMTRANSNUMEROSERIE = MS.NUMTRANSNUMEROSERIE 
+                       AND I.NUMBONUS = p_NUMBONUS
+                      GROUP BY I.CODPROD, I.CODFILIAL)
+      LOOP     
+        UPDATE PCNUMEROSERIE 
+         SET BLOQUEIO = 'N'
+         WHERE CODFILIAL = DADOS.CODFILIAL
+         AND CODPROD = DADOS.CODPROD 
+         AND NUMSERIE = DADOS.NUMSERIE;  
+      END LOOP;
+    ELSE
+      FOR DADOS IN (SELECT N.NUMSERIE, 
+                 N.CODFILIAL, 
+                 N.CODPROD 
+              FROM PCNUMEROSERIE N 
+               WHERE N.CODFILIAL = p_CODFILIAL 
+               AND N.CODPROD = p_CODPROD 
+               AND N.AVARIA = 'N'
+               AND N.BLOQUEIO = 'S'
+               AND (NVL(p_NUMSERIE, ' ') = ' ' OR N.NUMSERIE = p_NUMSERIE))
+      LOOP
+        BEGIN
         SELECT COUNT(1)
           INTO VNEXISTE
           FROM PCMOVNUMEROSERIE MS, PCMOV I, PCBONUSC C, PCMOVCOMPLE MC
           WHERE C.NUMBONUS = I.NUMBONUS
-            AND I.CODFILIAL = C.CODFILIAL
-            AND I.CODPROD = DADOS.CODPROD
-            AND I.CODFILIAL = DADOS.CODFILIAL
-            AND NVL(I.ESTOQUEDESBLOQUEADO, 'N') = 'N'
-            AND C.DTFECHAMENTO IS NULL
-            AND C.DTCANCEL IS NULL
-            AND NVL(C.LIBERAESTENTMERC, 'N') = 'N'
-            AND I.CODOPER LIKE 'E%'
-            AND trunc(C.DATABONUS) > trunc(SYSDATE - 90)
-            AND NVL(C.UTILIZOUPREENT, 'N') = 'N'
-            AND MC.NUMTRANSITEM = I.NUMTRANSITEM
-            AND MC.NUMTRANSNUMEROSERIE = MS.NUMTRANSNUMEROSERIE 
-            AND MS.NUMSERIE = DADOS.NUMSERIE
+          AND I.CODFILIAL = C.CODFILIAL
+          AND I.CODPROD = DADOS.CODPROD
+          AND I.CODFILIAL = DADOS.CODFILIAL
+          AND NVL(I.ESTOQUEDESBLOQUEADO, 'N') = 'N'
+          AND C.DTFECHAMENTO IS NULL
+          AND C.DTCANCEL IS NULL
+          AND NVL(C.LIBERAESTENTMERC, 'N') = 'N'
+          AND I.CODOPER LIKE 'E%'
+          AND trunc(C.DATABONUS) > trunc(SYSDATE - 90)
+          AND NVL(C.UTILIZOUPREENT, 'N') = 'N'
+          AND MC.NUMTRANSITEM = I.NUMTRANSITEM
+          AND MC.NUMTRANSNUMEROSERIE = MS.NUMTRANSNUMEROSERIE 
+          AND MS.NUMSERIE = DADOS.NUMSERIE
           GROUP BY I.CODPROD, I.CODFILIAL;
-      EXCEPTION
-        WHEN DADOS_NAO_ENCONTRADO THEN
+        EXCEPTION
+        WHEN NO_DATA_FOUND THEN
           VNEXISTE := 0; 
-      END;
+        END;
         
-      IF VNEXISTE = 0 THEN 
+        IF VNEXISTE = 0 THEN 
         UPDATE PCNUMEROSERIE 
            SET BLOQUEIO = 'N'
          WHERE CODFILIAL = DADOS.CODFILIAL
            AND CODPROD = DADOS.CODPROD 
            AND NUMSERIE = DADOS.NUMSERIE;  
-      END IF;
-    END LOOP;
+        END IF;
+      END LOOP;
+    END IF;    
   END LIBERAR_ESTOQUE_BLOQUEADO;
 
 END;
