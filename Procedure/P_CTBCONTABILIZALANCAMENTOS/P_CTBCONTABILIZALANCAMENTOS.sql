@@ -418,30 +418,51 @@ CREATE OR REPLACE PROCEDURE P_CTBCONTABILIZALANCAMENTOS(PCODFILIAL        IN VAR
                                        , PS_NATUREZA                  VARCHAR2
                                        , PS_CODREDUZIDO_PC            VARCHAR2
                                        , PN_CODREGRA                  NUMBER
-                                       , PD_DATALANCTO                DATE) IS
+                                       , PD_DATALANCTO                DATE
+									   , PS_HISTORICO_COMPL           VARCHAR2) IS
   BEGIN
-    FOR CENTRORECEITA IN (WITH LANCAMENTOS
-                            AS (SELECT PCLANCINTERMEDIARIA.NUMTRANSOPERACAO
-                                     , PCREGRACONTABIL.CODFATOGERADOR
-                                     , PCLANCINTERMEDIARIA.VALOR
-                                  FROM PCLANCINTERMEDIARIA
-                                     , PCMODELOPC
-                                     , PCREGRACONTABIL
-                                 WHERE PCLANCINTERMEDIARIA.NUMTRANSOPERACAO = PN_NUMTRANS_CENTRORECEITA
-                                   AND PCLANCINTERMEDIARIA.VALOR            = PN_VALOR
-                                   AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC   = PCMODELOPC.CODREDUZIDO_PC
-                                   AND PCLANCINTERMEDIARIA.CODPLANOCONTA    = PCMODELOPC.CODPLANOCONTA
-                                   AND PCLANCINTERMEDIARIA.CODREGRA         = PN_CODREGRA
-                                   AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC   = PS_CODREDUZIDO_PC
-                                   AND PCLANCINTERMEDIARIA.CODREGRA         = PCREGRACONTABIL.CODREGRA
-                                   --AND PCLANCINTERMEDIARIA.DATALANCTO       = PD_DATALANCTO
-                                   AND PCMODELOPC.USACENTRORECEITA          = 'S'
-                                   AND PCLANCINTERMEDIARIA.DATALANCTO       = PD_DATALANCTO 
-                                 GROUP
-                                    BY PCLANCINTERMEDIARIA.NUMTRANSOPERACAO
-                                     , PCLANCINTERMEDIARIA.VALOR
-                                     , PCREGRACONTABIL.CODFATOGERADOR
-                               )
+    FOR CENTRORECEITA IN (WITH LANCAMENTOS 
+	                        AS (SELECT LANCSEMTOTALIZA.* FROM ( 
+                                       SELECT PCLANCINTERMEDIARIA.NUMTRANSOPERACAO                                                                                                                                                                
+                                            , PCREGRACONTABIL.CODFATOGERADOR                                                                                                                                                                       
+                                            , PCLANCINTERMEDIARIA.VALOR                                                                                                                                                                            
+                                         FROM PCLANCINTERMEDIARIA                                                                                                                                                                                  
+                                            , PCMODELOPC                                                                                                                                                                                           
+                                            , PCREGRACONTABIL                                                                                                                                                                                      
+                                        WHERE PCLANCINTERMEDIARIA.NUMTRANSOPERACAO = PN_NUMTRANS_CENTRORECEITA                                                                                                                                             
+                                          AND PCLANCINTERMEDIARIA.VALOR = PN_VALOR                                                                                                                                    
+                                          AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC = PCMODELOPC.CODREDUZIDO_PC                                                                                                                                       
+                                          AND PCLANCINTERMEDIARIA.CODPLANOCONTA  = PCMODELOPC.CODPLANOCONTA                                                                                                                                        
+                                          AND PCLANCINTERMEDIARIA.CODREGRA  = PN_CODREGRA                                                                                                                                                            
+                                          AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC = PS_CODREDUZIDO_PC                                                                                                                                                 
+                                          AND PCLANCINTERMEDIARIA.CODREGRA = PCREGRACONTABIL.CODREGRA                                                                                                                                              
+                                          AND PCLANCINTERMEDIARIA.DATALANCTO = PD_DATALANCTO                                                                                                                                                         
+                                          AND PCMODELOPC.USACENTRORECEITA = 'S'                                                                                                                                                                  
+                                     GROUP BY PCLANCINTERMEDIARIA.NUMTRANSOPERACAO                                                                                                                                                                 
+                                            , PCLANCINTERMEDIARIA.VALOR                                                                                                                                                                            
+                                            , PCREGRACONTABIL.CODFATOGERADOR                                                                                                                                                                       
+                               ) LANCSEMTOTALIZA
+                                 UNION 
+                               SELECT LANC.* FROM ( 
+                                       SELECT PCLANCINTERMEDIARIA.NUMTRANSOPERACAO                                                                                                                                                                
+                                            , PCREGRACONTABIL.CODFATOGERADOR                                                                                                                                                                       
+                                            , SUM (PCLANCINTERMEDIARIA.VALOR ) AS VALOR                                                                                                                                                                            
+                                         FROM PCLANCINTERMEDIARIA                                                                                                                                                                                  
+                                            , PCMODELOPC                                                                                                                                                                                           
+                                            , PCREGRACONTABIL                                                                                                                                                                                      
+                                        WHERE PCLANCINTERMEDIARIA.NUMTRANSOPERACAO = PN_NUMTRANS_CENTRORECEITA                                                                                                                                             
+                                          AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC = PCMODELOPC.CODREDUZIDO_PC                                                                                                                                       
+                                          AND PCLANCINTERMEDIARIA.CODPLANOCONTA  = PCMODELOPC.CODPLANOCONTA                                                                                                                                        
+                                          AND PCLANCINTERMEDIARIA.CODREGRA  = PN_CODREGRA                                                                                                                                                            
+                                          AND PCLANCINTERMEDIARIA.CODREDUZIDO_PC = PS_CODREDUZIDO_PC                                                                                                                                                 
+                                          AND PCLANCINTERMEDIARIA.CODREGRA = PCREGRACONTABIL.CODREGRA                                                                                                                                              
+                                          AND PCLANCINTERMEDIARIA.DATALANCTO = PD_DATALANCTO                                                                                                                                                        
+                                          AND PCMODELOPC.USACENTRORECEITA = 'S'                                                                                                                                                                  
+                                          AND PCLANCINTERMEDIARIA.HISTORICO_COMPL = PS_HISTORICO_COMPL	
+                                     GROUP BY PCLANCINTERMEDIARIA.NUMTRANSOPERACAO                                                                                                                                                                 
+                                            , PCREGRACONTABIL.CODFATOGERADOR                                                                                                                                                                       
+                               ) LANC WHERE LANC.VALOR = PN_VALOR 
+                            )
 
                           SELECT C.*
                                , CASE WHEN C.CODFATOGERADOR NOT IN (2, 6, 8)
@@ -1418,7 +1439,7 @@ GROUP BY A.CODFILIAL,
            P_GRAVA_DADOS_CENTROCUSTO(LANCINTERMEDIARIA.NUMTRANSCENTROCUSTO, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.HISTORICO_COMPL || LANCINTERMEDIARIA.CODREDUZIDO_PC || LANCINTERMEDIARIA.CODFILIAL);
         END IF;
         IF (VS_USACENTRORECEITA = 'S') THEN
-           P_GRAVA_DADOS_CENTRORECEITA(LANCINTERMEDIARIA.NUMTRANSOPERACAO, LANCINTERMEDIARIA.VALOR, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.CODREDUZIDO_PC, LANCINTERMEDIARIA.CODREGRA, VD_DATALANCTO);
+           P_GRAVA_DADOS_CENTRORECEITA(LANCINTERMEDIARIA.NUMTRANSOPERACAO, LANCINTERMEDIARIA.VALOR, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.CODREDUZIDO_PC, LANCINTERMEDIARIA.CODREGRA, VD_DATALANCTO, LANCINTERMEDIARIA.HISTORICO_COMPL);
         END IF;
 
       ---------------------------------------------------------------------------------
@@ -1570,7 +1591,7 @@ GROUP BY A.CODFILIAL,
               P_GRAVA_DADOS_CENTROCUSTO(LANCINTERMEDIARIA.NUMTRANSCENTROCUSTO, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.HISTORICO_COMPL || LANCINTERMEDIARIA.CODREDUZIDO_PC || LANCINTERMEDIARIA.CODFILIAL);
            END IF;
            IF (VS_USACENTRORECEITA = 'S') THEN
-              P_GRAVA_DADOS_CENTRORECEITA(LANCINTERMEDIARIA.NUMTRANSOPERACAO, LANCINTERMEDIARIA.VALOR, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.CODREDUZIDO_PC, LANCINTERMEDIARIA.CODREGRA, VD_DATALANCTO);
+              P_GRAVA_DADOS_CENTRORECEITA(LANCINTERMEDIARIA.NUMTRANSOPERACAO, LANCINTERMEDIARIA.VALOR, VN_NUMTRANSLANCTO, LANCINTERMEDIARIA.NATUREZA, LANCINTERMEDIARIA.CODREDUZIDO_PC, LANCINTERMEDIARIA.CODREGRA, VD_DATALANCTO, LANCINTERMEDIARIA.HISTORICO_COMPL);
            END IF;
         ELSE
           ---------------------------------------------------------------------------------
