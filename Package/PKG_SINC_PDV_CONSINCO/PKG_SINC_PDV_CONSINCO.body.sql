@@ -7026,6 +7026,7 @@ BEGIN
   SET CCT.ATIVO = 'S'
   WHERE CCT.ATIVO = 'N'
     AND CCT.VALOR = '0'
+    AND EXISTS (SELECT 1 FROM PCTRIBUTACAO T WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF AND T.DTEXCLUSAO IS NULL)    
     AND (( CCT.IDENTIFICADOR = 'PRODUTO'
             AND (
                   NOT EXISTS (
@@ -7043,7 +7044,7 @@ BEGIN
                       AND T.DTEXCLUSAO IS NULL
                 )
         )
-  );       
+  		);       
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
