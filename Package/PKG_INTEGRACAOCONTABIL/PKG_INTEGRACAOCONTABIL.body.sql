@@ -688,6 +688,18 @@ IS
                         AND CODREGRA = PCODREGRA
                         AND CODFILIAL = VS_CODFILIAL_AUX
                         AND STATUS = 'P';
+						
+			DELETE FROM PCLANCINTERMEDIARIA L
+                  WHERE L.CODREGRA = PCODREGRA
+                  AND L.CODFILIAL = VS_CODFILIAL_AUX
+                  AND L.STATUS = 'P'  
+                  AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIA A
+                               WHERE    A.DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
+                                    AND A.CODREGRA = PCODREGRA
+                                    AND A.CODFILIAL = VS_CODFILIAL_AUX
+                                    AND A.NUMTRANSOPERACAO = L.NUMTRANSOPERACAO
+                                    AND A.STATUS = 'I');
+			
         END LOOP;
 
         CLOSE FILIAIS;
