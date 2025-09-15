@@ -1,1 +1,9 @@
-{"nome":"WMS_RETORNACAIXASPENDENTES","tipoPLSQL":"FUNCTION","dependencias":""}
+{"nome":"WMS_RETORNACAIXASPENDENTES","tipoPLSQL":"FUNCTION","dependencias":
+[
+{
+  "nome": "PCWMSVINCULOCAIXA",
+  "tipo": "TABELA",
+  "versao": "7.0.04.000"
+}
+]
+}
