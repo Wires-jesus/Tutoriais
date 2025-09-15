@@ -53,7 +53,7 @@ select  c5.codfilial codfilial,
    AND e.nroempresa = c.nroempresa
    and e.nrocheckout = c.nrocheckout
    and e.seqdocto = c.seqdocto
-   and e.protocoloenvio is not null
+   --and e.protocoloenvio is not null
    AND C5.CODFILIALINTEGRACAO = m.nroempresa
    AND C5.CODFILIALINTEGRACAO = c.nroempresa
    AND C5.CODFILIALINTEGRACAO = e.nroempresa
