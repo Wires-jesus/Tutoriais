@@ -6874,11 +6874,14 @@ IS
                                     '');
                         END IF;
 
-                        VS_CONTA_EXISTE :=
+                        IF VS_TEMCONTAINEXISTENTE <> 'X'
+                        THEN
+                          VS_CONTA_EXISTE :=
                             F_VERIFICA_CONTA_EXISTE (VS_CONTA,
                                                      PCODPLANOCONTA);
-                        TRATAR_CONTA_INEXISTENTE (VS_CONTA_EXISTE,
-                                                  VS_TEMCONTAINEXISTENTE);
+                          TRATAR_CONTA_INEXISTENTE (VS_CONTA_EXISTE,
+                                                    VS_TEMCONTAINEXISTENTE);
+                        END IF; 
 
                         IF VS_CONTA_EXISTE IN ('S', 'I', 'X')
                         THEN
