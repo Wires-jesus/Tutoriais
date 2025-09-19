@@ -36,7 +36,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS
        NVL(t.percacrescbenffis,0) percacrescbenffis
   FROM pctribut t
  WHERE t.sittribut IN ('00','20','40','41','60','61','90')
-   AND t.codst >= 0 )
+   AND t.codst >= 0 );
 
 \
 
@@ -1186,6 +1186,77 @@ END;
 
 \
 
+CREATE OR REPLACE FUNCTION fnc_int_c5_valordesc_acresc_r(pNroEmpresa   NUMBER,
+                                                       pNroCheckout    NUMBER,
+                                                       pSeqDocto    NUMBER)
+  RETURN NUMBER
+IS
+  vValorAcrescimoRodape NUMBER;
+BEGIN
+
+ SELECT
+        sum(i.VLRACRESCIMO )   
+  INTO  vValorAcrescimoRodape
+  FROM  monitorpdvmiddle.tb_docto d,
+        monitorpdvmiddle.tb_doctocupom c,
+        monitorpdvmiddle.tb_doctoitem i
+ WHERE  i.nroempresa = d.nroempresa
+   AND  i.nrocheckout = d.nrocheckout
+   AND  i.seqdocto = d.seqdocto
+   AND  d.nroempresa = c.nroempresa
+   AND  d.nrocheckout = c.nrocheckout
+   AND  d.seqdocto = c.seqdocto
+   AND  d.especie = 'NF'
+   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1,2))
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
+   AND  i.STATUS = 'V'
+   AND  i.seqdocto = pSeqDocto;
+  RETURN(vValorAcrescimoRodape);
+  EXCEPTION
+     WHEN OTHERS
+          THEN
+     RETURN 0;
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_valordesc_desc_r(pNroEmpresa   NUMBER,
+                                                     pNroCheckout    NUMBER,
+                                                     pSeqDocto    NUMBER)
+  RETURN NUMBER
+IS
+  vValorDescRodape NUMBER;
+BEGIN
+
+ SELECT  
+        sum(i.vlrdesconto)
+  INTO  vValorDescRodape
+  FROM  monitorpdvmiddle.tb_docto d,
+        monitorpdvmiddle.tb_doctocupom c,
+        monitorpdvmiddle.tb_doctoitem i
+ WHERE  i.nroempresa = d.nroempresa
+   AND  i.nrocheckout = d.nrocheckout
+   AND  i.seqdocto = d.seqdocto
+   AND  d.nroempresa = c.nroempresa
+   AND  d.nrocheckout = c.nrocheckout
+   AND  d.seqdocto = c.seqdocto
+   AND  d.especie = 'NF'
+   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1,2))
+   AND  d.replicacao = 'P'
+   AND  i.nroempresa = pNroEmpresa
+   AND  i.nrocheckout = pNroCheckout
+   AND  i.STATUS = 'V'
+   AND  i.seqdocto = pSeqDocto;
+  RETURN(vValorDescRodape);
+  EXCEPTION
+     WHEN OTHERS
+          THEN
+     RETURN 0;
+END;
+
+\
+
 CREATE OR REPLACE FUNCTION fnc_int_c5_cab_total(pSeqDocto NUMBER,
                                                 pNroCheckout NUMBER,
                                                 pNroEmpresa NUMBER)
@@ -1670,6 +1741,21 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
             ELSE
               0
           END) perdesc,
+        (CASE
+            WHEN fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0 
+                 AND fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0
+            THEN (fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) * -1) 
+                 + fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto)
+                                  
+            ELSE CASE
+                    WHEN fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0 
+                    THEN (fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) * -1)
+                           
+                    WHEN fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0
+                    THEN fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto)
+                    ELSE 0
+                 END
+        END) vldesconto,		  
         'L' posicao,
         DBMS_LOB.SUBSTR(nf.qrcodenf,4000,1) qrcodenfce,
         100 situacaonfce,
