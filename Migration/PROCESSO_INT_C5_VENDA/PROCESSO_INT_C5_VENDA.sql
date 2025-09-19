@@ -36,7 +36,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIBUTOS AS
        NVL(t.percacrescbenffis,0) percacrescbenffis
   FROM pctribut t
  WHERE t.sittribut IN ('00','20','40','41','60','61','90')
-   AND t.codst >= 0 );
+   AND t.codst >= 0 )
 
 \
 
