@@ -7467,7 +7467,7 @@ IS
                                CASE
                    WHEN (NVL(PCBONUSC.USARF, 'N') = 'S') THEN
                                    (NVL(PCBONUSI.QTNF, 0))                               
-                   WHEN ((NUMLOTE = NUMLOTENF) OR (NVL(NUMLOTENF, '0') = '0')) THEN
+                   WHEN ((NUMLOTE = NUMLOTENF) OR (NUMLOTENF IS NULL)) THEN
                                    (NVL(PCBONUSI.QTNF, 0))
                                  ELSE
                                    0
@@ -8864,7 +8864,7 @@ IS
                                CASE
                    WHEN (NVL(PCBONUSC.USARF, 'N') = 'S') THEN
                                    (NVL(PCBONUSI.QTNF, 0))                               
-                   WHEN ((NUMLOTE = NUMLOTENF) OR (NVL(NUMLOTENF, '0') = '0')) THEN
+                   WHEN ((NUMLOTE = NUMLOTENF) OR (NUMLOTENF IS NULL)) THEN
                                    (NVL(PCBONUSI.QTNF, 0))
                                  ELSE
                                    0
