@@ -588,6 +588,7 @@ IS
                                    p_pedido.percicm AS "Percicm",
                                    p_pedido.placaveiculo AS "Placaveiculo",
                                    p_pedido.perdesc AS "Perdesc",
+								   p_pedido.vldesconto as "Vldesconto",
                                    p_pedido.posicao AS "Posicao",
                                    p_pedido.posicaoretorno AS "Posicaoretorno",
                                    p_pedido.prazo1 AS "Prazo1",
@@ -982,7 +983,7 @@ IS
                         VW.PREDALIQIBSMUN         AS "Predaliqibsmun" ,
                         VW.PALIQEFETIBSMUN        AS "Paliqefetibsmun" ,
                         VW.VIBSMUN                AS "Vibsmun" ,
-			            VW.ALIQCBS                AS "Aliqcbs",
+                  VW.ALIQCBS                AS "Aliqcbs",
                         VW.VLCBS                  AS "Vlcbs"
                       )
                     )
