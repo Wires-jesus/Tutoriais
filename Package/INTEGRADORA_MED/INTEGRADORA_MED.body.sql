@@ -8764,22 +8764,17 @@ end func_HoraDigitacaoPedido;
                     if ((((vsAPLICAACRESCPJISENTA = 'S')
                         and ((p_regcliente.IEENT = 'ISENTA')
                         or (p_regcliente.IEENT = 'ISENTO')))
-                        or ((p_regcliente.TIPOFJ = 'F')
-                        or (p_regcliente.CONSUMIDORFINAL = 'S')))
-                        and (p_regcliente.Contribuinte = 'N')) THEN
+                        or (vbpessoafisica))) THEN
 
                       vnptabela := (vnptabela + (vnptabela * vnperacrescismopf / 100));
 
 
                     END IF;
                   ELSE
-                    if ((((vsAPLICAACRESCPJISENTA = 'S')
+                    if (((vsAPLICAACRESCPJISENTA = 'S')
                         and ((p_regcliente.IEENT = 'ISENTA')
                         or (p_regcliente.IEENT = 'ISENTO')))
-                        or (((p_regcliente.TIPOFJ = 'F')
-                        or (p_regcliente.CONSUMIDORFINAL = 'S'))
-                        and (Trim(p_regcliente.IEENT) = '')))
-                        and (p_regcliente.Contribuinte = 'N')) then
+                        or ((vbpessoafisica) and (Trim(p_regcliente.IEENT) = ''))) then
 
                       vnptabela := (vnptabela + (vnptabela * vnperacrescismopf / 100));
 
@@ -9170,6 +9165,7 @@ end func_HoraDigitacaoPedido;
     vncodpromocaomed             pcdesconto.codpromocaomed%type; -->> Força de Vendas com Promoção de Desconto Automático
     vbRetValidarrestricaovenda   boolean;
     vstipoaplicrepassetribut     pctribut.Tipoaplicrepassetribut%type;
+	vbpessoafisica               boolean;
 
     -- Variáveis para uso na função de obter Promoção - HIS.03889.2014
     TYPE TRecRetornoPromocao   IS RECORD(
@@ -9362,6 +9358,7 @@ end func_HoraDigitacaoPedido;
     END PGRAVA_LOG_TEXTO;
 
   begin
+    vbpessoafisica := (FERRAMENTAS.VERIFICAR_FJ(p_regpedido.codcli) = 'PESSOA FISICA');
 
     -- Inicializa Log do Item
     vtLogImportacaoItem.DELETE;
@@ -12980,12 +12977,10 @@ if p_regpedido.condvenda = 10 then
         THEN
           IF gregpcconsum.acrescimopfcomie = 'S'
           THEN
-            if ((((p_regprecos.APLICAACRESCPJISENTA = 'S')
+            if (((p_regprecos.APLICAACRESCPJISENTA = 'S')
                 and ((p_regcliente.IEENT = 'ISENTA')
                 or (p_regcliente.IEENT = 'ISENTO')))
-                or ((p_regcliente.TIPOFJ = 'F')
-                or (p_regcliente.CONSUMIDORFINAL = 'S')))
-                and (p_regcliente.Contribuinte = 'N')) THEN
+                or (vbpessoafisica)) THEN
   
               p_regproduto.ptabela := (p_regproduto.ptabela +
                                       (p_regproduto.ptabela * p_regprecos.peracrescismopf / 100));
@@ -12997,13 +12992,10 @@ if p_regpedido.condvenda = 10 then
   
             END IF;
           ELSE
-            if ((((p_Regprecos.APLICAACRESCPJISENTA = 'S')
+            if (((p_Regprecos.APLICAACRESCPJISENTA = 'S')
                 and ((p_regcliente.IEENT = 'ISENTA')
                 or (p_regcliente.IEENT = 'ISENTO')))
-                or (((p_regcliente.TIPOFJ = 'F')
-                or (p_regcliente.CONSUMIDORFINAL = 'S'))
-                and (Trim(p_regcliente.IEENT) = '')))
-                and (p_regcliente.Contribuinte = 'N')) then
+                or ((vbpessoafisica) and (Trim(p_regcliente.IEENT) = ''))) then
   
               p_regproduto.ptabela := (p_regproduto.ptabela +
                                       (p_regproduto.ptabela * p_regprecos.peracrescismopf / 100));
@@ -16128,7 +16120,7 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
     vnQtdeLimiteAlvara         pcpedi.qt%type;
     --
     vvMsgPmcUf                 VARCHAR2(4000);
-    
+    vbpessoafisica             Boolean;
     vstipoaplicrepassetribut     pctribut.Tipoaplicrepassetribut%type;
 
     -- Variáveis para uso na função de obter Promoção - HIS.03889.2014
@@ -16321,6 +16313,7 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
     END PGRAVA_JSON_ITEM;
 
   begin
+    vbpessoafisica := (FERRAMENTAS.VERIFICAR_FJ(p_regpedido.codcli) = 'PESSOA FISICA');
 
     -- Inicializa Log do Item
     vtLogImportacaoItem.DELETE;
@@ -20325,12 +20318,10 @@ end if;
         THEN
           IF gregpcconsum.acrescimopfcomie = 'S'
           THEN
-            if ((((p_regprecos.APLICAACRESCPJISENTA = 'S')
+            if (((p_regprecos.APLICAACRESCPJISENTA = 'S')
                 and ((p_regcliente.IEENT = 'ISENTA')
                 or (p_regcliente.IEENT = 'ISENTO')))
-                or ((p_regcliente.TIPOFJ = 'F')
-                or (p_regcliente.CONSUMIDORFINAL = 'S')))
-                and (p_regcliente.Contribuinte = 'N')) THEN
+                or (vbpessoafisica)) THEN
   
               p_regproduto.ptabela := (p_regproduto.ptabela +
                                       (p_regproduto.ptabela * p_regprecos.peracrescismopf / 100));
@@ -20342,13 +20333,10 @@ end if;
   
             END IF;
           ELSE
-            if ((((p_Regprecos.APLICAACRESCPJISENTA = 'S')
+            if (((p_Regprecos.APLICAACRESCPJISENTA = 'S')
                 and ((p_regcliente.IEENT = 'ISENTA')
                 or (p_regcliente.IEENT = 'ISENTO')))
-                or (((p_regcliente.TIPOFJ = 'F')
-                or (p_regcliente.CONSUMIDORFINAL = 'S'))
-                and (Trim(p_regcliente.IEENT) = '')))
-                and (p_regcliente.Contribuinte = 'N')) then
+                or ((vbpessoafisica) and (Trim(p_regcliente.IEENT) = ''))) then
   
               p_regproduto.ptabela := (p_regproduto.ptabela +
                                       (p_regproduto.ptabela * p_regprecos.peracrescismopf / 100));
@@ -26276,6 +26264,7 @@ end proc_GravaLogConvEmbalagem;
     vnvlminvendabk          number(18,6);
     vnperluc                number(18,6);
     vnmargemminaplicada     number; -- MED-2079
+    vbpessoafisica          BOOLEAN;    
 
     -- MED-869
     TYPE TRetIntegradoraComple IS RECORD(
@@ -26354,7 +26343,8 @@ end proc_GravaLogConvEmbalagem;
     END PGRAVA_JSON_PED;
 
   begin
-
+    vbpessoafisica := (FERRAMENTAS.VERIFICAR_FJ(p_regpedido.codcli) = 'PESSOA FISICA');
+    
     -- Inicializa Log do Pedido - MED-1503
     vtLogImportacaoPed.DELETE;
     -- Inicializa Json do Pedido - MED-1503
@@ -27330,7 +27320,7 @@ end proc_GravaLogConvEmbalagem;
 
     if ((nvl(p_regfilial.permitirvendaestadualpfcomie, 'S') = 'N') and
        (p_regcliente.estent = p_regfilial.uf) and
-       ((p_regcliente.tipofj = 'F') and (p_regcliente.CONTRIBUINTE = 'N') and
+       ((vbpessoafisica) and
        (trim(upper(p_regcliente.ieent)) <> '' and
        trim(upper(p_regcliente.ieent)) <> 'ISENTA' and
        trim(upper(p_regcliente.ieent)) <> 'ISENTO'))) then
@@ -27346,12 +27336,12 @@ end proc_GravaLogConvEmbalagem;
 
     end if;
 
-    if (nvl(p_regfilial.permitirvendaestadualpfsemie, 'S') = 'N') and
+    if ((nvl(p_regfilial.permitirvendaestadualpfsemie, 'S') = 'N') and
        (p_regcliente.estent = p_regfilial.uf) and
-       ((p_regcliente.tipofj = 'F') and (p_regcliente.CONTRIBUINTE = 'N') and
+       ((vbpessoafisica) and
        (trim(upper(p_regcliente.ieent)) = '' or
        trim(upper(p_regcliente.ieent)) = 'ISENTA' or
-       trim(upper(p_regcliente.ieent)) = 'ISENTO')) then
+       trim(upper(p_regcliente.ieent)) = 'ISENTO'))) then
       p_regpedido.valido := false;
       vsmensagem         := vsmensagem || vschar ||
                             'VENDA ESTADUAL PARA PESSOA FISICA SEM/ISENTA INSC ESTADUAL NAO PERMITIDA NESTA FILIAL';
