@@ -185,7 +185,6 @@ BEGIN
   IF VCOUNT > 0 THEN
     RETURN 'S';
   END IF;
-
   --Carregamento: Verifica se validar o volume impresso da etiqueta, conforme parametro na tela (não mudar este texto)
 
   --Verificando se na carga existem Tiposs de agrupamento
@@ -263,7 +262,7 @@ BEGIN
      AND PCPEDC.CONDVENDA NOT IN (4, 7, 14)
      AND NVL(PCPRODUT.USAWMS, 'N') = 'S';
   IF VCOUNT = 0 THEN
-    RETURN 'N';
+      RETURN 'N';
   END IF;
 
   --Verificando se a pedidos com produtos que usam wms que ainda não foramr importados
