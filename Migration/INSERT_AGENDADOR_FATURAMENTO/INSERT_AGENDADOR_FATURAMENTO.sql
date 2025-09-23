@@ -69,7 +69,7 @@ BEGIN
 	VALUES (DFSEQ_PCAGENDADORCONFIGURACAO.NEXTVAL,
 			v_codagendadormalha,
 			'* * * * * * 0 *',
-			NULL,
+			'A',
 			'N');
   END IF;		
 
