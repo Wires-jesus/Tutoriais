@@ -1,4 +1,5 @@
 {
     "nome": "INSERT_AGENDADOR_FATURAMENTO",
-    "tipoPLSQL": "MIGRATION"
+    "tipoPLSQL": "MIGRATION",
+	"dependencias":[]
   }
