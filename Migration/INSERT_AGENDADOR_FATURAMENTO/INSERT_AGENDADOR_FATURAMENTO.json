@@ -1,41 +1,5 @@
 {
     "nome": "INSERT_AGENDADOR_FATURAMENTO",
     "tipoPLSQL": "MIGRATION",
-	"dependencias":[
-    {
-      "nome": "PCCONFIGFATURAMENTOGATILHO",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },
-    {
-      "nome": "PCCONFIGFATURAMENTOPADRAO",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },	
-    {
-      "nome": "PCAGENDADORTAREFA",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },
-    {
-      "nome": "PCAGENDADORMALHA",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },		
-    {
-      "nome": "PCAGENDADORCONFIGURACAO",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },
-    {
-      "nome": "PCAGENDADORMALHATAREFA",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    },
-    {
-      "nome": "PCAGENDADOREXECUCAO",
-      "tipo": "TABELA",
-      "versao": "7.0.01.000"
-    }	
-	]
+	"dependencias":[]
   }
