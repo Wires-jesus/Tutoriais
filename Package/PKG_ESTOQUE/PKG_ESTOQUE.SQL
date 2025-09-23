@@ -820,6 +820,9 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
                                ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                                ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
                                ,pnQTD             IN PCPEDI.QT%TYPE
+                               ,pnQTPECAS         IN PCPEDI.QTPECAS%TYPE
+                               ,pnQTCX            IN PCPEDI.QTCX%TYPE
+                               ,pnQTDIFPESO       IN PCPEDI.QTDIFPESO%TYPE
                                ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
                                ,psMSG_RETORNO     OUT VARCHAR2)
   RETURN VARCHAR2;

@@ -17223,6 +17223,9 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                                ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                                ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
                                ,pnQTD             IN PCPEDI.QT%TYPE
+                               ,pnQTPECAS         IN PCPEDI.QTPECAS%TYPE
+                               ,pnQTCX            IN PCPEDI.QTCX%TYPE
+                               ,pnQTDIFPESO       IN PCPEDI.QTDIFPESO%TYPE
                                ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
                                ,psMSG_RETORNO     OUT VARCHAR2)
   RETURN VARCHAR2
@@ -17245,7 +17248,10 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
       
       -- Atualizar quantidade do item na mesma transação que irá alterar a reserva
       UPDATE PCPEDI
-         SET QT = pnQTD
+         SET QT = pnQTD,
+             QTPECAS = pnQTPECAS,
+             QTCX = pnQTCX,
+             QTDIFPESO = pnQTDIFPESO
       WHERE NUMPED = pnIDENTIFICADOR
       AND CODPROD = pnCODPROD
       AND NUMSEQ = pnNUMSEQ;
