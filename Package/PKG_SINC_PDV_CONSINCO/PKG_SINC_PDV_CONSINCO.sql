@@ -17,15 +17,15 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   FUNCTION obter_seqloteestoque RETURN NUMBER;
 
-  FUNCTION obter_seqcenariocondicao RETURN NUMBER;
+  -- FUNCTION obter_seqcenariocondicao RETURN NUMBER;
 
-  FUNCTION obter_seqcenariocondicaoitem RETURN NUMBER;
+  -- FUNCTION obter_seqcenariocondicaoitem RETURN NUMBER;
 
-  FUNCTION obter_seqcodigotributacao RETURN NUMBER;
+  -- FUNCTION obter_seqcodigotributacao RETURN NUMBER;
 
-  FUNCTION obter_seqcenarioimposto RETURN NUMBER;
+  -- FUNCTION obter_seqcenarioimposto RETURN NUMBER;
   
-  FUNCTION obter_seqcenarioimpostomun RETURN NUMBER;
+  -- FUNCTION obter_seqcenarioimpostomun RETURN NUMBER;
 
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
 
@@ -195,27 +195,27 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_loteestoque(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctcenario(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcenario(p_id IN pccontroleconsinco.id%TYPE);
   
-  PROCEDURE carrega_tb_cctcondicao(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcondicao(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctcenariocondicao(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcenariocondicao(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctcenconditem(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcenconditem(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctimposto(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctimposto(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctformula(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctformula(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctcodigotributario(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcodigotributario(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctcenarioimposto(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcenarioimposto(p_id IN pccontroleconsinco.id%TYPE);
   
   PROCEDURE carrega_tb_regradestino(p_id IN pccontroleconsinco.id%TYPE);  
 
-  PROCEDURE carrega_tb_cctcenarioimpmun(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctcenarioimpmun(p_id IN pccontroleconsinco.id%TYPE);
 
-  PROCEDURE carrega_tb_cctconfiguracao(p_id IN pccontroleconsinco.id%TYPE);
+  -- PROCEDURE carrega_tb_cctconfiguracao(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE exec_sinc;
 
