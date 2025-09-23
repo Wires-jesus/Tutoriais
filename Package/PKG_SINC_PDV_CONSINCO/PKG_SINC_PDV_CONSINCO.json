@@ -175,7 +175,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
 			"tipo": "MIGRATION",
-			"versao": "7.0.24.000"
+			"versao": "8.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
@@ -205,7 +205,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
 			"tipo": "MIGRATION",
-			"versao": "7.0.07.000"
+			"versao": "8.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
@@ -426,11 +426,6 @@
 		  "nome": "PROCESSO_INT_C5_AJUSTE_SEQUENCES",
 		  "tipo": "MIGRATION",
 		  "versao": "7.0.02.000"
-		},
-		{
-		  "nome": "PROCESSO_INT_C5_REFTRIB",
-		  "tipo": "MIGRATION",
-		  "versao": "8.0.04.000"
 		},
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_GRUPO_CLIENTE",
