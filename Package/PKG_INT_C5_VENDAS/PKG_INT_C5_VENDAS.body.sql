@@ -438,8 +438,8 @@ IS
                      rowvw_pcpediecf.vlfecp AS "Vlfecp",
                      rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
                      rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
-                     rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa",
-                     rowvw_pcpediecf.CODIGOTRIBUTACAOIS AS "Codigotributacaois",
+                     rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa"
+                     /*rowvw_pcpediecf.CODIGOTRIBUTACAOIS AS "Codigotributacaois",
                      rowvw_pcpediecf.CSTIS AS "Cstis",
                      rowvw_pcpediecf.CCLASSTRIBIS AS "Cclasstribis",
                      rowvw_pcpediecf.VLBASEIS AS "Vlbaseis",
@@ -465,7 +465,7 @@ IS
                      rowvw_pcpediecf.PALIQEFETIBSMUN AS "Paliqefetibsmun" ,
                      rowvw_pcpediecf.VIBSMUN AS "Vibsmun" ,
                      rowvw_pcpediecf.ALIQCBS AS "Aliqcbs",
-                     rowvw_pcpediecf.VLCBS AS "Vlcbs"
+                     rowvw_pcpediecf.VLCBS AS "Vlcbs"*/
                      ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
@@ -957,8 +957,8 @@ IS
                         VW.BASEBCR                AS "Basebcr",
                         VW.STBCR                  AS "Stbcr",
                         VW.CODFORNEC              AS "Codfornec",
-                        VW.VLDESCITEM             AS "Vldescitem",
-                        VW.CODIGOTRIBUTACAOIS     AS "Codigotributacaois",
+                        VW.VLDESCITEM             AS "Vldescitem"
+                        /*VW.CODIGOTRIBUTACAOIS     AS "Codigotributacaois",
                         VW.CSTIS                  AS "Cstis",
                         VW.CCLASSTRIBIS           AS "Cclasstribis",
                         VW.VLBASEIS               AS "Vlbaseis",
@@ -984,7 +984,7 @@ IS
                         VW.PALIQEFETIBSMUN        AS "Paliqefetibsmun" ,
                         VW.VIBSMUN                AS "Vibsmun" ,
                   VW.ALIQCBS                AS "Aliqcbs",
-                        VW.VLCBS                  AS "Vlcbs"
+                        VW.VLCBS                  AS "Vlcbs"*/
                       )
                     )
                   )
