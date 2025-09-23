@@ -857,7 +857,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/12/2017     Fernandes Brito   0                   Criada procedure unica para atualização de dados na tabela PCLOTE
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_ATUALIZAR_DEPOSITO
   IS-- Declaração das variáveis internas
   BEGIN
@@ -957,7 +957,7 @@ IS
   03/12/2017     Fernandes Brito   0                   Criada procedure unica para atualização de dados na tabela PCLOTE
   21/05/2020     Fernandes Brito   0                   Retirada as variáveis globais para uso em processos ficando apenas as variáveis globais
                                                        para a gravação do log. Desta forma visamos a diminuir o risto de erros e melhorar o entendimento da PKG_ESTOQUE.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_CALCULAR_DEPOSITO (ptESTOQUE_DEPOSITO  IN T_ESTOQUE_DEPOSITO
                                    ,psMSG_RETORNO       OUT PCLOGPKG_ESTOQUE.MSG_RETORNO%TYPE)
   IS-- Declaração das variáveis internas
@@ -1082,7 +1082,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/12/2017     Fernandes Brito   0                   Criada procedure unica para atualização de dados na tabela PCEST
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_ATUALIZAR_ESTOQUE
   IS-- Declaração das variáveis internas
   BEGIN
@@ -1402,7 +1402,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/12/2017     Fernandes Brito   0                   Criada procedure unica para atualização de dados na tabela PCLOTE
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_ATUALIZAR_LOTE
   IS-- Declaração das variáveis internas
   BEGIN
@@ -1501,7 +1501,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   07/12/2017     Fernandes Brito   0                   Criada procedure unica para atualização da movimentação de avaria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_ATUALIZAR_PCMOVAVARIA (ptAVARIA       IN OUT PCMOVAVARIA%ROWTYPE
                                        ,psOPERACAO     IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE)
 
@@ -1625,7 +1625,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   19/08/2017     Fernandes Brito   0                   Bloquear o estoque pendente do item na PCEST
   26/03/2019     Fernandes Brito   WT500-395           Incluido o bloqueio da PCEST único e excluido os demais
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_BLOQUEAR_ESTOQUE (psCODFILIAL     IN PCEST.CODFILIAL%TYPE
                                   ,pnCODPROD       IN PCEST.CODPROD%TYPE
                                   ,psMSG_RETORNO   OUT VARCHAR2)
@@ -1670,7 +1670,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   18/05/2020     Fernandes Brito   DDESTOQUE-4758      Bloquear o estoque do depósito para atualização
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_BLOQUEAR_DEPOSITO (psCODFILIAL     IN PCEST.CODFILIAL%TYPE
                                    ,pnCODDEPOSITO   IN PCESTOQUEDEPOSITO.CODDEPOSITO%TYPE
                                    ,pnCODPROD       IN PCEST.CODPROD%TYPE
@@ -1707,7 +1707,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   16/08/2017     Fernandes Brito   0                   Atualização do reservado na PCLOTE
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_BLOQUEAR_LOTE
   IS-- Declaração das variáveis internas
   BEGIN
@@ -1731,7 +1731,7 @@ IS
   Data           Autor              Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   16/09/2020     Marcelo Hakenhoar  DDLEGFIN-871        Criado a procedure para administrar o processo de transferência na saída da TV10.
-  /***********************************************************************************************************************/  
+  ************************************************************************************************************************/  
   PROCEDURE PRIV_COMPRAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
                                   ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
                                   ,pnNUMTRANSACAO  IN PCNFENT.NUMTRANSENT%TYPE
@@ -1905,7 +1905,7 @@ IS
   INFORMAÇÕES IMPORTANTES:
   Esta função deve ser chamada sempre que houver a necessidade de validar a quantidade contida na transação antes da execução da PKG_ESTOQUE
   Esta função NUNCA PODE FAZER COMANDO DE ALTERAÇÃO
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   PROCEDURE PRIV_CONS_DADOS_ANTERIORES (pnIDENTIFICADOR IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                        ,pnCODPROD       IN PCPEDI.CODPROD%TYPE
                                        ,pnNUMSEQ        IN PCPEDI.NUMSEQ%TYPE
@@ -2031,7 +2031,7 @@ IS
   INFORMAÇÕES IMPORTANTES:
   Esta função deve ser chamada sempre que houver a necessidade de validar a quantidade contida na transação antes da execução da PKG_ESTOQUE
   Esta função NUNCA PODE FAZER COMANDO DE ALTERAÇÃO
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   FUNCTION PRIV_CONS_MOV_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                     ,pnNUMTRANSVENDA   IN PCMOV.NUMTRANSVENDA%TYPE
                                     ,pnNUMTRANSENT     IN PCMOV.NUMTRANSENT%TYPE
@@ -2104,7 +2104,7 @@ IS
   INFORMAÇÕES IMPORTANTES:
   Esta função deve ser chamada sempre que houver a necessidade de validar a quantidade contida na transação antes da execução da PKG_ESTOQUE
   Esta função NUNCA PODE FAZER COMANDO DE ALTERAÇÃO
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   FUNCTION PRIV_CONS_OP_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE,
                                     pnCODPROD         IN PCPRODUT.CODPROD%TYPE)
   RETURN TB_DADOS_PEDIDO PIPELINED
@@ -2146,7 +2146,7 @@ IS
   INFORMAÇÕES IMPORTANTES:
   Esta função deve ser chamada sempre que houver a necessidade de validar a quantidade contida na transação antes da execução da PKG_ESTOQUE
   Esta função NUNCA PODE FAZER COMANDO DE ALTERAÇÃO
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   FUNCTION PRIV_CONS_PEDIDOS_ANTERIORES (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                         ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                                         ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE)
@@ -2190,7 +2190,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   21/11/2017    Fernandes Brito    0                   Consultar informações do estoque do produto na filial
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   PROCEDURE PRIV_CONS_ESTOQUE_ATUAL (ptESTOQUE IN OUT PCEST%ROWTYPE)
   IS-- Declaração das variáveis internas
   BEGIN
@@ -2213,7 +2213,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/11/2017    Fernandes Brito    0                   Consultar informações de histórico do estoque do produto na filial
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   PROCEDURE PRIV_CONS_HISTORICO (ptHISTORICO IN OUT PCHISTEST%ROWTYPE)
   IS-- Declaração das variáveis internas
   BEGIN
@@ -2246,7 +2246,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/12/2017    Fernandes Brito    0                   Consultar informações do lote do produto para a filial
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   PROCEDURE PRIV_CONS_LOTE
   IS-- Declaração das variáveis internas
   BEGIN
@@ -2275,7 +2275,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   21/08/2017    Fernandes Brito    0                   Consultar informações e parâmetros do produto
-  /**********************************************************************************************************************************************************/
+  ***********************************************************************************************************************************************************/
   PROCEDURE PRIV_CONS_PRODUTO (pnCODPROD         IN PCPRODUT.CODPROD%TYPE
                               ,psUSAWMS          OUT PCPRODUT.USAWMS%TYPE
                               ,psESTOQUEPORLOTE  OUT PCPRODUT.ESTOQUEPORLOTE%TYPE
@@ -2482,7 +2482,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   17/03/2020     Fernandes Brito   0                   Criada função para buscar a quantidade existe no estoque do depósito atualmente
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION PRIV_DEP_ESTOQUE_ATUAL
   RETURN NUMBER
   IS-- Declaração das variáveis internas
@@ -2513,7 +2513,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   12/03/2020     Fernandes Brito   0                   Criada função para buscar o código padrão de armazenagem do depósito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION PRIV_DEP_PADRAO_ARMAZENAGEM
   RETURN NUMBER
   IS-- Declaração das variáveis internas
@@ -2550,7 +2550,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   12/03/2020     Fernandes Brito   0                   Criada função para buscar o código padrão de venda do depósito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION PRIV_DEP_PADRAO_VENDA
   RETURN NUMBER
   IS-- Declaração das variáveis internas
@@ -2762,7 +2762,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na entrada de mercadoria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_COMPRAS_ENTRADA
   IS-- Declaração das variáveis internas
     vtESTOQUE_DEPOSITO T_ESTOQUE_DEPOSITO;
@@ -2837,7 +2837,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   09/03/2020     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na devolução
                                                        de aquisição de mercadorias.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_COMPRAS_SAIDA
   IS-- Declaração das variáveis internas
     vtESTOQUE_DEPOSITO T_ESTOQUE_DEPOSITO;
@@ -3037,7 +3037,7 @@ IS
   30/05/2019     Fernandes Brito   0                   Criada procedure para fechar a requisição de transferência entre depósito
   21/05/2020     Fernandes Brito   0                   Retirada as variáveis globais para uso em processos ficando apenas as variáveis globais
                                                        para a gravação do log. Desta forma visamos a diminuir o risto de erros e melhorar o entendimento da PKG_ESTOQUE.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_FECHAR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                             ,psMSG_RETORNO     OUT PCLOGPKG_ESTOQUE.MSG_RETORNO%TYPE)
   IS-- Declaração das variáveis internas
@@ -3065,7 +3065,7 @@ IS
   30/05/2019     Fernandes Brito   0                   Criada procedure para inserir dados da movimentação entre depósito
   21/05/2020     Fernandes Brito   0                   Retirada as variáveis globais para uso em processos ficando apenas as variáveis globais
                                                        para a gravação do log. Desta forma visamos a diminuir o risto de erros e melhorar o entendimento da PKG_ESTOQUE.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_MOVIMENTACAO (ptMOVIMENTACAO_DEPOSITO  IN T_MOVIMENTACAO_DEPOSITO
                                   ,psMSG_RETORNO            OUT PCLOGPKG_ESTOQUE.MSG_RETORNO%TYPE)
   IS-- Declaração das variáveis internas
@@ -3257,7 +3257,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para incluir a requisição de transferência entre depósito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_INCLUIR_REQUISICAO (ptREQUISICAO IN OUT PCREQUISICAODEPOSITO%ROWTYPE)
   IS
     -- Declaração das variáveis
@@ -3370,7 +3370,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   17/10/2019     Fernandes Brito   0                   Criada procedure para controlar as movimentações de inventário do depósito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_INVENTARIO (ptINVENTARIO IN T_INVENTARIO)
   IS-- Declaração das variáveis internas
     vtMOVIMENTACAO_DEPOSITO T_MOVIMENTACAO_DEPOSITO;
@@ -3696,7 +3696,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na saída da mercadoria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_VENDAS_SAIDA
   IS-- Declaração das variáveis internas
     vtESTOQUE_DEPOSITO T_ESTOQUE_DEPOSITO;
@@ -3778,7 +3778,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na entrada de mercadoria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_VENDAS_ENTRADA
   IS-- Declaração das variáveis internas
     vtESTOQUE_DEPOSITO T_ESTOQUE_DEPOSITO;
@@ -4004,7 +4004,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   07/07/2021    DAVI BERNADO       DDESTOQUE-9057      INCLUIR RESERVA DO LOTE
-  /************************************************************************************************************************/
+  *************************************************************************************************************************/
   FUNCTION PRIV_LOTE_RESERVA_BAIXAR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                     ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                                     ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
@@ -4301,7 +4301,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   07/07/2021    DAVI BERNADO       DDESTOQUE-9057      INCLUIR RESERVA DO LOTE
-  /************************************************************************************************************************/
+  *************************************************************************************************************************/
   FUNCTION PRIV_LOTE_RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                      ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                                      ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
@@ -4766,7 +4766,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   29/08/2019     Hugo Aquino       0                   Criada a procedure para enviar mensagem ao RCA ao desebloquear a mercadoria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_MSG_RCA (psCODFILIAL   IN PCEST.CODFILIAL%TYPE
                          ,pnCODPROD     IN PCEST.CODPROD%TYPE)
   IS-- Declaração das variáveis internas
@@ -4840,7 +4840,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Procedure de criação e manipulação dos dados analitico da reserva do produto
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_RESERVA_ANALITICA (pnIDENTIFICADOR      IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                    ,pnCODPROD            IN PCPEDI.CODPROD%TYPE
                                    ,pnNUMSEQ             IN PCPEDI.NUMSEQ%TYPE
@@ -5075,7 +5075,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   28/10/2020     Davi Bernado      DDESTOQUE-7214      Criada para validar estoque disponivel para devolução
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_VALIDA_EST_DISPONIVEL_DEV ( pnCODPROD           IN PCMOV.CODPROD%TYPE
                                             ,psCODFILIAL         IN PCMOV.CODFILIAL%TYPE
                                             ,pnQTDE              IN PCMOV.QT%TYPE
@@ -5296,7 +5296,7 @@ IS
   Data           Autor              Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   16/09/2020     Marcelo Hakenhoar  DDLEGFIN-871        Criado a procedure para administrar o processo de transferência na saída da TV10.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PRIV_VENDAS_TERCEIRO (pnCODPROD       IN PCPRODUT.CODPROD%TYPE
                                  ,pbEH_TV10       IN BOOLEAN
                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
@@ -5415,7 +5415,7 @@ IS
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/09/2024     DAVI BERNADO        DDESTOQUE-18956     Alteração 
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   
   PROCEDURE PRIV_DEVOLUCAO_AVARIA(pnCODPROD       IN PCPRODUT.CODPROD%TYPE
                                  ,psECANCELAMENTO IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
@@ -5458,7 +5458,7 @@ IS
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/02/2021     Fernandes Brito     0                   Criada procedure que executa a reserva item a item.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PROT_PROCESSAR_ESTOQUE (ptFATURAR IN OUT TYPE_FATURAR)
   IS-- Declaração das variáveis internas
     vtDADOS_MOVIMENTACAO          TYPE_DADOS_MOV;
@@ -5694,7 +5694,7 @@ IS
   Data           Autor               Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   03/02/2021     Fernandes Brito     0                   Criada procedure que executa a reserva item a item.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PROT_PROCESSAR_RESERVA (ptRESERVA IN TYPE_RESERVA)
   IS-- Declaração das variáveis internas
     vtDADOS_PEDIDO                TYPE_DADOS_PEDIDO;
@@ -6081,7 +6081,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   20/10/2019     Fernandes Brito   0                   Criada procedure para Administra regras de negócio e validações ferentes
                                                        aos processos de industria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PROT_ADMINISTRAR_ESTOQUE (ptFATURAR IN OUT TYPE_FATURAR)
   IS-- Declaração das variáveis internas
     vsRETORNO      NUMBER;
@@ -6250,7 +6250,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   20/10/2019     Fernandes Brito   0                   Criada procedure para Administra regras de negócio e validações ferentes
                                                        aos processos de industria
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PROT_ADMINISTRAR_INDUSTRIA (ptINDUSTRIA IN OUT T_INDUSTRIA)
   IS-- Declaração das variáveis internas
     vENTRADA  T_ENTRADA;
@@ -6296,7 +6296,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   20/10/2019     Fernandes Brito   0                   Criada procedure para Administra regras de negócio e validações ferentes
                                                        aos processos de múltiplos depósitos
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE PROT_ADMINISTRAR_INVENTARIO (ptINVENTARIO IN T_INVENTARIO)
   IS-- Declaração das variáveis internas
   BEGIN
@@ -6461,7 +6461,7 @@ IS
   -------------------------------------------------------------------------------------------------------------------------
   20/10/2019     Fernandes Brito   0                   Criada função para validar parâmetros de entrada da orquestradora
   01/02/2021     Fernandes Brito   0                   Alterada a função para validar parâmetros de entrada da orquestradora da reserva
-  /***********************************************************************************************************************/-- 1 - Regra: Tem que ser uma operação valida.
+  ************************************************************************************************************************/-- 1 - Regra: Tem que ser uma operação valida.
   FUNCTION PROT_VALIDAR_PARAMETROS
   RETURN BOOLEAN
   IS-- Declaração das variáveis internas
@@ -6646,7 +6646,7 @@ IS
                                                          das regras de inventários.
   28/01/2021     Fernandes Brito     0                   Criada regra para validar conceitos de negócio para reservar/pendente
                                                          usando como base o dados do pedido de venda.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION ADMINISTRAR_ESTOQUE (p_ENTRADA IN OUT T_ENTRADA)
   RETURN VARCHAR2
   IS-- Declaração das variáveis internas
@@ -11289,7 +11289,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para transferir o estoque da PCEST para o estoque do depósito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE DEPOSITO_POPULAR_ESTOQUE (psCODFILIAL     IN PCESTOQUEDEPOSITOPROD.CODFILIAL%TYPE
                                      ,pnCODFUNCLANC   IN PCESTOQUEDEPOSITOPROD.CODFUNCLANC%TYPE
                                      ,pbCOMMIT        IN BOOLEAN
@@ -11496,7 +11496,7 @@ IS
   30/05/2019     Fernandes Brito   0                   Criada procedure para transferir a quantidade requisitada de um depósito para o outro
   21/05/2020     Fernandes Brito   0                   Retirada as variáveis globais para uso em processos ficando apenas as variáveis globais
                                                        para a gravação do log. Desta forma visamos a diminuir o risto de erros e melhorar o entendimento da PKG_ESTOQUE.
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   PROCEDURE DEPOSITO_TRANSFERENCIA (pnCODREQUISICAO     IN NUMBER
                                    ,psMSG_RETORNO       OUT VARCHAR2)
   IS-- Declaração das variáveis internas
@@ -11609,7 +11609,7 @@ IS
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   22/05/2025     Davi Bernado      DDESTOQUE-20703     Criação de metodo para cancelar requisições de deposito
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION DEP_CANCELAR_REQUISICAO (vnCODREQUISICAO  IN   PCREQUISICAODEPOSITO.CODREQUISICAO%TYPE
                                    ,vnMOTIVO         IN   PCREQUISICAODEPOSITO.MOTIVO_CANCELAMENTO%TYPE
                                    ,vnCODFUNC_CANCEL IN   PCREQUISICAODEPOSITO.CODFUNC_CANCEL%TYPE
@@ -12598,7 +12598,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada função para buscar o estoque disponível do depósito na filial
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION ESTOQUE_DISPONIVEL_DEPOSITO (pnCODPROD      IN PCESTOQUEDEPOSITOPROD.CODPROD%TYPE
                                        ,psCODFILIAL    IN PCESTOQUEDEPOSITOPROD.CODFILIAL%TYPE
                                        ,pnCODDEPOSITO  IN PCESTOQUEDEPOSITOPROD.CODDEPOSITO%TYPE
@@ -12776,7 +12776,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   12/03/2025     DAVI BERNADO      DDESTOQUE-20081     Retorna filial gerencial
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD       IN PCMOV.CODPROD%TYPE    
                                     ,pnNUMSEQ        IN PCMOV.NUMSEQ%TYPE                                  
                                     ,psOPERACAO      IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE                                      
@@ -12817,7 +12817,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   07/07/2017     Fernandes Brito   0                   Incluir Qt. Frente Loja para controle do disponível
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION FRENTELOJA_ATUALIZAR_PCEST (psCODFILIAL     IN PCPEDC.CODFILIAL%TYPE
                                       ,pnCODPROD       IN PCPEDI.CODPROD%TYPE
                                       ,pnQTDE          IN PCPEDI.QT%TYPE
@@ -12914,7 +12914,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   22/08/2017     Fernandes Brito   0                   Criada a função para voltar estoque da devolução da ordem de serviço avulsa
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION INDUSTRIA_DEVOLUCAO_AVULSA (pnNUMTRANSAVULSA IN PCOPC.NUMOP%TYPE
                                       ,pnNUMOP          IN PCOPC.NUMOP%TYPE
                                       ,psCODFILIAL      IN PCFILIAL.CODIGO%TYPE
@@ -13082,7 +13082,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   28/02/2018     Waldes Souza      LOG-2345            Criada a função
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION INDUSTRIA_DESBLOQUEAR (pnNUMREMESSA     IN PCREMESSAPRODUCAO.NUMREMESSA%TYPE
                                  ,PSCANCELAMENTO   IN PCLOGPKG_ESTOQUE.CANCELAMENTO%TYPE
                                  ,psMSG_RETORNO  OUT VARCHAR2)
@@ -15031,7 +15031,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   16/08/2017     Fernandes Brito   0                   Incluir a reserva do lote
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 /*  FUNCTION RESERVA_LOTE_INCLUIR (pnIDENTIFICADOR IN NUMBER
                                 ,pnCODPROD       IN PCPEDI.CODPROD%TYPE
                                 ,pnNUMSEQ        IN PCPEDI.NUMSEQ%TYPE
@@ -15050,7 +15050,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   00/00/0000     Fernandes Brito   0                   Baixar a reserva lote
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 /*  FUNCTION RESERVA_LOTE_BAIXAR (pnIDENTIFICADOR  IN NUMBER
                                ,pnCODPROD        IN PCPEDI.CODPROD%TYPE
                                ,pnNUMSEQ         IN PCPEDI.NUMSEQ%TYPE
@@ -15069,7 +15069,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   00/00/0000     Fernandes Brito   0                   Alterar a reserva do lote
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 /*  FUNCTION RESERVA_LOTE_ALTERAR (pnIDENTIFICADOR  IN NUMBER
                                 ,pnCODPROD        IN PCPEDI.CODPROD%TYPE
                                 ,pnNUMSEQ         IN PCPEDI.NUMSEQ%TYPE
@@ -15088,7 +15088,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   00/00/0000     Fernandes Brito   0                   Incluir a reserva do lote por pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
  /* FUNCTION RESERVA_LOTE_INCLUIR_PEDIDO (pnIDENTIFICADOR  IN NUMBER
                                        ,psOPERACAO       IN VARCHAR2
                                        ,psMSG_RETORNO    OUT VARCHAR2)
@@ -15116,7 +15116,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   00/00/0000    Fernandes Brito    0                   Baixar a reservar do lote por pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 /*  FUNCTION RESERVA_LOTE_BAIXAR_PEDIDO(pnIDENTIFICADOR IN NUMBER
                                      ,psOPERACAO      IN VARCHAR2
                                      ,psMSG_RETORNO   OUT VARCHAR2)
@@ -15131,7 +15131,7 @@ END IF;
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   00/00/0000    Fernandes Brito    0                   Alterar a reservar do lote por pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 /*  FUNCTION RESERVA_LOTE_ALTERAR_PEDIDO(pnIDENTIFICADOR IN NUMBER
                                       ,psOPERACAO      IN VARCHAR2
                                       ,psMSG_RETORNO   OUT VARCHAR2)
@@ -15147,7 +15147,7 @@ END IF;
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017     Fernandes Brito   0                   Incluir item na reserva
   22/08/2019     Anderson Silva    DDMEDICA-620        Processos de Pedido Avaria e Pedido CrossDocking - MEDICAMENTOS
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
 FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                            ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                            ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
@@ -15908,7 +15908,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Baixar reserva de estoque
   22/08/2019    Anderson Silva     DDMEDICA-620        Processos de Pedido Avaria e Pedido CrossDocking - MEDICAMENTOS
-  /************************************************************************************************************************/
+  *************************************************************************************************************************/
   FUNCTION RESERVA_BAIXAR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                           ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                           ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
@@ -16456,7 +16456,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Alterar reservar de estoque da transação
-  /************************************************************************************************************************/
+  *************************************************************************************************************************/
   FUNCTION RESERVA_ALTERAR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                            ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
                            ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
@@ -16839,7 +16839,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Incluir reservar de estoque do pedido
-  /************************************************************************************************************************/
+  *************************************************************************************************************************/
   FUNCTION RESERVA_INCLUIR_PEDIDO (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                   ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
                                   ,psMSG_RETORNO     OUT VARCHAR2)
@@ -16985,7 +16985,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Baixar reservar de estoque do pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION RESERVA_BAIXAR_PEDIDO (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                  ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
                                  ,psMSG_RETORNO     OUT VARCHAR2)
@@ -17144,7 +17144,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
   01/03/2017    Fernandes Brito    0                   Alterar reservar de estoque do pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION RESERVA_ALTERAR_PEDIDO (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
                                   ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
                                   ,psMSG_RETORNO     OUT VARCHAR2)
@@ -17216,8 +17216,75 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
+  23/09/2025    Anderson Messias   DDESTOQUE-21178     Alterar reserva de estoque chamando pelo APP Meu Winthor RF 
+  (Motivo: Java não segura a transação como ocorre no Delphi, impedindo funcionamento correto do método PRIV_CONS_DADOS_ANTERIORES)
+  ************************************************************************************************************************/
+  FUNCTION RESERVA_ALTERAR_RF (pnIDENTIFICADOR    IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
+                               ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
+                               ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
+                               ,pnQTD             IN PCPEDI.QT%TYPE
+                               ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
+                               ,psMSG_RETORNO     OUT VARCHAR2)
+  RETURN VARCHAR2
+  IS-- Declaração das variáveis internas
+    vsVALIDO   VARCHAR2(1);
+  BEGIN
+    -- Limpar variável P_INTERNO
+    PRIV_LIMPAR_P_INTERNO;
+    -- Inserindo informações de debug (LOG)
+    psMSG_RETORNO             := P_INTERNO.MSG_RETORNO;
+    P_INTERNO.INFORMACOES_LOG := 'A rotina '||P_INTERNO.PROGRAMA||'iniciou a função reserva alterar RF';
+    P_INTERNO.NOME_FUNCAO     := 'RESERVA_ALTERAR_RF';
+    P_INTERNO.IDENTIFICADOR   := pnIDENTIFICADOR;
+    P_INTERNO.CODPROD         := pnCODPROD;
+    P_INTERNO.NUMSEQ          := pnNUMSEQ;
+    P_INTERNO.TIPO_OPERACAO   := psOPERACAO;
+    PRIV_GERARLOG;
+    --Operações validas
+    IF (psOPERACAO IN ('IN','BQ','AQ','CQ','FQ')) THEN
+      
+      -- Atualizar quantidade do item na mesma transação que irá alterar a reserva
+      UPDATE PCPEDI
+         SET QT = pnQTD
+      WHERE NUMPED = pnIDENTIFICADOR
+      AND CODPROD = pnCODPROD
+      AND NUMSEQ = pnNUMSEQ;
+    
+      -- Alterar a reserva do item
+      vsVALIDO := RESERVA_ALTERAR(pnIDENTIFICADOR, pnCODPROD, pnNUMSEQ, psOPERACAO, psMSG_RETORNO);
+
+      IF psMSG_RETORNO <> 'OK' THEN
+        P_INTERNO.MSG_RETORNO := psMSG_RETORNO;
+        PRIV_GERARLOG;
+        RETURN 'N';
+      END IF;
+
+    ELSE
+      psMSG_RETORNO := 'Erro 1 (Reserva Alterar RF): A operacaoo informada nao e valida'||CHR(13)||
+                         'Identificador: '||TO_CHAR(pnIDENTIFICADOR)||CHR(13)||
+                         'Produto......: '||TO_CHAR(pnCODPROD)||CHR(13)||
+                         'Sequencial...: '||TO_CHAR(pnNUMSEQ)||CHR(13)||
+                         'Operação.....: '||psOPERACAO;
+      PRIV_GERARLOG;
+      RETURN 'N';
+    -- Valido
+    END IF;
+    
+    -- Inserindo informações de debug (LOG)
+    P_INTERNO.INFORMACOES_LOG := 'A rotina '||P_INTERNO.PROGRAMA||' finalizou a função reserva alterar RF';
+    P_INTERNO.NOME_FUNCAO     := 'RESERVA_ALTERAR_RF';
+    PRIV_GERARLOG;
+    -- Valido?
+    RETURN vsVALIDO;
+  -- Função
+  END RESERVA_ALTERAR_RF;
+
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor             Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
   23/16/2020     Davi Bernado      0                   Criada a Função para validar a Filial do pedido
-  /***********************************************************************************************************************/
+  ************************************************************************************************************************/
   FUNCTION VALIDA_CODFILIAL_CEFAT( PNIDENTIFICADOR   IN PCPEDC.NUMPED%TYPE
                                   ,PNCODPROD         IN PCPEDI.CODPROD%TYPE
                                   ,PNNUMSEQ          IN PCPEDI.NUMSEQ%TYPE)
