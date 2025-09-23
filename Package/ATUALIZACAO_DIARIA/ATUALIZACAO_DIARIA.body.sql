@@ -1559,7 +1559,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
             (vtCODFILIAL(NX)
             ,vtCODPROD(NX)
             ,vtNBM(NX)
-            ,vtDESCRICAO(NX)
+            ,SUBSTR(vtDESCRICAO(NX), 0, 40)
             ,vtCLASSIFICFISCAL(NX)
             ,vtUNIDADE(NX)
             ,vtDATA(NX)

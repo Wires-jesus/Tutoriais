@@ -813,6 +813,17 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
                                   ,psMSG_RETORNO    OUT VARCHAR2)
   RETURN VARCHAR2;
 
+  /**********************************************************************************************/
+  /* Alterar reserva de estoque do pedido pelo APP Meu Winthor RF */
+  /**********************************************************************************************/
+  FUNCTION RESERVA_ALTERAR_RF (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE
+                               ,pnCODPROD         IN PCPEDI.CODPROD%TYPE
+                               ,pnNUMSEQ          IN PCPEDI.NUMSEQ%TYPE
+                               ,pnQTD             IN PCPEDI.QT%TYPE
+                               ,psOPERACAO        IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
+                               ,psMSG_RETORNO     OUT VARCHAR2)
+  RETURN VARCHAR2;
+
   /************************************************************************************************************************
   /* Valida filial que utiliza cfat*/
   /***********************************************************************************************************************/
