@@ -103,24 +103,17 @@ IS
 
     ----------------------------------------------------------------------------
     PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
-                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE)
+                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+									PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE)
     IS
         VNUMTRANSPAGADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
-        VUSUARIO              PCEMPR.USUARIOBD%TYPE;
-        VMATRICULA            PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE;
         VMENSAGEM             VARCHAR2(300);
         VPOSICAO              PCPEDC.POSICAO%TYPE;
         VPERMISSAO            VARCHAR2(1);
         VACESSO               PCCONTROI.ACESSO%TYPE;
     BEGIN
 
-        VUSUARIO  := SYS_CONTEXT('USERENV', 'OS_USER');
         PMENSAGEM := 'Pagamento antecipado não encontrado!';
-
-        SELECT PCEMPR.MATRICULA
-          INTO VMATRICULA
-          FROM PCEMPR
-         WHERE UPPER(PCEMPR.USUARIOBD) = UPPER(VUSUARIO);
 
         BEGIN
           SELECT NVL(PCCONTROI.ACESSO,'N')
@@ -128,7 +121,7 @@ IS
             FROM PCCONTROI                                     
                , PCROTINAI                                     
            WHERE PCCONTROI.CODROTINA   = 1295
-             AND PCCONTROI.CODUSUARIO  = VMATRICULA
+             AND PCCONTROI.CODUSUARIO  = PMATRICULA
              AND PCROTINAI.CODCONTROLE = 1
              AND PCCONTROI.CODROTINA   = PCROTINAI.CODROTINA   
              AND PCCONTROI.CODCONTROLE = PCROTINAI.CODCONTROLE;
@@ -247,12 +240,12 @@ IS
                                               DADOS.DTEMISSAOPED,               /*13*/
                                               DADOS.DTGERACAOPGTO,              /*14*/
                                               DADOS.MATRICULAGERACAO,           /*15*/
-                                              VMATRICULA,                       /*16*/
+                                              PMATRICULA,                       /*16*/
                                               SYSDATE,                          /*17*/
                                               VNUMTRANSPAGADIANTADO);           /*18*/
 
                 UPDATE PCPRESTANTECIPADA
-                   SET MATRICULAESTORNO     = VMATRICULA,
+                   SET MATRICULAESTORNO     = PMATRICULA,
                        DTESTORNO            = SYSDATE,
                        NUMTRANSESTORNO      = VNUMTRANSPAGADIANTADO,
                        STATUSPGTO           = 'CANCELADO'
@@ -273,19 +266,17 @@ IS
 
     ----------------------------------------------------------------------------
     PROCEDURE ATUALIZAR_STATUS(PMENSAGEM              OUT VARCHAR2,
-                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE)
+                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+							   PMATRICULA     		  PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE)
     IS
-        VUSUARIO       PCEMPR.USUARIOBD%TYPE;
         VNUMTRANS      PCMOVCR.NUMTRANS%TYPE;
         VROTINA        PCMOVCR.ROTINALANCAMENTO%TYPE;     
         VHORA          PCMOVCR.HORA%TYPE;
         VMINUTO        PCMOVCR.MINUTO%TYPE;  
-        VVLSALDO       PCMOVCR.VLSALDO%TYPE;
-        VMATRICULA     PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE;
+        VVLSALDO       PCMOVCR.VLSALDO%TYPE;        
         VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
         VVLTOTAL       PCPRESTANTECIPADA.VALOR%TYPE; 
     BEGIN
-        VUSUARIO  := SYS_CONTEXT('USERENV', 'OS_USER');
         VROTINA   := SYS_CONTEXT('USERENV', 'MODULE');
 
         SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
@@ -294,11 +285,6 @@ IS
           FROM DUAL;
 
         PMENSAGEM := 'Atualização realizada com sucesso!';     
-
-        SELECT PCEMPR.MATRICULA
-          INTO VMATRICULA
-          FROM PCEMPR
-         WHERE UPPER(PCEMPR.USUARIOBD) = UPPER(VUSUARIO);
 
         FOR DADOS IN (SELECT A.NUMTRANSPAGADIANTADO,                            /*01*/
                              A.CODCLI,                                          /*02*/
@@ -407,7 +393,7 @@ IS
                                     (VVLSALDO + DADOS.VALOR),
                                     VHORA,
                                     VMINUTO,
-                                    VMATRICULA,
+                                    PMATRICULA,
                                     'B',
                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
                                     1295,
@@ -438,11 +424,11 @@ IS
                                  TRUNC(SYSDATE),
                                  DADOS.CODFILIAL,
                                  VVLTOTAL,
-                                 VMATRICULA,
+                                 PMATRICULA,
                                  VHORA,
                                  VMINUTO,
                                  'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
-                                 VMATRICULA,
+                                 PMATRICULA,
                                  'S',
                                  DADOS.CODBCOCOBANTECIPADA,
                                  VNUMTRANS,
@@ -454,7 +440,7 @@ IS
             UPDATE PCPRESTANTECIPADA
                SET DTCONFIRMACAOPGTO    = TRUNC(SYSDATE),
                    DTPGTO               = DADOS.DTPGTO,
-                   MATRICULACONFIRMACAO = VMATRICULA,
+                   MATRICULACONFIRMACAO = PMATRICULA,
                    STATUSPGTO           = 'PAGO',
                    NUMTRANS             = VNUMTRANS,
                    VALOR                = VVLTOTAL
