@@ -12777,26 +12777,41 @@ END IF;
   -------------------------------------------------------------------------------------------------------------------------
   12/03/2025     DAVI BERNADO      DDESTOQUE-20081     Retorna filial gerencial
   ************************************************************************************************************************/
-  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD       IN PCMOV.CODPROD%TYPE    
-                                    ,pnNUMSEQ        IN PCMOV.NUMSEQ%TYPE                                  
-                                    ,psOPERACAO      IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE                                      
-                                    ,pnIDENTIFICADOR IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL)
+  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD           IN PCMOV.CODPROD%TYPE
+                                    ,pnNUMSEQ            IN PCMOV.NUMSEQ%TYPE
+                                    ,psOPERACAO          IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
+                                    ,pnIDENTIFICADOR     IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL
+                                    ,psDESBLOQUEIO_BONUS IN VARCHAR2 DEFAULT 'N')
   RETURN VARCHAR2
   IS
     VSCODFILIAL_GERENCIAL PCPEDC.CODFILIAL%TYPE;
   BEGIN
     IF psOPERACAO = 'E' THEN
-      SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
-                                              M.CODFILIALRETIRA, 
-                                              M.CODFILIALNF),'V',
-                                              DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',M.CODFILIAL,'N')), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
-                                              DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',M.CODFILIAL,'N')), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL) FILIAL_ESTOQUE
-        INTO VSCODFILIAL_GERENCIAL
-        FROM PCMOV M, PCNFENT E
-       WHERE M.CODPROD = pnCODPROD
-         AND M.NUMTRANSENT = E.NUMTRANSENT
-         AND M.NUMSEQ = pnNUMSEQ
-         AND E.NUMTRANSENT = pnIDENTIFICADOR;
+      IF psDESBLOQUEIO_BONUS = 'N' THEN     
+        SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                                M.CODFILIALRETIRA,
+                                                M.CODFILIALNF),'V',
+                                                DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',M.CODFILIAL,'N')), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
+                                                DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',M.CODFILIAL,'N')), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL) FILIAL_ESTOQUE
+          INTO VSCODFILIAL_GERENCIAL
+          FROM PCMOV M, PCNFENT E
+         WHERE M.CODPROD = pnCODPROD
+           AND M.NUMSEQ = pnNUMSEQ         
+           AND M.NUMTRANSENT = E.NUMTRANSENT         
+           AND E.NUMTRANSENT = pnIDENTIFICADOR;
+      ELSE
+        SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                                M.CODFILIALRETIRA,
+                                                M.CODFILIALNF),'V',
+                                                DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',M.CODFILIAL,'N')), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
+                                                DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',M.CODFILIAL,'N')), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL) FILIAL_ESTOQUE
+          INTO VSCODFILIAL_GERENCIAL
+          FROM PCMOV M, PCNFENT E
+         WHERE M.CODPROD = pnCODPROD
+           AND M.NUMSEQ = pnNUMSEQ         
+           AND M.NUMBONUS = E.NUMBONUS         
+           AND E.NUMBONUS = pnIDENTIFICADOR;
+      END IF;            
     ELSE
       SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
                                               M.CODFILIALRETIRA,
