@@ -175,6 +175,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
       
         LINHA_ORIGINAL.NUMLOTE                 := REGLOTES.NUMLOTE;
         LINHA_ORIGINAL.QT                      := vQTENTRADA_AJUSTE;
+        LINHA_ORIGINAL.QTCONT                  := vQTENTRADA_AJUSTE;
+        LINHA_ORIGINAL.ROTINALANC              := 'PKG_RECEBIMENTO';
         LINHA_ORIGINAL.QTAVARIA                := REGLOTES.QTAVARIA;
         LINHA_ORIGINAL.QTBLOQUEADA             := vQTENTRADA_AJUSTE;
         LINHA_ORIGINAL.CODOPER                 := 'EA';
@@ -187,13 +189,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
         LINHA_ORIGINAL.NUMTRANSITEM            := NULL;
         LINHA_ORIGINAL.DATAVALIDADE            := REGLOTES.DTVALIDADE;
         LINHA_ORIGINAL.DTMOV                   := TRUNC(SYSDATE);
-      
+
         ---GERAR ENTRADA DE AJUSTE---
         INSERT INTO PCMOV VALUES LINHA_ORIGINAL;
-      
+
         vQTSAIDA_AJUSTE := REGLOTES.QTAJUSTEDEENTRADA;
         ----BUSCAR OS LOTES QUE ESTÃO APTOS A RECEBER A SAÍDA DE AJUSTE----
-      
+
         FOR REGLOTESAIDAAJUSTE IN (SELECT M.ROWID,
                                           M.NUMBONUS,
                                           M.NUMNOTA,
@@ -212,9 +214,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
                                                  AND CODPROD = M.CODPROD
                                                  AND NUMLOTE = M.NUMLOTE),
                                               0))
-        
+
          LOOP
-        
+
           BEGIN
             SELECT NVL(SUM(QTORIGEM), 0)
               INTO vQTJAULIZADASAIDAAJUSTE
@@ -226,21 +228,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
             WHEN NO_DATA_FOUND THEN
               vQTJAULIZADASAIDAAJUSTE := 0;
           END;
-        
+
           IF ((REGLOTESAIDAAJUSTE.QT - vQTJAULIZADASAIDAAJUSTE) > 0) AND
              (vQTSAIDA_AJUSTE > 0) THEN
-          
+
             ---CASO LOTE TENHA TODA A QUANTIDADE PARA EFETUAR A SAÍDA NECESSÁRIA---
             IF (REGLOTESAIDAAJUSTE.QT - vQTJAULIZADASAIDAAJUSTE) >=
                vQTSAIDA_AJUSTE THEN
-            
+
               SELECT *
                 INTO LINHA_ORIGINAL
                 FROM PCMOV
                WHERE ROWID = REGLOTESAIDAAJUSTE.ROWID;
-            
+
               LINHA_ORIGINAL.NUMLOTE                 := REGLOTESAIDAAJUSTE.NUMLOTE;
               LINHA_ORIGINAL.QT                      := vQTSAIDA_AJUSTE;
+              LINHA_ORIGINAL.QTCONT                  := vQTSAIDA_AJUSTE;
+              LINHA_ORIGINAL.ROTINALANC              := 'PKG_RECEBIMENTO';
               LINHA_ORIGINAL.QTAVARIA                := REGLOTESAIDAAJUSTE.QTAVARIA;
               LINHA_ORIGINAL.QTBLOQUEADA             := 0;
               LINHA_ORIGINAL.CODOPER                 := 'SA';
@@ -252,9 +256,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
               LINHA_ORIGINAL.NUMTRANSVENDA           := vNUMTRANSVENDA;
               LINHA_ORIGINAL.NUMTRANSITEM            := NULL;
               LINHA_ORIGINAL.DTMOV                   := TRUNC(SYSDATE);
-            
+
               INSERT INTO PCMOV VALUES LINHA_ORIGINAL;
-            
+
               INSERT INTO PCLOTEDESD
                 (CODPROD,
                  NUMLOTEORIGEM,
@@ -269,21 +273,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
                  vNUMTRANSVENDA,
                  vQTSAIDA_AJUSTE,
                  vQTSAIDA_AJUSTE);
-            
+
               vQTSAIDA_AJUSTE := 0;
-            
+
             ELSE
-            
+
               ---CASO LOTE NÃO TENHA TODA A QUANTIDADE PARA EFETUAR A SAÍDA NECESSÁRIA---
-            
+
               SELECT *
                 INTO LINHA_ORIGINAL
                 FROM PCMOV
                WHERE ROWID = REGLOTESAIDAAJUSTE.ROWID;
-            
+
               LINHA_ORIGINAL.NUMLOTE                 := REGLOTESAIDAAJUSTE.NUMLOTE;
               LINHA_ORIGINAL.QT                      := (REGLOTESAIDAAJUSTE.QT -
                                                         vQTJAULIZADASAIDAAJUSTE);
+
+              LINHA_ORIGINAL.QTCONT                  := (REGLOTESAIDAAJUSTE.QT -
+                                                                      vQTJAULIZADASAIDAAJUSTE);
               LINHA_ORIGINAL.QTAVARIA                := REGLOTESAIDAAJUSTE.QTAVARIA;
               LINHA_ORIGINAL.QTBLOQUEADA             := 0;
               LINHA_ORIGINAL.CODOPER                 := 'SA';
@@ -295,9 +302,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
               LINHA_ORIGINAL.NUMTRANSVENDA           := vNUMTRANSVENDA;
               LINHA_ORIGINAL.NUMTRANSITEM            := NULL;
               LINHA_ORIGINAL.DTMOV                   := TRUNC(SYSDATE);
-            
+              LINHA_ORIGINAL.ROTINALANC              := 'PKG_RECEBIMENTO';
+
               INSERT INTO PCMOV VALUES LINHA_ORIGINAL;
-            
+
               INSERT INTO PCLOTEDESD
                 (CODPROD,
                  NUMLOTEORIGEM,
@@ -312,35 +320,35 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
                  vNUMTRANSVENDA,
                  (REGLOTESAIDAAJUSTE.QT - vQTJAULIZADASAIDAAJUSTE),
                  (REGLOTESAIDAAJUSTE.QT - vQTJAULIZADASAIDAAJUSTE));
-            
+
               vQTSAIDA_AJUSTE := vQTSAIDA_AJUSTE - (REGLOTESAIDAAJUSTE.QT -
                                  vQTJAULIZADASAIDAAJUSTE);
-            
+
             END IF;
-          
+
           END IF;
-        
+
         END LOOP;
-      
+
       END IF;
-    
+
     END LOOP;
-  
+
   END IF;
 
   ---PROCESSO BÔNUS COM PRÉ ENTRADA, REGRA DO DESDOBRAMENTO EXTRAIDA DA 1106
   IF (vBONUS_UTILIZA_PRE_ENTRADA) = 'S' THEN
-  
+
     SELECT NUMTRANSENT
     INTO vNUMTRANSENTORIGINAL
     FROM PCMOVPREENT
     WHERE NUMBONUS = vNUMBONUS
       AND ROWNUM = 1;
-      
+
     UPDATE PCBONUSI
         SET QTSAIDA = NVL(QTENTRADA, 0)
       WHERE NUMBONUS = vNUMBONUS;
-  
+
     FOR PRODUTO IN (SELECT CODPROD,
                             NUMLOTE,
                             M.QT,
@@ -352,11 +360,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
                       WHERE NUMBONUS = vNUMBONUS
                         AND NUMLOTE IS NOT NULL
                       ORDER BY NUMTRANSENT, QT)
-    
+
       LOOP
-    
+
       VNQTDE_AUX := PRODUTO.QT;
-    
+
       BEGIN
         --Clonando a linha da PCMOVPREENT
         SELECT *
@@ -367,7 +375,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
         WHEN NO_DATA_FOUND THEN
           NULL;
       END;
-    
+
       BEGIN
         --Clonando a linha da PCMOVCOMPLEPREENT
         SELECT *
@@ -378,11 +386,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
         WHEN NO_DATA_FOUND THEN
           NULL;
       END;
-    
+
       DELETE PCMOVPREENT WHERE ROWID = PRODUTO.ROWID;
-    
+
       DELETE PCMOVCOMPLEPREENT WHERE NUMTRANSITEM = PRODUTO.NUMTRANSITEM;
-    
+
       FOR BONUS IN (SELECT PCBONUSI.CODPROD,
                             PCBONUSI.QTSAIDA,
                             PCBONUSI.NUMLOTE,
@@ -399,9 +407,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
                         AND PCBONUSI.TIPOEMBALAGEMPEDIDO =
                             PRODUTO.TIPOEMBALAGEMPEDIDO
                       ORDER BY PCBONUSI.QTSAIDA)
-      
+
         LOOP
-      
+
         IF VNQTDE_AUX > 0 THEN
           IF VNQTDE_AUX >= BONUS.QTSAIDA THEN
             --Preparando para gerr o novo PCMOVPREENT
@@ -411,13 +419,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
             voLINHA.QTBLOQUEADA    := BONUS.QTSAIDA;
             voLINHA.DATAVALIDADE   := BONUS.DTVALIDADE;
             voLINHA.DATAFABRICACAO := BONUS.DATAFABRICACAO;
-          
+
             VNQTDE_AUX := VNQTDE_AUX - BONUS.QTSAIDA;
-          
+
             UPDATE PCBONUSI
                 SET QTSAIDA = QTSAIDA - BONUS.QTSAIDA
               WHERE ROWID = BONUS.ROWID;
-          
+
           ELSE
             --Preparando para gerr o novo PCMOVPREENT
             voLINHA.NUMSEQ         := voLINHA.NUMSEQ + 1;
@@ -426,31 +434,31 @@ CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
             voLINHA.QTBLOQUEADA    := VNQTDE_AUX;
             voLINHA.DATAVALIDADE   := BONUS.DTVALIDADE;
             voLINHA.DATAFABRICACAO := BONUS.DATAFABRICACAO;
-          
+
             UPDATE PCBONUSI
                 SET QTSAIDA = QTSAIDA - VNQTDE_AUX
               WHERE ROWID = BONUS.ROWID;
-          
+
             VNQTDE_AUX := 0;
           END IF;
           --Inserindo
           SELECT DFSEQ_PCMOVCOMPLE.NEXTVAL
             INTO voLINHA.NUMTRANSITEM
             FROM DUAL;
-        
+
           INSERT INTO PCMOVPREENT VALUES voLINHA;
-        
+
           voLINHA2.NUMTRANSITEM := voLINHA.NUMTRANSITEM;
-        
+
           INSERT INTO PCMOVCOMPLEPREENT VALUES voLINHA2;
         END IF;
       END LOOP;
     END LOOP;
-  
+
     UPDATE PCBONUSI SET QTSAIDA = 0 WHERE NUMBONUS = vNUMBONUS;
-  
+
   END IF;
-  
+
 
 END WMS_MOV_AJUSTE_LOTES;
       PROCEDURE WMS_MOV_AJUSTE_BONUS(pCodfilial IN VARCHAR2,pNumbonus  IN NUMBER) IS
@@ -467,9 +475,9 @@ END WMS_MOV_AJUSTE_LOTES;
     vPOSSUI_AJUSTE          VARCHAR2(2);
     vBONUS_UTILIZA_PRE_ENTRADA VARCHAR2(2);
     LINHA_ORIGINAL_PCMOVPREENT PCMOVPREENT%ROWTYPE;
-  
+
   BEGIN
-  
+
     vQT_AJUSTE              := 0;
     vNUMTRANSENT            := 0;
     vNUMTRANSVENDA          := 0;
@@ -478,48 +486,48 @@ END WMS_MOV_AJUSTE_LOTES;
     vCODOPER                := 'X';
     vPOSSUI_AJUSTE          := 'N';
     vBONUS_UTILIZA_PRE_ENTRADA := 'N';
-  
+
     vNUMBONUS  := pNumbonus;
     vCODFILIAL := pCodfilial;
-  
+
     SELECT DECODE(NVL(PROXNUMLANC, 0), 0, 1, PROXNUMLANC),
            NVL(PROXNUMTRANSENT, 1) AS PROXNUMTRANSENT,
            NVL(PROXNUMTRANSVENDA, 1) AS PROXNUMTRANSVENDA
       INTO vNUMLANCAMENTO, vNUMTRANSENT, vNUMTRANSVENDA
       FROM PCCONSUM
        FOR UPDATE;
-  
+
     UPDATE PCCONSUM
        SET PROXNUMLANC       = DECODE(NVL(PROXNUMLANC, 0), 0, 1, PROXNUMLANC) + 1,
            PROXNUMTRANSENT   = NVL(PROXNUMTRANSENT, 1) + 1,
            PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
-  
+
 
     SELECT NVL(UTILIZOUPREENT, 'N')
       INTO vBONUS_UTILIZA_PRE_ENTRADA
       FROM PCBONUSC
      WHERE NUMBONUS = vNUMBONUS
        AND ROWNUM = 1;
-       
+
       IF vBONUS_UTILIZA_PRE_ENTRADA = 'N' THEN
       SELECT NUMTRANSENT
       INTO vNUMTRANSENTORIGINAL
       FROM PCMOV
      WHERE NUMBONUS = vNUMBONUS
        AND ROWNUM = 1;
-       
+
       END IF;
-      
-      
+
+
       IF vBONUS_UTILIZA_PRE_ENTRADA = 'S' THEN
       SELECT NUMTRANSENT
       INTO vNUMTRANSENTORIGINAL
       FROM PCMOVPREENT
      WHERE NUMBONUS = vNUMBONUS
        AND ROWNUM = 1;
-       
+
       END IF;
-  
+
     /**BUSCAR OS PRODUTOS FORAM CONFERIDOS COM QUANTIDADES DIVERGENTES NA NOTA E PRODUTOS ESTEJAM NA NOTA MAS NÃO TENHAM SIDO INFORMADOS NO RECEBIMENTO.**/
     FOR REG IN (SELECT B.NUMBONUS,
                        B.CODPROD,
@@ -538,9 +546,9 @@ END WMS_MOV_AJUSTE_LOTES;
                  GROUP BY B.NUMBONUS,
                           B.CODPROD,
                           C.UTILIZOUPREENT
-                
+
                 UNION ALL
-                
+
                 SELECT M.NUMBONUS,
                        M.CODPROD,
                        'N' AS UTILIZOUPREENT,
@@ -560,11 +568,11 @@ END WMS_MOV_AJUSTE_LOTES;
                          WHERE NUMBONUS = M.NUMBONUS
                            AND CODPROD = M.CODPROD)
                    AND 'N' = vBONUS_UTILIZA_PRE_ENTRADA
-                
+
                  GROUP BY M.NUMBONUS, M.CODPROD
-                
+
                 UNION ALL
-                
+
                 SELECT M.NUMBONUS,
                        M.CODPROD,
                        'S' AS UTILIZOUPREENT,
@@ -584,11 +592,11 @@ END WMS_MOV_AJUSTE_LOTES;
                          WHERE NUMBONUS = M.NUMBONUS
                            AND CODPROD = M.CODPROD)
                    AND 'S' = vBONUS_UTILIZA_PRE_ENTRADA
-                
+
                  GROUP BY M.NUMBONUS, M.CODPROD)
-    
+
      LOOP
-    
+
       /**VERIFICANDO SE EXISTEM MOVIMENTACOES DE AJUSTES A SEREM GERADAS**/
       IF REG.SITUACAO = 'PRODUTO CONFERIDO NO RECEBIMENTO' THEN
         IF REG.QTENTRADA > REG.QTNF THEN
@@ -597,26 +605,26 @@ END WMS_MOV_AJUSTE_LOTES;
         vTIPO           := 'E';
         vQT_AJUSTE      := REG.QTENTRADA - REG.QTNF;
         END IF;
-      
+
         IF REG.QTENTRADA < REG.QTNF THEN
          vPOSSUI_AJUSTE := 'S';
          vCODOPER       := 'SA';
          vTIPO          := 'S';
          vQT_AJUSTE     := REG.QTNF - REG.QTENTRADA;
         END IF;
-      
+
       END IF;
-    
+
       IF REG.SITUACAO =
          'PRODUTO EXISTE NA NOTA MAS NÃO FOI CONFERIDO NO RECEBIMENTO' THEN
-      
+
         vPOSSUI_AJUSTE := 'S';
         vCODOPER       := 'SA';
         vTIPO          := 'S';
         vQT_AJUSTE     := REG.QTENTRADA;
-      
+
       END IF;
-    
+
       IF vPOSSUI_AJUSTE = 'S' THEN
         IF REG.UTILIZOUPREENT = 'N' THEN
           PKG_INTEGRACAOWMSSAAS.EFETUAR_AJUSTE_ESTOQUE(pCODFILIAL  => vCODFILIAL,
@@ -626,9 +634,9 @@ END WMS_MOV_AJUSTE_LOTES;
                                                        pVALIDADE   => REG.DTVALIDADE,
                                                        pNUMLOTE    => '1');
         END IF;
-      
+
         IF REG.UTILIZOUPREENT = 'S' THEN
-        
+
           /**CLONANDO EM UMA VARIÁVEL O REGISTRO ORIGINAL DA PCMOV PARA GERAR A MOVIMENTACAO DE AJUSTE**/
           SELECT *
             INTO LINHA_ORIGINAL_PCMOVPREENT
@@ -636,9 +644,11 @@ END WMS_MOV_AJUSTE_LOTES;
            WHERE CODPROD = REG.CODPROD
              AND NUMBONUS = REG.NUMBONUS
              AND ROWNUM = 1;
-        
+
           LINHA_ORIGINAL_PCMOVPREENT.NUMLOTE       := '1';
           LINHA_ORIGINAL_PCMOVPREENT.QT            := vQT_AJUSTE;
+          LINHA_ORIGINAL_PCMOVPREENT.QTCONT        := vQT_AJUSTE;
+          LINHA_ORIGINAL.ROTINALANC                := 'PKG_RECEBIMENTO';
           LINHA_ORIGINAL_PCMOVPREENT.QTAVARIA      := REG.QTAVARIA;
           LINHA_ORIGINAL_PCMOVPREENT.QTBLOQUEADA   := vQT_AJUSTE;
           LINHA_ORIGINAL_PCMOVPREENT.CODOPER       := vCODOPER;
