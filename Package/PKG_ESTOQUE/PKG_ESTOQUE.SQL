@@ -596,10 +596,11 @@ CREATE OR REPLACE PACKAGE PKG_ESTOQUE IS
   /**********************************************************************************************/
   /* Retorna filial gerencial */
   /**********************************************************************************************/
-  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD       IN PCMOV.CODPROD%TYPE 
-                                    ,pnNUMSEQ        IN PCMOV.NUMSEQ%TYPE                                      
-                                    ,psOPERACAO      IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE                                      
-                                    ,pnIDENTIFICADOR IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL)
+  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD           IN PCMOV.CODPROD%TYPE
+                                    ,pnNUMSEQ            IN PCMOV.NUMSEQ%TYPE
+                                    ,psOPERACAO          IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
+                                    ,pnIDENTIFICADOR     IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL
+                                    ,psDESBLOQUEIO_BONUS IN VARCHAR2 DEFAULT 'N')
   RETURN VARCHAR2;
 
   /**********************************************************************************************/
