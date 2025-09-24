@@ -45,12 +45,14 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
     ----------------------------------------------------------------------------
 
     PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
-                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE);
+                                    PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+									PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE);
 
     ----------------------------------------------------------------------------
 
     PROCEDURE ATUALIZAR_STATUS(PMENSAGEM   OUT VARCHAR2,
-                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE);                                                                   
+                               PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+							   PMATRICULA     		  PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);                                                                   
     ----------------------------------------------------------------------------
 
 END PKG_RECEBIMENTOANTECIPADO;
