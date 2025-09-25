@@ -1354,14 +1354,16 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
         WHEN OTHERS THEN
           PVC2MENSSAGEN := 'Mensagem 2: - Erro ao gravar log.';
       END;
+
       /* Bloquear registros */
       vSQLBLOQUEARPCEST := 'SELECT CODFILIAL
                               FROM PCEST
-                             WHERE CODFILIAL = '||CHR(39)||FILIAL.CODIGO||CHR(39)||
-                            'ORDER BY CODPROD 
+                             WHERE CODFILIAL = :FILIAL
+                            ORDER BY CODPROD 
 							   FOR UPDATE';
 
-      EXECUTE IMMEDIATE vSQLBLOQUEARPCEST;
+      EXECUTE IMMEDIATE vSQLBLOQUEARPCEST USING FILIAL.CODIGO;
+
       /* Certificar que não existem registros antigos */
       DELETE FROM PCHISTESTFILA
        WHERE DATA = PDTPROCESSAMENTO
