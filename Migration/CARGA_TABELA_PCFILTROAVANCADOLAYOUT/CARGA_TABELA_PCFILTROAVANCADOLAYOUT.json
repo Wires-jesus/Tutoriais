@@ -1,0 +1,16 @@
+{
+  "nome": "CARGA_TABELA_PCFILTROAVANCADOLAYOUT",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCFILTROAVANCADOLAYOUTC",
+      "tipo": "TABELA",
+      "versao": "8.0.01.000"
+    }
+    {
+      "nome": "PCFILTROAVANCADOLAYOUTI",
+      "tipo": "TABELA",
+      "versao": "8.0.01.000"
+    }	
+  ]
+}
