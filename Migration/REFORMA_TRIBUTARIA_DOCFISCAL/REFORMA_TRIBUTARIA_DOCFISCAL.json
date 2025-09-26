@@ -15,23 +15,33 @@
 	  {
 	   "nome":"NFE_PRODUTO_ENTRADA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.29.000"
+	   "versao":"7.0.33.000"
 	  },
 	  {
 	   "nome":"NFE_PRODUTO_SAIDA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.16.000"
+	   "versao":"7.0.18.000"
 	  },	  
 	  {
 	   "nome":"NFE_RODAPE_ENTRADA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.06.000"
+	   "versao":"7.0.07.000"
 	  },
 	  {
 	   "nome":"NFE_RODAPE_SAIDA",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.04.000"
-	  },
+	   "versao":"7.0.05.000"
+	  },   
+    {
+     "nome":"NFE_REFERENCIADA_ENTRADA",
+     "tipo":"OBJETO_PLSQL",
+     "versao":"7.0.01.000"
+    },
+    {
+     "nome":"NFE_REFERENCIADA_SAIDA",
+     "tipo":"OBJETO_PLSQL",
+     "versao":"7.0.01.000"
+    },
 	  {
 	   "nome":"CTE_INFO_NOTA",
 	   "tipo":"OBJETO_PLSQL",
@@ -70,7 +80,7 @@
 	  {
 	   "nome":"FISCAL",
 	   "tipo":"OBJETO_PLSQL",
-	   "versao":"7.0.45.000"
+	   "versao":"7.0.57.000"
 	  }
   ]
 }
