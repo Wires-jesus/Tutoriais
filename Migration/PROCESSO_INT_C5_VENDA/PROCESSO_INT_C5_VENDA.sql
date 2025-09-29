@@ -3154,7 +3154,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
          END) carteiradigital,
         NVL(r.valor, p.valor) valor,
     d.nroempresa,
-    d.nrocheckout
+    d.nrocheckout,
+	fnc_int_c5_codplpag_venda(p.nroformapagto, c5.CODFILIAL) CODPLPAG
   FROM  monitorpdvmiddle.tb_doctopagto p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -3288,7 +3289,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
      NULL carteiradigital,
      p.valor valor,
      d.NROEMPRESA,
-     d.nrocheckout
+     d.nrocheckout,
+	 fnc_int_c5_codplpag_venda(p.nroformapagto, c5.CODFILIAL) CODPLPAG
   FROM  vw_int_c5_agrup_dinheiro p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -3418,7 +3420,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
      NULL carteiradigital,
      p.valor valor,
      d.NROEMPRESA,
-     d.nrocheckout
+     d.nrocheckout,
+	 fnc_int_c5_codplpag_venda(p.nroformapagto, c5.CODFILIAL) CODPLPAG
   FROM  vw_int_c5_agrup_troco p,
         monitorpdvmiddle.tb_docto d,
         monitorpdvmiddle.tb_doctocupom c,
@@ -3537,7 +3540,8 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
      NULL carteiradigital,
      (p.valor) valor,
      d.NROEMPRESA,
-     d.nrocheckout
+     d.nrocheckout,
+	 fnc_int_c5_codplpag_venda(p.nroformapagto, c5.CODFILIAL) CODPLPAG
   FROM  MONITORPDVMIDDLE.TB_DOCTOPAGTO p,
         MONITORPDVMIDDLE.TB_DOCTOTROCOSOLIDARIO TS,
         monitorpdvmiddle.tb_docto d,
