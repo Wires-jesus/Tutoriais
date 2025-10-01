@@ -344,13 +344,14 @@ begin
                                                       DADOS.CIDADECONSUM,
                                                       DADOS.CIDADECLIENTE,
                                                       DADOS.CIDADEFILIAL));
-         :new.CEP             := NVL(:new.CEP,
-                                     GET_VALORCLIENTE(DADOS.CODCLI,
-                                                      DADOS.CLIENTE_CONSUMIDOR,
-                                                      DADOS.DEVCONSUM,
-                                                      DADOS.CEPCONSUM,
-                                                      DADOS.CEPCLIENTE,
-                                                      DADOS.CEPFILIAL));
+         :new.CEP             := REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(NVL(:new.CEP,
+                                                                                                     GET_VALORCLIENTE(DADOS.CODCLI,
+                                                                                                                      DADOS.CLIENTE_CONSUMIDOR,
+                                                                                                                      DADOS.DEVCONSUM,
+                                                                                                                      DADOS.CEPCONSUM,
+                                                                                                                      DADOS.CEPCLIENTE,
+                                                                                                                      DADOS.CEPFILIAL))
+                                ,'.',''),'-',''),'/',''),',',''),'(',''),')',''),' ',''),CHR(10),'');
          :new.UF              := NVL(:new.UF,
                                      GET_VALORCLIENTE(DADOS.CODCLI,
                                                       DADOS.CLIENTE_CONSUMIDOR,
@@ -516,7 +517,7 @@ begin
            when others then
              null;
          end;
-         :new.CEP                   := NVL(:new.CEP, DADOS.CEP);
+         :new.CEP                   := REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(NVL(:new.CEP, DADOS.CEP),'.',''),'-',''),'/',''),',',''),'(',''),')',''),' ',''),CHR(10),'');
          :new.UF                    := NVL(:new.UF, DADOS.UFFORNEC);
          :new.TIPOFJ                := NVL(:new.TIPOFJ, 'J');
          :new.TIPOFRETECIFFOB       := NVL(:new.TIPOFRETECIFFOB,
@@ -725,13 +726,14 @@ begin
                                                       DADOS.CIDADECONSUM,
                                                       DADOS.CIDADECLIENTE,
                                                       DADOS.CIDADEFILIAL));
-         :new.CEP             := NVL(:new.CEP,
-                                     GET_VALORCLIENTE(DADOS.CODCLI,
-                                                      DADOS.CLIENTE_CONSUMIDOR,
-                                                      DADOS.DEVCONSUM,
-                                                      DADOS.CEPCONSUM,
-                                                      DADOS.CEPCLIENTE,
-                                                      DADOS.CEPFILIAL));
+         :new.CEP             := REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(NVL(:new.CEP,
+                                                                                                   GET_VALORCLIENTE(DADOS.CODCLI,
+                                                                                                                    DADOS.CLIENTE_CONSUMIDOR,
+                                                                                                                    DADOS.DEVCONSUM,
+                                                                                                                    DADOS.CEPCONSUM,
+                                                                                                                    DADOS.CEPCLIENTE,
+                                                                                                                    DADOS.CEPFILIAL))
+                                 ,'.',''),'-',''),'/',''),',',''),'(',''),')',''),' ',''),CHR(10),'');
          :new.UF              := NVL(:new.UF,
                                      GET_VALORCLIENTE(DADOS.CODCLI,
                                                       DADOS.CLIENTE_CONSUMIDOR,
