@@ -109,6 +109,8 @@ BEGIN
   INSERT_DATA('UTILIZA_ENDERECO_STAGE', 'N', NULL, 'Usa endereço de Stage (Localização do pedido)', 'EXPEDICAO', 'BOOLEAN');
 
   INSERT_DATA('MANTER_LOTES_ATRIBUIDOS', 'N', NULL, 'Manter lotes atribuídos antes da separação/conferência do RF?', 'EXPEDICAO', 'BOOLEAN'); 
+
+  INSERT_DATA('ETIQUETA_ZPL', 'N', 'N-Utiliza impressão padrão via jaspersoft;S-Utilizar impressão via código ZPL;F-Utilizar código ZPL forçando o modo de impressão térmico direto da impressora', 'Utiliza impressão via código ZPL?', 'EXPEDICAO', 'SELECT');  
 END;
 
 
