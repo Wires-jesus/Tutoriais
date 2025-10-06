@@ -93,7 +93,6 @@ BEGIN
                      WHERE M.DTCANCEL IS NOT NULL
                      AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
                      AND S.DTCANCEL IS NOT NULL
-                     AND S.SITUACAONFE = 1006
                      AND S.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')
                      AND CODOPER LIKE 'S%'                     
                      AND ((QT > 0 AND (SELECT COUNT(1)
@@ -110,6 +109,7 @@ BEGIN
                      FROM PCNFSAIDPREFAT NF, PCMOVPREFAT M
                    WHERE NF.NUMTRANSVENDA = M.NUMTRANSVENDA
                      AND NF.DTCANCEL IS NOT NULL
+					 AND S.SITUACAONFE = 1006
                      AND NF.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')                     
                      AND NOT EXISTS (SELECT NUMNOTA
                                      FROM PCNFSAID
