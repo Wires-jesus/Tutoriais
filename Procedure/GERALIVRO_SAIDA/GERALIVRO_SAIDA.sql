@@ -5883,6 +5883,7 @@ GROUP BY   TAB.NUMSQL,
   V_LISTA_NOTAS_TEMP                  C_NOTAS_NF%ROWTYPE;
 
   -- Functions
+  
   -- NOTAS_CUPOM_FISCAL
   function F_NOTAS_CUPOM_FISCAL(PDATA1 IN DATE,
                                 PDATA2 IN DATE,
@@ -5912,7 +5913,33 @@ GROUP BY   TAB.NUMSQL,
      end if;
    END;
 
-  -- Functions
+  ----------------------------------------- // ---------------------------------------------------
+  -- RETORNO SE EXISTE REDUÇAO Z NO PERIODO -- 
+  function F_EXISTE_REDUCAOZ(PDATA1 IN DATE,
+                             PDATA2 IN DATE,
+                             PCODFILIAL IN VARCHAR2) return boolean is
+  BEGIN
+     BEGIN
+     V_QTDNF_NO_PERIODO := 0; 
+      
+     select 1
+            INTO V_QTDNF_NO_PERIODO
+       FROM PCCUPOMFISCALZ
+       WHERE CODFILIAL = PCODFILIAL
+         AND DTEMISSAO BETWEEN PDATA1 AND PDATA2 
+         AND ROWNUM = 1;
+     EXCEPTION
+     when NO_DATA_FOUND then
+       V_QTDNF_NO_PERIODO := 0;
+     END;
+
+     if (V_QTDNF_NO_PERIODO > 0) then
+       return True;
+     else
+       return False;
+     end if;
+   END;  
+  ----------------------------------------- // ---------------------------------------------------
   -- NOTAS_DEV_FORNEC
   function F_NOTAS_DEV_FORNEC(PDATA1 IN DATE,
                               PDATA2 IN DATE,
@@ -6001,7 +6028,7 @@ GROUP BY   TAB.NUMSQL,
        return False;
      end if;
    END;
-
+  ------------------------------------------- // ------------------------------------------
   -- Functions
   -- CONSULTAR REDUÇÕES Z FALTANTES 
   function F_VALIDAR_REDUCOES_PERIODO(PDATA1 IN DATE,
@@ -6034,7 +6061,7 @@ GROUP BY   TAB.NUMSQL,
        return False;
      end if;
    END;
-
+  ------------------------------------------- // ------------------------------------------
   -- NOTAS_SAT
   function F_NOTAS_SAT(PDATA1 IN DATE,
                        PDATA2 IN DATE,
@@ -6064,7 +6091,7 @@ GROUP BY   TAB.NUMSQL,
        return False;
      end if;
    END;
-
+  ------------------------------------------- // ------------------------------------------
   -- NOTAS_MFE
   function F_NOTAS_MFE(PDATA1 IN DATE,
                        PDATA2 IN DATE,
@@ -6095,6 +6122,42 @@ GROUP BY   TAB.NUMSQL,
      end if;
    END;
   -------------------------------------------------------------------------------------------
+  -- C_NOTAS_NFCE
+  function F_NOTAS_NFCE(PDATA1 IN DATE,
+                        PDATA2 IN DATE,
+                        PCODFILIAL IN VARCHAR2,
+                        PNUMNOTA1 IN NUMBER,
+                        PNUMNOTA2 IN NUMBER) return boolean is
+  BEGIN
+     V_QTDNF_NO_PERIODO := 0; 
+     
+     BEGIN
+     select 1
+            INTO V_QTDNF_NO_PERIODO
+      from PCNFSAID A
+     where A.ESPECIE in ('NF', 'CO', 'CF')
+       AND NVL(A.SERIE, 'X') not in ('CF', 'CP')
+       AND NVL(A.CODFILIALNF, A.CODFILIAL) = PCODFILIAL
+       AND A.DTSAIDA BETWEEN PDATA1 and PDATA2
+       AND ((A.NUMNOTA >= PNUMNOTA1) and (A.NUMNOTA <= PNUMNOTA2))
+       AND A.TIPOVENDA <> 'DF'
+       AND NVL(substr(a.chavenfe, 21,2), 'X') = '65' 
+       AND ROWNUM = 1;
+
+     EXCEPTION
+     when NO_DATA_FOUND then
+       V_QTDNF_NO_PERIODO := 0;
+     END;
+
+     if (V_QTDNF_NO_PERIODO > 0) then
+       return True;
+     else
+       return False;
+     end if;
+   END;
+  -------------------------------------------------------------------------------------------
+  
+  
   procedure VALIDAR_REDUCOES_PERIODO is
   begin
   -------------------------------------------------------------------------------------------
@@ -9265,24 +9328,26 @@ END;
       END IF;
    END IF;
   ---------------------------------------------------------------------------------
+  IF F_NOTAS_NFCE(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2) then
   
-  open C_NOTAS_NFCE(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
-  fetch c_notas_NfCE bulk collect
-  into LISTA_NOTAS_NFCE;
-  close C_NOTAS_NFCE;
-  GERALIVRO_FISCAL(LISTA_NOTAS_NFCE);
+    open C_NOTAS_NFCE(NUMNOTA1,NUMNOTA2,DATA1,DATA2,V_INSERIRCF,PCODFILIAL);
+    fetch c_notas_NfCE bulk collect
+    into LISTA_NOTAS_NFCE;
+    close C_NOTAS_NFCE;
+    GERALIVRO_FISCAL(LISTA_NOTAS_NFCE);
+  
+    IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
+       COMMIT;
+       V_CONTADORREGISTRO := 0;
+       RETURN;
+    END IF;
+  
+    IF V_CONTADORREGISTRO > 0 THEN
+       COMMIT;
+       V_CONTADORREGISTRO := 0;
+    END IF;
 
-  IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
-     COMMIT;
-     V_CONTADORREGISTRO := 0;
-     RETURN;
-  END IF;
-
-
-  IF V_CONTADORREGISTRO > 0 THEN
-     COMMIT;
-     V_CONTADORREGISTRO := 0;
-  END IF;
+  END IF; 
   
   ---------------------------------------------------------------------------------
   IF F_NOTAS_CUPOM_FISCAL(DATA1,DATA2,PCODFILIAL,NUMNOTA1,NUMNOTA2, V_INSERIRCF) then
@@ -9292,7 +9357,6 @@ END;
       into LISTA_NOTAS_CUPOM_FISCAL;
       close C_NOTAS_CUPOM_FISCAL;
       GERALIVRO_FISCAL(LISTA_NOTAS_CUPOM_FISCAL);
-    
     
       IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
          COMMIT;
@@ -9320,7 +9384,6 @@ END;
        V_CONTADORREGISTRO := 0;
        RETURN;
     END IF;
-
 
     IF V_CONTADORREGISTRO > 0 THEN
        COMMIT;
@@ -9408,7 +9471,6 @@ END;
   close C_NOTAS_COMPLEMETAR_COM_ITEM;
   GERALIVRO_FISCAL(LISTA_NOTAS_COMPLEMENTAR_ITEM);
 
-
   IF (PPROCESSOPORNOTA = 'S' AND V_CONTADORREGISTRO > 0)  THEN
      COMMIT;
      V_CONTADORREGISTRO := 0;
@@ -9435,10 +9497,10 @@ begin
   V_CONTADORREGISTRO := 0;
   V_QUANTIDADECOMMIT := 500;
 
-  --PROCEDURE RESPONSÁVEL POR PREENCHER OS PARAMETROS USADOS NAS INSTRUUES SQL.
+  -- PROCEDURE RESPONSÁVEL POR PREENCHER OS PARAMETROS USADOS NAS INSTRUÇÕES SQL.
   PREENCHER_PARAMETROS();
 
-  V_SQLERRO := 'RECUPERANDO PAR?METROS GERAIS (PCCONSUM)';
+  V_SQLERRO := 'RECUPERANDO PARAMETROS GERAIS (PCCONSUM)';
   select C.INSERIRCUPOM,
          NVL(C.REDUCAOBCISENTA, 'N'),
          NVL(C.CODFISCALOUTRASDESP, 5949),
@@ -9557,7 +9619,8 @@ begin
       V_TAMANHO_OBS := 60;
   end;
   -------------------------------------------------------------------------------------------
-  V_SQLERRO := 'VALIDANDO TRIBUTA??ES POR ESTADO (PCTRIBOUTROS)';
+  V_SQLERRO := 'VALIDANDO TRIBUTAÇOES POR ESTADO (PCTRIBOUTROS)';
+
   if V_TIPOALIQOUTRASDESP = 'T'
   then
     select count(1) QTNF
@@ -9566,6 +9629,7 @@ begin
      where NVL(CODFILIALNF, CODFILIAL) = PCODFILIAL
        and DTSAIDA between DATA1 and DATA2
        and ROWNUM = 1;
+       
     if V_REGISTROPCNFSAID > 0
     then
       for DADOS in (select count(1) QTDETRIB
@@ -9580,11 +9644,11 @@ begin
       loop
         if DADOS.QTDETRIB = 0
         then
-          V_SQLERRO := 'VERIFICANDO A FALTA DE TRIBUTA??ES POR ESTADO: ' ||
+          V_SQLERRO := 'VERIFICANDO A FALTA DE TRIBUTAÇOES POR ESTADO: ' ||
                        CHR(13) ||
-                       'FALTA CADASTRO DE TRIBUTA??O PARA ALGUM ESTADO NA ROTINA 596. ? NECESS?RIO QUE EXISTA UMA ' ||
+                       'FALTA CADASTRO DE TRIBUTAÇAO PARA ALGUM ESTADO NA ROTINA 596. NECESSARIO QUE EXISTA UMA ' ||
                        CHR(13) ||
-                       'TRIBUTA??O PARA CADA UF QUANDO O PARAM?TRO "FORMA DE TRIBUTA??O DE DESPESAS ACESSORIA E FRETE" = "T" ' ||
+                       'TRIBUTAÇAO PARA CADA UF QUANDO O PARAMETRO "FORMA DE TRIBUTAÇAO DE DESPESAS ACESSORIA E FRETE" = "T" ' ||
                        CHR(13) || 'NA ROTINA 132, ABA "LIVROS FISCAIS".';
           raise V_TRIBUTACAOINCOMPLETA;
         end if;
@@ -9595,12 +9659,15 @@ begin
   -- VALIDAR REDU??ES Z DO PER?ODO
   VALIDAR_REDUCOES_PERIODO();
 */  ---------------------------------------------------------------------------------
+
   -- CORRIGINDO NUMERA??O DE MAPAS RESUMO DE CAIXA
-  CORRIGIR_NUMERACAO_MAPARESUMO();
-  IF V_CONTADORREGISTRO > 0 THEN
-     COMMIT;
-     V_CONTADORREGISTRO := 0;
-  END IF;
+  IF F_EXISTE_REDUCAOZ(DATA1,DATA2,PCODFILIAL) THEN 
+    CORRIGIR_NUMERACAO_MAPARESUMO();
+    IF V_CONTADORREGISTRO > 0 THEN
+       COMMIT;
+       V_CONTADORREGISTRO := 0;
+    END IF;  
+  END IF; 
     
   ---------------------------------------------------------------------------------
   IF vPARAM_VALIDA_NF_CONTABILIZADA = 'N' THEN
@@ -9628,7 +9695,6 @@ begin
        FISCAL.CALCULAR_RATEIO_DESPESAS(DADOSRAT.NUMTRANSVENDA, V_SQLERRO);
        V_CONTADORREGISTRO := V_CONTADORREGISTRO + 1;
    END LOOP;*/
-  
   ---------------------------------------------------------------------------------
   V_SQLERRO := 'BUSCANDO NOTAS FISCAIS';
   ---------------------------------------------------------------------------------
@@ -9678,8 +9744,9 @@ begin
    end if;
   ---------------------------------------------------------------------------------
   -- POPULANDO CONTAS CONTABEIS NOTAS SEM ITENS
-  CODCONTASPED_NOTA_SEM_ITEM;
+  -- CODCONTASPED_NOTA_SEM_ITEM;
   ---------------------------------------------------------------------------------
+  /*
   -- POPULANDO CONTAS CONTABEIS E NAT.DA RECEITA PARA NFCE.
   BEGIN
     FOR DADOS IN (
@@ -9723,6 +9790,7 @@ begin
          V_CONTADORREGISTRO := 0;
       END IF;
   END;
+  */ 
   --------------------------------------------------------------------------------
   -- GERAR CORRE??O DE REDU??ES Z CONSIDERANDO O CFOP DOS CUPONS
   GERAR_REDUCOES_CFOP_ZERO(PCODFILIAL, DATA1, DATA2);
@@ -9740,12 +9808,15 @@ begin
      V_CONTADORREGISTRO := 0;
   END IF;
   ---------------------------------------------------------------------------------
+  /*
+  -- Retirado pois o livro fiscal já é gerado com essa informação. 
   CALCULAR_PIS_COFINS_CUPOM_REDZ();
 
   IF V_CONTADORREGISTRO > 0 THEN
      COMMIT;
      V_CONTADORREGISTRO := 0;
   END IF;
+  */
   ---------------------------------------------------------------------------------
   if V_UFFILIAL = 'CE' then
     CORRIGIR_ICMS_CUPONS();
@@ -9768,7 +9839,7 @@ exception
   when V_VALIDACAOLIVRO then
     begin
       RESULTADO := V_SQLERRO || ' -> ' ||
-                   'LIVRO FISCAL J? ENCERRADO!';
+                   'LIVRO FISCAL JA ENCERRADO!';
       rollback;
       DESATIVAR_SESSAO;
     end;
@@ -9793,7 +9864,5 @@ exception
       DESATIVAR_SESSAO;
     end;
 end;
--- 001 - 06/12/2024 - ajuste no sql 03 referente ao agrupamento do campo NUMSQL
--- 002 - 06/12/2024 - Performance no processo de geração do sql 01 e do processo feito pela data de entrega no DF
--- 003 - 15/05/2025 - Implementado ajuste na coluna VLICMS do sql 01 para considerar a regra do GERAICMSLIVROFISCAL.
--- v002 -- 
+-- v003 -- 
+-- Ultima alteração 06/10/2025
