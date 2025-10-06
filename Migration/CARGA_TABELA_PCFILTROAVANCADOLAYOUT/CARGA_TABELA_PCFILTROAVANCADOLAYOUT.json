@@ -11,6 +11,16 @@
       "nome": "PCFILTROAVANCADOLAYOUTI",
       "tipo": "TABELA",
       "versao": "8.0.01.000"
-    }	
+    }
+    {
+      "nome": "PCFILTROAVANCADOCONFIG",
+      "tipo": "TABELA",
+      "versao": "8.0.01.000"
+    }
+    {
+      "nome": "CARGA_TABELA_PCFILTROAVANCADOCONFIG",
+      "tipo": "MIGRATION",
+      "versao": "8.0.02.000"
+    }
   ]
 }
