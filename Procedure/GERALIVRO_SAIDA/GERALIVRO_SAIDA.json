@@ -1,5 +1,9 @@
 {
     "nome": "GERALIVRO_SAIDA",
     "tipoPLSQL": "PROCEDURE",
-    "dependencias": ""
+    "dependencias": [{
+            "nome": "PCMOVTEMP",
+            "tipo": "TABELA",
+            "versao": "8.0.01.000"
+        }]
 }
