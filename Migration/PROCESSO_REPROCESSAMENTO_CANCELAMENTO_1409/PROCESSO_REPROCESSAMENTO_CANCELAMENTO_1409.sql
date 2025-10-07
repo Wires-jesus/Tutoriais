@@ -104,16 +104,16 @@ BEGIN
                                             WHERE PCMOV.NUMTRANSVENDA = M.NUMTRANSVENDA
                                               AND PCMOV.QTCONT < 0) = 0))
                      UNION
-                     SELECT 'NAO CONSOLIDADAS' TABELA
-                     , NF.NUMTRANSVENDA
-                     FROM PCNFSAIDPREFAT NF, PCMOVPREFAT M
-                   WHERE NF.NUMTRANSVENDA = M.NUMTRANSVENDA
-                     AND NF.DTCANCEL IS NOT NULL
-					 AND S.SITUACAONFE = 1006
-                     AND NF.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')                     
-                     AND NOT EXISTS (SELECT NUMNOTA
-                                     FROM PCNFSAID
-                                     WHERE PCNFSAID.NUMTRANSVENDA = NF.NUMTRANSVENDA)
+                    SELECT 'NAO CONSOLIDADAS' TABELA
+                            , NF.NUMTRANSVENDA
+                      FROM PCNFSAIDPREFAT NF, PCMOVPREFAT M
+                     WHERE NF.NUMTRANSVENDA = M.NUMTRANSVENDA
+                       AND NF.DTCANCEL IS NOT NULL
+					   AND NF.SITUACAONFE = 1006
+                       AND NF.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')                     
+                       AND NOT EXISTS (SELECT NUMNOTA
+                                         FROM PCNFSAID
+                                        WHERE PCNFSAID.NUMTRANSVENDA = NF.NUMTRANSVENDA)
     
                    ) LOOP
 
