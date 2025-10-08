@@ -1,0 +1,6 @@
+{
+    "nome": "ALTER_TABLE_PCMANIFESTOELETRONICOPGTO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
