@@ -42,7 +42,9 @@ select  c5.codfilial codfilial,
 		 m.dtamovimento datatransacao,
 		 c.status,
 		 m.NROCHECKOUT,
-		 c.seqdocto
+		 c.seqdocto, 
+     e.protocoloenvio,
+     m.replicacao
   from monitorpdvmiddle.tb_docto      m,
        monitorpdvmiddle.tb_doctocupom c, 
        monitorpdvmiddle.tb_doctonfe    e,
