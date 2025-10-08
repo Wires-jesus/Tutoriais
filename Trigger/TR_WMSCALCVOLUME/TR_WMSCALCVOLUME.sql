@@ -37,12 +37,12 @@ begin
     select nvl(usawms, 'N')
       into vUsaWMS
       from pcfilial
-     where codigo = (select pcpedi.codfilialretira
+     where codigo = (select NVL(pcpedi.codfilialretira, :new.codfilial)
                        from pcpedi, pcfilial
                       where pcpedi.numped = :new.numped
                         and pcfilial.usawms = 'S' 
                         and rownum = 1
-                        and pcfilial.codigo = pcpedi.codfilialretira);
+                        and pcfilial.codigo = NVL(pcpedi.codfilialretira, :new.codfilial));
    EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vUsaWMS := 'N';    
@@ -433,11 +433,10 @@ where numos IN (SELECT NUMOS
         /* Calcula a quantidade de volumes que nÃ£o estÃ£o cortados na PCVOLUMEOS */
         select count(distinct(nvl(s.numVol, 0)))
           into vQtTotalVolID
-          from pcmovendpend m, pcvolumeos s
-         where s.numos in (SELECT DISTINCT NUMOS FROM PCMOVENDPEND WHERE NUMPED = :new.numped)
-           and m.numped = :new.numped
-           and m.tipoOS in (13, 17, 18, 20, 22)
-           and m.dtEstorno is null
+          from pcvolumeos s
+         where s.numos in (SELECT DISTINCT NUMOS FROM PCMOVENDPEND WHERE NUMPED = :new.numped
+           and tipoOS in (13, 17, 18, 20, 22)
+           and dtEstorno is null)
            and nvl(s.volumeCortado, 'N') = 'N';
 
         /* Realiza o cÃ¡cculo dos volumes restantes que nÃ£o foram obtidos no select acima */
