@@ -6025,6 +6025,7 @@ create or replace package body FISCAL is
   FUNCTION CALCULAR_CREDITOPRESUMIDO(P_NUMTRANSACAO IN NUMBER
                                      ,P_TIPOMOV      VARCHAR2
                                      ,P_ATIVARLOG    VARCHAR2 := 'N'
+
                                      ,P_MSG      OUT VARCHAR2)
   RETURN VARCHAR2 IS
   V_RETURN VARCHAR2(1);
@@ -6279,7 +6280,7 @@ create or replace package body FISCAL is
                   (P_TIPO_LOCAL_CONSUMO = 'G' AND PCTRIBUTACAO.LOCAL_CONSUMO_GERAL     = P_LOCAL_CONSUMO) )
               AND ( (TRUNC(SYSDATE) BETWEEN TRUNC(PCTRIBUTACAO.DTINICIO_VIGENCIA) AND NVL(TRUNC(PCTRIBUTACAO.DTFIM_VIGENCIA),TRUNC(SYSDATE)))
                   OR (PCTRIBUTACAO.DTINICIO_VIGENCIA IS NULL AND PCTRIBUTACAO.DTFIM_VIGENCIA IS NULL) )
-              AND (
+              AND ((
                   -- não existe QUALQUER filtro de produto para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
@@ -6294,7 +6295,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = P_PARAMETROS.CODPROD
                   )
                 )
-              AND (
+              OR (
                   -- não existe QUALQUER filtro de NCM para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
@@ -6308,7 +6309,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = P_PARAMETROS.NCM
                   )
-                )
+                ))
             ORDER BY
             -- prioriza quem bate especificamente no PRODUTO/NCM
             CASE WHEN EXISTS (
@@ -7026,6 +7027,6 @@ create or replace package body FISCAL is
     V_DADOS_TRIBUTACAO := CALCULAR_IS(V_DADOS_TRIBUTACAO, P_MSG);
     RETURN V_DADOS_TRIBUTACAO;
   END CALCULAR_IS;
-  
-  
+
+
 END;
