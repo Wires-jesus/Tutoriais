@@ -552,8 +552,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PCDOCELETRONICO AS
 
 CREATE OR REPLACE VIEW VW_INT_C5_TRIB_PIS AS 
   (
-SELECT  e.codauxiliar,
-        e.codfilial,
+SELECT  c.codacesso codauxiliar,
+        c5.codfilial,
         r.codprod,
         r.numregiao,
         p.codtribpiscofins,
@@ -562,15 +562,19 @@ SELECT  e.codauxiliar,
         NVL(p.percpis,0) percpis,
         NVL(p.perccofins,0) perccofins,
         p.excluiricmsbasepiscofins,
-    e.nroempresa,
-    e.seqproduto
-  FROM  vw_int_c5_pcprodut E,
+        C5.codfilialintegracao nroempresa,
+        e.seqproduto        
+  FROM  monitorpdvmiddle.tb_produto e,  --vw_int_c5_pcprodut E,
+        monitorpdvmiddle.tb_prodcodigo c,
+        vw_int_c5_obter_filiais_c5 C5,
         pctabpr r,
         pctribpiscofins p
- WHERE  e.codprod = r.codprod
+ WHERE  e.codproduto = r.codprod
    AND  r.codtribpiscofins = p.codtribpiscofins
    AND  p.codtribpiscofins > 0
-   AND  r.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',e.codfilial,1)
+   AND  c.seqproduto = e.seqproduto
+   AND  c.nroempresa = c5.codfilialintegracao
+   AND  r.numregiao = ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',c5.codfilial,1)
 )
 
 \
