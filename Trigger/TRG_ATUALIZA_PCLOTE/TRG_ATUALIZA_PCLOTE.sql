@@ -798,8 +798,7 @@ BEGIN
                          NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
 						 
 				 IF NVL(:OLD.QTBLOQUEADA, 0) <> NVL(:NEW.QTBLOQUEADA, 0) THEN
-                   IF NVL(:OLD.NUMBONUS, 0)= 0 THEN
-                     UPDATE PCLOTE
+                   UPDATE PCLOTE
                         SET QTBLOQUEADA = GREATEST( GREATEST(((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0) )
                       WHERE NUMLOTE = :NEW.NUMLOTE
                         AND CODPROD = :NEW.CODPROD
@@ -808,23 +807,9 @@ BEGIN
                                                 :NEW.CODFILIALNF),'V',
                                                 DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',:NEW.CODFILIAL,'N')), 'S', :NEW.CODFILIALNF, :NEW.CODFILIAL), 'R',
                                                 DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',:NEW.CODFILIAL,'N')), 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL)), :NEW.CODFILIAL)
-                                           FROM PCNFENT E, PCCONSUM C
-                                          WHERE E.NUMTRANSENT = :NEW.NUMTRANSENT
-                                            AND E.CODCONT = C.CODCONTFOR);
-                   ELSE
-                     UPDATE PCLOTE
-                        SET QTBLOQUEADA = GREATEST( GREATEST(((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST(((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)) + NVL(:NEW.QTAVARIA, 0)), 0) )
-                      WHERE NUMLOTE = :NEW.NUMLOTE
-                        AND CODPROD = :NEW.CODPROD
-                        AND CODFILIAL = (SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(:NEW.CODFILIAL,
-                                                :NEW.CODFILIALRETIRA,
-                                                :NEW.CODFILIALNF),'V',
-                                                DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',:NEW.CODFILIAL,'N')), 'S', :NEW.CODFILIALNF, :NEW.CODFILIAL), 'R',
-                                                DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',:NEW.CODFILIAL,'N')), 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL)), :NEW.CODFILIAL)
-                                           FROM PCNFENT E, PCCONSUM C
-                                          WHERE E.NUMBONUS = :NEW.NUMBONUS
-                                            AND E.CODCONT = C.CODCONTFOR);
-                   END IF;
+                                           FROM PCNFENT E
+                                          WHERE E.NUMTRANSENT = NVL(:NEW.NUMTRANSENTORIGDESDLOTE, :NEW.NUMTRANSENT)
+                                            AND E.ESPECIE = 'NF');
                  END IF;
                EXCEPTION
                  WHEN OTHERS THEN
