@@ -3,96 +3,63 @@ CREATE OR REPLACE TRIGGER TRG_INATIVACAOPCEMBALAGEM_C5 BEFORE
 DECLARE
   VSEQPRODUTO PCDEPARAPRODC5.SEQPRODUTO%TYPE;
 BEGIN
-  IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO', :OLD.CODFILIAL, 'N') = 'S' THEN
-    BEGIN
-	/*
-	    Essa trigger existe para marcar embalagens que tiveram alteração de QTUNIT e QTMINIMAATACADO
-    */
-      SELECT SEQPRODUTO
-		INTO VSEQPRODUTO
-      FROM
-        PCDEPARAPRODC5 DEPARA
-      WHERE 1 =1 
-	    AND (
-        (DEPARA.CODAUXILIAR = :OLD.CODAUXILIAR
-	    AND DEPARA.CODPROD = :OLD.CODPROD
-		AND DEPARA.ATIVO = 'S') 
-		OR 
-		(DEPARA.CODAUXILIAR = 0
-	    AND DEPARA.CODPROD = :OLD.CODPROD
-		AND DEPARA.ATIVO = 'S'));
-    EXCEPTION 
-      WHEN NO_DATA_FOUND THEN 
-        VSEQPRODUTO := NULL;
-    END;
-
-    IF VSEQPRODUTO IS NOT NULL THEN
-      IF (NVL(:NEW.QTUNIT, 0) <> NVL(:OLD.QTUNIT, 0)) THEN
-        MERGE INTO PCINATIVACAOEMBALAGEMC5 P USING (
-            SELECT
-              F.CODFILIALINTEGRACAO                  NROEMPRESA,
-              1                                      NROSEGMENTO,
-              VSEQPRODUTO                            SEQPRODUTO,
-              LEAST(NVL(:OLD.QTUNIT, 1), 999999.999) QTDEMBALAGEM
-            FROM
-              PCFILIAL F
-			WHERE F.CODIGO = :OLD.CODFILIAL
-          ) T 
-        ON ( P.NROEMPRESA = T.NROEMPRESA
-          AND P.NROSEGMENTO = T.NROSEGMENTO
-          AND P.SEQPRODUTO = T.SEQPRODUTO
-          AND P.QTDEMBALAGEM = T.QTDEMBALAGEM 
-        )
-        WHEN NOT MATCHED THEN
-          INSERT (
-            P.NROEMPRESA,
-            P.NROSEGMENTO,
-            P.SEQPRODUTO,
-            P.QTDEMBALAGEM
-          ) VALUES (
-            T.NROEMPRESA,
-            T.NROSEGMENTO,
-            T.SEQPRODUTO,
-            T.QTDEMBALAGEM
-          );
+  IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('USAINTEGRACAOCONSINCO',
+                                        :OLD.CODFILIAL,
+                                        'N') = 'S' THEN
+  
+    FOR PRODS IN (SELECT SEQPRODUTO
+                    FROM PCDEPARAPRODC5 DEPARA
+                   WHERE 1 = 1
+                     AND ((DEPARA.CODAUXILIAR = :OLD.CODAUXILIAR AND
+                         DEPARA.CODPROD = :OLD.CODPROD AND
+                         DEPARA.ATIVO = 'S') OR
+                         (DEPARA.CODAUXILIAR = 0 AND
+                         DEPARA.CODPROD = :OLD.CODPROD AND
+                         DEPARA.ATIVO = 'S'))) LOOP
+    
+      VSEQPRODUTO := PRODS.SEQPRODUTO;
+      
+      IF VSEQPRODUTO IS NOT NULL THEN
+        IF (NVL(:NEW.QTUNIT, 0) <> NVL(:OLD.QTUNIT, 0)) THEN
+          MERGE INTO PCINATIVACAOEMBALAGEMC5 P
+          USING (SELECT F.CODFILIALINTEGRACAO NROEMPRESA,
+                        1 NROSEGMENTO,
+                        VSEQPRODUTO SEQPRODUTO,
+                        LEAST(NVL(:OLD.QTUNIT, 1), 999999.999) QTDEMBALAGEM
+                   FROM PCFILIAL F
+                  WHERE F.CODIGO = :OLD.CODFILIAL) T
+          ON (P.NROEMPRESA = T.NROEMPRESA AND P.NROSEGMENTO = T.NROSEGMENTO AND P.SEQPRODUTO = T.SEQPRODUTO AND P.QTDEMBALAGEM = T.QTDEMBALAGEM)
+          WHEN NOT MATCHED THEN
+            INSERT
+              (P.NROEMPRESA, P.NROSEGMENTO, P.SEQPRODUTO, P.QTDEMBALAGEM)
+            VALUES
+              (T.NROEMPRESA, T.NROSEGMENTO, T.SEQPRODUTO, T.QTDEMBALAGEM);
         END IF;
-
-        IF (NVL(:NEW.QTMINIMAATACADO, 0) <> NVL(:OLD.QTMINIMAATACADO, 0)) 
-		AND (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
+      
+        IF (NVL(:NEW.QTMINIMAATACADO, 0) <> NVL(:OLD.QTMINIMAATACADO, 0)) AND
+           (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                :OLD.CODFILIAL,
                                                'N') = 'S') THEN
-          MERGE INTO PCINATIVACAOEMBALAGEMC5 P 
-          USING (
-              SELECT
-                F.CODFILIALINTEGRACAO                           NROEMPRESA,
-                1                                               NROSEGMENTO,
-                VSEQPRODUTO                                     SEQPRODUTO,
-                LEAST(NVL(:OLD.QTMINIMAATACADO, 1), 999999.999) QTDEMBALAGEM
-              FROM
-                PCFILIAL F
-			  WHERE F.CODIGO = :OLD.CODFILIAL
-          ) T 
-          ON ( P.NROEMPRESA = T.NROEMPRESA
-            AND P.NROSEGMENTO = T.NROSEGMENTO
-            AND P.SEQPRODUTO = T.SEQPRODUTO
-            AND P.QTDEMBALAGEM = T.QTDEMBALAGEM 
-          ) 
+          MERGE INTO PCINATIVACAOEMBALAGEMC5 P
+          USING (SELECT F.CODFILIALINTEGRACAO NROEMPRESA,
+                        1 NROSEGMENTO,
+                        VSEQPRODUTO SEQPRODUTO,
+                        LEAST(NVL(:OLD.QTMINIMAATACADO, 1), 999999.999) QTDEMBALAGEM
+                   FROM PCFILIAL F
+                  WHERE F.CODIGO = :OLD.CODFILIAL) T
+          ON (P.NROEMPRESA = T.NROEMPRESA AND P.NROSEGMENTO = T.NROSEGMENTO AND P.SEQPRODUTO = T.SEQPRODUTO AND P.QTDEMBALAGEM = T.QTDEMBALAGEM)
           WHEN NOT MATCHED THEN
-            INSERT (
-              P.NROEMPRESA,
-              P.NROSEGMENTO,
-              P.SEQPRODUTO,
-              P.QTDEMBALAGEM
-            ) VALUES (
-              T.NROEMPRESA,
-              T.NROSEGMENTO,
-              T.SEQPRODUTO,
-              T.QTDEMBALAGEM
-            );
-          END IF;
+            INSERT
+              (P.NROEMPRESA, P.NROSEGMENTO, P.SEQPRODUTO, P.QTDEMBALAGEM)
+            VALUES
+              (T.NROEMPRESA, T.NROSEGMENTO, T.SEQPRODUTO, T.QTDEMBALAGEM);
         END IF;
       END IF;
-    END;
+    
+    END LOOP;
+  
+  END IF;
+END;
 
 
 \
