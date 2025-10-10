@@ -175,7 +175,7 @@
 		{
 			"nome": "PROCESSO_INT_C5_REFTRIB",
 			"tipo": "MIGRATION",
-			"versao": "8.0.08.000"
+			"versao": "8.0.09.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_OFERTA_R2011",
