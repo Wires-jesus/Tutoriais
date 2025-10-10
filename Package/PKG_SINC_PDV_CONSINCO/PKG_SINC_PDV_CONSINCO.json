@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "7.0.06.000"
+			"versao": "8.0.01.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -135,7 +135,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "8.0.04.000"
+			"versao": "8.0.05.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
@@ -235,7 +235,7 @@
 		{
 		    "nome": "TRIGGER_INATIVACOESREGISTROSC5",
 		    "tipo": "MIGRATION",
-		    "versao": "7.0.01.000"
+		    "versao": "8.0.01.000"
 		},
 		{
 			"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
