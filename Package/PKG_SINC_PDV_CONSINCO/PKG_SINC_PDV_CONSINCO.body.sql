@@ -139,6 +139,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     RETURN vSeq;
   END;  
 
+  FUNCTION obter_seqaliquota RETURN NUMBER IS
+   vSeq NUMBER := 0;
+   VSQL VARCHAR2(2000);
+  BEGIN
+    VSQL := 'SELECT DFSEQ_INT_C5_CCTALIQUOTA.NEXTVAL FROM DUAL';
+    
+    EXECUTE IMMEDIATE VSQL INTO vSeq;
+    RETURN vSeq;
+  END;  
+
   PROCEDURE gravar_log_erro(pErroMessage VARCHAR2,
                             pBACKTRACE   CLOB,
                             pCALLSTACK   CLOB) IS
@@ -7442,6 +7452,75 @@ BEGIN
           ('pkg_sinc_PDV_Consinco',
            'carrega_tb_cctconfiguracao',
            'carrega_tb_cctconfiguracao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
+PROCEDURE carrega_tb_cctaliquota(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctaliquota CC
+  USING (
+    SELECT 
+      SEQIMPOSTO,
+      DTAINICIALVALIDADE,
+      DTAFINALVALIDADE,
+      PERALIQ,
+      UF,
+      CODIBGE,
+      ATIVO,
+      IDREF
+    FROM VW_INT_C5_CCTALIQUOTA
+  ) S
+  ON (CC.SEQIMPOSTO = S.SEQIMPOSTO AND CC.IDREF = S.IDREF)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.DTAINICIALVALIDADE = S.DTAINICIALVALIDADE,
+      CC.DTAFINALVALIDADE = S.DTAFINALVALIDADE,
+      CC.PERALIQ = S.PERALIQ,
+      CC.UF = S.UF,
+      CC.CODIBGE = S.CODIBGE,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAINICIALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+       OR NVL(CC.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY')) <> NVL(S.DTAFINALVALIDADE, TO_DATE('01-01-1994','DD-MM-YYYY'))
+       OR NVL(CC.PERALIQ, -1) <> NVL(S.PERALIQ, -1)
+       OR NVL(CC.UF, '-') <> NVL(S.UF, '-')
+       OR NVL(CC.CODIBGE, -1) <> NVL(S.CODIBGE, -1)
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (SEQALIQUOTA, SEQIMPOSTO, DTAINICIALVALIDADE, DTAFINALVALIDADE, PERALIQ, UF, CODIBGE, ATIVO, IDREF)
+    VALUES ((PKG_SINC_PDV_CONSINCO.obter_seqaliquota), S.SEQIMPOSTO, S.DTAINICIALVALIDADE, S.DTAFINALVALIDADE, S.PERALIQ, S.UF, S.CODIBGE, S.ATIVO, S.IDREF);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctaliquota', 'carrega_tb_cctaliquota OK', SYSDATE, CURRENT_TIMESTAMP);
+  COMMIT;
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctaliquota',
+           'carrega_tb_cctaliquota ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctaliquota',
+           'carrega_tb_cctaliquota ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
