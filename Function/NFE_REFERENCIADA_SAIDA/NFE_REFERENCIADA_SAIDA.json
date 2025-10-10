@@ -6,6 +6,16 @@
    "nome": "TABELA_NFE_NFREFERENCIADA",
    "tipo":"OBJETO_PLSQL",
    "versao": "4.0.01.000"
+  },
+  {
+   "nome": "PCMOV",
+   "tipo":"TABELA",
+   "versao": "7.0.04.000"
+  },
+  {
+   "nome": "PCMOVPREFAT",
+   "tipo":"TABELA",
+   "versao": "7.0.04.000"
   }
  ]
 }
