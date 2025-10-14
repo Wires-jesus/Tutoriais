@@ -2037,7 +2037,7 @@ AS
          and pedidoi.qt = i.quantidade
          and rownum = 1  ) ,0) pbaserca,
         0 peracrescimocusto,
-        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'PERCALIQUOTA'),0) peracrescimofuncep,
+        NVL(a.percaliqfcpicms, 0) peracrescimofuncep,
         (SELECT percbasered
            FROM pctribut
           WHERE codst = a.codst) percbasered,
@@ -2167,7 +2167,7 @@ AS
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) valorultent,
-        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRTRIBUTO'),0) vlacrescimofuncep,
+        NVL(round(((i.vlrunitario / i.qtdembalagem) * a.percaliqfcpicms / 100),6), 0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -2562,7 +2562,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
          and pedidoi.qt = i.quantidade
          and rownum = 1) ,0) pbaserca,
         0 peracrescimocusto,
-        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'PERCALIQUOTA'),0) peracrescimofuncep,
+        NVL(a.percaliqfcpicms, 0) peracrescimofuncep,
         (SELECT percbasered
            FROM pctribut
           WHERE codst = a.codst) percbasered,
@@ -2686,7 +2686,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
            FROM vw_int_c5_custos
           WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) valorultent,
-        NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRTRIBUTO'),0) vlacrescimofuncep,
+        NVL(round(((i.vlrunitario / i.qtdembalagem) * a.percaliqfcpicms / 100),6), 0) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
