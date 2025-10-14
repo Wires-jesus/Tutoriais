@@ -275,9 +275,11 @@ IS
         VMINUTO        PCMOVCR.MINUTO%TYPE;  
         VVLSALDO       PCMOVCR.VLSALDO%TYPE;        
         VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
-        VVLTOTAL       PCPRESTANTECIPADA.VALOR%TYPE; 
+        VVLTOTAL       PCPRESTANTECIPADA.VALOR%TYPE;
+        VOLDNUMTRANS   PCPRESTANTECIPADA.NUMTRANS%TYPE;
     BEGIN
-        VROTINA   := SYS_CONTEXT('USERENV', 'MODULE');
+        VROTINA      := SYS_CONTEXT('USERENV', 'MODULE');
+        VOLDNUMTRANS := 0;
 
         SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
                EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) 
@@ -306,7 +308,8 @@ IS
                              A.NUMTRANSESTORNO,                                 /*18*/
                              A.DTPGTO,                                          /*19*/
                              C.CODBCOCOBANTECIPADA,                             /*20*/
-                             C.CODMOEDACOBANTECIPADA                            /*21*/                   
+                             C.CODMOEDACOBANTECIPADA,                           /*21*/                   
+                             NVL(A.NUMTRANS,0) NUMTRANS                         /*22*/
                         FROM PCPRESTANTECIPADA       A,
                              PCCOB                   C                   
                        WHERE A.CODCOBPGTO            = C.CODCOB
@@ -323,11 +326,15 @@ IS
                 RETURN;
             END IF;           
 
-            SELECT NVL(PROXNUMTRANS,1)
-              INTO VNUMTRANS 
-              FROM PCCONSUM FOR UPDATE;
-            UPDATE PCCONSUM
-               SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+            IF (DADOS.NUMTRANS = 0) THEN 
+                SELECT NVL(PROXNUMTRANS,1)
+                  INTO VNUMTRANS 
+                  FROM PCCONSUM FOR UPDATE;
+                UPDATE PCCONSUM
+                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+            ELSE
+                VNUMTRANS := DADOS.NUMTRANS;
+            END IF;
 
             IF (DADOS.NUMORCA IS NULL) THEN
                 SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)
@@ -349,8 +356,15 @@ IS
             END IF;
 
             COMMIT WORK;   
+               
+            IF (DADOS.NUMTRANS > 0) THEN            
+                SELECT COUNT(*)
+                  INTO VOLDNUMTRANS
+                  FROM PCMOVCR
+                 WHERE NUMTRANS = DADOS.NUMTRANS;
+            END IF;
 
-            IF (DADOS.QUITAPCPREST = 'S') THEN    
+            IF (DADOS.QUITAPCPREST = 'S') AND (VOLDNUMTRANS = 0) THEN    
             
                 SELECT VLSALDO 
                   INTO VVLSALDO  
@@ -360,7 +374,7 @@ IS
                                   WHERE CODBANCO = DADOS.CODBCOCOBANTECIPADA
                                     AND CODCOB   = DADOS.CODMOEDACOBANTECIPADA)
                    FOR UPDATE;                                    
-
+                
                 INSERT INTO PCMOVCR(NUMTRANS,                                       /*01*/
                                     DATA,                                           /*02*/
                                     CODBANCO,                                       /*03*/
@@ -404,38 +418,47 @@ IS
 
             END IF; --VQUITAPCPREST
 
-            INSERT INTO PCCRECLI(CODCLI,                                        /*01*/
-                                 DTLANC,										/*02*/
-                                 CODFILIAL,                                     /*03*/
-                                 VALOR,                                         /*04*/
-                                 CODFUNC,                                       /*05*/
-                                 HORA,                                          /*06*/
-                                 MINUTO,                                        /*07*/
-                                 HISTORICO,                                     /*08*/
-                                 CODFUNCLANC,                                   /*09*/
-                                 NUMERARIO,                                     /*10*/
-                                 CODMOVIMENTO,                                  /*11*/
-                                 NUMTRANS,                                      /*12*/
-                                 CODROTINA,                                     /*13*/
-                                 SITUACAO,                                      /*14*/
-                                 ROTINAINSERT,                                  /*15*/
-                                 ROTINAULTIMAALTERACAO)                         /*16*/
-                          VALUES(DADOS.CODCLI,
-                                 TRUNC(SYSDATE),
-                                 DADOS.CODFILIAL,
-                                 VVLTOTAL,
-                                 PMATRICULA,
-                                 VHORA,
-                                 VMINUTO,
-                                 'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
-                                 PMATRICULA,
-                                 'S',
-                                 DADOS.CODBCOCOBANTECIPADA,
-                                 VNUMTRANS,
-                                 1295,
-                                 'A',
-                                 VROTINA,
-                                 VROTINA);
+            IF (DADOS.NUMTRANS > 0) THEN
+                SELECT COUNT(*)
+                  INTO VOLDNUMTRANS
+                  FROM PCCRECLI 
+                 WHERE NUMTRANS = DADOS.NUMTRANS;
+            END IF; 
+             
+            IF (VOLDNUMTRANS = 0) THEN
+                INSERT INTO PCCRECLI(CODCLI,                                        /*01*/
+                                     DTLANC,										/*02*/
+                                     CODFILIAL,                                     /*03*/
+                                     VALOR,                                         /*04*/
+                                     CODFUNC,                                       /*05*/
+                                     HORA,                                          /*06*/
+                                     MINUTO,                                        /*07*/
+                                     HISTORICO,                                     /*08*/
+                                     CODFUNCLANC,                                   /*09*/
+                                     NUMERARIO,                                     /*10*/
+                                     CODMOVIMENTO,                                  /*11*/
+                                     NUMTRANS,                                      /*12*/
+                                     CODROTINA,                                     /*13*/
+                                     SITUACAO,                                      /*14*/
+                                     ROTINAINSERT,                                  /*15*/
+                                     ROTINAULTIMAALTERACAO)                         /*16*/
+                              VALUES(DADOS.CODCLI,
+                                     TRUNC(SYSDATE),
+                                     DADOS.CODFILIAL,
+                                     VVLTOTAL,
+                                     PMATRICULA,
+                                     VHORA,
+                                     VMINUTO,
+                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                     PMATRICULA,
+                                     'S',
+                                     DADOS.CODBCOCOBANTECIPADA,
+                                     VNUMTRANS,
+                                     1295,
+                                     'A',
+                                     VROTINA,
+                                     VROTINA);
+            END IF;
 
             UPDATE PCPRESTANTECIPADA
                SET DTCONFIRMACAOPGTO    = TRUNC(SYSDATE),
@@ -443,7 +466,7 @@ IS
                    MATRICULACONFIRMACAO = PMATRICULA,
                    STATUSPGTO           = 'PAGO',
                    NUMTRANS             = VNUMTRANS,
-                   VALOR                = VVLTOTAL
+                   VALOR                = DADOS.VALORPEDIDO - DADOS.VLRCREDITOABATIDO
              WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGADIANTADO;
         END LOOP;
         COMMIT WORK;
