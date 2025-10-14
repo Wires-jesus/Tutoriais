@@ -12861,7 +12861,7 @@ END IF;
            AND E.NUMTRANSENT = pnIDENTIFICADOR
            AND M.DTCANCEL IS NULL
            AND M.STATUS <> 'A'
-           AND E.ESPECIE = 'NF';
+           AND E.ESPECIE NOT IN ('CT', 'CO', 'CF', 'OE');
     ELSE
       SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
                                               M.CODFILIALRETIRA,
