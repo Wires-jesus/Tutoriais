@@ -441,7 +441,8 @@ IS
                                      CODROTINA,                                     /*13*/
                                      SITUACAO,                                      /*14*/
                                      ROTINAINSERT,                                  /*15*/
-                                     ROTINAULTIMAALTERACAO)                         /*16*/
+                                     ROTINAULTIMAALTERACAO,                         /*16*/
+                                     NUMPED)                                        /*17*/
                               VALUES(DADOS.CODCLI,
                                      TRUNC(SYSDATE),
                                      DADOS.CODFILIAL,
@@ -457,7 +458,8 @@ IS
                                      1295,
                                      'A',
                                      VROTINA,
-                                     VROTINA);
+                                     VROTINA,
+                                     NVL(DADOS.NUMPED,DADOS.NUMORCA));
             END IF;
 
             UPDATE PCPRESTANTECIPADA
