@@ -962,16 +962,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           ELSE 
                             'N'
                       END PESAVEL,
-					CASE 
-					  WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
-					          FROM PCEMBALAGEM e1
-					         WHERE e1.codprod = v.codprod
-							      AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
-					          AND tipoembalagem IN ('U', 'P')) > 1 THEN
-					  'S'
-					  ELSE
-					  'N'
-					END PERMITEMULTIPLICACAO, 
+          CASE 
+            WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
+                    FROM PCEMBALAGEM e1
+                   WHERE e1.codprod = v.codprod
+                    AND e1.CODAUXILIAR = CASE WHEN v.ORIGEM = 'D' THEN v.CODAUXILIAR ELSE e1.CODAUXILIAR END
+                    AND tipoembalagem IN ('U', 'P')) > 1 THEN
+            'S'
+            ELSE
+            'N'
+          END PERMITEMULTIPLICACAO, 
                     v.ativo,
                     v.seqmarca,
                     v.seqfamgrupo,
@@ -997,12 +997,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                            0
                       ELSE 100 
                     END)  PERCBASECOFINS,
-					(CASE
-					  WHEN V.PESAVEL = 'S' THEN
-					    'S'
-					  ELSE 
-					    'N'
-					  END) VENDAFRACAO
+          (CASE
+            WHEN V.PESAVEL = 'S' THEN
+              'S'
+            ELSE 
+              'N'
+            END) VENDAFRACAO
 
              FROM VW_INT_C5_FAMILIA v, 
                   /*Para contemplar as alterações do pis/cofins na carga foi necessário
@@ -1017,12 +1017,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
+            VW_INT_C5_EMBPROD_MAT E
                                                 
-                        (SELECT S.ULTIMAEXECUCAO
+                        /*(SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
                          WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
-                        ) DATAPADRAO 
+                        ) DATAPADRAO */
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
+           AND   E.CODPROD = R.CODPROD
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
                    AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
                    AND   R.NUMREGIAO = ( SELECT VALOR
@@ -1031,8 +1033,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                          AND VALOR <> '99'
                                          AND VALOR IS NOT NULL
                                          AND ROWNUM = 1)-- somente os dados de 1 região
-                   AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
-                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)
+                   /*AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
+                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)*/
 
                    UNION ALL
 
@@ -1043,12 +1045,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABTRIB R, 
                         PCTRIBPISCOFINS T,
-                        (SELECT * FROM VW_INT_C5_OBTER_FILIAIS_C5 WHERE ROWNUM = 1) C5,
+            VW_INT_C5_EMBPROD_MAT E,
+                        (SELECT * FROM VW_INT_C5_OBTER_FILIAIS_C5 WHERE ROWNUM = 1) C5
                                                 
-                        (SELECT S.ULTIMAEXECUCAO
+                        /*(SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
                          WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
-                        ) DATAPADRAO 
+                        ) DATAPADRAO */
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
                    AND   R.CODFILIALNF = C5.CODFILIAL
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
@@ -1057,8 +1060,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                         FROM PCFILIAL F
                                         WHERE F.UF IS NOT NULL
                                         AND   ROWNUM = 1)
-                   AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
-                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)      
+                   /*AND  (NVL(T.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao OR
+                         NVL(R.dtalterc5, DATAPADRAO.ultimaexecucao) >= DATAPADRAO.ultimaexecucao)      */
                   ) PRODPISCOFINS --vinculo do produto com os dados de pis e cofins
              WHERE v.codprod = PRODPISCOFINS.CODPROD(+)
                 

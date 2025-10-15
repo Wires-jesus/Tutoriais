@@ -114,6 +114,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_CATEGORIA AS
              SELECT TO_CHAR(NROEMPRESA) valor
              from MONITORPDVMIDDLE.TB_EMPRESA
              where FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
+			 AND ATIVO = 'S'
             ) regparaovarejo
     WHERE regparaovarejo.valor IS NOT NULL) CATEG,
           pcdeparacategoriac5 c
