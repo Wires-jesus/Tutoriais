@@ -6426,6 +6426,14 @@ IS PRAGMA SERIALLY_REUSABLE;
              END ordenacao_markup, -- DDMEDICA-6837
              pcpromocaomed.tipopromocao, -- DDMEDICA-6837
              pcpromocaomed.tipopolitica -- DDMEDICA-6837
+             , CASE WHEN (pcdesconto.codprod      IS NOT NULL) THEN 1
+                    WHEN (pcdesconto.codfornec    IS NOT NULL) THEN 2
+                    WHEN (pcdesconto.codmarca     IS NOT NULL) THEN 3
+                    WHEN (pcdesconto.codcategoria IS NOT NULL) THEN 4
+                    WHEN (pcdesconto.codsec       IS NOT NULL) THEN 5
+                    WHEN (pcdesconto.codlinhaprod IS NOT NULL) THEN 6
+                    WHEN (pcdesconto.codepto      IS NOT NULL) THEN 7
+                    ELSE 8 END ABA_PROMOCAO             
         FROM pcdesconto
            , pcpromocaomed -- DDMEDICA-6837
        WHERE pcdesconto.codpromocaomed = pcpromocaomed.codpromocaomed(+) -- DDMEDICA-6837
@@ -6522,6 +6530,11 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnvalorcotanumverba     NUMBER;      -- DDMEDICA-5009
     vvsemverbavldesccmv     VARCHAR2(1); -- DDMEDICA-5009
 
+    vnabapromocaomed           NUMBER;
+    vvtipopromocaomed          VARCHAR2(1);
+    vvtipopoliticapromocaomed  VARCHAR2(1);
+    vvexistedecontozero        VARCHAR2(1);  
+    
     --Dados do Cliente
     vncodcliprinc NUMBER;
     vncodatv1     NUMBER;
@@ -6585,6 +6598,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnprecofixo              := NULL; -- HIS.03080.2016
     vvtipoprecodesc          := NULL; -- HIS.03080.2016
     vniniciointervaloqt      := NULL; -- DDMEDICA-6837    
+    vnabapromocaomed         := NULL;
+    vvtipopoliticapromocaomed:= NULL;
+    vvtipopromocaomed        := NULL;
 
     -- DDMEDICA-5009 - Inicializa Valores de Verba para Rebaixa de CMV da Promoção
     vnvldesccmvpromocaomed   := NULL; -- DDMEDICA-5009
@@ -6726,7 +6742,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                -- HIS.03080.2016  - Variáveis da Implementação de Promoção com Preço Fixo
                vncoddesconto          := reg_pdescontos.coddesconto;          -- HIS.03080.2016
                vncodpromocaomed       := reg_pdescontos.codpromocaomed;       -- HIS.03080.2016
-               
+               vnabapromocaomed       := reg_pdescontos.ABA_PROMOCAO;        
+               vvtipopoliticapromocaomed := reg_pdescontos.tipopolitica;    
+               vvtipopromocaomed         := reg_pdescontos.tipopromocao;
+                          
                IF (reg_pdescontos.tipopolitica = 'P' OR reg_pdescontos.tipopolitica = 'F') AND (vvAcrescimoPlPagPrecoFixoMed = 'S') THEN
                  vnprecofixo            := reg_pdescontos.precofixopromocaomed * (1 + vnPerTxFim / 100);
                ELSE
@@ -6911,6 +6930,31 @@ IS PRAGMA SERIALLY_REUSABLE;
 
            END IF; -- Fim Condição: Se Promoção, verificar se Pode Comprar Promoção
           END LOOP; -- reg_pdescontos
+          
+          -- Cenário onde o cliente quer conceder um desconto a mais no OL, porém o desconto
+          -- a mais é concedido no fornecedor, e isenta alguns produtos desse fornecedor.
+          IF (vncodpromocaomed > 0)  AND -- Aplicou promoção
+             (vnabapromocaomed <> 1) AND -- Não foi da aba de produto
+             (vvtipopromocaomed <> 'R') AND -- Não foi promoção de markup
+             (vvtipopoliticapromocaomed = 'D') AND -- A política da promoção foi de desconto
+             (p_tipofv = 'OL') THEN -- Somente OL             
+             BEGIN
+               SELECT 'S'
+                 INTO vvexistedecontozero
+                 FROM PCDESCONTO
+                WHERE CODPROMOCAOMED = vncodpromocaomed
+                  AND CODPROD = p_codprod
+                  AND (NVL(PERCDESC,0) + NVL(PERCDESCFIN,0)) = 0
+                  AND ROWNUM = 1; 
+             EXCEPTION
+               WHEN NO_DATA_FOUND THEN
+                 vvexistedecontozero := 'N';
+             END;
+             IF (vvexistedecontozero = 'S') THEN
+               vnpercdesc   := 0;
+               vnperdescfin := 0;               
+             END IF;
+          END IF;
 
          /***********************************
           ** ACRESCIMOS - 4663.087543.2014 **
