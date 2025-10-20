@@ -1,0 +1,6 @@
+{
+    "nome": "AJUSTE_FUNCRESUMOFATURAMENTO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+     ]
+  }
