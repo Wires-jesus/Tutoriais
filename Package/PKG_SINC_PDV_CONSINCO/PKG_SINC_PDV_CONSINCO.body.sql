@@ -1017,14 +1017,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABPR R, 
                         PCTRIBPISCOFINS T,
-            VW_INT_C5_EMBPROD_MAT E
+                        VW_INT_C5_EMBPROD_MAT E
                                                 
                         /*(SELECT S.ULTIMAEXECUCAO
                          FROM PCCONTROLECONSINCO S
                          WHERE UPPER(S.OBJETOREFERENCIA) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_FAMILIA'
                         ) DATAPADRAO */
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
-           AND   E.CODPROD = R.CODPROD
+                   AND   E.CODPROD = R.CODPROD
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
                    AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') <> 'S'
                    AND   R.NUMREGIAO = ( SELECT VALOR
@@ -1045,7 +1045,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                           T.EXCLUIRICMSBASEPISCOFINS
                    FROM PCTABTRIB R, 
                         PCTRIBPISCOFINS T,
-            VW_INT_C5_EMBPROD_MAT E,
+                        VW_INT_C5_EMBPROD_MAT E,
                         (SELECT * FROM VW_INT_C5_OBTER_FILIAIS_C5 WHERE ROWNUM = 1) C5
                                                 
                         /*(SELECT S.ULTIMAEXECUCAO
@@ -1054,6 +1054,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                         ) DATAPADRAO */
                    WHERE R.CODTRIBPISCOFINS = T.CODTRIBPISCOFINS 
                    AND   R.CODFILIALNF = C5.CODFILIAL
+				   AND   R.CODFILIALNF = E.CODFILIAL
+				   AND   R.CODPROD = E.CODPROD
+				   AND   E.CODFILIAL = C5.CODFILIAL
                    AND   R.CODTRIBPISCOFINS IS NOT NULL
                    AND   FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_USATRIBUTACAOPORUF', '99', 'N') = 'S'
                    AND   R.UFDESTINO = (SELECT F.UF
