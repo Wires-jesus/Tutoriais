@@ -164,7 +164,7 @@ IS
             IF (DADOS.STATUSPGTO IN ('AGUARDANDO PAGAMENTO','PAGO')) THEN
 
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
-                    
+
                     IF DADOS.NUMORCA IS NOT NULL THEN
                         SELECT POSICAO 
                           INTO VPOSICAO
@@ -173,7 +173,7 @@ IS
                            AND CODCLI    = DADOS.CODCLI
                            AND CODFILIAL = DADOS.CODFILIAL;
                     END IF;
-                    
+
                     IF VPOSICAO IS NULL THEN
 						SELECT POSICAO 
 						  INTO VPOSICAO
@@ -356,7 +356,7 @@ IS
             END IF;
 
             COMMIT WORK;   
-               
+
             IF (DADOS.NUMTRANS > 0) THEN            
                 SELECT COUNT(*)
                   INTO VOLDNUMTRANS
@@ -365,7 +365,7 @@ IS
             END IF;
 
             IF (DADOS.QUITAPCPREST = 'S') AND (VOLDNUMTRANS = 0) THEN    
-            
+
                 SELECT VLSALDO 
                   INTO VVLSALDO  
                   FROM PCMOVCR
@@ -374,27 +374,27 @@ IS
                                   WHERE CODBANCO = DADOS.CODBCOCOBANTECIPADA
                                     AND CODCOB   = DADOS.CODMOEDACOBANTECIPADA)
                    FOR UPDATE;                                    
-                
-                INSERT INTO PCMOVCR(NUMTRANS,                                       /*01*/
-                                    DATA,                                           /*02*/
-                                    CODBANCO,                                       /*03*/
-                                    CODCOB,                                         /*04*/
-                                    CODFILIAL,                                      /*05*/
-                                    VALOR,                                          /*06*/
-                                    TIPO,                                           /*07*/
-                                    HISTORICO,                                      /*08*/
-                                    NUMCARR,                                        /*09*/
-                                    VLSALDO,                                        /*10*/
-                                    HORA,                                           /*11*/
-                                    MINUTO,                                         /*12*/
-                                    CODFUNC,                                        /*13*/
-                                    INDICE,                                         /*14*/
-                                    HISTORICO2,                                     /*15*/
-                                    CODROTINALANC,                                  /*16*/
-                                    ESTORNO,                                        /*17*/
-                                    CODCLI,                                         /*18*/
-                                    DATACOMPLETA,                                   /*19*/
-                                    ROTINALANCAMENTO)                               /*20*/
+
+                INSERT INTO PCMOVCR(NUMTRANS,                                   /*01*/
+                                    DATA,                                       /*02*/
+                                    CODBANCO,                                   /*03*/
+                                    CODCOB,                                     /*04*/
+                                    CODFILIAL,                                  /*05*/
+                                    VALOR,                                      /*06*/
+                                    TIPO,                                       /*07*/
+                                    HISTORICO,                                  /*08*/
+                                    NUMCARR,                                    /*09*/
+                                    VLSALDO,                                    /*10*/
+                                    HORA,                                       /*11*/
+                                    MINUTO,                                     /*12*/
+                                    CODFUNC,                                    /*13*/
+                                    INDICE,                                     /*14*/
+                                    HISTORICO2,                                 /*15*/
+                                    CODROTINALANC,                              /*16*/
+                                    ESTORNO,                                    /*17*/
+                                    CODCLI,                                     /*18*/
+                                    DATACOMPLETA,                               /*19*/
+                                    ROTINALANCAMENTO)                           /*20*/
                              VALUES(VNUMTRANS,
                                     TRUNC(SYSDATE),
                                     DADOS.CODBCOCOBANTECIPADA,
@@ -402,14 +402,14 @@ IS
                                     DADOS.CODFILIAL,
                                     VVLTOTAL,
                                     'D',
-                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGADIANTADO||')',
                                     0,
                                     (VVLSALDO + DADOS.VALOR),
                                     VHORA,
                                     VMINUTO,
                                     PMATRICULA,
                                     'B',
-                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                    'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGADIANTADO||')',
                                     1295,
                                     'N',
                                     DADOS.CODCLI,
@@ -424,25 +424,25 @@ IS
                   FROM PCCRECLI 
                  WHERE NUMTRANS = DADOS.NUMTRANS;
             END IF; 
-             
+
             IF (VOLDNUMTRANS = 0) THEN
-                INSERT INTO PCCRECLI(CODCLI,                                        /*01*/
-                                     DTLANC,										/*02*/
-                                     CODFILIAL,                                     /*03*/
-                                     VALOR,                                         /*04*/
-                                     CODFUNC,                                       /*05*/
-                                     HORA,                                          /*06*/
-                                     MINUTO,                                        /*07*/
-                                     HISTORICO,                                     /*08*/
-                                     CODFUNCLANC,                                   /*09*/
-                                     NUMERARIO,                                     /*10*/
-                                     CODMOVIMENTO,                                  /*11*/
-                                     NUMTRANS,                                      /*12*/
-                                     CODROTINA,                                     /*13*/
-                                     SITUACAO,                                      /*14*/
-                                     ROTINAINSERT,                                  /*15*/
-                                     ROTINAULTIMAALTERACAO,                         /*16*/
-                                     NUMPED)                                        /*17*/
+                INSERT INTO PCCRECLI(CODCLI,                                    /*01*/
+                                     DTLANC,									/*02*/
+                                     CODFILIAL,                                 /*03*/
+                                     VALOR,                                     /*04*/
+                                     CODFUNC,                                   /*05*/
+                                     HORA,                                      /*06*/
+                                     MINUTO,                                    /*07*/
+                                     HISTORICO,                                 /*08*/
+                                     CODFUNCLANC,                               /*09*/
+                                     NUMERARIO,                                 /*10*/
+                                     CODMOVIMENTO,                              /*11*/
+                                     NUMTRANS,                                  /*12*/
+                                     CODROTINA,                                 /*13*/
+                                     SITUACAO,                                  /*14*/
+                                     ROTINAINSERT,                              /*15*/
+                                     ROTINAULTIMAALTERACAO,                     /*16*/
+                                     NUMPED)                                    /*17*/
                               VALUES(DADOS.CODCLI,
                                      TRUNC(SYSDATE),
                                      DADOS.CODFILIAL,
@@ -450,7 +450,7 @@ IS
                                      PMATRICULA,
                                      VHORA,
                                      VMINUTO,
-                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: "PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO")',
+                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGADIANTADO||')',
                                      PMATRICULA,
                                      'S',
                                      DADOS.CODBCOCOBANTECIPADA,
