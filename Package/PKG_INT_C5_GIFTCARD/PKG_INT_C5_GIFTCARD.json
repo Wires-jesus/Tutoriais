@@ -7,11 +7,6 @@
       "tipo": "OBJETO_PLSQL",
       "versao": "6.0.01.000"
     },
-    {
-      "nome": "PROCESSO_INT_C5_VENDA",
-      "tipo": "MIGRATION",
-      "versao": "8.0.04.000"
-    },
 	{
 		"nome": "VW_INT_C5_OBTER_FILIAIS_C5",
 		"tipo": "OBJETO_PLSQL",
@@ -36,6 +31,11 @@
 	  "nome": "PCFILAMENSAGEMERRO",
 	  "tipo": "TABELA",
 	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PROCESSO_INT_C5_DOC_UTILS",
+	  "tipo": "MIGRATION",
+	  "versao": "8.0.01.000"
 	}
   ]
 	
