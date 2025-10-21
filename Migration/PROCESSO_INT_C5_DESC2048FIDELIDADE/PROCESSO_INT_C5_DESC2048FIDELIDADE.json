@@ -6,6 +6,46 @@
       "nome": "PCFINALIZADORAFIDELIDADE",
       "tipo": "TABELA",
       "versao": "7.0.01.000"
-    }
+    },
+	{
+	  "nome": "PCDESCONTOFIDELIDADE",
+	  "tipo": "TABELA",
+	  "versao": "7.0.02.000"
+	},
+	{
+	  "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.02.000"
+	},
+	{
+	  "nome": "PCGRUPOFIDELIDADEDESCONTO",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCPRODUT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	}
+	{
+	  "nome": "PCCONTROLECONSINCO",
+	  "tipo": "TABELA",
+	  "versao": "4.0.05.000"
+	},
+	{
+	  "nome": "PCEMBALAGEM",
+	  "tipo": "TABELA",
+	  "versao": "4.0.06.000"
+	},
+	{
+	  "nome": "PCDEPARAPRODC5",
+	  "tipo": "TABELA",
+	  "versao": "5.0.03.000"
+	},
+	{
+	  "nome": "PCCLIENT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.03.000"
+	}
   ]
 }

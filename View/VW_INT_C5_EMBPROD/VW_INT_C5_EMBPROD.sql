@@ -127,9 +127,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
         AND f.codprod >= 0
         --AND p.codprod >= 0
         AND LENGTH(e.codauxiliar) <= 14
-        AND NOT EXISTS (SELECT 1 
+        /*AND NOT EXISTS (SELECT 1 
 		                  FROM VW_INT_C5_EMBPROD_INV I
-						 WHERE I.CODPROD = P.CODPROD)
+						 WHERE I.CODPROD = P.CODPROD)*/
     AND FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
                                                                   e.CODFILIAL,
                                                                   'N') = 'S'
@@ -320,9 +320,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_EMBPROD AS
     AND E.CODPROD >= 0
     AND PF.CODPROD >= 0
     AND LENGTH(E.CODAUXILIAR) <= 14
-	AND NOT EXISTS (SELECT 1 
+	/*AND NOT EXISTS (SELECT 1 
 				  FROM VW_INT_C5_EMBPROD_INV I
-				 WHERE I.CODPROD = P.CODPROD)
+				 WHERE I.CODPROD = P.CODPROD)*/
     AND TPR.NUMREGIAO = (SELECT FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
                                                                   FC5.CODFILIAL,
                                                                   1)
