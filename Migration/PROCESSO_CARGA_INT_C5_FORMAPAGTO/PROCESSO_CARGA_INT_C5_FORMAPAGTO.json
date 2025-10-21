@@ -1,11 +1,15 @@
-{"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome": "PCFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
-    {"nome": "PCFINALIZADORA","tipo": "TABELA","versao": "7.0.01.000"},
-    {"nome": "PCCOB","tipo": "TABELA","versao": "4.0.02.000"},
-    {"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
-    {
-        "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
-        "tipo": "OBJETO_PLSQL",
-        "versao": "7.0.02.000"
-    }
-]}
+{
+	"nome":"PROCESSO_CARGA_INT_C5_FORMAPAGTO",
+	"tipoPLSQL":"MIGRATION",
+	"dependencias":[
+		{"nome": "PCFILIAL","tipo": "TABELA","versao": "4.0.01.000"},
+		{"nome": "PCFINALIZADORA","tipo": "TABELA","versao": "7.0.01.000"},
+		{"nome": "PCCOB","tipo": "TABELA","versao": "4.0.02.000"},
+		{"nome": "PCPLPAG","tipo": "TABELA","versao": "4.0.02.000"},
+		{"nome": "VW_INT_C5_OBTER_FILIAIS_C5", "tipo": "OBJETO_PLSQL", "versao": "7.0.02.000"},
+		{"nome": "PCDEPARAPLPAGC5", "tipo": "TABELA", "versao": "4.0.02.000"},
+		{"nome": "PCCONTROLECONSINCO", "tipo": "TABELA", "versao": "4.0.05.000"},
+		{"nome": "PCPARCELDEPTOFINALIZADORA", "tipo": "TABELA", "versao": "4.0.01.000"},
+		{"nome": "PCBINCARTAO", "tipo": "TABELA", "versao": "6.0.01.000"}
+ ]
+}
