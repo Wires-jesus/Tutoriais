@@ -3413,7 +3413,10 @@ IS PRAGMA SERIALLY_REUSABLE;
 		  AND (PFL_D.CODPROD           = DADOSFILIAL_O.CODPROD_O)
 		  AND (PFL_D.CODFILIAL         = DADOSFILIAL_O.CODFILIAL_D)
 		  AND (TAB_D.CODPROD           = DADOSFILIAL_O.CODPROD_O) 
-		  AND (TAB_D.NUMREGIAO         = PRC_D.NUMREGIAO))';	  
+		  AND (TAB_D.NUMREGIAO         = PRC_D.NUMREGIAO)';	  
+	  
+      vSqlRotaCompra := vSqlRotaCompra ||
+        ' AND (DADOSFILIAL_O.CODFILIAL_O IN (' ||  P_CODFILIAL_ORIGEM || '))';	  
 	  
       -- Insere na Tabela Temporária
       EXECUTE IMMEDIATE vSqlRotaCompra;
