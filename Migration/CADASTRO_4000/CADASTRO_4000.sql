@@ -1,5 +1,6 @@
 DECLARE 
   vTemRotinaTabela integer := 0;
+  v_DeleteBaseCBSIBS_Antigo   varchar2(4000);  
 BEGIN
 
   
@@ -48,7 +49,34 @@ BEGIN
   
   COMMIT;
   
+  -----------------------------------------------------------------
+  --Delete dos cadastros antigos para não gerar erro na pkg FORMULA
+  
+  v_DeleteBaseCBSIBS_Antigo := 'DELETE FROM pctributacao WHERE base_calculo IN (';
+  
+  FOR i IN 1..15 LOOP
+    IF i > 1 THEN
+      v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',';
+    END IF;
+    v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || '''BASE_CBS_' || i || '''';
+  END LOOP;
 
+  FOR i IN 1..15 LOOP
+    v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IBS_' || i || '''';
+  END LOOP;
+  
+  FOR i IN 2..15 LOOP
+    v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IS_' || i || '''';
+  END LOOP;  
+
+  v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ')';
+
+  EXECUTE IMMEDIATE v_DeleteBaseCBSIBS_Antigo;
+
+  COMMIT;  
+    
+
+  -----------------------------------------------------------------
   -- O código 29 representava o cadastro da base do CBS que foi unificado no codigo 28
   --Exclusão e insersão dos tipos de fórmula.
   DELETE FROM PCFORMULA WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33);
