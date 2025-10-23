@@ -17337,7 +17337,9 @@ IS PRAGMA SERIALLY_REUSABLE;
          nVLDESCCMVPROMOCAOMED         PCDESCONTO.VLDESCCMVPROMOCAOMED%TYPE,
          nREGRAALTERARDESCONTO         PCDESCONTO.REGRAALTERARDESCONTO%TYPE,
          nQTCOMBOMED                   PCDESCONTO.QTCOMBOMED%TYPE,
-         nQTMINIMAMED                  PCDESCONTO.QTMINIMAMED%TYPE
+         nQTMINIMAMED                  PCDESCONTO.QTMINIMAMED%TYPE,
+         vOBRIGATORIOPARCIALMED        PCDESCONTO.OBRIGATORIOPARCIALMED%TYPE,
+         nQTMINMIXFORNECEDORMED        PCDESCONTO.QTMINMIXFORNECEDORMED%TYPE
          );
     vrDESCONTO                         TRecDESCONTO;
     -- Dados da Promoção
@@ -17402,6 +17404,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnQtMaxComboMed                    PCPROMOCAOMED.QTMAXCOMBOMED%TYPE;
     vnCodLiberacaoCanais               PCPROMOCAOMED.CODLIBERACAOCANAIS%TYPE;
     vnCodReferencia                    PCPROMOCAOMED.CODREFERENCIA%TYPE;
+    vnCodFiltroAvancado                PCPROMOCAOMED.CODFILTROAVANCADO%TYPE;    
 
     -- Dados Complementares da Promoção
     vvApenasPlPagMax                   PCDESCONTO.APENASPLPAGMAX%TYPE;
@@ -17431,6 +17434,10 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     -- Variável de Controle de Normalização da PCDESCONTO
     vvUsaRegraNormalizaDesc            VARCHAR2(1);
+    
+    -- Variável de controle dos filtros avançados
+    vvOBRIGATORIOPARCIALMED            PCDESCONTO.OBRIGATORIOPARCIALMED%TYPE;
+    vvQTMINMIXFORNECEDORMED            PCDESCONTO.QTMINMIXFORNECEDORMED%TYPE;    
 
     -- Variáveis de Controle para Indicar que os Produtos podem ser Editados - EDTPRM
     TYPE TRecEditarPromocao            IS RECORD(
@@ -19670,6 +19677,13 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOPRODUTO_FAIXA(1).VLDESCCMVPROMOCAOMED     := vtPCMED_PROMOCAOPRODUTO(idxProduto).VLDESCCMVPROMOCAOMED;
               vtPCMED_PROMOCAOPRODUTO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOPRODUTO(idxProduto).REGRAALTERARDESCONTO;
 
+              vvOBRIGATORIOPARCIALMED := NULL;
+              vvQTMINMIXFORNECEDORMED := NULL;
+              IF (vvTipoPolitica = 'D') AND (vvTipoPromocao = 'M') THEN
+                vvOBRIGATORIOPARCIALMED := vtPCMED_PROMOCAOPRODUTO(idxProduto).OBRIGATORIOPARCIAL;
+                vvQTMINMIXFORNECEDORMED := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTMINMIXFORNECEDOR;                
+              END IF;    
+
               -- Campo de Controle de Item Obrigatório
               IF    vvTipoPromocao = 'K' THEN
                 vvPermitirAumentarQtdeKit_Prod := vtPCMED_PROMOCAOPRODUTO(idxProduto).PERMITIRAUMENTARQTDEKIT;
@@ -19749,6 +19763,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nFIMINTERVALOPROMOCAOMED    := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).FIMINTERVALO;
                 -- Pega o Preço Fixo no Produto
                 vrDESCONTO.nPRECOFIXOPROMOCAOMED       := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).PRECOFIXO;
+                
+                IF (vvTipoPolitica = 'D') AND (vvTipoPromocao = 'M') THEN               
+                  vrDESCONTO.vOBRIGATORIOPARCIALMED    := vvOBRIGATORIOPARCIALMED;
+                  vrDESCONTO.nQTMINMIXFORNECEDORMED    := vvQTMINMIXFORNECEDORMED;
+                END IF;
+                
                 -- Altera Preço de Tabela se usar Preço Fixo
                 IF (vvTipoPolitica IN ('P','F')) THEN
                   vrDESCONTO.vALTERAPTABELA            := 'S';
@@ -19892,6 +19912,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , REGRAALTERARDESCONTO                            
                             , QTCOMBOMED
                             , QTMINIMAMED
+                            , OBRIGATORIOPARCIALMED
+                            , QTMINMIXFORNECEDORMED
                             )
                      VALUES ( vnNovoCodDesconto
                             , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -19958,6 +19980,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                             , vrDESCONTO.nREGRAALTERARDESCONTO
                             , vrDESCONTO.nQTCOMBOMED
                             , vrDESCONTO.nQTMINIMAMED
+                            , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                            , vrDESCONTO.nQTMINMIXFORNECEDORMED
                             );
 
                 -- Altera na PCDESCONTO o Desconto do Produto - EDTPRM
@@ -19997,6 +20021,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
                          , QTMINIMAMED                = vrDESCONTO.nQTMINIMAMED
+                         , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                         , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED                         
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD);                  
                   -- Promoções de Lote
@@ -20067,6 +20093,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO                         
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                         , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                         , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD)
                        AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -20188,6 +20216,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , QTMAXCOMBOMED
                   , CODLIBERACAOCANAIS
                   , CODREFERENCIA
+                  , CODFILTROAVANCADO                  
                   )
              SELECT CODPROMOCAOMED
                   , IDENTIFICADORPROMOCAO
@@ -20259,6 +20288,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , QTMAXCOMBOMED
                   , CODLIBERACAOCANAIS
                   , CODREFERENCIA
+                  , CODFILTROAVANCADO
                FROM PCPROMOCAOMED
               WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -20332,6 +20362,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , QTMAXCOMBOMED
                 , CODLIBERACAOCANAIS
                 , CODREFERENCIA
+                , CODFILTROAVANCADO
                 )
            SELECT CODPROMOCAOMED
                 , pi_nCodFunc
@@ -20403,6 +20434,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , QTMAXCOMBOMED
                 , CODLIBERACAOCANAIS
                 , CODREFERENCIA
+                , CODFILTROAVANCADO
              FROM PCPROMOCAOMED
             WHERE (CODPROMOCAOMED = pi_nCodPromocao);
 
@@ -21400,6 +21432,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              , QTMAXCOMBOMED
              , CODLIBERACAOCANAIS
              , CODREFERENCIA
+             , CODFILTROAVANCADO
           INTO vvIdentificadorPromocao
              , vvDescricaoResumida
              , vvDescricaoDetalhada
@@ -21461,6 +21494,7 @@ IS PRAGMA SERIALLY_REUSABLE;
              , vnQtMaxComboMed
              , vnCodLiberacaoCanais
              , vnCodReferencia
+             , vnCodFiltroAvancado
          FROM PCMED_PROMOCAO;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -21827,6 +21861,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , QTMAXCOMBOMED
                 , CODLIBERACAOCANAIS
                 , CODREFERENCIA
+                , CODFILTROAVANCADO
                 )
          VALUES ( vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
                 , vvIdentificadorPromocao
@@ -21892,6 +21927,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 , vnQtMaxComboMed
                 , vnCodLiberacaoCanais
                 , vnCodReferencia
+                , vnCodFiltroAvancado
                 );
 
       ----------------------------------------------------------------------------
@@ -22669,6 +22705,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , QTMAXCOMBOMED
                     , CODLIBERACAOCANAIS
                     , CODREFERENCIA
+                    , CODFILTROAVANCADO
                     )
              SELECT   CASE
                         WHEN NVL(pi_vTipoChamada,'0') = '7' THEN -->> SE REPLICAÇÃO, GRAVA O NOVO CÓDIGO DA PROMOÇÃO NA TABELA TEMPORÁRIA
@@ -22749,6 +22786,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , QTMAXCOMBOMED
                     , CODLIBERACAOCANAIS
                     , CODREFERENCIA
+                    , CODFILTROAVANCADO
                  FROM PCPROMOCAOMED
                 WHERE (CODPROMOCAOMED = vnCodPromocaoSel);
 
@@ -23641,6 +23679,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PERCDESCBASERCA
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIAL
+                        , QTMINMIXFORNECEDOR
                         )
                    SELECT DISTINCT
                           CODPROD
@@ -23664,6 +23704,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PERCDESCBASERCA
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIALMED
+                        , QTMINMIXFORNECEDORMED
                      FROM PCDESCONTO
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                       AND (CODPROD        IS NOT NULL);
@@ -23866,7 +23908,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA )
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA, CODFILTROAVANCADO )
                  SELECT CODPROMOCAOMED, IDENTIFICADORPROMOCAO, TIPOPOLITICA, DESCRICAORESUMIDA, DESCRICAODETALHADA,
                         DATAINICIAL, DATAFINAL, TIPOPROMOCAO, TIPORESTRICAO, BASECREDDEBRCA, CREDITASOBREPOLITICA,
                         CONSIDERACALCGIROMEDIC, UTILIZADESCREDE, TIPOPLANOPAG, APLICAFAMILIAPRODUTOS, ALTERADESCONTO,
@@ -23877,7 +23919,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                         PARTICIPAPREMIACAOCLI, TIPOVALIDAVALORMIN, TIPOCONCESSAOBRINDE, QTDEBRINDE, MULTIPLOSBRINDES,
                         CODBNF, APLICADESCONTO, CAMINHOENCARTE, ACEITADESCPROMCAMPANHA, TIPOSOLICITANTE, CODSOLICITANTE,
                         CODGRUPOCOMISSAO, VALIDARMULTEMBMASTER, DESTACARULTCOMPRAS, PARTICIPAPREMIACAOIND, INCLUIRFILTROTELEVENDAS,
-                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA
+                        ISENTOREBAIXACMV, TIPOLIMITADOR, QTMINCOMBOLIBMED, QTMAXCOMBOMED, CODLIBERACAOCANAIS, CODREFERENCIA, CODFILTROAVANCADO
                    FROM PCMED_PROMOCAO;
             -- Guarda Valores de Restrições antes da edição do usuário
             INSERT INTO PCMED_PROMOCAORESTRICOES(TIPOREG, TIPOCODIGO, CODIGO) SELECT 'OLD' TIPOREG, 'OP' TIPOCODIGO, ORIGEMPED              FROM PCMED_PROMOCAOORIGEM;

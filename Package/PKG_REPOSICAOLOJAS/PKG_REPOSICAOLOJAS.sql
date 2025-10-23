@@ -28,6 +28,7 @@ CREATE OR REPLACE PACKAGE PKG_REPOSICAOLOJAS
   Alteração    : Anderson Silva - 08/09/2022 - Ajuste RETIRAIMPOSTO201 - DDVENDAS-37706
   Alteração    : Anderson Silva - 13/10/2022 - Tratamento para EAN inexistente com PCEMBALAGEM - DDVENDAS-38358
   Alteração    : Anderson Silva - 19/10/2022 - Tratamento para Estoque Negativo - DDVENDAS-38416
+  Alteração    : Moisés Souto   - 21/10/2025 - Inclusão do tipo de sugestão 'R' (Rota de Compra) para geração automática de TV10 - DDVENDAS-56004
 ********************************************************************************/
 IS PRAGMA SERIALLY_REUSABLE;
 

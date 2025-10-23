@@ -5,6 +5,8 @@ BEGIN
   SELECT DECODE(P_CODIGO,
                 100,
                 'S',
+                150,
+                'S',
                 'N')
   INTO   RESULTADO
   FROM   DUAL;

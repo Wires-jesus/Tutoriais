@@ -1,0 +1,131 @@
+{
+  "nome": "PROCESSO_INT_C5_DOC_UTILS",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+	{
+	  "nome": "PCTRIBUT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.06.000"
+	},
+	{
+	  "nome": "PCFINALIZADORA",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "PCPLPAG",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCTRIBPISCOFINS",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCTRIBPISCOFINSVIGENCIA",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCCLIENT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.03.000"
+	},
+	{
+	  "nome": "VW_INT_C5_NFESAT",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "8.0.01.000"
+	},
+	{
+	  "nome": "VW_INT_C5_OBTER_FILIAIS_C5",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "7.0.02.000"
+	},
+	{
+	  "nome": "PCCEST",
+	  "tipo": "TABELA",
+	  "versao": "3.0.01.000"
+	},
+	{
+	  "nome": "PCCESTPRODUTO",
+	  "tipo": "TABELA",
+	  "versao": "4.0.01.000"
+	},
+	{
+	  "nome": "PCEMBALAGEM",
+	  "tipo": "TABELA",
+	  "versao": "4.0.06.000"
+	},
+	{
+	  "nome": "PCPRODUT",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "PCPRODFILIAL",
+	  "tipo": "TABELA",
+	  "versao": "7.0.03.000"
+	},
+	{
+	  "nome": "PCDEPARAPRODC5",
+	  "tipo": "TABELA",
+	  "versao": "5.0.03.000"
+	},
+	{
+	  "nome": "PCTABPR",
+	  "tipo": "TABELA",
+	  "versao": "8.0.01.000"
+	},
+	{
+	  "nome": "PCFILIAL",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "PCCODIGOBENEFICIOFISCALVINCULO",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCCOB",
+	  "tipo": "TABELA",
+	  "versao": "7.0.02.000"
+	},
+	{
+	  "nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
+	  "tipo": "MIGRATION",
+	  "versao": "8.0.01.000"
+	},
+	{
+	  "nome": "PCUSUARI",
+	  "tipo": "TABELA",
+	  "versao": "4.0.01.000"
+	},
+	{
+	  "nome": "PCEMPR",
+	  "tipo": "TABELA",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "VW_INT_C5_CUSTOS",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.01.000"
+	},
+	{
+	  "nome": "PCCONSOLIDATRIBUTACAO",
+	  "tipo": "TABELA",
+	  "versao": "7.0.01.000"
+	},
+	{
+	  "nome": "PCORCAVENDAC",
+	  "tipo": "TABELA",
+	  "versao": "7.0.02.000"
+	},
+	{
+	  "nome": "FNC_INT_C5_PRESTS_TEF",
+	  "tipo": "OBJETO_PLSQL",
+	  "versao": "6.0.01.000"
+	}
+  ]
+}

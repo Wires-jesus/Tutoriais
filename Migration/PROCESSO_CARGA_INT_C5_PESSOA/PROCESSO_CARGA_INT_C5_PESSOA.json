@@ -1,0 +1,14 @@
+{
+    "nome": "PROCESSO_CARGA_INT_C5_PESSOA",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias": [
+		{"nome": "PKG_CRC32", "tipo": "OBJETO_PLSQL", "versao": "4.0.01.000"},
+		{"nome": "PCEMPR", "tipo": "TABELA", "versao": "6.0.01.000"},
+		{"nome": "PCUSUARI", "tipo": "TABELA", "versao": "4.0.01.000"},
+		{"nome": "PCCONTROLECONSINCO", "tipo": "TABELA", "versao": "4.0.05.000"},
+		{"nome": "PCCLIENT", "tipo": "TABELA", "versao": "7.0.03.000"},
+		{"nome": "PCGRUPOFIDELIDADE", "tipo": "TABELA", "versao": "6.0.01.000"},
+		{"nome": "PCGRUPOFIDELIDADECLIENTE", "tipo": "TABELA", "versao": "6.0.01.000"},
+		{"nome": "PCFILIAL", "tipo": "TABELA", "versao": "7.0.01.000"}
+    ]
+}

@@ -9835,6 +9835,7 @@ IS
                          SELECT PCMOV.ROWID NOTA_ROWID,
                                 PCEST.CODPROD,
                                 PCEST.CODFILIAL,
+                                PCMOV.CODFILIALDESTINO,
                                 PCMOV.CODOPER,
                                 PCMOV.DESCRICAO,
                                 PCMOV.STATUS,
@@ -10120,12 +10121,16 @@ IS
                                 ELSE
                                   NVL(PCEST.QTESTGER, 0) - DECODE(REGISTROS.MOVESTOQUEGERENCIAL,'S',REGISTROS.NOTA_QT,0)
                               END,
-             PCEST.QTPEDIDA = DECODE(REGISTROS.TIPODESCARGA,'I',PCEST.QTPEDIDA,CASE
-                                                                                 WHEN psECANCELAMENTO = 'N' THEN
-                                                                                   GREATEST(NVL(PCEST.QTPEDIDA, 0) - REGISTROS.NOTA_QTPEDIDA,0)
-                                                                                 ELSE
-                                                                                   GREATEST(NVL(PCEST.QTPEDIDA, 0) + REGISTROS.NOTA_QTPEDIDA,0)
-                                                                               END),
+               PCEST.QTPEDIDA = CASE 
+                                WHEN REGISTROS.CODFILIALDESTINO IS NOT NULL THEN 
+                                  NVL(PCEST.QTPEDIDA, 0)
+                                ELSE DECODE(REGISTROS.TIPODESCARGA, 'I', PCEST.QTPEDIDA, CASE
+                                                                                           WHEN psECANCELAMENTO = 'N' THEN
+                                                                                             GREATEST(NVL(PCEST.QTPEDIDA, 0) - REGISTROS.NOTA_QTPEDIDA, 0)
+                                                                                           ELSE
+                                                                                             GREATEST(NVL(PCEST.QTPEDIDA, 0) + REGISTROS.NOTA_QTPEDIDA, 0)
+                                                                                         END)
+                              END,
              PCEST.QTENTDIA = DECODE(REGISTROS.TIPODESCARGA,'N',PCEST.QTENTDIA,CASE
                                                                                  WHEN psECANCELAMENTO = 'N' THEN
                                                                                    NVL(PCEST.QTENTDIA, 0) + DECODE(REGISTROS.MOVESTOQUEGERENCIAL,'S',REGISTROS.NOTA_QT,0)
@@ -10156,6 +10161,21 @@ IS
             ,PCEST.DTHORAULTALTDISP = DECODE(REGISTROS.MOVESTOQUEGERENCIAL, 'S', SYSDATE, PCEST.DTHORAULTALTDISP)
        WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
          AND PCEST.CODPROD = REGISTROS.CODPROD;
+
+      -- Ajuste adicional: se houver filial destino(PCMOV.CODFILIALDESTINO), atualiza QTPEDIDA nessa filial
+      IF REGISTROS.CODFILIALDESTINO IS NOT NULL THEN
+        UPDATE PCEST
+           SET
+             PCEST.QTPEDIDA = DECODE(REGISTROS.TIPODESCARGA,'I',PCEST.QTPEDIDA,CASE
+                                                                                 WHEN psECANCELAMENTO = 'N' THEN
+                                                                                   GREATEST(NVL(PCEST.QTPEDIDA, 0) - REGISTROS.NOTA_QTPEDIDA,0)
+                                                                                 ELSE
+                                                                                   GREATEST(NVL(PCEST.QTPEDIDA, 0) + REGISTROS.NOTA_QTPEDIDA,0)
+                                                                               END)		   
+         WHERE PCEST.CODFILIAL = REGISTROS.CODFILIALDESTINO
+           AND PCEST.CODPROD   = REGISTROS.CODPROD;
+      END IF;
+
       -- Administrar estoque depósito
       IF REGISTROS.MOVESTOQUEGERENCIAL = 'S' THEN
         -- Atualizar variável para movimentar depósito

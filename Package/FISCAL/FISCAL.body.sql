@@ -6025,7 +6025,6 @@ create or replace package body FISCAL is
   FUNCTION CALCULAR_CREDITOPRESUMIDO(P_NUMTRANSACAO IN NUMBER
                                      ,P_TIPOMOV      VARCHAR2
                                      ,P_ATIVARLOG    VARCHAR2 := 'N'
-
                                      ,P_MSG      OUT VARCHAR2)
   RETURN VARCHAR2 IS
   V_RETURN VARCHAR2(1);
@@ -6144,7 +6143,43 @@ create or replace package body FISCAL is
     RETURN(V_RETURN);
   END;
 
+  PROCEDURE REMOVER_TRIBUTOS_OBSOLETOS is
+    v_DeleteBaseCBSIBS_Antigo   varchar2(4000);
+    v_rows  PLS_INTEGER;
+  BEGIN
+    BEGIN
+      PKG_DEBUGGING_FWPC.LOG('Iniciando exclusão dos tributos antigos', 'S');
+      
+      v_DeleteBaseCBSIBS_Antigo := 'DELETE FROM pctributacao WHERE base_calculo IN (';
+      
+      FOR i IN 1..15 LOOP
+        IF i > 1 THEN
+          v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',';
+        END IF;
+        v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || '''BASE_CBS_' || i || '''';
+      END LOOP;
 
+      FOR i IN 1..15 LOOP
+        v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IBS_' || i || '''';
+      END LOOP;
+      
+      FOR i IN 2..15 LOOP
+        v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IS_' || i || '''';
+      END LOOP;  
+
+      v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ')';
+
+      PKG_DEBUGGING_FWPC.LOG('Script: '||v_DeleteBaseCBSIBS_Antigo, 'S');
+
+      EXECUTE IMMEDIATE v_DeleteBaseCBSIBS_Antigo;
+
+      v_rows := SQL%ROWCOUNT;      
+      PKG_DEBUGGING_FWPC.LOG(v_rows||' Registros excluídos com sucesso', 'S');
+    EXCEPTION
+      WHEN OTHERS THEN
+        PKG_DEBUGGING_FWPC.LOG('Erro ao executar DELETE: ' || SQLERRM, 'S');
+    END;    
+  END REMOVER_TRIBUTOS_OBSOLETOS;
 
   FUNCTION GET_DADOS_TRIBUTOS_REFORMA(P_PARAMETROS IN TIPO_TRIBUT_REFORMA)
   RETURN TIPO_TRIBUT_REFORMA IS
@@ -6797,7 +6832,8 @@ create or replace package body FISCAL is
       PKG_DEBUGGING_FWPC.LOG('Inicio cálculo CBSIBS para filial| '||P_PARAMETROS.CODFILIAL||
                              ' Produto: '||P_PARAMETROS.CODPROD||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
-
+                           
+      REMOVER_TRIBUTOS_OBSOLETOS;
 
       V_DADOS_TRIBUTACAO                  := P_PARAMETROS;
       V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBSIBS';

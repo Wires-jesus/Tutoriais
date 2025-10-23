@@ -1,44 +1,43 @@
-CREATE OR REPLACE FUNCTION F_EXTRAIR_SQL_VIEW(P_VIEW_NAME IN VARCHAR2,
-                                              P_PARAMETRO IN VARCHAR2)
-  RETURN VARCHAR2 IS
-  V_SQL_TEXT     CLOB;
-  V_START_MARKER VARCHAR2(100) := '--INICIO_' || UPPER(P_PARAMETRO);
-  V_END_MARKER   VARCHAR2(100) := '--FIM_' || UPPER(P_PARAMETRO);
-  V_START_POS    PLS_INTEGER;
-  V_END_POS      PLS_INTEGER;
-  V_RESULT       CLOB;
-BEGIN
+CREATE OR REPLACE FUNCTION F_GERAR_HASH_BASE36(P_NUMERO IN NUMBER, P_TAMANHO IN NUMBER DEFAULT 6) RETURN VARCHAR2 IS
+    l_chars          VARCHAR2(36) := '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    l_result         VARCHAR2(25);
+    l_input          VARCHAR2(38);
+    l_input_reversed VARCHAR2(38);
+    l_num            NUMBER;
+    l_tamanho        NUMBER;
+BEGIN  
 
-  SELECT V.TEXT
-    INTO V_SQL_TEXT
-    FROM TABLE(F_USER_VIEWS_PTF('V%')) V
-   WHERE V.VIEW_NAME = P_VIEW_NAME;
+    IF P_TAMANHO > 25 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'O tamanho máximo da hash gerada é de 25 caracteres.');
+    END IF;
 
+    IF LENGTH(P_NUMERO) > 38 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'O número a converter deve ter no máximo 38 caracteres.');
+    END IF;
 
-  V_START_POS := INSTR(V_SQL_TEXT, V_START_MARKER);
-  V_END_POS   := INSTR(V_SQL_TEXT, V_END_MARKER);
+    -- Verifica quantidade de casas numéricas que cabem no tamanho da string de saída
+    l_tamanho := LENGTH(POWER(36,P_TAMANHO) - 1) - 1;
 
-  IF V_START_POS = 0 OR
-     V_END_POS = 0 THEN
-    RETURN NULL; 
-  END IF;
+    IF l_tamanho < LENGTH(P_NUMERO) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'O número a converter (' || P_NUMERO || ') é muito grande para o tamanho informado (' || P_TAMANHO || '). O maior número possível para este tamanho deve ter ' || l_tamanho || ' caracteres.');
+    END IF;
 
-  V_START_POS := V_START_POS + LENGTH(V_START_MARKER);
+    -- Formata com os dígitos necessários para chegar no tamanho máximo
+    l_input := LPAD(TO_CHAR(TRUNC(P_NUMERO)), l_tamanho, '0');
 
-  V_RESULT := TRIM(SUBSTR(V_SQL_TEXT, V_START_POS, V_END_POS - V_START_POS));
+    -- Inverte os dígitos
+    FOR i IN REVERSE 1 .. LENGTH(l_input) LOOP
+        l_input_reversed := l_input_reversed || SUBSTR(l_input, i, 1);
+    END LOOP;
 
-  WHILE INSTR(V_RESULT, '  ') > 0
-  LOOP
-    V_RESULT := REPLACE(V_RESULT, '  ', ' ');
-  END LOOP;
+    -- Converte para número
+    l_num := TO_NUMBER(l_input_reversed);
 
-  V_RESULT := REPLACE(V_RESULT, ' (', '(');
-  V_RESULT := REPLACE(V_RESULT, '( ', '(');
-  V_RESULT := REPLACE(V_RESULT, ' )', ')');
-  V_RESULT := REPLACE(V_RESULT, ') ', ')');
+    -- Converte para base 36
+    WHILE l_num > 0 LOOP
+        l_result := SUBSTR(l_chars, MOD(l_num, 36) + 1, 1) || l_result;
+        l_num := FLOOR(l_num / 36);
+    END LOOP;
 
-  V_RESULT := REPLACE(V_RESULT, ' ,', ',');
-  V_RESULT := REPLACE(V_RESULT, ', ', ',');
-
-  RETURN V_RESULT;
+    RETURN LPAD(NVL(l_result, '0'), P_TAMANHO, '0');
 END;
