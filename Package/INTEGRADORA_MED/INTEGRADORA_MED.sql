@@ -1292,7 +1292,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     codicmtabsimpnasc        pctribut.codicmtabsimpnasc%type,
     codicmdifer              pctribut.codicmdifer%type,
     custoprecific            pctabpr.custoprecific%type,
-	tipoaplicrepassetribut   pctribut.tipoaplicrepassetribut%type
+	  tipoaplicrepassetribut   pctribut.tipoaplicrepassetribut%type,
+    calculaipi               pcprodfilial.calculaipi%type
   );
 
 
