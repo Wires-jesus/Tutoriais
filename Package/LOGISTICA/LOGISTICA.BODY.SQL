@@ -224,6 +224,7 @@ CREATE OR REPLACE PACKAGE BODY LOGISTICA IS
     vnQTDEMAXITENSNF   NUMBER;
     vnCustoErro        Boolean;
     vsValidarCusto     Varchar(5000);
+    vsCALCULARIPINFSAIDAINVENT VARCHAR2(1);
     E_ENCONTRADO_CUSTO EXCEPTION;
   
     TYPE TR_NUMTRANS IS RECORD(
@@ -292,6 +293,11 @@ CREATE OR REPLACE PACKAGE BODY LOGISTICA IS
     
       --HIS.01437.2016
       vsTIPOCUSTOAJUST := PARAMFILIAL.ObterComoVarchar2('TIPOCUSTOAJUSTECONTABIL');
+
+      --DDESTOQUE-21766 
+      vsCALCULARIPINFSAIDAINVENT := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CALCULARIPINFSAIDAINVENT',
+                                                                       PCODFILIAL,
+                                                                       'N');
     
       --ABRINDO MOVIMENTAÇÕES GERENCIAIS REFERNTE AO INVENTÁRIO JÁ ATUALIZADO
       vSQL_PCMOVGER := 'SELECT M.*
@@ -491,9 +497,8 @@ CREATE OR REPLACE PACKAGE BODY LOGISTICA IS
       
         VT_PCMOV.CODFUNCLANC := PMATRICULA;
       
-        IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CALCULARIPINFSAIDAINVENT',
-                                              VT_PCMOV.CODFILIAL,
-                                              'N') = 'N' THEN
+        IF vsCALCULARIPINFSAIDAINVENT = 'N' THEN
+        
           VT_PCMOV.VLIPI     := 0;
           VT_PCMOV.PERCIPI   := 0;
           VT_PCMOV.VLBASEIPI := 0;
