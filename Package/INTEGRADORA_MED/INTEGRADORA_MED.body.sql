@@ -10467,7 +10467,11 @@ end func_HoraDigitacaoPedido;
              nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
              nvl(pctribut.codicmdifer, 0) codicmdifer,
              nvl(pctabpr.custoprecific, 0) custoprecific,
-             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+             nvl((select calculaipi
+                    from pcprodfilial
+                   where codprod   = pctabpr.codprod
+                     and codfilial = pcest.codfilial), 'I') calculaipi                     
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -10707,7 +10711,11 @@ end func_HoraDigitacaoPedido;
                            nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                            nvl(pctribut.codicmdifer, 0) codicmdifer,
                            nvl(pctabpr.custoprecific, 0) custoprecific,
-                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                           nvl((select calculaipi
+                                  from pcprodfilial
+                                 where codprod   = pctabpr.codprod
+                                   and codfilial = pcest.codfilial), 'I') calculaipi
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -10895,7 +10903,11 @@ end func_HoraDigitacaoPedido;
                          nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                          nvl(pctribut.codicmdifer, 0) codicmdifer,
                          nvl(pctabpr.custoprecific, 0) custoprecific,
-                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                         nvl((select calculaipi
+                                from pcprodfilial
+                               where codprod   = pctabpr.codprod
+                                 and codfilial = pcest.codfilial), 'I') calculaipi
                     into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -11204,7 +11216,11 @@ end func_HoraDigitacaoPedido;
                        nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                        nvl(pctribut.codicmdifer, 0) codicmdifer,
                        nvl(pctabpr.custoprecific, 0) custoprecific,
-                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                       nvl((select calculaipi
+                              from pcprodfilial
+                             where codprod   = pctabpr.codprod
+                               and codfilial = pcest.codfilial), 'I') calculaipi
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -11481,7 +11497,11 @@ end func_HoraDigitacaoPedido;
                      nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                      nvl(pctribut.codicmdifer, 0) codicmdifer,
                      nvl(pctabpr.custoprecific, 0) custoprecific,
-                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                     nvl((select calculaipi
+                            from pcprodfilial
+                           where codprod   = pctabpr.codprod
+                             and codfilial = pcest.codfilial), 'I') calculaipi
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -17524,7 +17544,11 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
              nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
              nvl(pctribut.codicmdifer, 0) codicmdifer,
              nvl(pctabpr.custoprecific, 0) custoprecific,
-             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+             nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+             nvl((select calculaipi
+                    from pcprodfilial
+                   where codprod   = pctabpr.codprod
+                     and codfilial = pcest.codfilial), 'I') calculaipi
       into p_regprecos
       from pctabpr,
            pctribut,
@@ -17764,7 +17788,11 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                            nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                            nvl(pctribut.codicmdifer, 0) codicmdifer,
                            nvl(pctabpr.custoprecific, 0) custoprecific,
-                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                           nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                           nvl((select calculaipi
+                                  from pcprodfilial
+                                 where codprod   = pctabpr.codprod
+                                   and codfilial = pcest.codfilial), 'I') calculaipi
                       into p_regprecos
                       from pctabpr, pctribut, pcest,pcembalagem
                      where pctribut.codst = vncodst
@@ -17999,7 +18027,11 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                          nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                          nvl(pctribut.codicmdifer, 0) codicmdifer,
                          nvl(pctabpr.custoprecific, 0) custoprecific,
-                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                         nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                         nvl((select calculaipi
+                                from pcprodfilial
+                               where codprod   = pctabpr.codprod
+                                 and codfilial = pcest.codfilial), 'I') calculaipi
                      into p_regprecos
                     from pctabpr, pctribut, pcest,pcembalagem
                    where pctabpr.codst = pctribut.codst
@@ -18354,7 +18386,11 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                        nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                        nvl(pctribut.codicmdifer, 0) codicmdifer,
                        nvl(pctabpr.custoprecific, 0) custoprecific,
-                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                       nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                       nvl((select calculaipi
+                              from pcprodfilial
+                             where codprod   = pctabpr.codprod
+                               and codfilial = pcest.codfilial), 'I') calculaipi
                   into p_regprecos
                   from pctabpr, pctribut, pcest, pcprodut
                  where pctribut.codst = vncodst
@@ -18634,7 +18670,11 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
                      nvl(pctribut.codicmtabsimpnasc, 0) codicmtabsimpnasc,
                      nvl(pctribut.codicmdifer, 0) codicmdifer,
                      nvl(pctabpr.custoprecific, 0) custoprecific,
-                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut
+                     nvl(pctribut.tipoaplicrepassetribut, 'XX') tipoaplicrepassetribut,
+                     nvl((select calculaipi
+                            from pcprodfilial
+                           where codprod   = pctabpr.codprod
+                             and codfilial = pcest.codfilial), 'I') calculaipi
                 into p_regprecos
                 from pctabpr, pctribut, pcest, pcprodut
                where pctabpr.codst = pctribut.codst
@@ -30398,7 +30438,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                                                                               'N', -- tipoPreco           -- MED-1510
                                                                               vsFoiPrecificadoComIpi,     -- MED-1510
                                                                               0,   -- percredaliqipi      -- MED-1510
-                                                                              'S');-- calcularSTRamoAtiv  -- MED-1510
+                                                                              'S', -- calcularSTRamoAtiv  -- MED-1510
+                                                                              regprecos.calculaipi);
 
                              END IF;
 
