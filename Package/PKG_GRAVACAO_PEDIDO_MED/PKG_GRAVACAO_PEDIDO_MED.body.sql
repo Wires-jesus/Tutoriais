@@ -20751,6 +20751,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         -- Dados do Pedido que serão lidos nesta função
         pi_vCodCob               PCPEDC.CODCOB%TYPE;
         pi_dDtEntrega            PCPEDC.DTENTREGA%TYPE;
+        pi_vCodPlPagPedido       PCPEDC.CODPLPAG%TYPE;
   
         -- Record para Inicializar os Prazos
         vrLimpaPrazos            TRecPrazos;
@@ -20808,14 +20809,17 @@ IS PRAGMA SERIALLY_REUSABLE;
           BEGIN
            SELECT CODCOB
                 , NVL(DTENTREGA,TRUNC(SYSDATE))
+                , CODPLPAG
              INTO pi_vCodCob
                 , pi_dDtEntrega
+                , pi_vCodPlPagPedido
              FROM PCPEDC
             WHERE (NUMPED = pi_nNumPedParcelas);
           EXCEPTION
             WHEN NO_DATA_FOUND THEN
               pi_vCodCob    := NULL;
               pi_dDtEntrega := TRUNC(SYSDATE);
+              pi_vCodPlPagPedido := NULL;
           END;
   
           -- Inicializa Record de Retorno de Prazos
@@ -20830,8 +20834,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Se Cobrança BNF
           IF (NVL(pi_vCodCob,' ') = 'BNF') THEN
   
-            -- Pesquisará pelo Plano 99
-            vnCodPlPagPesqDadosPlPag := 99;
+            vnCodPlPagPesqDadosPlPag := pi_vCodPlPagPedido;
   
           ELSE
   
@@ -21493,21 +21496,20 @@ IS PRAGMA SERIALLY_REUSABLE;
   
           -- Atualiza Prazos do Pedido (Depende antes da Atualização da Cobrança)
           UPDATE PCPEDC
-             SET PRAZO1     = vrPrazos.vnPrazo1
-               , PRAZO2     = vrPrazos.vnPrazo2
-               , PRAZO3     = vrPrazos.vnPrazo3
-               , PRAZO4     = vrPrazos.vnPrazo4
-               , PRAZO5     = vrPrazos.vnPrazo5
-               , PRAZO6     = vrPrazos.vnPrazo6
-               , PRAZO7     = vrPrazos.vnPrazo7
-               , PRAZO8     = vrPrazos.vnPrazo8
-               , PRAZO9     = vrPrazos.vnPrazo9
-               , PRAZO10    = vrPrazos.vnPrazo10
-               , PRAZO11    = vrPrazos.vnPrazo11
-               , PRAZO12    = vrPrazos.vnPrazo12
-               , PRAZOMEDIO = vrPrazos.vnPrazoMedio
-           WHERE (NUMPED  = pi_nNumPedTotalizar);
-  
+             SET PRAZO1     = NVL(vrPrazos.vnPrazo1, 0)
+               , PRAZO2     = NVL(vrPrazos.vnPrazo2, 0)
+               , PRAZO3     = NVL(vrPrazos.vnPrazo3, 0)
+               , PRAZO4     = NVL(vrPrazos.vnPrazo4, 0)
+               , PRAZO5     = NVL(vrPrazos.vnPrazo5, 0)
+               , PRAZO6     = NVL(vrPrazos.vnPrazo6, 0)
+               , PRAZO7     = NVL(vrPrazos.vnPrazo7, 0)
+               , PRAZO8     = NVL(vrPrazos.vnPrazo8, 0)
+               , PRAZO9     = NVL(vrPrazos.vnPrazo9, 0)
+               , PRAZO10    = NVL(vrPrazos.vnPrazo10, 0)
+               , PRAZO11    = NVL(vrPrazos.vnPrazo11, 0)
+               , PRAZO12    = NVL(vrPrazos.vnPrazo12, 0)
+               , PRAZOMEDIO = NVL(vrPrazos.vnPrazoMedio, 0)
+           WHERE (NUMPED  = pi_nNumPedTotalizar);  
           -- SE BALCÃO RESERVA (Regra que tinha na procedure de pacote de gerar pedido de brindes)
           IF (pi_vOrigemPed = 'R') THEN
   
