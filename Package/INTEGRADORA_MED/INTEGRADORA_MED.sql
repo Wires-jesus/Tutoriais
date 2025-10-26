@@ -993,7 +993,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     bloqueiosefaz              pcclient.bloqueiosefaz%type,
     usadebcredrca              pcclient.usadebcredrca%type,
     codfornecfrete             pcclient.codfornecfrete%type,
-    participafarmaciapopular   pcclient.participafarmaciapopular%type
+    participafarmaciapopular   pcclient.participafarmaciapopular%type,
+    orgaopubmunicipal          pcclient.orgaopubmunicipal%type
     );
 
 
@@ -1171,7 +1172,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     farmaciapopular            pcprodut.farmaciapopular%type,
     codmarca                   pcprodut.codmarca%type,
     utilizaprecofabrica        pcprodut.utilizaprecofabrica%type,
-    classevenda                pcprodut.classevenda%type
+    classevenda                pcprodut.classevenda%type,
+    precofabrica               pcprodut.precofabrica%type,
+    licitusarcap               pcprodut.licitusarcap%type
    );
 
 
@@ -1292,7 +1295,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     codicmtabsimpnasc        pctribut.codicmtabsimpnasc%type,
     codicmdifer              pctribut.codicmdifer%type,
     custoprecific            pctabpr.custoprecific%type,
-	  tipoaplicrepassetribut   pctribut.tipoaplicrepassetribut%type,
+    tipoaplicrepassetribut   pctribut.tipoaplicrepassetribut%type,
     calculaipi               pcprodfilial.calculaipi%type
   );
 
@@ -1430,7 +1433,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     sobreposicaobloqueioalvara    varchar2(200),  -- DDVENDAS-37313
     usarcaclientelinhaporfilialmed varchar2(200),
     precificregiaoforaufsemst     varchar2(1),
-    nummaxitensnfe                NUMBER(10) -- DDVENDAS-50926
+    nummaxitensnfe                NUMBER(10), -- DDVENDAS-50926
+    PERCENTUALDOCAP               number
     );
 
 
