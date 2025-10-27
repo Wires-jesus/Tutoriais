@@ -70,7 +70,7 @@
 		{
 		    "nome": "PROCESSO_CARGA_INT_C5_FORMAPAGTO",
 		    "tipo": "MIGRATION",
-		    "versao": "8.0.02.000"
+		    "versao": "8.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
