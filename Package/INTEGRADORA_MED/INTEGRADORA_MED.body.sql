@@ -3914,7 +3914,8 @@ end func_HoraDigitacaoPedido;
                 'NA', -- SOBREPOSICAOBLOQUEIOALVARA   -- DDVENDAS-37313
                 'N',  -- USARCACLIENTELINHAPORFILIALMED
                 'N',  -- PRECIFICREGIAOFORAUFSEMST
-                0    -- FIL_NUMMAXITENSNFE           -- DDVENDAS-50926
+                0,    -- FIL_NUMMAXITENSNFE           -- DDVENDAS-50926
+                NULL   -- PERCENTUAL DO CAP'           -- DDVENDAS-55956
           into p_regfilial
           from pcfilial
          where codigo = p_regpedido.codfilial;
@@ -4440,6 +4441,11 @@ end func_HoraDigitacaoPedido;
                         'FIL_NUMMAXITENSNFE',
                         0,
                         p_regfilial.nummaxitensnfe);
+
+     proc_pcparamfilial(p_regpedido.codfilial,
+                        'PERCENTUAL DO CAP',
+                        null,
+                         p_regfilial.PERCENTUALDOCAP);                        
 
   end proc_parametros;
 
@@ -5437,7 +5443,8 @@ end func_HoraDigitacaoPedido;
                    nvl(pcclient.bloqueiosefaz,'N'),
                    pcclient.usadebcredrca,
                    pcclient.codfornecfrete,
-                   pcclient.participafarmaciapopular
+                   pcclient.participafarmaciapopular,
+                   pcclient.orgaopubmunicipal
                 into p_regcliente
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
@@ -5614,7 +5621,8 @@ end func_HoraDigitacaoPedido;
                    nvl(pcclient.bloqueiosefaz,'N'),
                    pcclient.usadebcredrca,
                    pcclient.codfornecfrete,
-                   pcclient.participafarmaciapopular
+                   pcclient.participafarmaciapopular,
+                   pcclient.orgaopubmunicipal
                 into p_regcliente
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
@@ -8961,6 +8969,32 @@ end func_HoraDigitacaoPedido;
     RETURN vbRetPrecoAcimaFabrica;  
   END F_PRECO_ACIMA_FABRICA; 
 
+  FUNCTION F_VALIDAR_CAP (p_vcap_pvenda             IN NUMBER,
+                          p_vcap_precofabrica       IN NUMBER,
+                          p_vcap_licitusarcap       IN VARCHAR2,
+                          p_vcap_percentualdocap    IN NUMBER,
+                          p_vcap_orgaopub           IN VARCHAR2,
+                          p_vcap_orgaopubfederal    IN VARCHAR2,
+                          p_vcap_orgaopubmunicipal  IN VARCHAR2) 
+  RETURN BOOLEAN IS
+  BEGIN
+    IF NVL(p_vcap_percentualdocap, 0) <= 0 THEN
+      RETURN TRUE;
+    END IF;
+
+    IF (p_vcap_orgaopub = 'S' OR p_vcap_orgaopubfederal = 'S' OR p_vcap_orgaopubmunicipal = 'S')
+       AND p_vcap_licitusarcap = 'S' THEN
+
+      IF p_vcap_precofabrica > 0 AND p_vcap_pvenda > p_vcap_precofabrica * (1 - p_vcap_percentualdocap / 100) THEN
+        RETURN FALSE;
+      END IF;
+
+    END IF;
+
+    RETURN TRUE;
+  END F_VALIDAR_CAP;
+
+
   ------------------------------------------------------
   -- Validação de Preço da Oferta - DDVENDAS-33961
   ------------------------------------------------------
@@ -9560,7 +9594,9 @@ end func_HoraDigitacaoPedido;
              pcprodut.farmaciapopular,
              pcprodut.codmarca,
              nvl(pcprodut.utilizaprecofabrica,'N'),
-             pcprodut.classevenda -- DDMEDICA-5086
+             pcprodut.classevenda, -- DDMEDICA-5086
+             pcprodut.precofabrica,
+             pcprodut.licitusarcap
         into p_regproduto
         from pcprodut, pcfornec
        where codprod = p_regitem.codprod
@@ -15374,6 +15410,32 @@ if p_regpedido.condvenda = 10 then
        END IF;
      END IF;
 
+     IF NOT f_validar_cap(p_regitem.pvenda,
+                          p_regproduto. precofabrica,
+                          p_regproduto.licitusarcap,
+                          p_regfilial.percentualdocap,
+                          p_regcliente.orgaopub,
+                          p_regcliente.orgaopubfederal,
+                          p_regcliente.orgaopubmunicipal) THEN
+
+        IF vsmensagem IS NOT NULL THEN
+          vschar := '#';
+        ELSE
+          vschar := NULL;
+        END IF;
+
+        vsmensagem := vsmensagem || vschar ||
+        'Venda para órgão público deve ser inferior ao Preço Fábrica descontado do Percentual do CAP, definido na rotina 132.';
+
+        p_regitem.valido := FALSE;
+        p_regorigempreco.valido := FALSE;
+
+        IF p_Regitem.codmotivonaoatend IS NULL THEN
+          p_regitem.codmotivonaoatend := 27;       
+        END IF;
+
+     END IF;
+
 
    end if;
 
@@ -16552,7 +16614,9 @@ procedure proc_validaritemOLePE(p_regitem        in out t_itemped,
              pcprodut.farmaciapopular,
              pcprodut.codmarca,
              nvl(pcprodut.utilizaprecofabrica,'N'),
-             pcprodut.classevenda -- DDMEDICA-5086
+             pcprodut.classevenda, -- DDMEDICA-5086
+             pcprodut.precofabrica,
+             pcprodut.licitusarcap
         into p_regproduto
         from pcprodut, pcfornec
        where codprod = p_regitem.codprod
