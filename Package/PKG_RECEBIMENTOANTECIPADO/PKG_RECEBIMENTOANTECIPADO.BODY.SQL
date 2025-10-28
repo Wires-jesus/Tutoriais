@@ -11,26 +11,26 @@ IS
     BEGIN
         OPEN VCURSOR FOR
             SELECT NUMTRANSPAGADIANTADO
-				  ,CODCLI				
-				  ,CODFILIAL			
-				  ,NUMPED              
-				  ,NUMORCA             
-				  ,COBANTECIPADA       
-				  ,QUITAPCPREST        
-				  ,VALOR               
-				  ,VLRCREDITOABATIDO   
-				  ,VALORPEDIDO         
-				  ,CODCOBPGTO          
-				  ,STATUSPGTO          
-				  ,DTEMISSAOPED        
-				  ,DTGERACAOPGTO       
-				  ,DTCONFIRMACAOPGTO   
-				  ,DTPGTO              
-				  ,DTESTORNO           
-				  ,NUMTRANSESTORNO     
-				  ,MATRICULAGERACAO    
-				  ,MATRICULACONFIRMACAO
-				  ,MATRICULAESTORNO 
+                  ,CODCLI
+                  ,CODFILIAL
+                  ,NUMPED
+                  ,NUMORCA
+                  ,COBANTECIPADA
+                  ,QUITAPCPREST
+                  ,VALOR
+                  ,VLRCREDITOABATIDO
+                  ,VALORPEDIDO
+                  ,CODCOBPGTO
+                  ,STATUSPGTO
+                  ,DTEMISSAOPED
+                  ,DTGERACAOPGTO
+                  ,DTCONFIRMACAOPGTO
+                  ,DTPGTO
+                  ,DTESTORNO
+                  ,NUMTRANSESTORNO
+                  ,MATRICULAGERACAO
+                  ,MATRICULACONFIRMACAO
+                  ,MATRICULAESTORNO
               FROM PCPRESTANTECIPADA
              WHERE CODFILIAL           = PCODFILIAL
                AND CODCLI              = PCODCLI
@@ -60,9 +60,11 @@ IS
             PIPE ROW(DADOS_SAIDA);
             VMENSAGEM := NULL;
         END LOOP;
+
         IF VMENSAGEM IS NOT NULL THEN 
-          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);        
+          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
         END IF;
+
         RETURN;
     EXCEPTION
         WHEN OTHERS THEN
@@ -91,9 +93,11 @@ IS
             PIPE ROW(DADOS_SAIDA);
             VMENSAGEM := NULL;
         END LOOP;
+
         IF VMENSAGEM IS NOT NULL THEN 
-          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);        
+          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
         END IF;
+
         RETURN;
     EXCEPTION
         WHEN OTHERS THEN
@@ -104,7 +108,7 @@ IS
     ----------------------------------------------------------------------------
     PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
                                     PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-									PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE)
+                                    PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE)
     IS
         VNUMTRANSPAGADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
         VMENSAGEM             VARCHAR2(300);
@@ -112,18 +116,17 @@ IS
         VPERMISSAO            VARCHAR2(1);
         VACESSO               PCCONTROI.ACESSO%TYPE;
     BEGIN
-
         PMENSAGEM := 'Pagamento antecipado não encontrado!';
 
         BEGIN
           SELECT NVL(PCCONTROI.ACESSO,'N')
             INTO VACESSO
-            FROM PCCONTROI                                     
-               , PCROTINAI                                     
+            FROM PCCONTROI
+               , PCROTINAI
            WHERE PCCONTROI.CODROTINA   = 1295
              AND PCCONTROI.CODUSUARIO  = PMATRICULA
              AND PCROTINAI.CODCONTROLE = 1
-             AND PCCONTROI.CODROTINA   = PCROTINAI.CODROTINA   
+             AND PCCONTROI.CODROTINA   = PCROTINAI.CODROTINA
              AND PCCONTROI.CODCONTROLE = PCROTINAI.CODCONTROLE;
         EXCEPTION
           WHEN NO_DATA_FOUND THEN
@@ -162,9 +165,7 @@ IS
                        WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGADIANTADO)
         LOOP
             IF (DADOS.STATUSPGTO IN ('AGUARDANDO PAGAMENTO','PAGO')) THEN
-
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
-
                     IF DADOS.NUMORCA IS NOT NULL THEN
                         SELECT POSICAO 
                           INTO VPOSICAO
@@ -175,12 +176,12 @@ IS
                     END IF;
 
                     IF VPOSICAO IS NULL THEN
-						SELECT POSICAO 
-						  INTO VPOSICAO
-						  FROM PCPEDC 
-						 WHERE NUMPED    = DADOS.NUMPED
+                        SELECT POSICAO
+                          INTO VPOSICAO
+                          FROM PCPEDC
+                         WHERE NUMPED    = DADOS.NUMPED
                            AND CODCLI    = DADOS.CODCLI
-                           AND CODFILIAL = DADOS.CODFILIAL;               
+                           AND CODFILIAL = DADOS.CODFILIAL;
                     END IF;
 
                     IF VPOSICAO IN ('M','L') THEN
@@ -193,14 +194,13 @@ IS
                         PMENSAGEM := 'Não é possível cancelar pois o pedido já foi faturado.';
                         ROLLBACK;
                         RETURN;
-                    END IF;                
+                    END IF;
 
                     IF VPERMISSAO = 'N' THEN
                         PMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
                         ROLLBACK;
                         RETURN;
-                    END IF;                       
-
+                    END IF;
                 END IF;
 
                 SELECT DFSEQ_PCPRESTANTECIPADA.NEXTVAL
@@ -261,19 +261,19 @@ IS
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, 'Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
+            RAISE_APPLICATION_ERROR(-20001, 'Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');
     END; --SOLICITA_CANCELAMENTO
 
     ----------------------------------------------------------------------------
     PROCEDURE ATUALIZAR_STATUS(PMENSAGEM              OUT VARCHAR2,
                                PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-							   PMATRICULA     		  PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE)
+                               PMATRICULA             PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE)
     IS
         VNUMTRANS      PCMOVCR.NUMTRANS%TYPE;
-        VROTINA        PCMOVCR.ROTINALANCAMENTO%TYPE;     
+        VROTINA        PCMOVCR.ROTINALANCAMENTO%TYPE;
         VHORA          PCMOVCR.HORA%TYPE;
-        VMINUTO        PCMOVCR.MINUTO%TYPE;  
-        VVLSALDO       PCMOVCR.VLSALDO%TYPE;        
+        VMINUTO        PCMOVCR.MINUTO%TYPE;
+        VVLSALDO       PCMOVCR.VLSALDO%TYPE;
         VQUITAPCPREST  PCCOB.QUITAPCPREST%TYPE;
         VVLTOTAL       PCPRESTANTECIPADA.VALOR%TYPE;
         VOLDNUMTRANS   PCPRESTANTECIPADA.NUMTRANS%TYPE;
@@ -286,7 +286,7 @@ IS
           INTO VHORA,VMINUTO
           FROM DUAL;
 
-        PMENSAGEM := 'Atualização realizada com sucesso!';     
+        PMENSAGEM := 'Atualização realizada com sucesso!';
 
         FOR DADOS IN (SELECT A.NUMTRANSPAGADIANTADO,                            /*01*/
                              A.CODCLI,                                          /*02*/
@@ -308,10 +308,10 @@ IS
                              A.NUMTRANSESTORNO,                                 /*18*/
                              A.DTPGTO,                                          /*19*/
                              C.CODBCOCOBANTECIPADA,                             /*20*/
-                             C.CODMOEDACOBANTECIPADA,                           /*21*/                   
+                             C.CODMOEDACOBANTECIPADA,                           /*21*/
                              NVL(A.NUMTRANS,0) NUMTRANS                         /*22*/
                         FROM PCPRESTANTECIPADA       A,
-                             PCCOB                   C                   
+                             PCCOB                   C
                        WHERE A.CODCOBPGTO            = C.CODCOB
                          AND A.NUMTRANSPAGADIANTADO  = PNUMTRANSPAGADIANTADO)
         LOOP   
@@ -319,12 +319,13 @@ IS
                 PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
                 ROLLBACK;
                 RETURN;
-            END IF;               
+            END IF;
+
             IF ((DADOS.CODMOEDACOBANTECIPADA IS NULL) AND (DADOS.QUITAPCPREST = 'S')) THEN
                 PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
                 ROLLBACK;
                 RETURN;
-            END IF;           
+            END IF;
 
             IF (DADOS.NUMTRANS = 0) THEN 
                 SELECT NVL(PROXNUMTRANS,1)
@@ -339,32 +340,32 @@ IS
             IF (DADOS.NUMORCA IS NULL) THEN
                 SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)
                   INTO VVLTOTAL
-                  FROM PCPEDC C, 
-                       PCFILIAL F              
-                 WHERE C.CODFILIAL          = F.CODIGO            
-                   AND C.JSONTPD_PAGAMENTO IS NOT NULL   
-                   AND C.DTCANCEL          IS NULL                
+                  FROM PCPEDC C,
+                       PCFILIAL F
+                 WHERE C.CODFILIAL          = F.CODIGO
+                   AND C.JSONTPD_PAGAMENTO IS NOT NULL
+                   AND C.DTCANCEL          IS NULL
                    AND NUMPED               = DADOS.NUMPED;
             ELSE
-                SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)                       
+                SELECT ROUND(NVL(C.VLATEND,C.VLTOTAL), 2)
                   INTO VVLTOTAL
-                  FROM PCORCAVENDAC C, 
-                       PCFILIAL F        
-                 WHERE C.CODFILIAL          = F.CODIGO            
-                   AND C.JSONTPD_PAGAMENTO IS NOT NULL   
-                   AND NUMORCA              = DADOS.NUMORCA;   
+                  FROM PCORCAVENDAC C,
+                       PCFILIAL F
+                 WHERE C.CODFILIAL          = F.CODIGO
+                   AND C.JSONTPD_PAGAMENTO IS NOT NULL
+                   AND NUMORCA              = DADOS.NUMORCA;
             END IF;
 
             COMMIT WORK;   
 
-            IF (DADOS.NUMTRANS > 0) THEN            
+            IF (DADOS.NUMTRANS > 0) THEN
                 SELECT COUNT(*)
                   INTO VOLDNUMTRANS
                   FROM PCMOVCR
                  WHERE NUMTRANS = DADOS.NUMTRANS;
             END IF;
 
-            IF (DADOS.QUITAPCPREST = 'S') AND (VOLDNUMTRANS = 0) THEN    
+            IF (DADOS.QUITAPCPREST = 'S') AND (VOLDNUMTRANS = 0) THEN
 
                 SELECT VLSALDO 
                   INTO VVLSALDO  
@@ -373,7 +374,7 @@ IS
                                    FROM PCMOVCR 
                                   WHERE CODBANCO = DADOS.CODBCOCOBANTECIPADA
                                     AND CODCOB   = DADOS.CODMOEDACOBANTECIPADA)
-                   FOR UPDATE;                                    
+                   FOR UPDATE;
 
                 INSERT INTO PCMOVCR(NUMTRANS,                                   /*01*/
                                     DATA,                                       /*02*/
@@ -427,7 +428,7 @@ IS
 
             IF (VOLDNUMTRANS = 0) THEN
                 INSERT INTO PCCRECLI(CODCLI,                                    /*01*/
-                                     DTLANC,									/*02*/
+                                     DTLANC,                                    /*02*/
                                      CODFILIAL,                                 /*03*/
                                      VALOR,                                     /*04*/
                                      CODFUNC,                                   /*05*/
@@ -473,4 +474,188 @@ IS
         END LOOP;
         COMMIT WORK;
     END; --ATUALIZAR_STATUS
+
+    ----------------------------------------------------------------------------
+    PROCEDURE CRIAR_RECEB_ANTECIPADO(PSTATUS                OUT VARCHAR2,
+                                     PMENSAGEM              OUT VARCHAR2,
+                                     PNUMTRANSPAGOADIANTADO OUT PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                     PCODIGO                OUT PCCRECLI.CODIGO%TYPE,
+                                     PNUMTRANS              OUT PCMOVCR.NUMTRANS%TYPE,
+
+                                     PCODCLI                 IN PCPRESTANTECIPADA.CODCLI%TYPE,
+                                     PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
+                                     PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
+                                     PCODFILIAL              IN PCPRESTANTECIPADA.CODFILIAL%TYPE,
+                                     PVALORPEDIDO            IN PCPRESTANTECIPADA.VALORPEDIDO%TYPE,
+                                     PCODCOBPGTO             IN PCPRESTANTECIPADA.CODCOBPGTO%TYPE,
+                                     PDTEMISSAOPED           IN PCPRESTANTECIPADA.DTEMISSAOPED%TYPE,
+                                     PDTGERACAOPGTO          IN PCPRESTANTECIPADA.DTGERACAOPGTO%TYPE,
+                                     PDTCONFIRMACAOPGTO      IN PCPRESTANTECIPADA.DTCONFIRMACAOPGTO%TYPE,
+                                     PDTPGTO                 IN PCPRESTANTECIPADA.DTPGTO%TYPE,
+                                     PMATRICULAGERACAO       IN PCPRESTANTECIPADA.MATRICULAGERACAO%TYPE,
+                                     PMATRICULACONFIRMACAO   IN PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE,
+
+                                     PNSUTEF                 IN PCPRESTANTECIPADA.NSUTEF%TYPE DEFAULT NULL,
+                                     PNSUHOST                IN PCPRESTANTECIPADA.NSUHOST%TYPE DEFAULT NULL,
+                                     PCODREDE                IN PCPRESTANTECIPADA.CODREDE%TYPE DEFAULT NULL,
+                                     PQTDPARCELATEF          IN PCPRESTANTECIPADA.QTDPARCELATEF%TYPE DEFAULT NULL,
+                                     PNOME_CARTEIRA_DIGITAL  IN PCPRESTANTECIPADA.NOME_CARTEIRA_DIGITAL%TYPE DEFAULT NULL,
+                                     PCODADMINISTRADORA      IN PCPRESTANTECIPADA.CODADMINISTRADORA%TYPE DEFAULT NULL,
+                                     PCODBANDEIRA            IN PCPRESTANTECIPADA.CODBANDEIRA%TYPE DEFAULT NULL,
+                                     PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL
+                                    )
+    IS
+        VNUMTRANSPAGADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
+    BEGIN
+        PNUMTRANSPAGOADIANTADO := 0;
+        PCODIGO                := 0;
+        PNUMTRANS              := 0;
+
+        PSTATUS := 'OK';
+        PMENSAGEM := 'Crédito gerado com sucesso';
+
+        IF (PCODCLI <= 0) OR (PCODCLI IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar o código do cliente.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PNUMPED <= 0) OR (PNUMPED IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar o número do pedido.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PVALOR <= 0) OR (PVALOR IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar o valor do recebimento antecipado.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PCODFILIAL = '') OR (PCODFILIAL IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a filial.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PVALORPEDIDO <= 0) OR (PVALORPEDIDO IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar o valor do pedido.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PCODCOBPGTO = '') OR (PCODCOBPGTO IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a cobrança do pagamento.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF PDTEMISSAOPED IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a data de emissão do pedido.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF PDTGERACAOPGTO IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a data de geração do pagamento.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF PDTCONFIRMACAOPGTO IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a data de confirmação do pagamento.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF PDTPGTO IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a data de pagamento informada na API.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PMATRICULAGERACAO <= 0) OR (PMATRICULAGERACAO IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a matrícula do usuário que gerou o pagamento.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF (PMATRICULACONFIRMACAO <= 0) OR (PMATRICULACONFIRMACAO IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a matrícula do usuário que confirmou o pagamento.';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        -- Gerando nova linha de registro na tabela PCPRESTANTECIPADA com os parâmetros recebidos
+        SELECT DFSEQ_PCPRESTANTECIPADA.NEXTVAL
+          INTO VNUMTRANSPAGADIANTADO
+          FROM DUAL;
+
+        INSERT INTO PCPRESTANTECIPADA (
+            NUMTRANSPAGADIANTADO,  /*01*/
+            CODCLI,                /*02*/
+            NUMPED,                /*03*/
+            VALOR,                 /*04*/
+            CODFILIAL,             /*05*/
+            VALORPEDIDO,           /*06*/
+            CODCOBPGTO,            /*07*/
+            DTEMISSAOPED,          /*08*/
+            DTGERACAOPGTO,         /*09*/
+            DTCONFIRMACAOPGTO,     /*10*/
+            DTPGTO,                /*11*/
+            MATRICULAGERACAO,      /*12*/
+            MATRICULACONFIRMACAO,  /*13*/
+            NSUTEF,                /*14*/
+            NSUHOST,               /*15*/
+            CODREDE,               /*16*/
+            QTDPARCELATEF,         /*17*/
+            NOME_CARTEIRA_DIGITAL, /*18*/
+            CODADMINISTRADORA,     /*19*/
+            CODBANDEIRA,           /*20*/
+            NUMTRANSPAGDIGITAL     /*21*/
+        ) VALUES (
+            VNUMTRANSPAGADIANTADO,  /*01*/
+            PCODCLI,                /*02*/
+            PNUMPED,                /*03*/
+            PVALOR,                 /*04*/
+            PCODFILIAL,             /*05*/
+            PVALORPEDIDO,           /*06*/
+            PCODCOBPGTO,            /*07*/
+            PDTEMISSAOPED,          /*08*/
+            PDTGERACAOPGTO,         /*09*/
+            PDTCONFIRMACAOPGTO,     /*10*/
+            PDTPGTO,                /*11*/
+            PMATRICULAGERACAO,      /*12*/
+            PMATRICULACONFIRMACAO,  /*13*/
+            PNSUTEF,                /*14*/
+            PNSUHOST,               /*15*/
+            PCODREDE,               /*16*/
+            PQTDPARCELATEF,         /*17*/
+            PNOME_CARTEIRA_DIGITAL, /*18*/
+            PCODADMINISTRADORA,     /*19*/
+            PCODBANDEIRA,           /*20*/
+            PNUMTRANSPAGDIGITAL     /*21*/
+        );
+
+        PNUMTRANSPAGADIANTADO := VNUMTRANSPAGADIANTADO;
+
+        COMMIT WORK;
+    EXCEPTION
+        WHEN OTHERS THEN
+            PMENSAGEM := SQLERRM;
+            RAISE_APPLICATION_ERROR(-20001, 'Erro ao criar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
+    END; --CRIAR_RECEB_ANTECIPADO
+
 END;
