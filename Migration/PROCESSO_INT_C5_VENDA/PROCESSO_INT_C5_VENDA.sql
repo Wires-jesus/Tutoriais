@@ -588,7 +588,7 @@ AS
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'VLRBASE'),'0'))               
+                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRBASE'),'0'))               
             ELSE
               0
           END) vlbasefcpicms,
@@ -1107,7 +1107,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 1, 'VLRBASE'),'0'))                 
+                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRBASE'),'0'))                 
             ELSE
               0
           END) vlbasefcpicms,
