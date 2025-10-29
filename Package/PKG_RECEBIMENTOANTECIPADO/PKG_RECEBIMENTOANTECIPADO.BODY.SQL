@@ -505,7 +505,14 @@ IS
                                      PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL
                                     )
     IS
-        VNUMTRANSPAGADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
+        VNUMTRANSPAGOADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
+        VNUMTRANS PCMOVCR.NUMTRANS%TYPE;
+        VVLSALDO PCMOVCR.VLSALDO%TYPE;
+        VHORA PCMOVCR.HORA%TYPE;
+        VMINUTO PCMOVCR.MINUTO%TYPE;
+        VROTINA PCMOVCR.ROTINALANCAMENTO%TYPE;
+        VCODBCOCOBANTECIPADA PCCOB.CODBCOCOBANTECIPADA%TYPE;
+        VCODMOEDACOBANTECIPADA PCCOB.CODMOEDACOBANTECIPADA%TYPE;
     BEGIN
         PNUMTRANSPAGOADIANTADO := 0;
         PCODIGO                := 0;
@@ -556,28 +563,28 @@ IS
             RETURN;
         END IF;
 
-        IF PDTEMISSAOPED IS NULL THEN
+        IF (PDTEMISSAOPED = '') OR (PDTEMISSAOPED IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de emissão do pedido.';
             ROLLBACK;
             RETURN;
         END IF;
 
-        IF PDTGERACAOPGTO IS NULL THEN
+        IF (PDTGERACAOPGTO = '') OR (PDTGERACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de geração do pagamento.';
             ROLLBACK;
             RETURN;
         END IF;
 
-        IF PDTCONFIRMACAOPGTO IS NULL THEN
+        IF (PDTCONFIRMACAOPGTO = '') OR (PDTCONFIRMACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de confirmação do pagamento.';
             ROLLBACK;
             RETURN;
         END IF;
 
-        IF PDTPGTO IS NULL THEN
+        IF (PDTPGTO = '') OR (PDTPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de pagamento informada na API.';
             ROLLBACK;
@@ -598,58 +605,150 @@ IS
             RETURN;
         END IF;
 
+        SELECT COB.CODBCOCOBANTECIPADA,
+               COB.CODMOEDACOBANTECIPADA
+          INTO VCODBCOCOBANTECIPADA,
+               VCODMOEDACOBANTECIPADA
+          FROM PCCOB COB
+         WHERE COB.CODCOB = PCODCOBPGTO;
+
+        IF VCODBCOCOBANTECIPADA IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
+        IF VCODMOEDACOBANTECIPADA IS NULL THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
+            ROLLBACK;
+            RETURN;
+        END IF;
+
         -- Gerando nova linha de registro na tabela PCPRESTANTECIPADA com os parâmetros recebidos
         SELECT DFSEQ_PCPRESTANTECIPADA.NEXTVAL
-          INTO VNUMTRANSPAGADIANTADO
+          INTO VNUMTRANSPAGOADIANTADO
           FROM DUAL;
 
         INSERT INTO PCPRESTANTECIPADA (
-            NUMTRANSPAGADIANTADO,  /*01*/
-            CODCLI,                /*02*/
-            NUMPED,                /*03*/
-            VALOR,                 /*04*/
-            CODFILIAL,             /*05*/
-            VALORPEDIDO,           /*06*/
-            CODCOBPGTO,            /*07*/
-            DTEMISSAOPED,          /*08*/
-            DTGERACAOPGTO,         /*09*/
-            DTCONFIRMACAOPGTO,     /*10*/
-            DTPGTO,                /*11*/
-            MATRICULAGERACAO,      /*12*/
-            MATRICULACONFIRMACAO,  /*13*/
-            NSUTEF,                /*14*/
-            NSUHOST,               /*15*/
-            CODREDE,               /*16*/
-            QTDPARCELATEF,         /*17*/
-            NOME_CARTEIRA_DIGITAL, /*18*/
-            CODADMINISTRADORA,     /*19*/
-            CODBANDEIRA,           /*20*/
-            NUMTRANSPAGDIGITAL     /*21*/
+            NUMTRANSPAGADIANTADO,   /*01*/
+            CODCLI,                 /*02*/
+            NUMPED,                 /*03*/
+            VALOR,                  /*04*/
+            VLRCREDITOABATIDO,      /*05*/
+            CODFILIAL,              /*06*/
+            VALORPEDIDO,            /*07*/
+            CODCOBPGTO,             /*08*/
+            DTEMISSAOPED,           /*09*/
+            DTGERACAOPGTO,          /*10*/
+            DTCONFIRMACAOPGTO,      /*11*/
+            DTPGTO,                 /*12*/
+            MATRICULAGERACAO,       /*13*/
+            MATRICULACONFIRMACAO,   /*14*/
+            NSUTEF,                 /*15*/
+            NSUHOST,                /*16*/
+            CODREDE,                /*17*/
+            QTDPARCELATEF,          /*18*/
+            NOME_CARTEIRA_DIGITAL,  /*19*/
+            CODADMINISTRADORA,      /*20*/
+            CODBANDEIRA,            /*21*/
+            NUMTRANSPAGDIGITAL      /*22*/
         ) VALUES (
-            VNUMTRANSPAGADIANTADO,  /*01*/
+            VNUMTRANSPAGOADIANTADO, /*01*/
             PCODCLI,                /*02*/
             PNUMPED,                /*03*/
             PVALOR,                 /*04*/
-            PCODFILIAL,             /*05*/
-            PVALORPEDIDO,           /*06*/
-            PCODCOBPGTO,            /*07*/
-            PDTEMISSAOPED,          /*08*/
-            PDTGERACAOPGTO,         /*09*/
-            PDTCONFIRMACAOPGTO,     /*10*/
-            PDTPGTO,                /*11*/
-            PMATRICULAGERACAO,      /*12*/
-            PMATRICULACONFIRMACAO,  /*13*/
-            PNSUTEF,                /*14*/
-            PNSUHOST,               /*15*/
-            PCODREDE,               /*16*/
-            PQTDPARCELATEF,         /*17*/
-            PNOME_CARTEIRA_DIGITAL, /*18*/
-            PCODADMINISTRADORA,     /*19*/
-            PCODBANDEIRA,           /*20*/
-            PNUMTRANSPAGDIGITAL     /*21*/
+            0.00,                   /*05*/
+            PCODFILIAL,             /*06*/
+            PVALORPEDIDO,           /*07*/
+            PCODCOBPGTO,            /*08*/
+            PDTEMISSAOPED,          /*09*/
+            PDTGERACAOPGTO,         /*10*/
+            PDTCONFIRMACAOPGTO,     /*11*/
+            PDTPGTO,                /*12*/
+            PMATRICULAGERACAO,      /*13*/
+            PMATRICULACONFIRMACAO,  /*14*/
+            PNSUTEF,                /*15*/
+            PNSUHOST,               /*16*/
+            PCODREDE,               /*17*/
+            PQTDPARCELATEF,         /*18*/
+            PNOME_CARTEIRA_DIGITAL, /*19*/
+            PCODADMINISTRADORA,     /*20*/
+            PCODBANDEIRA,           /*21*/
+            PNUMTRANSPAGDIGITAL     /*22*/
         );
 
-        PNUMTRANSPAGADIANTADO := VNUMTRANSPAGADIANTADO;
+        PNUMTRANSPAGOADIANTADO := VNUMTRANSPAGOADIANTADO;
+
+        -- Gerando a movimentação financeira vinculada ao crédito na PCMOVCR.
+        VROTINA := SYS_CONTEXT('USERENV', 'MODULE');
+
+        SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
+               EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) 
+          INTO VHORA,
+               VMINUTO
+          FROM DUAL;
+
+        SELECT VLSALDO 
+          INTO VVLSALDO  
+          FROM PCMOVCR
+         WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
+                           FROM PCMOVCR 
+                          WHERE CODBANCO = VCODBCOCOBANTECIPADA
+                            AND CODCOB   = VCODMOEDACOBANTECIPADA);
+
+        SELECT NVL(PROXNUMTRANS, 1)
+          INTO VNUMTRANS 
+          FROM PCCONSUM FOR UPDATE;
+        UPDATE PCCONSUM
+           SET PROXNUMTRANS = NVL(PROXNUMTRANS, 1) + 1;
+
+        INSERT INTO PCMOVCR (
+            NUMTRANS,        /*01*/
+            DATA,            /*02*/
+            CODBANCO,        /*03*/
+            CODCOB,          /*04*/
+            CODFILIAL,       /*05*/
+            VALOR,           /*06*/
+            TIPO,            /*07*/
+            HISTORICO,       /*08*/
+            NUMCARR,         /*09*/
+            VLSALDO,         /*10*/
+            HORA,            /*11*/
+            MINUTO,          /*12*/
+            CODFUNC,         /*13*/
+            INDICE,          /*14*/
+            HISTORICO2,      /*15*/
+            CODROTINALANC,   /*16*/
+            ESTORNO,         /*17*/
+            CODCLI,          /*18*/
+            DATACOMPLETA,    /*19*/
+            ROTINALANCAMENTO /*20*/
+        ) VALUES (
+            VNUMTRANS,                                                                               /*01*/
+            TRUNC(SYSDATE),                                                                          /*02*/
+            VCODBCOCOBANTECIPADA,                                                                    /*03*/
+            VCODMOEDACOBANTECIPADA,                                                                  /*04*/
+            PCODFILIAL,                                                                              /*05*/
+            PVALOR,                                                                                  /*06*/
+            'D',                                                                                     /*07*/
+            'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGOADIANTADO||')', /*08*/
+            0,                                                                                       /*09*/
+            (VVLSALDO + PVALOR),                                                                     /*10*/
+            VHORA,                                                                                   /*11*/
+            VMINUTO,                                                                                 /*12*/
+            PMATRICULACONFIRMACAO,                                                                   /*13*/
+            'B',                                                                                     /*14*/
+            'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGOADIANTADO||')', /*15*/
+            1295,                                                                                    /*16*/
+            'N',                                                                                     /*17*/
+            PCODCLI,                                                                                 /*18*/
+            SYSDATE,                                                                                 /*19*/
+            VROTINA                                                                                  /*20*/
+        );
+
+        PNUMTRANS := VNUMTRANS;
 
         COMMIT WORK;
     EXCEPTION
