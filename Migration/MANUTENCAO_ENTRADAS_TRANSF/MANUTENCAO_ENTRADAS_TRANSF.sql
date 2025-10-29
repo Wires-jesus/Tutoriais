@@ -10,7 +10,7 @@ BEGIN
                             , PCNFSAID
                         WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
                           AND PCNFENT.ESPECIE = 'TP'
-                          AND PCNFENT.DTEMISSAO >= '01-oct-2024'
+                          AND PCNFENT.DTEMISSAO >= TO_DATE('01/10/2024', 'DD/MM/YYYY')
                           AND PCNFSAID.NUMTRANSENTORIGEM > 0
                           AND PCNFENT.NUMTRANSENT = PCNFSAID.NUMTRANSENTORIGEM
                        UNION
@@ -20,7 +20,7 @@ BEGIN
                             , PCNFSAIDPREFAT PCNFSAID
                         WHERE TRIM(PCNFSAID.CHAVENFE) IS NOT NULL
                           AND PCNFENT.ESPECIE = 'TP'
-                          AND PCNFENT.DTEMISSAO >= '01-oct-2024'
+                          AND PCNFENT.DTEMISSAO >= TO_DATE('01/10/2024', 'DD/MM/YYYY')
                           AND PCNFSAID.NUMTRANSENTORIGEM > 0
                           AND PCNFENT.NUMTRANSENT = PCNFSAID.NUMTRANSENTORIGEM) NF)
    LOOP
