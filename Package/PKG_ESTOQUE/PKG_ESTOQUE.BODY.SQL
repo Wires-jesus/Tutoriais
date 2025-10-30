@@ -2561,10 +2561,11 @@ IS
     BEGIN
       SELECT COUNT(1)
         INTO vnCONTADOR
-        FROM PCPEDIFV
-       WHERE NUMPED = pnNUMPED
-         AND CODPROD = pnCODPROD;
-       
+        FROM PCPEDC C, PCPEDIFV F
+       WHERE C.NUMPEDRCA = F.NUMPEDRCA
+         AND C.NUMPED = pnNUMPED
+         AND F.CODPROD = pnCODPROD;
+                
       IF vnCONTADOR > 0 THEN
         RETURN 'S';
       ELSE
