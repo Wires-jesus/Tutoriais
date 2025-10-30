@@ -563,7 +563,7 @@ AS
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) valorultent,
-        NVL(round(((i.vlrunitario / i.qtdembalagem) * a.percaliqfcpicms / 100),6), 0) vlacrescimofuncep,
+        TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),'0')) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -588,7 +588,7 @@ AS
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRBASE'),'0'))               
+                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'B'),'0'))               
             ELSE
               0
           END) vlbasefcpicms,
@@ -1082,7 +1082,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
            FROM vw_int_c5_custos
           WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) valorultent,
-        NVL(round(((i.vlrunitario / i.qtdembalagem) * a.percaliqfcpicms / 100),6), 0) vlacrescimofuncep,
+        TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),'0')) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -1107,7 +1107,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
             WHEN a.SITTRIBUT IN ('00','20','90')
                  AND
                  a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'VLRBASE'),'0'))                 
+                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'B'),'0'))                 
             ELSE
               0
           END) vlbasefcpicms,
