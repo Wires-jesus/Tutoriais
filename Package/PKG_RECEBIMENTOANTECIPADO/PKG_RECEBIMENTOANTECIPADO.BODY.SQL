@@ -513,6 +513,7 @@ IS
         VROTINA PCMOVCR.ROTINALANCAMENTO%TYPE;
         VCODBCOCOBANTECIPADA PCCOB.CODBCOCOBANTECIPADA%TYPE;
         VCODMOEDACOBANTECIPADA PCCOB.CODMOEDACOBANTECIPADA%TYPE;
+        VCODIGO PCCRECLI.CODIGO%TYPE;
     BEGIN
         PNUMTRANSPAGOADIANTADO := 0;
         PCODIGO                := 0;
@@ -750,9 +751,55 @@ IS
 
         PNUMTRANS := VNUMTRANS;
 
+        -- Criando crédito antecipado na PCCRECLI
+        INSERT INTO PCCRECLI (
+            CODCLI,                /*01*/
+            DTLANC,                /*02*/
+            CODFILIAL,             /*03*/
+            VALOR,                 /*04*/
+            CODFUNC,               /*05*/
+            HORA,                  /*06*/
+            MINUTO,                /*07*/
+            HISTORICO,             /*08*/
+            CODFUNCLANC,           /*09*/
+            NUMERARIO,             /*10*/
+            CODMOVIMENTO,          /*11*/
+            NUMTRANS,              /*12*/
+            CODROTINA,             /*13*/
+            SITUACAO,              /*14*/
+            ROTINAINSERT,          /*15*/
+            ROTINAULTIMAALTERACAO, /*16*/
+            NUMPED                 /*17*/
+        ) VALUES (
+            PCODCLI,                                                                                 /*01*/
+            TRUNC(SYSDATE),                                                                          /*02*/
+            PCODFILIAL,                                                                              /*03*/
+            PVALOR,                                                                                  /*04*/
+            PMATRICULACONFIRMACAO,                                                                   /*05*/
+            VHORA,                                                                                   /*06*/
+            VMINUTO,                                                                                 /*07*/
+            'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGOADIANTADO||')', /*08*/
+            PMATRICULACONFIRMACAO,                                                                   /*09*/
+            'S',                                                                                     /*10*/
+            VCODBCOCOBANTECIPADA,                                                                    /*11*/
+            VNUMTRANS,                                                                               /*12*/
+            1295,                                                                                    /*13*/
+            'A',                                                                                     /*14*/
+            VROTINA,                                                                                 /*15*/
+            VROTINA,                                                                                 /*16*/
+            PNUMPED                                                                                  /*17*/
+        );
+
+        SELECT MAX(CODIGO) CODIGO
+        INTO VCODIGO
+        FROM PCCRECLI;
+
+        PCODIGO := VCODIGO;
+
         COMMIT WORK;
     EXCEPTION
         WHEN OTHERS THEN
+            ROLLBACK;
             PMENSAGEM := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, 'Erro ao criar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
     END; --CRIAR_RECEB_ANTECIPADO
