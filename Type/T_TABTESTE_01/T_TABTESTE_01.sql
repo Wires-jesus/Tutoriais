@@ -1,1 +1,1 @@
-CREATE OR REPLACE TYPE T_TABTESTE_01 IS as Object (id number(4))
+CREATE OR REPLACE TYPE T_TABTESTE_01 as Object (id number(4))
