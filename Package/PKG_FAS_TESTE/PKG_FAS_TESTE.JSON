@@ -1,6 +1,17 @@
 {
 	"nome":"PKG_FAS_TESTE",
 	"tipoPLSQL":"PACKAGE",
-	"dependencias":""
-
+	"dependencias":
+	[
+  {
+	"nome": "FNC_TABTESTE_DEPS",
+	"tipo": "OBJETO_PLSQL",
+	"versao": "8.0.02.000"
+  },
+    {
+	"nome": "T_TABTESTE_01",
+	"tipo": "OBJETO_PLSQL",
+	"versao": "8.0.01.000"
+  }
+ ]
 }
