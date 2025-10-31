@@ -1,6 +1,6 @@
 {
 	"nome":"PKG_FAS_TESTE",
 	"tipoPLSQL":"PACKAGE",
-	"dependencias":
-	[]
+	"dependencias":""
+
 }
