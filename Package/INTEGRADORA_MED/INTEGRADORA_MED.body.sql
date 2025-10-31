@@ -30561,7 +30561,8 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                         OR (nvl(regproduto.vlpautaipivenda,0) <> 0)
                         OR (nvl(regproduto.vlipiporkgvenda,0) <> 0))
                         AND (nvl(regcliente.isentoipi,'N') = 'N')
-                        AND (nvl(gvet_regpedido(i).condvenda,0) <> 8) THEN
+                        AND (nvl(gvet_regpedido(i).condvenda,0) <> 8) 
+                        AND (nvl(regprecos.calculaipi, 'I') <> 'N') THEN
                         -- Se a Filial calcula IPI na Venda
                         IF (nvl(regfilial.calcularipivenda,'N') = 'S') THEN
                           -- LOG
