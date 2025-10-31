@@ -596,10 +596,11 @@ BEGIN
                          AND CODPROD = :NEW.CODPROD
                          AND CODFILIAL = (CASE /*HUGO AQUINO*/
                               WHEN (:NEW.CODOPER IN ('ED')) THEN
-                              DECODE(VNVOLTAESTOQUEFILIALRETIRA,
+                              NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
+                              /*DECODE(VNVOLTAESTOQUEFILIALRETIRA,
                                      'N',
                                      :NEW.CODFILIAL,
-                                     NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))
+                                     NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))*/
                                      
                               WHEN VNCONDVENDA = 10 THEN
                               NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
@@ -974,8 +975,10 @@ BEGIN
                    WHERE NUMLOTE = :OLD.NUMLOTE
                      AND CODPROD = :OLD.CODPROD
                      AND CODFILIAL = (CASE /*HUGO AQUINO*/
-                          WHEN ((:OLD.CODOPER IN ('S') AND NVL(:OLD.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0) OR :OLD.CODOPER IN ('ED')) THEN
+                          WHEN ((:OLD.CODOPER IN ('S') AND NVL(:OLD.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0) /*OR :OLD.CODOPER IN ('ED')*/) THEN
                           DECODE(VNVOLTAESTOQUEFILIALRETIRA, 'N', :OLD.CODFILIAL, NVL(:OLD.CODFILIALRETIRA, :OLD.CODFILIAL))
+                          WHEN (:OLD.CODOPER IN ('ED')) THEN 
+                          NVL(:OLD.CODFILIALNF, :OLD.CODFILIAL)
                           WHEN VNCONDVENDA = 10 THEN
                           NVL(:OLD.CODFILIALNF, :OLD.CODFILIAL)
                           ELSE
