@@ -742,7 +742,7 @@ IS
             PMATRICULACONFIRMACAO,                                                                   /*13*/
             'B',                                                                                     /*14*/
             'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGOADIANTADO||')', /*15*/
-            'INTEGRACAO',                                                                            /*16*/
+            1295,                                                                                    /*16*/
             'N',                                                                                     /*17*/
             PCODCLI,                                                                                 /*18*/
             SYSDATE,                                                                                 /*19*/
@@ -783,7 +783,7 @@ IS
             'S',                                                                                     /*10*/
             VCODBCOCOBANTECIPADA,                                                                    /*11*/
             VNUMTRANS,                                                                               /*12*/
-            'INTEGRACAO',                                                                            /*13*/
+            1295,                                                                                    /*13*/
             'A',                                                                                     /*14*/
             VROTINA,                                                                                 /*15*/
             VROTINA,                                                                                 /*16*/
