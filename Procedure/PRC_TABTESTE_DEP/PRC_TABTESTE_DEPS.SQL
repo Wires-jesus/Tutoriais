@@ -1,4 +1,4 @@
-﻿CREATE OR REPLACE PROCEDURE PRC_TABTESTE_DEPS
+CREATE OR REPLACE PROCEDURE PRC_TABTESTE_DEPS
 AS
     -- Declaração de variáveis para armazenar as colunas da tabela
     -- Você precisará ajustar os tipos de dados e os nomes das colunas

@@ -1,4 +1,4 @@
-﻿{"nome":"PRC_TABTESTE_DEPS","tipoPLSQL":"PROCEDURE","dependencias":[
+{"nome":"PRC_TABTESTE_DEPS","tipoPLSQL":"PROCEDURE","dependencias":[
   {
 	"nome": "PCTABTESTE_02",
 	"tipo": "TABELA",
