@@ -3392,6 +3392,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 		  AND (FIL.CODFORNEC          = FRC.CODFORNEC)
 		  AND (FIL.CODIGO             = EST.CODFILIAL)
 		  AND (RCM.DTCANCEL IS NULL)
+		  AND (RCM.NUMPEDTV10 IS NULL)
 		)   
 			DADOSFILIAL_O
 		  , PCPRODUT      PRO_D
@@ -10623,6 +10624,35 @@ IS PRAGMA SERIALLY_REUSABLE;
 
             -- Atualiza Tabela Temporária com os dados do Pedido Gerado
             IF (pi_nOrigemChamada = 1) THEN
+			  DECLARE
+			    CURSOR cRotaCompraMov IS
+				  SELECT
+				    RCM.ROWID AS ROW_ID_RCM,
+				    RCM.NUMPED AS NUMPED_ATUAL,
+				    RCM.CODPROD AS CODPROD,
+				    RCM.NUMTRANSITEM
+				  FROM PCMED_TEMP_TRANSF_ATAC_VAR TAV
+				  JOIN PCROTACOMPRAMOV RCM
+				    ON RCM.CODPROD   = TAV.CODPROD_O
+				   AND RCM.QTENTRADA = TAV.QTD_SUGERIDA_O
+				   AND RCM.DTCANCEL IS NULL
+				   AND RCM.NUMPEDTV10 IS NULL
+				   AND TAV.CODFILIAL_O = vc_Dados_Cab.CODFILIAL_O
+				   AND TAV.CODPROD_O   = vc_Dados_Ite.CODPROD_O
+				   AND TAV.CODFILIAL_D = vc_Dados_Cab.CODFILIAL_D
+				   AND TAV.CODPROD_D   = vc_Dados_Ite.CODPROD_D;
+
+				BEGIN				   
+				  FOR r IN cRotaCompraMov LOOP
+				    UPDATE PCROTACOMPRAMOV
+					   SET NUMPEDTV10 = vrPedido.nNUMPED
+					 WHERE ROWID = r.ROW_ID_RCM
+					   AND NUMPED = r.NUMPED_ATUAL
+					   AND CODPROD = r.CODPROD
+					   AND NUMTRANSITEM = r.NUMTRANSITEM;
+				  END LOOP;
+				END;			
+			
               UPDATE PCMED_TEMP_TRANSF_ATAC_VAR
                  SET NUMPED                = vrPedido.nNUMPED
                    , QTPED                 = vrItemPedido.nQTDETRANSFERIR
