@@ -1,0 +1,10 @@
+{
+    "nome": "CADASTRO_4000_PCCSTTRIBUTACAOIBSCBS",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias": [{
+            "nome": "PCCSTTRIBUTACAOIBSCBS",
+            "tipo": "TABELA",
+            "versao": "8.0.02.000"
+        }
+    ]
+}
