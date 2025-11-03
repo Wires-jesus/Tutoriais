@@ -876,7 +876,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     CURSOR V_CURSOR_PRODUTOS(V_FILIAL             VARCHAR2
                             ,VPROCESSAMENTO       DATE
                             ,V_GERARPCHISTESTPARA VARCHAR2
-                            ,V_USATRIBUTACAOPORUF VARCHAR2)
+                            ,V_USATRIBUTACAOPORUF VARCHAR2
+                            ,SCN_V_NUMBER         NUMBER)
     IS
       /* Select para listar os estoque da filial */
       SELECT CODFILIAL,
@@ -1118,7 +1119,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
                      E.QTESTOQUEEMTERCEIRO,
                      E.QTESTOQUEDETERCEIRO,
                      E.QTTRANSITOTV10
-                FROM PCEST E,
+                FROM PCEST AS OF SCN SCN_V_NUMBER E,
                      PCPRODUT PA,
                      PCDEPTO D,
                      (SELECT CODPROD,
@@ -1318,6 +1319,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
 
     V_CONTADOR         NUMBER(10);
     vSQLBLOQUEARPCEST  VARCHAR2(1000);
+    V_CURRENT_SCN NUMBER;    
 
   BEGIN
     -- Inserindo log
@@ -1332,6 +1334,9 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
       WHEN OTHERS THEN
         PVC2MENSSAGEN := 'Mensagem 1: - Erro ao gravar log.';
     END;
+
+    V_CURRENT_SCN := DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+
     /* Lista de filiais */
     FOR FILIAL IN (SELECT CODIGO
                         ,(SELECT USATRIBUTACAOPORUF FROM PCCONSUM) USATRIBUTACAOPORUF
@@ -1355,16 +1360,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
           PVC2MENSSAGEN := 'Mensagem 2: - Erro ao gravar log.';
       END;
 
-      /* Bloquear registros */
-      vSQLBLOQUEARPCEST := 'SELECT CODFILIAL
-                              FROM PCEST
-                             WHERE CODFILIAL = :FILIAL
-                            ORDER BY CODPROD 
-							   FOR UPDATE';
-
-      EXECUTE IMMEDIATE vSQLBLOQUEARPCEST USING FILIAL.CODIGO;
-
-      /* Certificar que não existem registros antigos */
+      /* Certificar que não existem registros antigos conflitantes com a nova geração */
       DELETE FROM PCHISTESTFILA
        WHERE DATA = PDTPROCESSAMENTO
          AND CODFILIAL = FILIAL.CODIGO;
@@ -1372,7 +1368,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
       OPEN V_CURSOR_PRODUTOS(FILIAL.CODIGO,
                              PDTPROCESSAMENTO,
                              FILIAL.GERARPCHISTESTPARA,
-                             FILIAL.USATRIBUTACAOPORUF);
+                             FILIAL.USATRIBUTACAOPORUF,
+                             V_CURRENT_SCN);
       LOOP
         /* Buscando as próximas 1000 linhas */
         FETCH V_CURSOR_PRODUTOS BULK COLLECT
@@ -4207,19 +4204,19 @@ BEGIN
 		   commit;
 
            IF INSTR(VCODIGOINSERIDO, TO_CHAR(FAMILIA.CODCLI) || ';') = 0 THEN
-             P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
-                                    , PUSUARIO
-                                    , '504'
+            P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
+                                  , PUSUARIO
+                                  , '504'
                                     , SUBSTR('BLOQ. ORIGINADO CLIENTE ' || FAMILIA.CODCLI || ' (CODCLIPRINC=' || REGISTRO.CODCLIPRINC || ')', 1, 60)
-                                    , FAMILIA.VLIMCREDANT
-                                    , FAMILIA.VBLOQUEIOANT
-                                    , FAMILIA.VDTREGLIMANT
-                                    , FAMILIA.VDTVENCLIMANT
-                                    , FAMILIA.VOBSANT
-                                    , FAMILIA.VPRAZOANT
-                                    , FAMILIA.VCODCOBANT
-                                    , FAMILIA.VCODPLPAGANT
-                                    );
+                                  , FAMILIA.VLIMCREDANT
+                                  , FAMILIA.VBLOQUEIOANT
+                                  , FAMILIA.VDTREGLIMANT
+                                  , FAMILIA.VDTVENCLIMANT
+                                  , FAMILIA.VOBSANT
+                                  , FAMILIA.VPRAZOANT
+                                  , FAMILIA.VCODCOBANT
+                                  , FAMILIA.VCODPLPAGANT
+                                  );
 
              IF VCODIGOINSERIDO IS NULL THEN
                VCODIGOINSERIDO := TO_CHAR(FAMILIA.CODCLI) || ';';
