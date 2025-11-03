@@ -1,11 +1,5 @@
 {
     "nome": "AJUSTE_TIPO_CAMPO_SITTRIBUTORIG",
     "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-      {
-        "nome": "PCMOVCOMPLEPREENT",
-        "tipo": "TABELA",
-        "versao": "8.0.01.000"
-      }
-    ]
+    "dependencias":""
 }
