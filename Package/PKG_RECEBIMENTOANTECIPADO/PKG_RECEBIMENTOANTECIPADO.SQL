@@ -2,9 +2,9 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
 
     --------------------- DADOS PCPRESTANTECIPADA ------------------------------
     TYPE T_PCPRESTANTECIPADA IS RECORD(
-        NUMTRANSPAGADIANTADO	PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-        CODCLI					PCPRESTANTECIPADA.CODCLI%TYPE,
-        CODFILIAL				PCPRESTANTECIPADA.CODFILIAL%TYPE,
+        NUMTRANSPAGADIANTADO    PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+        CODCLI                  PCPRESTANTECIPADA.CODCLI%TYPE,
+        CODFILIAL               PCPRESTANTECIPADA.CODFILIAL%TYPE,
         NUMPED                  PCPRESTANTECIPADA.NUMPED%TYPE,
         NUMORCA                 PCPRESTANTECIPADA.NUMORCA%TYPE,
         COBANTECIPADA           PCPRESTANTECIPADA.COBANTECIPADA%TYPE,
@@ -46,13 +46,43 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
 
     PROCEDURE SOLICITA_CANCELAMENTO(PMENSAGEM              OUT VARCHAR2,
                                     PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-									PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE);
+                                    PMATRICULA             PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE);
 
     ----------------------------------------------------------------------------
 
-    PROCEDURE ATUALIZAR_STATUS(PMENSAGEM   OUT VARCHAR2,
+    PROCEDURE ATUALIZAR_STATUS(PMENSAGEM              OUT VARCHAR2,
                                PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-							   PMATRICULA     		  PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);                                                                   
+                               PMATRICULA             PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);
+    ----------------------------------------------------------------------------
+
+    PROCEDURE CRIAR_RECEB_ANTECIPADO(PSTATUS                OUT VARCHAR2,
+                                     PMENSAGEM              OUT VARCHAR2,
+                                     PNUMTRANSPAGOADIANTADO OUT PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                     PCODIGO                OUT PCCRECLI.CODIGO%TYPE,
+                                     PNUMTRANS              OUT PCMOVCR.NUMTRANS%TYPE,
+
+                                     PCODCLI                 IN PCPRESTANTECIPADA.CODCLI%TYPE,
+                                     PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
+                                     PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
+                                     PCODFILIAL              IN PCPRESTANTECIPADA.CODFILIAL%TYPE,
+                                     PVALORPEDIDO            IN PCPRESTANTECIPADA.VALORPEDIDO%TYPE,
+                                     PCODCOBPGTO             IN PCPRESTANTECIPADA.CODCOBPGTO%TYPE,
+                                     PDTEMISSAOPED           IN PCPRESTANTECIPADA.DTEMISSAOPED%TYPE,
+                                     PDTGERACAOPGTO          IN PCPRESTANTECIPADA.DTGERACAOPGTO%TYPE,
+                                     PDTCONFIRMACAOPGTO      IN PCPRESTANTECIPADA.DTCONFIRMACAOPGTO%TYPE,
+                                     PDTPGTO                 IN PCPRESTANTECIPADA.DTPGTO%TYPE,
+                                     PMATRICULAGERACAO       IN PCPRESTANTECIPADA.MATRICULAGERACAO%TYPE,
+                                     PMATRICULACONFIRMACAO   IN PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE,
+
+                                     PNSUTEF                 IN PCPRESTANTECIPADA.NSUTEF%TYPE DEFAULT NULL,
+                                     PNSUHOST                IN PCPRESTANTECIPADA.NSUHOST%TYPE DEFAULT NULL,
+                                     PCODREDE                IN PCPRESTANTECIPADA.CODREDE%TYPE DEFAULT NULL,
+                                     PQTDPARCELATEF          IN PCPRESTANTECIPADA.QTDPARCELATEF%TYPE DEFAULT NULL,
+                                     PNOME_CARTEIRA_DIGITAL  IN PCPRESTANTECIPADA.NOME_CARTEIRA_DIGITAL%TYPE DEFAULT NULL,
+                                     PCODADMINISTRADORA      IN PCPRESTANTECIPADA.CODADMINISTRADORA%TYPE DEFAULT NULL,
+                                     PCODBANDEIRA            IN PCPRESTANTECIPADA.CODBANDEIRA%TYPE DEFAULT NULL,
+                                     PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL
+                                    );
     ----------------------------------------------------------------------------
 
 END PKG_RECEBIMENTOANTECIPADO;
