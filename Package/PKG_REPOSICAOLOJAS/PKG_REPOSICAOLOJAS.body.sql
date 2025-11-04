@@ -3336,7 +3336,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 		SELECT 
 			RCM.NUMTRANSITEM NUMSUGESTAOREP
 		  , TRUNC(SYSDATE) DTGERACAO
-		  , RCC.CODFILIALDESTINO CODFILIAL_O
+		  , RCI_O.CODFILIAL CODFILIAL_O
 		  , RCM.CODPROD CODPROD_O
 		  , PRO.DESCRICAO     
 		  , PRO.CODMARCA CODMARCA_O
@@ -3345,11 +3345,11 @@ IS PRAGMA SERIALLY_REUSABLE;
 		  , NVL(EST.QTESTGER, 0) - NVL(EST.QTRESERV, 0) - NVL(EST.QTBLOQUEADA, 0) QTD_EST_O
 		  , RCM.QTENTRADA QTD_SUGERIDA_O
 		  , RCM.QTENTRADA QTD_TRANSFERIR_O          
-		  , RCI.CODFILIAL CODFILIAL_D  
+		  , RCI_D.CODFILIAL CODFILIAL_D  
 		  , NVL((SELECT PRIORIDADE
 				   FROM PCFILIALPRIORIDADE FIL
 				  WHERE FIL.CODFILIAL = RCC.CODFILIALDESTINO
-					AND FIL.CODFILIALDESTINO = RCI.CODFILIAL), 999) PRIORIDADE_D  
+					AND FIL.CODFILIALDESTINO = RCI_D.CODFILIAL), 999) PRIORIDADE_D  
 		  , PRO.CODCATEGORIA
 		  , PRO.CODSEC
 		  , PRO.CODEPTO
@@ -3376,15 +3376,18 @@ IS PRAGMA SERIALLY_REUSABLE;
 			
 		FROM PCROTACOMPRAMOV           RCM
 		   , PCROTACOMPRAC             RCC
-		   , PCROTACOMPRAI             RCI
+           , PCROTACOMPRAI             RCI_O
+           , PCROTACOMPRAI             RCI_D
 		   , PCPRODUT                  PRO
 		   , PCMARCA                   MAR   
 		   , PCEST                     EST
 		   , PCFILIAL                  FIL
 		   , PCFORNEC                  FRC
 		WHERE (RCM.CODROTA            = RCC.CODROTA(+))
-		  AND (RCC.CODROTA            = RCI.CODROTA(+))
-		  AND (RCI.ORDEM              = 2)
+          AND (RCC.CODROTA            = RCI_O.CODROTA(+))
+          AND (RCI_O.ORDEM            = 1)        
+          AND (RCC.CODROTA            = RCI_D.CODROTA(+))
+          AND (RCI_D.ORDEM            = 2)
 		  AND (RCM.CODPROD            = PRO.CODPROD(+))
 		  AND (PRO.CODMARCA           = MAR.CODMARCA(+))  
 		  AND (RCM.CODPROD            = EST.CODPROD(+))
@@ -10655,6 +10658,12 @@ IS PRAGMA SERIALLY_REUSABLE;
                 WHERE NUMPED in (SELECT NUMPEDTV10 
                                    FROM PCROTACOMPRAMOV 
                                   WHERE NUMPEDTV10 = vrPedido.nNUMPED);
+  
+                UPDATE PCPEDI
+                  SET POSICAO = 'P'
+                WHERE NUMPED in (SELECT NUMPEDTV10 
+                                   FROM PCROTACOMPRAMOV 
+                                  WHERE NUMPEDTV10 = vrPedido.nNUMPED);								  
               END;
 
               UPDATE PCMED_TEMP_TRANSF_ATAC_VAR
