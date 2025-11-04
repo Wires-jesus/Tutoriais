@@ -1,0 +1,10 @@
+{
+    "nome": "CADASTRO_4014",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[{
+                    "nome": "PCNATUREZAOPERACAO",
+					"tipo": "TABELA",
+					"versao": "8.0.01.000"
+    }
+    ]
+}
