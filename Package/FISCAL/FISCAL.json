@@ -16,7 +16,7 @@
         }, {
             "nome": "PCNATUREZAOPERACAO",
             "tipo": "TABELA",
-            "versao": "6.0.02.000"
+            "versao": "8.0.01.000"
         },{
             "nome": "PKG_DEBUGGING_FWPC",
             "tipo": "OBJETO_PLSQL",
