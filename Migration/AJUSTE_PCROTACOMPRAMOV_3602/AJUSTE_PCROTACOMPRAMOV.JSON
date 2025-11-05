@@ -1,0 +1,6 @@
+{
+  "nome":"AJUSTE_PCROTACOMPRAMOV",
+  "tipoPLSQL":"MIGRATION",
+  "dependencias": [
+  ]
+}
