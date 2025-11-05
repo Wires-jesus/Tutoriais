@@ -2026,6 +2026,10 @@ IS PRAGMA SERIALLY_REUSABLE;
             V_QTD_EST_ORIG  := NVL(N_QTESTGER_O,0) -
                                NVL(N_QTRESERV_O,0) -
                                NVL(N_QTBLOQUEADA_O,0);
+   
+            IF (NVL(V_BLOQUEIAVENDAESTPENDENTE,'N') = 'S') THEN                   
+              V_QTD_EST_ORIG := V_QTD_EST_ORIG - N_QTPENDENTE_O;
+            END IF;	   
 
             -- CALCULANDO ESTOQUE DE RETORNO PARA DESTINO (NA PROPRIA EMBALAGEM DO VAREJO)
             V_QTD_EST_DEST  := NVL(PRODUTO.QTESTGER_D,0) -
