@@ -66,6 +66,46 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     RETURN 'VSVERSAOPACKAGE_REPLACE';
   END;
 
+/*********************************************************************************
+  ---------------------------------- Historico -------------------------------------
+      Data        Responsavel    Comentarios
+  ------------  ---------------  ---------------------------------------------------
+   05/11/2025   Anderson Messias Criada a procedure para gerar log da consolidação 
+                                 Na tabela PCHISTEST
+  Informações:
+  'IP' - Iniciou o programa
+  'IL' - Iniciou uma lista de dados
+  'FL' - Fechou uma lista de dados
+  'FP' - Fechou o programa
+  *********************************************************************************/
+  PROCEDURE GRAVARLOG (psCODFILIAL      IN VARCHAR2
+                      ,psMODULO         IN VARCHAR2
+                      ,psFUNCAO         IN VARCHAR2
+                      ,psTIPO_LOG       IN VARCHAR2
+                      ,psDS_JOB         IN VARCHAR2
+                      ,psPARAMETROS     IN VARCHAR2)
+  IS-- Variáveis internas
+    PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+    -- Inserindo log da função
+    INSERT INTO PCLOGJOB
+      (MODULO
+      ,FUNCAO
+      ,TIPO_LOG
+      ,DATA_LOG
+      ,DS_JOB
+      ,PARAMETROS)
+    VALUES
+      (psMODULO
+      ,psFUNCAO
+      ,psTIPO_LOG
+      ,SYSDATE
+      ,psDS_JOB || psCODFILIAL
+      ,psPARAMETROS);
+    COMMIT;
+  -- Procedure
+  END GRAVARLOG;
+
   /***************************************************************************************************************************************
   -------------------------- Alterações --------------------------------------------------------------------------------------------------
   Data           Autor             Solicitação         Descrição
@@ -1581,8 +1621,21 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     vsCODFILIAL         PCFILIAL.CODIGO%TYPE;
   vdDATA_ATUALIZADA   DATE;
   BEGIN
+    -- Inserindo log da chamada do método
+    BEGIN
+      GRAVARLOG( psCODFILIAL
+                ,'ARMAZENARSALDOSEST'
+                ,'PCHISTEST'
+                ,'IP'
+                ,'INICIO DA PROCEDURE DE CONSOLIDACAO DO ESTOQUE '
+                ,psCODFILIAL);
+    EXCEPTION
+      WHEN OTHERS THEN
+        NULL; -- ignora qualquer erro de gravação de log para que não pare o processo por este motivo
+    END;
+
     VALIDA_DTPRIMERIAMOVIMENTACAO(psCODFILIAL);
-    -- Abrindo curso */
+    -- Abrindo cursor */
     OPEN vcCURSOR_PRODUTOS;
     LOOP
       -- Buscando as próximas 500 linhas */
@@ -1982,6 +2035,20 @@ CREATE OR REPLACE PACKAGE BODY PKG_ANALISAR_ESTOQUE
     CLOSE vcCURSOR_PRODUTOS;
     -- Confirmando registros */
     COMMIT;
+    
+    -- Inserindo log da finalização do método
+    BEGIN
+      GRAVARLOG(psCODFILIAL
+               ,'ARMAZENARSALDOSEST'
+               ,'PCHISTEST'
+               ,'FP'
+               ,'FINALIZOU A PROCEDURE DE CONSOLIDACAO DO ESTOQUE '
+               ,psCODFILIAL);
+    EXCEPTION
+      WHEN OTHERS THEN
+        NULL; -- ignora qualquer erro de gravação de log para que não pare o processo por este motivo
+    END;
+      
   -- Fim da procedure */
   END PRC_ARMAZENARSALDOSESTOQUE;
   

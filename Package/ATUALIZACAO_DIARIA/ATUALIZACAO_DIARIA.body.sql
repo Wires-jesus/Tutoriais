@@ -1324,7 +1324,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
   BEGIN
     -- Inserindo log
     BEGIN
-      GRAVARLOG( NULL
+      GRAVARLOG( PCODFILIAL
                 ,'ARMAZENARSALDOSEST'
                 ,'PCHISTEST'
                 ,'IP'
@@ -1660,7 +1660,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
                  ,PDTPROCESSAMENTO);
       EXCEPTION
         WHEN OTHERS THEN
-          PVC2MENSSAGEN := 'Mensagem 4: - Erro ao gravar log.';
+          PVC2MENSSAGEN := 'Mensagem 3: - Erro ao gravar log.';
       END;
 
       COMMIT;
@@ -1668,15 +1668,15 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     END LOOP;
     -- Inserindo log
     BEGIN
-      GRAVARLOG(NULL
+      GRAVARLOG(PCODFILIAL
                ,'ARMAZENARSALDOSEST'
                ,'PCHISTEST'
                ,'IL'
-               ,'INICIO ARMAZENAR SALDOS ESTOQUE EM TRANSITO'
+               ,'INICIO ARMAZENAR SALDOS ESTOQUE EM TRANSITO '
                ,PDTPROCESSAMENTO);
     EXCEPTION
       WHEN OTHERS THEN
-        PVC2MENSSAGEN := 'Mensagem 5: - Erro ao gravar log.';
+        PVC2MENSSAGEN := 'Mensagem 4: - Erro ao gravar log.';
     END;
     /* Lista de produtos em transito */
     FOR REGISTRO IN (SELECT T.CODFILIAL,
@@ -1719,11 +1719,11 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     END LOOP;
     -- Inserindo log
     BEGIN
-      GRAVARLOG(NULL
+      GRAVARLOG(PCODFILIAL
                ,'ARMAZENARSALDOSEST'
                ,'PCHISTEST'
                ,'FP'
-               ,'FINALIZOU A PROCEDURE DE ARMAZENAR SALDOS ESTOQUE'
+               ,'FINALIZOU A PROCEDURE DE ARMAZENAR SALDOS ESTOQUE '
                ,PDTPROCESSAMENTO);
     EXCEPTION
       WHEN OTHERS THEN
