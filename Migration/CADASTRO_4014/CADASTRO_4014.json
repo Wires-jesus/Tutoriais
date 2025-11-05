@@ -5,6 +5,10 @@
                     "nome": "PCNATUREZAOPERACAO",
 					"tipo": "TABELA",
 					"versao": "8.0.01.000"
+    },{
+      "nome": "DICIONARIO.4014",
+      "tipo": "DICIONARIO",
+      "versao": "8.0.02.000"
     }
     ]
 }
