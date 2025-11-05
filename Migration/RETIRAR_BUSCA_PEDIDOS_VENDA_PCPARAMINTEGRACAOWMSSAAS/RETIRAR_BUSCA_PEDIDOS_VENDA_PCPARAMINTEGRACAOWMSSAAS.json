@@ -1,0 +1,16 @@
+{
+  "nome":"RETIRAR_BUSCA_PEDIDOS_VENDA_PCPARAMINTEGRACAOWMSSAAS",
+  "tipoPLSQL":"MIGRATION",
+  "dependencias":[
+    {
+      "nome": "PCPARAMINTEGRACAOWMSSAAS",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    },
+    {
+      "nome": "PCPARAMINTEGRACAOWMSSAASROTULO",
+      "tipo": "TABELA",
+      "versao": "6.0.01.000"
+    }
+  ]
+}
