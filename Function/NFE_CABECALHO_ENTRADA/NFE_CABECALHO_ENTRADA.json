@@ -5,17 +5,17 @@
   {
    "nome": "TIPO_NFE_CABECALHO",
    "tipo":"MIGRATION",
-   "versao": "7.0.07.000"
+   "versao": "8.0.01.000"
   },
   {
    "nome": "SQL_NFE_CABECALHO_ENTRADA",
    "tipo":"OBJETO_PLSQL",
-   "versao": "8.0.01.000"
+   "versao": "8.0.02.000"
   },
   {
    "nome": "SQL_NFE_CABECALHO_ENTRADA_DEV",
    "tipo":"OBJETO_PLSQL",
-   "versao": "8.0.01.000"
+   "versao": "8.0.02.000"
   }
  ]
 }
