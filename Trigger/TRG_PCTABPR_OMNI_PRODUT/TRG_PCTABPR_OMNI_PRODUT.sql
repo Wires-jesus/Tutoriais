@@ -10,7 +10,7 @@ BEGIN
     ELSIF UPDATING THEN
         v_codprod := :NEW.CODPROD;
     ELSIF DELETING THEN
-        v_codprod := OLD.CODPROD;
+        v_codprod := :OLD.CODPROD;
     end if;
     UPDATE PCPRODUT
     SET DESCRICAO = DESCRICAO
