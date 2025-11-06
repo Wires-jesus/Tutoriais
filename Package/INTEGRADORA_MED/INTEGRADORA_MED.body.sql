@@ -1361,6 +1361,7 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
     
     vvVersionamentoPkg            VARCHAR2(20);
     vdDATAINICIOAGENDADOR         DATE;
+    vsTEMRESTRICAOAVANCADA        VARCHAR2(1);
   BEGIN
   
     vvVersionamentoPkg := F_OBTER_VERSIONAMENTO;
@@ -1416,14 +1417,19 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
 
     IF vdDATAINICIOAGENDADOR IS NOT NULL THEN
       BEGIN
-        SELECT MAX(vdDATAINICIOAGENDADOR)
-          INTO vdDATAINICIOAGENDADOR
+        SELECT 'S'
+          INTO vsTEMRESTRICAOAVANCADA
           FROM PCRESTRICAOAVANCADA R
-         WHERE TRUNC(SYSDATE) BETWEEN R.DATAINICIAL AND R.DATAFINAL;
+         WHERE TRUNC(SYSDATE) BETWEEN R.DATAINICIAL AND R.DATAFINAL
+           AND ROWNUM = 1;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          vdDATAINICIOAGENDADOR := NULL;
+          vsTEMRESTRICAOAVANCADA := 'N';
       END;
+
+      IF vsTEMRESTRICAOAVANCADA = 'N' THEN
+        vdDATAINICIOAGENDADOR := NULL;
+      END IF;
     END IF;
 
    --Pedidos
@@ -3841,7 +3847,7 @@ end func_HoraDigitacaoPedido;
         SOBREPOSICAOBLOQUEIOALVARA   PCPARAMINTEGRADORAMED.VALOR%TYPE  -- DDVENDAS-37313
         );
    vrParamIntegradoraMed             TRecParamIntegradoraMed;
-
+   vsDATAINICIOAGENDADOR             PCPARAMFILIAL.VALOR%TYPE;
  begin
 
 
@@ -4477,7 +4483,16 @@ end func_HoraDigitacaoPedido;
      proc_pcparamfilial('99',
                         'DATAINICIOAGENDADORRESTRICAO',
                         NULL,
-                        p_regfilial.DATAINICIOAGENDADOR);
+                        vsDATAINICIOAGENDADOR);
+
+     IF vsDATAINICIOAGENDADOR IS NOT NULL THEN
+       BEGIN
+         p_regfilial.DATAINICIOAGENDADOR := TO_DATE(vsDATAINICIOAGENDADOR, 'DD/MM/YYYY HH24:MI:SS');
+       EXCEPTION
+         WHEN OTHERS THEN
+           p_regfilial.DATAINICIOAGENDADOR := NULL;
+       END;
+     END IF;
 
   end proc_parametros;
 
