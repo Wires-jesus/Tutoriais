@@ -1360,7 +1360,7 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
     vtListaProdutosRepetidos      TTListaProdutosRepetidos;
     
     vvVersionamentoPkg            VARCHAR2(20);
-
+    vdDATAINICIOAGENDADOR         DATE;
   BEGIN
   
     vvVersionamentoPkg := F_OBTER_VERSIONAMENTO;
@@ -1403,6 +1403,28 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
       vbUsaSemaforoImportacaoFv := TRUE;
     END IF;
 
+    BEGIN
+      SELECT TO_DATE(P.VALOR, 'DD/MM/YYYY HH24:MI:SS')
+        INTO vdDATAINICIOAGENDADOR
+        FROM PCPARAMFILIAL P
+       WHERE UPPER(TRIM(P.NOME)) = 'DATAINICIOAGENDADORRESTRICAO'
+         AND P.CODFILIAL = '99';
+    EXCEPTION
+      WHEN OTHERS THEN
+        vdDATAINICIOAGENDADOR := NULL;
+    END;
+
+    IF vdDATAINICIOAGENDADOR IS NOT NULL THEN
+      BEGIN
+        SELECT MAX(vdDATAINICIOAGENDADOR)
+          INTO vdDATAINICIOAGENDADOR
+          FROM PCRESTRICAOAVANCADA R
+         WHERE TRUNC(SYSDATE) BETWEEN R.DATAINICIAL AND R.DATAFINAL;
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vdDATAINICIOAGENDADOR := NULL;
+      END;
+    END IF;
 
    --Pedidos
     FOR cr_pedcab IN (SELECT  numpedrca,
@@ -1479,14 +1501,18 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
                               codemitente --DDMEDICA-4173
                             , descintermediador -- DDMEDICA-6201  
                             , cnpjintermediador -- DDMEDICA-6201  
-                        FROM pcpedcfv
-                       WHERE importado = p_tipoleitura
-                         AND (NVL(trunc(dtinclusao),TRUNC(SYSDATE)) BETWEEN vddatainicial AND vddatafinal)
-                         AND  nvl(tipofv,'FV' ) = p_tipofv
-                         AND ((nvl(codfilial,'99') = nvl(p_codfilial,'99') or nvl(codfilial,'99') = '99') or (p_codfilial = '99'))
-                         AND  (codusur = p_codusur or p_codusur is null)
-                         AND (numpedrca = p_numpedrca or p_numpedrca is null ) ) LOOP
+                            , STATUSAGENDADOR
+                        FROM PCPEDCFV
+                       WHERE IMPORTADO = p_tipoleitura
+                         AND TRUNC(NVL(DTINCLUSAO, SYSDATE)) BETWEEN vddatainicial AND vddatafinal
+                         AND NVL(TIPOFV, 'FV') = p_tipofv
+                         AND ((NVL(CODFILIAL, '99') = NVL(p_codfilial, '99')) OR (NVL(CODFILIAL, '99') = '99') OR (p_codfilial = '99'))
+                         AND ((CODUSUR = p_codusur) OR (p_codusur is null))
+                         AND ((NUMPEDRCA = p_numpedrca) OR (p_numpedrca is null))
 
+                         AND ((NVL(DTINCLUSAO, SYSDATE) > vdDATAINICIOAGENDADOR) OR (vdDATAINICIOAGENDADOR IS NULL))
+                         AND ((STATUSAGENDADOR IS NOT NULL) OR (p_numpedrca IS NOT NULL) OR (vdDATAINICIOAGENDADOR IS NULL))
+      ) LOOP
       BEGIN
 
         vblercabok := FALSE;
@@ -1648,7 +1674,7 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
             gregpedido.aplicarperredcomiss   := cr_pedcab.aplicarperredcomiss;
             gregpedido.descintermediador     := cr_pedcab.descintermediador; -- DDMEDICA-6201  
             gregpedido.cnpjintermediador     := cr_pedcab.cnpjintermediador; -- DDMEDICA-6201  
-            --DDMEDICA-4173
+            gregpedido.STATUSAGENDADOR       := cr_pedcab.STATUSAGENDADOR;
 
             IF (NVL(FUSA_REGRA_MEDICAMENTOS('99','CODEMITENTEECOMMERCE'),'N') = 'S') AND
               gregpedido.origemped = 'W' THEN
@@ -3915,7 +3941,8 @@ end func_HoraDigitacaoPedido;
                 'N',  -- USARCACLIENTELINHAPORFILIALMED
                 'N',  -- PRECIFICREGIAOFORAUFSEMST
                 0,    -- FIL_NUMMAXITENSNFE           -- DDVENDAS-50926
-                NULL   -- PERCENTUAL DO CAP'           -- DDVENDAS-55956
+                NULL, -- PERCENTUAL DO CAP'           -- DDVENDAS-55956
+                NULL  -- DATA INICIO AGENDADOR RESTRICAO --DDVENDAS-54850
           into p_regfilial
           from pcfilial
          where codigo = p_regpedido.codfilial;
@@ -4445,7 +4472,12 @@ end func_HoraDigitacaoPedido;
      proc_pcparamfilial(p_regpedido.codfilial,
                         'PERCENTUAL DO CAP',
                         null,
-                         p_regfilial.PERCENTUALDOCAP);                        
+                         p_regfilial.PERCENTUALDOCAP);
+
+     proc_pcparamfilial('99',
+                        'DATAINICIOAGENDADORRESTRICAO',
+                        NULL,
+                        p_regfilial.DATAINICIOAGENDADOR);
 
   end proc_parametros;
 
@@ -5001,6 +5033,34 @@ end func_HoraDigitacaoPedido;
         proc_parametros (p_regpedido,
                          p_regfilial);
 
+      end if;
+	  
+      if (p_regfilial.DATAINICIOAGENDADOR is not null) then
+        if (p_regpedido.STATUSAGENDADOR is null) then
+          if vsmensagem is not null then
+            vschar := '#';
+          else
+            vschar := null;
+          end if;
+          vsmensagem := vsmensagem || vschar ||
+                        'PEDIDO AGUARDANDO VALIDAÇÃO DAS RESTIÇÕES AVANÇADAS PELO AGENDADOR;';
+
+          p_regpedido.valido := false;
+          p_regpedido.numpedorig := 0;
+        end if;
+
+        if (p_regpedido.STATUSAGENDADOR = 'F') then
+          if vsmensagem is not null then
+            vschar := '#';
+          else
+            vschar := null;
+          end if;
+          vsmensagem := vsmensagem || vschar ||
+                        'PEDIDO COM RESTRIÇÃO DE VENDA PARA UM OU MAIS PRODUTOS. (RESTRIÇÃO ROTINA 3391);';
+
+          p_regpedido.valido := false;
+          p_regpedido.numpedorig := 0;
+        end if;
       end if;
 
      --DDMEDICA-7385
