@@ -725,6 +725,7 @@ IS PRAGMA SERIALLY_REUSABLE;
    ,descintermediador          PCPEDCFV.DESCINTERMEDIADOR%TYPE -- DDMEDICA-6201  
    ,cnpjintermediador          PCPEDCFV.CNPJINTERMEDIADOR%TYPE -- DDMEDICA-6201  
    ,totunidades                number -- DDMEDICA-6533
+   ,STATUSAGENDADOR            PCPEDCFV.STATUSAGENDADOR%TYPE
     );
 
   type t_itemped is record(
@@ -1434,7 +1435,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     usarcaclientelinhaporfilialmed varchar2(200),
     precificregiaoforaufsemst     varchar2(1),
     nummaxitensnfe                NUMBER(10), -- DDVENDAS-50926
-    PERCENTUALDOCAP               number
+    PERCENTUALDOCAP               number,
+    DATAINICIOAGENDADOR           DATE
     );
 
 
