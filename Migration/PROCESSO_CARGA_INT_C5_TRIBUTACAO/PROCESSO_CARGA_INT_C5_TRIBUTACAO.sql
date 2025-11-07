@@ -40,8 +40,14 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 perccofins,
             0 percbasefcpst,
             0 percaliqfcpst,
-            c.calcicmsdeson,
-            c.percdesoneracao percaliqicmsdeson,
+            CASE WHEN NVL(t.PERDESCICMISENCAO, 0) > 0 
+            	THEN c.percdesoneracao
+            	ELSE 0
+            END percaliqicmsdeson,
+            CASE WHEN NVL(t.PERDESCICMISENCAO, 0) > 0 
+            	THEN c.calcicmsdeson
+            	ELSE 'N'
+            END calcicmsdeson,
             c.codmotivodesoneracao motivodesonicms,
             c.codbeneficiofiscal codbeneficiodesonicms,
             --t.codst||(SELECT TO_NUMBER(CODIBGE) FROM PCESTADO WHERE UF = C.UFORIGEM) codobservacao,
