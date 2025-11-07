@@ -13154,7 +13154,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 
               -- Preço de Venda = Preço Liquido Negociado no Orçamento
               vrItemPedido.nPVENDA := vtIncluiItens(viNumSeq).vnPrecoFixo -
-                                      vtIncluiItens(viNumSeq).vnVlCBS - vtIncluiItens(viNumSeq).vnVlIBS - vtIncluiItens(viNumSeq).vnVlIS;
+                                      NVL(vtIncluiItens(viNumSeq).vnVlCBS,0) - NVL(vtIncluiItens(viNumSeq).vnVlIBS,0) - NVL(vtIncluiItens(viNumSeq).vnVlIS,0);
               -- Refaz o Percentual de Desconto para o Preço de Tabela Atual x Preço de Venda do Orçamento
               IF (NVL(vrItemPedido.nPTABELA,0) <> 0) THEN
                 vrItemPedido.nPERDESC := ((NVL(vrItemPedido.nPTABELA,0) - NVL(vrItemPedido.nPVENDA,0)) / NVL(vrItemPedido.nPTABELA,0)) * 100;
