@@ -84,5 +84,10 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
                                      PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL
                                     );
     ----------------------------------------------------------------------------
+    
+    PROCEDURE ESTORNO_RECEBIMENTO(PMENSAGEM              OUT VARCHAR2,
+                                  PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                  PMATRICULA     		 PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);
+    ----------------------------------------------------------------------------
 
 END PKG_RECEBIMENTOANTECIPADO;
