@@ -35,7 +35,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_FAMILIA AS
 (
 SELECT
     DEPARA.SEQFAMILIA,
-    TBFAM."CODPROD", TBFAM."CODAUXILIAR",TBFAM."ORIGEM",TBFAM."FAMILIA",TBFAM."CODNCMSH",TBFAM."PERMITEDECIMAL",TBFAM."PERMITEMULTIPLICACAO",TBFAM."CODCEST",TBFAM."ATIVO",TBFAM."SEQMARCA",TBFAM."SEQFAMGRUPO",TBFAM."PESAVEL",TBFAM."INDESCALA",TBFAM."CNPJFABRICANTE",TBFAM."EANTRIB",TBFAM."SEQFAMILIAPRINC",TBFAM."ESTOQUEPORLOTE"
+    TBFAM."CODPROD", TBFAM."CODAUXILIAR",TBFAM."ORIGEM",TBFAM."FAMILIA",TBFAM."CODNCMSH",TBFAM."PERMITEDECIMAL",TBFAM."PERMITEMULTIPLICACAO",TBFAM."CODCEST",TBFAM."ATIVO",TBFAM."SEQMARCA",TBFAM."SEQFAMGRUPO",TBFAM."PESAVEL",TBFAM."INDESCALA",TBFAM."CNPJFABRICANTE",TBFAM."EANTRIB",TBFAM."SEQFAMILIAPRINC",TBFAM."ESTOQUEPORLOTE",
+	TBFAM."CHECAPESOETIQUETA"
 FROM (
       SELECT
            /*NECESSÁRIO ATRIBUIR ZERO QUANDO O CODAUXILIAR ESTIVER NULO, POIS NA TABELA DEPARACODPRODC5 O CAMPO É PK(NÃO ACEITA NULO)*/
@@ -59,7 +60,8 @@ FROM (
            MIN(PROD.cnpjfabricante) cnpjfabricante,
            MIN(PROD.eantrib) eantrib,
            MIN(PROD.Seqfamiliaprinc) Seqfamiliaprinc,
-           MIN(PROD.estoqueporlote) estoqueporlote  
+           MIN(PROD.estoqueporlote) estoqueporlote,
+		   MIN(PROD.checapesoetiqueta) checapesoetiqueta		   
       FROM (
             /* SELECT ORIGINAL VIEW EMBPROD */
             SELECT DISTINCT
@@ -117,7 +119,8 @@ FROM (
                    MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
                    MAX(P.codprodprinc) seqfamiliaprinc,
-                   MAX(P.estoqueporlote) estoqueporlote
+                   MAX(P.estoqueporlote) estoqueporlote,
+				   MAX(NVL(p.checapesoetiqueta, 'N')) checapesoetiqueta
             FROM VW_INT_C5_EMBPROD_MAT p
             GROUP BY p.codprod, p.descricao
 
@@ -150,7 +153,8 @@ FROM (
                    fnc_remove_char_esp(p.cnpjfabricante) cnpjfabricante,
                    p.codauxiliartrib eantrib,
                    P.codprodprinc seqfamiliaprinc,
-                   P.estoqueporlote
+                   P.estoqueporlote,
+				   NVL(p.checapesoetiqueta, 'N') checapesoetiqueta
             FROM VW_INT_C5_EMB_DESMEMBRADAS p
            ) PROD /*TABELA VIRTUAL CRIADA PARA LISTAR REGISTROS DA VIEW EMBPROD E VW_INT_C5_EMB_DESMEMBRADAS*/
       GROUP BY PROD.IDREF /*ORDERNAÇÃO DEVE SER PELO IDREF PARA AGRUPAR O RESULTADO O UNION ALL DA TABELA VIRTUAL "PROD"*/
