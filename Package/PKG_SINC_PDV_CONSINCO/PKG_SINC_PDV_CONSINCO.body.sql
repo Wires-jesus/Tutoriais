@@ -980,6 +980,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     v.eantrib,
                     v.codprod idref,
                     v.estoqueporlote,
+					v.checapesoetiqueta,
                     NVL(PRODPISCOFINS.EXCLUIRICMSBASEPISCOFINS, 'N') gerareducaobasepiscofins,
                     --NVL(v.seqfamiliaprinc, v.seqfamilia) seqfamiliaprinc,
                     NVL(PRODPISCOFINS.SITTRIBUT, 0) SITUACAOPIS,
@@ -1096,7 +1097,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.gerareducaobasepiscofins = B.gerareducaobasepiscofins,
                      S.idref = B.idref,
                      S.MEDICAMENTO = B.estoqueporlote,
-					 S.VENDAFRACAO = B.VENDAFRACAO
+					 S.VENDAFRACAO = B.VENDAFRACAO,
+					 S.CHECAPESOETIQUETA = S.checapesoetiqueta 
 		WHERE NVL(S.familia, '-') <> NVL(B.familia, '-')
            OR NVL(S.permitedecimal, '-') <> NVL(B.permitedecimal, '-')
            OR NVL(S.permitemultiplicacao, '-') <> NVL(B.permitemultiplicacao, '-')
@@ -1120,6 +1122,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            OR NVL(S.LOTEESTOQUE, '-') <> NVL(B.estoqueporlote, '-')
            OR NVL(S.MEDICAMENTO, '-') <> NVL(B.estoqueporlote, '-')
 		   OR NVL(S.VENDAFRACAO,'-') <> NVL(B.VENDAFRACAO, '-')
+		   OR NVL(S.CHECAPESOETIQUETA,'-') <> NVL(B.CHECAPESOETIQUETA, '-')
 		   
       WHEN NOT MATCHED THEN
               INSERT(S.familia,
@@ -1146,7 +1149,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.idref,
                      S.LOTEESTOQUE,
                      S.MEDICAMENTO,
-					 S.VENDAFRACAO)
+					 S.VENDAFRACAO,
+					 S.CHECAPESOETIQUETA)
                      VALUES
                      (B.familia,
                       B.permitedecimal,
@@ -1172,7 +1176,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.idref,
                       B.estoqueporlote,
                       B.estoqueporlote,
-					  B.VENDAFRACAO);
+					  B.VENDAFRACAO,
+					  B.CHECAPESOETIQUETA);
 
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
