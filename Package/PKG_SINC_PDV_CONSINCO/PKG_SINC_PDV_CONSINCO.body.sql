@@ -1168,7 +1168,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.ativo,
                       B.seqmarca,
                       B.seqfamgrupo,
-                      NVL(B.seqfamilia,0),
+                      B.seqfamilia,
                       B.pesavel,
                       B.situacaopis,
                       B.situacaocofins,
