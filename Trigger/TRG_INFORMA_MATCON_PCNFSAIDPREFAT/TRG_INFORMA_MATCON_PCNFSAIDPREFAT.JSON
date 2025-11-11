@@ -1,0 +1,11 @@
+{
+	"nome" : "TRG_INFORMA_MATCON_PCNFSAIDPREFAT",
+	"tipoPLSQL" : "TRIGGER",
+	"dependencias" : [
+	  {
+	   "nome": "PCNFSAIDPREFAT",
+	   "tipo":"TABELA",
+	   "versao": "8.0.01.000"
+	  }
+	]
+}
