@@ -42,7 +42,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             0 percaliqfcpst,
             CASE WHEN NVL(t.PERDESCICMISENCAO, 0) > 0 
             	THEN c.percdesoneracao
-            	ELSE 0
+            	ELSE NULL
             END percaliqicmsdeson,
             CASE WHEN NVL(t.PERDESCICMISENCAO, 0) > 0 
             	THEN c.calcicmsdeson
