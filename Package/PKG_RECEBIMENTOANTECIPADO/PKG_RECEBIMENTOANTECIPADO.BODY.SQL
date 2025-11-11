@@ -690,7 +690,11 @@ IS
                                      PNOME_CARTEIRA_DIGITAL  IN PCPRESTANTECIPADA.NOME_CARTEIRA_DIGITAL%TYPE DEFAULT NULL,
                                      PCODADMINISTRADORA      IN PCPRESTANTECIPADA.CODADMINISTRADORA%TYPE DEFAULT NULL,
                                      PCODBANDEIRA            IN PCPRESTANTECIPADA.CODBANDEIRA%TYPE DEFAULT NULL,
-                                     PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL
+                                     PNUMTRANSPAGDIGITAL     IN PCPRESTANTECIPADA.NUMTRANSPAGDIGITAL%TYPE DEFAULT NULL,
+                                     PNUMCAIXAFISCAL         IN PCPRESTANTECIPADA.NUMCAIXAFISCAL%TYPE DEFAULT NULL,
+                                     PCODFUNCCHECKOUT        IN PCPRESTANTECIPADA.CODFUNCCHECKOUT%TYPE DEFAULT NULL,
+                                     PNUMCAIXA               IN PCPRESTANTECIPADA.NUMCAIXA%TYPE DEFAULT NULL,
+                                     PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                     )
     IS
         VNUMTRANSPAGOADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
@@ -713,84 +717,132 @@ IS
         IF (PCODCLI <= 0) OR (PCODCLI IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o código do cliente.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PNUMPED <= 0) OR (PNUMPED IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o número do pedido.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PVALOR <= 0) OR (PVALOR IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o valor do recebimento antecipado.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PCODFILIAL = '') OR (PCODFILIAL IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a filial.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PVALORPEDIDO <= 0) OR (PVALORPEDIDO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o valor do pedido.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PCODCOBPGTO = '') OR (PCODCOBPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a cobrança do pagamento.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PDTEMISSAOPED = '') OR (PDTEMISSAOPED IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de emissão do pedido.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PDTGERACAOPGTO = '') OR (PDTGERACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de geração do pagamento.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PDTCONFIRMACAOPGTO = '') OR (PDTCONFIRMACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de confirmação do pagamento.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PDTPGTO = '') OR (PDTPGTO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a data de pagamento informada na API.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PMATRICULAGERACAO <= 0) OR (PMATRICULAGERACAO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a matrícula do usuário que gerou o pagamento.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF (PMATRICULACONFIRMACAO <= 0) OR (PMATRICULACONFIRMACAO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a matrícula do usuário que confirmou o pagamento.';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
@@ -804,14 +856,22 @@ IS
         IF VCODBCOCOBANTECIPADA IS NULL THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
         IF VCODMOEDACOBANTECIPADA IS NULL THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
-            ROLLBACK;
+
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+
             RETURN;
         END IF;
 
@@ -842,7 +902,10 @@ IS
             NOME_CARTEIRA_DIGITAL,  /*19*/
             CODADMINISTRADORA,      /*20*/
             CODBANDEIRA,            /*21*/
-            NUMTRANSPAGDIGITAL      /*22*/
+            NUMTRANSPAGDIGITAL,     /*22*/
+            NUMCAIXAFISCAL,         /*23*/
+            CODFUNCCHECKOUT,        /*24*/
+            NUMCAIXA                /*25*/
         ) VALUES (
             VNUMTRANSPAGOADIANTADO, /*01*/
             PCODCLI,                /*02*/
@@ -865,7 +928,10 @@ IS
             PNOME_CARTEIRA_DIGITAL, /*19*/
             PCODADMINISTRADORA,     /*20*/
             PCODBANDEIRA,           /*21*/
-            PNUMTRANSPAGDIGITAL     /*22*/
+            PNUMTRANSPAGDIGITAL,    /*22*/
+            PNUMCAIXAFISCAL,        /*23*/
+            PCODFUNCCHECKOUT,       /*24*/
+            PNUMCAIXA               /*25*/
         );
 
         PNUMTRANSPAGOADIANTADO := VNUMTRANSPAGOADIANTADO;
@@ -879,13 +945,18 @@ IS
                VMINUTO
           FROM DUAL;
 
-        SELECT VLSALDO 
-          INTO VVLSALDO  
-          FROM PCMOVCR
-         WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
-                           FROM PCMOVCR 
-                          WHERE CODBANCO = VCODBCOCOBANTECIPADA
-                            AND CODCOB   = VCODMOEDACOBANTECIPADA);
+        BEGIN
+            SELECT VLSALDO 
+              INTO VVLSALDO
+              FROM PCMOVCR
+             WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
+                               FROM PCMOVCR 
+                              WHERE CODBANCO = VCODBCOCOBANTECIPADA
+                                AND CODCOB   = VCODMOEDACOBANTECIPADA);
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                VVLSALDO := 0;
+        END;
 
         SELECT NVL(PROXNUMTRANS, 1)
           INTO VNUMTRANS 
@@ -984,10 +1055,15 @@ IS
 
         PCODIGO := VCODIGO;
 
-        COMMIT WORK;
+        IF PEXECUTACOMMITROLLBACK = 'S' THEN
+            COMMIT WORK;
+        END IF;
+
     EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             PMENSAGEM := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, 'Erro ao criar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
     END; --CRIAR_RECEB_ANTECIPADO   
