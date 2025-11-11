@@ -69,7 +69,12 @@ FROM (
                    NULL CODAUXILIAR,
                    MIN(P.CODAUXILIAR) IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
                    'E' ORIGEM,
-                   NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
+				   CASE
+				     WHEN (SELECT valor FROM pcparametros2651 WHERE nome = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+					   NVL(fnc_remove_char_esp_v2(SUBSTR(p.descricao, 0, 39)), '-')
+					 ELSE
+					   NVL(fnc_remove_char_esp(SUBSTR(p.descricao, 0, 39)), '-')
+				   END as familia,
                    MAX(p.codncmsh) codncmsh,
                    MAX(p.aceitavendafracao) permitedecimal,
                    --MAX(p.permitemultiplicacao) permitemultiplicacao,
@@ -116,7 +121,15 @@ FROM (
 
                    
                    MIN(NVL(p.indescalarelevante, 'S')) indescala,
-                   MAX(fnc_remove_char_esp(p.cnpjfabricante)) cnpjfabricante,
+                   
+				   MAX(
+				     CASE
+					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+					     fnc_remove_char_esp_v2(p.cnpjfabricante) 
+					   ELSE
+					     fnc_remove_char_esp(p.cnpjfabricante)    
+					 END
+				   ) as cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
                    MAX(P.codprodprinc) seqfamiliaprinc,
                    MAX(P.estoqueporlote) estoqueporlote,
@@ -132,7 +145,15 @@ FROM (
                    p.codauxiliar CODAUXILIAR,
                    p.codauxiliar IDREF, /*NECESSÁRIO REPETIR O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
                    'D' ORIGEM,
-                   NVL(fnc_remove_char_esp(substr(p.descricao,0,39)), '-') familia,
+                   NVL(
+				     CASE
+					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+					     fnc_remove_char_esp_v2(SUBSTR(p.descricao, 1, 39))
+					   ELSE
+						 fnc_remove_char_esp(SUBSTR(p.descricao, 1, 39))
+					  END,
+					  '-'
+				   ) AS familia,
                    p.codncmsh,
                    p.aceitavendafracao permitedecimal,
                    'N' permitemultiplicacao,
@@ -150,7 +171,12 @@ FROM (
                       ELSE  'N'
                    END)PESAVEL,
                    NVL(p.indescalarelevante, 'S') indescala,
-                   fnc_remove_char_esp(p.cnpjfabricante) cnpjfabricante,
+				   CASE 
+					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+                         fnc_remove_char_esp_v2(p.cnpjfabricante) 
+					   ELSE
+					     fnc_remove_char_esp(p.cnpjfabricante)    
+					   END as cnpjfabricante,
                    p.codauxiliartrib eantrib,
                    P.codprodprinc seqfamiliaprinc,
                    P.estoqueporlote,
@@ -404,8 +430,22 @@ FROM (
                    MIN(P.CODAUXILIAR) IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
                    'E' ORIGEM,
                    p.codprod codproduto,
-                   fnc_remove_char_esp(p.descricao) desccompleta,
-                   SUBSTR((fnc_remove_char_esp(P.descricao)),1,24) descreduzida,
+                   CASE
+				     WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+					   fnc_remove_char_esp_v2(p.descricao)
+					 ELSE
+					   fnc_remove_char_esp(p.descricao)
+				   END as desccompleta,
+                   SUBSTR(
+				     CASE
+					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+						 fnc_remove_char_esp_v2(p.descricao)
+					   ELSE
+						 fnc_remove_char_esp(p.descricao)
+					  END,
+					  1,
+					  24
+				   ) as descreduzida,
                    --'N' produtocomposto,
                    (CASE
                       WHEN MAX(P.TIPOMERC) IN ('CB', 'KT') THEN
@@ -432,8 +472,22 @@ FROM (
                    p.codauxiliar IDREF, /*NECESSÁRIO TRAZER O CODAUXILIAR PARA SER UTILIZADO NO GROUP BY*/
                    'D' ORIGEM,
                    p.codprod codproduto,
-                   fnc_remove_char_esp(NVL(p.descricaoreduzida,p.descricao)) desccompleta,
-                   SUBSTR((fnc_remove_char_esp(NVL(p.descricaoreduzida,p.descricao))),1,24) descreduzida,
+                   CASE
+					 WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+					   fnc_remove_char_esp_v2(NVL(p.descricaoreduzida, p.descricao))
+					 ELSE
+					   fnc_remove_char_esp(NVL(p.descricaoreduzida, p.descricao))
+				   END as desccompleta,
+                   SUBSTR(
+				     CASE
+					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+						 fnc_remove_char_esp_v2(NVL(p.descricaoreduzida, p.descricao))
+					   ELSE
+						 fnc_remove_char_esp(NVL(p.descricaoreduzida, p.descricao))
+					 END,
+					 1,
+					 24
+				   ) as descreduzida,
                    'N' produtocomposto,
                    0 QTDDIAVALIDADE,
                    nvl(p.anp, 0) codanp,
@@ -1055,7 +1109,16 @@ SELECT
   C5.CODFILIALINTEGRACAO NROEMPRESA,
   C5.CODFILIALINTEGRACAO SEQLOCAL,
   --F.RAZAOSOCIAL LOCAL_RAZAO,
-  SUBSTR((fnc_remove_char_esp(F.RAZAOSOCIAL)),1,20) LOCAL_RAZAO,
+  SUBSTR(
+    CASE
+	  WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+	    fnc_remove_char_esp_v2(F.RAZAOSOCIAL)
+	  ELSE
+	    fnc_remove_char_esp(F.RAZAOSOCIAL)
+	END,
+	  1,
+	  20
+  ) as LOCAL_RAZAO,
   'L' TIPO,
   (CASE
     WHEN f.dtexclusao IS NULL THEN 

@@ -4018,7 +4018,7 @@ BEGIN
                                               AND CF.CODCLI <> PCCLIENT.CODCLI
                                )
                            /*Não replicar bloqueio por inatividade*/
-                           AND (PCCLIENT.OBS IS NULL OR PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' OR PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO')
+                           AND (PCCLIENT.OBS IS NULL OR (PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' AND PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO'))
                       )
      LOOP
        IF (REGISTRO.BLOQUEIO = 'S') THEN
@@ -4135,7 +4135,7 @@ BEGIN
                                         WHERE CF.CODCLIPRINC = DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC)
                                )
                           /*Não replicar bloqueio por inatividade*/
-                          AND (PCCLIENT.OBS IS NULL OR PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' OR PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO')
+                          AND (PCCLIENT.OBS IS NULL OR (PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' AND PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO'))
                       )
      LOOP
        IF (REGISTRO.BLOQUEIO = 'S') THEN

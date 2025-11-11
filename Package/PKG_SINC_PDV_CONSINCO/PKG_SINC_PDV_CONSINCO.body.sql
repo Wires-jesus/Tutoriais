@@ -935,7 +935,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         USING (
              SELECT DISTINCT     
                     v.seqfamilia,
-                    NVL(fnc_remove_char_esp(v.familia), '-') familia,
+                    NVL(
+						CASE
+							WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
+								fnc_remove_char_esp_v2(v.familia)
+							ELSE
+								fnc_remove_char_esp(v.familia)
+						END,
+						'-'
+					) AS familia,
                     v.permitedecimal,
                     v.codncmsh,
                     --v.codcest,
@@ -1160,7 +1168,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                       B.ativo,
                       B.seqmarca,
                       B.seqfamgrupo,
-                      NVL(B.seqfamilia,0),
+                      B.seqfamilia,
                       B.pesavel,
                       B.situacaopis,
                       B.situacaocofins,
