@@ -1374,26 +1374,14 @@ IS
     vVlDesc NUMBER;
 BEGIN
  vVlDesc := 0;
-SELECT  i.vlrdesconto/NVL(i.quantidade,1)
+SELECT  nvl(i.vlrdesconto,0)- nvl(i.vlracrescimo,0)
  INTO   vVlDesc
- FROM   monitorpdvmiddle.tb_doctoitem i,
-        monitorpdvmiddle.tb_doctoacrescdesctoitem ia,
-        monitorpdvmiddle.tb_doctoacrescdescto a
- WHERE  i.nroempresa = a.nroempresa
-   AND  i.nrocheckout = a.nrocheckout
-   AND  ia.seqitem = i.seqitem
-   AND  i.seqdocto = a.seqdocto
-   AND  ia.seqdocto = a.seqdocto
-   AND  ia.nrocheckout = a.nrocheckout
-   and  ia.nroempresa = a.nroempresa
-   and  ia.seqacrescdescto = a.seqacrescdescto
+ FROM   monitorpdvmiddle.tb_doctoitem i
+ WHERE  i.STATUS = 'V'
+   AND  i.seqitem = pNumSeq
    AND  i.seqdocto = pSeqdocto
    AND  i.nroempresa = pNroEmpresa
-   AND  i.nrocheckout = pNroCheckout
-   AND  i.STATUS = 'V'
-   AND  i.seqitem = pNumSeq
-   AND  a.seqtipoacrescdescto = 2
-   AND  i.vlrdesconto = (a.valor) * -1;
+   AND  i.nrocheckout = pNroCheckout;
  RETURN(vVlDesc);
 END;
 
