@@ -519,7 +519,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                              - DECODE(NVL(PCNFENT.INFFRETESEGURONOTAN, 'N'), 'S', NVL(PCMOV.VLSEGURO, 0), 0)
                              - NVL(PCMOV.ST,0)
                              - NVL(PCMOVCOMPLE.VLFECP, 0)
-                             - NVL(PCMOV.VLIPI,0)
+                             - DECODE(NVL(PCNFENT.FINALIDADENFE, 'N'), 'C', NVL(PCMOV.VLIPI,0), ((ROUND(NVL(PCMOV.VLIPI,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT))
                              - DECODE(PCNFENT.TIPODESCARGA,
                                        'F',
                                        NVL(PCMOV.VLADUANEIRA,0) + NVL(PCMOV.VLSISCOMEX,0) + NVL(PCMOV.VLIMPORTACAO,0) +
@@ -1709,7 +1709,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                  ELSE
                                    NVL(PCMOV.ST, 0) + NVL(PCMOVCOMPLE.VLFECP, 0)
                                  END
-                                 - NVL(PCMOV.VLIPI, 0)
+                                 - DECODE(NVL(PCNFENT.FINALIDADENFE, 'N'), 'C', NVL(PCMOV.VLIPI,0), ((ROUND(NVL(PCMOV.VLIPI,0) * PCMOV.QTCONT,NVL(PARAMFILIAL.ObterComoNumber('QTDCASASVLUNITARIONFE'),2))) / PCMOV.QTCONT))
                                  - DECODE(PCNFENT.TIPODESCARGA,
                                                'N',
                                                NVL(PCMOV.VLADUANEIRA,
