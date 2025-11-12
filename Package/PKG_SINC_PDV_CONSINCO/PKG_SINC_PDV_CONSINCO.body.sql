@@ -7569,6 +7569,60 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_regiao(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_regiao CC
+  USING (
+    SELECT * FROM VW_INT_C5_BAIRRODELIVERY
+  ) S
+  ON (CC.NROEMPRESA = S.NROEMPRESA AND CC.SEQREGIAO = S.SEQREGIAO)
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.REGIAO = S.REGIAO,
+      CC.PRECOFRETE = S.PRECOFRETE,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.REGIAO, '-') <> NVL(S.REGIAO, '-')
+       OR NVL(CC.PRECOFRETE, -1) <> NVL(S.PRECOFRETE, -1)
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (NROEMPRESA, SEQREGIAO, REGIAO, PRECOFRETE, ATIVO)
+    VALUES (S.NROEMPRESA, S.SEQREGIAO, S.REGIAO, S.PRECOFRETE, S.ATIVO);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regiao', 'carrega_tb_regiao OK', SYSDATE, CURRENT_TIMESTAMP);
+  COMMIT;
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regiao',
+           'carrega_tb_regiao ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_regiao',
+           'carrega_tb_regiao ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
