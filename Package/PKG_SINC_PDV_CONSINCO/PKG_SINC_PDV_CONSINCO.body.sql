@@ -7590,7 +7590,16 @@ BEGIN
   
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regiao', 'carrega_tb_regiao OK', SYSDATE, CURRENT_TIMESTAMP);
+
+	UPDATE MONITORPDVMIDDLE.TB_REGIAO R
+  SET R.ATIVO = 'N'
+  WHERE NOT EXISTS (
+    SELECT 1 FROM PCBAIRRODELIV B WHERE R.NROEMPRESA = B.CODFILIAL AND R.SEQREGIAO = B.CODIGO
+  )
+    AND R.ATIVO = 'S'; 
+
   COMMIT;
+
   EXCEPTION
     WHEN E_FK_VIOLATION THEN
 	  BEGIN
