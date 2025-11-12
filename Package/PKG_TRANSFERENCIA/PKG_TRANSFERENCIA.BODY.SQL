@@ -2276,6 +2276,8 @@ BEGIN
              , PCCLIENT.CODPRACA
              , PCCLIENT.CODATV1
              , PCCLIENT.CONSUMIDORFINAL
+             , PCCLIENT.CONTRIBUINTE
+             , PCCLIENT.TIPOEMPRESA
              , PCCLIENT.BAIRROENT
              , PCCLIENT.MUNICENT
              , PCCLIENT.ENDERENT
@@ -2297,6 +2299,8 @@ BEGIN
              , voPCNFSAID.CODPRACA
              , voPCNFSAID.CODATV1
              , voPCNFSAID.CONSUMIDORFINAL
+             , voPCNFSAID.CONTRIBUINTE
+             , voPCNFSAID.TIPOEMPRESA
              , voPCNFSAID.BAIRRO
              , voPCNFSAID.MUNICIPIO
              , voPCNFSAID.ENDERECO
