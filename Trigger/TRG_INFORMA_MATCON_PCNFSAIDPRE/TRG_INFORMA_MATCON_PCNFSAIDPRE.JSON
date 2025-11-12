@@ -1,5 +1,5 @@
 {
-	"nome" : "TRG_INFORMA_MATCON_PCNFSAIDPREFAT",
+	"nome" : "TRG_INFORMA_MATCON_PCNFSAIDPRE",
 	"tipoPLSQL" : "TRIGGER",
 	"dependencias" : [
 	  {
