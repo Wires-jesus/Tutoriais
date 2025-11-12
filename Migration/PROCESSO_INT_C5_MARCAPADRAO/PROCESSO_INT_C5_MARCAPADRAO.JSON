@@ -1,0 +1,7 @@
+{
+    "nome": "PROCESSO_INT_C5_MARCAPADRAO",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+        {"nome":"PCMARCA","tipo": "TABELA","versao": "4.0.01.000"}
+    ]
+ }
