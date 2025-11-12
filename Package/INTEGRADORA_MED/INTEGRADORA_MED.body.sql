@@ -4481,6 +4481,11 @@ end func_HoraDigitacaoPedido;
                          p_regfilial.PERCENTUALDOCAP);
 
      proc_pcparamfilial('99',
+                        'UTILIZAPRECOFABRICAPORUF',
+                        'N',
+                        vsDATAINICIOAGENDADOR);
+
+     proc_pcparamfilial('99',
                         'DATAINICIOAGENDADORRESTRICAO',
                         NULL,
                         vsDATAINICIOAGENDADOR);
@@ -15485,8 +15490,8 @@ if p_regpedido.condvenda = 10 then
        END IF;
      END IF;
 
-     IF NOT f_validar_cap(p_regitem.pvenda,
-                          p_regproduto. precofabrica,
+     IF NOT f_validar_cap(p_regitem.pvenda,                  --FV
+                          p_Regproduto.custorep,
                           p_regproduto.licitusarcap,
                           p_regfilial.percentualdocap,
                           p_regcliente.orgaopub,
@@ -21828,7 +21833,31 @@ end if;
        END IF;
      END IF;
 
+     IF NOT f_validar_cap(p_regitem.pvenda,     --OL
+                          p_Regproduto.custorep,
+                          p_regproduto.licitusarcap,
+                          p_regfilial.percentualdocap,
+                          p_regcliente.orgaopub,
+                          p_regcliente.orgaopubfederal,
+                          p_regcliente.orgaopubmunicipal) THEN
 
+        IF vsmensagem IS NOT NULL THEN
+          vschar := '#';
+        ELSE
+          vschar := NULL;
+        END IF;
+
+        vsmensagem := vsmensagem || vschar ||
+        'Venda para órgão público deve ser inferior ao Preço Fábrica descontado do Percentual do CAP, definido na rotina 132.';
+
+        p_regitem.valido := FALSE;
+        p_regorigempreco.valido := FALSE;
+
+        IF p_Regitem.codmotivonaoatend IS NULL THEN
+          p_regitem.codmotivonaoatend := 27;       
+        END IF;
+
+     END IF;
    end if;
 
 
