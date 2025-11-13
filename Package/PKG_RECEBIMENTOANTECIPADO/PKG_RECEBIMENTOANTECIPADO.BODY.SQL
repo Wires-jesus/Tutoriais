@@ -1015,6 +1015,10 @@ IS
 
         PNUMTRANS := VNUMTRANS;
 
+        UPDATE PCPRESTANTECIPADA SET
+            NUMTRANS = VNUMTRANS
+        WHERE NUMTRANSPAGOADIANTADO = VNUMTRANSPAGOADIANTADO;
+
         -- Criando crédito antecipado na PCCRECLI
         INSERT INTO PCCRECLI (
             CODCLI,                /*01*/
@@ -1080,9 +1084,15 @@ IS
                                         PCODCLI                 IN PCPRESTANTECIPADA.CODCLI%TYPE,
                                         PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
                                         PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
-                                        PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE
+                                        PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                        PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                         )
     IS
+        VCODCLI PCPRESTANTECIPADA.CODCLI%TYPE;
+        VNUMPED PCPRESTANTECIPADA.NUMPED%TYPE;
+        VVALOR PCPRESTANTECIPADA.VALOR%TYPE;
+        VNUMTRANS PCPRESTANTECIPADA.VNUMTRANS%TYPE;
+        VNUMTRANSPAGOADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
     BEGIN
         PSTATUS := 'OK';
         PMENSAGEM := 'Recebimento antecipado estornado com sucesso';
@@ -1090,37 +1100,91 @@ IS
         IF (PCODCLI <= 0) OR (PCODCLI IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o código do cliente.';
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             RETURN;
         END IF;
 
         IF (PNUMPED <= 0) OR (PNUMPED IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o número do pedido.';
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             RETURN;
         END IF;
 
         IF (PVALOR <= 0) OR (PVALOR IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o valor do estorno';
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             RETURN;
         END IF;
 
         IF (PNUMTRANSPAGOADIANTADO <= 0) OR (PNUMTRANSPAGOADIANTADO IS NULL) THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Necessário informar o código do recebimento antecipado.';
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+            RETURN;
+        END IF;
+
+        BEGIN
+            SELECT NUMTRANSPAGADIANTADO,
+                   CODCLI,
+                   NUMPED,
+                   NUMTRANS,
+                   VALOR
+              INTO VNUMTRANSPAGADIANTADO,
+                   VCODCLI,
+                   VNUMPED,
+                   VNUMTRANS,
+                   VVALOR
+              FROM PCPRESTANTECIPADA
+             WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGOADIANTADO
+               AND CODCLI = PCODCLI
+               AND NUMPED = PNUMPED
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                VNUMTRANSPAGADIANTADO := 0;
+                VCODCLI := 0;
+                VNUMPED := 0;
+                VNUMTRANS := 0;
+                VVALOR := 0;
+        END;
+
+        IF VNUMTRANSPAGADIANTADO = 0 THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Recebimento antecipado não encontrado com o código ' || PNUMTRANSPAGOADIANTADO || '.';
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+            RETURN;
+        END IF;
+
+        IF PVALOR > VVALOR THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'O valor informado para estorno de recebimento antecipado é maior que o valor do documento.';
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             RETURN;
         END IF;
 
         ESTORNO_RECEBIMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, 1);
 
-        COMMIT WORK;
+        IF PEXECUTACOMMITROLLBACK = 'S' THEN
+            COMMIT WORK;
+        END IF;
     EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
             PMENSAGEM := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, 'Erro ao estornar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
     END; --ESTORNAR_RECEBIMENTO_ANTECIPADO

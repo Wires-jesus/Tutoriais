@@ -100,7 +100,8 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
                                         PCODCLI                 IN PCPRESTANTECIPADA.CODCLI%TYPE,
                                         PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
                                         PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
-                                        PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE
+                                        PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                        PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                         );
     ----------------------------------------------------------------------------
 
