@@ -1,1 +1,11 @@
-{"nome":"PKG_RECEBIMENTOANTECIPADO","tipoPLSQL":"PACKAGE","dependencias":""}
+{
+    "nome": "PKG_RECEBIMENTOANTECIPADO",
+    "tipoPLSQL": "PACKAGE",
+    "dependencias": [
+        {
+            "nome": "PCPRESTANTECIPADA",
+            "tipo": "TABELA",
+            "versao": "8.0.02.000"
+        }
+    ]
+}
