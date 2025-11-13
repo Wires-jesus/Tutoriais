@@ -4,7 +4,7 @@
  "dependencias": [
   {
    "nome": "TIPO_NFE_PARCELA",
-   "tipo":"OBJETO_PLSQL",
+   "tipo":"MIGRATION",
    "versao": "8.0.02.000"
   },
   {
