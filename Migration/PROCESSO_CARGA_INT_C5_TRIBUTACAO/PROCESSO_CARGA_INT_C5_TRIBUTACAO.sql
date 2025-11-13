@@ -1,5 +1,5 @@
 CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
-(SELECT     distinct
+(SELECT distinct
             t.codst nrotributacao,
             c.UFORIGEM uforigem,
             c.UFDESTINO ufdestino,
@@ -84,7 +84,9 @@ FROM pctribut t,
 
 WHERE t.codst = c.codst
 AND t.codecf IS NOT NULL
-AND t.codst is not null)
+AND t.codst is not null
+AND NVL(NVL(T.CODICMPF, T.CODICM), 0) = c.PERCALIQUOTA
+)
 
 \
 
