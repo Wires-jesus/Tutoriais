@@ -3,9 +3,9 @@
  "tipoPLSQL":"FUNCTION",
  "dependencias": [
   {
-   "nome": "TABELA_NFE_PARCELA",
-   "tipo":"OBJETO_PLSQL",
-   "versao": "5.0.01.000"
+   "nome": "TIPO_NFE_PARCELA",
+   "tipo":"MIGRATION",
+   "versao": "8.0.02.000"
   },
   {
    "nome":"SQL_NFE_PARCELA_SAIDA_NORMAL",
