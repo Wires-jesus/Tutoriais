@@ -1017,7 +1017,7 @@ IS
 
         UPDATE PCPRESTANTECIPADA SET
             NUMTRANS = VNUMTRANS
-        WHERE NUMTRANSPAGOADIANTADO = VNUMTRANSPAGOADIANTADO;
+        WHERE NUMTRANSPAGADIANTADO = VNUMTRANSPAGOADIANTADO;
 
         -- Criando crédito antecipado na PCCRECLI
         INSERT INTO PCCRECLI (
@@ -1037,7 +1037,8 @@ IS
             SITUACAO,              /*14*/
             ROTINAINSERT,          /*15*/
             ROTINAULTIMAALTERACAO, /*16*/
-            NUMPED                 /*17*/
+            NUMPED,                /*17*/
+            NUMTRANSPAGADIANTADO   /*18*/
         ) VALUES (
             PCODCLI,                                                                                 /*01*/
             TRUNC(SYSDATE),                                                                          /*02*/
@@ -1055,7 +1056,8 @@ IS
             'A',                                                                                     /*14*/
             VROTINA,                                                                                 /*15*/
             VROTINA,                                                                                 /*16*/
-            PNUMPED                                                                                  /*17*/
+            PNUMPED,                                                                                 /*17*/
+            VNUMTRANSPAGOADIANTADO                                                                   /*18*/
         );
 
         SELECT MAX(CODIGO) CODIGO
@@ -1091,7 +1093,7 @@ IS
         VCODCLI PCPRESTANTECIPADA.CODCLI%TYPE;
         VNUMPED PCPRESTANTECIPADA.NUMPED%TYPE;
         VVALOR PCPRESTANTECIPADA.VALOR%TYPE;
-        VNUMTRANS PCPRESTANTECIPADA.VNUMTRANS%TYPE;
+        VNUMTRANS PCPRESTANTECIPADA.NUMTRANS%TYPE;
         VNUMTRANSPAGOADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
     BEGIN
         PSTATUS := 'OK';
@@ -1139,7 +1141,7 @@ IS
                    NUMPED,
                    NUMTRANS,
                    VALOR
-              INTO VNUMTRANSPAGADIANTADO,
+              INTO VNUMTRANSPAGOADIANTADO,
                    VCODCLI,
                    VNUMPED,
                    VNUMTRANS,
@@ -1147,17 +1149,17 @@ IS
               FROM PCPRESTANTECIPADA
              WHERE NUMTRANSPAGADIANTADO = PNUMTRANSPAGOADIANTADO
                AND CODCLI = PCODCLI
-               AND NUMPED = PNUMPED
+               AND NUMPED = PNUMPED;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                VNUMTRANSPAGADIANTADO := 0;
+                VNUMTRANSPAGOADIANTADO := 0;
                 VCODCLI := 0;
                 VNUMPED := 0;
                 VNUMTRANS := 0;
                 VVALOR := 0;
         END;
 
-        IF VNUMTRANSPAGADIANTADO = 0 THEN
+        IF VNUMTRANSPAGOADIANTADO = 0 THEN
             PSTATUS := 'Erro';
             PMENSAGEM := 'Recebimento antecipado não encontrado com o código ' || PNUMTRANSPAGOADIANTADO || '.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
