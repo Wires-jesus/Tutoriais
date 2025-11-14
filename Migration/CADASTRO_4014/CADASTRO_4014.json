@@ -9,6 +9,11 @@
       "nome": "DICIONARIO.4014",
       "tipo": "DICIONARIO",
       "versao": "8.0.02.000"
+    },
+	{
+      "nome": "PERMISSAO_ACESSO.4014",
+      "tipo": "TABELA",
+      "versao": "6.0.03.000"
     }
     ]
 }
