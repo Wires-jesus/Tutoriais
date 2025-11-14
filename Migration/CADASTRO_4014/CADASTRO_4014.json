@@ -12,7 +12,7 @@
     },
 	{
       "nome": "PERMISSAO_ACESSO.4014",
-      "tipo": "TABELA",
+      "tipo": "PERMISSAO_ACESSO",
       "versao": "8.0.03.000"
     }
     ]
