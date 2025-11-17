@@ -876,8 +876,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     CURSOR V_CURSOR_PRODUTOS(V_FILIAL             VARCHAR2
                             ,VPROCESSAMENTO       DATE
                             ,V_GERARPCHISTESTPARA VARCHAR2
-                            ,V_USATRIBUTACAOPORUF VARCHAR2
-                            ,SCN_V_NUMBER         NUMBER)
+                            ,V_USATRIBUTACAOPORUF VARCHAR2)
+                            --,SCN_V_NUMBER         NUMBER)
     IS
       /* Select para listar os estoque da filial */
       SELECT CODFILIAL,
@@ -1119,7 +1119,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
                      E.QTESTOQUEEMTERCEIRO,
                      E.QTESTOQUEDETERCEIRO,
                      E.QTTRANSITOTV10
-                FROM PCEST AS OF SCN SCN_V_NUMBER E,
+                FROM PCEST E, --AS OF SCN SCN_V_NUMBER E,
                      PCPRODUT PA,
                      PCDEPTO D,
                      (SELECT CODPROD,
@@ -1319,7 +1319,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
 
     V_CONTADOR         NUMBER(10);
     vSQLBLOQUEARPCEST  VARCHAR2(1000);
-    V_CURRENT_SCN NUMBER;    
+    V_CURRENT_SCN      NUMBER;    
 
   BEGIN
     -- Inserindo log
@@ -1335,7 +1335,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
         PVC2MENSSAGEN := 'Mensagem 1: - Erro ao gravar log.';
     END;
 
-    V_CURRENT_SCN := DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+    --V_CURRENT_SCN := DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
 
     /* Lista de filiais */
     FOR FILIAL IN (SELECT CODIGO
@@ -1368,8 +1368,8 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
       OPEN V_CURSOR_PRODUTOS(FILIAL.CODIGO,
                              PDTPROCESSAMENTO,
                              FILIAL.GERARPCHISTESTPARA,
-                             FILIAL.USATRIBUTACAOPORUF,
-                             V_CURRENT_SCN);
+                             FILIAL.USATRIBUTACAOPORUF);
+                             --,V_CURRENT_SCN);
       LOOP
         /* Buscando as próximas 1000 linhas */
         FETCH V_CURSOR_PRODUTOS BULK COLLECT
