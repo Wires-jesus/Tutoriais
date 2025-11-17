@@ -60,7 +60,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_PRODUTO",
 			"tipo": "MIGRATION",
-			"versao": "8.0.32.000"
+			"versao": "8.0.33.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_FAMDIVISAO_MATERIALIZADA",
@@ -85,7 +85,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
 			"tipo": "MIGRATION",
-			"versao": "8.0.02.000"
+			"versao": "8.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
