@@ -179,12 +179,26 @@ IS
                     END IF;
 
                     IF VPOSICAO IS NULL THEN
-                        SELECT POSICAO 
-                          INTO VPOSICAO
-                          FROM PCPEDC 
-                         WHERE NUMPED    = DADOS.NUMPED
-                           AND CODCLI    = DADOS.CODCLI
-                           AND CODFILIAL = DADOS.CODFILIAL;
+                        BEGIN
+                            SELECT POSICAO 
+                              INTO VPOSICAO
+                              FROM PCPEDC 
+                             WHERE NUMPED    = DADOS.NUMPED
+                               AND CODCLI    = DADOS.CODCLI
+                               AND CODFILIAL = DADOS.CODFILIAL;
+                        EXCEPTION
+                            WHEN NO_DATA_FOUND THEN
+                                VPOSICAO := NULL;
+                        END;
+                    END IF;
+
+                    IF VPOSICAO IS NULL THEN
+                        PMENSAGEM := 'Posição do pedido não encontrada:' ||
+                                     ' Pedido número: '||DADOS.NUMPED||
+                                     ' Cliente: '||DADOS.CODCLI||
+                                     ' Filial: '||DADOS.CODFILIAL;
+                        ROLLBACK;
+                        RETURN;
                     END IF;
 
                     IF VPOSICAO IN ('M','L') THEN
@@ -398,7 +412,7 @@ IS
                                     VHORA,
                                     VMINUTO,
                                     PMATRICULA,
-                                    'B',
+                                    'A',
                                     'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGADIANTADO||')',
                                     1295,
                                     'N',
@@ -583,8 +597,8 @@ IS
                                 PMATRICULA,
                                 VHORA,
                                 VMINUTO,
-                                'B',
-                                DADOS.NUMTRANSPAGADIANTADO,
+                                'A',
+                                'ESTORNO DE RECEBIMENTO ANTECIPADO (TRANSAÇÃO: '||DADOS.NUMTRANSPAGADIANTADO||')',
                                 1295,
                                 'N',
                                 TRUNC(SYSDATE),
@@ -894,23 +908,24 @@ IS
             CODFILIAL,              /*06*/
             VALORPEDIDO,            /*07*/
             CODCOBPGTO,             /*08*/
-            DTEMISSAOPED,           /*09*/
-            DTGERACAOPGTO,          /*10*/
-            DTCONFIRMACAOPGTO,      /*11*/
-            DTPGTO,                 /*12*/
-            MATRICULAGERACAO,       /*13*/
-            MATRICULACONFIRMACAO,   /*14*/
-            NSUTEF,                 /*15*/
-            NSUHOST,                /*16*/
-            CODREDE,                /*17*/
-            QTDPARCELATEF,          /*18*/
-            NOME_CARTEIRA_DIGITAL,  /*19*/
-            CODADMINISTRADORA,      /*20*/
-            CODBANDEIRA,            /*21*/
-            NUMTRANSPAGDIGITAL,     /*22*/
-            NUMCAIXAFISCAL,         /*23*/
-            CODFUNCCHECKOUT,        /*24*/
-            NUMCAIXA                /*25*/
+            STATUSPGTO,             /*09*/
+            DTEMISSAOPED,           /*10*/
+            DTGERACAOPGTO,          /*11*/
+            DTCONFIRMACAOPGTO,      /*12*/
+            DTPGTO,                 /*13*/
+            MATRICULAGERACAO,       /*14*/
+            MATRICULACONFIRMACAO,   /*15*/
+            NSUTEF,                 /*16*/
+            NSUHOST,                /*17*/
+            CODREDE,                /*18*/
+            QTDPARCELATEF,          /*19*/
+            NOME_CARTEIRA_DIGITAL,  /*20*/
+            CODADMINISTRADORA,      /*21*/
+            CODBANDEIRA,            /*22*/
+            NUMTRANSPAGDIGITAL,     /*23*/
+            NUMCAIXAFISCAL,         /*24*/
+            CODFUNCCHECKOUT,        /*25*/
+            NUMCAIXA                /*26*/
         ) VALUES (
             VNUMTRANSPAGOADIANTADO, /*01*/
             PCODCLI,                /*02*/
@@ -920,23 +935,24 @@ IS
             PCODFILIAL,             /*06*/
             PVALORPEDIDO,           /*07*/
             PCODCOBPGTO,            /*08*/
-            PDTEMISSAOPED,          /*09*/
-            PDTGERACAOPGTO,         /*10*/
-            PDTCONFIRMACAOPGTO,     /*11*/
-            PDTPGTO,                /*12*/
-            PMATRICULAGERACAO,      /*13*/
-            PMATRICULACONFIRMACAO,  /*14*/
-            PNSUTEF,                /*15*/
-            PNSUHOST,               /*16*/
-            PCODREDE,               /*17*/
-            PQTDPARCELATEF,         /*18*/
-            PNOME_CARTEIRA_DIGITAL, /*19*/
-            PCODADMINISTRADORA,     /*20*/
-            PCODBANDEIRA,           /*21*/
-            PNUMTRANSPAGDIGITAL,    /*22*/
-            PNUMCAIXAFISCAL,        /*23*/
-            PCODFUNCCHECKOUT,       /*24*/
-            PNUMCAIXA               /*25*/
+            'AGUARDANDO PAGAMENTO', /*09*/
+            PDTEMISSAOPED,          /*10*/
+            PDTGERACAOPGTO,         /*11*/
+            PDTCONFIRMACAOPGTO,     /*12*/
+            PDTPGTO,                /*13*/
+            PMATRICULAGERACAO,      /*14*/
+            PMATRICULACONFIRMACAO,  /*15*/
+            PNSUTEF,                /*16*/
+            PNSUHOST,               /*17*/
+            PCODREDE,               /*18*/
+            PQTDPARCELATEF,         /*19*/
+            PNOME_CARTEIRA_DIGITAL, /*20*/
+            PCODADMINISTRADORA,     /*21*/
+            PCODBANDEIRA,           /*22*/
+            PNUMTRANSPAGDIGITAL,    /*23*/
+            PNUMCAIXAFISCAL,        /*24*/
+            PCODFUNCCHECKOUT,       /*25*/
+            PNUMCAIXA               /*26*/
         );
 
         PNUMTRANSPAGOADIANTADO := VNUMTRANSPAGOADIANTADO;
@@ -1004,7 +1020,7 @@ IS
             VHORA,                                                                                   /*11*/
             VMINUTO,                                                                                 /*12*/
             PMATRICULACONFIRMACAO,                                                                   /*13*/
-            'B',                                                                                     /*14*/
+            'A',                                                                                     /*14*/
             'CREDITO PROVENIENTE DE PAGAMENTO ANTECIPADO (TRANSAÇÃO: '||PNUMTRANSPAGOADIANTADO||')', /*15*/
             1400,                                                                                    /*16*/
             'N',                                                                                     /*17*/
@@ -1087,6 +1103,7 @@ IS
                                         PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
                                         PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
                                         PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                        PMATRICULAESTORNO       IN PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE,
                                         PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                         )
     IS
@@ -1135,6 +1152,15 @@ IS
             RETURN;
         END IF;
 
+        IF (PMATRICULAESTORNO <= 0) OR (PMATRICULAESTORNO IS NULL) THEN
+            PSTATUS := 'Erro';
+            PMENSAGEM := 'Necessário informar a matrícula do usuário que confirmou o estorno.';
+            IF PEXECUTACOMMITROLLBACK = 'S' THEN
+                ROLLBACK;
+            END IF;
+            RETURN;
+        END IF;
+
         BEGIN
             SELECT NUMTRANSPAGADIANTADO,
                    CODCLI,
@@ -1177,7 +1203,13 @@ IS
             RETURN;
         END IF;
 
-        ESTORNO_RECEBIMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, 1);
+        SOLICITA_CANCELAMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, PMATRICULAESTORNO);
+
+        IF PMENSAGEM <> 'Cancelamento concluído com sucesso' THEN
+            RAISE_APPLICATION_ERROR(-20001, PMENSAGEM);
+        END IF;
+
+        ESTORNO_RECEBIMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, PMATRICULAESTORNO);
 
         IF PEXECUTACOMMITROLLBACK = 'S' THEN
             COMMIT WORK;

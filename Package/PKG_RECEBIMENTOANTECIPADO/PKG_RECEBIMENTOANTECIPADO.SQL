@@ -101,6 +101,7 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
                                         PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
                                         PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
                                         PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                        PMATRICULAESTORNO       IN PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE,
                                         PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                         );
     ----------------------------------------------------------------------------
