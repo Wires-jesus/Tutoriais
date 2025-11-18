@@ -466,6 +466,17 @@ CREATE OR REPLACE PACKAGE BODY PKG_MONITOR_TRIBUTARIO_CONSULT AS
              AND MC.NUMTRANSITEM = M.NUMTRANSITEM
              AND M.DTCANCEL IS NULL 
              AND M.QTCONT > 0
+             AND M.NUMNOTA > 0
+             AND ((SELECT COUNT(1)
+                          FROM PCNFENT E
+                         WHERE E.NUMTRANSENT = M.NUMTRANSENT
+                           AND NVL(E.CODFILIAL, E.CODFILIALNF) = NVL(M.CODFILIAL, M.CODFILIALNF)
+                           AND ROWNUM = 1) + 
+                       (SELECT COUNT(1)
+                          FROM PCNFSAID S
+                         WHERE S.NUMTRANSVENDA = M.NUMTRANSVENDA
+                           AND NVL(S.CODFILIAL, S.CODFILIALNF) = NVL(M.CODFILIAL, M.CODFILIALNF)
+                           AND ROWNUM = 1)) > 0             
              AND '|| GET_FILTRO_DATA_FORMATADA('M.DTMOV', PDATA_INICIAL, PDATA_FINAL) || '
              ';
   END GET_VALORES_MOV_UNIFICADA;
