@@ -88,10 +88,22 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
                                      PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                     );
     ----------------------------------------------------------------------------
-    
+
     PROCEDURE ESTORNO_RECEBIMENTO(PMENSAGEM              OUT VARCHAR2,
                                   PNUMTRANSPAGADIANTADO  PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
-                                  PMATRICULA     		 PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);
+                                  PMATRICULA             PCPRESTANTECIPADA.MATRICULACONFIRMACAO%TYPE);
+    ----------------------------------------------------------------------------
+
+    PROCEDURE ESTORNAR_RECEB_ANTECIPADO(PSTATUS                OUT VARCHAR2,
+                                        PMENSAGEM              OUT VARCHAR2,
+
+                                        PCODCLI                 IN PCPRESTANTECIPADA.CODCLI%TYPE,
+                                        PNUMPED                 IN PCPRESTANTECIPADA.NUMPED%TYPE,
+                                        PVALOR                  IN PCPRESTANTECIPADA.VALOR%TYPE,
+                                        PNUMTRANSPAGOADIANTADO  IN PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE,
+                                        PMATRICULAESTORNO       IN PCPRESTANTECIPADA.MATRICULAESTORNO%TYPE,
+                                        PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
+                                        );
     ----------------------------------------------------------------------------
 
 END PKG_RECEBIMENTOANTECIPADO;
