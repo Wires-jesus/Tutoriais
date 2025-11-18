@@ -37,6 +37,15 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VALOR_IPI             NUMBER(18,6),
       VALOR_FRETE           NUMBER(18,6),
       VALOR_OUTROS          NUMBER(18,6),
+      VALOR_SEGURO          NUMBER(18,6), -- vSeg
+      VALOR_DESCONTO        NUMBER(18,6), -- vDesc
+      VALOR_VII             NUMBER(18,6), -- vII
+      VALOR_PIS             NUMBER(18,6), -- vPIS
+      VALOR_COFINS          NUMBER(18,6), -- vCOFINS
+      VALOR_ICMS            NUMBER(18,6), -- vICMS
+      VALOR_ICMSUFDEST      NUMBER(18,6), -- vICMSUFDest
+      VALOR_FCP             NUMBER(18,6), -- vFCP
+      VALOR_FCPUFDEST       NUMBER(18,6), -- vFCPUFDest
       --Dados retorno  CBSIBS
       CODIGO_TRIBUTACAO_CBSIBS        NUMBER(10),
       FORMULA_BASE_CALCULO_CBSIBS     VARCHAR2(4000),
@@ -74,7 +83,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       CCLASSTRIB_IS               VARCHAR2(6),
       VALOR_BASE_IS               NUMBER(23,10),
       PERC_IS                     NUMBER(7,4),
-      VALOR_IS                    NUMBER(23,10),
+      VALOR_IS                    NUMBER(23,10), -- vIS
       VLTOTALIBS                  NUMBER(23,10),
       -- Retorno valores Compra Governamental
       COMPRA_GOVERNAMENTAL        TIPO_GRUPO_COMPRA_GOV
