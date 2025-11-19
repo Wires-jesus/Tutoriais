@@ -40,6 +40,8 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
   V_VALIDA_NF_CONTABILIZADA varchar2(1);
   V_NUMNOTA    number;
   V_NUMTRANSENT number;  
+  V_VLFRETE number; 
+  V_VLOUTRASDESP number; 
   ---------------------------------------------------------------------------------
   cursor C_NOTAS_NF(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_NOTA1 in number, P_NOTA2 in number) is
   -- 01 - NOTAS FISCAIS DE COMPRA COM ITENS (NF CONVENCIONAL)
@@ -6072,7 +6074,7 @@ end;
        (P_NOTA.DTENT >= V_DATA_INICIO_NFE20) and
        (P_NOTA.CHAVENFE IS NOT NULL)
     then
-      if (P_NOTA.VLFRETE > 0) or (P_NOTA.VLOUTRASDESP > 0)
+      if (V_VLFRETE > 0) or (V_VLOUTRASDESP > 0)
       then
         GERAR_DESPESA_FRETE_NFE(P_NOTA);
       end if;
@@ -6234,6 +6236,8 @@ BEGIN
     V_NF_CONTABILIZADA       := 0;
     V_NUMNOTA                := 0;
     V_NUMTRANSENT            := 0;
+    V_VLFRETE                := 0;
+    V_VLOUTRASDESP           := 0;
     
     for I in 1 .. V_LISTA_NOTAS.count
     loop
@@ -6306,6 +6310,13 @@ BEGIN
         END IF;
       END IF;
      END IF;
+     
+     IF V_LISTA_NOTAS(I).VLFRETE > 0 THEN
+        V_VLFRETE := V_VLFRETE + V_LISTA_NOTAS(I).VLFRETE;
+     END IF;  
+     IF V_LISTA_NOTAS(I).VLOUTRASDESP > 0 THEN
+        V_VLOUTRASDESP := V_VLOUTRASDESP + V_LISTA_NOTAS(I).VLOUTRASDESP;
+     END IF;      
 
     END LOOP;
     /********************************************************************************/
