@@ -1,4 +1,4 @@
-{"nome":"VW_INT_C5_PLPAG","tipoPLSQL":"VIEW","dependencias":[
+{"nome":"VW_CARGA_PCTABPR","tipoPLSQL":"VIEW","dependencias":[
       {
         "nome": "PCTABPR",
         "tipo": "TABELA",
