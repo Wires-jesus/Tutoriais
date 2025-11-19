@@ -40,7 +40,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DOC_UTILS",
 		  "tipo": "MIGRATION",
-		  "versao": "8.0.02.000"
+		  "versao": "8.0.03.000"
 		}
 	]
 }
