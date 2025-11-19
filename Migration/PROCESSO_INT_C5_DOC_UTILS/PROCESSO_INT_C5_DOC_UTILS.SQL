@@ -1072,7 +1072,7 @@ SELECT
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
                                  WHERE z.NROEMPRESA = i.NROEMPRESA
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO = 7)
+                                   AND z.SEQTIPOACRESCDESCTO IN (4,7,41))
                 THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
            ELSE
               0
@@ -1211,7 +1211,7 @@ BEGIN
    AND  d.nrocheckout = c.nrocheckout
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
-   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1,2))
+   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (4,7,8))
    AND  i.nroempresa = pNroEmpresa
    AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
