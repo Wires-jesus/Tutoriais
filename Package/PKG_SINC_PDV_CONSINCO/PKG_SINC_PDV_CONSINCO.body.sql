@@ -3453,6 +3453,11 @@ BEGIN
           VIEW_C5_INCENTIVO.NROEMPRESA,
           VIEW_C5_INCENTIVO.ATIVO
         );
+		
+   UPDATE MONITORPDVMIDDLE.tb_regraempresa SET ATIVO = 'N'
+   WHERE IDREF IN (SELECT (L.CODFILIAL, '99')||561||L.CODDESCONTO  
+                       FROM PCDESCONTOLOG L 
+                       WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM);
       
   INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
