@@ -6291,10 +6291,10 @@ BEGIN
           ---------------------------------------------------------------------------------
            IF R_NOTA_TEMP.TIPODESCARGA = 'N' THEN
               GERAR_DESPESA_IMPORTACAO(R_NOTA_TEMP);
-           END IF;
-
-           R_NOTA_TEMP := V_LISTA_NOTAS(I);
+           END IF;           
         end if;
+        --É ATUALIZADO A CADA INTERAÇÃO DO LOOP
+        R_NOTA_TEMP := V_LISTA_NOTAS(I);
         --------------------------------------------------------------------------------------------------------
         --ATUALIZA CONTA CONTABIL--
         FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL, V_LISTA_NOTAS(I).DTENT, V_LISTA_NOTAS(I).DTENT, V_LISTA_NOTAS(I).NUMTRANSENT, 'E');
