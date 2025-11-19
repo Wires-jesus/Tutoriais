@@ -935,7 +935,7 @@ IS
             PCODFILIAL,             /*06*/
             PVALORPEDIDO,           /*07*/
             PCODCOBPGTO,            /*08*/
-            'AGUARDANDO PAGAMENTO', /*09*/
+            'PAGO',                 /*09*/
             PDTEMISSAOPED,          /*10*/
             PDTGERACAOPGTO,         /*11*/
             PDTCONFIRMACAOPGTO,     /*12*/
