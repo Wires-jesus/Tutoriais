@@ -3427,11 +3427,11 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 PROCEDURE carrega_tb_regraempresa(p_id IN pccontroleconsinco.id%TYPE) AS
 BEGIN
   MERGE INTO monitorpdvmiddle.tb_regraempresa tb_regraempresa_c5
-        USING (SELECT DISTINCT I.SEQREGRA, I.NROEMPRESA, I.ATIVO
+        USING (SELECT DISTINCT I.SEQREGRA, I.NROEMPRESA, I.ATIVO, I.IDREF
                  FROM VW_INT_C5_REGRAINCENTIVO I
                WHERE I.NROEMPRESA <> '99'
                 UNION ALL
-              SELECT DISTINCT R.SEQREGRA, C5.CODFILIALINTEGRACAO, R.ATIVO
+              SELECT DISTINCT R.SEQREGRA, C5.CODFILIALINTEGRACAO, R.ATIVO, R.IDREF
                  FROM VW_INT_C5_REGRAINCENTIVO R, VW_INT_C5_OBTER_FILIAIS_C5 C5
                 WHERE NROEMPRESA = 99) VIEW_C5_INCENTIVO
       on(tb_regraempresa_c5.SEQREGRA     = VIEW_C5_INCENTIVO.SEQREGRA AND
@@ -3439,19 +3439,22 @@ BEGIN
         )
        WHEN MATCHED THEN
         UPDATE SET
-          tb_regraempresa_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO
+          tb_regraempresa_c5.ATIVO  = VIEW_C5_INCENTIVO.ATIVO,
+		  tb_regraempresa_c5.IDREF  = VIEW_C5_INCENTIVO.IDREF
 		WHERE NVL(tb_regraempresa_c5.ATIVO, '-') <> NVL(VIEW_C5_INCENTIVO.ATIVO, '-')
           
        WHEN NOT MATCHED THEN
         INSERT(
           tb_regraempresa_c5.SEQREGRA,
           tb_regraempresa_c5.NROEMPRESA,
-          tb_regraempresa_c5.ATIVO
+          tb_regraempresa_c5.ATIVO,
+		  tb_regraempresa_c5.IDREF
         ) 
         VALUES(
           VIEW_C5_INCENTIVO.SEQREGRA,
           VIEW_C5_INCENTIVO.NROEMPRESA,
-          VIEW_C5_INCENTIVO.ATIVO
+          VIEW_C5_INCENTIVO.ATIVO,
+		  VIEW_C5_INCENTIVO.IDREF
         );
 		
    UPDATE MONITORPDVMIDDLE.tb_regraempresa SET ATIVO = 'N'
