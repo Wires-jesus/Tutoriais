@@ -1,0 +1,7 @@
+{"nome":"VW_INT_C5_PLPAG","tipoPLSQL":"VIEW","dependencias":[
+      {
+        "nome": "PCTABPR",
+        "tipo": "TABELA",
+        "versao": "5.0.01.000"
+      }
+]}
