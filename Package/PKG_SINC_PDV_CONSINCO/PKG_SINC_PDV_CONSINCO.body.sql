@@ -3744,7 +3744,8 @@ BEGIN
   WHEN MATCHED THEN
        UPDATE SET
           D.PERCDESCONTO    = S.PERCDESCONTO,
-          D.ATIVO           = S.ATIVO
+          D.ATIVO           = S.ATIVO,
+		  D.IDREF           = S.IDREF
        WHERE NVL(D.PERCDESCONTO, 0) <> NVL(S.PERCDESCONTO, 0)
           OR NVL(D.ATIVO, '-')      <> NVL(S.ATIVO, '-')
 		  
@@ -3754,13 +3755,15 @@ BEGIN
           D.NRODIVISAO,
           D.SEQCATEGORIA,
           D.PERCDESCONTO,
-          D.ATIVO) 
+          D.ATIVO,
+		  D.IDREF) 
         VALUES(
           S.SEQREGRA,
           S.NRODIVISAO,
           S.SEQCATEGORIA,
           S.PERCDESCONTO,
-          S.ATIVO);
+          S.ATIVO,
+		  S.IDREF);
 
   UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
   WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
