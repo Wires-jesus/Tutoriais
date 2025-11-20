@@ -531,20 +531,16 @@ create or replace package body ATUALIZACAO_DIARIA is
       VSQL2 := VSQL2 || ' AND (OBS IS NULL OR OBS NOT LIKE ''BLOQ. AUT. POR % DIAS INATIVO'')';
     end if;
 
---    IF VBLOQDESBLOQCLIFORNEC = 'N' THEN
-        VSQL2 := VSQL2 || ' AND   NOT EXISTS
+    VSQL2 := VSQL2 || ' AND   NOT EXISTS
                                   (SELECT PCFORNEC.CODCLI
                                          FROM   PCFORNEC
                                          WHERE  PCFORNEC.CODCLI = PCCLIENT.CODCLI
                                          AND    PCFORNEC.REVENDA = ''S'')';
---    END IF;
-
 --  VERIFICA SE LIMCRED <> 0 PARA NAO COLOCAR LIMCRED=0 ONDE JA E
     VSQL2 := VSQL2 || ' AND LIMCRED <> 0';
 
     execute immediate VSQL2;
     commit;
-
 
     vPosicaoExec := 'Montar VSQL';
     VSQL := 'UPDATE PCCLIENT SET ';
@@ -612,14 +608,11 @@ create or replace package body ATUALIZACAO_DIARIA is
       VSQL := VSQL || ' AND (OBS IS NULL OR OBS NOT LIKE ''BLOQ. AUT. POR % DIAS INATIVO'')';
     end if;
 
---    IF VBLOQDESBLOQCLIFORNEC = 'N' THEN
-       VSQL := VSQL || ' AND   NOT EXISTS
+    VSQL := VSQL || ' AND   NOT EXISTS
                                   (SELECT PCFORNEC.CODCLI
                                          FROM   PCFORNEC
                                          WHERE  PCFORNEC.CODCLI = PCCLIENT.CODCLI
                                          AND    PCFORNEC.REVENDA = ''S'')';
---    END IF;
-
 --  VERIFICA SE LIMCRED <> 0 PARA NAO COLOCAR LIMCRED=0 ONDE JA E
     VSQL2 := VSQL2 || ' AND LIMCRED <> 0';
 
@@ -685,21 +678,7 @@ create or replace package body ATUALIZACAO_DIARIA is
      18/07/2011 Watson Willian    Alterado procedure para utilizar nova procedure de bloqueio por codigo de cliente;
      19/02/2014 Bruno Martins - Incluido o parâmetro de PUSUARIO para que seja gravado no LOG
  **********************************************************************************/
-
-  /*  VCONTADOR    number := 0;
-    VVLVENDA     number := 0;
-    VVLDEVOLUCAO number := 0;
-    VAL          VARCHAR2(1);
-    VS_SQL       VARCHAR2(2000);
-    QTDIAS       number := 0;
-    BLOQDEF      number := 0;*/
     VS_ZERALIMCREDAUTOMATICO VARCHAR2(1);
-/*    VMUDACOBCLIENTE      PCCONSUM.MUDACOBCLIENTE%type;
-    VMUDACOBCLIENTEDIAS  PCCONSUM.MUDACOBCLIENTEDIAS%type;
-    VBLOQCLIENTEEXCDEVOL PCCONSUM.BLOQCLIENTEEXCDEVOL%type;
-    VPERCEXCESSODEVOL    PCCONSUM.PERCEXCESSODEVOL%type;
-    VDIASANALISEDEVOL    PCCONSUM.DIASANALISEDEVOL%type;
-    VBLOQCODCLIPRINC     PCCONSUM.BLOQCODCLIPRINC%type;*/
   begin
     SELECT VALOR
     INTO VS_ZERALIMCREDAUTOMATICO
@@ -720,7 +699,6 @@ create or replace package body ATUALIZACAO_DIARIA is
        sysdate,
        'Inicio Bloqueia/Desbloqueia Clientes Automaticamente');
     commit;
-
 
     p_pc_BloqueioClientePorCodigo(0,PVC2MENSSAGEN, PUSUARIO);
 
@@ -829,10 +807,8 @@ begin
                'PCHISTESTLOTE',
                'Erro ao inserir registro codprod: ' || REGISTRO.codPROD ||' filial: ' || REGISTRO.CODFILIAL || ' NUMLOTE ' ||REGISTRO.NUMLOTE,
                'erro sql: ' || ERROINSERCAO);
-
           END;
       END;
-
     end loop;
   end if;
   commit;
@@ -1316,7 +1292,6 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     vtQTESTOQUEEMTERCEIRO            tpQTESTOQUEEMTERCEIRO;
     vtQTESTOQUEDETERCEIRO            tpQTESTOQUEDETERCEIRO;
     vtQTTRANSITOTV10                 tpQTTRANSITOTV10;
-
     V_CONTADOR         NUMBER(10);
     vSQLBLOQUEARPCEST  VARCHAR2(1000);
     V_CURRENT_SCN      NUMBER;    
@@ -3583,7 +3558,6 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
       VQTDECOMMIT := 0;
     END LOOP;
     ---------------------------------------------------------------------------------------------
-    
     BEGIN
     SELECT PCPARAMFILIAL.VALOR
       INTO VPARAMCODCLIPC
@@ -3593,7 +3567,6 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
         WHEN OTHERS THEN
           VPARAMCODCLIPC := 0;
     END;
-
 
     IF VPARAMCODCLIPC = 3630  THEN
       IF PCODFILIAL IS NOT NULL THEN
@@ -3609,17 +3582,12 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                                      DADOS.TIPOREGISTRO);
 
       END LOOP;
-
       ELSE
-
         UPDATE PCRECALCULOPROD R
            SET R.ATUALIZADO507 = 'S'
          WHERE R.DTRECALCULO BETWEEN PDTINICIO AND PDTTERMINO;
-
       END IF;
-
     END IF;
-
     -- Gera log da execucao da consolidacao
     GRAVALOGJOB('CONSOLIDACAODADOS',
                 VFUNCAO,
@@ -3644,8 +3612,8 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
   END;
 
 PROCEDURE P_PC_BLOQUEIOCLIENTEPORCODIGO(PCODCLI NUMBER,
-                                                                                     PVC2MENSSAGEN OUT VARCHAR2,
-                                                                                     PUSUARIO IN VARCHAR2 DEFAULT '')
+                                        PVC2MENSSAGEN OUT VARCHAR2,
+                                        PUSUARIO IN VARCHAR2 DEFAULT '')
 IS
 BEGIN
    P_PC_BLOQUEARCLIENTE(CASE
@@ -3659,7 +3627,6 @@ END P_PC_BLOQUEIOCLIENTEPORCODIGO;
 PROCEDURE P_PC_BLOQUEARCLIENTE(PCODCLI       IN NUMBER
                               ,PVC2MENSSAGEN OUT VARCHAR2
                               ,PUSUARIO IN VARCHAR2 DEFAULT '') IS
-
   /*Parametros 132*/
   VNUMDIASCLIATRASO        NUMBER := 0;
   VS_ZERALIMCREDAUTOMATICO PCCONSUM.ZERALIMCREDBLOQAUTOMATIC%TYPE;
@@ -3676,8 +3643,6 @@ PROCEDURE P_PC_BLOQUEARCLIENTE(PCODCLI       IN NUMBER
   VCODCOBINICIAL           PCCONSUM.CODCOBINICIAL%type;
   VNUMDIASDESBLOQCHD1      PCCONSUM.NUMDIASDESBLOQCHD1%type;
   VBLOQTODOSCLIREDE        VARCHAR2(1);
-
-
   /*Variaveis locais*/
   VVLVENDA                 NUMBER := 0;
   VVLDEVOLUCAO             NUMBER := 0;
@@ -3685,11 +3650,11 @@ PROCEDURE P_PC_BLOQUEARCLIENTE(PCODCLI       IN NUMBER
   VATUALIZAR               BOOLEAN;
   VICLIENTECOMATRASO       NUMBER := 0;
   VBLOQUEIO                VARCHAR2(1);
-  VSCRIPT                  VARCHAR(10000);
-  VSCRIPT_C                VARCHAR(10000);
+  VSCRIPT                  VARCHAR(32767);
+  VSCRIPT_C                VARCHAR(32767);
   VCONTROLEMOTIVO          NUMBER;
   V_MOTIVOBLOQUEIO         CLOB;
-  VCODIGOINSERIDO          VARCHAR(10000);
+  VCODIGOINSERIDO          VARCHAR(32767);
 /*
 1 - Desbloqueio SEFAZ
 2 - BLOQ. AUTOMATICO TIT. ATRASADOS
@@ -3740,222 +3705,201 @@ BEGIN
                             /*Deconsiderar cliente 1 para o processo*/
                         AND PCCLIENT.CODCLI <> 1
                            /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
-                        AND (
-                             (VBLOQDESBLOQCLIFORNEC = 'S') OR
+                        AND ((VBLOQDESBLOQCLIFORNEC = 'S') OR
                              (NOT EXISTS (SELECT 1
-                                            FROM PCFORNEC
-                                           WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
-                                             AND PCFORNEC.REVENDA = 'S'))
-                             )
+                                          FROM PCFORNEC
+                                          WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
+                                            AND PCFORNEC.REVENDA = 'S')))
                            /*O valor que e assumido para todos os clientes = -1*/
                         AND PCODCLI IN (-1, PCCLIENT.CODCLI)
-                      )
-     LOOP
-       /*Armazenando variavel de Bloqueio*/
-       VBLOQUEIO := REGISTRO.BLOQUEIO;
+                    )
+    LOOP
+      /*Armazenando variavel de Bloqueio*/
+      VBLOQUEIO := REGISTRO.BLOQUEIO;
+      /*Verificando se o cleinte possui títulos em atraso*/
+      VICLIENTECOMATRASO := SYS.DIUTIL.BOOL_TO_INT(F_PCPREST_VENCIDA_BLOQUEIO(REGISTRO.CODCLI));
+      /*So Passa pelo processo de desbloqueio caso o cleinte esteja bloqueado*/
+      IF (VBLOQUEIO = 'S') THEN
+        /*Iniciando variavel de controloe*/
+        VATUALIZAR := FALSE;
+        /*Debloqueia cliente com bloqueio sefaz*/
+        IF (REGISTRO.BLOQUEIOSEFAZPED = 'N') AND
+           (TRIM(REGISTRO.OBS) = 'BLOQ. SEFAZ') THEN
+          VATUALIZAR      := TRUE;
+          VCONTROLEMOTIVO := 1;
+          V_MOTIVOBLOQUEIO := 'Desbloqueia o cliente que teve o CNPJ desbloqueado no Sefaz e atualizado na rotina 1075.';
+        END IF;
+        /*Debloqueia clientes com bloqueio por títulos atrasados*/
+        IF (VICLIENTECOMATRASO = 0) THEN
+          IF (TRIM(REGISTRO.OBS) IN ('BLOQ. AUTOMATICO', 'BLOQ. AUTOMATICO TIT. ATRASADOS', 'BLOQ. AUTOMATICO TIT. VENCIDOS')) THEN
+            VATUALIZAR      := TRUE;
+            VCONTROLEMOTIVO := 2;
+            V_MOTIVOBLOQUEIO := 'Cliente estava bloqueado por possui títulos em atraso, devido a esses títulos terem sido quitados, até o dia ' || SYSDATE || ', foi desbloqueado pela atualização diária(504/820).';
+          ELSIF (TRIM(REGISTRO.OBS) IN ('BLOQ.CHD1','BLOQ.CHD3', 'BLQ. CHEQUES DEVOLVIDOS')) AND ((TRUNC(SYSDATE) - TRUNC(REGISTRO.DTBLOQ) > VNUMDIASDESBLOQCHD1)) THEN
+            VATUALIZAR      := TRUE;
+            VCONTROLEMOTIVO := 2;
+            V_MOTIVOBLOQUEIO := 'Cliente estava bloqueado por ter títulos nas cobranças CHD1/CHD3 atrasados, como no dia ' || SYSDATE || ' não existia mais nenhum título em atraso (conforme parâmetro 2190) a rotina(504/820) fez o desbloqueio automático';
+          END IF;
+        END IF;
+        /*Desbloqueando os clientes */
+        IF VATUALIZAR THEN
+          UPDATE PCCLIENT
+             SET BLOQUEIO      = 'N'
+                ,DTBLOQ        = NULL
+                ,OBS           = NULL
+                ,BLOQUEIOSEFAZ = 'N'
+                ,MOTIVOBLOQ    = V_MOTIVOBLOQUEIO
+           WHERE CODCLI = REGISTRO.CODCLI;
+          
+          COMMIT;
+          VBLOQUEIO := 'N';
 
-       /*Verificando se o cleinte possui títulos em atraso*/
-       VICLIENTECOMATRASO := SYS.DIUTIL.BOOL_TO_INT(F_PCPREST_VENCIDA_BLOQUEIO(REGISTRO.CODCLI));
+          P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(REGISTRO.CODCLI)
+                                 , PUSUARIO
+                                 , '504'
+                                 , CASE WHEN VCONTROLEMOTIVO = 1 THEN 'BLOQ. SEFAZ'
+                                        WHEN VCONTROLEMOTIVO = 2 THEN 'BLOQ. AUTOMATICO TIT. ATRASADOS'
+                                   END
+                                 , REGISTRO.VLIMCREDANT
+                                 , REGISTRO.VBLOQUEIOANT
+                                 , REGISTRO.VDTREGLIMANT
+                                 , REGISTRO.VDTVENCLIMANT
+                                 , REGISTRO.VOBSANT
+                                 , REGISTRO.VPRAZOANT
+                                 , REGISTRO.VCODCOBANT
+                                 , REGISTRO.VCODPLPAGANT
+                                 );
+        END IF;
+      /*Fim IF (REGISTRO.BLOQUEIO = 'S') THEN */
+      END IF;
 
-       /*So Passa pelo processo de desbloqueio caso o cleinte esteja bloqueado*/
-       IF (VBLOQUEIO = 'S') THEN
-         /*Iniciando variavel de controloe*/
-         VATUALIZAR := FALSE;
+      /*Iniciando variavel de controle*/
+      VATUALIZAR := FALSE;
+      VSCRIPT    := '';
+      VSCRIPT_C  := '';
+      VCODIGOINSERIDO := '-1;';
 
-         /*Debloqueia cliente com bloqueio sefaz*/
-         IF (REGISTRO.BLOQUEIOSEFAZPED = 'N') AND
-            (TRIM(REGISTRO.OBS) = 'BLOQ. SEFAZ') THEN
-           VATUALIZAR      := TRUE;
-           VCONTROLEMOTIVO := 1;
-           V_MOTIVOBLOQUEIO := 'Desbloqueia o cliente que teve o CNPJ desbloqueado no Sefaz e atualizado na rotina 1075.';
-         END IF;
+      /*Bloqueio definitivo*/
+      IF (VICLIENTECOMATRASO = 1) AND (NVL(VNUMDIASCLIATRASO, 0) > 0) THEN
+        SELECT MAX(TRUNC(SYSDATE) - (CASE WHEN TO_CHAR(PCPREST.DTVENC, 'D') = 1 THEN
+                                       PCPREST.DTVENC + 1
+                                     WHEN TO_CHAR(PCPREST.DTVENC, 'D') = 7 THEN
+                                       PCPREST.DTVENC + 2
+                                     ELSE
+                                       PCPREST.DTVENC
+                                     END))
+        INTO QTDIAS
+        FROM PCPREST
+            ,PCCOB
+        WHERE PCPREST.CODCLI = REGISTRO.CODCLI
+          AND PCPREST.DTPAG IS NULL
+          AND PCCOB.CODCOB = PCPREST.CODCOB
+          AND PCCOB.BLOQAUTOMATICO = 'S'
+          AND F_QTDIASVENCIDOS(PCPREST.DTVENC,
+                               TRUNC(SYSDATE),
+                               PCPREST.CODCOB,
+                               PCPREST.CODFILIAL,
+                               PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_USADIAUTILFILIAL', PCPREST.CODFILIAL)) >=
+                                 DECODE(NVL(PCCOB.NUMDIASBLOQAUTOMATIC, 0), 0, 1,
+                                            PCCOB.NUMDIASBLOQAUTOMATIC);
 
-         /*Debloqueia clientes com bloqueio por títulos atrasados*/
-         IF (VICLIENTECOMATRASO = 0) THEN
-           IF (TRIM(REGISTRO.OBS) IN ('BLOQ. AUTOMATICO', 'BLOQ. AUTOMATICO TIT. ATRASADOS', 'BLOQ. AUTOMATICO TIT. VENCIDOS')) THEN
-              VATUALIZAR      := TRUE;
-              VCONTROLEMOTIVO := 2;
-              V_MOTIVOBLOQUEIO := 'Cliente estava bloqueado por possui títulos em atraso, devido a esses títulos terem sido quitados, até o dia ' || SYSDATE || ', foi desbloqueado pela atualização diária(504/820).';
-           ELSIF (TRIM(REGISTRO.OBS) IN ('BLOQ.CHD1','BLOQ.CHD3', 'BLQ. CHEQUES DEVOLVIDOS')) AND ((TRUNC(SYSDATE) - TRUNC(REGISTRO.DTBLOQ) > VNUMDIASDESBLOQCHD1)) THEN
-              VATUALIZAR      := TRUE;
-              VCONTROLEMOTIVO := 2;
-              V_MOTIVOBLOQUEIO := 'Cliente estava bloqueado por ter títulos nas cobranças CHD1/CHD3 atrasados, como no dia ' || SYSDATE || ' não existia mais nenhum título em atraso (conforme parâmetro 2190) a rotina(504/820) fez o desbloqueio automático';
-           END IF;
-         END IF;
+        IF (QTDIAS >= VNUMDIASCLIATRASO) THEN
+          VATUALIZAR      := TRUE;
+          VSCRIPT_C       := '     , OBS      = ''BLOQ. AUTOMATICO DEFINITIVO'''||
+                             '     , BLOQUEIODEFINITIVO = ''S''';
+          VCONTROLEMOTIVO := 4;
+          V_MOTIVOBLOQUEIO := ' Cliente bloqueado definitivo, pois existia pelo menos um título em atraso,
+                               ou seja a data de vencimento somado ao parâmetro 2469(rotina 132) era maior que data do
+                               processamento da 504/820(Data do processamento' || SYSDATE || ').';
+          /*Zera Limite Crédito*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
+            VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = 0';
+          END IF;
+          /*Volta Limite Crédito Inicial*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
+            VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
+          END IF;
+        END IF;
+      /*Fim IF NVL(VNUMDIASCLIATRASO, 0) > 0 THEN */
+      END IF;
 
-         /*Desbloqueando os clientes */
-         IF VATUALIZAR THEN
-           UPDATE PCCLIENT
-              SET BLOQUEIO      = 'N'
-                 ,DTBLOQ        = NULL
-                 ,OBS           = NULL
-                 ,BLOQUEIOSEFAZ = 'N'
-                 ,MOTIVOBLOQ    = V_MOTIVOBLOQUEIO
-            WHERE CODCLI = REGISTRO.CODCLI;
-			commit;
+      /*Inicio processo de bloqueio de cliente*/
+      IF VBLOQUEIO = 'N' THEN
+        /*Bloqueando cleinte por atraso*/
+        IF NOT VATUALIZAR AND (VICLIENTECOMATRASO = 1) THEN
+          VATUALIZAR      := TRUE;
+          VSCRIPT_C       := '     , OBS = ''BLOQ. AUTOMATICO TIT. ATRASADOS''';
+          VCONTROLEMOTIVO := 2;
+          V_MOTIVOBLOQUEIO := ' Cliente bloqueado, pois existia pelo menos um título em atraso, ou seja a
+                               data de vencimento era maior que data do processamento da 504/820(Data do processamento ' || SYSDATE ||').';
+          /*Zera Limite Crédito*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
+            VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = 0';
+          END IF;
+          /*Volta Limite Crédito Inicial*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
+            VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
+          END IF;
+        END IF;
+        /*Bloquear cliente SEFAZ*/
+        IF NOT VATUALIZAR AND (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
+          VATUALIZAR := TRUE;
+          VSCRIPT_C  := '     , OBS = ''BLOQ. SEFAZ'''||
+                        '     , BLOQUEIOSEFAZ = ''S''';
+          VCONTROLEMOTIVO := 1;
+          V_MOTIVOBLOQUEIO := 'Cliente foi bloqueado pelo Sefaz na rotina 1075, portanto a 504/820 no dia ' || SYSDATE || ' fez o bloqueio normal.';
+        END IF;
+        /*Bloqueio de cliente por execesso de devolução*/
+        IF NOT VATUALIZAR AND (VBLOQCLIENTEEXCDEVOL = 'S') AND (VPERCEXCESSODEVOL > 0) THEN
+          /*Obtendo o valor da venda para realizar proporção*/
+          SELECT NVL(SUM(NVL(PCNFSAID.VLTOTGER, 0)), 0)
+            INTO VVLVENDA
+            FROM PCNFSAID
+                ,PCPEDC
+           WHERE PCNFSAID.DTCANCEL IS NULL
+             AND PCNFSAID.CONDVENDA NOT IN (2, 3, 6, 12)
+             AND FLOOR(TRUNC(SYSDATE) - TRUNC(PCNFSAID.DTSAIDA)) <= VDIASANALISEDEVOL
+             AND PCPEDC.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
+             AND PCPEDC.NUMPED = PCNFSAID.NUMPED
+             AND PCNFSAID.CODCLI = REGISTRO.CODCLI;
+          /*So Executar estre trecho se o anterior retorna valor ja que sempre tem que ter venda*/
+          IF VVLVENDA > 0 THEN
+            /*Obtendo o valor de Devoluções para realizar proporção*/
+            SELECT NVL(SUM(NVL(PCESTCOM.VLDEVOLUCAO, 0)), 0)
+              INTO VVLDEVOLUCAO
+              FROM PCNFENT
+                  ,PCESTCOM
+                  ,PCNFSAID
+             WHERE PCNFSAID.CODCLI = REGISTRO.CODCLI
+               AND NVL(PCESTCOM.NUMTRANSVENDA, 0) <> 0
+               AND PCNFENT.TIPODESCARGA IN ('6', '7')
+               AND NVL(PCNFENT.OBS, 'X') <> 'NF CANCELADA'
+               AND FLOOR(TRUNC(SYSDATE) - TRUNC(PCNFENT.DTENT)) <= VDIASANALISEDEVOL
+               AND PCNFENT.CODDEVOL IN (SELECT CODDEVOL
+                                          FROM PCTABDEV
+                                         WHERE NVL(PCTABDEV.BLOQUEIACLIENTE, 'N') = 'S')
+               AND PCNFENT.NUMTRANSENT = PCESTCOM.NUMTRANSENT
+               AND PCESTCOM.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA;
+          END IF;
+          /*Realizando calculo da proporção de devolução*/
+          IF (VVLDEVOLUCAO > 0) AND (VVLVENDA > 0) AND
+             (((100 * VVLDEVOLUCAO) / VVLVENDA) >= VPERCEXCESSODEVOL) THEN
+            VATUALIZAR := TRUE;
+            VSCRIPT_C  := '     , OBS      = ''BLOQ. AUTOMATICO DEVOLUCAO''';
+            VCONTROLEMOTIVO := 3;
+            V_MOTIVOBLOQUEIO := ' Cliente foi bloqueado devido ao parâmetro, 2301 - Bloquear cliente com excesso de devoluções,
+                                 está marcado como "Sim" e o percentual máximo de devolução sobre a venda, parâmetro
+                                 2302 - % sobre as vendas que determina o bloqueio do cliente, ter sido ultrapassado, nos '||VDIASANALISEDEVOL||' dias
+                                 definidos para analise, parâmetro 2303 - Dias para analisar as vendas e devoluções ';
+          END IF;
+        /*Fim IF NOT VATUALIZAR AND (VBLOQCLIENTEEXCDEVOL = 'S') THEN */
+        END IF;
+      /*Fim IF vbloqueio = 'N' THEN*/
+      END IF;
 
-           VBLOQUEIO := 'N';
-
-           P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(REGISTRO.CODCLI)
-                                  , PUSUARIO
-                                  , '504'
-                                  , CASE WHEN VCONTROLEMOTIVO = 1 THEN 'BLOQ. SEFAZ'
-                                         WHEN VCONTROLEMOTIVO = 2 THEN 'BLOQ. AUTOMATICO TIT. ATRASADOS'
-                                    END
-                                  , REGISTRO.VLIMCREDANT
-                                  , REGISTRO.VBLOQUEIOANT
-                                  , REGISTRO.VDTREGLIMANT
-                                  , REGISTRO.VDTVENCLIMANT
-                                  , REGISTRO.VOBSANT
-                                  , REGISTRO.VPRAZOANT
-                                  , REGISTRO.VCODCOBANT
-                                  , REGISTRO.VCODPLPAGANT
-                                  );
-         END IF;
-       /*Fim IF (REGISTRO.BLOQUEIO = 'S') THEN */
-       END IF;
-
-
-       /*Iniciando variavel de controle*/
-       VATUALIZAR := FALSE;
-       VSCRIPT    := '';
-       VSCRIPT_C  := '';
-	   VCODIGOINSERIDO := '-1;';
-
-       /*Bloqueio definitivo*/
-       IF (VICLIENTECOMATRASO = 1) AND (NVL(VNUMDIASCLIATRASO, 0) > 0) THEN
-         SELECT MAX(TRUNC(SYSDATE) - (CASE
-                                     WHEN TO_CHAR(PCPREST.DTVENC, 'D') = 1 THEN
-                                    PCPREST.DTVENC + 1
-                                   WHEN TO_CHAR(PCPREST.DTVENC, 'D') = 7 THEN
-                                    PCPREST.DTVENC + 2
-                                   ELSE
-                                    PCPREST.DTVENC
-                                 END))
-           INTO QTDIAS
-           FROM PCPREST
-               ,PCCOB
-          WHERE PCPREST.CODCLI = REGISTRO.CODCLI
-            AND PCPREST.DTPAG IS NULL
-            AND PCCOB.CODCOB = PCPREST.CODCOB
-            AND PCCOB.BLOQAUTOMATICO = 'S'
-            AND F_QTDIASVENCIDOS(PCPREST.DTVENC,
-                                 TRUNC(SYSDATE),
-                                 PCPREST.CODCOB,
-                                 PCPREST.CODFILIAL,
-                                 PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_USADIAUTILFILIAL', PCPREST.CODFILIAL)
-                                 ) >= DECODE(NVL(PCCOB.NUMDIASBLOQAUTOMATIC, 0),
-                                             0,
-                                             1,
-                                             PCCOB.NUMDIASBLOQAUTOMATIC);
-
-         IF (QTDIAS >= VNUMDIASCLIATRASO) THEN
-           VATUALIZAR      := TRUE;
-           VSCRIPT_C       := '     , OBS      = ''BLOQ. AUTOMATICO DEFINITIVO'''||
-                              '     , BLOQUEIODEFINITIVO = ''S''';
-           VCONTROLEMOTIVO := 4;
-           V_MOTIVOBLOQUEIO := ' Cliente bloqueado definitivo, pois existia pelo menos um título em atraso,
-                                ou seja a data de vencimento somado ao parâmetro 2469(rotina 132) era maior que data do
-                                processamento da 504/820(Data do processamento' || SYSDATE || ').';
-           /*Zera Limite Crédito*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
-             VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = 0';
-           END IF;
-           /*Volta Limite Crédito Inicial*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
-             VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
-           END IF;
-         END IF;
-
-       /*Fim IF NVL(VNUMDIASCLIATRASO, 0) > 0 THEN */
-       END IF;
-
-       /*Inicio processo de bloqueio de cliente*/
-       IF VBLOQUEIO = 'N' THEN
-
-         /*Bloqueando cleinte por atraso*/
-         IF NOT VATUALIZAR AND (VICLIENTECOMATRASO = 1) THEN
-           VATUALIZAR      := TRUE;
-           VSCRIPT_C       := '     , OBS = ''BLOQ. AUTOMATICO TIT. ATRASADOS''';
-           VCONTROLEMOTIVO := 2;
-           V_MOTIVOBLOQUEIO := ' Cliente bloqueado, pois existia pelo menos um título em atraso, ou seja a
-                                data de vencimento era maior que data do processamento da 504/820(Data do processamento ' || SYSDATE ||').';
-
-           /*Zera Limite Crédito*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
-             VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = 0';
-           END IF;
-           /*Volta Limite Crédito Inicial*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
-             VSCRIPT_C := VSCRIPT_C || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
-           END IF;
-         END IF;
-
-         /*Bloquear cliente SEFAZ*/
-         IF NOT VATUALIZAR AND (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
-           VATUALIZAR := TRUE;
-           VSCRIPT_C  := '     , OBS = ''BLOQ. SEFAZ'''||
-                         '     , BLOQUEIOSEFAZ = ''S''';
-           VCONTROLEMOTIVO := 1;
-           V_MOTIVOBLOQUEIO := 'Cliente foi bloqueado pelo Sefaz na rotina 1075, portanto a 504/820 no dia ' || SYSDATE || ' fez o bloqueio normal.';
-         END IF;
-
-         /*Bloqueio de cliente por execesso de devolução*/
-         IF NOT VATUALIZAR AND (VBLOQCLIENTEEXCDEVOL = 'S') AND (VPERCEXCESSODEVOL > 0) THEN
-
-           /*Obtendo o valor da venda para realizar proporção*/
-           SELECT NVL(SUM(NVL(PCNFSAID.VLTOTGER, 0)), 0)
-             INTO VVLVENDA
-             FROM PCNFSAID
-                 ,PCPEDC
-            WHERE PCNFSAID.DTCANCEL IS NULL
-              AND PCNFSAID.CONDVENDA NOT IN (2, 3, 6, 12)
-              AND FLOOR(TRUNC(SYSDATE) - TRUNC(PCNFSAID.DTSAIDA)) <= VDIASANALISEDEVOL
-              AND PCPEDC.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
-              AND PCPEDC.NUMPED = PCNFSAID.NUMPED
-              AND PCNFSAID.CODCLI = REGISTRO.CODCLI;
-
-           /*So Executar estre trecho se o anterior retorna valor ja que sempre tem que ter venda*/
-           IF VVLVENDA > 0 THEN
-             /*Obtendo o valor de Devoluções para realizar proporção*/
-             SELECT NVL(SUM(NVL(PCESTCOM.VLDEVOLUCAO, 0)), 0)
-               INTO VVLDEVOLUCAO
-               FROM PCNFENT
-                   ,PCESTCOM
-                   ,PCNFSAID
-              WHERE PCNFSAID.CODCLI = REGISTRO.CODCLI
-                AND NVL(PCESTCOM.NUMTRANSVENDA, 0) <> 0
-                AND PCNFENT.TIPODESCARGA IN ('6', '7')
-                AND NVL(PCNFENT.OBS, 'X') <> 'NF CANCELADA'
-                AND FLOOR(TRUNC(SYSDATE) - TRUNC(PCNFENT.DTENT)) <= VDIASANALISEDEVOL
-                AND PCNFENT.CODDEVOL IN (SELECT CODDEVOL
-                                           FROM PCTABDEV
-                                          WHERE NVL(PCTABDEV.BLOQUEIACLIENTE, 'N') = 'S')
-                AND PCNFENT.NUMTRANSENT = PCESTCOM.NUMTRANSENT
-                AND PCESTCOM.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA;
-           END IF;
-
-           /*Realizando calculo da proporção de devolução*/
-           IF (VVLDEVOLUCAO > 0) AND (VVLVENDA > 0) AND
-              (((100 * VVLDEVOLUCAO) / VVLVENDA) >= VPERCEXCESSODEVOL) THEN
-             VATUALIZAR := TRUE;
-             VSCRIPT_C  := '     , OBS      = ''BLOQ. AUTOMATICO DEVOLUCAO''';
-             VCONTROLEMOTIVO := 3;
-             V_MOTIVOBLOQUEIO := ' Cliente foi bloqueado devido ao parâmetro, 2301 - Bloquear cliente com excesso de devoluções,
-                                  está marcado como "Sim" e o percentual máximo de devolução sobre a venda, parâmetro
-                                  2302 - % sobre as vendas que determina o bloqueio do cliente, ter sido ultrapassado, nos '||VDIASANALISEDEVOL||' dias
-                                  definidos para analise, parâmetro 2303 - Dias para analisar as vendas e devoluções ';
-           END IF;
-
-         /*Fim IF NOT VATUALIZAR AND (VBLOQCLIENTEEXCDEVOL = 'S') THEN */
-         END IF;
-
-       /*Fim IF vbloqueio = 'N' THEN*/
-       END IF;
-
-       /*Atualizando Clientes*/
-       IF VATUALIZAR THEN
-         VSCRIPT := 'UPDATE PCCLIENT'                      ||
+      /*Atualizando Clientes*/
+      IF VATUALIZAR THEN
+        VSCRIPT := 'UPDATE PCCLIENT'                      ||
                     '   SET DTBLOQ   = TRUNC(SYSDATE)'     ||
                     '     , BLOQUEIO = ''S''        '      ||
                     VSCRIPT_C                              ||
@@ -3963,211 +3907,196 @@ BEGIN
                     ''' WHERE CODCLI = :CODCLI '             ||
                     '   AND NVL(BLOQUEIODEFINITIVO, ''N'') = ''N''';
 
-         EXECUTE IMMEDIATE VSCRIPT
-                     USING REGISTRO.CODCLI;
-		 commit;
-
-         /*Gravando Log de Bloqueio acordo com a variavel de controle obtem porque o bloqueio foi realizado*/
-         P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(REGISTRO.CODCLI), PUSUARIO
-                                , '504'
-                                , CASE WHEN VCONTROLEMOTIVO = 1 THEN 'BLOQ. SEFAZ'
-                                       WHEN VCONTROLEMOTIVO = 2 THEN 'BLOQ. AUTOMATICO TIT. ATRASADOS'
-                                       WHEN VCONTROLEMOTIVO = 3 THEN 'BLOQ. AUTOMATICO DEVOLUCAO'
-                                       WHEN VCONTROLEMOTIVO = 4 THEN 'BLOQ. AUTOMATICO DEFINITIVO'
-                                  END
-                                , REGISTRO.VLIMCREDANT
-                                , REGISTRO.VBLOQUEIOANT
-                                , REGISTRO.VDTREGLIMANT
-                                , REGISTRO.VDTVENCLIMANT
-                                , REGISTRO.VOBSANT
-                                , REGISTRO.VPRAZOANT
-                                , REGISTRO.VCODCOBANT
-                                , REGISTRO.VCODPLPAGANT
-                                );
-       END IF;
-
+        EXECUTE IMMEDIATE VSCRIPT
+                USING REGISTRO.CODCLI;
+        COMMIT;
+        /*Gravando Log de Bloqueio acordo com a variavel de controle obtem porque o bloqueio foi realizado*/
+        P_PC_GRAVARLOGBLOQAUTOM(TO_CHAR(REGISTRO.CODCLI), PUSUARIO
+                              , '504'
+                              , CASE WHEN VCONTROLEMOTIVO = 1 THEN 'BLOQ. SEFAZ'
+                                     WHEN VCONTROLEMOTIVO = 2 THEN 'BLOQ. AUTOMATICO TIT. ATRASADOS'
+                                     WHEN VCONTROLEMOTIVO = 3 THEN 'BLOQ. AUTOMATICO DEVOLUCAO'
+                                     WHEN VCONTROLEMOTIVO = 4 THEN 'BLOQ. AUTOMATICO DEFINITIVO'
+                                END
+                              , REGISTRO.VLIMCREDANT
+                              , REGISTRO.VBLOQUEIOANT
+                              , REGISTRO.VDTREGLIMANT
+                              , REGISTRO.VDTVENCLIMANT
+                              , REGISTRO.VOBSANT
+                              , REGISTRO.VPRAZOANT
+                              , REGISTRO.VCODCOBANT
+                              , REGISTRO.VCODPLPAGANT
+                              );
+      END IF;
     /*Fim Processo de Loop*/
     END LOOP;
 
     IF (VBLOQCODCLIPRINC = 'S') THEN
-    /*Bloqueando clientes da Familia*/
-        FOR REGISTRO IN (SELECT PCCLIENT.CODCLI
-                               ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
-                               ,PCCLIENT.OBS
-                               ,PCCLIENT.LIMCRED
-                               ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
-                               ,NVL(PCCLIENT.BLOQUEIODEFINITIVO, 'N') BLOQUEIODEFINITIVO
-                               ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
-                           FROM PCCLIENT
-                               ,PCCONSUM
-                          WHERE /*Deconsiderar cliente 1 para o processo*/
-                               PCCLIENT.CODCLI <> 1
-                                /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
-                           AND PCCLIENT.BLOQUEIOSEFAZ = 'N'
-                           AND (
-                                    (VBLOQDESBLOQCLIFORNEC = 'S') OR
-                                    (NOT EXISTS (SELECT 1
-                                                   FROM PCFORNEC
-                                                  WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
-                                                    AND PCFORNEC.REVENDA = 'S'))
-                                   )
-                           /*Buscar todos os clientes principais*/
-                           AND EXISTS (SELECT 1
-                                             FROM PCCLIENT CF
-                                            WHERE CF.CODCLIPRINC = PCCLIENT.CODCLI
-                                              AND CF.CODCLI <> PCCLIENT.CODCLI
-                               )
-                           /*Não replicar bloqueio por inatividade*/
-                           AND (PCCLIENT.OBS IS NULL OR (PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' AND PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO'))
+      /*Bloqueando clientes da Familia*/
+      FOR REGISTRO IN (SELECT PCCLIENT.CODCLI
+                             ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
+                             ,PCCLIENT.OBS
+                             ,PCCLIENT.LIMCRED
+                             ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
+                             ,NVL(PCCLIENT.BLOQUEIODEFINITIVO, 'N') BLOQUEIODEFINITIVO
+                             ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
+                         FROM PCCLIENT
+                             ,PCCONSUM
+                        WHERE /*Deconsiderar cliente 1 para o processo*/
+                             PCCLIENT.CODCLI <> 1
+                              /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
+                         AND PCCLIENT.BLOQUEIOSEFAZ = 'N'
+                         AND ((VBLOQDESBLOQCLIFORNEC = 'S') OR
+                              (NOT EXISTS (SELECT 1
+                                           FROM PCFORNEC
+                                           WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
+                                             AND PCFORNEC.REVENDA = 'S')))
+                         /*Buscar todos os clientes principais*/
+                         AND EXISTS (SELECT 1
+                                     FROM PCCLIENT CF
+                                     WHERE CF.CODCLIPRINC = PCCLIENT.CODCLI
+                                       AND CF.CODCLI <> PCCLIENT.CODCLI)
+                         /*Não replicar bloqueio por inatividade*/
+                         AND (PCCLIENT.OBS IS NULL OR (PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' AND PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO'))
                       )
-     LOOP
-       IF (REGISTRO.BLOQUEIO = 'S') THEN
-           V_MOTIVOBLOQUEIO := ' Cliente foi bloqueado pois o parâmetro 2845 - Bloquear clientes vinculados ao cliente principal, estava marcado como "Sim",
+      LOOP
+        IF (REGISTRO.BLOQUEIO = 'S') THEN
+          V_MOTIVOBLOQUEIO := ' Cliente foi bloqueado pois o parâmetro 2845 - Bloquear clientes vinculados ao cliente principal, estava marcado como "Sim",
                                 com isso como o cliente principal(código :'||REGISTRO.CODCLI||') foi bloqueado por, ' || REGISTRO.OBS || ', portanto todos os vinculados foram bloqueados. ';
-           VSCRIPT := 'UPDATE PCCLIENT                                ' ||
-                      '   SET DTBLOQ   = TRUNC(SYSDATE)               ' ||
-                      '     , BLOQUEIO = ''S''                        ' ||
-                      '     , MOTIVOBLOQ = '''|| V_MOTIVOBLOQUEIO||
-                      '''     , OBS = ''' || REGISTRO.OBS || '''        ';
+          VSCRIPT := 'UPDATE PCCLIENT                                ' ||
+                     '   SET DTBLOQ   = TRUNC(SYSDATE)               ' ||
+                     '     , BLOQUEIO = ''S''                        ' ||
+                     '     , MOTIVOBLOQ = '''|| V_MOTIVOBLOQUEIO||
+                     '''     , OBS = ''' || REGISTRO.OBS || '''        ';
 
-           IF (REGISTRO.BLOQUEIODEFINITIVO = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , BLOQUEIODEFINITIVO = ''S'' ';
-           END IF;
+          IF (REGISTRO.BLOQUEIODEFINITIVO = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , BLOQUEIODEFINITIVO = ''S'' ';
+          END IF;
 
-           IF (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , BLOQUEIOSEFAZ = ''S'' ';
-           END IF;
+          IF (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , BLOQUEIOSEFAZ = ''S'' ';
+          END IF;
+          /*Zera Limite Crédito*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , LIMCRED = 0';
+          END IF;
+          /*Volta Limite Crédito Inicial*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
+            VSCRIPT := VSCRIPT || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
+          END IF;
 
-           /*Zera Limite Crédito*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , LIMCRED = 0';
-           END IF;
-           /*Volta Limite Crédito Inicial*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
-             VSCRIPT := VSCRIPT || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
-           END IF;
+          VSCRIPT := VSCRIPT || ' WHERE CODCLI = :CODCLI                      ' ||
+                     '   AND NVL(BLOQUEIODEFINITIVO, ''N'') = ''N''';
 
-           VSCRIPT := VSCRIPT ||
-                      ' WHERE CODCLI = :CODCLI                      ' ||
-                      '   AND NVL(BLOQUEIODEFINITIVO, ''N'') = ''N''';
-
-         /*Faz loop para gravar log para os clientes da família*/
-         FOR FAMILIA IN (SELECT PCCLIENT.CODCLI
-                               ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
-                               ,PCCLIENT.OBS
-                               ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
-                               ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
-                               /*Armazenando Limite de Crédito Atual*/
-                               , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPEDANT
-                               , PCCLIENT.LIMCRED VLIMCREDANT
-                               , PCCLIENT.BLOQUEIO VBLOQUEIOANT
-                               , PCCLIENT.DTREGLIM VDTREGLIMANT
-                               , PCCLIENT.DTVENCLIMCRED VDTVENCLIMANT
-                               , SUBSTR(PCCLIENT.OBS, 1, 20) VOBSANT
-                               , PCCLIENT.PRAZOADICIONAL VPRAZOANT
-                               , CODCOB VCODCOBANT
-                               , PCCLIENT.CODPLPAG VCODPLPAGANT
-                           FROM PCCLIENT
-                               ,PCCONSUM
-                          WHERE /*Deconsiderar cliente 1 para o processo*/
-                               PCCLIENT.CODCLI <> 1
-                                /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
-                               AND (
-                                    (VBLOQDESBLOQCLIFORNEC = 'S') OR
-                                    (NOT EXISTS (SELECT 1
-                                                   FROM PCFORNEC
-                                                  WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
-                                                    AND PCFORNEC.REVENDA = 'S'))
-                                   )
-                               /*Buscar todos os clientes filhos*/
-                               AND PCCLIENT.CODCLIPRINC = REGISTRO.CODCLI
-                               AND PCCLIENT.CODCLIPRINC <> PCCLIENT.CODCLI
-                      )
-         LOOP
-           EXECUTE IMMEDIATE VSCRIPT
-             USING FAMILIA.CODCLI;
-		   commit;	 
+          /*Faz loop para gravar log para os clientes da família*/
+          FOR FAMILIA IN (SELECT PCCLIENT.CODCLI
+                                ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
+                                ,PCCLIENT.OBS
+                                ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
+                                ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
+                                /*Armazenando Limite de Crédito Atual*/
+                                , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPEDANT
+                                , PCCLIENT.LIMCRED VLIMCREDANT
+                                , PCCLIENT.BLOQUEIO VBLOQUEIOANT
+                                , PCCLIENT.DTREGLIM VDTREGLIMANT
+                                , PCCLIENT.DTVENCLIMCRED VDTVENCLIMANT
+                                , SUBSTR(PCCLIENT.OBS, 1, 20) VOBSANT
+                                , PCCLIENT.PRAZOADICIONAL VPRAZOANT
+                                , CODCOB VCODCOBANT
+                                , PCCLIENT.CODPLPAG VCODPLPAGANT
+                            FROM PCCLIENT
+                                ,PCCONSUM
+                           WHERE /*Deconsiderar cliente 1 para o processo*/
+                                PCCLIENT.CODCLI <> 1
+                                 /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
+                             AND ((VBLOQDESBLOQCLIFORNEC = 'S') OR
+                                  (NOT EXISTS (SELECT 1
+                                               FROM PCFORNEC
+                                               WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
+                                                 AND PCFORNEC.REVENDA = 'S')))
+                                 /*Buscar todos os clientes filhos*/
+                             AND PCCLIENT.CODCLIPRINC = REGISTRO.CODCLI
+                             AND PCCLIENT.CODCLIPRINC <> PCCLIENT.CODCLI
+                         )
+          LOOP
+            EXECUTE IMMEDIATE VSCRIPT
+              USING FAMILIA.CODCLI;
+            COMMIT;
 
             P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
-                                  , PUSUARIO
-                                  , '504'
-                                  , SUBSTR('BLOQ. AUTOMATICO FAMILIA - REF CODCLIPRINC: ' || REGISTRO.CODCLIPRINC, 1, 60)
-                                  , FAMILIA.VLIMCREDANT
-                                  , FAMILIA.VBLOQUEIOANT
-                                  , FAMILIA.VDTREGLIMANT
-                                  , FAMILIA.VDTVENCLIMANT
-                                  , FAMILIA.VOBSANT
-                                  , FAMILIA.VPRAZOANT
-                                  , FAMILIA.VCODCOBANT
-                                  , FAMILIA.VCODPLPAGANT
-                                  );
-         END LOOP; /*Fim do Processo de loop dos clientes vinculados ao cliente principal */
-       END IF; /*Fim do processo REGISTRO.BLOQUEIO = 'S' */
-     END LOOP;/*Fim Processo de loop Bloqueando clientes da Familia */
-     END IF; /*Fim do processo VBLOQCODCLIPRINC = 'S' */
+                                   , PUSUARIO
+                                   , '504'
+                                   , SUBSTR('BLOQ. AUTOMATICO FAMILIA - REF CODCLIPRINC: ' || REGISTRO.CODCLIPRINC, 1, 60)
+                                   , FAMILIA.VLIMCREDANT
+                                   , FAMILIA.VBLOQUEIOANT
+                                   , FAMILIA.VDTREGLIMANT
+                                   , FAMILIA.VDTVENCLIMANT
+                                   , FAMILIA.VOBSANT
+                                   , FAMILIA.VPRAZOANT
+                                   , FAMILIA.VCODCOBANT
+                                   , FAMILIA.VCODPLPAGANT
+                                   );
+          END LOOP; /*Fim do Processo de loop dos clientes vinculados ao cliente principal */
+        END IF; /*Fim do processo REGISTRO.BLOQUEIO = 'S' */
+      END LOOP;/*Fim Processo de loop Bloqueando clientes da Familia */
+    END IF; /*Fim do processo VBLOQCODCLIPRINC = 'S' */
 
-
-     IF (VBLOQTODOSCLIREDE = 'S') THEN
-    /*Bloqueando clientes da Familia*/
-        FOR REGISTRO IN (SELECT PCCLIENT.CODCLI
-                               ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
-                               ,PCCLIENT.OBS
-                               ,PCCLIENT.LIMCRED
-                               ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
-                               ,NVL(PCCLIENT.BLOQUEIODEFINITIVO, 'N') BLOQUEIODEFINITIVO
-                               ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
-                           FROM PCCLIENT
-                               ,PCCONSUM
-                          WHERE /*Deconsiderar cliente 1 para o processo*/
-                               PCCLIENT.CODCLI <> 1
-                                /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
-                           AND PCCLIENT.BLOQUEIOSEFAZ = 'N'
-                           AND (
-                                    (VBLOQDESBLOQCLIFORNEC = 'S') OR
-                                    (NOT EXISTS (SELECT 1
-                                                   FROM PCFORNEC
-                                                  WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
-                                                    AND PCFORNEC.REVENDA = 'S'))
-                                   )
-                           /*Verifica se existe REDE pelo Cliente Principal*/
-                           AND EXISTS (SELECT 1
-                                         FROM PCCLIENT CF
-                                        WHERE CF.CODCLIPRINC = DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC)
-                               )
+    IF (VBLOQTODOSCLIREDE = 'S') THEN
+      /*Bloqueando clientes da Familia*/
+      FOR REGISTRO IN (SELECT PCCLIENT.CODCLI
+                             ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
+                             ,PCCLIENT.OBS
+                             ,PCCLIENT.LIMCRED
+                             ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
+                             ,NVL(PCCLIENT.BLOQUEIODEFINITIVO, 'N') BLOQUEIODEFINITIVO
+                             ,DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
+                         FROM PCCLIENT
+                             ,PCCONSUM
+                        WHERE /*Deconsiderar cliente 1 para o processo*/
+                             PCCLIENT.CODCLI <> 1
+                              /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
+                          AND PCCLIENT.BLOQUEIOSEFAZ = 'N'
+                          AND ((VBLOQDESBLOQCLIFORNEC = 'S') OR
+                               (NOT EXISTS (SELECT 1
+                                            FROM PCFORNEC
+                                            WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
+                                              AND PCFORNEC.REVENDA = 'S')))
+                          /*Verifica se existe REDE pelo Cliente Principal*/
+                          AND EXISTS (SELECT 1
+                                        FROM PCCLIENT CF
+                                       WHERE CF.CODCLIPRINC = DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC))
                           /*Não replicar bloqueio por inatividade*/
                           AND (PCCLIENT.OBS IS NULL OR (PCCLIENT.OBS NOT LIKE 'BLOQ. AUT. POR % DIAS INATIVO' AND PCCLIENT.OBS NOT LIKE 'SOMENTE VENDAS EM DINHEIRO'))
                       )
-     LOOP
-       IF (REGISTRO.BLOQUEIO = 'S') THEN
+      LOOP
+        IF (REGISTRO.BLOQUEIO = 'S') THEN
+          VSCRIPT := 'UPDATE PCCLIENT                                ' ||
+                     '   SET DTBLOQ   = TRUNC(SYSDATE)               ' ||
+                     '     , BLOQUEIO = ''S''                        ' ||
+                     '     , OBS = ''' || REGISTRO.OBS || '''        ';
 
-           VSCRIPT := 'UPDATE PCCLIENT                                ' ||
-                      '   SET DTBLOQ   = TRUNC(SYSDATE)               ' ||
-                      '     , BLOQUEIO = ''S''                        ' ||
-                      '     , OBS = ''' || REGISTRO.OBS || '''        ';
+          IF (REGISTRO.BLOQUEIODEFINITIVO = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , BLOQUEIODEFINITIVO = ''S'' ';
+          END IF;
 
-           IF (REGISTRO.BLOQUEIODEFINITIVO = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , BLOQUEIODEFINITIVO = ''S'' ';
-           END IF;
+          IF (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , BLOQUEIOSEFAZ = ''S'' ';
+          END IF;
+          /*Zera Limite Crédito*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
+            VSCRIPT := VSCRIPT || '     , LIMCRED = 0';
+          END IF;
+          /*Volta Limite Crédito Inicial*/
+          IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
+            VSCRIPT := VSCRIPT || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
+          END IF;
 
-           IF (REGISTRO.BLOQUEIOSEFAZPED = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , BLOQUEIOSEFAZ = ''S'' ';
-           END IF;
+          VSCRIPT := VSCRIPT ||
+                     ' WHERE CODCLI = :CODCLI                      ' ||
+                     '   AND NVL(BLOQUEIODEFINITIVO, ''N'') = ''N''';
 
-           /*Zera Limite Crédito*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'S') THEN
-             VSCRIPT := VSCRIPT || '     , LIMCRED = 0';
-           END IF;
-           /*Volta Limite Crédito Inicial*/
-           IF (VS_ZERALIMCREDAUTOMATICO = 'I') THEN
-             VSCRIPT := VSCRIPT || '     , LIMCRED = DECODE (TIPOFJ, ''F'', '|| VLIMCREDINICIALPF || ', '|| VLIMCREDINICIAL || ')';
-           END IF;
-
-           VSCRIPT := VSCRIPT ||
-                      ' WHERE CODCLI = :CODCLI                      ' ||
-                      '   AND NVL(BLOQUEIODEFINITIVO, ''N'') = ''N''';
-
-         /*Faz loop para gravar log para os clientes da família*/
-         FOR FAMILIA IN (SELECT PCCLIENT.CODCLI
+          /*Faz loop para gravar log para os clientes da família*/
+          FOR FAMILIA IN (SELECT PCCLIENT.CODCLI
                                ,NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
                                ,PCCLIENT.OBS
                                ,NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
@@ -4187,79 +4116,80 @@ BEGIN
                           WHERE /*Deconsiderar cliente 1 para o processo*/
                                PCCLIENT.CODCLI <> 1
                                 /*De acordo com o parametro exibir clientes que tem vinculo com fornecedores*/
-                               AND (
-                                    (VBLOQDESBLOQCLIFORNEC = 'S') OR
-                                    (NOT EXISTS (SELECT 1
-                                                   FROM PCFORNEC
-                                                  WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
-                                                    AND PCFORNEC.REVENDA = 'S'))
-                                   )
+                            AND ((VBLOQDESBLOQCLIFORNEC = 'S') OR
+                                 (NOT EXISTS (SELECT 1
+                                              FROM PCFORNEC
+                                              WHERE PCFORNEC.CODCLI = PCCLIENT.CODCLI
+                                                AND PCFORNEC.REVENDA = 'S')))
                                /*Buscar todos os clientes filhos*/
-                               AND PCCLIENT.CODCLIPRINC = REGISTRO.CODCLIPRINC
-                               AND PCCLIENT.CODCLI <> REGISTRO.CODCLI
-                      )
-         LOOP
-           EXECUTE IMMEDIATE VSCRIPT
-             USING FAMILIA.CODCLI;
-		   commit;
+                            AND PCCLIENT.CODCLIPRINC = REGISTRO.CODCLIPRINC
+                            AND PCCLIENT.CODCLI <> REGISTRO.CODCLI
+                        )
+          LOOP
+            EXECUTE IMMEDIATE VSCRIPT
+                    USING FAMILIA.CODCLI;
+            COMMIT;
 
-           IF INSTR(VCODIGOINSERIDO, TO_CHAR(FAMILIA.CODCLI) || ';') = 0 THEN
-            P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(FAMILIA.CODCLI)
-                                  , PUSUARIO
-                                  , '504'
+            IF INSTR(VCODIGOINSERIDO, TO_CHAR(FAMILIA.CODCLI) || ';') = 0 THEN
+              P_PC_GRAVARLOGBLOQAUTOM(TO_CHAR(FAMILIA.CODCLI)
+                                    , PUSUARIO
+                                    , '504'
                                     , SUBSTR('BLOQ. ORIGINADO CLIENTE ' || FAMILIA.CODCLI || ' (CODCLIPRINC=' || REGISTRO.CODCLIPRINC || ')', 1, 60)
-                                  , FAMILIA.VLIMCREDANT
-                                  , FAMILIA.VBLOQUEIOANT
-                                  , FAMILIA.VDTREGLIMANT
-                                  , FAMILIA.VDTVENCLIMANT
-                                  , FAMILIA.VOBSANT
-                                  , FAMILIA.VPRAZOANT
-                                  , FAMILIA.VCODCOBANT
-                                  , FAMILIA.VCODPLPAGANT
-                                  );
+                                    , FAMILIA.VLIMCREDANT
+                                    , FAMILIA.VBLOQUEIOANT
+                                    , FAMILIA.VDTREGLIMANT
+                                    , FAMILIA.VDTVENCLIMANT
+                                    , FAMILIA.VOBSANT
+                                    , FAMILIA.VPRAZOANT
+                                    , FAMILIA.VCODCOBANT
+                                    , FAMILIA.VCODPLPAGANT
+                                    );
 
-             IF VCODIGOINSERIDO IS NULL THEN
-               VCODIGOINSERIDO := TO_CHAR(FAMILIA.CODCLI) || ';';
-             ELSE
-               VCODIGOINSERIDO := VCODIGOINSERIDO || TO_CHAR(FAMILIA.CODCLI) || ';';
-             END IF;
-           END IF;
-         END LOOP; /*Fim do Processo de loop dos clientes vinculados ao cliente principal */
-       END IF; /*Fim do processo REGISTRO.BLOQUEIO = 'S' */
-     END LOOP;/*Fim Processo de loop Bloqueando clientes da Familia Independente se é ou não o Cliente Principal*/
-     END IF; /*Fim do processo VBLOQTODOSCLIREDE = 'S' */
-
+              IF VCODIGOINSERIDO IS NULL THEN
+                VCODIGOINSERIDO := TO_CHAR(FAMILIA.CODCLI) || ';';
+              ELSE
+                VCODIGOINSERIDO := VCODIGOINSERIDO || TO_CHAR(FAMILIA.CODCLI) || ';';
+              END IF;
+            END IF;
+            
+            IF LENGTH(VCODIGOINSERIDO) > 32400 THEN
+              RAISE_APPLICATION_ERROR(-20001, 'QUANTIDADE DE CLIENTE VINCULADO AO CLIENTE PRINCIPAL ULTRAPASSA CAPACIDADE DO BANCO DE DADOS. FUNÇÃO P_PC_BLOQUEARCLIENTE.');
+            END IF;
+          END LOOP; /*Fim do Processo de loop dos clientes vinculados ao cliente principal */
+        END IF; /*Fim do processo REGISTRO.BLOQUEIO = 'S' */
+      END LOOP;/*Fim Processo de loop Bloqueando clientes da Familia Independente se é ou não o Cliente Principal*/
+    END IF; /*Fim do processo VBLOQTODOSCLIREDE = 'S' */
 
     /*Alterando Cobrança do cliente em atraso*/
     IF (VMUDACOBCLIENTE = 'S') AND (VMUDACOBCLIENTEDIAS > 0) THEN
       /*Faz loop para gerar mensagem, alterar cobrança e gerar log de alteração*/
-       FOR CLIENTE IN (SELECT PCCLIENT.CODCLI
-                            , PCCLIENT.CLIENTE
-                            , PCCLIENT.CODUSUR1
-                            , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
-                            , PCCLIENT.OBS
-                            , NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
-                            , DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
-                            /*Armazenando Limite de Crédito Atual*/
-                            , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPEDANT
-                            , PCCLIENT.LIMCRED VLIMCREDANT
-                            , PCCLIENT.BLOQUEIO VBLOQUEIOANT
-                            , PCCLIENT.DTREGLIM VDTREGLIMANT
-                            , PCCLIENT.DTVENCLIMCRED VDTVENCLIMANT
-                            , SUBSTR(PCCLIENT.OBS, 1, 20) VOBSANT
-                            , PCCLIENT.PRAZOADICIONAL VPRAZOANT
-                            , CODCOB VCODCOBANT
-                            , PCCLIENT.CODPLPAG VCODPLPAGANT
-                         FROM PCCLIENT
-                        WHERE PCCLIENT.CODCOB = 'BK'
-                          AND PCCLIENT.CODUSUR1 IS NOT NULL
-                          AND PCCLIENT.CODCLI IN (SELECT CODCLI
-                                                    FROM PCPREST
-                                                        ,PCCOB
-                                                   WHERE DTPAG IS NULL
-                                                     AND PCCOB.CODCOB = PCPREST.CODCOB
-                                                     AND (TRUNC(SYSDATE) - TRUNC(DTVENC) + NVL(PCCOB.DIASCARENCIA, 0)) > VMUDACOBCLIENTEDIAS)
-                        )
+      FOR CLIENTE IN (SELECT PCCLIENT.CODCLI
+                           , PCCLIENT.CLIENTE
+                           , PCCLIENT.CODUSUR1
+                           , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPED
+                           , PCCLIENT.OBS
+                           , NVL(PCCLIENT.BLOQUEIO, 'N') BLOQUEIO
+                           , DECODE(NVL(PCCLIENT.CODCLIPRINC, 0), 0, PCCLIENT.CODCLI, PCCLIENT.CODCLIPRINC) CODCLIPRINC
+                           /*Armazenando Limite de Crédito Atual*/
+                           , NVL(PCCLIENT.BLOQUEIOSEFAZPED,'N') BLOQUEIOSEFAZPEDANT
+                           , PCCLIENT.LIMCRED VLIMCREDANT
+                           , PCCLIENT.BLOQUEIO VBLOQUEIOANT
+                           , PCCLIENT.DTREGLIM VDTREGLIMANT
+                           , PCCLIENT.DTVENCLIMCRED VDTVENCLIMANT
+                           , SUBSTR(PCCLIENT.OBS, 1, 20) VOBSANT
+                           , PCCLIENT.PRAZOADICIONAL VPRAZOANT
+                           , CODCOB VCODCOBANT
+                           , PCCLIENT.CODPLPAG VCODPLPAGANT
+                        FROM PCCLIENT
+                       WHERE PCCLIENT.CODCOB = 'BK'
+                         AND PCCLIENT.CODUSUR1 IS NOT NULL
+                         AND PCCLIENT.CODCLI IN (SELECT CODCLI
+                                                   FROM PCPREST
+                                                       ,PCCOB
+                                                  WHERE DTPAG IS NULL
+                                                    AND PCCOB.CODCOB = PCPREST.CODCOB
+                                                    AND (TRUNC(SYSDATE) - TRUNC(DTVENC) + NVL(PCCOB.DIASCARENCIA, 0)) > VMUDACOBCLIENTEDIAS)
+                     )
       LOOP
         /*Gerando PCMENS*/
         INSERT INTO PCMENS (CODUSUR
@@ -4269,21 +4199,20 @@ BEGIN
                           , MENS3
                           , MENS4
                           , ENVIADO)
-                    VALUES (
-                           CLIENTE.CODUSUR1
-                         , TRUNC(SYSDATE)
-                         , 'TRANSFERIDO DE BK P/ CH'
-                         , SUBSTR(TO_CHAR(CLIENTE.CODCLI) || '-' || CLIENTE.CLIENTE, 1, 60)
-                         , ' '
-                         , ' '
-                         , 'N');
-
+                    VALUES (CLIENTE.CODUSUR1
+                          , TRUNC(SYSDATE)
+                          , 'TRANSFERIDO DE BK P/ CH'
+                          , SUBSTR(TO_CHAR(CLIENTE.CODCLI) || '-' || CLIENTE.CLIENTE, 1, 60)
+                          , ' '
+                          , ' '
+                          , 'N');
         /*Aplicando Update*/
         UPDATE PCCLIENT
            SET CODCOB = 'CH'
          WHERE CODCOB = 'BK'
            AND CODCLI = CLIENTE.CODCLI;
-		commit;
+
+        COMMIT;
 
         P_PC_GRAVARLOGBLOQAUTOM( TO_CHAR(CLIENTE.CODCLI)
                                , PUSUARIO
@@ -4299,7 +4228,6 @@ BEGIN
                                , CLIENTE.VCODPLPAGANT
                                , 'TRANSFERIDO DE BK P/ CH'
                                );
-
       /*(FIM) LOOP CLIENTE*/
       END LOOP;
     /*(FIM)  IF VMUDACOBCLIENTE = 'S' THEN*/
@@ -4318,8 +4246,7 @@ BEGIN
                 ,'Final Bloqueia/Desbloqueia Clientes Automaticamente');
     /*Confirmando a Transação*/
     COMMIT;
-
-  /*Fim    IF PCODCLI IS NOT NULL THEN */
+  /*Fim IF PCODCLI IS NOT NULL THEN */
   END IF;
 END P_PC_BLOQUEARCLIENTE;
 
@@ -4416,7 +4343,6 @@ BEGIN
 
 END P_PC_GRAVARLOGBLOQAUTOM;
 
-
 PROCEDURE GERAR_PCFINANC(PCODFILIAL VARCHAR2, PCODROTINA NUMBER, PCODFUNC NUMBER, PDATAPROCESSADA  DATE) IS
 VSALDOCPMANUAL NUMBER(20, 4);
 V_COUNT  NUMBER(5);
@@ -4440,7 +4366,6 @@ BEGIN
     IF VCOUNT > 20 THEN
       raise_application_error(-20001,'Foram gerados registros de '||to_char(VCOUNT)||' dias, apartir da data '||to_char(TRUNC(VDATATESTADA))||'.');
     END IF;
-  
   END IF;
 
   /*Apagando registros gerados pela rotina 117*/
@@ -5338,7 +5263,6 @@ BEGIN
 
 END GERAR_PCFINANC2;
 
-
 procedure PCFINANC2_GRAVAR( PDATA DATE
                           , PCODFILIAL VARCHAR2
                           , PTIPODADO VARCHAR2
@@ -5378,7 +5302,6 @@ begin
              , NVL(PLISTAFILIAIS,PCODFILIAL));
 end PCFINANC2_GRAVAR;
 
-
 PROCEDURE ATUALIZARSALDOSFINANCEIROS (
   PCODFILIAL                VARCHAR2,
   PCODROTINA                NUMBER,
@@ -5402,7 +5325,6 @@ PROCEDURE ATUALIZARSALDOSFINANCEIROS (
   ) IS
     PRAGMA AUTONOMOUS_TRANSACTION;
   BEGIN
-
       /*Cursor com filiais para execução*/
       FOR FILIAIS IN (
           SELECT
@@ -5440,7 +5362,6 @@ PROCEDURE ATUALIZARSALDOSFINANCEIROS (
             INTO VDATAPROCESSADA
             FROM
               PCCONSUM;
-
           END IF;
 
           IF VCOUNT <= 0 THEN
@@ -5486,13 +5407,9 @@ PROCEDURE ATUALIZARSALDOSFINANCEIROS (
           END IF;
 
           COMMIT;-- AUTONOMOUS_TRANSACTION
-
       END LOOP;
-
   END UPDATES_FILIAIS;
-
 BEGIN
-
     /*Caso filial seja vazia ou 99 realizar para todas filiais */
     VCODFILIAL := ( CASE
         WHEN TRIM(PCODFILIAL) IS NULL THEN
@@ -5520,9 +5437,7 @@ BEGIN
           PCPARAMFILIAL.VALOR = TO_CHAR(VDATAPROCESSADA, 'DD/MM/YYYY')
         WHERE
           NOME = 'CON_DTPROCESSAMENTO';
-
     END IF;
-
 END ATUALIZARSALDOSFINANCEIROS;
 
 /*Chamadas sem código filial para compatibilidade com 504 e outros processos que não usam 820*/
