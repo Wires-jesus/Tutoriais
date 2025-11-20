@@ -1,4 +1,4 @@
-create or replace package body ATUALIZACAO_DIARIA is
+CREATE OR REPLACE PACKAGE BODY ATUALIZACAO_DIARIA IS
 
   function FC_RETORNA_VERSAO return varchar2 is
     VERSAO varchar2(20) := '';
