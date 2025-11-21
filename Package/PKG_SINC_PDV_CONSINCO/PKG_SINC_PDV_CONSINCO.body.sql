@@ -1106,7 +1106,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      S.idref = B.idref,
                      S.MEDICAMENTO = B.estoqueporlote,
 					 S.VENDAFRACAO = B.VENDAFRACAO,
-					 S.CHECAPESOETIQUETA = S.checapesoetiqueta 
+					 S.CHECAPESOETIQUETA = B.checapesoetiqueta 
 		WHERE NVL(S.familia, '-') <> NVL(B.familia, '-')
            OR NVL(S.permitedecimal, '-') <> NVL(B.permitedecimal, '-')
            OR NVL(S.permitemultiplicacao, '-') <> NVL(B.permitemultiplicacao, '-')
