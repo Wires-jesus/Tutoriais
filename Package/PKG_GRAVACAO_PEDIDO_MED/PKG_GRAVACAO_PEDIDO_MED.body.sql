@@ -239,8 +239,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   BEGIN 
     IF (NVL(pi_nCodRotina,0) = 2336) THEN
       IF (NVL(F_USA_REGRA_PERMISSAO,'N') = 'S') THEN
-        vbRetIgnorarControleAcesso := (F_REGRA_MEDICAMENTOS('99',
-                                                            'IGNORARPERMISSOESACESSO2336') = 'S');
+        vbRetIgnorarControleAcesso := NVL(F_REGRA_MEDICAMENTOS('99', 'IGNORARPERMISSOESACESSO2336') = 'S', FALSE);
       ELSE
         vbRetIgnorarControleAcesso := FALSE;
       END IF;
@@ -527,16 +526,29 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         pi_nMatricula IN NUMBER) RETURN VARCHAR2 IS
     vvRetAcao VARCHAR2(1);
   BEGIN
-    BEGIN
-      SELECT 'A'
-        INTO vvRetAcao
-        FROM PCPERMISSAOLIBPEDIDOMED
-       WHERE (MATRICULA = pi_nMatricula)
-         AND (CODMOTIVO = pi_nCodMotivo);
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        vvRetAcao := 'I';
-    END;
+    IF pi_nCodMotivo = 3 THEN
+      BEGIN
+        SELECT 'I'
+          INTO vvRetAcao
+          FROM PCPERMISSAOLIBPEDIDOMED
+        WHERE (MATRICULA = pi_nMatricula)
+          AND (CODMOTIVO = pi_nCodMotivo);
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vvRetAcao := 'A';
+      END;
+    ELSE
+      BEGIN
+        SELECT 'A'
+          INTO vvRetAcao
+          FROM PCPERMISSAOLIBPEDIDOMED
+        WHERE (MATRICULA = pi_nMatricula)
+          AND (CODMOTIVO = pi_nCodMotivo);
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          vvRetAcao := 'I';
+      END;
+    END IF;
     RETURN vvRetAcao;
   END F_OBTER_ACAO_CONFORME_ACESSO;  
 
