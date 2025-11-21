@@ -4989,6 +4989,7 @@ create or replace package body FISCAL is
                                          WHERE M.NUMTRANSENT = E.NUMTRANSENT
                                            AND M.NUMNOTA = E.NUMNOTA
                                            AND COALESCE(M.CODFILIALNF, M.CODFILIAL) = PCODFILIAL
+                                           AND CASE WHEN E.ROTINACAD LIKE '%1301%' THEN NVL(E.CODCONTFOR,E.CODCONT) ELSE E.CODCONT END = E.CODCONT
                                            AND M.NUMTRANSITEM = MC.NUMTRANSITEM)
                         ELSE 0
                    END = 0
@@ -5027,6 +5028,7 @@ create or replace package body FISCAL is
                                          WHERE M.NUMTRANSENT = E.NUMTRANSENT
                                            AND M.NUMNOTA = E.NUMNOTA
                                            AND COALESCE(M.CODFILIALNF, M.CODFILIAL) = PCODFILIAL
+                                           AND CASE WHEN E.ROTINACAD LIKE '%1301%' THEN NVL(E.CODCONTFOR,E.CODCONT) ELSE E.CODCONT END = E.CODCONT
                                            AND M.NUMTRANSITEM = MC.NUMTRANSITEM)
                         ELSE 0
                    END = 0;
