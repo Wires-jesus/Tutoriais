@@ -77,6 +77,10 @@
             "nome": "PCCLIENT",
             "tipo": "TABELA",
             "versao": "7.0.03.000"
+        },{
+            "nome": "PCCSTTRIBUTACAOIBSCBS",
+            "tipo": "TABELA",
+            "versao": "8.0.02.000"
         } 
     ]
 }
