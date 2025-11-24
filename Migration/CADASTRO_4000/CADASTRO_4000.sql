@@ -2,7 +2,6 @@ DECLARE
   vTemRotinaTabela integer := 0;
   v_DeleteBaseCBSIBS_Antigo   varchar2(4000);  
 BEGIN
-
   
   SELECT COUNT(1)
     INTO vTemRotinaTabela
@@ -65,7 +64,7 @@ BEGIN
     v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IBS_' || i || '''';
   END LOOP;
   
-  FOR i IN 2..15 LOOP
+  FOR i IN 3..15 LOOP
     v_DeleteBaseCBSIBS_Antigo := v_DeleteBaseCBSIBS_Antigo || ',''' || 'BASE_IS_' || i || '''';
   END LOOP;  
 
@@ -74,7 +73,6 @@ BEGIN
   EXECUTE IMMEDIATE v_DeleteBaseCBSIBS_Antigo;
 
   COMMIT;  
-    
 
   -----------------------------------------------------------------
   -- O código 29 representava o cadastro da base do CBS que foi unificado no codigo 28
@@ -118,7 +116,28 @@ BEGIN
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || ',0)',
      28,
      SYSDATE);
-     
+---------------------------------------------------------------	 
+  INSERT INTO PCFORMULA
+    (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
+  VALUES
+    ('BASE_CBSIBS_2',
+     'Base sobre calculo (VlProduto + Is e Impostos)',
+     'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
+                 || '&' || 'VLFRETE' || '&' || '+' 
+                 || '&' || 'VLSEGURO' || '&' || '+' 
+                 || '&' || 'VLOUTROS' || '&' || '+' 
+                 || '&' || 'VLIS' || '&' || '+' 
+                 || '&' || 'VLVII' || '&' || '-' 
+                 || '&' || 'VLDESCONTO' || '&' || '-' 
+                 || '&' || 'VLPIS' || '&' || '-' 
+                 || '&' || 'VLCOFINS' || '&' || '-' 
+                 || '&' || 'VLICMS' || '&' || '-' 
+                 || '&' || 'VLICMSUFDEST' || '&' || '-' 
+                 || '&' || 'VLFCP' || '&' || '-' 
+                 || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
+     28,
+     SYSDATE);
+---------------------------------------------------------------
   INSERT INTO PCFORMULA
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
@@ -127,7 +146,27 @@ BEGIN
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || ',0)',
      32,
      SYSDATE);
-
+---------------------------------------------------------------
+  INSERT INTO PCFORMULA
+    (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
+  VALUES
+    ('BASE_IS_2',
+     'Base sobre calculo (VlProduto e Impostos)',
+     'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
+                 || '&' || 'VLFRETE' || '&' || '+' 
+                 || '&' || 'VLSEGURO' || '&' || '+' 
+                 || '&' || 'VLOUTROS' || '&' || '+' 
+                 || '&' || 'VLVII' || '&' || '-' 
+                 || '&' || 'VLDESCONTO' || '&' || '-' 
+                 || '&' || 'VLPIS' || '&' || '-' 
+                 || '&' || 'VLCOFINS' || '&' || '-' 
+                 || '&' || 'VLICMS' || '&' || '-' 
+                 || '&' || 'VLICMSUFDEST' || '&' || '-' 
+                 || '&' || 'VLFCP' || '&' || '-' 
+                 || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
+     32,
+     SYSDATE);	 
+---------------------------------------------------------------
   COMMIT;     
-  
+---------------------------------------------------------------
 END;
