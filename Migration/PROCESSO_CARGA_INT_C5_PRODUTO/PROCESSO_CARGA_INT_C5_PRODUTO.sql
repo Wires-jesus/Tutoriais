@@ -747,13 +747,9 @@ CREATE OR REPLACE VIEW VW_INT_C5_PROMOCOES_VIGENTES AS
    FROM PCPRECOPROM R,
         PCEMBALAGEM E,
         VW_INT_C5_OBTER_FILIAIS_C5 c5,
-        (select min(s.ultimaexecucao) ultimaexecucao
-        from pccontroleconsinco s
-        where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTIVO')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAINCENTPERIODO')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAEMPRESA')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRASEGMENTO')
-           or (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_REGRAPRODUTO')
+        (select s.ultimaexecucao
+         from pccontroleconsinco s
+         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECO')
         ) DTPADRAO
    WHERE R.FRENTECX = 'S' 
    AND E.CODPROD = R.CODPROD
@@ -764,7 +760,7 @@ CREATE OR REPLACE VIEW VW_INT_C5_PROMOCOES_VIGENTES AS
    AND R.DTFIMVIGENCIA IS NOT NULL
    AND R.CODFILIAL = c5.CODFILIAL
    AND TRUNC(SYSDATE) BETWEEN R.DTINICIOVIGENCIA AND R.DTFIMVIGENCIA
-   AND NVL(R.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO    
+   AND NVL(R.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO -10/24/60   
 
 UNION ALL
 
