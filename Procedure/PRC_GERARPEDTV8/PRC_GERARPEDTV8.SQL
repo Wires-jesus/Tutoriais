@@ -381,6 +381,7 @@ BEGIN
                            , PCPEDC.NUMITENS
                            , PCPEDC.TOTPESO
                            , PCPEDC.TOTVOLUME
+                           , PCPEDC.VLOUTRASDESP
                         FROM PCPEDC
                        WHERE PCPEDC.NUMPED = PNUMPED)
         LOOP --Atualizando os dados conforme o pedido original
@@ -389,6 +390,7 @@ BEGIN
                , PCPEDC.NUMITENS   = DADOS.NUMITENS
                , PCPEDC.TOTPESO    = DADOS.TOTPESO
                , PCPEDC.TOTVOLUME  = DADOS.TOTVOLUME
+               , PCPEDC.VLOUTRASDESP = DADOS.VLOUTRASDESP
            WHERE PCPEDC.NUMPED     = VNPROXNUMPED;
         END LOOP;
       END IF;
