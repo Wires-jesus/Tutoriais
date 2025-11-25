@@ -3389,9 +3389,9 @@ IS PRAGMA SERIALLY_REUSABLE;
 		   , PCFORNEC                  FRC
 		WHERE (RCM.CODROTA            = RCC.CODROTA(+))
           AND (RCC.CODROTA            = RCI_O.CODROTA(+))
-          AND (RCI_O.ORDEM            = 1)        
+          AND (RCI_O.ORDEM            = RCM.ORDEM)        
           AND (RCC.CODROTA            = RCI_D.CODROTA(+))
-          AND (RCI_D.ORDEM            = 2)
+          AND (RCI_D.ORDEM            = RCM.ORDEM + 1)
 		  AND (RCM.CODPROD            = PRO.CODPROD(+))
 		  AND (PRO.CODMARCA           = MAR.CODMARCA(+))  
 		  AND (RCM.CODPROD            = EST.CODPROD(+))
