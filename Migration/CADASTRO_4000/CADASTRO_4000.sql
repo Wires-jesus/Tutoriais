@@ -121,7 +121,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_CBSIBS_2',
-     'Base sobre calculo (VlProduto + Is e Impostos)',
+     'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
@@ -151,7 +151,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_IS_2',
-     'Base sobre calculo (VlProduto e Impostos)',
+     'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
@@ -166,6 +166,16 @@ BEGIN
                  || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
      32,
      SYSDATE);	 
+---------------------------------------------------------------
+  UPDATE PCFORMULA F SET F.DESCRICAO = 'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).'
+   WHERE F.CODTIPOFORMULA = 32 
+     AND F.DESCRICAO  = 'Base sobre o calculo (VlProduto + Impostos)'
+     AND F.CODFORMULA = 'BASE_IS_2';
+---------------------------------------------------------------
+  UPDATE PCFORMULA F SET F.DESCRICAO = 'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).'
+   WHERE F.CODTIPOFORMULA = 28 
+     AND F.DESCRICAO = 'Base sobre calculo o (VlProduto + Is e Impostos)'
+     AND F.CODFORMULA = 'BASE_CBSIBS_2';	 
 ---------------------------------------------------------------
   COMMIT;     
 ---------------------------------------------------------------
