@@ -167,16 +167,6 @@ BEGIN
      32,
      SYSDATE);	 
 ---------------------------------------------------------------
-  UPDATE PCFORMULA F SET F.DESCRICAO = 'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).'
-   WHERE F.CODTIPOFORMULA = 32 
-     AND F.DESCRICAO  = 'Base sobre o calculo (VlProduto + Impostos)'
-     AND F.CODFORMULA = 'BASE_IS_2';
----------------------------------------------------------------
-  UPDATE PCFORMULA F SET F.DESCRICAO = 'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).'
-   WHERE F.CODTIPOFORMULA = 28 
-     AND F.DESCRICAO = 'Base sobre calculo o (VlProduto + Is e Impostos)'
-     AND F.CODFORMULA = 'BASE_CBSIBS_2';	 
----------------------------------------------------------------
   COMMIT;     
 ---------------------------------------------------------------
 END;
