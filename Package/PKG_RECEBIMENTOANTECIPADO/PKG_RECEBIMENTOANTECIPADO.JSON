@@ -1,11 +1,28 @@
-{
-    "nome": "PKG_RECEBIMENTOANTECIPADO",
-    "tipoPLSQL": "PACKAGE",
-    "dependencias": [
-        {
-            "nome": "PCPRESTANTECIPADA",
-            "tipo": "TABELA",
-            "versao": "8.0.02.000"
-        }
-    ]
-}
+{"nome":"PKG_RECEBIMENTOANTECIPADO",
+ "tipoPLSQL":"PACKAGE",
+ "dependencias":[
+    {"nome":"PCPRESTANTECIPADA",
+      "tipo":"TABELA",
+      "versao":"8.0.02.000"
+    }, 
+    {"nome":"PCRECLI",
+      "tipo":"TABELA",
+      "versao":"7.0.04.000"
+    },
+    {"nome":"PCMOVCR",
+      "tipo":"TABELA",
+      "versao":"8.0.02.0000"
+    },
+    {"nome":"PCORCAVENDAC",
+      "tipo":"TABELA",
+      "versao":"7.0.02.000"
+    },
+    {"nome":"PCPEDC",
+      "tipo":"TABELA",
+      "versao":"7.0.02.000"
+    },
+    {"nome":"PCCOB",
+      "tipo":"TABELA",
+      "versao":"7.0.02.000"
+    }
+ ]}
