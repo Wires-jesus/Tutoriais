@@ -121,7 +121,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_CBSIBS_2',
-     'Base sobre calculo (VlProduto + Is e Impostos)',
+     'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
@@ -151,7 +151,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_IS_2',
-     'Base sobre calculo (VlProduto e Impostos)',
+     'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
