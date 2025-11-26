@@ -6787,7 +6787,8 @@ BEGIN
              DTAINICIALVALIDADE,
              DTAFINALVALIDADE,
              TOTALPONTOS,
-             ATIVO
+             ATIVO,
+             SEQIMPOSTO
            FROM VW_INT_C5_CCTCENARIO) S
     ON (T.SEQCENARIO = S.SEQCENARIO)
   WHEN MATCHED THEN
@@ -6812,7 +6813,8 @@ BEGIN
           T.DTAINICIALVALIDADE,
           T.DTAFINALVALIDADE,
           T.PONTOSBUSCA,
-          T.ATIVO) 
+          T.ATIVO,
+          T.SEQIMPOSTO) 
         VALUES(
           S.SEQCENARIO,
           S.DESCRICAO,
@@ -6820,7 +6822,8 @@ BEGIN
           S.DTAINICIALVALIDADE,
           S.DTAFINALVALIDADE,
           S.TOTALPONTOS,
-          S.ATIVO);
+          S.ATIVO,
+          S.SEQIMPOSTO);
     
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenario', 'carrega_tb_cctcenario OK', SYSDATE, CURRENT_TIMESTAMP);
