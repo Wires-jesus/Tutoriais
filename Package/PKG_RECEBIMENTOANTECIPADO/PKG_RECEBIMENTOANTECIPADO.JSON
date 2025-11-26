@@ -5,13 +5,13 @@
       "tipo":"TABELA",
       "versao":"8.0.02.000"
     }, 
-    {"nome":"PCRECLI",
+    {"nome":"PCCRECLI",
       "tipo":"TABELA",
       "versao":"7.0.04.000"
     },
     {"nome":"PCMOVCR",
       "tipo":"TABELA",
-      "versao":"8.0.02.0000"
+      "versao":"8.0.02.000"
     },
     {"nome":"PCORCAVENDAC",
       "tipo":"TABELA",
