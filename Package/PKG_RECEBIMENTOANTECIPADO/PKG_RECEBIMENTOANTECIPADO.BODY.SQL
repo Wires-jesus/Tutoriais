@@ -266,7 +266,7 @@ IS
                    SET MATRICULAESTORNO     = PMATRICULA,
                        DTESTORNO            = SYSDATE,
                        NUMTRANSESTORNO      = VNUMTRANSPAGADIANTADO,
-                       STATUSPGTO           = 'CANCELADO'
+                       STATUSPGTO           = 'ESTORNADO'
                  WHERE NUMTRANSPAGADIANTADO = DADOS.NUMTRANSPAGADIANTADO;
                  
                 UPDATE PCCRECLI
