@@ -7,12 +7,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
-            N.NUMPED,            
+            N.NUMPED,
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
-            M.NUMSEQ,            
+            M.NUMSEQ,
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -24,17 +24,46 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             MC.VLFECP,
             M.VLOUTROS,
             M.BASEICMS,
-            M.PERCBASERED
+            M.PERCBASERED, 
+            M.VLSEGURO,
+            M.VLDESCONTO, 
+            0 VLVII, 
+            M.VLPIS, 
+            M.VLCOFINS
+            -- VLICMS             
+            ,CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 
+                  ELSE CASE WHEN (M.CODOPER = 'SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') 
+                                  AND PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') 
+                  THEN 0
+             ELSE
+                  (ROUND(ROUND( (DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
+                                          AND (NVL(PD.ROTINA,'X') = 'PCMED316') THEN 'S'
+                                          ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                            NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2)) 
+                  -
+                  (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
+                                               AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                                              ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                            NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                          (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
+                END
+            END AS VLICMS,            
+            MC.VLICMSPARTDEST AS VLICMSUFDEST,
+            MC.VLFCPPART AS VLFCP
        from PCNFSAID       N,
             PCMOV          M,
-            PCMOVCOMPLE    MC
+            PCMOVCOMPLE    MC,
+            PCPEDC         PD, 
+            PCCLIENT       C 
       where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
         and N.NUMTRANSVENDA = P_NUMEROTRANSACAO
         and N.NUMNOTA       = P_NUMERONOTA
-        and N.CODFILIAL     = M.CODFILIAL
+        and NVL(N.CODFILIALNF, N.CODFILIAL) = NVL(M.CODFILIALNF,M.CODFILIAL)
         and N.NUMTRANSVENDA = M.NUMTRANSVENDA
         and N.NUMNOTA       = M.NUMNOTA
         and M.NUMTRANSITEM  = MC.NUMTRANSITEM
+        and PD.NUMTRANSVENDA(+) = N.NUMTRANSVENDA
+        AND C.CODCLI = NVL(N.CODCLINF, N.CODCLI)
         and M.CODOPER <> 'SD'
         and NVL(N.FINALIDADENFE, 'X') <> 'C'
         and M.DTCANCEL is null
@@ -48,12 +77,12 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
-            N.NUMPED,            
+            N.NUMPED,
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
-            M.NUMSEQ,            
+            M.NUMSEQ,
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -65,7 +94,32 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             MC.VLFECP,
             M.VLOUTROS,
             M.BASEICMS,
-            M.PERCBASERED
+            M.PERCBASERED, 
+            M.VLSEGURO,
+            M.VLDESCONTO, 
+            0 VLVII, 
+            M.VLPIS, 
+            M.VLCOFINS,
+            -- VLICMS             
+            CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 
+                 ELSE CASE WHEN (M.CODOPER = 'SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') 
+                                 AND PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') 
+                 THEN 0
+            ELSE
+                 (ROUND(ROUND( (DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
+                                         AND (NVL(PD.ROTINA,'X') = 'PCMED316') THEN 'S'
+                                         ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2)) 
+                 -
+                 (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
+                                              AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                                             ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                         (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
+               END
+            END AS VLICMS,   
+            MC.VLICMSPARTDEST AS VLICMSUFDEST,
+            MC.VLFCPPART AS VLFCP    
       from PCNFSAIDPREFAT       N,
            PCMOVPREFAT          M,
            PCMOVCOMPLEPREFAT    MC,
@@ -93,19 +147,19 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and M.DTCANCEL is null
        and M.QTCONT > 0
    );
-   
+
   CURSOR C_DADOS_CTE_SAIDA(P_CODFILIAL IN VARCHAR2,
                            P_NUMEROTRANSACAO IN NUMBER,
                            P_NUMERONOTA IN NUMBER) IS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSVENDA NUMTRANSACAO,
-            N.NUMPED,            
+            N.NUMPED,
             N.CODCLI,
             NULL CODFORNEC,
             0 CODPROD,
             0 NUMTRANSITEM,
-            0 NUMSEQ,            
+            0 NUMSEQ,
             0 PERCICM,
             0 SITTRIBUT,
             0 CODFISCAL,
@@ -117,26 +171,34 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             0 VLFECP,
             0 VLOUTROS,
             0 BASEICMS,
-            0 PERCBASERED
+            0 PERCBASERED, 
+            0 VLSEGURO,
+            0 VLDESCONTO, 
+            0 VLVII, 
+            0 VLPIS, 
+            0 VLCOFINS,
+            0 VLICMS,
+            0 VLICMSUFDEST,
+            0 VLFCP            
        from PCNFSAID       N
       where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
         and N.ESPECIE IN ('CT', 'CO', 'CE')
         and N.NUMTRANSVENDA = P_NUMEROTRANSACAO
         and N.NUMNOTA       = P_NUMERONOTA
-    );   
-    
+    );
+
   CURSOR C_DADOS_NF_ENTRADA_DEVOLUCAO(P_CODFILIAL IN VARCHAR2,
-                                     P_NUMEROTRANSACAO IN NUMBER,
-                                     P_NUMERONOTA IN NUMBER) IS
+                                      P_NUMEROTRANSACAO IN NUMBER,
+                                      P_NUMERONOTA IN NUMBER) IS
     (SELECT NVL(N.CODFILIALNF,N.CODFILIAL) CODFILIAL,
             N.NUMNOTA,
             N.NUMTRANSENT NUMTRANSACAO,
-            NULL NUMPED,            
+            NULL NUMPED,
             NULL CODCLI,
             N.CODFORNEC,
             M.CODPROD,
             M.NUMTRANSITEM,
-            M.NUMSEQ,            
+            M.NUMSEQ,
             M.PERCICM,
             M.SITTRIBUT,
             M.CODFISCAL,
@@ -148,8 +210,34 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             MC.VLFECP,
             M.VLOUTROS,
             M.BASEICMS,
-            M.PERCBASERED
-      from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
+            M.PERCBASERED, 
+            M.VLSEGURO,
+            M.VLDESCONTO, 
+            0 VLVII, 
+            M.VLPIS, 
+            M.VLCOFINS,
+            -- VLICMS --
+            CASE WHEN ( NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', NVL(N.CODFILIALNF,N.CODFILIAL)),'N') = 'S') 
+                       AND (N.TIPODESCARGA = 'F') 
+                 THEN CASE WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', NVL(N.CODFILIALNF,N.CODFILIAL)),'N') = 'N' 
+                           THEN ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                               (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) -
+                               ROUND(ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                                    (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                                    (NVL(M.PERCDESCICMSDIF, NVL(MC.PERDIFEREIMENTOICMS,0)) / 100), 2)
+                      ELSE 0 END
+            ELSE ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                      (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) - 
+                 ROUND(ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                           (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                           (NVL(M.PERCDESCICMSDIF, NVL(MC.PERDIFEREIMENTOICMS,0)) / 100), 2)
+            END AS VALOR_ICMS,
+            MC.VLICMSPARTDEST AS VLICMSUFDEST,
+            MC.VLFCPPART AS VLFCP        
+      from PCNFENT N, 
+           PCMOV M, 
+           PCMOVCOMPLE MC, 
+           PCPRODUT P
      where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
        and N.NUMTRANSENT   = P_NUMEROTRANSACAO
        and N.NUMNOTA       = P_NUMERONOTA
@@ -162,9 +250,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and M.DTCANCEL is null
        and M.QTCONT > 0
    );
-   
-   
-   
+
   CURSOR C_DADOS_NF_ENTRADA_NORMAL(P_CODFILIAL IN VARCHAR2,
                                    P_NUMEROTRANSACAO IN NUMBER,
                                    P_NUMERONOTA IN NUMBER) IS
@@ -188,9 +274,36 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             MC.VLFECP,
             M.VLOUTROS,
             M.BASEICMS,
-            M.PERCBASERED
-      from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
+            M.PERCBASERED,
+            M.VLSEGURO,
+            M.VLDESCONTO, 
+            0 VLVII, 
+            M.VLPIS, 
+            M.VLCOFINS,
+            -- VLICMS --
+            CASE WHEN ( NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('UTILIZAPRECOPERSNFIMP', NVL(N.CODFILIALNF,N.CODFILIAL)),'N') = 'S') 
+                       AND (N.TIPODESCARGA = 'F') 
+                 THEN CASE WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOPERSNFIMP_ICMS', NVL(N.CODFILIALNF,N.CODFILIAL)),'N') = 'N' 
+                           THEN ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                               (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) -
+                               ROUND(ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                                    (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                                    (NVL(M.PERCDESCICMSDIF, NVL(MC.PERDIFEREIMENTOICMS,0)) / 100), 2)
+                      ELSE 0 END
+            ELSE ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                      (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) - 
+                 ROUND(ROUND(ROUND((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE,0) + NVL(MC.VLBASEOUTROS,0)), 2) *
+                           (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                           (NVL(M.PERCDESCICMSDIF, NVL(MC.PERDIFEREIMENTOICMS,0)) / 100), 2)
+            END AS VALOR_ICMS,
+            MC.VLICMSPARTDEST AS VLICMSUFDEST,
+            MC.VLFCPPART AS VLFCP
+      from PCNFENT N, 
+           PCMOV M, 
+           PCMOVCOMPLE MC, 
+           PCPRODUT P
      where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
+       and NVL(M.CODFILIALNF,M.CODFILIAL) = P_CODFILIAL    
        and N.NUMTRANSENT   = P_NUMEROTRANSACAO
        and N.NUMNOTA       = P_NUMERONOTA
        and N.NUMTRANSENT   = M.NUMTRANSENT
@@ -201,9 +314,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
        and N.TIPODESCARGA not in ('6', '8', 'F', 'N','P', 'C', 'T')
        and M.DTCANCEL is null
        and M.QTCONT > 0
-   );  
-   
-
+   );
 
   CURSOR C_DADOS_PEDIDO(P_CODFILIAL IN VARCHAR2,
                         P_NUMPED IN NUMBER) IS
@@ -227,15 +338,21 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             PI.VLFECP,
             PI.VLOUTROS,
             NULL BASEICMS,
-            PI.PERCBASERED
-      from PCPEDC C, 
+            PI.PERCBASERED, 
+            0 VLSEGURO,
+            0 VLDESCONTO, 
+            0 VLVII, 
+            0 VLPIS, 
+            0 VLCOFINS,
+            0 VLICMS,
+            PI.VLICMSPARTDEST AS VLICMSUFDEST,
+            PI.VLFCPPART AS VLFCP    
+      from PCPEDC C,
            PCPEDI PI
      where C.CODFILIAL = P_CODFILIAL
        and C.NUMPED    = P_NUMPED
        and C.NUMPED    = PI.NUMPED
        AND C.CODFILIAL = C.CODFILIAL
-   );       
-        
-   
+   );
 
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
