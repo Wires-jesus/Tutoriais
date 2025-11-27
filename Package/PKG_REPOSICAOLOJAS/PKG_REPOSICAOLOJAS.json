@@ -6,6 +6,16 @@
 			"nome": "PARAMETRO",
 			"tipo": "PARAMETRO",
 			"versao": "4.0.38.000"
-		}
+		},
+	    {
+		  "nome": "PCROTACOMPRAC",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+	    },
+	    {
+		  "nome": "PCROTACOMPRAI",
+		  "tipo": "TABELA",
+		  "versao": "7.0.01.000"
+	    }
 	]
 }
