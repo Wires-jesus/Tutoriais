@@ -988,13 +988,19 @@ CREATE OR REPLACE FUNCTION fnc_int_c5_codsuperv (pSeqUsuario IN NUMBER)
 IS
     vCodSupervisor NUMBER;
 BEGIN
+  BEGIN
     SELECT  NVL(c.codsupervisor,1)
       INTO  vCodSupervisor
       FROM  pcusuari c,
             pcempr r
      WHERE  r.codusur = c.codusur
        AND  r.matricula = pSeqUsuario;
-    RETURN(vCodSupervisor);
+  EXCEPTION
+    WHEN OTHERS THEN
+      vCodSupervisor := 1;
+  END;      
+  
+  RETURN(vCodSupervisor);
 END;
 
 \
