@@ -14,5 +14,5 @@
 	{"nome": "FNC_INT_C5_TOT_CUSTO","tipo": "OBJETO_PLSQL","versao": "6.0.01.000"},
 	{"nome": "VW_INT_C5_OBTER_FILIAIS_C5","tipo": "OBJETO_PLSQL","versao": "7.0.02.000"},
 	{"nome": "VW_INT_C5_NFESAT","tipo": "OBJETO_PLSQL","versao": "8.0.01.000"},
-	{"nome": "PROCESSO_INT_C5_DOC_UTILS", "tipo": "MIGRATION", "versao": "8.0.01.000"}
+	{"nome": "PROCESSO_INT_C5_DOC_UTILS", "tipo": "MIGRATION", "versao": "8.0.04.000"}
 ]}
