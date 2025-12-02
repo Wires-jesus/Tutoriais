@@ -6789,7 +6789,8 @@ BEGIN
              DTAFINALVALIDADE,
              TOTALPONTOS,
              ATIVO,
-             SEQIMPOSTO
+             SEQIMPOSTO,
+             IDREF
            FROM VW_INT_C5_CCTCENARIO) S
     ON (T.SEQCENARIO = S.SEQCENARIO)
   WHEN MATCHED THEN
@@ -6815,7 +6816,8 @@ BEGIN
           T.DTAFINALVALIDADE,
           T.PONTOSBUSCA,
           T.ATIVO,
-          T.SEQIMPOSTO) 
+          T.SEQIMPOSTO,
+          T.IDREF) 
         VALUES(
           S.SEQCENARIO,
           S.DESCRICAO,
@@ -6824,8 +6826,14 @@ BEGIN
           S.DTAFINALVALIDADE,
           S.TOTALPONTOS,
           S.ATIVO,
-          S.SEQIMPOSTO);
-    
+          S.SEQIMPOSTO,
+          S.IDREF);
+
+  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIO CCT
+     SET CCT.ATIVO = 'N'
+  WHERE CCT.ATIVO = 'S'
+    AND (SYSDATE > CCT.DTAFINALVALIDADE);
+
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenario', 'carrega_tb_cctcenario OK', SYSDATE, CURRENT_TIMESTAMP);
 
@@ -6954,7 +6962,7 @@ BEGIN
        S.PONTOSBUSCA,
        S.ATIVO
     );
-  
+
   UPDATE MONITORPDVMIDDLE.TB_CCTCENARIO C
   SET PONTOSBUSCA = (SELECT SUM(PONTOSBUSCA) FROM MONITORPDVMIDDLE.tb_cctcenariocondicao CC WHERE CC.SEQCENARIO = C.SEQCENARIO AND CC.SEQCONDICAO IN (1, 3, 8) AND CC.PONTOSBUSCA <> 1);
 
