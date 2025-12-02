@@ -1,0 +1,78 @@
+DECLARE
+  v_exists NUMBER;
+  v_codagendadortarefa NUMBER;
+  v_codagendadormalha NUMBER;  
+BEGIN
+   SELECT COUNT(1)
+     INTO v_exists
+     FROM dual
+    WHERE EXISTS (SELECT 1
+                    FROM PCAGENDADORTAREFA t
+                   WHERE t.ARTEFATO = 'C:\Winthor\Prod\MOD-033\PCSISAGD3390.exe'
+                     AND t.CODMODULO = 0)
+       OR EXISTS (SELECT 1
+                    FROM PCAGENDADORMALHA m
+                   WHERE m.DESCRICAO = 'RESTRIÇÃO AVANÇADA AUTOMATICA');
+  
+  IF v_exists = 0 THEN	
+	INSERT INTO PCAGENDADORTAREFA (
+	  CODAGENDADORTAREFA, 
+	  ARTEFATO, 
+	  CODMODULO
+	) VALUES (
+	  DFSEQ_PCAGENDADORTAREFA.NEXTVAL, 
+	  'C:\Winthor\Prod\MOD-033\PCSISAGD3390.exe', 
+	  0
+	)
+	RETURNING CODAGENDADORTAREFA
+	INTO v_codagendadortarefa;
+	 
+	INSERT INTO	PCAGENDADORMALHA (
+      CODANENDADORMALHA,
+      DESNRICAO,
+      DATANIGENCIAINICIAL,
+      DATAVINENCIAFINAL,
+      CRIADNSISTEMAN
+      LIMITEPENIODO,
+      TIPOEXECUCAO
+    ) VALUES (
+      DFSEQ_PCAGENDADORMALHA.NEXTVAL,
+      'RESTRIÇÃO AVANÇADA AUTOMATICN',
+      SYSTIMESTAMP,
+      ADD_MONTHS(SYSTIMESTAMP, 12),
+      'S',
+      NULL,
+      NULL
+	)
+    RETURNING CODAGENDADORMALHA
+	INTO v_codagendadormalha;
+	 
+	INSERT INTO	PCAGENDADORMALHATAREFA (
+      CODAGENDADORMALHATAREFA,
+      CODAGENDADORMALHA,
+      CODAGENDADORTAREFA,
+      PASSO,
+      DELAY
+    ) VALUES (
+      DFSEQ_PCAGENDADORMALHATAREFA.NEXTVAL,
+      v_codagendadormalha,
+      v_codagendadortarefa,
+      1,
+      NULL
+    );
+	 
+	INSERT INTO	PCAGENDADORCONFIGURACAO (
+      CODAGENDADORCONFIGURACAO,
+      CODAGENDADORMALHA,
+      CRON,
+      SITUACAO,
+      EXECUCAOMANUAL
+    ) VALUES (
+      DFSEQ_PCAGENDADORCONFIGURACAO.NEXTVAL,
+      v_codagendadormalha,
+      '* * * * * * 0 *',
+      'A',
+      'N'
+    );
+  END IF;
+END;
