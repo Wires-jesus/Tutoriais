@@ -1,0 +1,76 @@
+{
+  "nome": "INSERT_AGENDADOR_RESTRICAOAVANCADA",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias":[
+  {
+    "nome": "PCAGENDADORTAREFA",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+  },
+  {
+    "nome": "PCAGENDADORMALHA",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+  },
+  {
+    "nome": "PCAGENDADORMALHATAREFA",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+  },
+  {
+    "nome": "PCAGENDADORCONFIGURACAO",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+  },
+  {
+    "nome": "PCAGENDADOREXECUCAO",
+    "tipo": "TABELA",
+    "versao": "7.0.01.000"
+  },
+  {
+    "nome": "PCRESTRICAOAVANCADACONFIG",
+    "tipo": "TABELA",
+    "versao": "8.0.01.000"
+  },
+  {
+    "nome": "PCRESTRICAOAVANCADA",
+    "tipo": "TABELA",
+    "versao": "7.0.03.000"
+  },
+  {
+    "nome": "PCRESTRICAOAVANCADACONDICAO",
+    "tipo": "TABELA",
+    "versao": "7.0.02.000"
+  },
+  {
+    "nome": "PCRESTRICAOAVANCADAREGRA",
+    "tipo": "TABELA",
+    "versao": "7.0.02.000"
+  },
+  {
+    "nome": "PCRESTRICAOAVANCADAEXCECAO",
+    "tipo": "TABELA",
+    "versao": "7.0.03.000"
+  },
+  {
+    "nome": "PCPEDCFV",
+    "tipo": "TABELA",
+    "versao": "8.0.01.000"
+  },
+  {
+    "nome": "PCPEDIFV",
+    "tipo": "TABELA",
+    "versao": "8.0.01.000"
+  },
+  {
+    "nome": "PARAMETRO",
+    "tipo": "PARAMETRO",
+    "versao": "8.0.25.000"
+  },
+  {
+    "nome": "INTEGRADORA_MED",
+    "tipo": "OBJETO_PLSQL",
+    "versao": "8.0.05.000"
+  }
+  ]
+}
