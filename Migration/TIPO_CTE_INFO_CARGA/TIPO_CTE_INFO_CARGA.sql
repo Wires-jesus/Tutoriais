@@ -34,7 +34,7 @@ CREATE OR REPLACE TYPE TIPO_CTE_INFO_CARGA AS OBJECT
      QTDTOTALPRODCARGA                     VARCHAR2(60),
      PONTOFUGORCARGA                       VARCHAR2(6),
      CNPJFORNEC                            VARCHAR2(18),
-     NUMCOMPROVANTE                        NUMBER(10),
+     NUMCOMPROVANTE                        NUMBER(20),
      CNPJRESPONSAVEL                       VARCHAR2(18),
      RESPSEGURO                            NUMBER(1),
      NOMESEGURADORA                        VARCHAR2(30),
