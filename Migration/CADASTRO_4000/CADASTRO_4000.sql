@@ -45,6 +45,30 @@ BEGIN
   UPDATE PCDICIONARIO 
      SET DESCRICAO = 'Tributos'
   WHERE NOMEOBJETO = 'PCTRIBUTACAO';  
+    
+
+  UPDATE PCTRIBUTACAO
+     SET TIPO_PESSOA        = NULL,
+         ORIGEM_MERCADORIA  = NULL,
+         TIPO_MERC          = NULL;
+
+  DELETE 
+    FROM PCDICIONARIOITEM 
+   WHERE NOMEOBJETO = 'PCTRIBUTACAO' 
+     AND NOMECAMPO IN ('LOCAL_CONSUMO','TIPO_EMPRESA','TIPO_PESSOA','CONTRIBUINTE','ORGAO_PUBLICO','ALIQUOTA',
+                       'ORIGEM_MERCADORIA','TIPO_MERC','STATUS','VALOR_ALIQUOTA','DTCRIACAO','DTULTALTER',
+                       'DTINATIVACAO','DTEXCLUSAO','DTALTERC5','TIPO_DOCUMENTO','CONSUMIDOR_FINAL');
+                       
+  DELETE 
+    FROM PCDICIONARIOITEMROT 
+   WHERE NOMEOBJETO = 'PCTRIBUTACAO' 
+     AND NOMECAMPO IN ('LOCAL_CONSUMO','TIPO_EMPRESA','TIPO_PESSOA','CONTRIBUINTE','ORGAO_PUBLICO','ALIQUOTA',
+                       'ORIGEM_MERCADORIA','TIPO_MERC','STATUS','VALOR_ALIQUOTA','DTCRIACAO','DTULTALTER',
+                       'DTINATIVACAO','DTEXCLUSAO','DTALTERC5','TIPO_DOCUMENTO','CONSUMIDOR_FINAL');                       
+
+  DELETE 
+    FROM PCDICIONARIOITEMROTCUST 
+   WHERE NOMEOBJETO = 'PCTRIBUTACAO';   
   
   COMMIT;
   
@@ -116,7 +140,7 @@ BEGIN
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || ',0)',
      28,
      SYSDATE);
----------------------------------------------------------------	 
+---------------------------------------------------------------   
   INSERT INTO PCFORMULA
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
@@ -165,7 +189,7 @@ BEGIN
                  || '&' || 'VLFCP' || '&' || '-' 
                  || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
      32,
-     SYSDATE);	 
+     SYSDATE);   
 ---------------------------------------------------------------
   COMMIT;     
 ---------------------------------------------------------------
