@@ -1,4 +1,5 @@
-﻿CREATE OR REPLACE PROCEDURE WMS_GRAVAR_SALDO_ESTOQUE_ATUAL IS                    
+CREATE OR REPLACE PROCEDURE WMS_GRAVAR_SALDO_ESTOQUE_ATUAL IS                    
+  VEXISTE   number;
 BEGIN                                                                            
   FOR DADOS IN (SELECT CODFILIAL,                                                
                        TRUNC(SYSDATE) DATA,                                      
@@ -16,6 +17,19 @@ BEGIN
                    AND PCESTENDERECO.CODENDERECO = PCESTENDERECOI.CODENDERECO(+) 
                    AND PCESTENDERECO.CODPROD = PCESTENDERECOI.CODPROD(+)         
                  ORDER BY PCESTENDERECO.CODENDERECO, PCESTENDERECO.CODPROD) LOOP 
+				 
+	SELECT COUNT(*) INTO VEXISTE
+      FROM PCMOVEND
+     WHERE CODFILIAL = DADOS.CODFILIAL
+       AND TRUNC(DATA) = DADOS.DATA
+       AND CODPROD = DADOS.CODPROD
+       AND CODROTINA = '1700'
+       and NVL(numlote, '1') = NVL(DADOS.NUMLOTE,'1')
+       AND CODENDERECO = DADOS.CODENDERECO
+       AND CODOPER = 'T';
+
+  IF VEXISTE = 0 THEN
+	
     INSERT INTO PCMOVEND                                                         
       (CODFILIAL,                                                                
        DATA,                                                                     
@@ -43,5 +57,6 @@ BEGIN
        DADOS.CODENDERECO,                                                        
        0);                                                                       
     COMMIT;                                                                      
+	END IF;
   END LOOP;                                                                      
 END;                                                                             
