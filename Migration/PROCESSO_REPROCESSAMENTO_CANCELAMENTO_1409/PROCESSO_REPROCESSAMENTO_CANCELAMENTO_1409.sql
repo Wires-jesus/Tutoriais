@@ -193,6 +193,8 @@ BEGIN
            ,DTPAG = NULL
            ,VPAGO = NULL
         WHERE NUMTRANSVENDA = DADOS.NUMTRANSVENDA;  
+		
+		COMMIT;
       END IF;
       
       UPDATE PCNFSAID SET
