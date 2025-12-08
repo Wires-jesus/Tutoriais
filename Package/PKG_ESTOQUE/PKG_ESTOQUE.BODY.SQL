@@ -12869,20 +12869,45 @@ END IF;
     VSCODFILIAL_GERENCIAL PCPEDC.CODFILIAL%TYPE;
   BEGIN
     IF psOPERACAO = 'E' THEN
-      SELECT DISTINCT(DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
-                                                M.CODFILIALRETIRA,
-                                                M.CODFILIALNF),'V',
-                                                DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',M.CODFILIAL,'N')), 'S', M.CODFILIALNF, M.CODFILIAL), 'R',
-                                                DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',M.CODFILIAL,'N')), 'N', M.CODFILIAL, NVL(M.CODFILIALRETIRA, M.CODFILIAL)), M.CODFILIAL)) FILIAL_ESTOQUE
-          INTO VSCODFILIAL_GERENCIAL
-          FROM PCMOV M, PCNFENT E
-         WHERE M.CODPROD = pnCODPROD
-           AND M.NUMSEQ = pnNUMSEQ         
-           AND NVL(M.NUMTRANSENTORIGDESDLOTE, M.NUMTRANSENT) = E.NUMTRANSENT (+)                  
-           AND M.NUMTRANSENT = pnIDENTIFICADOR
-           AND M.DTCANCEL IS NULL
-           AND M.STATUS <> 'A'
-           AND (E.ESPECIE IS NULL OR E.ESPECIE NOT IN ('CT','CO','CF'));
+      SELECT DISTINCT
+           CASE VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
+                                          M.CODFILIALRETIRA,
+                                          M.CODFILIALNF)
+
+               WHEN 'V' THEN
+                    CASE 
+                        WHEN NVL(E.VOLTARESTOQUEFILIALVIRTUAL,
+                                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(
+                                     'VOLTARESTOQUEFILIALVIRTUAL',
+                                     M.CODFILIAL,
+                                     'N')) = 'S'
+                        THEN M.CODFILIALNF
+                        ELSE M.CODFILIAL
+                    END
+
+               WHEN 'R' THEN
+                    CASE 
+                        WHEN NVL(E.VOLTARESTOQUEFILIALRETIRA,
+                                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(
+                                     'VOLTARESTOQUEFILIALRETIRA',
+                                     M.CODFILIAL,
+                                     'N')) = 'N'
+                        THEN M.CODFILIAL
+                        ELSE NVL(M.CODFILIALRETIRA, M.CODFILIAL)
+                    END
+
+               ELSE M.CODFILIAL
+           END AS FILIAL_ESTOQUE
+      INTO VSCODFILIAL_GERENCIAL
+      FROM PCMOV M,
+           PCNFENT E
+      WHERE M.CODPROD = pnCODPROD
+       AND M.NUMSEQ  = pnNUMSEQ
+       AND NVL(M.NUMTRANSENTORIGDESDLOTE, M.NUMTRANSENT) = E.NUMTRANSENT
+       AND E.NUMTRANSENT = pnIDENTIFICADOR
+       AND M.DTCANCEL IS NULL
+       AND M.STATUS <> 'A'
+       AND E.ESPECIE NOT IN ('CT', 'CO', 'CF', 'OE');
     ELSE
       SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
                                               M.CODFILIALRETIRA,
