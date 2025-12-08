@@ -1,0 +1,11 @@
+{
+	"nome":"TRG_PCTRIBUTACAO_F_CFOP",
+	"tipoPLSQL":"TRIGGER",
+	"dependencias":[
+	{
+    "nome": "PCTRIBUTACAO_FILTRO_CFOP",
+    "tipo": "TABELA",
+    "versao": "8.0.01.000"
+    }    
+ ]
+}
