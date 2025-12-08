@@ -29766,6 +29766,10 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
     vsmensagemdividenfe VARCHAR2(1000);
     vbpedidodivididonfe BOOLEAN;
     
+    v_margem_minima_item     NUMBER;
+    v_margem_item            NUMBER;
+    v_mensagem_margem_minima VARCHAR2(1000);
+    
     ERRO_PROC_FINAL EXCEPTION;
     
     FUNCTION EXTRAIR_PROX_NUMPED(LISTA IN OUT T_NUMPED_PED%TYPE)
@@ -32167,7 +32171,44 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
                     -------------------------------------------------------------------------
                     -------------------------------------------------------------------------
 
+                    IF (NOT gvet_regpedido(i).condvenda IN (5, 10)) AND
+                       (((NVL(gvet_regpedido(i).tipofv, 'FV') IN ('OL', 'PE')) AND 
+                         (FOBTEM_PARAM_INTEGRADORA(gvet_regpedido(i).integradora, 'PERMITEINCLUIRABAIXOMARGEMMIN238', 'S') = 'N')) OR
+                        (NVL(gvet_regpedido(i).tipofv, 'FV') = 'FV')) AND
+                       (integradoracomple_med.F_OBTER_MARGEM_MINIMA_ITEM(gvet_regitem(j).codprod,
+                                                                         gvet_regpedido(i).codfilial,
+                                                                         v_margem_minima_item)) THEN
 
+                      v_margem_item := ROUND(integradoracomple_med.F_OBTER_MARGEM_LUCRO_ITEM(gvet_regitem(j).pvenda, gvet_regitem(j).vlcustofin), gregpcconsum.numcasasdecvenda);
+
+                      IF v_margem_item < v_margem_minima_item THEN
+
+                        gvet_regitem(j).valido := FALSE;
+                        gvet_regpedido(i).valido := FALSE;
+
+                        v_mensagem_margem_minima := 'Margem mínima de lucratividade do item não alcançada (Rotina 238). ';
+                        v_mensagem_margem_minima := v_mensagem_margem_minima || 'Margem mínima: ' || ROUND(v_margem_minima_item, gregpcconsum.numcasasdecvenda) || '%. ';
+                        v_mensagem_margem_minima := v_mensagem_margem_minima || 'Margem praticada: ' || ROUND(v_margem_item, gregpcconsum.numcasasdecvenda) || '%.';
+
+                        proc_registralog(gvet_regpedido(i).numped,
+                                         gvet_regpedido(i).numpedrca,
+                                         gvet_regitem(j).codprod,
+                                         gvet_regitem(j).codauxiliar,
+                                         gvet_regitem(j).cgccli,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         gvet_regpedido(i).codusur,
+                                         gvet_regitem(j).dtaberturapedpalm,
+                                         NULL,
+                                         '3',
+                                         v_mensagem_margem_minima,
+                                         NULL,
+                                         gvet_regitem(j).numseqifv);
+
+                      END IF;
+
+                    END IF;
 
                     if gvet_regitem(j).valido = true then
 
