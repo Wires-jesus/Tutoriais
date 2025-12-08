@@ -23,6 +23,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       --Filtros adicionais
       CODPROD           NUMBER(6),
       NCM               VARCHAR2(15),
+      CFOP              VARCHAR2(15),	  
       CONSUMIDOR_FINAL  VARCHAR2(1),
       TIPO_EMPRESA      VARCHAR2(4),
       TIPO_PESSOA       VARCHAR2(1),
