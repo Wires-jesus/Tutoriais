@@ -5,10 +5,10 @@ DECLARE
 BEGIN
    SELECT COUNT(1)
      INTO v_exists
-     FROM dual
+     FROM DUAL
     WHERE EXISTS (SELECT 1
                     FROM PCAGENDADORTAREFA t
-                   WHERE t.ARTEFATO = 'C:\Winthor\Prod\MOD-033\PCSISAGD3390.exe'
+                   WHERE t.ARTEFATO = 'C:\pcsist\produtos\agendador\apps\PCSISAGD3390.exe'
                      AND t.CODMODULO = 0)
        OR EXISTS (SELECT 1
                     FROM PCAGENDADORMALHA m
@@ -21,7 +21,7 @@ BEGIN
 	  CODMODULO
 	) VALUES (
 	  DFSEQ_PCAGENDADORTAREFA.NEXTVAL, 
-	  'C:\Winthor\Prod\MOD-033\PCSISAGD3390.exe', 
+	  'C:\pcsist\produtos\agendador\apps\PCSISAGD3390.exe', 
 	  0
 	)
 	RETURNING CODAGENDADORTAREFA
