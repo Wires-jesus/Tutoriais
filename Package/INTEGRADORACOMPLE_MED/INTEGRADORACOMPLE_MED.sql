@@ -769,4 +769,11 @@ IS PRAGMA SERIALLY_REUSABLE;
                                     P_NUM_PEDIDO          IN PCPEDC.NUMPED%TYPE DEFAULT NULL
                                     );
 
+  FUNCTION F_OBTER_MARGEM_MINIMA_ITEM(P_CODIGO_PRODUTO IN NUMBER,
+                                      P_CODIGO_FILIAL  IN VARCHAR2,
+                                      P_MARGEM_MINIMA  OUT NUMBER) RETURN BOOLEAN;
+
+  FUNCTION F_OBTER_MARGEM_LUCRO_ITEM(P_PRECO_VENDA            NUMBER,
+                                     P_VALOR_CUSTO_FINANCEIRO NUMBER) RETURN NUMBER;
+
 END INTEGRADORACOMPLE_MED;
