@@ -32173,7 +32173,7 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
 
                     IF (NOT gvet_regpedido(i).condvenda IN (5, 10)) AND
                        (((NVL(gvet_regpedido(i).tipofv, 'FV') IN ('OL', 'PE')) AND 
-                         (FOBTEM_PARAM_INTEGRADORA(gvet_regpedido(i).integradora, 'PERMITEINCLUIRABAIXOMARGEMMIN238', 'S') = 'N')) OR
+                         (FOBTEM_PARAM_INTEGRADORA(gvet_regpedido(i).integradora, 'PERMITEINCLUIRABAIXOMARGEMMIN238', 'N') = 'N')) OR
                         (NVL(gvet_regpedido(i).tipofv, 'FV') = 'FV')) AND
                        (integradoracomple_med.F_OBTER_MARGEM_MINIMA_ITEM(gvet_regitem(j).codprod,
                                                                          gvet_regpedido(i).codfilial,
