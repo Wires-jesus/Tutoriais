@@ -7424,7 +7424,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                
               vnpbase  := vncustonfsemst; 
     
-              vnVlFreteOutrasDespBaseSt   := 0; --> Nesta Regra não aplicará Frete e Outras Despesas
+              vnVlFreteOutrasDespBaseSt   := NVL(p_vlfreteoutrasdesp,0);
               vnVlFreteOutrasDespBaseIcms := 0;
               
                                                                                                                          -- Observação ST Fonte
