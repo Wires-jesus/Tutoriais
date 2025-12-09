@@ -8,7 +8,7 @@ BEGIN
     FROM dual
    WHERE EXISTS (SELECT 1
                    FROM PCAGENDADORTAREFA t
-                  WHERE t.ARTEFATO = 'C:\Winthor\Prod\MOD-014\PCSISAGD1430.exe'
+                  WHERE t.ARTEFATO = 'C:\pcsist\produtos\agendador\apps\PCSISAGD1430.exe'
                     AND t.CODMODULO = 0)
       OR EXISTS (SELECT 1
                    FROM PCAGENDADORMALHA m
@@ -21,7 +21,7 @@ BEGIN
 			PCAGENDADORTAREFA (CODAGENDADORTAREFA,
 			ARTEFATO,
 			CODMODULO)
-	VALUES(DFSEQ_PCAGENDADORTAREFA.NEXTVAL, 'C:\Winthor\Prod\MOD-014\PCSISAGD1430.exe', 0)
+	VALUES(DFSEQ_PCAGENDADORTAREFA.NEXTVAL, 'C:\pcsist\produtos\agendador\apps\PCSISAGD1430.exe', 0)
 		RETURNING CODAGENDADORTAREFA
 	INTO
 		v_codagendadortarefa;
@@ -71,6 +71,8 @@ BEGIN
 			'* * * * * * 0 *',
 			'A',
 			'N');
+  ELSE			  
+	UPDATE PCAGENDADORTAREFA SET ARTEFATO = 'C:\pcsist\produtos\agendador\apps\PCSISAGD1430.exe' WHERE ARTEFATO like '%C:\Winthor\Prod\MOD-014\PCSISAGD1430.exe%';   
   END IF;		
 
 END;
