@@ -216,6 +216,8 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   PROCEDURE carrega_tb_cctconfiguracao(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_cctaliquota(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE carrega_tb_cctcenarioitem(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_regiao(p_id IN pccontroleconsinco.id%TYPE);
 

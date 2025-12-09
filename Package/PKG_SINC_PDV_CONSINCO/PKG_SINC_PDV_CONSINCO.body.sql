@@ -7671,6 +7671,71 @@ BEGIN
   END;
 END;
 
+PROCEDURE carrega_tb_cctcenarioitem(p_id IN pccontroleconsinco.id%TYPE) AS
+BEGIN
+  MERGE INTO monitorpdvmiddle.tb_cctcenarioitem CC
+  USING (
+    SELECT 
+      *
+    FROM VW_INT_C5_CCTCENARIOITEM
+  ) S
+  ON (
+  	CC.SEQCENARIO = S.SEQCENARIO
+  	AND CC.PRODUTO = S.PRODUTO
+  	AND CC.NCM = S.NCM
+  	AND CC.FAMILIA = S.FAMILIA
+  	AND CC.CGO = S.CGO
+	AND CC.ORIGEM = S.ORIGEM
+	AND CC.DESTINO = S.DESTINO
+	AND CC.INDTIPOENTIDADEORIGEM = S.INDTIPOENTIDADEORIGEM
+	AND CC.INDTIPOENTIDADEDESTINO = S.INDTIPOENTIDADEDESTINO
+	AND CC.NBS = S.NBS
+  )
+  WHEN MATCHED THEN
+    UPDATE SET 
+      CC.IDREF = S.IDREF,
+      CC.ATIVO = S.ATIVO
+    WHERE NVL(CC.IDREF, -1) <> NVL(S.IDREF, -1)
+       OR NVL(CC.ATIVO, '-') <> NVL(S.ATIVO, '-')
+  WHEN NOT MATCHED THEN
+    INSERT (SEQCENARIO, PRODUTO, NCM, FAMILIA, CGO, ORIGEM, DESTINO, INDTIPOENTIDADEORIGEM, INDTIPOENTIDADEDESTINO, NBS, ATIVO, IDREF)
+    VALUES (S.SEQCENARIO, S.PRODUTO, S.NCM, S.FAMILIA, S.CGO, S.ORIGEM, S.DESTINO, S.INDTIPOENTIDADEORIGEM, S.INDTIPOENTIDADEDESTINO, S.NBS, S.ATIVO, S.IDREF);
+  
+  INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+  VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenarioitem', 'carrega_tb_cctcenarioitem OK', SYSDATE, CURRENT_TIMESTAMP);
+  COMMIT;
+  EXCEPTION
+    WHEN E_FK_VIOLATION THEN
+	  BEGIN
+	    PRC_RECORD_ALERTA(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenarioitem',
+           'carrega_tb_cctcenarioitem ALERTA',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+	  END;
+    WHEN OTHERS THEN
+    BEGIN
+        prc_record_error(p_id);
+        ROLLBACK;
+        INSERT INTO PCDEVLOGCONSINCO
+          (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
+        VALUES
+          ('pkg_sinc_PDV_Consinco',
+           'carrega_tb_cctcenarioitem',
+           'carrega_tb_cctcenarioitem ERRO',
+           SYSDATE,
+           CURRENT_TIMESTAMP);
+        COMMIT;
+        RAISE;
+  END;
+END;
+
 PROCEDURE exec_sinc AS
 
     CURSOR c_processo IS
