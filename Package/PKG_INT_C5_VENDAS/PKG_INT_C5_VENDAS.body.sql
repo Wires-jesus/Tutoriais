@@ -3,10 +3,11 @@ IS
     PROCEDURE inserir_pcfilamensagem (p_pcfilamensagem tr_dados_pcfilamensagem)
     IS
         dados_pcfilamensagem   tr_dados_pcfilamensagem;
-    VCONT NUMBER;
-    vTERMINAL VARCHAR2(100) ;
+		VCONT NUMBER;
+		vTERMINAL VARCHAR2(100) ;
     BEGIN
-      vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+		vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+		
         dados_pcfilamensagem.rowpcfilamensagem.idmensagem           := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
         dados_pcfilamensagem.rowpcfilamensagem.datatransacao        := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         dados_pcfilamensagem.rowpcfilamensagem.codfilial            := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -28,9 +29,8 @@ IS
         dados_pcfilamensagem.rowpcfilamensagem.pdvorigem            := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         dados_pcfilamensagem.rowpcfilamensagem.qtreprocessado       := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
         dados_pcfilamensagem.rowpcfilamensagem.seqdocto             := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
-    dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO        := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
-    dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
-        ----
+		dados_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO        := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
+		dados_pcfilamensagem.rowpcfilamensagem.TERMINAL             := vTERMINAL;
 
     BEGIN
       SELECT COUNT(1)
@@ -60,17 +60,18 @@ IS
                                           p_msg_erro       VARCHAR2)
     IS
         rowpcfilamensagemerro   pcfilamensagemerro%ROWTYPE;
-    VCONT NUMBER;
-    vTERMINAL VARCHAR2(100) ;
-    vIDMENSAGEM NUMBER;
+		VCONT NUMBER;
+		vTERMINAL VARCHAR2(100) ;
+		vIDMENSAGEM NUMBER;
         --PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         IF p_pcfilamensagem.rowpcfilamensagem.idmensagem is null THEN
-     vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
-    ELSE
-     vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
-    END IF;
-      vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
+			vIDMENSAGEM := dfseq_pcfilamensagem.NEXTVAL;
+		ELSE
+		 vIDMENSAGEM := p_pcfilamensagem.rowpcfilamensagem.idmensagem;
+		END IF;
+		
+		vTERMINAL := SUBSTR(SYS_CONTEXT('USERENV', 'TERMINAL'), 1, 99);
         rowpcfilamensagemerro.idmensagem            := vIDMENSAGEM;
         rowpcfilamensagemerro.datatransacao         := p_pcfilamensagem.rowpcfilamensagem.datatransacao;
         rowpcfilamensagemerro.codfilial             := p_pcfilamensagem.rowpcfilamensagem.codfilial;
@@ -91,10 +92,10 @@ IS
         rowpcfilamensagemerro.dataultimaalteracao   := p_pcfilamensagem.rowpcfilamensagem.dataultimaalteracao;
         rowpcfilamensagemerro.pdvorigem             := p_pcfilamensagem.rowpcfilamensagem.pdvorigem;
         rowpcfilamensagemerro.qtreprocessado        := p_pcfilamensagem.rowpcfilamensagem.qtreprocessado;
-    rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
-    rowpcfilamensagemerro.DATADOCUMENTO         := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
+		rowpcfilamensagemerro.seqdocto              := p_pcfilamensagem.rowpcfilamensagem.seqdocto;
+		rowpcfilamensagemerro.DATADOCUMENTO         := p_pcfilamensagem.rowpcfilamensagem.DATADOCUMENTO;
         rowpcfilamensagemerro.detalhe               := p_msg_erro;
-    rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
+		rowpcfilamensagemerro.TERMINAL              := vTERMINAL;
 
     BEGIN
       SELECT COUNT(1)
@@ -417,55 +418,55 @@ IS
                                        rowvw_pcpediecf.vlsubtotitem AS  "Vlsubtotitem" ,
                                        rowvw_pcpediecf.vlricmssimplesnac AS  "Vlricmssimplesnac" ,
                                        rowvw_pcpediecf.vpart AS  "Vpart",
-                     rowvw_pcpediecf.percipi as "Percipi",
-                     rowvw_pcpediecf.perfretecmv AS "Perfretecmv",
-                     rowvw_pcpediecf.vlbaseipi AS "Vlbaseipi",
-                     rowvw_pcpediecf.basedifaliquotas AS "Basedifaliquotas",
-                     rowvw_pcpediecf.percdifaliquotas AS "Percdifaliquotas",
-                     rowvw_pcpediecf.vldifaliquotas AS "Vldifaliquotas",
-                     rowvw_pcpediecf.vldescorgaopub AS "Vldescorgaopub",
-                     rowvw_pcpediecf.percipiecf AS "Percipiecf",
-                     rowvw_pcpediecf.baseipiecf AS "Baseipiecf",
-                     rowvw_pcpediecf.qtvendidavasilhame AS "Qtvendidavasilhame",
-                     rowvw_pcpediecf.vlacrescvasilhame AS "Vlacrescvasilhame",
-                     rowvw_pcpediecf.percicmssimplesnac AS "Percicmssimplesnac",
-                     rowvw_pcpediecf.vlbasepartdest AS "Vlbasepartdest",
-                     rowvw_pcpediecf.vlfcppart AS "Vlfcppart",
-                     rowvw_pcpediecf.vlicmspartdest AS "Vlicmspartdest",
-                     rowvw_pcpediecf.percprovpart AS "Percprovpart",
-                     rowvw_pcpediecf.vlicmspart AS "Vlicmspart",
-                     rowvw_pcpediecf.vlcredfcpicmssn AS "Vlcredfcpicmssn",
-                     rowvw_pcpediecf.vlfecp AS "Vlfecp",
-                     rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
-                     rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
-                     rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa"
-                     /*rowvw_pcpediecf.CODIGOTRIBUTACAOIS AS "Codigotributacaois",
-                     rowvw_pcpediecf.CSTIS AS "Cstis",
-                     rowvw_pcpediecf.CCLASSTRIBIS AS "Cclasstribis",
-                     rowvw_pcpediecf.VLBASEIS AS "Vlbaseis",
-                     rowvw_pcpediecf.ALIQIS AS "Aliqis",
-                     rowvw_pcpediecf.ALIQESPECIFICAIS AS "Aliqespecificais",
-                     rowvw_pcpediecf.UNIDADETRIB AS "Unidadetrib",
-                     rowvw_pcpediecf.Xml_qttrib AS "Xml_qttrib",
-                     rowvw_pcpediecf.VLIS AS "Vlis",
-                     rowvw_pcpediecf.CODIGOTRIBUTACAOCBSIBS AS "Codigotributacaocbsibs",
-                     rowvw_pcpediecf.CSTIBSCBS AS "Cstibscbs",
-                     rowvw_pcpediecf.CCLASSTRIBIBSCBS AS "Cclasstribibscbs",
-                     rowvw_pcpediecf.VLBASEIBSCBS AS "Vlbaseibscbs",
-                     rowvw_pcpediecf.IBSUF AS "Ibsuf",
-                     rowvw_pcpediecf.PDIFIBSUF AS "Pdifibsuf",
-                     rowvw_pcpediecf.VDIFIBSUF AS "Vdifibsuf",
-                     rowvw_pcpediecf.PREDALIQIBSUF AS "Predaliqibsuf",
-                     rowvw_pcpediecf.PALIQEFETIBSUF AS "Paliqefetibsuf",
-                     rowvw_pcpediecf.VIBSUF AS "Vibsuf",
-                     rowvw_pcpediecf.PIBSMUN AS "Pibsmun",
-                     rowvw_pcpediecf.PDIFIBSMUN AS "Pdifibsmun" ,
-                     rowvw_pcpediecf.VDIFIBSMUN AS "Vdifibsmun" ,
-                     rowvw_pcpediecf.PREDALIQIBSMUN AS "Predaliqibsmun" ,
-                     rowvw_pcpediecf.PALIQEFETIBSMUN AS "Paliqefetibsmun" ,
-                     rowvw_pcpediecf.VIBSMUN AS "Vibsmun" ,
-                     rowvw_pcpediecf.ALIQCBS AS "Aliqcbs",
-                     rowvw_pcpediecf.VLCBS AS "Vlcbs"*/
+									   rowvw_pcpediecf.percipi as "Percipi",
+									   rowvw_pcpediecf.perfretecmv AS "Perfretecmv",
+									   rowvw_pcpediecf.vlbaseipi AS "Vlbaseipi",
+									   rowvw_pcpediecf.basedifaliquotas AS "Basedifaliquotas",
+									   rowvw_pcpediecf.percdifaliquotas AS "Percdifaliquotas",
+									   rowvw_pcpediecf.vldifaliquotas AS "Vldifaliquotas",
+									   rowvw_pcpediecf.vldescorgaopub AS "Vldescorgaopub",
+									   rowvw_pcpediecf.percipiecf AS "Percipiecf",
+									   rowvw_pcpediecf.baseipiecf AS "Baseipiecf",
+									   rowvw_pcpediecf.qtvendidavasilhame AS "Qtvendidavasilhame",
+									   rowvw_pcpediecf.vlacrescvasilhame AS "Vlacrescvasilhame",
+									   rowvw_pcpediecf.percicmssimplesnac AS "Percicmssimplesnac",
+									   rowvw_pcpediecf.vlbasepartdest AS "Vlbasepartdest",
+									   rowvw_pcpediecf.vlfcppart AS "Vlfcppart",
+									   rowvw_pcpediecf.vlicmspartdest AS "Vlicmspartdest",
+									   rowvw_pcpediecf.percprovpart AS "Percprovpart",
+									   rowvw_pcpediecf.vlicmspart AS "Vlicmspart",
+									   rowvw_pcpediecf.vlcredfcpicmssn AS "Vlcredfcpicmssn",
+									   rowvw_pcpediecf.vlfecp AS "Vlfecp",
+									   rowvw_pcpediecf.vlicmsefet AS "Vlicmsefet",
+									   rowvw_pcpediecf.vlicmsbcr AS "Vlicmsbcr",
+								  	   rowvw_pcpediecf.vldescsuframa AS "Vldescsuframa"
+								       rowvw_pcpediecf.CODIGOTRIBUTACAOIS AS "Codigotributacaois",
+									   rowvw_pcpediecf.CSTIS AS "Cstis",
+									   rowvw_pcpediecf.CCLASSTRIBIS AS "Cclasstribis",
+									   rowvw_pcpediecf.VLBASEIS AS "Vlbaseis",
+									   rowvw_pcpediecf.ALIQIS AS "Aliqis",
+									   rowvw_pcpediecf.ALIQESPECIFICAIS AS "Aliqespecificais",
+									   rowvw_pcpediecf.UNIDADETRIB AS "Unidadetrib",
+									   rowvw_pcpediecf.Xml_qttrib AS "Xml_qttrib",
+									   rowvw_pcpediecf.VLIS AS "Vlis",
+									   rowvw_pcpediecf.CODIGOTRIBUTACAOCBSIBS AS "Codigotributacaocbsibs",
+									   rowvw_pcpediecf.CSTIBSCBS AS "Cstibscbs",
+									   rowvw_pcpediecf.CCLASSTRIBIBSCBS AS "Cclasstribibscbs",
+									   rowvw_pcpediecf.VLBASEIBSCBS AS "Vlbaseibscbs",
+									   rowvw_pcpediecf.IBSUF AS "Ibsuf",
+									   rowvw_pcpediecf.PDIFIBSUF AS "Pdifibsuf",
+									   rowvw_pcpediecf.VDIFIBSUF AS "Vdifibsuf",
+									   rowvw_pcpediecf.PREDALIQIBSUF AS "Predaliqibsuf",
+									   rowvw_pcpediecf.PALIQEFETIBSUF AS "Paliqefetibsuf",
+									   rowvw_pcpediecf.VIBSUF AS "Vibsuf",
+									   rowvw_pcpediecf.PIBSMUN AS "Pibsmun",
+									   rowvw_pcpediecf.PDIFIBSMUN AS "Pdifibsmun" ,
+									   rowvw_pcpediecf.VDIFIBSMUN AS "Vdifibsmun" ,
+									   rowvw_pcpediecf.PREDALIQIBSMUN AS "Predaliqibsmun" ,
+									   rowvw_pcpediecf.PALIQEFETIBSMUN AS "Paliqefetibsmun" ,
+									   rowvw_pcpediecf.VIBSMUN AS "Vibsmun" ,
+									   rowvw_pcpediecf.ALIQCBS AS "Aliqcbs",
+									   rowvw_pcpediecf.VLCBS AS "Vlcbs"
                      ))))
                   INTO l_xmltypeitens
                   FROM vw_int_c5_pcpediecf rowvw_pcpediecf
@@ -881,7 +882,7 @@ IS
                         VW.ALIQICMS2              AS "Aliqicms2",
                         VW.SITTRIBUT              AS "Sittribut",
                         VW.CODFISCAL              AS "Codfiscal",
-            VW.CODECF                 AS "Codecf",
+						VW.CODECF                 AS "Codecf",
                         VW.PBASERCA               AS "Pbaserca",
                         VW.BASEICST               AS "Baseicst",
                         VW.STCLIENTEGNRE          AS "Stclientegnre",
@@ -892,8 +893,8 @@ IS
                         VW.VLDESCSUFRAMA          AS "Vldescsuframa",
                         VW.VLCUSTOREP             AS "Vlcustorep",
                         VW.VLCUSTOCONT            AS "Vlcustocont",
-            VW.VLCUSTOFIN             AS "Vlcustofin",
-            VW.VLCUSTOREAL            AS "Vlcustoreal",
+						VW.VLCUSTOFIN             AS "Vlcustofin",
+						VW.VLCUSTOREAL            AS "Vlcustoreal",
                         VW.VLDESCCUSTOCMV         AS "Vldesccustocmv",
                         VW.PERDESCTAB             AS "Perdesctab",
                         VW.IVA                    AS "Iva",
@@ -958,7 +959,7 @@ IS
                         VW.STBCR                  AS "Stbcr",
                         VW.CODFORNEC              AS "Codfornec",
                         VW.VLDESCITEM             AS "Vldescitem"
-                        /*VW.CODIGOTRIBUTACAOIS     AS "Codigotributacaois",
+                        VW.CODIGOTRIBUTACAOIS     AS "Codigotributacaois",
                         VW.CSTIS                  AS "Cstis",
                         VW.CCLASSTRIBIS           AS "Cclasstribis",
                         VW.VLBASEIS               AS "Vlbaseis",
@@ -983,8 +984,8 @@ IS
                         VW.PREDALIQIBSMUN         AS "Predaliqibsmun" ,
                         VW.PALIQEFETIBSMUN        AS "Paliqefetibsmun" ,
                         VW.VIBSMUN                AS "Vibsmun" ,
-                  VW.ALIQCBS                AS "Aliqcbs",
-                        VW.VLCBS                  AS "Vlcbs"*/
+						VW.ALIQCBS                AS "Aliqcbs",
+                        VW.VLCBS                  AS "Vlcbs"
                       )
                     )
                   )
