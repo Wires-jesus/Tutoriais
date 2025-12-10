@@ -698,10 +698,10 @@ AS
             AND   LT.SEQLOTEESTOQUE = I.SEQLOTEESTOQUE
            )
       ELSE NULL
-    END) DTVALIDADE
+    END) DTVALIDADE,
   
   /*Campos Reforma*/
-  /*NULL Xml_qttrib,
+  NULL Xml_qttrib,
   NULL Unidadetrib,
   
   --IS
@@ -775,8 +775,6 @@ AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
-*/  
-
 FROM  monitorpdvmiddle.tb_doctoitem     i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
@@ -1217,10 +1215,10 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
             AND   LT.SEQLOTEESTOQUE = I.SEQLOTEESTOQUE
            )
       ELSE NULL
-    END) DTVALIDADE
+    END) DTVALIDADE,
   
   /*Campos Reforma*/
-  /*NULL Xml_qttrib,
+  NULL Xml_qttrib,
   NULL Unidadetrib,
   
   -- IS
@@ -1294,7 +1292,6 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
-*/  
 
 FROM  monitorpdvmiddle.tb_doctoitem      i,
         monitorpdvmiddle.tb_docto        d,
@@ -1546,9 +1543,9 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   0 QBCMONIRET,
   0 ADREMICMSRET,
   d.nroempresa,
-  d.nrocheckout
+  d.nrocheckout,
     /*Campos Reforma*/
-  /*NULL Xml_qttrib,
+  NULL Xml_qttrib,
   NULL Unidadetrib,
   
   -- IS 
@@ -1622,8 +1619,6 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
- */
- 
  FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,
@@ -1857,9 +1852,9 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   0 QBCMONIRET,
   0 ADREMICMSRET,
   d.NROEMPRESA,
-  d.nrocheckout
+  d.nrocheckout,
   /*Campos Reforma*/
-  /*NULL Xml_qttrib,
+  NULL Xml_qttrib,
   NULL Unidadetrib,
   -- IS
   (SELECT TC5.CODIGO_TRIBUTACAO
@@ -1927,7 +1922,6 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
-*/  
  FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,
