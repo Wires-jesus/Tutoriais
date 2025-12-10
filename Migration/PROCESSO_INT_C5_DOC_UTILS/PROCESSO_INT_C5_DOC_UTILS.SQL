@@ -1078,7 +1078,7 @@ SELECT
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
                                  WHERE z.NROEMPRESA = i.NROEMPRESA
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO IN (4,7,41))
+                                   AND z.SEQTIPOACRESCDESCTO IN (4,7))
                 THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
            ELSE
               0
@@ -1263,6 +1263,67 @@ BEGIN
      WHEN OTHERS
           THEN
      RETURN 0;
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_vlrdelivery(pNroEmpresa  NUMBER,
+                                                  pNroCheckout NUMBER,
+                                                  pSeqDocto    NUMBER)
+  RETURN NUMBER
+IS
+  vFrete NUMBER;
+BEGIN
+  SELECT 
+    sum(a.VALOR) VLRFRETE
+  INTO
+    vFrete
+  FROM MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO a,
+       MONITORPDVMIDDLE.tb_docto d
+  WHERE  a.seqdocto = d.seqdocto
+  	AND  a.nrocheckout = d.nrocheckout
+  	AND  a.nroempresa = d.nroempresa
+    AND  d.especie = 'NF'
+    AND  a.SEQTIPOACRESCDESCTO = 41
+    AND  d.nroempresa = pNroEmpresa
+    AND  d.nrocheckout = pNroCheckout
+    AND  d.seqdocto = pSeqDocto;
+  RETURN(vFrete);
+  EXCEPTION
+      WHEN OTHERS
+          THEN
+      RETURN 0;
+END;
+
+\
+
+CREATE OR REPLACE FUNCTION fnc_int_c5_vlrdeliveryrateio(pNroEmpresa  NUMBER,
+                                                        pNroCheckout NUMBER,
+                                                        pSeqDocto    NUMBER,
+                                                        pSeqItem  NUMBER)
+  RETURN NUMBER
+IS
+  vFrete NUMBER;
+BEGIN
+  SELECT
+    R.VALOR
+  INTO
+    vFrete
+  FROM MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTORATEIO R,
+        MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO A
+  WHERE R.NROEMPRESA = A.NROEMPRESA
+    AND R.NROCHECKOUT = A.NROCHECKOUT 
+    AND R.SEQDOCTO = A.SEQDOCTO 
+    AND A.SEQTIPOACRESCDESCTO = 41
+    AND A.NROEMPRESA = pNroEmpresa
+    AND A.NROCHECKOUT = pNroCheckout
+    AND A.SEQDOCTO = pSeqDocto
+    AND R.SEQITEM = pSeqItem;
+  RETURN(vFrete);
+  EXCEPTION
+      WHEN OTHERS
+          THEN
+      RETURN 0;
 END;
 
 \
