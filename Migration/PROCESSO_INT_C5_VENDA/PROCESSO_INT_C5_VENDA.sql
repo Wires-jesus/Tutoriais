@@ -253,7 +253,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         0 Vltributos,
         0 Vltributosestadual,
         0 Vltributosmunicipal,
-        0 Vlfrete,
+        NVL(fnc_int_c5_vlrdelivery(a.nroempresa,a.NROCHECKOUT,a.seqdocto), 0) Vlfrete,
         0 Vljurosparcelamento,
         0 Vlmexiva,
         0 Vlcofins,
@@ -461,7 +461,7 @@ AS
              ELSE
                ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
           END) perdesc,*/  
-    ((((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) - ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))) / (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)))*100)perdesc,
+    ((((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) - ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + ((NVL(i.vlracrescimo,0) - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))) / (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)))*100)perdesc,
         0 perdesccusto,
         0 perdescisentoicms,
         'N' piscofinsdeduzido,
@@ -506,7 +506,7 @@ AS
      END
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
               FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
                 WHERE X.SEQDOCTO = i.seqdocto
               AND X.nroempresa = i.nroempresa
@@ -517,7 +517,7 @@ AS
       AND F.ATIVO = 'S'
             AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO)
           ELSE
-          ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) 
+          ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + ((NVL(i.vlracrescimo,0) - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1)) 
         END ) pvenda,
        /*(CASE
             WHEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6) < 0
@@ -621,7 +621,7 @@ AS
         0 vldescreducaopis,
         0 vldescrodape,
         0 vldescsociotorcedor,
-        0 vlfrete,
+        NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0) vlfrete,
        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'VLRTRIBUTO')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
@@ -986,7 +986,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
              ELSE
                ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
           END) perdesc,*/  
-    ((((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) - ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))) / (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)))*100)perdesc,
+    ((((i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)) - ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + ((NVL(i.vlracrescimo,0) - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))) / (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1)))*100)perdesc,
         0 perdesccusto,
         0 perdescisentoicms,
         'N' piscofinsdeduzido,
@@ -1031,7 +1031,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
      END
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL(X.vlracrescimo*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
             FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
               WHERE X.SEQDOCTO = i.seqdocto
             AND X.nroempresa = i.nroempresa
@@ -1042,7 +1042,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
       AND F.ATIVO = 'S'
           AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
         ELSE
-        ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + (NVL(i.vlracrescimo,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
+        ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + ((NVL(i.vlracrescimo,0) - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
         END ) pvenda,
         (CASE  WHEN i.seqprodcomposto IS NOT null
         THEN (i.quantidade * NVL(i.QTDEMBALAGEM,1)) /
@@ -1140,7 +1140,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         0 vldescreducaopis,
         0 vldescrodape,
         0 vldescsociotorcedor,
-        0 vlfrete,
+        NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0) vlfrete,
        (fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 15, 'VLRTRIBUTO')) vlicmsdesoneracao,
         0 vlicmsdifaliqpart,
         i.vlrunitario vlitem,
