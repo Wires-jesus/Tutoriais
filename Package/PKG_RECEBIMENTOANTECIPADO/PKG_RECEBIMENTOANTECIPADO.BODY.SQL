@@ -925,7 +925,8 @@ IS
             NUMTRANSPAGDIGITAL,     /*23*/
             NUMCAIXAFISCAL,         /*24*/
             CODFUNCCHECKOUT,        /*25*/
-            NUMCAIXA                /*26*/
+            NUMCAIXA,               /*26*/
+            COBANTECIPADA           /*27*/
         ) VALUES (
             VNUMTRANSPAGOADIANTADO, /*01*/
             PCODCLI,                /*02*/
@@ -952,7 +953,8 @@ IS
             PNUMTRANSPAGDIGITAL,    /*23*/
             PNUMCAIXAFISCAL,        /*24*/
             PCODFUNCCHECKOUT,       /*25*/
-            PNUMCAIXA               /*26*/
+            PNUMCAIXA,              /*26*/
+            'S'                     /*27*/
         );
 
         PNUMTRANSPAGOADIANTADO := VNUMTRANSPAGOADIANTADO;
