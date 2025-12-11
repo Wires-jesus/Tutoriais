@@ -1809,14 +1809,29 @@ IS
                           FROM PCCONTA
                          WHERE CODCONTA = PS_CODCONTAGERENCIAL;
                     ELSE
+                      IF PS_FORMULA IN ('VALORJUROS', 'VALORDESCONTO') THEN
+                        
+                        IF PS_FORMULA = 'VALORJUROS' THEN
+                          SELECT CONTACONTABIL
+                            INTO V_CODCONTACONTABIL
+                            FROM PCCONTA, PCCONSUM
+                           WHERE  PCCONTA.CODCONTA =
+                                         PCCONSUM.CODCONTPAGJUR;
+                        ELSE                 
+                           
                         SELECT CONTACONTABIL
                           INTO V_CODCONTACONTABIL
                           FROM PCCONTA, PCCONSUM
-                         WHERE     CODCONTA = PS_CODCONTAGERENCIAL
-                               AND (   PCCONTA.CODCONTA =
-                                       PCCONSUM.CODCONTPAGJUR
-                                    OR PCCONTA.CODCONTA =
-                                       PCCONSUM.CODCONTDESCCONC);
+                         WHERE  PCCONTA.CODCONTA =
+                                       PCCONSUM.CODCONTDESCCONC;   
+                        END IF;   
+                            
+                      ELSE
+                        SELECT CONTACONTABIL
+                          INTO V_CODCONTACONTABIL
+                          FROM PCCONTA, PCCONSUM
+                         WHERE     CODCONTA = PS_CODCONTAGERENCIAL;
+                      END IF;                 
                     END IF;
                 ELSIF PS_CODFATOGERADOR = 1
                 THEN
@@ -3948,7 +3963,7 @@ IS
                                    ITEM.CODCONTA,
                                    3,
                                    0,
-                                   1,
+                                   CASE WHEN ( ((ITEM.CODROTINA = '631') AND (VS_GERARCENTROCUSTO_631 = 'S'))) THEN 1 ELSE 0 END,
                                    TRIM (ITENSREGRA.FORMULAS),
                                    PCODPLANOCONTA) =
                                'S'
