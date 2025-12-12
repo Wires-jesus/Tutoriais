@@ -4,7 +4,7 @@
 BEGIN
     PRC_SL_SETUP_INFRASTRUCTURE(p_force_recreate => 0);
 END;
-/
+\
 
 DECLARE
     -- Definimos um tipo de array para listar os valores de forma organizada
