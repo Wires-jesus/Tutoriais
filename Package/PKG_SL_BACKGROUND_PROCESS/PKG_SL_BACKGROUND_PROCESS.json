@@ -1,0 +1,7 @@
+{"nome":"PKG_SL_BACKGROUND_PROCESS","tipoPLSQL":"PACKAGE","dependencias":[{
+  "nome": "PKG_SL_LOGGING",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "8.0.01.000"
+},{  "nome": "PKG_SL_CDC_MANAGER",
+  "tipo": "OBJETO_PLSQL",
+  "versao": "8.0.01.000"}]}
