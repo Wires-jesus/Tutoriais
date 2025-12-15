@@ -10606,6 +10606,18 @@ IS
          SET DATAESTOQUE = SYSDATE
        WHERE PCMOV.ROWID = REGISTROS.NOTA_ROWID;
      --
+
+      --Entrada da quantidade de estoque em trânsito de beneficiamento.
+      UPDATE PCEST
+         SET PCEST.QTTRANSITOBENEFIC = (CASE
+                            WHEN psECANCELAMENTO = 'N' THEN
+                              NVL(PCEST.QTTRANSITOBENEFIC, 0) + DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
+                            ELSE
+                              NVL(PCEST.QTTRANSITOBENEFIC, 0) - DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
+                            END)
+           
+       WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
+         AND PCEST.CODPROD = REGISTROS.CODPROD;      
     END LOOP;
     -- Validando se tem registros
     IF vnCONTADORREGISTROS = 0 THEN
@@ -11231,6 +11243,18 @@ IS
       UPDATE PCMOV
          SET DATAESTOQUE = SYSDATE
        WHERE PCMOV.ROWID = REGISTROS.NOTA_ROWID;
+
+      --Saída da quantidade de estoque em trânsito de beneficiamento.
+      UPDATE PCEST
+         SET PCEST.QTTRANSITOBENEFIC  = CASE
+                           WHEN psECANCELAMENTO = 'N' THEN
+                             NVL(PCEST.QTTRANSITOBENEFIC, 0) - DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
+                           ELSE
+                             NVL(PCEST.QTTRANSITOBENEFIC, 0) + DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
+                           END           
+       WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
+         AND PCEST.CODPROD = REGISTROS.CODPROD;
+      --  
     END LOOP;
     -- Validando se tem registros
     IF vnCONTADORREGISTROS = 0 THEN
