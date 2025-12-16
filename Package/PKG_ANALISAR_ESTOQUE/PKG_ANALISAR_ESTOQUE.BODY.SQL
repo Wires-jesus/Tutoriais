@@ -5732,7 +5732,7 @@ END IF;
   BEGIN
     -- Atualiza QTRESERV dos produtos que tenham ordem de produção
     vSQL := 'SELECT SUM(ROUND((CASE
-                               WHEN QTRESERVADA_LOTE <> 0 THEN
+                               WHEN NUMLOTE IS NOT NULL THEN
                                  QTRESERVADA_LOTE
                               ELSE
                                 QTRESERVADA_ESTOQUE
