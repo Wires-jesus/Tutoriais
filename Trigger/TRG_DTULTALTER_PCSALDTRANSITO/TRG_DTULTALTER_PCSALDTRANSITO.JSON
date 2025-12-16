@@ -1,0 +1,11 @@
+{
+    "nome": "TRG_DTULTALTER_PCSALDTRANSITO",
+    "tipoPLSQL": "TRIGGER",
+    "dependencias": [
+        {
+            "nome": "PCSALDTRANSITO",
+            "tipo": "TABELA",
+            "versao": "8.0.04.000"
+        }
+    ]
+}
