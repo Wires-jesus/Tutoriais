@@ -713,6 +713,7 @@ IS
                                      PNUMCAIXAFISCAL         IN PCPRESTANTECIPADA.NUMCAIXAFISCAL%TYPE DEFAULT NULL,
                                      PCODFUNCCHECKOUT        IN PCPRESTANTECIPADA.CODFUNCCHECKOUT%TYPE DEFAULT NULL,
                                      PNUMCAIXA               IN PCPRESTANTECIPADA.NUMCAIXA%TYPE DEFAULT NULL,
+                                     PQUITAPCPREST           IN PCPRESTANTECIPADA.QUITAPCPREST%TYPE DEFAULT 'S',
                                      PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                     )
     IS
@@ -926,7 +927,8 @@ IS
             NUMCAIXAFISCAL,         /*24*/
             CODFUNCCHECKOUT,        /*25*/
             NUMCAIXA,               /*26*/
-            COBANTECIPADA           /*27*/
+            COBANTECIPADA,          /*27*/
+            QUITAPCPREST            /*28*/
         ) VALUES (
             VNUMTRANSPAGOADIANTADO, /*01*/
             PCODCLI,                /*02*/
@@ -954,7 +956,8 @@ IS
             PNUMCAIXAFISCAL,        /*24*/
             PCODFUNCCHECKOUT,       /*25*/
             PNUMCAIXA,              /*26*/
-            'S'                     /*27*/
+            'S',                    /*27*/
+            NVL(PQUITAPCPREST, 'S') /*28*/
         );
 
         PNUMTRANSPAGOADIANTADO := VNUMTRANSPAGOADIANTADO;

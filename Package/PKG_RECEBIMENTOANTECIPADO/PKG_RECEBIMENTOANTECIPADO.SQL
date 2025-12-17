@@ -85,6 +85,7 @@ CREATE OR REPLACE PACKAGE PKG_RECEBIMENTOANTECIPADO IS
                                      PNUMCAIXAFISCAL         IN PCPRESTANTECIPADA.NUMCAIXAFISCAL%TYPE DEFAULT NULL,
                                      PCODFUNCCHECKOUT        IN PCPRESTANTECIPADA.CODFUNCCHECKOUT%TYPE DEFAULT NULL,
                                      PNUMCAIXA               IN PCPRESTANTECIPADA.NUMCAIXA%TYPE DEFAULT NULL,
+                                     PQUITAPCPREST           IN PCPRESTANTECIPADA.QUITAPCPREST%TYPE DEFAULT 'S',
                                      PEXECUTACOMMITROLLBACK  IN VARCHAR2 DEFAULT 'S'
                                     );
     ----------------------------------------------------------------------------
