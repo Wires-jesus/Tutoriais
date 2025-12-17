@@ -1,0 +1,6 @@
+{
+    "nome": "INCLUSAO_COLUNA_PERMITEFATURARCOMWMSPEND_TABELA_PCPEDC",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
