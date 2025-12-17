@@ -79,7 +79,7 @@ BEGIN
     ID, DESCRICAO, VALOR
   ) VALUES(
     'LOCAL_CONSUMO_BR_UF', '2 - EX', 'EX'
-  );
+  ); 
   
   COMMIT;
   
