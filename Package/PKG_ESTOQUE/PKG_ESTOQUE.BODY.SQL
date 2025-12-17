@@ -3751,6 +3751,272 @@ IS
   ------------------------------------------------------ Alterações -------------------------------------------------------
   Data           Autor             Solicitação         Descrição
   -------------------------------------------------------------------------------------------------------------------------
+  03/12/2025     Natanael.barbosa    REQ-EST-NEG         Ajustada procedure PRIV_DEP_INCLUIR_REQ_AUTO:
+                                                       - Regra aplicada apenas para cupom (PCPEDC.NUMCUPOM preenchido);
+                                                       - Se PCEST já estiver negativa, não faz nada;
+                                                       - Se PCEST >= 0 e depósito de venda ficar negativo,
+                                                         gera requisição automática já finalizada a partir de outro
+                                                         depósito com saldo disponível suficiente (maior saldo),
+                                                         sem criar bloqueio no depósito.
+  *************************************************************************************************************************/
+PROCEDURE PRIV_DEP_INCLUIR_REQ_AUTO
+(
+  pnCODFILIAL        IN VARCHAR2, -- filial de estoque / gerencial
+  pnCODDEPOSITO_DEST IN NUMBER,   -- depósito destino (onde ficou negativo - normalmente padrão de venda)
+  pnCODPROD          IN NUMBER,   -- produto
+  pnNUMPED           IN NUMBER,   -- pedido
+  pnNUMSEQ           IN NUMBER    -- item
+)IS
+  -- Saldos no depósito destino
+  vQTFISDEST    PCESTOQUEDEPOSITOPROD.QTESTOQUE%TYPE    := 0;
+  vQTRESDEST    PCESTOQUEDEPOSITOPROD.QTRESERVADA%TYPE  := 0;
+  vQTBLOQDEST   PCESTOQUEDEPOSITOPROD.QTBLOQUEADA%TYPE  := 0;
+  vDISPDEST     NUMBER                                  := 0;
+
+  vQTREQUISITAR NUMBER                                  := 0;  
+  vQTGERALPCEST  PCEST.QTESTGER%TYPE                    := 0;
+  vTARGETDEST   NUMBER                                  := 0;  -- necessidade final do depósito venda
+
+  vsTRANSACAO_ATUAL VARCHAR2(200);
+
+  vCODDEPORIG   PCESTOQUEDEPOSITO.CODDEPOSITO%TYPE;
+  vCODDEPPAD    PCESTOQUEDEPOSITO.CODDEPOSITO%TYPE;
+  vREQ          PCREQUISICAODEPOSITO%ROWTYPE;
+  vNUMCUPOM     PCPEDC.NUMCUPOM%TYPE;
+
+  -- Novo (mínimo): disponível do depósito de armazenagem e qt efetiva a mover
+  vDISPORIG     NUMBER := 0;
+  vQTMOV        NUMBER := 0;
+
+BEGIN
+  /* Controle de transação / log (mantido) */
+  SELECT DBMS_TRANSACTION.LOCAL_TRANSACTION_ID
+    INTO vsTRANSACAO_ATUAL
+    FROM DUAL;
+
+  IF P_INTERNO.TRANSACAO_ANTERIOR IS NULL OR P_INTERNO.TRANSACAO_ANTERIOR <> vsTRANSACAO_ATUAL THEN
+    P_INTERNO := NULL;
+    P_INTERNO.MSG_RETORNO := 'OK';
+    P_INTERNO.TRANSACAO_ATUAL    := vsTRANSACAO_ATUAL;
+    P_INTERNO.TRANSACAO_ANTERIOR := P_INTERNO.TRANSACAO_ATUAL;
+  END IF;
+
+  P_INTERNO.INFORMACOES_LOG := 'Iniciou a procedure - PRIV_DEP_INCLUIR_REQ_AUTO';
+  P_INTERNO.NOME_FUNCAO     := 'PRIV_DEP_INCLUIR_REQ_AUTO';
+  PRIV_GERARLOG;
+
+  /* 0) Regra: só executa para CUPOM (PCPEDC.NUMCUPOM preenchido) */
+  BEGIN
+    SELECT NVL(C.NUMCUPOM, 0)
+      INTO vNUMCUPOM
+      FROM PCPEDC C
+     WHERE C.NUMPED    = pnNUMPED
+       AND C.CODFILIAL = pnCODFILIAL;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                   ' - Pedido não encontrado para requisição automática (NUMPED='||
+                                   TO_CHAR(pnNUMPED)||').';
+      PRIV_GERARLOG;
+      RETURN;
+  END;
+
+  IF vNUMCUPOM = 0 THEN
+    P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                 ' - Regra REQ-EST-NEG aplicada apenas para cupom (NUMCUPOM preenchido).';
+    PRIV_GERARLOG;
+    RETURN;
+  END IF;
+
+  /* 1) Buscar PCEST (MESMO NEGATIVA) */
+  BEGIN
+    SELECT NVL(E.QTESTGER, 0)
+      INTO vQTGERALPCEST
+      FROM PCEST E
+     WHERE E.CODFILIAL = pnCODFILIAL
+       AND E.CODPROD   = pnCODPROD;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                   ' - PCEST não encontrada para produto '||TO_CHAR(pnCODPROD)||
+                                   ' na filial '||pnCODFILIAL||'.';
+      PRIV_GERARLOG;
+      RETURN;
+  END;
+
+  /* 2) Valida depósito padrão de venda */
+  BEGIN
+    SELECT D.CODDEPOSITO
+      INTO vCODDEPPAD
+      FROM PCESTOQUEDEPOSITO D
+     WHERE D.CODFILIAL   = pnCODFILIAL
+       AND D.CODDEPOSITO = pnCODDEPOSITO_DEST
+       AND D.PADRAOVENDA = 'S';
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                   ' - Depósito '||TO_CHAR(pnCODDEPOSITO_DEST)||
+                                   ' não é padrão de venda na filial '||pnCODFILIAL;
+      PRIV_GERARLOG;
+      RETURN;
+  END;
+
+  /* 3) Buscar saldo do depósito destino após a movimentação */
+  BEGIN
+    SELECT NVL(E.QTESTOQUE,   0),
+           NVL(E.QTRESERVADA, 0),
+           NVL(E.QTBLOQUEADA, 0)
+      INTO vQTFISDEST,
+           vQTRESDEST,
+           vQTBLOQDEST
+      FROM PCESTOQUEDEPOSITOPROD E
+     WHERE E.CODFILIAL   = pnCODFILIAL
+       AND E.CODDEPOSITO = pnCODDEPOSITO_DEST
+       AND E.CODPROD     = pnCODPROD
+     FOR UPDATE;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                   ' - Produto '||TO_CHAR(pnCODPROD)||
+                                   ' não encontrado para requisição automática.';
+      PRIV_GERARLOG;
+      RETURN;
+  END;
+
+  vDISPDEST := vQTFISDEST - vQTRESDEST - vQTBLOQDEST;
+
+  P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                               ' - Diagnóstico: DISP destino='||TO_CHAR(vDISPDEST)||
+                               ', PCEST(QTESTGER)='||TO_CHAR(vQTGERALPCEST)||
+                               ' (produto '||TO_CHAR(pnCODPROD)||', filial '||pnCODFILIAL||').';
+  PRIV_GERARLOG;
+
+  /* 4) Se depósito destino ficou negativo:
+        - localiza o depósito de ARMAZENAGEM (PADRAOARMAZENAGEM='S')
+        - transfere o que tiver (até o necessário)
+        - se não tiver saldo suficiente, restante fica negativo no depósito de venda
+  */
+  IF vDISPDEST < 0 THEN
+
+    -- Alvo do depósito venda:
+    IF vQTGERALPCEST < 0 THEN
+      vTARGETDEST := vQTGERALPCEST;
+    ELSE
+      vTARGETDEST := 0;
+    END IF;
+
+    vQTREQUISITAR := vTARGETDEST - vDISPDEST;
+
+    IF vQTREQUISITAR <= 0 THEN
+      RETURN;
+    END IF;
+
+    /* 4.1) Buscar o depósito de ARMAZENAGEM e seu disponível */
+    BEGIN
+      SELECT CODDEPOSITO, DISPONIVEL
+        INTO vCODDEPORIG, vDISPORIG
+        FROM (
+              SELECT D.CODDEPOSITO,
+                     ( NVL(EP.QTESTOQUE, 0)
+                     - NVL(EP.QTRESERVADA, 0)
+                     - NVL(EP.QTBLOQUEADA, 0) ) DISPONIVEL
+                FROM PCESTOQUEDEPOSITO     D
+                JOIN PCESTOQUEDEPOSITOPROD EP
+                  ON EP.CODFILIAL   = D.CODFILIAL
+                 AND EP.CODDEPOSITO = D.CODDEPOSITO
+                 AND EP.CODPROD     = pnCODPROD
+               WHERE D.CODFILIAL                 = pnCODFILIAL
+                 AND D.CODDEPOSITO              <> pnCODDEPOSITO_DEST
+                 AND NVL(D.PADRAOAVARIA,'N')    <> 'S'
+                 AND NVL(D.PADRAOARMAZENAGEM,'N') = 'S'
+               ORDER BY D.CODDEPOSITO
+             )
+       WHERE ROWNUM = 1;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                     ' - Depósito venda negativo, porém não existe depósito de ARMAZENAGEM configurado.';
+        PRIV_GERARLOG;
+        RETURN;
+    END;
+
+    IF NVL(vDISPORIG,0) <= 0 THEN
+      P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                   ' - Depósito venda negativo e ARMAZENAGEM sem disponível. Mantém negativo no venda. '||
+                                   'Necessário='||TO_CHAR(vQTREQUISITAR)||'.';
+      PRIV_GERARLOG;
+      RETURN;
+    END IF;
+
+    -- QT efetiva: transfere o que tiver; restante permanece negativo no venda
+    vQTMOV := LEAST(vDISPORIG, vQTREQUISITAR);
+
+    /* 4.2) Montar registro da requisição */
+    vREQ := NULL;
+    vREQ.NOME_TABELA      := 'PCREQUISICAODEPOSITO';
+    vREQ.IDENTIFICADOR    := pnNUMPED;
+    vREQ.NUMSEQ           := pnNUMSEQ;
+    vREQ.CODFILIAL        := pnCODFILIAL;
+    vREQ.CODPROD          := pnCODPROD;
+    vREQ.CODDEPOSITOORIG  := vCODDEPORIG;
+    vREQ.CODDEPOSITODEST  := pnCODDEPOSITO_DEST;
+    vREQ.QT               := vQTMOV;
+
+    -- Incluir requisição de transferência entre depósitos
+    PRIV_DEP_INCLUIR_REQUISICAO (vREQ);
+    IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
+       PRIV_GERARLOG;
+       RETURN;
+    END IF;  
+
+    /* 4.3) Finaliza requisição automaticamente (SEM PCREQUISICAODEPOSITOPROD) */
+    UPDATE PCREQUISICAODEPOSITO
+       SET QTSEPARADA    = vQTMOV,
+           DTCONFERENCIA = SYSDATE,
+           POSICAO       = 'F'
+     WHERE CODREQUISICAO = vREQ.CODREQUISICAO
+       AND CODPROD       = vREQ.CODPROD;
+
+    /* 4.4) Movimenta estoque do depósito / Ajusta saldo por depósito em PCESTOQUEDEPOSITOPROD (somente QTESTOQUE) */
+    -- baixa origem (ARMAZENAGEM)
+    UPDATE PCESTOQUEDEPOSITOPROD
+       SET QTESTOQUE = NVL(QTESTOQUE,0) - vQTMOV
+     WHERE CODFILIAL   = pnCODFILIAL
+       AND CODDEPOSITO = vCODDEPORIG
+       AND CODPROD     = pnCODPROD;
+
+    -- entrada destino (VENDA)
+    UPDATE PCESTOQUEDEPOSITOPROD
+       SET QTESTOQUE = NVL(QTESTOQUE,0) + vQTMOV
+     WHERE CODFILIAL   = pnCODFILIAL
+       AND CODDEPOSITO = pnCODDEPOSITO_DEST
+       AND CODPROD     = pnCODPROD;
+
+    P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                 ' - Gerou REQ auto '||TO_CHAR(vREQ.CODREQUISICAO)||
+                                 ' (DepositoA='||TO_CHAR(vCODDEPORIG)||' -> DepositoVENDA='||TO_CHAR(pnCODDEPOSITO_DEST)||') '||
+                                 'Mov='||TO_CHAR(vQTMOV)||', Necessario='||TO_CHAR(vQTREQUISITAR)||
+                                 ', RestanteNegNoVenda='||TO_CHAR(vQTREQUISITAR - vQTMOV)||
+                                 ', AlvoVenda='||TO_CHAR(vTARGETDEST)||'.';
+    PRIV_GERARLOG;
+  END IF;
+
+  P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                               ' - Finalizou a função depósito incluir requisicao automática';
+  PRIV_GERARLOG;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    P_INTERNO.INFORMACOES_LOG := P_INTERNO.PROGRAMA||
+                                 ' - Erro na requisição automática: '||SQLERRM;
+    PRIV_GERARLOG;
+    RETURN;
+END PRIV_DEP_INCLUIR_REQ_AUTO;
+
+  /************************************************************************************************************************
+  ------------------------------------------------------ Alterações -------------------------------------------------------
+  Data           Autor             Solicitação         Descrição
+  -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na saída da mercadoria
   ************************************************************************************************************************/
   PROCEDURE PRIV_DEP_VENDAS_SAIDA
@@ -3795,7 +4061,7 @@ IS
       vtESTOQUE_DEPOSITO.CODPROD       := P_INTERNO.CODPROD;
       vtESTOQUE_DEPOSITO.QTESTOQUE     := P_INTERNO.QTESTGER;
       vtESTOQUE_DEPOSITO.TIPO_OPERACAO := P_INTERNO.TIPO_OPERACAO;
-    vtESTOQUE_DEPOSITO.QTINDENIZADA  := P_INTERNO.QTINDENIZ;
+      vtESTOQUE_DEPOSITO.QTINDENIZADA  := P_INTERNO.QTINDENIZ;
       vtESTOQUE_DEPOSITO.QTBLOQUEADA   := P_INTERNO.QTBLOQUEADA;
       -- Atualizar estoque do depósito
       PRIV_CALCULAR_DEPOSITO (vtESTOQUE_DEPOSITO,P_INTERNO.MSG_RETORNO);
@@ -20083,6 +20349,13 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
           END IF;
 
           PRIV_DEP_VENDAS_SAIDA;
+
+          PRIV_DEP_INCLUIR_REQ_AUTO(P_INTERNO.CODFILIAL,   -- pnCODFILIAL
+                                    P_INTERNO.CODDEPOSITO, -- pnCODDEPOSITO_DEST (depósito de venda)
+                                    P_INTERNO.CODPROD,     -- pnCODPROD
+                                    P_INTERNO.NUMPED,      -- pnNUMPED
+                                    P_INTERNO.NUMSEQ       -- pnNUMSEQ
+                                   );
         END IF;
 
         -- Erro na administração do estoque depósito
