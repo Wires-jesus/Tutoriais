@@ -6290,7 +6290,8 @@ create or replace package body FISCAL is
                          ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
                          ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
                          ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
-                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM                                                                                              
+                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+                         ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                           , 'S');      
     
       SELECT CODIGO_TRIBUTACAO,
@@ -6389,7 +6390,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = P_PARAMETROS.CODPROD
                   )
                 )
-              OR (
+              AND (
                   -- não existe QUALQUER filtro de NCM para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
@@ -6404,7 +6405,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = P_PARAMETROS.NCM
                   )
                 )
-                OR(
+              AND(
                   -- não existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
@@ -6535,7 +6536,8 @@ create or replace package body FISCAL is
                                ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
                                ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
                                ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
-                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM                                                                                              
+                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+                               ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP							   
                                 , 'S');          
           RETURN FALSE;
         END;
@@ -6653,6 +6655,15 @@ create or replace package body FISCAL is
 
       -- Cálculo para Orgão Publico --
       IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO IS NOT NULL AND V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB > 0 THEN
+
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV := V_ALIQ_EFETIVA_CBS;
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.VALOR_CBS_COMPRA_GOV := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100),10);
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_IBS_UF_COMPRA_GOV := V_ALIQ_EFETIVA_IBS_UF;
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.VALOR_IBS_UF_COMPRA_GOV := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100),10);
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV := V_ALIQ_EFETIVA_IBS_MUN;
+         V_PARAMETROS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),10);
+
+
          V_ALIQ_EFETIVA_CBS     := (V_ALIQ_EFETIVA_CBS     * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100)));
          V_ALIQ_EFETIVA_IBS_UF  := (V_ALIQ_EFETIVA_IBS_UF  * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100)));
          V_ALIQ_EFETIVA_IBS_MUN := (V_ALIQ_EFETIVA_IBS_MUN * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100)));
@@ -6678,9 +6689,9 @@ create or replace package body FISCAL is
        V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_UF  := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_UF,VTVARIAVEIS);
        V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_MUN := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_MUN,VTVARIAVEIS);
 
-       V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100),6);
-       V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100),6);
-       V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),6);
+       V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100),10);
+       V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100),10);
+       V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),10);
        V_PARAMETROS.VLTOTALIBS    := ROUND(V_PARAMETROS.VALOR_IBS_UF,2) + ROUND(V_PARAMETROS.VALOR_IBS_MUN,2);
        
     END CALCULAR_VALOR_CBSIBS;
@@ -7212,7 +7223,6 @@ create or replace package body FISCAL is
 
     V_DADOS_TRIBUTACAO := CALCULAR_IS(V_DADOS_TRIBUTACAO, P_MSG);
     RETURN V_DADOS_TRIBUTACAO;
-  END CALCULAR_IS;
-
+  END CALCULAR_IS;     
 
 END;
