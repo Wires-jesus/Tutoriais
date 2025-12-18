@@ -1078,7 +1078,7 @@ SELECT
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
                                  WHERE z.NROEMPRESA = i.NROEMPRESA
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO IN (4,7))
+                                   AND z.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33))
                 THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
            ELSE
               0
@@ -1170,7 +1170,7 @@ SELECT  SUM(
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
                                  WHERE z.NROEMPRESA = i.NROEMPRESA
                                    AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO = 7)
+                                   AND z.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33))
                 THEN i.VLRACRESCIMO
            ELSE
               0
@@ -1217,7 +1217,7 @@ BEGIN
    AND  d.nrocheckout = c.nrocheckout
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
-   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (4,7,8))
+   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33))
    AND  i.nroempresa = pNroEmpresa
    AND  i.nrocheckout = pNroCheckout
    AND  i.STATUS = 'V'
@@ -1252,7 +1252,7 @@ BEGIN
    AND  d.nrocheckout = c.nrocheckout
    AND  d.seqdocto = c.seqdocto
    AND  d.especie = 'NF'
-   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1,2))
+   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1, 2, 3, 5, 6, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 27, 28, 34, 51, 52, 61, 71, 72, 81, 91, 92))
    AND  d.replicacao = 'P'
    AND  i.nroempresa = pNroEmpresa
    AND  i.nrocheckout = pNroCheckout
@@ -1275,19 +1275,19 @@ IS
   vFrete NUMBER;
 BEGIN
   SELECT 
-    sum(a.VALOR) VLRFRETE
+    SUM(A.VALOR) VLRFRETE
   INTO
     vFrete
   FROM MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO a,
-       MONITORPDVMIDDLE.tb_docto d
-  WHERE  a.seqdocto = d.seqdocto
-  	AND  a.nrocheckout = d.nrocheckout
-  	AND  a.nroempresa = d.nroempresa
-    AND  d.especie = 'NF'
-    AND  a.SEQTIPOACRESCDESCTO = 41
-    AND  d.nroempresa = pNroEmpresa
-    AND  d.nrocheckout = pNroCheckout
-    AND  d.seqdocto = pSeqDocto;
+       MONITORPDVMIDDLE.TB_DOCTO D
+  WHERE  A.SEQDOCTO = D.SEQDOCTO
+  	AND  A.NROCHECKOUT = D.NROCHECKOUT
+  	AND  A.NROEMPRESA = D.NROEMPRESA
+    AND  D.ESPECIE = 'NF'
+    AND  A.SEQTIPOACRESCDESCTO = 41
+    AND  D.NROEMPRESA = pNroEmpresa
+    AND  D.NROCHECKOUT = pNroCheckout
+    AND  D.SEQDOCTO = pSeqDocto;
   RETURN(vFrete);
   EXCEPTION
       WHEN OTHERS
