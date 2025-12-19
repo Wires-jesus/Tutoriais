@@ -56,8 +56,8 @@ BEGIN
           FROM PCFINANC3CREDCLI
          WHERE DATAREFERENCIA = PDATA - 1
            AND CODFILIAL = PCODFILIAL
-           AND CODROTINA = 504;
-    
+           AND CODROTINAGERACAO = 504;
+      COMMIT;
       V_MENSSAGEM := 'OK';
     
     ELSE
@@ -66,7 +66,8 @@ BEGIN
   
   EXCEPTION
     WHEN OTHERS THEN
-      RAISE_APPLICATION_ERROR(-20001, ('Erro original: ' || SQLERRM));
+      RAISE_APPLICATION_ERROR(-20001, ('Erro original: ' || SQLERRM));	
+	ROLLBACK;  
   END;
 
   RETURN V_MENSSAGEM;

@@ -74,9 +74,10 @@ BEGIN
           FROM PCFINANC3PRESTVENDOR
          WHERE DATAREFERENCIA = PDATA - 1
            AND CODFILIAL = PCODFILIAL
-           AND CODROTINA = 504;
+           AND CODROTINAGERACAO = 504;
 
       V_MENSSAGEM := 'OK';
+	  COMMIT;
 
     ELSE
       V_MENSSAGEM := 'Tabela não está vazia';
@@ -85,6 +86,7 @@ BEGIN
   EXCEPTION
     WHEN OTHERS THEN
       RAISE_APPLICATION_ERROR(-20001, ('Erro original: ' || SQLERRM));
+	ROLLBACK;  
   END;
 
   RETURN V_MENSSAGEM;
