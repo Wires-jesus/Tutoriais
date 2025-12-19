@@ -17433,11 +17433,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvPermitirAumentarQtdeKit_Prod     PCDESCONTO.PERMITIRAUMENTARQTDEKITMED%TYPE;
 
     -- Variável de Controle de Normalização da PCDESCONTO
-    vvUsaRegraNormalizaDesc            VARCHAR2(1);
-    
-    -- Variável de controle dos filtros avançados
-    vvOBRIGATORIOPARCIALMED            PCDESCONTO.OBRIGATORIOPARCIALMED%TYPE;
-    vvQTMINMIXFORNECEDORMED            PCDESCONTO.QTMINMIXFORNECEDORMED%TYPE;    
+    vvUsaRegraNormalizaDesc            VARCHAR2(1);  
 
     -- Variáveis de Controle para Indicar que os Produtos podem ser Editados - EDTPRM
     TYPE TRecEditarPromocao            IS RECORD(
@@ -17837,6 +17833,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAODEPTO_FAIXA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAODEPTO(idxDepto).PARTICIPACOMISSGARANTIDA;
               vtPCMED_PROMOCAODEPTO_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAODEPTO(idxDepto).PERCDESCBASERCA;
               vtPCMED_PROMOCAODEPTO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAODEPTO(idxDepto).REGRAALTERARDESCONTO;
+              vtPCMED_PROMOCAODEPTO_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAODEPTO(idxDepto).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAODEPTO_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAODEPTO(idxDepto).QTMINMIXFORNECEDOR;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
             ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
@@ -17882,6 +17880,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAODEPTO_FAIXA(idxDeptoFaixa).PERCDESCBASERCA;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAODEPTO_FAIXA(idxDeptoFaixa).REGRAALTERARDESCONTO;
+                -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAODEPTO_FAIXA(idxDeptoFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAODEPTO_FAIXA(idxDeptoFaixa).QTMINMIXFORNECEDOR;
 
                 -----------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR DEPTO - EDTPRM
@@ -17957,6 +17958,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
                           , QTCOMBOMED
+                          , OBRIGATORIOPARCIALMED
+                          , QTMINMIXFORNECEDORMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18013,6 +18016,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
                           , vrDESCONTO.nQTCOMBOMED
+                          , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                          , vrDESCONTO.nQTMINMIXFORNECEDORMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Depto - EDTPRM
@@ -18046,6 +18051,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                        , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                       , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                       , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODEPTO                           = vrDESCONTO.nCODEPTO)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -18107,6 +18114,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtPCMED_PROMOCAOSECAO_FAIXA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAOSECAO(idxSecao).PARTICIPACOMISSGARANTIDA;
                   vtPCMED_PROMOCAOSECAO_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOSECAO(idxSecao).PERCDESCBASERCA;
                   vtPCMED_PROMOCAOSECAO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOSECAO(idxSecao).REGRAALTERARDESCONTO;
+                  vtPCMED_PROMOCAOSECAO_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOSECAO(idxSecao).OBRIGATORIOPARCIAL;
+                  vtPCMED_PROMOCAOSECAO_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOSECAO(idxSecao).QTMINMIXFORNECEDOR;
                 -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
                 ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
                   SELECT *
@@ -18152,6 +18161,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAOSECAO_FAIXA(idxSecaoFaixa).PERCDESCBASERCA;
                     -- Regra de alteração do Desconto/Preço
                     vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAOSECAO_FAIXA(idxSecaoFaixa).REGRAALTERARDESCONTO;
+                    -- Requisitos Avançados
+                    vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAOSECAO_FAIXA(idxSecaoFaixa).OBRIGATORIOPARCIAL;
+                    vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAOSECAO_FAIXA(idxSecaoFaixa).QTMINMIXFORNECEDOR;
 
                     -----------------------------------------------------------------------
                     -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR SEÇÃO - EDTPRM
@@ -18228,6 +18240,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , TIPOVENDA
                               , REGRAALTERARDESCONTO
                               , QTCOMBOMED
+                              , OBRIGATORIOPARCIALMED
+                              , QTMINMIXFORNECEDORMED
                               )
                        VALUES ( vnNovoCodDesconto
                               , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18285,6 +18299,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrDESCONTO.vTIPOVENDA
                               , vrDESCONTO.nREGRAALTERARDESCONTO
                               , vrDESCONTO.nQTCOMBOMED
+                              , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                              , vrDESCONTO.nQTMINMIXFORNECEDORMED
                               );
 
                   -- Altera na PCDESCONTO o Desconto da Seção - EDTPRM
@@ -18318,6 +18334,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO                         
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                         , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                         , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (NVL(CODEPTO,0)                    = NVL(vrDESCONTO.nCODEPTO,0))
                        AND (CODSEC                            = vrDESCONTO.nCODSEC)
@@ -18393,6 +18411,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   vtPCMED_PROMOCAOCATEG_FAIXA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAOCATEG(idxCateg).PARTICIPACOMISSGARANTIDA;
                   vtPCMED_PROMOCAOCATEG_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOCATEG(idxCateg).PERCDESCBASERCA;
                   vtPCMED_PROMOCAOCATEG_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOCATEG(idxCateg).REGRAALTERARDESCONTO;
+                  vtPCMED_PROMOCAOCATEG_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOCATEG(idxCateg).OBRIGATORIOPARCIAL;
+                  vtPCMED_PROMOCAOCATEG_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOCATEG(idxCateg).QTMINMIXFORNECEDOR;
                 -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
                 ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
                   SELECT *
@@ -18438,6 +18458,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAOCATEG_FAIXA(idxCategFaixa).PERCDESCBASERCA;
                     -- Regra de alteração do Desconto/Preço
                     vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAOCATEG_FAIXA(idxCategFaixa).REGRAALTERARDESCONTO;
+                    -- Requisitos Avançados
+                    vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAOCATEG_FAIXA(idxCategFaixa).OBRIGATORIOPARCIAL;
+                    vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAOCATEG_FAIXA(idxCategFaixa).QTMINMIXFORNECEDOR;
     
                     -----------------------------------------------------------------------
                     -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR CATEGORIA - EDTPRM
@@ -18514,6 +18537,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , TIPOVENDA
                               , REGRAALTERARDESCONTO
                               , QTCOMBOMED
+                              , OBRIGATORIOPARCIALMED
+                              , QTMINMIXFORNECEDORMED
                               )
                        VALUES ( vnNovoCodDesconto
                               , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18571,6 +18596,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , vrDESCONTO.vTIPOVENDA
                               , vrDESCONTO.nREGRAALTERARDESCONTO
                               , vrDESCONTO.nQTCOMBOMED
+                              , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                              , vrDESCONTO.nQTMINMIXFORNECEDORMED
                               );
 
                   -- Altera na PCDESCONTO o Desconto da Categoria - EDTPRM
@@ -18604,6 +18631,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                          , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                         , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                         , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (NVL(CODSEC,0)                     = NVL(vrDESCONTO.nCODSEC,0))
                        AND (CODCATEGORIA                      = vrDESCONTO.nCODCATEGORIA)
@@ -18651,6 +18680,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOFORNEC_FAIXA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAOFORNEC(idxFornec).PARTICIPACOMISSGARANTIDA;
               vtPCMED_PROMOCAOFORNEC_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOFORNEC(idxFornec).PERCDESCBASERCA;
               vtPCMED_PROMOCAOFORNEC_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOFORNEC(idxFornec).REGRAALTERARDESCONTO;
+              vtPCMED_PROMOCAOFORNEC_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOFORNEC(idxFornec).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAOFORNEC_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOFORNEC(idxFornec).QTMINMIXFORNECEDOR;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
             ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
@@ -18696,6 +18727,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAOFORNEC_FAIXA(idxFornecFaixa).PERCDESCBASERCA;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAOFORNEC_FAIXA(idxFornecFaixa).REGRAALTERARDESCONTO;
+                    -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAOFORNEC_FAIXA(idxFornecFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAOFORNEC_FAIXA(idxFornecFaixa).QTMINMIXFORNECEDOR;
 
                 -----------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR FORNECEDOR - EDTPRM
@@ -18771,6 +18805,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
                           , QTCOMBOMED
+                          , OBRIGATORIOPARCIALMED
+                          , QTMINMIXFORNECEDORMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -18827,6 +18863,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
                           , vrDESCONTO.nQTCOMBOMED
+                          , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                          , vrDESCONTO.nQTMINMIXFORNECEDORMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Fornecedor - EDTPRM
@@ -18860,6 +18898,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                        , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                       , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                       , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODFORNEC                         = vrDESCONTO.nCODFORNEC)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -18900,6 +18940,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOMARCA_FAIXA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAOMARCA(idxMarca).PARTICIPACOMISSGARANTIDA;
               vtPCMED_PROMOCAOMARCA_FAIXA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOMARCA(idxMarca).PERCDESCBASERCA;
               vtPCMED_PROMOCAOMARCA_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOMARCA(idxMarca).REGRAALTERARDESCONTO;
+              vtPCMED_PROMOCAOMARCA_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOMARCA(idxMarca).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAOMARCA_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOMARCA(idxMarca).QTMINMIXFORNECEDOR;
             -- De Desconto/BonifMerc por Quantidade por Quantidade Carrega Array as Faixas
             ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
@@ -18945,6 +18987,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAOMARCA_FAIXA(idxMarcaFaixa).PERCDESCBASERCA;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAOMARCA_FAIXA(idxMarcaFaixa).REGRAALTERARDESCONTO;
+                -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAOMARCA_FAIXA(idxMarcaFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAOMARCA_FAIXA(idxMarcaFaixa).QTMINMIXFORNECEDOR;
 
                 -----------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR MARCA - EDTPRM
@@ -19020,6 +19065,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
                           , QTCOMBOMED
+                          , OBRIGATORIOPARCIALMED
+                          , QTMINMIXFORNECEDORMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -19076,6 +19123,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
                           , vrDESCONTO.nQTCOMBOMED
+                          , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                          , vrDESCONTO.nQTMINMIXFORNECEDORMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto da Marca - EDTPRM
@@ -19109,6 +19158,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                        , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                       , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                       , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODMARCA                          = vrDESCONTO.nCODMARCA)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -19149,6 +19200,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOLINHAPROD_FA(1).PARTICIPACOMISSGARANTIDA := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).PARTICIPACOMISSGARANTIDA;
               vtPCMED_PROMOCAOLINHAPROD_FA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).PERCDESCBASERCA;
               vtPCMED_PROMOCAOLINHAPROD_FA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).REGRAALTERARDESCONTO;
+              vtPCMED_PROMOCAOLINHAPROD_FA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAOLINHAPROD_FA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOLINHAPROD(idxLinhaProd).QTMINMIXFORNECEDOR;
             -- De Desconto por Quantidade Carrega Array as Faixas
             ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
@@ -19194,6 +19247,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nPERCDESCBASERCA            := vtPCMED_PROMOCAOLINHAPROD_FA(idxLinhaProdFaixa).PERCDESCBASERCA;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAOLINHAPROD_FA(idxLinhaProdFaixa).REGRAALTERARDESCONTO;
+                -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAOLINHAPROD_FA(idxLinhaProdFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAOLINHAPROD_FA(idxLinhaProdFaixa).QTMINMIXFORNECEDOR;
 
                 -----------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR LINHA - EDTPRM
@@ -19269,6 +19325,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , TIPOVENDA
                           , REGRAALTERARDESCONTO
                           , QTCOMBOMED
+                          , OBRIGATORIOPARCIALMED
+                          , QTMINMIXFORNECEDORMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -19325,6 +19383,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.vTIPOVENDA
                           , vrDESCONTO.nREGRAALTERARDESCONTO
                           , vrDESCONTO.nQTCOMBOMED
+                          , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                          , vrDESCONTO.nQTMINMIXFORNECEDORMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto da Linha - EDTPRM
@@ -19358,6 +19418,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                        , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                       , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                       , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (CODLINHAPROD                      = vrDESCONTO.nCODLINHAPROD)
                      AND (NVL(INICIOINTERVALOPROMOCAOMED,0) = NVL(vrDESCONTO.nINICIOINTERVALOPROMOCAOMED,0));
@@ -19400,6 +19462,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAORESTGRUPRO_FA(1).PERCDESCBASERCA          := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).PERCDESCBASERCA;
               vtPCMED_PROMOCAORESTGRUPRO_FA(1).VLDESCCMVPROMOCAOMED     := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).VLDESCCMVPROMOCAOMED;
               vtPCMED_PROMOCAORESTGRUPRO_FA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).REGRAALTERARDESCONTO;
+              vtPCMED_PROMOCAORESTGRUPRO_FA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAORESTGRUPRO_FA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAORESTGRUPRO(idxGruProd).QTMINMIXFORNECEDOR;
             -- De Desconto por Quantidade Carrega Array as Faixas
             ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
               SELECT *
@@ -19447,6 +19511,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nVLDESCCMVPROMOCAOMED       := vtPCMED_PROMOCAORESTGRUPRO_FA(idxGruProdFaixa).VLDESCCMVPROMOCAOMED;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO       := vtPCMED_PROMOCAORESTGRUPRO_FA(idxGruProdFaixa).REGRAALTERARDESCONTO;
+                -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED      := vtPCMED_PROMOCAORESTGRUPRO_FA(idxGruProdFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED      := vtPCMED_PROMOCAORESTGRUPRO_FA(idxGruProdFaixa).QTMINMIXFORNECEDOR;
 
                 ------------------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR GRUPO DE PRODUTOS - EDTPRM
@@ -19524,6 +19591,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , VLDESCCMVPROMOCAOMED
                           , REGRAALTERARDESCONTO
                           , QTCOMBOMED
+                          , OBRIGATORIOPARCIALMED
+                          , QTMINMIXFORNECEDORMED
                           )
                    VALUES ( vnNovoCodDesconto
                           , vnNovoCodPromocaoMed -->> Novo Sequencial de Promoção
@@ -19582,6 +19651,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                           , vrDESCONTO.nVLDESCCMVPROMOCAOMED
                           , vrDESCONTO.nREGRAALTERARDESCONTO
                           , vrDESCONTO.nQTCOMBOMED
+                          , vrDESCONTO.vOBRIGATORIOPARCIALMED
+                          , vrDESCONTO.nQTMINMIXFORNECEDORMED
                           );
 
                 -- Altera na PCDESCONTO o Desconto do Grupo de Produtos - EDTPRM
@@ -19615,6 +19686,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                        , VLDESCCMVPROMOCAOMED       = vrDESCONTO.nVLDESCCMVPROMOCAOMED
                        , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                        , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                       , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                       , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                    WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                      AND (TIPOGRUPOREST                     = vrDESCONTO.vTIPOGRUPOREST)
                      AND (CODGRUPOREST                      = vrDESCONTO.nCODGRUPOREST)
@@ -19676,13 +19749,8 @@ IS PRAGMA SERIALLY_REUSABLE;
               vtPCMED_PROMOCAOPRODUTO_FAIXA(1).CODIGOINTEGRACAOWMS      := NULL;
               vtPCMED_PROMOCAOPRODUTO_FAIXA(1).VLDESCCMVPROMOCAOMED     := vtPCMED_PROMOCAOPRODUTO(idxProduto).VLDESCCMVPROMOCAOMED;
               vtPCMED_PROMOCAOPRODUTO_FAIXA(1).REGRAALTERARDESCONTO     := vtPCMED_PROMOCAOPRODUTO(idxProduto).REGRAALTERARDESCONTO;
-
-              vvOBRIGATORIOPARCIALMED := NULL;
-              vvQTMINMIXFORNECEDORMED := NULL;
-              IF (vvTipoPolitica = 'D') AND (vvTipoPromocao = 'M') THEN
-                vvOBRIGATORIOPARCIALMED := vtPCMED_PROMOCAOPRODUTO(idxProduto).OBRIGATORIOPARCIAL;
-                vvQTMINMIXFORNECEDORMED := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTMINMIXFORNECEDOR;                
-              END IF;    
+              vtPCMED_PROMOCAOPRODUTO_FAIXA(1).OBRIGATORIOPARCIAL       := vtPCMED_PROMOCAOPRODUTO(idxProduto).OBRIGATORIOPARCIAL;
+              vtPCMED_PROMOCAOPRODUTO_FAIXA(1).QTMINMIXFORNECEDOR       := vtPCMED_PROMOCAOPRODUTO(idxProduto).QTMINMIXFORNECEDOR;    
 
               -- Campo de Controle de Item Obrigatório
               IF    vvTipoPromocao = 'K' THEN
@@ -19764,11 +19832,6 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- Pega o Preço Fixo no Produto
                 vrDESCONTO.nPRECOFIXOPROMOCAOMED       := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).PRECOFIXO;
                 
-                IF (vvTipoPolitica = 'D') AND (vvTipoPromocao = 'M') THEN               
-                  vrDESCONTO.vOBRIGATORIOPARCIALMED    := vvOBRIGATORIOPARCIALMED;
-                  vrDESCONTO.nQTMINMIXFORNECEDORMED    := vvQTMINMIXFORNECEDORMED;
-                END IF;
-                
                 -- Altera Preço de Tabela se usar Preço Fixo
                 IF (vvTipoPolitica IN ('P','F')) THEN
                   vrDESCONTO.vALTERAPTABELA            := 'S';
@@ -19827,6 +19890,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrDESCONTO.nVLDESCCMVPROMOCAOMED         := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).VLDESCCMVPROMOCAOMED;
                 -- Regra de alteração do Desconto/Preço
                 vrDESCONTO.nREGRAALTERARDESCONTO         := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).REGRAALTERARDESCONTO;
+                -- Requisitos Avançados
+                vrDESCONTO.vOBRIGATORIOPARCIALMED        := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).OBRIGATORIOPARCIAL;
+                vrDESCONTO.nQTMINMIXFORNECEDORMED        := vtPCMED_PROMOCAOPRODUTO_FAIXA(idxProdutoFaixa).QTMINMIXFORNECEDOR;
 
                 -----------------------------------------------------------------------
                 -- AÇÃO INCLUSÃO/ALTERAÇÃO/EXCLUSÃO DO DESCONTO POR PRODUTO - EDTPRM
@@ -20058,6 +20124,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                          --
                          , REGRAALTERARDESCONTO       = vrDESCONTO.nREGRAALTERARDESCONTO
                          , QTCOMBOMED                 = vrDESCONTO.nQTCOMBOMED
+                         , OBRIGATORIOPARCIALMED      = vrDESCONTO.vOBRIGATORIOPARCIALMED
+                         , QTMINMIXFORNECEDORMED      = vrDESCONTO.nQTMINMIXFORNECEDORMED
                      WHERE (CODPROMOCAOMED                    = vnNovoCodPromocaoMed)
                        AND (CODPROD                           = vrDESCONTO.nCODPROD)
                        AND (NUMLOTE                           = vrDESCONTO.vNUMLOTE); 
@@ -23143,7 +23211,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCOMMINT
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODEPTO
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23154,6 +23224,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODEPTO        IS NOT NULL)
@@ -23178,7 +23250,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODEPTO
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23191,6 +23265,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODEPTO        IS NOT NULL)
@@ -23208,7 +23284,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCOMMINT
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODSEC
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23219,6 +23297,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODSEC         IS NOT NULL)
@@ -23243,7 +23323,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODSEC
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23256,6 +23338,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODSEC         IS NOT NULL)
@@ -23273,7 +23357,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCOMMINT
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODCATEGORIA
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23284,6 +23370,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODCATEGORIA   IS NOT NULL);
@@ -23306,7 +23394,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODCATEGORIA
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23319,6 +23409,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODCATEGORIA   IS NOT NULL);
@@ -23335,7 +23427,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCOMMINT
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODFORNEC
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23346,6 +23440,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODFORNEC      IS NOT NULL);
@@ -23368,7 +23464,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODFORNEC
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23381,6 +23479,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODFORNEC      IS NOT NULL);
@@ -23397,7 +23497,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCOMMINT
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODMARCA
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23408,6 +23510,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODMARCA       IS NOT NULL);
@@ -23430,7 +23534,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODMARCA
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23443,6 +23549,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODMARCA       IS NOT NULL);
@@ -23460,6 +23568,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                        )
                  SELECT DISTINCT
                         CODLINHAPROD
@@ -23471,6 +23581,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODLINHAPROD   IS NOT NULL);
@@ -23494,7 +23606,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , FIMINTERVALO
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODLINHAPROD
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23507,6 +23621,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODLINHAPROD   IS NOT NULL);
@@ -23525,7 +23641,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODGRUPOREST
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,PERCDESC)
@@ -23537,6 +23655,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODGRUPOREST IS NOT NULL)
@@ -23563,7 +23683,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PARTICIPACOMISSGARANTIDA
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
-                      , REGRAALTERARDESCONTO )
+                      , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODGRUPOREST
                       , DECODE(vvTipoPromocao,'R',PERCMARKUPMED,DECODE(vvTipoPolitica,'B',PERCBONIFICMERC,PERCDESC))
@@ -23577,6 +23699,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODGRUPOREST IS NOT NULL)
@@ -23610,6 +23734,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , CODIGOINTEGRACAOWMS
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                       )
                  SELECT T.CODPROD
                       , T.PERCDESC
@@ -23627,6 +23753,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , T.CODIGOINTEGRACAOWMS
                       , T.VLDESCCMVPROMOCAOMED
                       , T.REGRAALTERARDESCONTO
+                      , T.OBRIGATORIOPARCIALMED
+                      , T.QTMINMIXFORNECEDORMED
                  FROM
                  (
                  SELECT DISTINCT
@@ -23646,6 +23774,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , CODIGOINTEGRACAOWMS
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODPROD        IS NOT NULL)
@@ -23736,6 +23866,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , OBRIGATORIO
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIAL
+                        , QTMINMIXFORNECEDOR
                         )
                    SELECT DISTINCT
                           CODPROD
@@ -23760,6 +23892,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , NVL(PROMOCAOMEDOBRIGATORIO,'N')
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIALMED
+                        , QTMINMIXFORNECEDORMED
                      FROM PCDESCONTO
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                       AND (CODPROD        IS NOT NULL);
@@ -23776,6 +23910,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PERCDESCBASERCA
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIAL
+                        , QTMINMIXFORNECEDOR
                         )
                    SELECT DISTINCT
                           CODPROD
@@ -23789,6 +23925,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                         , PERCDESCBASERCA
                         , VLDESCCMVPROMOCAOMED
                         , REGRAALTERARDESCONTO
+                        , OBRIGATORIOPARCIALMED
+                        , QTMINMIXFORNECEDORMED
                      FROM PCDESCONTO
                     WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                       AND (CODPROD        IS NOT NULL);
@@ -23800,6 +23938,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERMITIRAUMENTARQTDEKIT
                       , QTKIT
                       , QTOBRIGATORIO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                       )
                  SELECT DISTINCT
                         CODPROD
@@ -23826,7 +23966,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                             QTMINIMAMED
                           ELSE
                             NULL
-                        END                      
+                        END
+                        , OBRIGATORIOPARCIALMED
+                        , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODPROD        IS NOT NULL);
@@ -23845,6 +23987,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                       )
                  SELECT DISTINCT
                         CODPROD
@@ -23860,6 +24004,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , PERCDESCBASERCA
                       , VLDESCCMVPROMOCAOMED
                       , REGRAALTERARDESCONTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODPROD        IS NOT NULL);
