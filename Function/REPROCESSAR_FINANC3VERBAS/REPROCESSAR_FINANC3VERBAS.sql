@@ -1,0 +1,65 @@
+CREATE OR REPLACE FUNCTION REPROCESSAR_FINANC3VERBAS(PDATA      IN DATE,
+                                                     PCODFILIAL IN VARCHAR2)
+  RETURN VARCHAR2 IS
+  VTOTALPCFINANC NUMBER;
+  PRAGMA AUTONOMOUS_TRANSACTION;
+  V_MENSSAGEM VARCHAR2(20);
+BEGIN
+  BEGIN
+    SELECT COUNT(1) TOTAL
+      INTO VTOTALPCFINANC
+      FROM PCFINANC3VERBAS
+     WHERE DATAREFERENCIA = PDATA
+       AND CODFILIAL = PCODFILIAL
+       AND CODROTINA = 504;
+  
+    IF VTOTALPCFINANC = 0 THEN
+      INSERT INTO PCFINANC3VERBAS
+        (DATAREFERENCIA
+        ,DATAGERACAO
+        ,CODROTINAGERACAO
+        ,CODFILIAL
+        ,TIPODADO
+        ,CODFORNEC
+        ,CODFORNECPRINC
+        ,DTEMISSAO
+        ,DTVENC
+        ,TIPO
+        ,VALOR
+        ,NUMVERBA
+        ,CODROTINA
+        ,NUMTRANSENT
+        ,NUMTRANSCRFOR)
+        SELECT PDATA
+              ,TRUNC(SYSDATE)
+              ,CODROTINAGERACAO
+              ,CODFILIAL
+              ,TIPODADO
+              ,CODFORNEC
+              ,CODFORNECPRINC
+              ,DTEMISSAO
+              ,DTVENC
+              ,TIPO
+              ,VALOR
+              ,NUMVERBA
+              ,CODROTINA
+              ,NUMTRANSENT
+              ,NUMTRANSCRFOR
+          FROM PCFINANC3VERBAS       
+         WHERE DATAREFERENCIA = PDATA - 1
+           AND CODFILIAL = PCODFILIAL
+           AND CODROTINA = 504;
+    
+      V_MENSSAGEM := 'OK';
+    
+    ELSE
+      V_MENSSAGEM := 'Tabela não está vazia';
+    END IF;
+  
+  EXCEPTION
+    WHEN OTHERS THEN
+      RAISE_APPLICATION_ERROR(-20001, ('Erro original: ' || SQLERRM));
+  END;
+
+  RETURN V_MENSSAGEM;
+END;
