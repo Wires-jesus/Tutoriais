@@ -1441,7 +1441,7 @@ IS
     vVlDesc NUMBER;
 BEGIN
  vVlDesc := 0;
-SELECT  nvl(i.vlrdesconto,0)- nvl(i.vlracrescimo,0)
+SELECT  nvl(i.vlrdesconto,0)- nvl(i.vlracrescimo - fnc_int_c5_vlrdeliveryrateio(pNroEmpresa, pNroCheckout, pSeqDocto, pNumSeq),0)
  INTO   vVlDesc
  FROM   monitorpdvmiddle.tb_doctoitem i
  WHERE  i.STATUS = 'V'
