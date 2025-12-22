@@ -1,5 +1,6 @@
-DECLARE 
+DECLARE
   vTemRotinaTabela integer := 0;
+  vCountUFExterior integer := 0;
   v_DeleteBaseCBSIBS_Antigo   varchar2(4000);  
 BEGIN
   
@@ -74,12 +75,20 @@ BEGIN
      SET DESCRICAO = '1 - BR'
    WHERE ID = 'LOCAL_CONSUMO_BR_UF'
      AND DESCRICAO = 'BR';
-   
-  INSERT INTO PCROTULOITEM(
-    ID, DESCRICAO, VALOR
-  ) VALUES(
-    'LOCAL_CONSUMO_BR_UF', '2 - EX', 'EX'
-  ); 
+
+  SELECT COUNT(1)
+    INTO vTemUFExterior
+    FROM PCROTULOITEM
+   WHERE ID = 'LOCAL_CONSUMO_BR_UF'
+     AND DESCRICAO = '2 - EX'; 
+
+  IF vCountUFExterior = 0 THEN   
+    INSERT INTO PCROTULOITEM(
+      ID, DESCRICAO, VALOR
+    ) VALUES(
+      'LOCAL_CONSUMO_BR_UF', '2 - EX', 'EX'
+    );
+  END IF; 
   
   COMMIT;
   
