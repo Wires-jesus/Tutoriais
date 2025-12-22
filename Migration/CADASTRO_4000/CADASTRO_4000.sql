@@ -77,7 +77,7 @@ BEGIN
      AND DESCRICAO = 'BR';
 
   SELECT COUNT(1)
-    INTO vTemUFExterior
+    INTO vCountUFExterior
     FROM PCROTULOITEM
    WHERE ID = 'LOCAL_CONSUMO_BR_UF'
      AND DESCRICAO = '2 - EX'; 
