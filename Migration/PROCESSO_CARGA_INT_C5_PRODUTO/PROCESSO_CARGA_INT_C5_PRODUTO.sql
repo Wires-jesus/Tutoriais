@@ -1080,88 +1080,147 @@ AND   NOT EXISTS(SELECT EMB.CODAUXILIAR
 \
 
 CREATE OR REPLACE VIEW VW_INT_C5_CAB_CESTA AS
-WITH CTE_PRECOFIXO AS
- (SELECT I.CODPRODACAB, I.CODPRODMP, C.CODFILIAL, I.PRECOFIXO, I.PERCDESC
-    FROM PCPRECOCESTAI I, PCPRECOCESTAC C
-   WHERE I.CODPRECOCESTA = C.CODPRECOCESTA
-     AND I.CODPRODACAB = C.CODPRODACAB
-     AND TRUNC(SYSDATE) BETWEEN C.DTINICIO AND C.DTFIM)
-SELECT MAX(C.SEQPRODUTO) SEQPRODUTO,
-       CESTA.CODPRODACAB,
-       CESTA.NROEMPRESA,
-       (CASE
-         WHEN NVL(SUM(CESTA.PRECOFIXO), 0) > 0 THEN
-          SUM(ROUND(CESTA.PRECOFIXO * CESTA.QTPRODMP, 2))
-         WHEN NVL(SUM(CESTA.PERCDESC), 0) > 0 THEN
-          SUM(ROUND((CESTA.PRECO - (ABS(CESTA.PRECO * CESTA.PERCDESC / 100))),
-                    2))
-         ELSE
-          SUM(ROUND(CESTA.PRECO, 2))
-       END) PRECO
-  FROM (SELECT F.CODPRODACAB,
-               P.SEQPRODUTO,
-               PP.NROEMPRESA,
-               F.CODPRODMP,
-               F.QTPRODMP,
-               F.CODAUXILIARMP,
-               I.PRECOFIXO,
-               I.PERCDESC,
-               (CASE
-                 WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM',
-                     C5.CODFILIAL,
-                     'N') = 'S' THEN
-                  COLUNA_PRECO(BUSCAPRECOS(C5.CODFILIAL,
-                     0,
-                     F.CODAUXILIARMP,
-                     TRUNC(SYSDATE)),
-                     'PVENDA')
-                 ELSE
-                  COLUNA_PRECO(BUSCAPRECOS(C5.CODFILIAL,
-                     FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',
-                     C5.CODFILIAL,
-                     1),
-                     F.CODAUXILIARMP,
-                     TRUNC(SYSDATE)),
-                     'PVENDA1')
-               END) * F.QTPRODMP PRECO
-          FROM MONITORPDVMIDDLE.TB_PRODPRECO PP,
-               MONITORPDVMIDDLE.TB_PRODUTO TB_PROD,
-               PCEMBALAGEM E,
-               PCFORMPROD F,
-               PCDEPARAPRODC5 P,
-               CTE_PRECOFIXO I,
-               VW_INT_C5_OBTER_FILIAIS_C5 C5
-         WHERE PP.SEQPRODUTO = P.SEQPRODUTO
-           AND P.ATIVO = 'S'
-           AND ((P.CODPROD = E.CODPROD) AND (P.CODAUXILIAR = 0) OR
-               (P.CODPROD = E.CODPROD) AND (P.CODAUXILIAR = E.CODAUXILIAR))
-           AND ((P.CODPROD = F.CODPRODMP) AND (P.CODAUXILIAR = 0) OR
-               (P.CODPROD = F.CODPRODMP) AND
-               (P.CODAUXILIAR = F.CODAUXILIARMP))       
-           AND TB_PROD.SEQPRODUTO = PP.SEQPRODUTO
-           AND TB_PROD.CODPRODUTO = E.CODPROD
-           AND TB_PROD.SEQPRODUTO = P.SEQPRODUTO
-           AND ((TB_PROD.CODPRODUTO = F.CODPRODACAB) OR
-               (TB_PROD.CODPRODUTO = F.CODPRODMP))
-           AND E.CODFILIAL = C5.CODFILIAL
-           AND C5.CODFILIALINTEGRACAO = PP.NROEMPRESA
-           AND E.CODAUXILIAR = F.CODAUXILIARMP
-           AND E.CODPROD = F.CODPRODMP
-           AND E.CODPROD = P.CODPROD
-           AND E.QTUNIT = PP.QTDEMBALAGEM
-           AND F.CODPRODMP = I.CODPRODMP(+)
-           AND F.CODFILIAL = I.CODFILIAL(+)
-           AND F.CODPRODACAB = I.CODPRODACAB(+)
-           AND F.CODPRODACAB IN
-               (SELECT CODPROD FROM PCPRODUT WHERE TIPOMERC IN ('KT', 'CB'))) CESTA,
-       PCDEPARAPRODC5 C,
-       PCPRODUT P
- WHERE CESTA.PRECO > 0
-   AND P.CODPROD = CESTA.CODPRODACAB
-   AND P.CODPROD = C.CODPROD
-   AND P.TIPOMERC IN ('CB', 'KT')
-   AND (CESTA.CODPRODACAB = C.CODPROD AND C.ATIVO = 'S')
- GROUP BY CESTA.CODPRODACAB, CESTA.NROEMPRESA
+WITH
+/* =========================================================
+   1. Filiais que já possuem cesta
+========================================================= */
+FILIAIS_COM_CESTA AS (
+    SELECT DISTINCT
+           CODPRODACAB,
+           CODFILIAL
+    FROM PCFORMPROD
+),
+
+/* =========================================================
+   2. Filiais que NÃO possuem cesta
+========================================================= */
+FILIAIS_SEM_CESTA AS (
+    SELECT
+        C5.CODFILIAL
+    FROM VW_INT_C5_OBTER_FILIAIS_C5 C5
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM PCFORMPROD F
+        WHERE F.CODFILIAL = C5.CODFILIAL
+    )
+),
+
+/* =========================================================
+   3. Filial base por produto
+========================================================= */
+FILIAL_BASE AS (
+    SELECT
+        CODPRODACAB,
+        MIN(CODFILIAL) CODFILIAL_BASE
+    FROM PCFORMPROD
+    GROUP BY CODPRODACAB
+),
+
+FORMPROD_FINAL AS (
+
+    /* ---- original ---- */
+    SELECT
+        F.CODPRODACAB,
+        F.CODFILIAL,
+        F.CODPRODMP,
+        F.QTPRODMP,
+        F.CODAUXILIARMP
+    FROM PCFORMPROD F
+
+    UNION ALL
+
+    /* ---- replicada ---- */
+    SELECT
+        FB.CODPRODACAB,
+        FS.CODFILIAL,
+        F.CODPRODMP,
+        F.QTPRODMP,
+        F.CODAUXILIARMP
+    FROM
+        FILIAL_BASE FB,
+        PCFORMPROD F,
+        FILIAIS_SEM_CESTA FS
+    WHERE
+        F.CODPRODACAB = FB.CODPRODACAB
+        AND F.CODFILIAL = FB.CODFILIAL_BASE
+)
+
+SELECT
+  MAX(C.SEQPRODUTO) SEQPRODUTO,
+  CESTA.CODPRODACAB,
+  CESTA.NROEMPRESA,
+  (CASE
+       WHEN NVL(SUM(CESTA.PRECOFIXO),0) > 0 THEN
+            SUM(ROUND(CESTA.PRECOFIXO * CESTA.QTPRODMP, 2))
+       WHEN NVL(SUM(CESTA.PERCDESC), 0) > 0 THEN
+            SUM(ROUND((CESTA.PRECO - (ABS(CESTA.PRECO * CESTA.PERCDESC / 100))) , 2))
+       ELSE SUM(ROUND(CESTA.PRECO,2))
+   END) PRECO
+FROM (  
+      SELECT 
+         F.CODPRODACAB,
+         P.SEQPRODUTO,
+         PP.NROEMPRESA,
+         F.CODPRODMP,
+         F.QTPRODMP,
+         F.CODAUXILIARMP,
+         I.PRECOFIXO,
+         I.PERCDESC,
+         (CASE
+            WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_PRECOPOREMBALAGEM', F.CODFILIAL, 'N') = 'S' THEN
+                 COLUNA_PRECO(BUSCAPRECOS(F.CODFILIAL, 0, F.CODAUXILIARMP, TRUNC(SYSDATE)),'PVENDA')
+            ELSE COLUNA_PRECO(
+                    BUSCAPRECOS(
+                        F.CODFILIAL,
+                        FERRAMENTAS.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO', F.CODFILIAL, 1),
+                        F.CODAUXILIARMP,
+                        TRUNC(SYSDATE)
+                    ),
+                    'PVENDA1'
+                 )
+         END) * F.QTPRODMP PRECO
+      FROM
+            MONITORPDVMIDDLE.TB_PRODPRECO PP,
+            PCEMBALAGEM E,
+            FORMPROD_FINAL F,
+            PCDEPARAPRODC5 P,
+            (SELECT * FROM PCPRECOCESTAC WHERE TRUNC(SYSDATE) BETWEEN DTINICIO AND DTFIM) C,
+            PCPRECOCESTAI I,
+            VW_INT_C5_OBTER_FILIAIS_C5 C5
+      WHERE
+            PP.SEQPRODUTO = P.SEQPRODUTO
+      AND   P.ATIVO = 'S'
+      AND   ((P.CODPROD = E.CODPROD AND P.CODAUXILIAR = 0) OR
+             (P.CODPROD = E.CODPROD AND P.CODAUXILIAR = E.CODAUXILIAR))
+      AND   ((P.CODPROD = F.CODPRODMP AND P.CODAUXILIAR = 0) OR
+             (P.CODPROD = F.CODPRODMP AND P.CODAUXILIAR = F.CODAUXILIARMP))
+      AND   F.CODFILIAL = C5.CODFILIAL
+      AND   E.CODFILIAL = C5.CODFILIAL
+      AND   C5.CODFILIALINTEGRACAO = PP.NROEMPRESA
+      AND   E.CODAUXILIAR = F.CODAUXILIARMP
+      AND   E.CODFILIAL   = F.CODFILIAL
+      AND   E.CODPROD     = F.CODPRODMP
+      AND   E.CODPROD     = P.CODPROD
+      AND   E.QTUNIT      = PP.QTDEMBALAGEM
+      AND   F.CODPRODACAB = I.CODPRODACAB(+)
+      AND   F.CODFILIAL   = I.CODFILIAL(+)
+      AND   F.CODPRODMP   = I.CODPRODMP(+)
+      AND   I.CODPRECOCESTA = C.CODPRECOCESTA(+)
+      AND   F.CODPRODACAB IN (
+            SELECT CODPROD FROM PCPRODUT WHERE TIPOMERC IN ('CB','KT')
+      )
+) CESTA,
+PCDEPARAPRODC5 C,
+PCPRODUT P
+WHERE
+      CESTA.PRECO > 0  
+AND   P.CODPROD = CESTA.CODPRODACAB
+AND   P.CODPROD = C.CODPROD  
+AND   P.TIPOMERC IN ('CB', 'KT')
+AND   C.ATIVO = 'S'
+GROUP BY
+      CESTA.CODPRODACAB,
+      CESTA.NROEMPRESA
 
 \
 
