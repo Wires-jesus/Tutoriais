@@ -5359,21 +5359,6 @@ END;
        and NUMNOTA = P_NOTA.NUMNOTA
        and VLBASE_REDUCAO > VLISENTAS;
     ---------------------------------------------------------------------------------
-    -- LIMPANDO A OBSERVACAO
-    if ('S' = V_LIMPAROBS) and
-       (P_NOTA.CODFISCAL in
-       (1201, 1202, 1203, 1204, 1410, 1411, 2201, 2202, 2203, 2204, 2410, 2411))
-    then
-      ---------------------------------------------------------------------------------
-      V_SQLERRO := 'LIMPANDO OBSERVCAO (NOTA ' || P_NOTA.NUMNOTA || ' EM ' ||
-                   TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
-      ---------------------------------------------------------------------------------
-      update PCNFBASEENT
-         set OBS = null
-       where NUMTRANSENT = P_NOTA.NUMTRANSENT
-         and NUMNOTA = P_NOTA.NUMNOTA;
-    end if;
-    ---------------------------------------------------------------------------------
     V_SQLERRO := 'GERANDO REFERENCIA A DEVOLUCAO';
     if P_NOTA.TIPODESCARGA in ('6', '7', '8', 'T')
     then
@@ -5392,6 +5377,21 @@ END;
                where PCNFENT.NUMTRANSENT = P_NOTA.NUMTRANSENT
                  and PCNFENT.NUMNOTA = P_NOTA.NUMNOTA
                  and PCNFENT.OBSLIVROFISCAL is null);
+    end if;
+    ---------------------------------------------------------------------------------
+    -- LIMPANDO A OBSERVACAO
+    if ('S' = V_LIMPAROBS) and
+       (P_NOTA.CODFISCAL in
+       (1201, 1202, 1203, 1204, 1410, 1411, 2201, 2202, 2203, 2204, 2410, 2411))
+    then
+      ---------------------------------------------------------------------------------
+      V_SQLERRO := 'LIMPANDO OBSERVCAO (NOTA ' || P_NOTA.NUMNOTA || ' EM ' ||
+                   TO_CHAR(P_NOTA.DTENT, 'DD/MM/YYYY') || ')';
+      ---------------------------------------------------------------------------------
+      update PCNFBASEENT
+         set OBS = null
+       where NUMTRANSENT = P_NOTA.NUMTRANSENT
+         and NUMNOTA = P_NOTA.NUMNOTA;
     end if;
     ---------------------------------------------------------------------------------
     V_SQLERRO := 'GERANDO REFERENCIA A BONIFICACAO';
