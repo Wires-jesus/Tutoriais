@@ -6274,7 +6274,8 @@ create or replace package body FISCAL is
 
     V_UF VARCHAR2(2) := 'BR';
     V_BASE_CALCULO_PADRAO VARCHAR2(50) := '(&BASE_CALCULO& * [ALIQUOTA])';
-
+    
+    
     -- Função auxiliar para consulta, recebe filtros de consumo específicos
     FUNCTION CONSULTA_TRIBUTOS(
       P_TIPO_LOCAL_CONSUMO VARCHAR2,
@@ -6297,7 +6298,7 @@ create or replace package body FISCAL is
                          ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
                          ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
                          ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
-                          , 'S');      
+                          , 'S');          
     
       SELECT CODIGO_TRIBUTACAO,
              BASE_CALCULO,
@@ -6493,6 +6494,17 @@ create or replace package body FISCAL is
              --Retorno valores CBS
         V_PARAMETROS.PERC_CBS                  := V_PERC_CBS;
         V_PARAMETROS.PERC_RED_CBS              := V_PERC_RED_CBS;
+        
+        
+        IF (V_COD_FORMULA_BASE_CBSIBS NOT LIKE '%CBSIBS%') THEN
+           RAISE_APPLICATION_ERROR(-20999,
+              'O tipo do imposto selecionado é diferente do tipo da base de cálculo escolhida'||
+              ' "Tipo imposto: '||V_COD_FORMULA_BASE_CBSIBS||
+              '  Tipo Base de Calculo: CBSIBS" '||
+              'O correto é selecionar a base de cálculo conforme o Tipo de Imposto "CBSIBS = BASE_CBSIBS".'
+           );
+        END IF;
+        
       ELSE
         --Retornos valores IS
         V_PARAMETROS.CODIGO_TRIBUTACAO_IS        := V_CODIGO_TRIBUTACAO_IS;
@@ -6502,7 +6514,18 @@ create or replace package body FISCAL is
         V_PARAMETROS.CCLASSTRIB_IS               := V_CCLASSTRIB_IS;
         V_PARAMETROS.PERC_IS                     := V_PERC_IS;
         V_PARAMETROS.SOMATOTALNF_IS              := V_SOMATOTALNF_IS;
+
+        IF (V_COD_FORMULA_BASE_CALCULO_IS NOT LIKE '%IS%') THEN
+           RAISE_APPLICATION_ERROR(-20999,
+              'O tipo do imposto selecionado é diferente do tipo da base de cálculo escolhida'||
+              ' "Tipo imposto: '||V_COD_FORMULA_BASE_CALCULO_IS||
+              '  Tipo Base de Calculo: IS" '||
+              'O correto é selecionar a base de cálculo conforme o Tipo de Imposto "IS = BASE_IS".'
+           );
+        END IF;
       END IF;
+      
+
       
       V_PARAMETROS := DADOS_CONFORME_PCCSTTRIB(V_PARAMETROS);
 
@@ -6711,8 +6734,10 @@ create or replace package body FISCAL is
 
     PKG_DEBUGGING_FWPC.LOG('Inicio do processo de cálculo dos novos tributos','S');
 
-      IF (P_PARAMETROS.COD_FORMULA_BASE_CBSIBS IS NOT NULL) OR
-         (P_PARAMETROS.COD_FORMULA_BASE_CALCULO_IS IS NOT NULL) THEN
+      IF ((P_PARAMETROS.COD_FORMULA_BASE_CBSIBS IS NOT NULL) AND 
+          (P_PARAMETROS.TIPO_IMPOSTO = 'CBSIBS')) OR
+         ((P_PARAMETROS.COD_FORMULA_BASE_CALCULO_IS IS NOT NULL) AND
+          (P_PARAMETROS.TIPO_IMPOSTO = 'IS'))  THEN
          -- Atribuir valores das variáveis
          VARIAVEL.NOME  := '&PUNITCONT&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_PRODUTO IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_PRODUTO END;
@@ -7070,7 +7095,7 @@ create or replace package body FISCAL is
       WHEN OTHERS THEN
         BEGIN
           PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do CALCULAR_TODOS_TRIBUTOS: '||SQLERRM,'S');
-          P_MSG := 'ERRO';
+          P_MSG := 'ERRO: '||SQLERRM;
           RETURN(V_DADOS_TRIBUTACAO);
         END;
     END;
