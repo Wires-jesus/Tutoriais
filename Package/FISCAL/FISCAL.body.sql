@@ -7273,43 +7273,4 @@ create or replace package body FISCAL is
     END IF;
   END;    
 
-  PROCEDURE CADASTRAR_TRIBUTACAO_PADRAO IS
-    V_COUNT NUMBER;
-  BEGIN
-    SELECT COUNT(*) 
-      INTO V_COUNT 
-      FROM PCTRIBUTACAO
-     WHERE DESCRICAO_TRIBUTACAO = 'TRIBUTAÇÃO EMERGENCIAL REFORMA TRIBUTÁRIA';
-
-    IF V_COUNT = 0 THEN
-      INSERT INTO PCTRIBUTACAO(
-        CODIGO_TRIBUTACAO, 
-        TIPO_IMPOSTO, 
-        TIPO_LOCAL_CONSUMO, 
-        DESCRICAO_TRIBUTACAO, 
-        LOCAL_CONSUMO_GERAL, 
-        CST, 
-        CCLASSTRIB, 
-        PERC_CBS, 
-        PERC_IBS_UF, 
-        PERC_RED_IBS_MUN, 
-        DTINICIO_VIGENCIA, 
-        DTFIM_VIGENCIA
-      ) VALUES (
-        DFSEQ_PCTRIBUTACAO.NEXTVAL, 
-        'CBSIBS', 
-        'G', 
-        'TRIBUTAÇÃO EMERGENCIAL REFORMA TRIBUTÁRIA', 
-        'BR', 
-        '000',
-        '000001',
-        0.9,
-        0.1,
-        0,
-        TO_DATE('05/01/2026', 'DD/MM/YYYY'),
-        TO_DATE('31/01/2026', 'DD/MM/YYYY')
-      );
-    END IF;
-  END;
-
 END;
