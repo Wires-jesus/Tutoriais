@@ -563,7 +563,20 @@ AS
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso) valorultent,
-        TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),'0')) vlacrescimofuncep,
+        TO_NUMBER(NVL((((CASE
+                     WHEN a.SITTRIBUT IN ('00', '20', '90') AND
+                     a.PERCALIQFCPICMS > 0 then
+                     ((select ROUND(vlrbase, 2)
+                     from monitorpdvmiddle.tb_doctotributacaoitem
+                     where nroempresa = i.nroempresa
+                     and nrocheckout = i.nrocheckout
+                     and seqdocto = i.seqdocto
+                     and seqitem = i.seqitem
+                     and seqtipotributacao = 1))
+                     ELSE
+                     0
+                     END) / i.quantidade) * a.percaliqfcpicms / 100),
+                     0)) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -584,14 +597,21 @@ AS
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso),0) vlbaseefet,
-        (CASE
-            WHEN a.SITTRIBUT IN ('00','20','90')
-                 AND
-                 a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'B'),'0'))               
-            ELSE
-              0
-          END) vlbasefcpicms,
+	    (CASE
+	    WHEN a.SITTRIBUT IN ('00','20','90')
+	    	 AND
+	    	 a.PERCALIQFCPICMS > 0
+	    	then ((select ROUND(vlrbase,2)
+	    			 from monitorpdvmiddle.tb_doctotributacaoitem
+	    			where nroempresa = i.nroempresa
+	    			  and nrocheckout = i.nrocheckout
+	    			  and seqdocto = i.seqdocto
+	    			  and seqitem = i.seqitem
+	    			  and seqtipotributacao = 1)) / i.qtdembalagem
+	    	--THEN ROUND(ti.VLRBASE,2)
+	    ELSE
+	      0
+        END) / i.quantidade vlbasefcpicms,
         0 vlbasefcpst,
         0 vlbasepiscofins,
         0 vlbcfcpstret,
@@ -1080,7 +1100,20 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
            FROM vw_int_c5_custos
           WHERE codfilial = C5.CODFILIAL
             AND codauxiliar = i.codacesso) valorultent,
-        TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'V'),'0')) vlacrescimofuncep,
+        TO_NUMBER(NVL((((CASE
+                     WHEN a.SITTRIBUT IN ('00', '20', '90') AND
+                     a.PERCALIQFCPICMS > 0 then
+                     ((select ROUND(vlrbase, 2)
+                     from monitorpdvmiddle.tb_doctotributacaoitem
+                     where nroempresa = i.nroempresa
+                     and nrocheckout = i.nrocheckout
+                     and seqdocto = i.seqdocto
+                     and seqitem = i.seqitem
+                     and seqtipotributacao = 1))
+                     ELSE
+                     0
+                     END) / i.quantidade) * a.percaliqfcpicms / 100),
+                     0)) vlacrescimofuncep,
         (CASE
             WHEN i.seqdocto IN (SELECT seqdocto
                                   FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
@@ -1101,14 +1134,21 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
            FROM vw_int_c5_custos
           WHERE codfilial = c5.codfilial
             AND codauxiliar = i.codacesso),0) vlbaseefet,
-        (CASE
-            WHEN a.SITTRIBUT IN ('00','20','90')
-                 AND
-                 a.PERCALIQFCPICMS > 0
-                then TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 11, 'B'),'0'))                 
-            ELSE
-              0
-          END) vlbasefcpicms,
+	    (CASE
+	    WHEN a.SITTRIBUT IN ('00','20','90')
+	    	 AND
+	    	 a.PERCALIQFCPICMS > 0
+	    	then ((select ROUND(vlrbase,2)
+	    			 from monitorpdvmiddle.tb_doctotributacaoitem
+	    			where nroempresa = i.nroempresa
+	    			  and nrocheckout = i.nrocheckout
+	    			  and seqdocto = i.seqdocto
+	    			  and seqitem = i.seqitem
+	    			  and seqtipotributacao = 1)) / i.qtdembalagem
+	    	--THEN ROUND(ti.VLRBASE,2)
+	    ELSE
+	      0
+        END) / i.quantidade vlbasefcpicms,
         0 vlbasefcpst,
         0 vlbasepiscofins,
         0 vlbcfcpstret,
@@ -1493,27 +1533,40 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   0 PERCBASEDPART,
   0 ALIQINTERORIGPART,
     REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
-  (CASE
-  WHEN a.SITTRIBUT IN ('00','20','90')
-     AND
-     a.PERCALIQFCPICMS > 0
-    then ((select ROUND(vlrbase,2)
-         from monitorpdvmiddle.tb_doctotributacaoitem
-        where nroempresa = i.nroempresa
-          and nrocheckout = i.nrocheckout
-          and seqdocto = i.seqdocto
-          and seqitem = i.seqitem
-          and seqtipotributacao = 1))
-    --THEN ROUND(ti.VLRBASE,2)
-  ELSE
-    0
-    END) vlbasefcpicms,
+	(CASE
+	WHEN a.SITTRIBUT IN ('00','20','90')
+		 AND
+		 a.PERCALIQFCPICMS > 0
+		then ((select ROUND(vlrbase,2)
+				 from monitorpdvmiddle.tb_doctotributacaoitem
+				where nroempresa = i.nroempresa
+				  and nrocheckout = i.nrocheckout
+				  and seqdocto = i.seqdocto
+				  and seqitem = i.seqitem
+				  and seqtipotributacao = 1)) / i.qtdembalagem
+		--THEN ROUND(ti.VLRBASE,2)
+	ELSE
+	  0
+    END) / i.quantidade vlbasefcpicms,
   0 VLBASEFCPST,
   0 VLBCFPSTRET,
   0 PERFCPSTRET,
   0 VLFCPSTRET,
-  NVL(fnc_int_c5_vlacrescimofcp(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM),0) vlacrescimofuncep,
-  0 peracrescimofuncep,
+    TO_NUMBER(NVL((((CASE
+                     WHEN a.SITTRIBUT IN ('00', '20', '90') AND
+                     a.PERCALIQFCPICMS > 0 then
+                     ((select ROUND(vlrbase, 2)
+                     from monitorpdvmiddle.tb_doctotributacaoitem
+                     where nroempresa = i.nroempresa
+                     and nrocheckout = i.nrocheckout
+                     and seqdocto = i.seqdocto
+                     and seqitem = i.seqitem
+                     and seqtipotributacao = 1))
+                     ELSE
+                     0
+                     END) / i.quantidade) * a.percaliqfcpicms / 100),
+                     0)) vlacrescimofuncep,
+  NVL(a.percaliqfcpicms, 0) peracrescimofuncep,
   0 ALIQICMSFECP,
   0 VLFECP,
   0 PERDIFEREIMENTOICMS,
@@ -1802,27 +1855,40 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   0 PERCBASEDPART,
   0 ALIQINTERORIGPART,
     REGEXP_REPLACE(p.desccompleta, '[^[:alnum:] ]', '') descricaopaf,
-  (CASE
-  WHEN a.SITTRIBUT IN ('00','20','90')
-     AND
-     a.PERCALIQFCPICMS > 0
-    then ((select ROUND(vlrbase,2)
-         from monitorpdvmiddle.tb_doctotributacaoitem
-        where nroempresa = i.nroempresa
-          and nrocheckout = i.nrocheckout
-          and seqdocto = i.seqdocto
-          and seqitem = i.seqitem
-          and seqtipotributacao = 1))
-    --THEN ROUND(ti.VLRBASE,2)
-  ELSE
-    0
-    END) vlbasefcpicms,
+	(CASE
+	WHEN a.SITTRIBUT IN ('00','20','90')
+		 AND
+		 a.PERCALIQFCPICMS > 0
+		then ((select ROUND(vlrbase,2)
+				 from monitorpdvmiddle.tb_doctotributacaoitem
+				where nroempresa = i.nroempresa
+				  and nrocheckout = i.nrocheckout
+				  and seqdocto = i.seqdocto
+				  and seqitem = i.seqitem
+				  and seqtipotributacao = 1)) / i.qtdembalagem
+		--THEN ROUND(ti.VLRBASE,2)
+	ELSE
+	  0
+    END) / i.quantidade vlbasefcpicms,
   0 VLBASEFCPST,
   0 VLBCFPSTRET,
   0 PERFCPSTRET,
   0 VLFCPSTRET,
-  NVL(fnc_int_c5_vlacrescimofcp(i.NROEMPRESA,i.NROCHECKOUT,i.SEQDOCTO,i.SEQITEM),0) vlacrescimofuncep,
-  0 peracrescimofuncep,
+	TO_NUMBER(NVL((((CASE
+                     WHEN a.SITTRIBUT IN ('00', '20', '90') AND
+                     a.PERCALIQFCPICMS > 0 then
+                     ((select ROUND(vlrbase, 2)
+                     from monitorpdvmiddle.tb_doctotributacaoitem
+                     where nroempresa = i.nroempresa
+                     and nrocheckout = i.nrocheckout
+                     and seqdocto = i.seqdocto
+                     and seqitem = i.seqitem
+                     and seqtipotributacao = 1))
+                     ELSE
+                     0
+                     END) / i.quantidade) * a.percaliqfcpicms / 100),
+                     0)) vlacrescimofuncep,
+  NVL(a.percaliqfcpicms, 0) peracrescimofuncep,
   0 ALIQICMSFECP,
   0 VLFECP,
   0 PERDIFEREIMENTOICMS,
