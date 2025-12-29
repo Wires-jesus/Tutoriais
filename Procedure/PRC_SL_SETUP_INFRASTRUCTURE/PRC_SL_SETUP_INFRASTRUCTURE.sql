@@ -1,8 +1,6 @@
 -- 02_CREATE_INFRASTRUCTURE.sql
 -- Descrição: Procedure para criar a infraestrutura (Idempotente / Compatível 10g-19c)
 
-SET SERVEROUTPUT ON;
-
 CREATE OR REPLACE PROCEDURE PRC_SL_SETUP_INFRASTRUCTURE (
     p_force_recreate IN NUMBER DEFAULT 0 -- 0 = Preserva se existir; 1 = Dropa e recria tudo
 ) IS
@@ -175,6 +173,5 @@ BEGIN
 	
     DBMS_OUTPUT.PUT_LINE('Infraestrutura verificada/criada com sucesso.');
 END;
-/
 
 
