@@ -165,7 +165,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_CBSIBS_2',
-     'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
+     'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
@@ -178,6 +178,9 @@ BEGIN
                  || '&' || 'VLICMS' || '&' || '-' 
                  || '&' || 'VLICMSUFDEST' || '&' || '-' 
                  || '&' || 'VLFCP' || '&' || '-' 
+                 || '&' || 'VLST' || '&' || '-' 
+                 || '&' || 'VLIPI' || '&' || '-' 
+                 || '&' || 'VLFECP' || '&' || '-' 
                  || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
      28,
      SYSDATE);
@@ -195,8 +198,8 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_IS_2',
-     'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP e FCPUFDest).',
-     'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
+     'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
+	 'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
                  || '&' || 'VLOUTROS' || '&' || '+' 
@@ -207,6 +210,9 @@ BEGIN
                  || '&' || 'VLICMS' || '&' || '-' 
                  || '&' || 'VLICMSUFDEST' || '&' || '-' 
                  || '&' || 'VLFCP' || '&' || '-' 
+                 || '&' || 'VLST' || '&' || '-' 
+                 || '&' || 'VLIPI' || '&' || '-' 
+                 || '&' || 'VLFECP' || '&' || '-' 
                  || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
      32,
      SYSDATE);   
