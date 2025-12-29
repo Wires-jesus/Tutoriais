@@ -1,66 +1,60 @@
--- 07_PKG_SL_CONFIGURATOR_V2.sql
--- Correção: Implementação da geração real do Schema JSON e ajuste de mapeamento.
-
 CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
 
-    -- Gera o JSON template para o SELECT (Data Extraction)
-    FUNCTION GENERATE_SELECT_JSON_TEMPLATE(p_entity_name IN VARCHAR2) RETURN CLOB IS
-        v_json_template CLOB;
-        v_is_first      BOOLEAN := TRUE;
+    FUNCTION GENERATE_SELECT_LIST(p_entity_name IN VARCHAR2) RETURN CLOB IS
+        v_select_list  CLOB;
+        v_buffer       VARCHAR2(32000);
+        v_is_first_col BOOLEAN := TRUE;
+        v_bucket_count NUMBER := 0;
+        v_bucket_limit CONSTANT NUMBER := 50;
     BEGIN
-        DBMS_LOB.CREATETEMPORARY(v_json_template, TRUE);
-        DBMS_LOB.APPEND(v_json_template, 'TO_CLOB(''{'')');
-
-        FOR r IN (SELECT COLUMN_NAME, DATA_TYPE FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = p_entity_name ORDER BY COLUMN_NAME) LOOP
-            IF NOT v_is_first THEN 
-                DBMS_LOB.APPEND(v_json_template, ' || TO_CLOB('','')'); 
-            END IF;
-            
-            DBMS_LOB.APPEND(v_json_template, ' || TO_CLOB(''"' || r.COLUMN_NAME || '":"'')');
-            DBMS_LOB.APPEND(v_json_template, ' || TO_CLOB(PKG_SL_CDC_MANAGER.ESCAPE_JSON(');
-            
-            IF r.DATA_TYPE LIKE '%DATE%' OR r.DATA_TYPE LIKE '%TIMESTAMP%' THEN
-                DBMS_LOB.APPEND(v_json_template, 'TO_CLOB(TO_CHAR(s.' || r.COLUMN_NAME || ', ''YYYY-MM-DD HH24:MI:SS''))');
+        DBMS_LOB.CREATETEMPORARY(v_select_list, TRUE);
+        v_buffer := '';
+        
+        FOR r IN (SELECT COLUMN_NAME FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = p_entity_name ORDER BY COLUMN_NAME) LOOP
+            IF v_buffer IS NULL OR LENGTH(v_buffer) = 0 THEN
+                IF NOT v_is_first_col THEN v_buffer := ', '; END IF;
             ELSE
-                DBMS_LOB.APPEND(v_json_template, 'TO_CLOB(s.' || r.COLUMN_NAME || ')');
+                v_buffer := v_buffer || ', ';
             END IF;
-            
-            DBMS_LOB.APPEND(v_json_template, ')) || TO_CLOB(''"'')');
-            v_is_first := FALSE;
+            v_buffer := v_buffer || r.COLUMN_NAME;
+            v_is_first_col := FALSE;
+            v_bucket_count := v_bucket_count + 1;
+
+            IF v_bucket_count >= v_bucket_limit THEN
+                DBMS_LOB.APPEND(v_select_list, v_buffer);
+                v_buffer := '';
+                v_bucket_count := 0;
+            END IF;
         END LOOP;
 
-        DBMS_LOB.APPEND(v_json_template, ' || TO_CLOB(''}'')');
-        RETURN v_json_template;
-    END GENERATE_SELECT_JSON_TEMPLATE;
+        IF LENGTH(v_buffer) > 0 THEN DBMS_LOB.APPEND(v_select_list, v_buffer); END IF;
+        IF DBMS_LOB.GETLENGTH(v_select_list) = 0 THEN DBMS_LOB.APPEND(v_select_list, '*'); END IF;
 
-    -- NOVA FUNÇÃO: Gera o Schema JSON (Metadata Definition)
+        RETURN v_select_list;
+    END GENERATE_SELECT_LIST;
+
     FUNCTION GENERATE_JSON_SCHEMA(p_entity_name IN VARCHAR2) RETURN CLOB IS
         v_schema CLOB;
         v_first  BOOLEAN := TRUE;
         v_json_type VARCHAR2(20);
     BEGIN
         DBMS_LOB.CREATETEMPORARY(v_schema, TRUE);
-        -- Início do Schema
         DBMS_LOB.APPEND(v_schema, '{"type":"object","properties":{');
 
         FOR r IN (SELECT COLUMN_NAME, DATA_TYPE FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = p_entity_name ORDER BY COLUMN_NAME) LOOP
-            IF NOT v_first THEN 
-                DBMS_LOB.APPEND(v_schema, ','); 
-            END IF;
+            IF NOT v_first THEN DBMS_LOB.APPEND(v_schema, ','); END IF;
             v_first := FALSE;
 
-            -- Mapeamento simples de Tipos Oracle -> JSON Schema
             IF r.DATA_TYPE IN ('NUMBER', 'FLOAT', 'INTEGER', 'BINARY_FLOAT', 'BINARY_DOUBLE') THEN
                 v_json_type := '"number"';
+            ELSIF r.DATA_TYPE IN ('DATE', 'TIMESTAMP', 'TIMESTAMP(6)') THEN
+                v_json_type := '"date"';
             ELSE
-                -- Date, Varchar, Char, Timestamp viram String no JSON
                 v_json_type := '"string"';
             END IF;
-
             DBMS_LOB.APPEND(v_schema, '"' || r.COLUMN_NAME || '":{"type":' || v_json_type || '}');
         END LOOP;
 
-        -- Fim do Schema
         DBMS_LOB.APPEND(v_schema, '}}');
         RETURN v_schema;
     END GENERATE_JSON_SCHEMA;
@@ -68,77 +62,94 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
     PROCEDURE GENERATE_DYNAMIC_ARTIFACTS(p_entity_name IN VARCHAR2) IS
         v_pk_cols_list      VARCHAR2(4000);
         v_where_pagination  CLOB;
-        v_json_select       CLOB;
+        v_select_list       CLOB;
         v_schema_json       CLOB;
         v_pk_join_clause    CLOB;
+        v_bind_counter      NUMBER := 1;
         
-        TYPE pk_cols_t IS TABLE OF VARCHAR2(30) INDEX BY BINARY_INTEGER;
+        TYPE pk_info_rec IS RECORD (col_name VARCHAR2(30), data_type VARCHAR2(128));
+        TYPE pk_cols_t IS TABLE OF pk_info_rec INDEX BY BINARY_INTEGER;
         v_pk_cols           pk_cols_t;
     BEGIN
-        PKG_SL_LOGGING.WRITE_LOG('DEBUG', 'PKG_SL_CONFIGURATOR', 'GENERATE_DYNAMIC_ARTIFACTS', 'Gerando artefatos para ' || p_entity_name);
+        PKG_SL_LOGGING.WRITE_LOG('DEBUG', 'PKG_SL_CONFIGURATOR', 'GENERATE_DYNAMIC_ARTIFACTS', 'Gerando artefatos V6.0 (Multi-PK) para ' || p_entity_name);
         
         DBMS_LOB.CREATETEMPORARY(v_schema_json, TRUE);
         DBMS_LOB.CREATETEMPORARY(v_where_pagination, TRUE);
         DBMS_LOB.CREATETEMPORARY(v_pk_join_clause, TRUE);
 
-        -- 1. Montar lista de colunas PK e Cláusula de JOIN
+        -- 1. Lista de PKs e Tipos
         v_pk_cols_list := '';
-        FOR r IN (SELECT COLUMN_NAME, PK_ORDER FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = p_entity_name AND (IS_PK = 1 OR IS_UK = 1) ORDER BY PK_ORDER) LOOP
+        FOR r IN (SELECT COLUMN_NAME, PK_ORDER, DATA_TYPE FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = p_entity_name AND IS_PK = 1 ORDER BY PK_ORDER) LOOP
             v_pk_cols_list := v_pk_cols_list || r.COLUMN_NAME || ',';
-            v_pk_cols(r.PK_ORDER) := r.COLUMN_NAME;
+            v_pk_cols(r.PK_ORDER).col_name := r.COLUMN_NAME;
+            v_pk_cols(r.PK_ORDER).data_type := r.DATA_TYPE;
         END LOOP;
         v_pk_cols_list := RTRIM(v_pk_cols_list, ',');
 
-        -- JOIN: Usar alias 'b' (batch)
+        -- 2. Join Clause (CDC) - Mantém lógica existente que já suporta N colunas via concatenação
         IF v_pk_cols.COUNT = 1 THEN
-            v_pk_join_clause := 'TO_CHAR(s.' || v_pk_cols(1) || ') = b.ROW_PK';
+            IF v_pk_cols(1).data_type IN ('NUMBER', 'INTEGER', 'FLOAT', 'BINARY_FLOAT', 'BINARY_DOUBLE') THEN
+                v_pk_join_clause := 's.' || v_pk_cols(1).col_name || ' = TO_NUMBER(b.ROW_PK)';
+            ELSE
+                v_pk_join_clause := 's.' || v_pk_cols(1).col_name || ' = b.ROW_PK';
+            END IF;
         ELSIF v_pk_cols.COUNT > 1 THEN
             FOR i IN 1..v_pk_cols.COUNT LOOP
                 IF i > 1 THEN DBMS_LOB.APPEND(v_pk_join_clause, ' || ''|#|'' || '); END IF;
-                DBMS_LOB.APPEND(v_pk_join_clause, 'TO_CHAR(s.' || v_pk_cols(i) || ')');
+                DBMS_LOB.APPEND(v_pk_join_clause, 'TO_CHAR(s.' || v_pk_cols(i).col_name || ')');
             END LOOP;
             DBMS_LOB.APPEND(v_pk_join_clause, ' = b.ROW_PK');
         ELSE
-             -- Fallback se não tiver PK (não deveria acontecer em prod, mas evita erro)
-             v_pk_join_clause := '1=1'; 
+             v_pk_join_clause := '1=0'; 
         END IF;
 
-        -- 2. Montar cláusula WHERE de paginação
+        -- 3. Where Pagination (Carga Inicial) - Lógica Dinâmica para N Colunas
+        -- Gera: (A > :1) OR (A = :2 AND B > :3) OR (A = :4 AND B = :5 AND C > :6) ...
+        -- Nota: Os binds são sequenciais (:1, :2, :3...) para casar com a ordem de envio no Upstream.
         IF v_pk_cols.COUNT > 0 THEN
-            IF v_pk_cols.COUNT = 1 THEN
-                v_where_pagination := 'WHERE ' || v_pk_cols(1) || ' > :1';
-            ELSE
-                v_where_pagination := 'WHERE (';
-                FOR i IN 1..v_pk_cols.COUNT LOOP
-                    IF i > 1 THEN v_where_pagination := v_where_pagination || ' OR ('; END IF;
-                    FOR j IN 1..i-1 LOOP
-                        v_where_pagination := v_where_pagination || v_pk_cols(j) || ' = :' || j || ' AND ';
-                    END LOOP;
-                    v_where_pagination := v_where_pagination || v_pk_cols(i) || ' > :' || i;
-                    IF i > 1 THEN v_where_pagination := v_where_pagination || ')'; END IF;
+            v_bind_counter := 1;
+            FOR i IN 1 .. v_pk_cols.COUNT LOOP
+                IF i > 1 THEN 
+                    DBMS_LOB.APPEND(v_where_pagination, ' OR '); 
+                END IF;
+                
+                DBMS_LOB.APPEND(v_where_pagination, '(');
+                
+                FOR j IN 1 .. i LOOP
+                    IF j > 1 THEN 
+                        DBMS_LOB.APPEND(v_where_pagination, ' AND '); 
+                    END IF;
+                    
+                    IF j = i THEN
+                        -- Última coluna do grupo usa MAIOR QUE (>)
+                        DBMS_LOB.APPEND(v_where_pagination, 's.' || v_pk_cols(j).col_name || ' > :' || v_bind_counter);
+                    ELSE
+                        -- Colunas anteriores usam IGUAL (=)
+                        DBMS_LOB.APPEND(v_where_pagination, 's.' || v_pk_cols(j).col_name || ' = :' || v_bind_counter);
+                    END IF;
+                    v_bind_counter := v_bind_counter + 1;
                 END LOOP;
-                v_where_pagination := v_where_pagination || ')';
-            END IF;
+                
+                DBMS_LOB.APPEND(v_where_pagination, ')');
+            END LOOP;
         END IF;
 
-        -- 3. Gerar Template JSON para SELECT
-        v_json_select := GENERATE_SELECT_JSON_TEMPLATE(p_entity_name);
-        
-        -- 4. Gerar Schema JSON (CORREÇÃO APLICADA AQUI)
+        -- 4. Gera Templates
+        v_select_list := GENERATE_SELECT_LIST(p_entity_name);
         v_schema_json := GENERATE_JSON_SCHEMA(p_entity_name);
 
-        UPDATE TBL_SL_ENTITIES
+        -- 5. Atualiza Entidade
+        UPDATE TBL_SL_ENTITIES 
         SET PK_COLUMNS_LIST = v_pk_cols_list,
             PK_WHERE_CLAUSE_PAGINATION = v_where_pagination,
-            JSON_SELECT_TEMPLATE = v_json_select, 
-            PK_JOIN_CLAUSE = v_pk_join_clause,
+            DATA_SELECT_TEMPLATE = v_select_list,
             SCHEMA_JSON = v_schema_json,
-            CONFIG_VERSION = CONFIG_VERSION + 1
+            PK_JOIN_CLAUSE = v_pk_join_clause
         WHERE ENTITY_NAME = p_entity_name;
 
-        DBMS_LOB.FREETEMPORARY(v_json_select);
-        DBMS_LOB.FREETEMPORARY(v_pk_join_clause);
         DBMS_LOB.FREETEMPORARY(v_schema_json);
+        DBMS_LOB.FREETEMPORARY(v_select_list);
+        DBMS_LOB.FREETEMPORARY(v_pk_join_clause);
         DBMS_LOB.FREETEMPORARY(v_where_pagination);
     END GENERATE_DYNAMIC_ARTIFACTS;
 
@@ -147,7 +158,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
         p_source_table_name IN VARCHAR2,
         p_entity_type       IN VARCHAR2,
         p_custom_filter     IN CLOB DEFAULT NULL,
-        p_force_reconfig    IN NUMBER DEFAULT 0 -- Alterado de BOOLEAN para NUMBER
+        p_force_reconfig    IN NUMBER DEFAULT 0 
     ) IS
         v_entity_name  VARCHAR2(30) := UPPER(p_source_table_name);
         v_exists       NUMBER;
@@ -156,25 +167,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
     BEGIN
         SELECT COUNT(*) INTO v_exists FROM TBL_SL_ENTITIES WHERE ENTITY_NAME = v_entity_name;
 
-        -- Lógica de Controle: Se existe e NÃO é para forçar, sai.
         IF v_exists > 0 THEN
             IF p_force_reconfig = 0 THEN
-                -- Opcional: Atualiza apenas o filtro se ele mudou, sem reconfigurar tudo
                 UPDATE TBL_SL_ENTITIES 
                 SET CUSTOM_FILTER_CLAUSE = p_custom_filter 
                 WHERE ENTITY_NAME = v_entity_name;
-                
                 COMMIT;
-                RETURN; -- PONTO CRÍTICO: Sai da procedure aqui.
+                RETURN; 
             END IF;
-            -- Se p_force_reconfig = 1, o código continua abaixo e refaz tudo.
+            RESET_ENTITY_FOR_RELOAD(v_entity_name);
+            UPDATE TBL_SL_ENTITIES 
+            SET CUSTOM_FILTER_CLAUSE = p_custom_filter,
+                CONFIG_VERSION = CONFIG_VERSION + 1
+            WHERE ENTITY_NAME = v_entity_name;
         ELSE
-            -- Se não existe, insere o registro inicial
             INSERT INTO TBL_SL_ENTITIES (ENTITY_NAME, OWNER, SOURCE_TABLE_NAME, ENTITY_TYPE, CUSTOM_FILTER_CLAUSE)
             VALUES (v_entity_name, p_owner, p_source_table_name, p_entity_type, p_custom_filter);
         END IF;
 
-        -- Atualiza colunas
         DELETE FROM TBL_SL_ENTITY_COLUMNS WHERE ENTITY_NAME = v_entity_name;
         
         INSERT INTO TBL_SL_ENTITY_COLUMNS (ENTITY_NAME, COLUMN_NAME, DATA_TYPE, IS_PK, PK_ORDER, IS_UK)
@@ -183,7 +193,6 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
         WHERE owner = p_owner AND table_name = p_source_table_name
           AND data_type NOT IN (SELECT DATA_TYPE FROM TBL_SL_IGNORED_DATA_TYPES);
 
-        -- Tenta PK primeiro
         FOR r IN (
             SELECT cols.column_name, cols.position
             FROM all_constraints cons
@@ -197,49 +206,57 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_CONFIGURATOR AS
             v_key_type := 'PK';
         END LOOP;
 
-        -- Se não achou PK, tenta UK
         IF NOT v_pk_found THEN
-            FOR r IN (
-                SELECT cols.column_name, cols.position
-                FROM all_constraints cons
-                JOIN all_cons_columns cols ON cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner
-                WHERE cons.constraint_type = 'U' AND cons.owner = p_owner AND cons.table_name = p_source_table_name
-            ) LOOP
-                UPDATE TBL_SL_ENTITY_COLUMNS 
-                SET IS_UK = 1, PK_ORDER = r.position 
-                WHERE ENTITY_NAME = v_entity_name AND COLUMN_NAME = r.column_name AND IS_UK = 0;
-                v_key_type := 'UK';
-            END LOOP;
+            ROLLBACK;
+            RAISE_APPLICATION_ERROR(-20003, 'Erro Fatal: A tabela ' || p_source_table_name || ' não possui Chave Primária (PK) definida.');
         END IF;
 
         UPDATE TBL_SL_ENTITIES SET KEY_TYPE = v_key_type WHERE ENTITY_NAME = v_entity_name;
 
-        -- Sempre regenera os artefatos
         GENERATE_DYNAMIC_ARTIFACTS(v_entity_name);
-        
         COMMIT;
     END CONFIGURE_ENTITY;
 
     PROCEDURE RESET_ENTITY_FOR_RELOAD(p_entity_name IN VARCHAR2) IS
     BEGIN
         PKG_SL_CDC_MANAGER.DROP_ALL_LOG_OBJECTS(p_entity_name);
+        UPDATE TBL_SL_ENTITIES 
+        SET INITIAL_LOAD_STATUS = 'PENDING', 
+            CDC_ENABLED = 0 
+        WHERE ENTITY_NAME = p_entity_name;
+        
         DELETE FROM TBL_SL_INITIAL_LOAD_CONTROL WHERE ENTITY_NAME = p_entity_name;
-        UPDATE TBL_SL_ENTITIES SET INITIAL_LOAD_STATUS = 'PENDING', CDC_ENABLED = 0 WHERE ENTITY_NAME = p_entity_name;
+        INSERT INTO TBL_SL_INITIAL_LOAD_CONTROL (ENTITY_NAME) VALUES (p_entity_name);
         COMMIT;
     END RESET_ENTITY_FOR_RELOAD;
-
-    FUNCTION GET_ENTITY_SCHEMA(p_entity_name IN VARCHAR2) RETURN CLOB IS
-        v_schema CLOB;
+    
+    FUNCTION GET_PK_JOIN_CLAUSE(p_entity_name IN VARCHAR2) RETURN CLOB IS
+        v_clause CLOB;
     BEGIN
-        SELECT SCHEMA_JSON INTO v_schema FROM TBL_SL_ENTITIES WHERE ENTITY_NAME = p_entity_name;
-        RETURN v_schema;
-    END;
-
-    FUNCTION GET_PK_JOIN_CLAUSE(p_entity_name IN VARCHAR2) RETURN VARCHAR2 IS
-        v_join CLOB;
+        SELECT PK_JOIN_CLAUSE INTO v_clause FROM TBL_SL_ENTITIES WHERE ENTITY_NAME = p_entity_name;
+        RETURN v_clause;
+    EXCEPTION WHEN NO_DATA_FOUND THEN RETURN NULL; END;
+    
+    PROCEDURE PURGE_ALL_CONFIG IS
     BEGIN
-        SELECT PK_JOIN_CLAUSE INTO v_join FROM TBL_SL_ENTITIES WHERE ENTITY_NAME = p_entity_name;
-        RETURN DBMS_LOB.SUBSTR(v_join, 4000, 1);
-    END;
+        PKG_SL_LOGGING.WRITE_LOG('WARN', 'PURGE_ALL_CONFIG', 'START', 'Iniciando limpeza profunda.');
+        FOR r IN (SELECT object_name FROM user_objects WHERE object_type = 'TRIGGER' AND object_name LIKE 'TRG_CDC_%') LOOP
+            BEGIN EXECUTE IMMEDIATE 'DROP TRIGGER ' || r.object_name; EXCEPTION WHEN OTHERS THEN NULL; END;
+        END LOOP;
+        FOR r IN (SELECT object_name FROM user_objects WHERE object_type = 'TABLE' AND object_name LIKE 'TBL_SL_LOG\_%' ESCAPE '\') LOOP
+            BEGIN EXECUTE IMMEDIATE 'DROP TABLE ' || r.object_name || ' PURGE'; EXCEPTION WHEN OTHERS THEN NULL; END;
+        END LOOP;
+        FOR r IN (SELECT object_name FROM user_objects WHERE object_type = 'SEQUENCE' AND object_name LIKE 'SEQ_SL_LOG\_%' ESCAPE '\') LOOP
+            BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE ' || r.object_name; EXCEPTION WHEN OTHERS THEN NULL; END;
+        END LOOP;
+        DELETE FROM TBL_SL_INITIAL_LOAD_CONTROL;
+        DELETE FROM TBL_SL_CDC_LOG_QUEUE;
+        DELETE FROM TBL_SL_ENTITY_COLUMNS;
+        DELETE FROM TBL_SL_ENTITIES;
+        COMMIT;
+        PKG_SL_LOGGING.WRITE_LOG('WARN', 'PURGE_ALL_CONFIG', 'END', 'Limpeza profunda finalizada.');
+    EXCEPTION WHEN OTHERS THEN
+        PKG_SL_LOGGING.WRITE_LOG('ERROR', 'PURGE_ALL_CONFIG', 'FAIL', SQLERRM);
+    END PURGE_ALL_CONFIG;
 
 END PKG_SL_CONFIGURATOR;
