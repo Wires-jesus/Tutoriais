@@ -7162,7 +7162,7 @@ create or replace package body FISCAL is
       WHEN OTHERS THEN
         BEGIN
           PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do CBS: '||SQLERRM,'S');
-          P_MSG := 'ERRO';
+          P_MSG := 'ERRO: '||SQLERRM;
           RETURN(V_DADOS_TRIBUTACAO);
         END;
     END;
@@ -7216,7 +7216,7 @@ create or replace package body FISCAL is
         BEGIN
           PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do IS: '||SQLERRM,'S');
 
-          P_MSG := 'ERRO';
+          P_MSG := 'ERRO: '||SQLERRM;
           RETURN(V_DADOS_TRIBUTACAO);
         END;
     END;
