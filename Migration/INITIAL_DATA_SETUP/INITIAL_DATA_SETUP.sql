@@ -1,8 +1,19 @@
 -- 03_INITIAL_DATA_SETUP.sql
 -- Descrição: Configura os dados iniciais de forma idempotente (apenas insere novos registros).
 
+-- EXEMPLO DE EXECUÇÃO:
+-- 1. Execução Normal (Idempotente - Não faz nada se já existir)
+/*
 BEGIN
     PRC_SL_SETUP_INFRASTRUCTURE(p_force_recreate => 0);
+END;
+*/
+
+-- 2. Execução Forçada (CUIDADO: Apaga dados existentes e recria tabelas)
+-- Descomente abaixo para rodar
+
+BEGIN
+    PRC_SL_SETUP_INFRASTRUCTURE(p_force_recreate => 1);
 END;
 \
 
