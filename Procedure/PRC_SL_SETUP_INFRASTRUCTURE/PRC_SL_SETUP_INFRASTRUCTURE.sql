@@ -1,6 +1,8 @@
 -- 02_CREATE_INFRASTRUCTURE.sql
 -- Descrição: Procedure para criar a infraestrutura (Idempotente / Compatível 10g-19c)
 
+SET SERVEROUTPUT ON;
+
 CREATE OR REPLACE PROCEDURE PRC_SL_SETUP_INFRASTRUCTURE (
     p_force_recreate IN NUMBER DEFAULT 0 -- 0 = Preserva se existir; 1 = Dropa e recria tudo
 ) IS
@@ -45,6 +47,19 @@ CREATE OR REPLACE PROCEDURE PRC_SL_SETUP_INFRASTRUCTURE (
                     END IF;
             END;
         END IF;
+    END;
+	
+	PROCEDURE drop_dynamic_logs IS
+    BEGIN
+	   IF p_force_recreate = 1 THEN
+          DBMS_OUTPUT.PUT_LINE('- Procurando e dropando tabelas de log dinâmicas (TBL_SL_LOG_...)...');
+          FOR r IN (SELECT object_name FROM user_objects WHERE object_type = 'TABLE' AND object_name LIKE 'TBL_SL_LOG_%') LOOP
+             execute_drop_ddl('TABLE', r.object_name);
+          END LOOP;
+          FOR r IN (SELECT object_name FROM user_objects WHERE object_type = 'SEQUENCE' AND object_name LIKE 'SEQ_SL_LOG_%') LOOP
+             execute_drop_ddl('SEQUENCE', r.object_name);
+          END LOOP;
+	   END IF;	  
     END;
 
 BEGIN
@@ -104,6 +119,8 @@ BEGIN
         CUSTOM_FILTER_CLAUSE        CLOB,
         PK_COLUMNS_LIST             VARCHAR2(4000),
         PK_WHERE_CLAUSE_PAGINATION  CLOB,
+		PK_WHERE_CLAUSE_UPPER       CLOB,
+		DATA_SELECT_TEMPLATE        CLOB,
         JSON_SELECT_TEMPLATE        CLOB, 
         PK_JOIN_CLAUSE              CLOB, 
         SCHEMA_JSON                 CLOB,
@@ -155,6 +172,9 @@ BEGIN
         'CREATE TABLE TBL_SL_ROTATION_REQUESTS (ENTITY_NAME VARCHAR2(30) NOT NULL, REQUEST_TIME TIMESTAMP DEFAULT SYSTIMESTAMP, CONSTRAINT PK_SL_ROTATION_REQUESTS PRIMARY KEY (ENTITY_NAME))', 
         '+ Tabela TBL_SL_ROTATION_REQUESTS criada.'
     );
-
+	
     DBMS_OUTPUT.PUT_LINE('Infraestrutura verificada/criada com sucesso.');
 END;
+/
+
+
