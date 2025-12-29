@@ -1,6 +1,18 @@
---05_PKG_SL_TRIGGER_GENERATOR.sql
-
 CREATE OR REPLACE PACKAGE BODY PKG_SL_TRIGGER_GENERATOR AS
+
+    -- Função auxiliar local (replicada para evitar dependência cruzada complexa)
+    FUNCTION GET_SAFE_TRG_NAME(p_entity_name IN VARCHAR2) RETURN VARCHAR2 IS
+        v_prefix CONSTANT VARCHAR2(10) := 'TRG_CDC_';
+        v_max_len CONSTANT NUMBER := 30;
+        v_avail   NUMBER;
+    BEGIN
+        v_avail := v_max_len - LENGTH(v_prefix);
+        IF LENGTH(p_entity_name) > v_avail THEN
+            RETURN v_prefix || SUBSTR(p_entity_name, 1, v_avail);
+        ELSE
+            RETURN v_prefix || p_entity_name;
+        END IF;
+    END;
 
     PROCEDURE GENERATE_FOR_ENTITY(p_entity_name IN VARCHAR2) AS
         v_trigger_body      CLOB;
@@ -8,12 +20,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_TRIGGER_GENERATOR AS
         v_pk_concat_new     VARCHAR2(4000) := '';
         v_pk_concat_old     VARCHAR2(4000) := '';
         v_first             BOOLEAN := TRUE;
+        v_trg_name          VARCHAR2(30);
     BEGIN
-        PKG_SL_LOGGING.WRITE_LOG('INFO', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Gerando trigger leve para: ' || p_entity_name);
+        PKG_SL_LOGGING.WRITE_LOG('INFO', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Gerando trigger para: ' || p_entity_name);
 
         SELECT SOURCE_TABLE_NAME INTO v_source_table FROM TBL_SL_ENTITIES WHERE ENTITY_NAME = p_entity_name;
 
-        -- Substituído LISTAGG por Loop para compatibilidade com Oracle 10g/11g
+        -- Gera nome seguro para a trigger
+        v_trg_name := GET_SAFE_TRG_NAME(p_entity_name);
+
         FOR r IN (SELECT COLUMN_NAME FROM TBL_SL_ENTITY_COLUMNS 
                   WHERE ENTITY_NAME = p_entity_name AND (IS_PK = 1 OR IS_UK = 1) 
                   ORDER BY PK_ORDER) LOOP
@@ -29,14 +44,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_TRIGGER_GENERATOR AS
             v_first := FALSE;
         END LOOP;
 
-        -- Fallback caso não tenha PK (evita erro de compilação da trigger)
         IF v_pk_concat_new IS NULL THEN
             v_pk_concat_new := '''NO_PK''';
             v_pk_concat_old := '''NO_PK''';
         END IF;
 
         v_trigger_body :=
-            'CREATE OR REPLACE TRIGGER TRG_CDC_' || p_entity_name || '
+            'CREATE OR REPLACE TRIGGER ' || v_trg_name || '
             AFTER INSERT OR UPDATE OR DELETE ON ' || v_source_table || '
             FOR EACH ROW
             DECLARE
@@ -60,23 +74,22 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_TRIGGER_GENERATOR AS
                 );
             EXCEPTION
                 WHEN OTHERS THEN
-                    PKG_SL_LOGGING.WRITE_LOG(''ERROR'', ''TRG_CDC_' || p_entity_name || ''', ''TRIGGER_EXEC'', ''Falha: '' || SQLERRM);
+                    PKG_SL_LOGGING.WRITE_LOG(''ERROR'', ''' || v_trg_name || ''', ''TRIGGER_EXEC'', ''Falha: '' || SQLERRM);
             END;';
 
         EXECUTE IMMEDIATE v_trigger_body;
-        PKG_SL_LOGGING.WRITE_LOG('INFO', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Trigger criada com sucesso.');
-
+        PKG_SL_LOGGING.WRITE_LOG('INFO', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Trigger ' || v_trg_name || ' criada com sucesso.');
     EXCEPTION
         WHEN OTHERS THEN
-            PKG_SL_LOGGING.WRITE_LOG('ERROR', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Erro fatal: ' || SQLERRM);
+            PKG_SL_LOGGING.WRITE_LOG('ERROR', 'PKG_SL_TRIGGER_GENERATOR', 'GENERATE_FOR_ENTITY', 'Erro ao criar trigger para ' || p_entity_name || ': ' || SQLERRM);
             RAISE;
-    END GENERATE_FOR_ENTITY;
+    END;
 
     PROCEDURE DROP_FOR_ENTITY(p_entity_name IN VARCHAR2) AS
+        v_trg_name VARCHAR2(30);
     BEGIN
-        EXECUTE IMMEDIATE 'DROP TRIGGER TRG_CDC_' || p_entity_name;
-    EXCEPTION
-        WHEN OTHERS THEN NULL;
-    END DROP_FOR_ENTITY;
+        v_trg_name := GET_SAFE_TRG_NAME(p_entity_name);
+        EXECUTE IMMEDIATE 'DROP TRIGGER ' || v_trg_name;
+    EXCEPTION WHEN OTHERS THEN NULL; END;
 
 END PKG_SL_TRIGGER_GENERATOR;
