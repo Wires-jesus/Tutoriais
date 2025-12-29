@@ -10700,6 +10700,7 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
                            , PCMOV.ROWID NOTA_ROWID
                            , PCMOV.DATAESTOQUE
                            , PCMOV.DTMOV
+                           , PCMOV.CODOPER
                         FROM PCMOV
                        WHERE PCMOV.DTCANCEL IS NULL
                          AND PCMOV.NUMTRANSENT = pnNUMTRANSACAO
@@ -10874,16 +10875,18 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
      --
 
       --Entrada da quantidade de estoque em trânsito de beneficiamento.
-      UPDATE PCEST
-         SET PCEST.QTTRANSITOBENEFIC = (CASE
-                            WHEN psECANCELAMENTO = 'N' THEN
-                              NVL(PCEST.QTTRANSITOBENEFIC, 0) + DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
-                            ELSE
-                              NVL(PCEST.QTTRANSITOBENEFIC, 0) - DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
-                            END)
-           
-       WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
-         AND PCEST.CODPROD = REGISTROS.CODPROD;      
+      IF REGISTROS.CODOPER = 'EV' THEN
+        UPDATE PCEST
+           SET PCEST.QTTRANSITOBENEFIC = (CASE
+                              WHEN psECANCELAMENTO = 'N' THEN
+                                GREATEST((NVL(PCEST.QTTRANSITOBENEFIC, 0) - NVL(REGISTROS.QTCONT, 0)), 0)
+                              ELSE
+                                NVL(PCEST.QTTRANSITOBENEFIC, 0) + NVL(REGISTROS.QTCONT, 0)
+                              END)
+             
+         WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
+           AND PCEST.CODPROD = REGISTROS.CODPROD;
+      END IF;   
     END LOOP;
     -- Validando se tem registros
     IF vnCONTADORREGISTROS = 0 THEN
@@ -11514,9 +11517,9 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
       UPDATE PCEST
          SET PCEST.QTTRANSITOBENEFIC  = CASE
                            WHEN psECANCELAMENTO = 'N' THEN
-                             NVL(PCEST.QTTRANSITOBENEFIC, 0) - DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
-                           ELSE
                              NVL(PCEST.QTTRANSITOBENEFIC, 0) + DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)
+                           ELSE
+                             GREATEST((NVL(PCEST.QTTRANSITOBENEFIC, 0) - DECODE(REGISTROS.MOVESTOQUECONTABIL, 'S', REGISTROS.QTCONT, 0)), 0)
                            END           
        WHERE PCEST.CODFILIAL = REGISTROS.CODFILIAL
          AND PCEST.CODPROD = REGISTROS.CODPROD;
