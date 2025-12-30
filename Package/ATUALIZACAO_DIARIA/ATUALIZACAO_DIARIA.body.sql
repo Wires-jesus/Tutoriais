@@ -848,8 +848,270 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
      15/03/2017   Rafael Braga/Diego Cardoso    - Baseado na estrutura reescrita por Diego Cardoso, adaptado algumas regras
      17/12/2018   Fernandes Brito   Ajustado o select que alimenta o cursor principal para não obrigar a existencia da PCPRODFILIAL.
     *********************************************************************************/
+    V_SQL_TEXT CLOB := '
+      SELECT CODFILIAL,
+             CODPROD,
+             NBM,
+             DESCRICAO,
+             CLASSIFICFISCAL,
+             UNIDADE,
+             DATA,
+             QTEST,
+             QTESTGER,
+             QTRESERV,
+             QTBLOQUEADA,
+             QTPENDENTE,
+             QTULTENT,
+             QTINDENIZ,
+             CUSTOCONT,
+             CUSTOREAL,
+             CUSTOFIN,
+             CUSTOREP,
+             CUSTOULTENT,
+             VALORULTENT,
+             CUSTODOLAR,
+             CUSTOREALSEMST,
+             CUSTOULTENTMED,
+             CUSTOULTPEDCOMPRA,
+             CUSTOFORNEC,
+             VALORULTENTMED,
+             DTGERACAO,
+             QTTRANSITO,
+             QTFRENTELOJA,
+             CUSTOFINSEMST,
+             CUSTOULTENTFINSEMST,
+             CUSTOULTENTSEMST,
+             CUSTOFORNECSEMST,
+             CUSTONFSEMSTGUIAULTENT,
+             CUSTONFSEMST,
+             CUSTONFSEMSTGUIAULTENTTAB,
+             CUSTONFSEMSTTAB,
+             CUSTOPROXIMACOMPRA,
+             CUSTOPROXIMACOMPRASEMST,
+             CUSTOREALLIQ,
+             CUSTOULTENTANT,
+             CUSTOULTENTCONT,
+             CUSTOULTENTFIN,
+             CUSTOULTENTLIQ,
+             DTULTENT,
+             VLCUSTODIAFIN,
+             VLCUSTODIAREAL,
+             VLCUSTOMESFIN,
+             VLCUSTOMESFINANT,
+             VLCUSTOMESREAL,
+             VLCUSTOMESREALANT,
+             VLFRETECONHECULTENT,
+             VLFRETECONHECULTENTTAB,
+             VLIMPORTACAOFCI,
+             VLPARCELAIMPFCI,
+             VLSTGUIAULTENT,
+             VLSTGUIAULTENTTAB,
+             VLSTULTENT,
+             VLSTULTENTTAB,
+             VLULTENTCONTSEMST,
+             VLULTPCOMPRA,
+             BASEBCR,
+             STBCR,
+             VLIPIULTENT,
+             BASEIPIULTENT,
+             PERCIPIULTENT,
+             QTTRANSITOTV13,
+             DV,
+             CODAUXILIAR,
+             CODPRODSINTEGRA,
+             EMBALAGEM,
+             DTEXCLUSAOPROD,
+             TIPOMERC,
+             TIPOMERCDEPTO,
+             CODGENEROFISCAL,
+             PERCST,
+             PISCOFINSRETIDO,
+             PERPIS,
+             PERCOFINS,
+             CODINTERNO,
+             ALIQICMS1,
+             SITTRIBUT,
+             CODICM,
+             CODCEST,
+             QTESTOQUEEMTERCEIRO,
+             QTESTOQUEDETERCEIRO,
+             QTTRANSITOTV10
+        FROM (SELECT E.CODFILIAL,
+                     E.CODPROD,
+                     PA.NBM,
+                     SUBSTR(PA.DESCRICAO, 0 , 40) DESCRICAO,
+                     NVL(PA.CLASSIFICFISCAL, :V_FILIAL) CLASSIFICFISCAL,
+                     PA.UNIDADE,
+                     TRUNC(:VPROCESSAMENTO) DATA,
+                     NVL(E.QTEST, 0) QTEST,
+                     NVL(E.QTESTGER, 0) QTESTGER,
+                     NVL(E.QTRESERV, 0) QTRESERV,
+                     NVL(E.QTBLOQUEADA, 0) QTBLOQUEADA,
+                     NVL(E.QTPENDENTE, 0) QTPENDENTE,
+                     NVL(E.QTULTENT, 0) QTULTENT,
+                     NVL(E.QTINDENIZ, 0) QTINDENIZ,
+                     NVL(E.CUSTOCONT, 0) CUSTOCONT,
+                     NVL(E.CUSTOREAL, 0) CUSTOREAL,
+                     NVL(E.CUSTOFIN, 0) CUSTOFIN,
+                     NVL(E.CUSTOREP, 0) CUSTOREP,
+                     NVL(E.CUSTOULTENT, 0) CUSTOULTENT,
+                     NVL(E.VALORULTENT, 0) VALORULTENT,
+                     NVL(E.CUSTODOLAR, 0) CUSTODOLAR,
+                     NVL(E.CUSTOREALSEMST, 0) CUSTOREALSEMST,
+                     NVL(E.CUSTOULTENTMED, 0) CUSTOULTENTMED,
+                     NVL(E.CUSTOULTPEDCOMPRA, 0) CUSTOULTPEDCOMPRA,
+                     CASE
+                       WHEN NVL(PARAMFILIAL.OBTERCOMOVARCHAR2(''USAPOLITICACOMERCIALPRODFILIAL'',''99''),''P'') = ''P'' THEN
+                        PA.CUSTOFORNEC
+                     ELSE
+                        E.CUSTOFORNEC
+                     END CUSTOFORNEC,
+                     NVL(E.VALORULTENTMED, 0) VALORULTENTMED,
+                     SYSDATE DTGERACAO,
+                     NVL(E.QTTRANSITO, 0) QTTRANSITO,
+                     NVL(E.QTFRENTELOJA, 0) QTFRENTELOJA,
+                     NVL(E.CUSTOFINSEMST, 0) CUSTOFINSEMST,
+                     NVL(E.CUSTOULTENTFINSEMST, 0) CUSTOULTENTFINSEMST,
+                     NVL(E.CUSTOULTENTSEMST, 0) CUSTOULTENTSEMST,
+                     NVL(E.CUSTOFORNECSEMST, 0) CUSTOFORNECSEMST,
+                     NVL(E.CUSTONFSEMSTGUIAULTENT, 0) CUSTONFSEMSTGUIAULTENT,
+                     NVL(E.CUSTONFSEMST, 0) CUSTONFSEMST,
+                     NVL(E.CUSTONFSEMSTGUIAULTENTTAB, 0) CUSTONFSEMSTGUIAULTENTTAB,
+                     NVL(E.CUSTONFSEMSTTAB, 0) CUSTONFSEMSTTAB,
+                     NVL(E.CUSTOPROXIMACOMPRA, 0) CUSTOPROXIMACOMPRA,
+                     NVL(E.CUSTOPROXIMACOMPRASEMST, 0) CUSTOPROXIMACOMPRASEMST,
+                     NVL(E.CUSTOREALLIQ, 0) CUSTOREALLIQ,
+                     NVL(E.CUSTOULTENTANT, 0) CUSTOULTENTANT,
+                     NVL(E.CUSTOULTENTCONT, 0) CUSTOULTENTCONT,
+                     NVL(E.CUSTOULTENTFIN, 0) CUSTOULTENTFIN,
+                     NVL(E.CUSTOULTENTLIQ, 0) CUSTOULTENTLIQ,
+                     E.DTULTENT DTULTENT,
+                     NVL(E.VLCUSTODIAFIN, 0) VLCUSTODIAFIN,
+                     NVL(E.VLCUSTODIAREAL, 0) VLCUSTODIAREAL,
+                     NVL(E.VLCUSTOMESFIN, 0) VLCUSTOMESFIN,
+                     NVL(E.VLCUSTOMESFINANT, 0) VLCUSTOMESFINANT,
+                     NVL(E.VLCUSTOMESREAL, 0) VLCUSTOMESREAL,
+                     NVL(E.VLCUSTOMESREALANT, 0) VLCUSTOMESREALANT,
+                     NVL(E.VLFRETECONHECULTENT, 0) VLFRETECONHECULTENT,
+                     NVL(E.VLFRETECONHECULTENTTAB, 0) VLFRETECONHECULTENTTAB,
+                     NVL(E.VLIMPORTACAOFCI, 0) VLIMPORTACAOFCI,
+                     NVL(E.VLPARCELAIMPFCI, 0) VLPARCELAIMPFCI,
+                     NVL(E.VLSTGUIAULTENT, 0) VLSTGUIAULTENT,
+                     NVL(E.VLSTGUIAULTENTTAB, 0) VLSTGUIAULTENTTAB,
+                     NVL(E.VLSTULTENT, 0) VLSTULTENT,
+                     NVL(E.VLSTULTENTTAB, 0) VLSTULTENTTAB,
+                     NVL(E.VLULTENTCONTSEMST, 0) VLULTENTCONTSEMST,
+                     NVL(E.VLULTPCOMPRA, 0) VLULTPCOMPRA,
+                     NVL(E.BASEBCR, 0) BASEBCR,
+                     NVL(E.STBCR, 0) STBCR,
+                     NVL(E.VLIPIULTENT, 0) VLIPIULTENT,
+                     NVL(E.BASEIPIULTENT, 0) BASEIPIULTENT,
+                     NVL(E.PERCIPIULTENT, 0) PERCIPIULTENT,
+                     NVL(E.QTTRANSITOTV13, 0) QTTRANSITOTV13,
+                     PA.DV DV,
+                     PA.CODAUXILIAR CODAUXILIAR,
+                     PA.CODPRODSINTEGRA CODPRODSINTEGRA,
+                     PA.EMBALAGEM EMBALAGEM,
+                     PA.DTEXCLUSAO DTEXCLUSAOPROD,
+                     PA.TIPOMERC TIPOMERC,
+                     D.TIPOMERC TIPOMERCDEPTO,
+                     PA.CODGENEROFISCAL CODGENEROFISCAL,
+                     PA.PERCST PERCST,
+                     DECODE(PF.CODPROD,
+                            NULL,
+                            PA.PISCOFINSRETIDO,
+                            PF.PISCOFINSRETIDO) PISCOFINSRETIDO,
+                     DECODE(PF.CODPROD, NULL, PA.PERPIS, PF.PERPIS) PERPIS,
+                     DECODE(PF.CODPROD, NULL, PA.PERCOFINS, PF.PERCOFINS) PERCOFINS,
+                     PA.CODINTERNO CODINTERNO,
+                     CASE
+                       WHEN :V_USATRIBUTACAOPORUF = ''N'' THEN
+                        (SELECT T.ALIQICMS1
+                           FROM PCTABPR P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.NUMREGIAO = F.NUMREGIAOPADRAO
+                            AND ROWNUM = 1)
+                       WHEN :V_USATRIBUTACAOPORUF = ''S'' THEN
+                        (SELECT T.ALIQICMS1
+                           FROM PCTABTRIB P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.UFDESTINO = F.UF
+                            AND ROWNUM = 1)
+                       ELSE
+                        0
+                     END AS ALIQICMS1,
+                     CASE
+                       WHEN :V_USATRIBUTACAOPORUF = ''N'' THEN
+                        (SELECT T.SITTRIBUT
+                           FROM PCTABPR P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.NUMREGIAO = F.NUMREGIAOPADRAO
+                            AND ROWNUM = 1)
+                       WHEN :V_USATRIBUTACAOPORUF = ''S'' THEN
+                        (SELECT T.SITTRIBUT
+                           FROM PCTABTRIB P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.UFDESTINO = F.UF
+                            AND ROWNUM = 1)
+                       ELSE
+                        ''0''
+                     END AS SITTRIBUT,
+                     CASE
+                       WHEN :V_USATRIBUTACAOPORUF = ''N'' THEN
+                        (SELECT T.CODICM
+                           FROM PCTABPR P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.NUMREGIAO = F.NUMREGIAOPADRAO
+                            AND ROWNUM = 1)
+                       WHEN :V_USATRIBUTACAOPORUF = ''S'' THEN
+                        (SELECT T.CODICM
+                           FROM PCTABTRIB P, PCTRIBUT T, PCFILIAL F
+                          WHERE P.CODST = T.CODST
+                            AND P.CODPROD = PA.CODPROD
+                            AND F.CODIGO = :V_FILIAL
+                            AND P.UFDESTINO = F.UF
+                            AND ROWNUM = 1)
+                       ELSE
+                        0
+                     END AS CODICM,
+                     E.CODCEST,
+                     E.QTESTOQUEEMTERCEIRO,
+                     E.QTESTOQUEDETERCEIRO,
+                     E.QTTRANSITOTV10
+                FROM PCEST [SCN_PLACEHOLDER] E,
+                     PCPRODUT PA,
+                     PCDEPTO D,
+                     (SELECT CODPROD,
+                             PISCOFINSRETIDO,
+                             PERPIS,
+                             PERCOFINS,
+                             CODFILIAL,
+                             GERARPCHISTEST
+                        FROM PCPRODFILIAL
+                       WHERE CODFILIAL = :V_FILIAL) PF
+               WHERE E.CODPROD  = PA.CODPROD
+                 AND PA.CODEPTO = D.CODEPTO(+)
+                 AND PA.CODPROD = PF.CODPROD(+)                 
+                 AND E.CODFILIAL = :V_FILIAL
+                 AND ((:V_GERARPCHISTESTPARA = ''T'') OR
+                     (NVL(E.QTEST, 0) <> 0) OR
+                     (NVL(E.QTESTGER, 0) <> 0) OR
+                     (NVL(E.QTTRANSITO, 0) <> 0) OR
+                     (NVL(E.QTTRANSITOTV13, 0) <> 0)))    
+    ';
+
     /* Declaração do cursor usado na gravação do PCHISTEST */
-    CURSOR V_CURSOR_PRODUTOS(V_FILIAL             VARCHAR2
+    CURSOR V_CURSOR_PRODUTOS_OLD(V_FILIAL             VARCHAR2
                             ,VPROCESSAMENTO       DATE
                             ,V_GERARPCHISTESTPARA VARCHAR2
                             ,V_USATRIBUTACAOPORUF VARCHAR2)
@@ -1095,7 +1357,7 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
                      E.QTESTOQUEEMTERCEIRO,
                      E.QTESTOQUEDETERCEIRO,
                      E.QTTRANSITOTV10
-                FROM PCEST E, --AS OF SCN SCN_V_NUMBER E,
+                FROM PCEST E,
                      PCPRODUT PA,
                      PCDEPTO D,
                      (SELECT CODPROD,
@@ -1292,25 +1554,72 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
     vtQTESTOQUEEMTERCEIRO            tpQTESTOQUEEMTERCEIRO;
     vtQTESTOQUEDETERCEIRO            tpQTESTOQUEDETERCEIRO;
     vtQTTRANSITOTV10                 tpQTTRANSITOTV10;
-    V_CONTADOR         NUMBER(10);
-    vSQLBLOQUEARPCEST  VARCHAR2(1000);
-    V_CURRENT_SCN      NUMBER;    
+    
+    vSQLBLOQUEARPCEST                VARCHAR2(1000);
+    V_CONTADOR                       NUMBER(10);
+    V_LOCK_PCEST                     VARCHAR2(1);
+    V_CURRENT_SCN                    NUMBER;
+    V_SCN_CLAUSE                     VARCHAR2(100) := '';    
+    V_CURSOR_PRODUTOS                SYS_REFCURSOR;
+    V_SQL_FINAL                      CLOB;    
 
-  BEGIN
-    -- Inserindo log 
+
+  BEGIN   
+    V_CURRENT_SCN := 0;
+
+    -- Buscando o SCN atual dinamicamente para que na compilação/atualização não seja exigido o privilégio DBMS_FLASHBACK
+    -- Tratado para utilizar o fluxo apenas se for possível obter o dado. A execução continua normalmente caso não seja possível.
     BEGIN
-      GRAVARLOG( PCODFILIAL
-                ,'ARMAZENARSALDOSEST'
-                ,'PCHISTEST'
-                ,'IP'
-                ,'INICIO PROGRAMA DE ARMAZENAGEM DO ESTOQUE '
-                ,PDTPROCESSAMENTO);
-    EXCEPTION
-      WHEN OTHERS THEN
-        PVC2MENSSAGEN := 'Mensagem 1: - Erro ao gravar log.';
+        -- Para utilizar o fluxo sem lock da PCEST, é necessário que o usuário da aplicação possua o privilégio EXECUTE no DBMS_FLASHBACK
+        -- GRANT EXECUTE ON DBMS_FLASHBACK TO <owner_aplicacao>;
+        EXECUTE IMMEDIATE 'BEGIN :1 := SYS.DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER; END;' 
+        USING OUT V_CURRENT_SCN;
+    EXCEPTION 
+        WHEN OTHERS THEN 
+            V_CURRENT_SCN := NULL; 
     END;
 
-    --V_CURRENT_SCN := DBMS_FLASHBACK.GET_SYSTEM_CHANGE_NUMBER;
+    IF V_CURRENT_SCN IS NULL OR V_CURRENT_SCN = 0 THEN
+      V_LOCK_PCEST := 'S';  -- Fluxo padrão de lock da PCEST caso não tenha sido possível obter o SCN
+      
+      BEGIN
+        GRAVARLOG( PCODFILIAL
+                  ,'ARMAZENARSALDOSEST'
+                  ,'PCHISTEST'
+                  ,'IP'
+                  ,'INICIO PROGRAMA DE ARMAZENAGEM DO ESTOQUE '
+                  ,PDTPROCESSAMENTO);
+      EXCEPTION
+        WHEN OTHERS THEN
+          PVC2MENSSAGEN := 'Mensagem 1: - Erro ao gravar log.';
+      END;
+    ELSE
+      V_LOCK_PCEST := 'N';  -- Novo fluxo sem lock da PCEST quando possível obter o SCN, utilizando o DBMS_FLASHBACK
+ 
+      BEGIN
+        GRAVARLOG( PCODFILIAL
+                  ,'ARMAZENARSALDOSEST'
+                  ,'PCHISTEST'
+                  ,'IP'
+                  ,'INICIO PROGRAMA DE ARMAZENAGEM DO ESTOQUE - SCN: ' || V_CURRENT_SCN || ' FLASHBACK ATIVADO. '
+                  ,PDTPROCESSAMENTO);
+      EXCEPTION
+        WHEN OTHERS THEN
+          PVC2MENSSAGEN := 'Mensagem 1: - Erro ao gravar log novo fluxo.';
+      END;
+    END IF;
+
+    IF V_LOCK_PCEST = 'S' THEN
+      -- Remove o placeholder caso não tenha sido possível obter o SCN e executa o select sem o DBMS.FLASHBACK
+      -- Continuar com o fluxo padrão de lock da PCEST
+      V_SQL_FINAL := REPLACE(V_SQL_TEXT, '[SCN_PLACEHOLDER]', '');
+      --DBMS_OUTPUT.PUT_LINE('Fluxo padrão: ' || V_SQL_FINAL);
+    ELSE
+      -- Para que a consulta da PCEST utilize o seguinte código na consulta que retorna o dado do FLASHBACKQUERY: 'PCEST AS OF SCN V_CURRENT_SCN E'
+      V_SQL_FINAL := REPLACE(V_SQL_TEXT, '[SCN_PLACEHOLDER]', ' AS OF SCN ' || V_CURRENT_SCN);
+      --DBMS_OUTPUT.PUT_LINE('Fluxo com DBMS_FLASHBACK: ' || V_SQL_FINAL);
+    END IF;
+    -- */
 
     /* Lista de filiais */
     FOR FILIAL IN (SELECT CODIGO
@@ -1335,16 +1644,47 @@ PROCEDURE P_PC_ARMAZENARSALDOSESTOQUE(PDTPROCESSAMENTO IN DATE
           PVC2MENSSAGEN := 'Mensagem 2: - Erro ao gravar log.';
       END;
 
+      IF V_LOCK_PCEST = 'S' THEN 
+        /* Bloquear registros */
+        vSQLBLOQUEARPCEST := 'SELECT CODFILIAL
+                                FROM PCEST
+                               WHERE CODFILIAL = :FILIAL
+                              ORDER BY CODPROD 
+                   FOR UPDATE';
+
+        EXECUTE IMMEDIATE vSQLBLOQUEARPCEST USING FILIAL.CODIGO;
+      END IF;
+
+
       /* Certificar que não existem registros antigos conflitantes com a nova geração */
       DELETE FROM PCHISTESTFILA
        WHERE DATA = PDTPROCESSAMENTO
          AND CODFILIAL = FILIAL.CODIGO;
-      /* Abrindo curso para a filial */
-      OPEN V_CURSOR_PRODUTOS(FILIAL.CODIGO,
-                             PDTPROCESSAMENTO,
-                             FILIAL.GERARPCHISTESTPARA,
-                             FILIAL.USATRIBUTACAOPORUF);
-                             --,V_CURRENT_SCN);
+
+      /* Abrindo cursor para a filial */
+      OPEN V_CURSOR_PRODUTOS FOR V_SQL_FINAL 
+      USING 
+        FILIAL.CODIGO,                    -- 1. :V_FILIAL (NVL da ClassificFiscal)
+        PDTPROCESSAMENTO,                 -- 2. :VPROCESSAMENTO (TRUNC DATA)
+        -- Bloco ALIQICMS1
+        FILIAL.USATRIBUTACAOPORUF,        -- 3. :V_USATRIBUTACAOPORUF (Parte N)
+        FILIAL.CODIGO,                    -- 4. :V_FILIAL (Subselect N)
+        FILIAL.USATRIBUTACAOPORUF,        -- 5. :V_USATRIBUTACAOPORUF (Parte S)
+        FILIAL.CODIGO,                    -- 6. :V_FILIAL (Subselect S)
+        -- Bloco SITTRIBUT
+        FILIAL.USATRIBUTACAOPORUF,        -- 7. :V_USATRIBUTACAOPORUF (Parte N)
+        FILIAL.CODIGO,                    -- 8. :V_FILIAL (Subselect N)
+        FILIAL.USATRIBUTACAOPORUF,        -- 9. :V_USATRIBUTACAOPORUF (Parte S)
+        FILIAL.CODIGO,                    -- 10. :V_FILIAL (Subselect S)
+        -- Bloco CODICM
+        FILIAL.USATRIBUTACAOPORUF,        -- 11. :V_USATRIBUTACAOPORUF (Parte N)
+        FILIAL.CODIGO,                    -- 12. :V_FILIAL (Subselect N)
+        FILIAL.USATRIBUTACAOPORUF,        -- 13. :V_USATRIBUTACAOPORUF (Parte S)
+        FILIAL.CODIGO,                    -- 14. :V_FILIAL (Subselect S)
+        -- Filtros Finais
+        FILIAL.CODIGO,                    -- 15. :V_FILIAL (PCPRODFILIAL)
+        FILIAL.CODIGO,                    -- 16. :V_FILIAL (E.CODFILIAL)
+        FILIAL.GERARPCHISTESTPARA;        -- 17. :V_GERARPCHISTESTPARA (Filtro final)
       LOOP
         /* Buscando as próximas 1000 linhas */
         FETCH V_CURSOR_PRODUTOS BULK COLLECT
