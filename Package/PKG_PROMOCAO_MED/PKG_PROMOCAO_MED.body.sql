@@ -23232,9 +23232,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     AND (CODSEC         IS NULL); -->> Somente Descontos cadastrados para o Depto sem ref. a Seção
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAODEPTO(
-                        CODEPTO )
+                        CODEPTO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODEPTO
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODEPTO        IS NOT NULL)
@@ -23305,9 +23309,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     AND (CODCATEGORIA   IS NULL); -->> Somente Descontos cadastrados para a Seção sem ref. a Categoria
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOSECAO(
-                        CODSEC )
+                        CODSEC
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODSEC
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED 
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODSEC         IS NOT NULL)
@@ -23377,9 +23385,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     AND (CODCATEGORIA   IS NOT NULL);
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOCATEG(
-                        CODCATEGORIA )
+                        CODCATEGORIA
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODCATEGORIA
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODCATEGORIA   IS NOT NULL);
@@ -23447,9 +23459,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     AND (CODFORNEC      IS NOT NULL);
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOFORNEC(
-                        CODFORNEC )
+                        CODFORNEC
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODFORNEC
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODFORNEC      IS NOT NULL);
@@ -23517,9 +23533,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                     AND (CODMARCA       IS NOT NULL);
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOMARCA(
-                        CODMARCA )
+                        CODMARCA
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR )
                  SELECT DISTINCT
                         CODMARCA
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODMARCA       IS NOT NULL);
@@ -23589,9 +23609,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAOLINHAPROD(
                         CODLINHAPROD
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                        )
                  SELECT DISTINCT
                         CODLINHAPROD
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODLINHAPROD   IS NOT NULL);
@@ -23664,9 +23688,13 @@ IS PRAGMA SERIALLY_REUSABLE;
           ELSIF (vvTipoPolitica IN ('Q','B','V')) THEN
             INSERT INTO PCMED_PROMOCAORESTGRUPRO(
                         CODGRUPO
+                      , OBRIGATORIOPARCIAL
+                      , QTMINMIXFORNECEDOR
                        )
                  SELECT DISTINCT
                         CODGRUPOREST
+                      , OBRIGATORIOPARCIALMED
+                      , QTMINMIXFORNECEDORMED
                    FROM PCDESCONTO
                   WHERE (CODPROMOCAOMED = vnCodPromocaoSel)
                     AND (CODGRUPOREST IS NOT NULL)
