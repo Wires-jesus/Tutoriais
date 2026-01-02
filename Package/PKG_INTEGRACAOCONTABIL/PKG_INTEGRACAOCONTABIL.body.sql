@@ -637,7 +637,12 @@ IS
         FILIAIS             SYS_REFCURSOR;
         VS_CODFILIAL_AUX    VARCHAR2 (2);
         VN_CODFATOGERADOR   NUMBER;
+		v_count NUMBER;
+		PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
+	
+	    v_count := 0;
+		
         SELECT CODFATOGERADOR
           INTO VN_CODFATOGERADOR
           FROM PCREGRACONTABIL
@@ -682,12 +687,23 @@ IS
                                         AND CODFILIAL = VS_CODFILIAL_AUX
                                         AND STATUS = 'P');
             END IF;
-
-            DELETE FROM PCLANCINTERMEDIARIA
-                  WHERE     DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
-                        AND CODREGRA = PCODREGRA
-                        AND CODFILIAL = VS_CODFILIAL_AUX
-                        AND STATUS = 'P';
+			
+			LOOP
+              
+              DELETE FROM PCLANCINTERMEDIARIA
+                    WHERE DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
+                          AND CODREGRA = PCODREGRA
+                          AND CODFILIAL = VS_CODFILIAL_AUX
+                          AND STATUS = 'P'
+                          AND ROWNUM <= 5000;
+                          
+              v_count := SQL%ROWCOUNT; 
+                         
+              COMMIT;  
+              
+              EXIT WHEN v_count = 0; 
+            END LOOP; 
+			
 						
 			DELETE FROM PCLANCINTERMEDIARIA L
                   WHERE L.CODREGRA = PCODREGRA
