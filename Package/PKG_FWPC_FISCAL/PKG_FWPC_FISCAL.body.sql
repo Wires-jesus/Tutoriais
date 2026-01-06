@@ -448,25 +448,46 @@ create or replace package body PKG_FWPC_FISCAL is
       V_SCRIPT  long;
       V_RETORNO varchar2(4000);
    begin
-      begin
+      BEGIN
+         --  HABILITANDO SERVIÇO LOG
+         PKG_DEBUGGING_FWPC.ATIVARDEBUG('ICMSPARTILHA_CALCULAR_1_0', '1.0');
+       
          select SCRIPT
            into V_SCRIPT
            from PCFWREPOSITORIO R
           where R.SERVICO = 'winthor.fiscal.icmspartilha.calcular'
             and R.VERSAO = '1.0'
             and ROWNUM = 1;
+            
+         PKG_DEBUGGING_FWPC.LOG(' TABELA CONSULTA: '||'PCFWREPOSITORIO'|| 
+                                ' VERSAO: '||'1.0'|| 
+                                ' SERVICO: '||'winthor.fiscal.icmspartilha.calcular'||
+                                ' RETORNO V_SCRIPT: '|| CASE WHEN V_SCRIPT IS NOT NULL THEN 'Sim' ELSE 'Não' END
+                                ,'S');  
+            
+         PKG_DEBUGGING_FWPC.LOG(' P_CODFILIAL: '||P_CODFILIAL||
+                                ' P_CODCLI: '||P_CODCLI||
+                                ' P_UFOPERCONSUM: '||P_UFOPERCONSUM||
+                                ' P_DATAOPER: '||P_DATAOPER||
+                                ' P_VLPRODUTO: '|| P_VLPRODUTO ||
+                                ' P_CODTRIBUT: '|| P_CODTRIBUT
+                                ,'S');     
 
          execute immediate DBMS_LOB.SUBSTR(V_SCRIPT, 32765, 1)
             using P_CODFILIAL, P_CODCLI, P_UFOPERCONSUM, P_DATAOPER, P_VLPRODUTO, P_CODTRIBUT, out V_RETORNO, out P_CODMSG, out P_MSG;
 
          if P_CODMSG = 0
-         then
-            P_RETORNO := PREPARAR_XML_RETORNO(V_RETORNO);
+         THEN
+            PKG_DEBUGGING_FWPC.LOG_RETORNO(P_CODMSG, P_MSG);
+            P_RETORNO := PREPARAR_XML_RETORNO(V_RETORNO);            
          end if;
-
+          -- DESABILITANDO SERVIÇO LOG
+         PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
       exception
-         when NO_DATA_FOUND then
-            RAISE_APPLICATION_ERROR(-20000, 'O serviço solicitado é inexistente!');
+         when NO_DATA_FOUND THEN
+            PKG_DEBUGGING_FWPC.LOG('CodErro: -20000 O serviço solicitado é inexistente!','S');
+            PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
+            RAISE_APPLICATION_ERROR(-20000, 'O serviço solicitado é inexistente!');            
       end;
    end;
 
