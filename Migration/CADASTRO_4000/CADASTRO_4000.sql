@@ -165,7 +165,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_CBSIBS_2',
-     'Soma do PUNITCONT, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
+     'Soma do PUNITCONT, IS, frete, seguro, despesas, vll e outros, menos tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
@@ -197,7 +197,7 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_IS_2',
-     'Soma do PUNITCONT, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
+     'Soma do PUNITCONT, frete, seguro, despesas, vll e outros, menos tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
 	 'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
