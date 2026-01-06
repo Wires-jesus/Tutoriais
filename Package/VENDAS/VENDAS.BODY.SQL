@@ -5630,6 +5630,41 @@ FUNCTION DESCONTO_ITEM_VENDA(pCODCLI            NUMBER,
     Desconto.Parametros132.TratarRestricaoAcrescimo := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_TRATARRESTRICAOACRESCIMO','99','N');
     Desconto.Parametros132.NumCasasDecimais         := FERRAMENTAS.F_BUSCARPARAMETRO_NUM('CON_NUMCASASDECIMAIS','99',0);
     Desconto.Parametros132.AceitaDescontoPrecoFixo  := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('CON_ACEITADESCPRECOFIXO','99',0);
+	
+	Desconto.Parametros132.UsaREgiaoFilialVendaEstadual := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_USAREGIAOFILIALVENDAESTADUAL',pCODFILIAL,'N'); – Param. 2147
+	Desconto.Parametros132.NumRegiaoPadrao := FERRAMENTAS.F_BUSCARPARAMETRO_NUM('FIL_NUMREGIAOPADRAO', pCODFILIAL, Desconto.Cliente.Numregiao); – Param. 1633
+	Desconto.Parametros132.UsaREgiaoFilialVendaInterest := FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_USAREGIAOFILIALVENDAINTEREST',pCODFILIAL,'N'); – Param. 2148
+	Desconto.Parametros132.NumRegiaoPadraoInter := FERRAMENTAS.F_BUSCARPARAMETRO_NUM('FIL_NUMREGIAOBALCAOINTER', pCODFILIAL, Desconto.Cliente.Numregiao); – Param. 2398 UsaRegiaoFilialVendaEstadual
+
+	BEGIN
+		SELECT UF INTO vsUFFILIAL FROM PCFILIAL WHERE CODIGO = pCODFILIAL;
+	EXCEPTION
+		WHEN OTHERS THEN
+			vsUFFILIAL := Desconto.Cliente.Estent;
+	END;
+
+	IF (Desconto.Pedido.OrigemPed IN ('B', 'R')) THEN
+		IF (vsUFFILIAL = Desconto.Cliente.Estent) then
+			IF (Desconto.Parametros132.UsaREgiaoFilialVendaEstadual = 'S')
+				AND (Desconto.Parametros132.NumRegiaoPadrao > 0) THEN
+					vbPossuiRegiaoDiferenciada := True;
+			END IF;
+		ELSE
+			IF (Desconto.Parametros132.UsaREgiaoFilialVendaInterest = 'S')
+				AND (Desconto.Parametros132.NumRegiaoPadraoInter > 0) THEN
+					vbPossuiRegiaoDiferenciada := True;
+			END IF;
+		END IF;
+	END IF;
+
+	IF vbPossuiRegiaoDiferenciada THEN
+		IF (vsUFFILIAL = Desconto.Cliente.Estent) THEN
+			Desconto.Cliente.Numregiao := Desconto.Parametros132.NumRegiaoPadrao;
+		ELSE
+			Desconto.Cliente.Numregiao := Desconto.Parametros132.NumRegiaoPadraoInter;
+		END IF;
+	END IF;	
+	
     R_DADOS.PTABELADESC := Desconto.Precificacao.PrecoTabela;
     IF pnMatriculaFuncionario > 0 THEN
       Desconto.Funcionario.Matricula := pnMatriculaFuncionario;
