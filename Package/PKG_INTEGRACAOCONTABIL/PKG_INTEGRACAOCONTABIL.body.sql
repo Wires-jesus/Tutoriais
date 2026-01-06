@@ -702,21 +702,34 @@ IS
               COMMIT;  
               
               EXIT WHEN v_count = 0; 
-            END LOOP; 
+            END LOOP;
 			
-						
-			DELETE FROM PCLANCINTERMEDIARIA L
-                  WHERE L.CODREGRA = PCODREGRA
-                  AND L.CODFILIAL = VS_CODFILIAL_AUX
-                  AND L.STATUS = 'P'  
-                  AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIA A
-                               WHERE    A.DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
-                                    AND A.CODREGRA = PCODREGRA
-                                    AND A.CODFILIAL = VS_CODFILIAL_AUX
-                                    AND A.NUMTRANSOPERACAO = L.NUMTRANSOPERACAO
-                                    AND A.STATUS = 'I');
+			v_count := 0;
+			
+			LOOP
+			
+				DELETE FROM PCLANCINTERMEDIARIA L
+					  WHERE L.CODREGRA = PCODREGRA
+					  AND L.CODFILIAL = VS_CODFILIAL_AUX
+					  AND L.STATUS = 'P'  
+					  AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIA A
+								   WHERE    A.DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
+										AND A.CODREGRA = PCODREGRA
+										AND A.CODFILIAL = VS_CODFILIAL_AUX
+										AND A.NUMTRANSOPERACAO = L.NUMTRANSOPERACAO
+										AND A.STATUS = 'I')
+					  AND ROWNUM <= 5000;
+			
+			v_count := SQL%ROWCOUNT;
+			
+			COMMIT;
+			
+			EXIT WHEN v_count = 0; 
+            END LOOP;						
 			
         END LOOP;
+
+        COMMIT;
 
         CLOSE FILIAIS;
     END;
