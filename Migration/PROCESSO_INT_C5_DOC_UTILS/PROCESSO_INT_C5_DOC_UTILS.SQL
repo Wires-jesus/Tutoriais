@@ -1069,37 +1069,26 @@ CREATE OR REPLACE FUNCTION fnc_int_c5_perdesc_acresc_r(pNroEmpresa   NUMBER,
 IS
   vPerAcrescimoRodape NUMBER;
 BEGIN
-
-SELECT
-        (CASE
-            WHEN i.VLRACRESCIMO > 0
-                 AND
-                 i.seqdocto IN (SELECT seqdocto
-                                  FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO z
-                                 WHERE z.NROEMPRESA = i.NROEMPRESA
-                                   AND z.NROCHECKOUT = i.NROCHECKOUT
-                                   AND z.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33))
-                THEN ROUND(100 * (1 - (i.vlrtotal / i.vlrunitario)),6)
-           ELSE
-              0
-         END)
+  SELECT
+      (ROUND(100 * (1 - (((I.VLRTOTAL - I.VLRACRESCIMO) + SUM(A.VALOR)) / I.VLRUNITARIO)), 6)) VALOR
   INTO   vPerAcrescimoRodape
-  FROM  monitorpdvmiddle.tb_docto d,
-        monitorpdvmiddle.tb_doctocupom c,
-        monitorpdvmiddle.tb_doctoitem i
- WHERE  i.nroempresa = d.nroempresa
-   AND  i.nrocheckout = d.nrocheckout
-   AND  i.seqdocto = d.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.especie = 'NF'
-   AND  d.replicacao = 'P'
-   AND  i.nroempresa = pNroEmpresa
-   AND  i.nrocheckout = pNroCheckout
-   AND  i.STATUS = 'V'
-   AND  i.seqdocto = pSeqDocto
-   AND  ROWNUM = 1;
+  FROM MONITORPDVMIDDLE.TB_DOCTOITEM I,
+       MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO A,
+       MONITORPDVMIDDLE.TB_DOCTO D
+  WHERE I.NROEMPRESA = D.NROEMPRESA
+    AND I.NROCHECKOUT = D.NROCHECKOUT
+    AND I.SEQDOCTO = D.SEQDOCTO
+    AND I.NROEMPRESA = A.NROEMPRESA
+    AND I.NROCHECKOUT = A.NROCHECKOUT
+    AND I.SEQDOCTO = A.SEQDOCTO
+    AND A.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33)
+    AND D.ESPECIE = 'NF'
+    AND I.STATUS = 'V'
+    AND I.NROEMPRESA = pNroEmpresa
+    AND I.NROCHECKOUT = pNroCheckout
+    AND I.SEQDOCTO = pSeqDocto
+    AND ROWNUM = 1
+  GROUP BY I.VLRTOTAL, I.VLRUNITARIO, I.VLRACRESCIMO;   
   RETURN(vPerAcrescimoRodape);
   EXCEPTION
      WHEN OTHERS
@@ -1203,25 +1192,19 @@ CREATE OR REPLACE FUNCTION fnc_int_c5_valordesc_acresc_r(pNroEmpresa   NUMBER,
 IS
   vValorAcrescimoRodape NUMBER;
 BEGIN
-
- SELECT
-        sum(i.VLRACRESCIMO )   
+  SELECT
+     SUM(A.VALOR)
   INTO  vValorAcrescimoRodape
-  FROM  monitorpdvmiddle.tb_docto d,
-        monitorpdvmiddle.tb_doctocupom c,
-        monitorpdvmiddle.tb_doctoitem i
- WHERE  i.nroempresa = d.nroempresa
-   AND  i.nrocheckout = d.nrocheckout
-   AND  i.seqdocto = d.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.especie = 'NF'
-   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33))
-   AND  i.nroempresa = pNroEmpresa
-   AND  i.nrocheckout = pNroCheckout
-   AND  i.STATUS = 'V'
-   AND  i.seqdocto = pSeqDocto;
+  FROM MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO A,
+       MONITORPDVMIDDLE.TB_DOCTO D  
+  WHERE  A.SEQDOCTO = D.SEQDOCTO
+  	AND  A.NROCHECKOUT = D.NROCHECKOUT
+  	AND  A.NROEMPRESA = D.NROEMPRESA
+    AND  D.ESPECIE = 'NF'
+    AND  A.SEQTIPOACRESCDESCTO IN (4, 7, 8, 31, 32, 33)
+    AND  D.NROEMPRESA = pNroEmpresa
+    AND  D.NROCHECKOUT = pNroCheckout
+    AND  D.SEQDOCTO = pSeqDocto;
   RETURN(vValorAcrescimoRodape);
   EXCEPTION
      WHEN OTHERS
@@ -1238,26 +1221,19 @@ CREATE OR REPLACE FUNCTION fnc_int_c5_valordesc_desc_r(pNroEmpresa   NUMBER,
 IS
   vValorDescRodape NUMBER;
 BEGIN
-
- SELECT  
-        sum(i.vlrdesconto)
+  SELECT
+     SUM(A.VALOR)
   INTO  vValorDescRodape
-  FROM  monitorpdvmiddle.tb_docto d,
-        monitorpdvmiddle.tb_doctocupom c,
-        monitorpdvmiddle.tb_doctoitem i
- WHERE  i.nroempresa = d.nroempresa
-   AND  i.nrocheckout = d.nrocheckout
-   AND  i.seqdocto = d.seqdocto
-   AND  d.nroempresa = c.nroempresa
-   AND  d.nrocheckout = c.nrocheckout
-   AND  d.seqdocto = c.seqdocto
-   AND  d.especie = 'NF'
-   AND  exists (SELECT * FROM monitorpdvmiddle.TB_DOCTOACRESCDESCTO a WHERE a.SEQTIPOACRESCDESCTO IN (1, 2, 3, 5, 6, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 27, 28, 34, 51, 52, 61, 71, 72, 81, 91, 92))
-   AND  d.replicacao = 'P'
-   AND  i.nroempresa = pNroEmpresa
-   AND  i.nrocheckout = pNroCheckout
-   AND  i.STATUS = 'V'
-   AND  i.seqdocto = pSeqDocto;
+  FROM MONITORPDVMIDDLE.TB_DOCTOACRESCDESCTO A,
+       MONITORPDVMIDDLE.TB_DOCTO D  
+  WHERE  A.SEQDOCTO = D.SEQDOCTO
+  	AND  A.NROCHECKOUT = D.NROCHECKOUT
+  	AND  A.NROEMPRESA = D.NROEMPRESA
+    AND  D.ESPECIE = 'NF'
+    AND  A.SEQTIPOACRESCDESCTO IN (1, 2, 3, 5, 6, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 27, 28, 34, 51, 52, 61, 71, 72, 81, 91, 92)
+    AND  D.NROEMPRESA = pNroEmpresa
+    AND  D.NROCHECKOUT = pNroCheckout
+    AND  D.SEQDOCTO = pSeqDocto;
   RETURN(vValorDescRodape);
   EXCEPTION
      WHEN OTHERS
@@ -1314,6 +1290,7 @@ BEGIN
   WHERE R.NROEMPRESA = A.NROEMPRESA
     AND R.NROCHECKOUT = A.NROCHECKOUT 
     AND R.SEQDOCTO = A.SEQDOCTO 
+    AND R.SEQACRESCDESCTO = A.SEQACRESCDESCTO
     AND A.SEQTIPOACRESCDESCTO = 41
     AND A.NROEMPRESA = pNroEmpresa
     AND A.NROCHECKOUT = pNroCheckout
