@@ -1,4 +1,4 @@
-DECLARE
+DECLARE 
   vTemRotinaTabela integer := 0;
   vCountUFExterior integer := 0;
   v_DeleteBaseCBSIBS_Antigo   varchar2(4000);  
@@ -75,20 +75,20 @@ BEGIN
      SET DESCRICAO = '1 - BR'
    WHERE ID = 'LOCAL_CONSUMO_BR_UF'
      AND DESCRICAO = 'BR';
-
+   
   SELECT COUNT(1)
     INTO vCountUFExterior
     FROM PCROTULOITEM
    WHERE ID = 'LOCAL_CONSUMO_BR_UF'
      AND DESCRICAO = '2 - EX'; 
-
-  IF vCountUFExterior = 0 THEN   
+     
+  IF vCountUFExterior = 0 THEN 
     INSERT INTO PCROTULOITEM(
       ID, DESCRICAO, VALOR
     ) VALUES(
       'LOCAL_CONSUMO_BR_UF', '2 - EX', 'EX'
-    );
-  END IF; 
+    ); 
+  END IF;
   
   COMMIT;
   
@@ -165,14 +165,13 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_CBSIBS_2',
-     'Soma de VlProduto, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
+     'Soma do PUNITCONT, IS, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
      'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
                  || '&' || 'VLOUTROS' || '&' || '+' 
                  || '&' || 'VLIS' || '&' || '+' 
                  || '&' || 'VLVII' || '&' || '-' 
-                 || '&' || 'VLDESCONTO' || '&' || '-' 
                  || '&' || 'VLPIS' || '&' || '-' 
                  || '&' || 'VLCOFINS' || '&' || '-' 
                  || '&' || 'VLICMS' || '&' || '-' 
@@ -198,13 +197,12 @@ BEGIN
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
   VALUES
     ('BASE_IS_2',
-     'Soma de VlProduto, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
+     'Soma do PUNITCONT, frete, seguro, despesas, vll e outros, menos descontos e tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
 	 'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
                  || '&' || 'VLOUTROS' || '&' || '+' 
                  || '&' || 'VLVII' || '&' || '-' 
-                 || '&' || 'VLDESCONTO' || '&' || '-' 
                  || '&' || 'VLPIS' || '&' || '-' 
                  || '&' || 'VLCOFINS' || '&' || '-' 
                  || '&' || 'VLICMS' || '&' || '-' 
