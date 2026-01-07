@@ -354,7 +354,7 @@ IS
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
                 UPDATE PCCONSUM
-                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1 WHERE 1=1;
             ELSE
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
@@ -540,13 +540,13 @@ IS
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
                 UPDATE PCCONSUM
-                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1 WHERE 1=1;
             ELSE
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
 
-            SELECT VLSALDO 
-              INTO VVLSALDO  
+            SELECT VLSALDO,CODBANCO,CODCOB
+              INTO VVLSALDO,VCODBANCO,VCODCOB
               FROM PCMOVCR
              WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
                                FROM PCMOVCR 
@@ -555,11 +555,6 @@ IS
                FOR UPDATE;
 
             COMMIT WORK;
-
-            SELECT CODBANCO,CODCOB
-              INTO VCODBANCO,VCODCOB
-              FROM PCMOVCR 
-             WHERE NUMTRANS = DADOS.NUMTRANS;
 
             --UPDATE NA PCMOVCR ORIGINAL
             UPDATE PCMOVCR
@@ -988,7 +983,7 @@ IS
           INTO VNUMTRANS 
           FROM PCCONSUM FOR UPDATE;
         UPDATE PCCONSUM
-           SET PROXNUMTRANS = NVL(PROXNUMTRANS, 1) + 1;
+           SET PROXNUMTRANS = NVL(PROXNUMTRANS, 1) + 1 WHERE 1=1;
 
         INSERT INTO PCMOVCR (
             NUMTRANS,        /*01*/
@@ -1036,9 +1031,9 @@ IS
 
         PNUMTRANS := VNUMTRANS;
 
-        UPDATE PCPRESTANTECIPADA SET
-            NUMTRANS = VNUMTRANS
-        WHERE NUMTRANSPAGADIANTADO = VNUMTRANSPAGOADIANTADO;
+        UPDATE PCPRESTANTECIPADA 
+		   SET NUMTRANS = VNUMTRANS
+         WHERE NUMTRANSPAGADIANTADO = VNUMTRANSPAGOADIANTADO;
 
         -- Criando crédito antecipado na PCCRECLI
         INSERT INTO PCCRECLI (
