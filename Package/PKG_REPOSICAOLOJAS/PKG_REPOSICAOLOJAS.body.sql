@@ -10653,7 +10653,10 @@ IS PRAGMA SERIALLY_REUSABLE;
 					    NUMSEQVENDA = vNumSeqVenda
                   WHERE NUMPED = r.NUMPED_ATUAL
                     AND CODPROD = r.CODPROD
-                    AND NUMTRANSITEM = r.NUMTRANSITEM;
+                    AND NUMTRANSITEM = r.NUMTRANSITEM
+                    AND DTESTORNOENTRADA IS NULL
+                    AND DTESTORNOTV10 IS NULL
+                    AND NUMPEDTV10 IS NULL;
 
                   vNumSeqVenda := vNumSeqVenda + 1;
                 END LOOP;
