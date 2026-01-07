@@ -8071,7 +8071,7 @@ IS
                                     VS_NATUREZA,
                                     VN_VALORLANCTO,
                                     PCODREGRA,
-                                    '',
+                                    ITEM.IMPOSTO,
                                     ITEM.NUMTRANSOPERACAO,
                                     F_RETORNA_TIPO_INCONSISTENCIA (
                                         VS_TEMCONTAINEXISTENTE),
@@ -8118,7 +8118,8 @@ IS
                                         VN_NUMTRANSACAO,
                                            VS_HISTORICO
                                         || vs_conta
-                                        || VS_CODFILIAL,
+                                        || VS_CODFILIAL 
+                                        || ITEM.IMPOSTO,
                                         ITEM.PERCRATEIO);
                                 END IF;
 
