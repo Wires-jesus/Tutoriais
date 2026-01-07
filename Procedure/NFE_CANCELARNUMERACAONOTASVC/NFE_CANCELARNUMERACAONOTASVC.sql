@@ -72,8 +72,7 @@ begin
   
     if NVL(V_NUMTRANSACAOGERADA, 0) <> 0 then
       update pcnfsaid
-         set situacaonfe                    = 101,
-             dtcancel                       = trunc(P_DTcancelamento),
+         set dtcancel                       = trunc(sysdate),
              pcnfsaid.protocolocancelamento = P_protocoloCancelamento,
              VLTOTAL                        = 0,
              ICMSRETIDO                     = 0,
@@ -116,7 +115,7 @@ begin
          NULL,
          NULL,
          P_CODFILIAL,
-         NULL,
+         P_DTcancelamento,
          NULL);
     
       for REG in (select rowid ID
@@ -130,7 +129,7 @@ begin
         ITEM.NUMNOTA       := P_NUMNOTA;
         ITEM.STATUS        := 'A';
         ITEM.QT            := 0;
-        ITEM.DTCANCEL      := sysdate;
+        ITEM.DTCANCEL      := trunc(sysdate);
         ITEM.QTDEVOL       := 0;
         ITEM.TIPOITEM      := 'N';
         ITEM.MOVESTOQUEGERENCIAL := 'N';
@@ -146,7 +145,7 @@ begin
         ITEM.QTCONT := ITEM.QTCONT * (-1);
       
         insert into PCMOV values ITEM;
-        update pcmov set dtcancel = sysdate where rowid = reg.id;
+        update pcmov set dtcancel = trunc(sysdate) where rowid = reg.id;
         COMMIT;
       
         if (ITEM.NUMTRANSITEM is not null) then
@@ -200,8 +199,7 @@ begin
   
     if NVL(V_NUMTRANSACAOGERADA, 0) <> 0 then
       update pcnfent
-         set situacaonfe           = 101,
-             dtcancel              = P_DTcancelamento,
+         set dtcancel              = trunc(sysdate),
              protocolocancelamento = P_protocoloCancelamento,
              VLTOTAL               = 0,
              VLST                  = 0,
@@ -245,7 +243,7 @@ begin
          NULL,
          NULL,
          P_CODFILIAL,
-         NULL,
+         P_DTcancelamento,
          NULL);
     
       for REG in (select rowid ID
@@ -259,7 +257,7 @@ begin
         ITEM.NUMNOTA     := P_NUMNOTA;
         ITEM.STATUS      := 'A';
         ITEM.QT          := 0;
-        ITEM.DTCANCEL    := sysdate;
+        ITEM.DTCANCEL    := trunc(sysdate);
         ITEM.QTDEVOL     := 0;
         ITEM.MOVESTOQUEGERENCIAL := 'N';
       
@@ -273,7 +271,7 @@ begin
       
         ITEM.QTCONT := ITEM.QTCONT * (-1);
         insert into PCMOV values ITEM;
-        update pcmov set dtcancel = sysdate where rowid = reg.id;
+        update pcmov set dtcancel = trunc(sysdate) where rowid = reg.id;
         COMMIT;
       
         if (ITEM.NUMTRANSITEM is not null) then
