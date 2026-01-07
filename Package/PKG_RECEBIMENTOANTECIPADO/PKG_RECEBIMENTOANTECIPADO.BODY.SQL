@@ -354,7 +354,7 @@ IS
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
                 UPDATE PCCONSUM
-                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1 WHERE 1=1;
             ELSE
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
@@ -540,7 +540,7 @@ IS
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
                 UPDATE PCCONSUM
-                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1;
+                   SET PROXNUMTRANS = NVL(PROXNUMTRANS,1)+1 WHERE 1=1;
             ELSE
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
@@ -983,7 +983,7 @@ IS
           INTO VNUMTRANS 
           FROM PCCONSUM FOR UPDATE;
         UPDATE PCCONSUM
-           SET PROXNUMTRANS = NVL(PROXNUMTRANS, 1) + 1;
+           SET PROXNUMTRANS = NVL(PROXNUMTRANS, 1) + 1 WHERE 1=1;
 
         INSERT INTO PCMOVCR (
             NUMTRANS,        /*01*/
@@ -1031,9 +1031,9 @@ IS
 
         PNUMTRANS := VNUMTRANS;
 
-        UPDATE PCPRESTANTECIPADA SET
-            NUMTRANS = VNUMTRANS
-        WHERE NUMTRANSPAGADIANTADO = VNUMTRANSPAGOADIANTADO;
+        UPDATE PCPRESTANTECIPADA 
+		   SET NUMTRANS = VNUMTRANS
+         WHERE NUMTRANSPAGADIANTADO = VNUMTRANSPAGOADIANTADO;
 
         -- Criando crédito antecipado na PCCRECLI
         INSERT INTO PCCRECLI (
