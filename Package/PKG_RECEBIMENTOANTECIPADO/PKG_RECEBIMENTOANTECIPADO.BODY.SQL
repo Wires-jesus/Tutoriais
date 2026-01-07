@@ -545,8 +545,8 @@ IS
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
 
-            SELECT VLSALDO 
-              INTO VVLSALDO  
+            SELECT VLSALDO,CODBANCO,CODCOB
+              INTO VVLSALDO,VCODBANCO,VCODCOB
               FROM PCMOVCR
              WHERE NUMSEQ = (SELECT MAX(NUMSEQ) 
                                FROM PCMOVCR 
@@ -555,11 +555,6 @@ IS
                FOR UPDATE;
 
             COMMIT WORK;
-
-            SELECT CODBANCO,CODCOB
-              INTO VCODBANCO,VCODCOB
-              FROM PCMOVCR 
-             WHERE NUMTRANS = DADOS.NUMTRANS;
 
             --UPDATE NA PCMOVCR ORIGINAL
             UPDATE PCMOVCR
