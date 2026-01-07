@@ -370,8 +370,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
 
         V_NUMTRANSACAO := V_NUMTRANSACAOGERADA;
         IF NVL(V_NUMTRANSACAOGERADA, 0) <> 0 THEN
-          UPDATE PCNFSAID SET
-                 DTCANCEL = TRUNC(SYSDATE)
+          UPDATE PCNFSAID
+             SET DTCANCEL = TRUNC(SYSDATE)
                , PROTOCOLOCANCELAMENTO = P_PROTOCOLOCANCELAMENTO
                , VLTOTAL = 0
                , ICMSRETIDO = 0
@@ -414,7 +414,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                      , NULL
                      , NULL
                      , P_CODFILIAL
-                     , NULL
+                     , P_DTCANCEL
                      , NULL);
 
           FOR REG IN (SELECT ROWID ID
@@ -502,8 +502,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
         V_NUMTRANSACAO := V_NUMTRANSACAOGERADA;
         IF NVL(V_NUMTRANSACAOGERADA, 0) <> 0 THEN
           UPDATE PCNFENT
-             SET SITUACAONFE = 101
-               , DTCANCEL = TRUNC(P_DTCANCEL)
+             SET DTCANCEL = TRUNC(SYSDATE)
                , PROTOCOLOCANCELAMENTO = P_PROTOCOLOCANCELAMENTO
                , VLTOTAL = 0
                , VLST = 0
@@ -545,7 +544,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                      , NULL
                      , NULL
                      , P_CODFILIAL
-                     , NULL
+                     , P_DTCANCEL
                      , NULL);
 
           FOR REG IN (SELECT ROWID ID
