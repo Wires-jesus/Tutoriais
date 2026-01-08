@@ -162,7 +162,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             0 NUMSEQ,
             0 PERCICM,
             0 SITTRIBUT,
-            0 CODFISCAL,
+            B.CODFISCAL,
             0  NCM,
             N.VLTOTAL,
             0 VLIPI,
@@ -180,9 +180,11 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             0 VLICMS,
             0 VLICMSUFDEST,
             0 VLFCP            
-       from PCNFSAID       N
+       from PCNFSAID N, PCNFBASE B  
       where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
         and N.ESPECIE IN ('CT', 'CO', 'CE')
+        AND N.NUMTRANSVENDA = B.NUMTRANSVENDA 
+        AND N.CODCONT       = B.CODCONT
         and N.NUMTRANSVENDA = P_NUMEROTRANSACAO
         and N.NUMNOTA       = P_NUMERONOTA
     );
