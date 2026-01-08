@@ -5,7 +5,7 @@
 		{
 			"nome": "TRIGGER_DTALTERC5",
 			"tipo": "MIGRATION",
-			"versao": "8.0.02.000"
+			"versao": "8.0.03.000"
 		},
 		{
 			"nome": "PCDEVLOGCONSINCO",
@@ -325,7 +325,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE",
 		  "tipo": "MIGRATION",
-		  "versao": "7.0.11.000"
+		  "versao": "8.0.02.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
@@ -360,10 +360,15 @@
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_PESSOA",
 		  "tipo": "MIGRATION",
-		  "versao": "8.0.01.000"
+		  "versao": "8.0.02.000"
 		},
 		{
 		  "nome": "PROCESSO_INT_C5_LIMCRED_CONV",
+		  "tipo": "MIGRATION",
+		  "versao": "8.0.01.000"
+		},
+		{
+		  "nome": "PROCESSO_INT_C5_AJUSTE_GRUPOCLI",
 		  "tipo": "MIGRATION",
 		  "versao": "8.0.01.000"
 		}
