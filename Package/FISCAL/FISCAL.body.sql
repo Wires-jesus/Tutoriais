@@ -1493,6 +1493,23 @@ create or replace package body FISCAL is
            MSG := 'N:Erro ao calcular PIS/COFINS no item. ' || CHR(13) || 'Erro original: ' || sqlerrm;
            return false;
       end;
+
+      PKG_DEBUGGING_FWPC.LOG('Valor do VCODTRIB| '||VCODTRIB,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PQTCONT| '||PQTCONT,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLPRODUTO| '||PVLPRODUTO,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLICMSDESONERACAO| '||PVLICMSDESONERACAO,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLDIFALIQUOTAS| '||PVLDIFALIQUOTAS,'S');           
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLST| '||PVLST,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLIPI| '||PVLIPI,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLFCPST| '||PVLFCPST,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLDESPESA| '||PVLDESPESA,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLFRETE| '||PVLFRETE,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLSUFRAMA| '||PVLSUFRAMA,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLICMS| '||PVLICMS,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLFCPICMS| '||PVLFCPICMS,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLSTBCR| '||PVLSTBCR,'S');      
+      PKG_DEBUGGING_FWPC.LOG('Valor do Pis/Cofins| '||VBASEPISCOFINS,'S');
+
       -----------------------------------------------------------------
       -- VALIDAR O VALOR DA BASE PARA NOTAS FISCAIS COMPLEMENTARES.
       IF (VBASEPISCOFINS < 0) THEN
@@ -1789,6 +1806,11 @@ create or replace package body FISCAL is
 
       -- Busca de Parâmetros
        V_AGREGARFCPBASEPISCOFINSSAIDA := PARAMFILIAL.OBTERCOMOVARCHAR2('AGREGARFCPBASEPISCOFINSSAIDA', VCODFILIAL);
+       
+      PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_PIS_COFINS_VENDA', '1.0', NUMTRANSACAO);
+      PKG_DEBUGGING_FWPC.LOG('Inicio consulta para dados do Pis/Cofins| '||VCODFILIAL||
+                             ' Transacao: '||NUMTRANSACAO,'S');							 
+                                  
 
       -- PERCORRER ITENS DA NOTA PARA CALCULO- ----------------------------
       for DADOS in (select N.CONDVENDA
@@ -1865,7 +1887,7 @@ create or replace package body FISCAL is
 
                             END) AS VLICMS
                           -------------------- // ------------------
-                          ,NVL(MC.VLACRESCIMOFUNCEP, 0) AS VLFCPICMS
+                          ,(NVL(MC.VLACRESCIMOFUNCEP,0) + NVL(MC.VLFCPPART,0)) AS VLFCPICMS
                           ,NVL(MC.VLFECP, 0) AS VLFCPST
                           ,'N' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0)  VLICMSDESONERACAO
@@ -1989,7 +2011,7 @@ create or replace package body FISCAL is
                                         (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100))
 
                             END AS VLICMS
-                          ,NVL(MC.VLACRESCIMOFUNCEP, 0) AS VLFCPICMS
+                          ,(NVL(MC.VLACRESCIMOFUNCEP,0) + NVL(MC.VLFCPPART,0)) AS VLFCPICMS
                           ,NVL(MC.VLFECP, 0) AS VLFCPST
                           ,'S' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0) VLICMSDESONERACAO
