@@ -144,7 +144,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         (CASE
             WHEN fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0 
                  AND fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0
-            THEN (fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto7) - (fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) * -1)) * -1
+            THEN (fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) - (fnc_int_c5_valordesc_desc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) * -1)) * -1
 
             ELSE CASE
                     WHEN fnc_int_c5_valordesc_acresc_r(a.NROEMPRESA,a.NROCHECKOUT,a.seqdocto) <> 0 
