@@ -9,6 +9,8 @@
 		{"nome": "PCCLIENT", "tipo": "TABELA", "versao": "7.0.03.000"},
 		{"nome": "PCGRUPOFIDELIDADE", "tipo": "TABELA", "versao": "6.0.01.000"},
 		{"nome": "PCGRUPOFIDELIDADECLIENTE", "tipo": "TABELA", "versao": "6.0.01.000"},
-		{"nome": "PCFILIAL", "tipo": "TABELA", "versao": "7.0.01.000"}
+		{"nome": "PCFILIAL", "tipo": "TABELA", "versao": "7.0.01.000"},
+		{"nome": "PCGRUPOFIDELIDADE", "tipo": "TABELA", "versao": "8.0.01.000"},
+		{"nome": "PCGRUPOFIDELIDADECLIENTE", "tipo": "TABELA", "versao": "8.0.01.000"}
     ]
 }
