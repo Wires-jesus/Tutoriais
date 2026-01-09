@@ -42,6 +42,10 @@
             "tipo": "TABELA",
             "versao": "7.0.04.000"
         },{
+            "nome": "PKG_DEBUGGING_FWPC",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "6.0.02.000"
+        },{			
             "nome": "PCTRIBUTACAO",
             "tipo": "TABELA",
             "versao": "7.0.11.000"
