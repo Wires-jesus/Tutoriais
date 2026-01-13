@@ -1807,9 +1807,8 @@ create or replace package body FISCAL is
       -- Busca de Parâmetros
        V_AGREGARFCPBASEPISCOFINSSAIDA := PARAMFILIAL.OBTERCOMOVARCHAR2('AGREGARFCPBASEPISCOFINSSAIDA', VCODFILIAL);
        
-      PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_PIS_COFINS_VENDA', '1.0', NUMTRANSACAO);
       PKG_DEBUGGING_FWPC.LOG('Inicio consulta para dados do Pis/Cofins| '||VCODFILIAL||
-                             ' Transacao: '||NUMTRANSACAO,'S');							 
+                             ' Transacao: '||NUMTRANSACAO,'S');               
                                   
 
       -- PERCORRER ITENS DA NOTA PARA CALCULO- ----------------------------
@@ -5672,7 +5671,7 @@ create or replace package body FISCAL is
        WHERE CODFISCAL       = P_CODFISCAL
          AND CODOPER         = P_CODOPER
          AND CODROTINAORIGEM = P_CODROTINAEMISSAO
-		 AND DTEXCLUSAO IS NULL;
+     AND DTEXCLUSAO IS NULL;
      EXCEPTION
        WHEN NO_DATA_FOUND THEN
        BEGIN
@@ -5682,7 +5681,7 @@ create or replace package body FISCAL is
           WHERE CODFISCAL       = P_CODFISCAL
             AND CODOPER         = P_CODOPER
             AND CODROTINAORIGEM = 0
-			AND DTEXCLUSAO IS NULL;
+      AND DTEXCLUSAO IS NULL;
        EXCEPTION
          WHEN NO_DATA_FOUND THEN
          BEGIN
@@ -5778,10 +5777,10 @@ create or replace package body FISCAL is
               FROM PCNATUREZAOPERACAO
               WHERE CODFISCAL = P_CODFISCAL
                 AND CODOPER = P_CODOPER
-				AND DTEXCLUSAO IS NULL
+        AND DTEXCLUSAO IS NULL
                 AND ((NVL(CODROTINAORIGEM,0) = 0) OR 
-				     (NVL(P_CODROTINAORIGEM, 0) = 0) OR 
-					 (NVL(CODROTINAORIGEM, 0) = P_CODROTINAORIGEM));
+             (NVL(P_CODROTINAORIGEM, 0) = 0) OR 
+           (NVL(CODROTINAORIGEM, 0) = P_CODROTINAORIGEM));
           END IF;
           -- GRAVANDO LOG
           PKG_DEBUGGING_FWPC.ATIVARDEBUG('Chamou GET_DESCRICAO_NATUREZA_OP retorno:','1.0');
@@ -6412,41 +6411,49 @@ create or replace package body FISCAL is
                   )
                 ))
             ORDER BY
-            -- prioriza quem bate especificamente no PRODUTO/NCM
-            CASE WHEN EXISTS (
-                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
-                 WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
-                 AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
-                 AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = ' || P_PARAMETROS.CODPROD || '
-               ) THEN 0 ELSE 1 END,
-            CASE WHEN EXISTS (
-                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
-                 WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
-                 AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
-                 AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' || '''' || P_PARAMETROS.NCM ||''''|| '
-               ) THEN 0 ELSE 1 END,
+            -- Primeira prioridade - FILTRO POR CFOP
             CASE WHEN EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                  WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                  AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                  AND PCTRIBUTACAO_FILTRO_CFOP.CODFISCAL = ' || P_PARAMETROS.CFOP || '
                ) THEN 0 ELSE 1 END,               
+            -----------------------------------------------------------------------------------------   
+            -- Segunda Prioridade - FILTRO POR PRODUTO
+            CASE WHEN EXISTS (
+                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
+                 WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
+                 AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
+                 AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = ' || P_PARAMETROS.CODPROD || '
+               ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
+            -- Terceira Prioridade - FILTRO POR NCM
+            CASE WHEN EXISTS (
+                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
+                 WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
+                 AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
+                 AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' || '''' || P_PARAMETROS.NCM ||''''|| '
+               ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                   WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,               
-            -- (mantém outros critérios existentes)
+            -----------------------------------------------------------------------------------------   
+            -- (Mantém outros critérios existentes)
             CASE WHEN NVL(PCTRIBUTACAO.CONSUMIDOR_FINAL,''N'')  = NVL(' ||''''||P_PARAMETROS.CONSUMIDOR_FINAL||''''||',''N'')  THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.CONTRIBUINTE,''N'')      = NVL(' ||''''||P_PARAMETROS.CONTRIBUINTE||''''||',''N'')      THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.TIPO_EMPRESA,''N'')      = NVL(' ||''''||P_PARAMETROS.TIPO_EMPRESA||''''||',''N'')      THEN 1 ELSE 2 END,
@@ -6460,8 +6467,8 @@ create or replace package body FISCAL is
                WHEN ''A'' THEN 3
                ELSE 3
             END
-		)
-		WHERE ROWNUM = 1;'; 
+    )
+    WHERE ROWNUM = 1;'; 
     PKG_DEBUGGING_FWPC.LOG_SQL(V_SQL , 'S');          
   END GRAVA_SQL_CONSULTA_TRIBUTOS;
     
@@ -6556,7 +6563,6 @@ create or replace package body FISCAL is
             WHERE PCTRIBUTACAO.TIPO_IMPOSTO = P_PARAMETROS.TIPO_IMPOSTO
               AND PCTRIBUTACAO.DTEXCLUSAO IS NULL
               AND NVL(PCTRIBUTACAO.TIPO_OPERACAO,'A') IN ('A', P_PARAMETROS.TIPO_OPERACAO)
-
               -- Regras de contexto
               AND (PCTRIBUTACAO.DEVOLUCAO         IS NULL OR PCTRIBUTACAO.DEVOLUCAO         = NVL(P_PARAMETROS.DEVOLUCAO,'N'))
               AND (PCTRIBUTACAO.CONSUMIDOR_FINAL  IS NULL OR PCTRIBUTACAO.CONSUMIDOR_FINAL  = NVL(P_PARAMETROS.CONSUMIDOR_FINAL,'N'))
@@ -6566,18 +6572,18 @@ create or replace package body FISCAL is
               AND (PCTRIBUTACAO.ORGAO_PUBLICO     IS NULL OR PCTRIBUTACAO.ORGAO_PUBLICO     = NVL(P_PARAMETROS.ORGAO_PUBLICO,'N'))
               AND (PCTRIBUTACAO.ORIGEM_MERCADORIA IS NULL OR PCTRIBUTACAO.ORIGEM_MERCADORIA = NVL(P_PARAMETROS.ORIGEM_MERCADORIA,'N'))
               AND (PCTRIBUTACAO.TIPO_MERC         IS NULL OR PCTRIBUTACAO.TIPO_MERC         = NVL(P_PARAMETROS.TIPO_MERC,'N'))
-              AND ( (P_TIPO_LOCAL_CONSUMO = 'M' AND PCTRIBUTACAO.LOCAL_CONSUMO_MUNICIPIO = P_LOCAL_CONSUMO) OR
-                  (P_TIPO_LOCAL_CONSUMO = 'G' AND PCTRIBUTACAO.LOCAL_CONSUMO_GERAL     = P_LOCAL_CONSUMO) )
-              AND ( (TRUNC(SYSDATE) BETWEEN TRUNC(PCTRIBUTACAO.DTINICIO_VIGENCIA) AND NVL(TRUNC(PCTRIBUTACAO.DTFIM_VIGENCIA),TRUNC(SYSDATE)))
-                  OR (PCTRIBUTACAO.DTINICIO_VIGENCIA IS NULL AND PCTRIBUTACAO.DTFIM_VIGENCIA IS NULL) )
+              AND ((P_TIPO_LOCAL_CONSUMO = 'M' AND PCTRIBUTACAO.LOCAL_CONSUMO_MUNICIPIO = P_LOCAL_CONSUMO) OR
+                   (P_TIPO_LOCAL_CONSUMO = 'G' AND PCTRIBUTACAO.LOCAL_CONSUMO_GERAL     = P_LOCAL_CONSUMO))
+              AND ((TRUNC(SYSDATE) BETWEEN TRUNC(PCTRIBUTACAO.DTINICIO_VIGENCIA) AND NVL(TRUNC(PCTRIBUTACAO.DTFIM_VIGENCIA),TRUNC(SYSDATE))) OR
+                   (PCTRIBUTACAO.DTINICIO_VIGENCIA IS NULL AND PCTRIBUTACAO.DTFIM_VIGENCIA IS NULL))
               AND ((
-                  -- não existe QUALQUER filtro de produto para esse código
+                  -- Não existe QUALQUER filtro de produto para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                   WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
                   )
-                  -- existe filtro de produto que casa com o produto informado
+                  -- Existe filtro de produto que casa com o produto informado
                   OR EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                   WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6586,13 +6592,13 @@ create or replace package body FISCAL is
                   )
                 )
               AND (
-                  -- não existe QUALQUER filtro de NCM para esse código
+                  -- Não existe QUALQUER filtro de NCM para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
                   )
-                  -- existe filtro de NCM que casa com o NCM informado
+                  -- Existe filtro de NCM que casa com o NCM informado
                   OR EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6601,13 +6607,13 @@ create or replace package body FISCAL is
                   )
                 )
               AND(
-                  -- não existe QUALQUER filtro de produto para esse CFOP
+                  -- Não existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                   )
-                  -- existe filtro de produto que casa com o produto CFOP
+                  -- Existe filtro de produto que casa com o produto CFOP
                   OR EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6616,40 +6622,48 @@ create or replace package body FISCAL is
                   )
                 ))
             ORDER BY
-            -- prioriza quem bate especificamente no PRODUTO/NCM
+            -- Primeira prioridade - FILTRO POR CFOP
+            CASE WHEN EXISTS (
+                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
+                 WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
+                 AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
+                 AND PCTRIBUTACAO_FILTRO_CFOP.CODFISCAL = P_PARAMETROS.CFOP
+               ) THEN 0 ELSE 1 END,  
+            -----------------------------------------------------------------------------------------   
+            -- Segunda Prioridade - FILTRO POR PRODUTO
             CASE WHEN EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                  WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                  AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
                  AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = P_PARAMETROS.CODPROD
                ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
+            -- Terceira Prioridade - FILTRO POR NCM
             CASE WHEN EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                  WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                  AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
                  AND PCTRIBUTACAO_FILTRO_NCM.NCM = P_PARAMETROS.NCM
                ) THEN 0 ELSE 1 END,
-            CASE WHEN EXISTS (
-                 SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
-                 WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
-                 AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
-                 AND PCTRIBUTACAO_FILTRO_CFOP.CODFISCAL = P_PARAMETROS.CFOP
-               ) THEN 0 ELSE 1 END,               
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                   WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
+            -----------------------------------------------------------------------------------------   
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,               
+            -----------------------------------------------------------------------------------------   
             -- (mantém outros critérios existentes)
             CASE WHEN NVL(PCTRIBUTACAO.CONSUMIDOR_FINAL,'N')  = NVL(P_PARAMETROS.CONSUMIDOR_FINAL,'N')  THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.CONTRIBUINTE,'N')      = NVL(P_PARAMETROS.CONTRIBUINTE,'N')      THEN 1 ELSE 2 END,
@@ -6664,8 +6678,8 @@ create or replace package body FISCAL is
                WHEN 'A' THEN 3
                ELSE 3
             END
-		)
-		WHERE ROWNUM = 1;
+    )
+    WHERE ROWNUM = 1;
 
 
       IF (P_PARAMETROS.TIPO_IMPOSTO = 'CBSIBS') THEN
@@ -6735,7 +6749,7 @@ create or replace package body FISCAL is
       END IF;
 
       GRAVA_SQL_CONSULTA_TRIBUTOS(P_TIPO_LOCAL_CONSUMO, P_LOCAL_CONSUMO);
-	  
+    
       RETURN TRUE;
 
     EXCEPTION
@@ -6756,7 +6770,7 @@ create or replace package body FISCAL is
                                ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
                                ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
                                ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
-                               ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP							   
+                               ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP                 
                                 , 'S');          
           RETURN FALSE;
         END;
@@ -6989,7 +7003,7 @@ create or replace package body FISCAL is
          VARIAVEL.NOME  := '&VLFCPUFDEST&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_FCPUFDEST IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_FCPUFDEST END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
-		 
+     
          VARIAVEL.NOME  := '&VLIS&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_IS IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_IS END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
@@ -7218,7 +7232,7 @@ create or replace package body FISCAL is
       --PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_TODOS_TRIB', '1.0');
       PKG_DEBUGGING_FWPC.LOG('Inicio cálculo IS para filial| '||P_PARAMETROS.CODFILIAL||
                              ' Produto: '||P_PARAMETROS.CODPROD||
-                             ' Ncm:'||P_PARAMETROS.NCM,'S');							 
+                             ' Ncm:'||P_PARAMETROS.NCM,'S');               
                            
       REMOVER_TRIBUTOS_OBSOLETOS;
 
@@ -7490,3 +7504,7 @@ create or replace package body FISCAL is
   END;    
 
 END;
+-- v001 
+-- Alteração 10/01/2026 - Ajuste no metodo de busca da tributação. A ordem mudou para Cfop, Produto e NCM
+-- Alteração 10/09/2025 - Ajuste de performance no metodo CALCULARPISCOFINS_VENDA.
+-- Alteração 14/08/2025 - Implentação metodo recalculo pis cofins para Dev. de venda.
