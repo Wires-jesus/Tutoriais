@@ -6380,7 +6380,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = ' || P_PARAMETROS.CODPROD || '
                   )
                 )
-              AND (
+              OR (
                   -- não existe QUALQUER filtro de NCM para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
@@ -6395,7 +6395,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' || '''' || P_PARAMETROS.NCM ||''''|| '
                   )
                 )
-              AND(
+              OR (
                   -- não existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
@@ -6591,7 +6591,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = P_PARAMETROS.CODPROD
                   )
                 )
-              AND (
+              OR (
                   -- Não existe QUALQUER filtro de NCM para esse código
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
@@ -6606,7 +6606,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = P_PARAMETROS.NCM
                   )
                 )
-              AND(
+              OR (
                   -- Não existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
@@ -7504,7 +7504,8 @@ create or replace package body FISCAL is
   END;    
 
 END;
--- v001 
+-- Alteração 14/01/2026 - Ajuste no metodo de busca da tributação. Foi adicionado na condição AND o OR. O que passa a considerar uma tributação ou outra.
 -- Alteração 10/01/2026 - Ajuste no metodo de busca da tributação. A ordem mudou para Cfop, Produto e NCM
 -- Alteração 10/09/2025 - Ajuste de performance no metodo CALCULARPISCOFINS_VENDA.
--- Alteração 14/08/2025 - Implentação metodo recalculo pis cofins para Dev. de venda.
+
+
