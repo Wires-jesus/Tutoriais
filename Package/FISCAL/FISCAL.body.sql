@@ -7507,4 +7507,5 @@ END;
 -- Alteração 14/01/2026 - Ajuste no metodo de busca da tributação. Foi adicionado na condição AND o OR. O que passa a considerar uma tributação ou outra.
 -- Alteração 10/01/2026 - Ajuste no metodo de busca da tributação. A ordem mudou para Cfop, Produto e NCM
 -- Alteração 10/09/2025 - Ajuste de performance no metodo CALCULARPISCOFINS_VENDA.
--- Alteração 14/08/2025 - Implentação metodo recalculo pis cofins para Dev. de venda.
+
+
