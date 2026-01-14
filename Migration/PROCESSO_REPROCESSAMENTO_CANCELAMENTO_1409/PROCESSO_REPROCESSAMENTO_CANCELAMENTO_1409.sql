@@ -80,7 +80,7 @@ DECLARE
                   'PREFAT WHERE NUMTRANSVENDA = ' || VNNUMTRANSVENDA;
     END IF;
 
-    EXECUTE IMMEDIATE VSSCRIPT;
+    EXECUTE IMMEDIATE VSSCRIPT;	
     --DBMS_OUTPUT.PUT_LINE(VSSCRIPT);
   END;
 BEGIN
@@ -92,8 +92,8 @@ BEGIN
                        FROM PCMOV M, PCNFSAID S
                      WHERE M.DTCANCEL IS NOT NULL
                      AND S.NUMTRANSVENDA = M.NUMTRANSVENDA
-                     AND S.DTCANCEL IS NOT NULL
-                     AND S.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')
+                     AND NVL(S.DTCANCEL, M.DTCANCEL) IS NOT NULL
+                     AND NVL(S.DTCANCEL, M.DTCANCEL) >= TO_DATE('28/08/2025','DD/MM/YYYY')
                      AND CODOPER LIKE 'S%'                     
                      AND ((QT > 0 AND (SELECT COUNT(1)
                                          FROM PCMOV
@@ -105,12 +105,11 @@ BEGIN
                                               AND PCMOV.QTCONT < 0) = 0))
                      UNION
                     SELECT 'NAO CONSOLIDADAS' TABELA
-                            , NF.NUMTRANSVENDA
+                           ,NF.NUMTRANSVENDA
                       FROM PCNFSAIDPREFAT NF, PCMOVPREFAT M
                      WHERE NF.NUMTRANSVENDA = M.NUMTRANSVENDA
-                       AND NF.DTCANCEL IS NOT NULL
-					   AND NF.SITUACAONFE = 1006
-                       AND NF.DTCANCEL >= TO_DATE('28/08/2025','DD/MM/YYYY')                     
+                       AND NVL(NF.DTCANCEL, M.DTCANCEL) IS NOT NULL					   
+                       AND NVL(NF.DTCANCEL, M.DTCANCEL) >= TO_DATE('28/08/2025','DD/MM/YYYY')                     
                        AND NOT EXISTS (SELECT NUMNOTA
                                          FROM PCNFSAID
                                         WHERE PCNFSAID.NUMTRANSVENDA = NF.NUMTRANSVENDA)
@@ -221,7 +220,7 @@ BEGIN
      
       UPDATE PCNFSAID SET
            DTCANCEL = DADOS.DTSAIDA
-      ,ESPECIE = 'NF'
+          ,ESPECIE = 'NF'
           ,SITUACAONFE = 102
       WHERE NUMTRANSVENDA = DADOS.NUMTRANSVENDA;
 
