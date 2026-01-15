@@ -7,7 +7,7 @@ CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT(
            politicabasedebita  VARCHAR2(1),                 
            percdescbase        NUMBER,                      
            datafinal           DATE,                        
-           percdesc            NUMBER,                      
+           percdesc            NUMBER,                       
            percdescaut         NUMBER,                      
            ptabeladesc         NUMBER,                      
            pvendadesc          NUMBER,                      
@@ -20,4 +20,6 @@ CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT(
            qtini               NUMBER,                      
            qtfim               NUMBER,                      
            vlrminimo           NUMBER,                      
-           vlrmaximo           NUMBER);
+           vlrmaximo           NUMBER,
+           ignorarmargemminimaplanopgto VARCHAR2(1),
+           bloquearpedido VARCHAR2(1));
