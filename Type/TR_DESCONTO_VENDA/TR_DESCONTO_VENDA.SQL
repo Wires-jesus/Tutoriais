@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE TR_DESCONTO_VENDA IS OBJECT(
+CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT( 
            msg                 VARCHAR2(1000),              
            codesconto          NUMBER,                      
            codescontobase      NUMBER,                      
@@ -7,7 +7,7 @@ CREATE OR REPLACE TYPE TR_DESCONTO_VENDA IS OBJECT(
            politicabasedebita  VARCHAR2(1),                 
            percdescbase        NUMBER,                      
            datafinal           DATE,                        
-           percdesc            NUMBER,                      
+           percdesc            NUMBER,                       
            percdescaut         NUMBER,                      
            ptabeladesc         NUMBER,                      
            pvendadesc          NUMBER,                      
