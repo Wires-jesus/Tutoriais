@@ -1,4 +1,4 @@
-CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT( 
+CREATE OR REPLACE TYPE TR_DESCONTO_VENDA IS OBJECT(
            msg                 VARCHAR2(1000),              
            codesconto          NUMBER,                      
            codescontobase      NUMBER,                      
@@ -20,4 +20,6 @@ CREATE OR REPLACE TYPE FORCE tr_desconto_venda IS OBJECT(
            qtini               NUMBER,                      
            qtfim               NUMBER,                      
            vlrminimo           NUMBER,                      
-           vlrmaximo           NUMBER);
+           vlrmaximo           NUMBER,
+           ignorarmargemminimaplanopgto VARCHAR2(1),
+           bloquearpedido VARCHAR2(1));
