@@ -17,7 +17,32 @@ DECLARE
   PROCEDURE GRAVARLOG(P_LOGFATURAMENTO PCLOGFATURAMENTO%ROWTYPE)
     IS
   BEGIN
-    INSERT INTO PCLOGFATURAMENTO VALUES P_LOGFATURAMENTO;
+    INSERT INTO PCLOGFATURAMENTO (LOG
+                                 ,TIPOLOG
+                                 ,PROCESSO
+                                 ,CODLOG
+                                 ,CODFUNC
+                                 ,CODFILIAL
+                                 ,DATAHORA
+                                 ,DTINICIAL
+                                 ,DTFINAL
+                                 ,OSUSER
+                                 ,MAQUINA
+                                 ,TERMINAL
+                                 ,CODIGOIDENTIFICADOR)
+                          VALUES (P_LOGFATURAMENTO.LOG
+                                 ,P_LOGFATURAMENTO.TIPOLOG
+                                 ,P_LOGFATURAMENTO.PROCESSO
+                                 ,P_LOGFATURAMENTO.CODLOG
+                                 ,P_LOGFATURAMENTO.CODFUNC
+                                 ,P_LOGFATURAMENTO.CODFILIAL
+                                 ,P_LOGFATURAMENTO.DATAHORA
+                                 ,P_LOGFATURAMENTO.DTINICIAL
+                                 ,P_LOGFATURAMENTO.DTFINAL
+                                 ,P_LOGFATURAMENTO.OSUSER
+                                 ,P_LOGFATURAMENTO.MAQUINA
+                                 ,P_LOGFATURAMENTO.TERMINAL
+                                 ,P_LOGFATURAMENTO.CODIGOIDENTIFICADOR);
     COMMIT WORK;
   END;
     
@@ -95,7 +120,7 @@ BEGIN
     WHERE 1=1
       AND  NOT EXISTS (SELECT 1 FROM PCPREST PREST WHERE PREST.NUMTRANSVENDA = NFSAID.NUMTRANSVENDA)
       AND NFSAID.ESPECIE = 'NF'
-      AND TRUNC(NFSAID.DTSAIDA) >= TO_DATE('01/10/2025','DD/MM/YYYY')
+      AND NFSAID.DTSAIDA >= TO_DATE('01/10/2025','DD/MM/YYYY')
       AND NFSAID.SITUACAONFE = '100'
       AND NFSAID.CODCOB IS NOT NULL
       AND NFSAID.CODPLPAG IS NOT NULL
@@ -198,8 +223,47 @@ BEGIN
       tPCPARCELANFE.DTVENC := dtVENC;
       
       BEGIN
-        INSERT INTO PCPREST      VALUES tPCPREST;
-        INSERT INTO PCPARCELANFE VALUES tPCPARCELANFE;
+        INSERT INTO PCPREST (CODCLI
+                            ,PREST
+                            ,DUPLIC
+                            ,VALOR
+                            ,CODCOB
+                            ,DTVENC
+                            ,DTEMISSAO
+                            ,CODFILIAL
+                            ,STATUS
+                            ,CODUSUR
+                            ,DTVENCORIG
+                            ,NUMTRANSVENDA
+                            ,NUMCAR
+                            ,NUMPED)
+                     VALUES (tPCPREST.CODCLI
+                            ,tPCPREST.PREST
+                            ,tPCPREST.DUPLIC
+                            ,tPCPREST.VALOR
+                            ,tPCPREST.CODCOB
+                            ,tPCPREST.DTVENC
+                            ,tPCPREST.DTEMISSAO
+                            ,tPCPREST.CODFILIAL
+                            ,tPCPREST.STATUS
+                            ,tPCPREST.CODUSUR
+                            ,tPCPREST.DTVENCORIG
+                            ,tPCPREST.NUMTRANSVENDA
+                            ,tPCPREST.NUMCAR
+                            ,tPCPREST.NUMPED);
+
+        INSERT INTO PCPARCELANFE (DUPLIC
+                                 ,PREST
+                                 ,DTVENC
+                                 ,VALOR
+                                 ,NUMTRANSACAO
+                                 ,TIPOMOV)
+                         VALUES (tPCPARCELANFE.DUPLIC
+                                ,tPCPARCELANFE.PREST
+                                ,tPCPARCELANFE.DTVENC
+                                ,tPCPARCELANFE.VALOR
+                                ,tPCPARCELANFE.NUMTRANSACAO
+                                ,tPCPARCELANFE.TIPOMOV);
       EXCEPTION
         WHEN OTHERS THEN
           tPCLOGFATURAMENTO.LOG := 'Erro na inserção do registro na PCPREST via rotina 814 - MIGRATION_PCPREST - DUPLIC: '||tPCPREST.DUPLIC||' '|| SQLCODE || '-' || SQLERRM || ' - ' ||
