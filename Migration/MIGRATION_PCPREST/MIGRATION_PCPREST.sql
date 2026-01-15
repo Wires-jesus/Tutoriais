@@ -133,8 +133,30 @@ BEGIN
     tPCLOGFATURAMENTO.CODIGOIDENTIFICADOR := DADOS.NUMTRANSVENDA;
     
     BEGIN
-      SELECT * 
-        INTO tPCPLPAG
+      SELECT PRAZO1
+            ,PRAZO2
+            ,PRAZO3
+            ,PRAZO4
+            ,PRAZO5
+            ,PRAZO6
+            ,PRAZO7
+            ,PRAZO8
+            ,PRAZO9
+            ,PRAZO10
+            ,PRAZO11
+            ,PRAZO12
+        INTO tPCPLPAG.PRAZO1
+            ,tPCPLPAG.PRAZO2
+            ,tPCPLPAG.PRAZO3
+            ,tPCPLPAG.PRAZO4
+            ,tPCPLPAG.PRAZO5
+            ,tPCPLPAG.PRAZO6
+            ,tPCPLPAG.PRAZO7
+            ,tPCPLPAG.PRAZO8
+            ,tPCPLPAG.PRAZO9
+            ,tPCPLPAG.PRAZO10
+            ,tPCPLPAG.PRAZO11
+            ,tPCPLPAG.PRAZO12
       FROM PCPLPAG P 
       WHERE P.CODPLPAG = DADOS.CODPLPAG;
     EXCEPTION
