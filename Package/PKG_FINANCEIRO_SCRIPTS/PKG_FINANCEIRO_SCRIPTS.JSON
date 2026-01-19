@@ -1,0 +1,17 @@
+{
+	"nome":"PKG_FINANCEIRO_SCRIPTS",
+	"tipoPLSQL":"PACKAGE",
+	"dependencias":
+	[
+		{
+		"nome": "PCLANC",
+		"tipo": "TABELA",
+		"versao": "8.0.05.000"
+		},
+		{
+		"nome": "PCLANCBLOQ",
+		"tipo": "TABELA",
+		"versao": "6.0.03.000"
+		}
+	]
+}
