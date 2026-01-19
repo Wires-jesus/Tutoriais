@@ -63,7 +63,8 @@ IS
     IS
         V_REGISTRO NUMBER;
     BEGIN
-        SELECT COUNT(*) 
+        V_REGISTRO := 0;
+        SELECT COUNT(1) 
           INTO V_REGISTRO
           FROM PCLANC
          WHERE RECNUM = P_RECNUM;
@@ -75,7 +76,8 @@ IS
     IS
         V_REGISTRO NUMBER;
     BEGIN
-        SELECT COUNT(*) 
+        V_REGISTRO := 0;
+        SELECT COUNT(1) 
           INTO V_REGISTRO
           FROM PCLANCBLOQ
          WHERE RECNUM = P_RECNUM;
@@ -87,7 +89,8 @@ IS
     IS
         V_REGISTRO NUMBER;
     BEGIN
-        SELECT COUNT(*) 
+        V_REGISTRO := 0;
+        SELECT COUNT(1) 
           INTO V_REGISTRO
           FROM PCRATEIOCENTROCUSTO
          WHERE RECNUM = P_RECNUM;
@@ -99,7 +102,8 @@ IS
     IS
         V_REGISTRO NUMBER;
     BEGIN
-        SELECT COUNT(*) 
+        V_REGISTRO := 0;
+        SELECT COUNT(1) 
           INTO V_REGISTRO
           FROM PCRATEIOCENTROCUSTOBLOQ
          WHERE RECNUM = P_RECNUM;
