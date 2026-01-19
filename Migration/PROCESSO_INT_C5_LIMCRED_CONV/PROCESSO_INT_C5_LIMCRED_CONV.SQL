@@ -53,7 +53,23 @@ SELECT DISTINCT
          ELSE 'N'
        END ATIVO
 FROM PCCLIENT C, MONITORPDVMIDDLE.TB_CLIENTE TC,
-     (SELECT DISTINCT * FROM PCFINALIZADORA FIN, VW_INT_C5_OBTER_FILIAIS_C5 C5 WHERE FIN.CODFILIAL = C5.CODFILIAL) F,
+       (SELECT DISTINCT FI.CODFINALIZADORA,
+                        FI.DTALTERC5,
+                        FI.VERIFICALIMITE, 
+                        FI.DTINATIVACAO,
+                        FI.CODCOB,
+                        FI.ESPECIE
+          FROM PCFINALIZADORA FI, VW_INT_C5_OBTER_FILIAIS_C5 C5
+         WHERE FI.CODFILIAL = C5.CODFILIAL
+        UNION ALL
+        SELECT DISTINCT FIN.CODFINALIZADORA,
+                        FIN.DTALTERC5,
+                        FIN.VERIFICALIMITE,
+                        FIN.DTINATIVACAO,
+                        FIN.CODCOB,
+                        FIN.ESPECIE
+          FROM PCFINALIZADORA FIN
+         WHERE FIN.CODFILIAL = '99') F,
      (select s.ultimaexecucao from pccontroleconsinco s where upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CLIENTECARTAO') DTPADRAO
 WHERE ((F.ESPECIE = 'CNV') OR ((F.ESPECIE = 'O') AND (F.CODCOB = 'CONV')))
 AND F.dtinativacao IS NULL
