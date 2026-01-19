@@ -1,16 +1,14 @@
 CREATE OR REPLACE PACKAGE BODY PKG_FINANCEIRO
 IS
     ----------------------------------------------------------------------------
-    PROCEDURE APROVAR_SUPLEMENTACAO(PSTATUS                OUT VARCHAR2,
-                                    PMENSAGEM              OUT VARCHAR2,
-                                    PRECNUM                PCLANC.RECNUM%TYPE,
-                                    PMATRICULA             PCLANC.CODFUNCAUTSUPLORC%TYPE)
+    PROCEDURE APROVAR_SUPLEMENTACAO(P_STATUS_OUT            OUT VARCHAR2,
+                                    P_MENSAGEM_OUT          OUT VARCHAR2,
+                                    P_RECNUM                PCLANC.RECNUM%TYPE,
+                                    P_MATRICULA             PCLANC.CODFUNCAUTSUPLORC%TYPE)
     IS
-        VMENSAGEM                  VARCHAR2(300);
-        VPROGRAMA                  VARCHAR2(30);
-        VMSGPCMOVCR                PCRECFUNC.TEXTORECADO%TYPE;
-        VSCRIPT                    VARCHAR2(9999); 
-        VERROR                     VARCHAR2(10);
+        G_MENSAGEM                  VARCHAR2(300);
+        G_SCRIPT                    VARCHAR2(9999); 
+        G_ERROR                     VARCHAR2(10);
     BEGIN
 
         /* RETORNOS DOS STATUS
@@ -18,70 +16,68 @@ IS
         204 - Não encontrado
         500 - Error */
 
-        PSTATUS   := '200';
-        PMENSAGEM := 'Suplementação não Aprovada!';
-        VPROGRAMA := F_OBTERNOMEAPLICACAO;
+        P_STATUS_OUT   := '200';
+        P_MENSAGEM_OUT := 'Suplementação não Aprovada!';        
 
         --REPLICANCO PCLANCBLOQ 
-        VERROR := '1.';
-        IF NOT (PKG_FINANCEIRO_SCRIPTS.TEM_PCLANCBLOQ(PRECNUM)) THEN
-           PSTATUS   := '204';
-           PMENSAGEM := 'RecNum: '||PRECNUM||' não encontrado na tabela PCLANCBLOQ !';
+        G_ERROR := '1.';
+        IF NOT (PKG_FINANCEIRO_SCRIPTS.TEM_PCLANCBLOQ(P_RECNUM)) THEN
+           P_STATUS_OUT   := '204';
+           P_MENSAGEM_OUT := 'RecNum: '||P_RECNUM||' não encontrado na tabela PCLANCBLOQ !';
         ELSE 
-           VERROR  := '1.1';
-           VSCRIPT := 'INSERT INTO PCLANC('||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCLANC()||')'||
+           G_ERROR  := '1.1';
+           G_SCRIPT := 'INSERT INTO PCLANC('||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCLANC()||')'||
                                   'SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCLANC()||
                                   '  FROM PCLANCBLOQ 
-                                    WHERE RECNUM = '||PRECNUM;
+                                    WHERE RECNUM = '||P_RECNUM;
            
-           EXECUTE IMMEDIATE VSCRIPT;            
+           EXECUTE IMMEDIATE G_SCRIPT;            
 
-            VERROR := '1.2';
+            G_ERROR := '1.2';
             UPDATE PCLANC                                 
-               SET CODFUNCAUTSUPLORC = PMATRICULA
+               SET CODFUNCAUTSUPLORC = P_MATRICULA
                   ,DATAAUTSUPLORC    = SYSDATE
-             WHERE RECNUM            = PRECNUM;
+             WHERE RECNUM            = P_RECNUM;
 
             --Buscando PCRATEIOCENTROCUSTOBLOQ
-            VERROR      := '2.';
-            VMSGPCMOVCR := '';
-            IF (PKG_FINANCEIRO_SCRIPTS.TEM_PCRATEIOCENTROCUSTOBLOQ(PRECNUM)) THEN
-                VERROR  := '2.1';          
-                VSCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCRATEIOCENTROCUSTO()||')'||
+            G_ERROR      := '2.';
+            IF (PKG_FINANCEIRO_SCRIPTS.TEM_PCRATEIOCENTROCUSTOBLOQ(P_RECNUM)) THEN
+                G_ERROR  := '2.1';          
+                G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCRATEIOCENTROCUSTO()||')'||
                                                     'SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_FIELDS_PCRATEIOCENTROCUSTO()|| 
                                                     '  FROM PCRATEIOCENTROCUSTOBLOQ 
-                                                      WHERE RECNUM = '||PRECNUM;
+                                                      WHERE RECNUM = '||P_RECNUM;
 
-                EXECUTE IMMEDIATE VSCRIPT;            
+                EXECUTE IMMEDIATE G_SCRIPT;            
                 
-                VERROR := '2.2';
+                G_ERROR := '2.2';
                 UPDATE PCRATEIOCENTROCUSTO                     
-                   SET CODFUNCAUTSUPLORC  = PMATRICULA
+                   SET CODFUNCAUTSUPLORC  = P_MATRICULA
                       ,DATAAUTSUPLORC     = SYSDATE
-                 WHERE RECNUM             = PRECNUM;
+                 WHERE RECNUM             = P_RECNUM;
 
             END IF; --REPLICANDO PCRATEIOCENTROCUSTO
             
             --Excluindo PCRETEIOCENTROCUSTOBLOQ
-            VERROR := '3.';
+            G_ERROR := '3.';
             DELETE FROM PCRATEIOCENTROCUSTOBLOQ
-             WHERE RECNUM = PRECNUM;
+             WHERE RECNUM = P_RECNUM;
 
             --Excluindo PCLANCBLOQ
-            VERROR := '4.';
+            G_ERROR := '4.';
             DELETE FROM PCLANCBLOQ
-             WHERE RECNUM = PRECNUM;
+             WHERE RECNUM = P_RECNUM;
 
-            PMENSAGEM := 'Suplementação Aprovada!';
+            P_MENSAGEM_OUT := 'Suplementação Aprovada!';
 
             COMMIT WORK;                        
         END IF; --REPLICANCO PCLANCBLOQ         
 
         EXCEPTION
         WHEN OTHERS THEN
-            VMENSAGEM := SQLERRM;
-            PSTATUS   := '500';
-            RAISE_APPLICATION_ERROR(-20001, VERROR || ' Erro na aprovação da suplementacao. Log recebido: ('||VMENSAGEM||')');            
+            G_MENSAGEM := SQLERRM;
+            P_STATUS_OUT   := '500';
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprovação da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
     END; --APROVA_SUPLEMENTACAO
     ----------------------------------------------------------------------------                                   
 END;
