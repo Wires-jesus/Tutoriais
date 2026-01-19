@@ -17,8 +17,7 @@ IS
         500 - Error */
 
         P_STATUS_OUT   := '200';
-        P_MENSAGEM_OUT := 'Suplementação não Aprovada!';        
-
+        
         --REPLICANCO PCLANCBLOQ 
         G_ERROR := '1.';
         IF NOT (PKG_FINANCEIRO_SCRIPTS.TEM_PCLANCBLOQ(P_RECNUM)) THEN
@@ -75,6 +74,7 @@ IS
 
         EXCEPTION
         WHEN OTHERS THEN
+            ROLLBACK;
             G_MENSAGEM := SQLERRM;
             P_STATUS_OUT   := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprovação da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
