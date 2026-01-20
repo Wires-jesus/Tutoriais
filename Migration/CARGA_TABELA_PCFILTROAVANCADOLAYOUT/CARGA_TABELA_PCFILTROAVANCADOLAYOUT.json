@@ -20,7 +20,7 @@
     {
       "nome": "CARGA_TABELA_PCFILTROAVANCADOCONFIG",
       "tipo": "MIGRATION",
-      "versao": "8.0.04.000"
+      "versao": "8.0.05.000"
     }
   ]
 }
