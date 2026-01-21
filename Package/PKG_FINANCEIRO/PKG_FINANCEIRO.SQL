@@ -76,6 +76,7 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                             P_CODSERVICOSPEDIRPF		PCLANC.CODSERVICOSPEDIRPF%TYPE,       	P_CODSERVICOSPEDBNI        	PCLANC.CODSERVICOSPEDBNI%TYPE,       
                             P_CODTIPOCHAVEPIX    		PCLANC.CODTIPOCHAVEPIX%TYPE,    		P_TIPOCHAVEPIX        		PCLANC.DUPLIC%TYPE,             
                             P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE,                 	P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE,               
+                            P_VLBASEIR                  PCLANC.VLBASEIR%TYPE,                   P_VLBASEPCC                 PCLANC.VLBASEPCC%TYPE,
                             P_DTCOMPETENCIAIRRETIDO 	PCLANC.DTCOMPETENCIAIRRETIDO%TYPE);
     ----------------------------------------------------------------------------
     PROCEDURE INSERT_PCLANCBLOQ(P_MENSAGEM_OUT              OUT VARCHAR2,
@@ -151,7 +152,8 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                 P_REINFEVENTOR4040   		PCLANC.REINFEVENTOR4040%TYPE,   		P_CODSERVICOSPEDIRPJ  		PCLANC.NUMCHEQUE%TYPE,          
                                 P_CODSERVICOSPEDIRPF		PCLANC.CODSERVICOSPEDIRPF%TYPE,       	P_CODSERVICOSPEDBNI        	PCLANC.CODSERVICOSPEDBNI%TYPE,       
                                 P_CODTIPOCHAVEPIX    		PCLANC.CODTIPOCHAVEPIX%TYPE,    		P_TIPOCHAVEPIX        		PCLANC.DUPLIC%TYPE,             
-                                P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE,                 	P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE,               
+                                P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE,                 	P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE,
+                                P_VLBASEIR                  PCLANC.VLBASEIR%TYPE,                   P_VLBASEPCC                 PCLANC.VLBASEPCC%TYPE,
                                 P_DTCOMPETENCIAIRRETIDO 	PCLANC.DTCOMPETENCIAIRRETIDO%TYPE);
     ----------------------------------------------------------------------------
     PROCEDURE INSERT_PCRATEIOCENTROCUSTO(P_MENSAGEM_OUT          OUT VARCHAR2,

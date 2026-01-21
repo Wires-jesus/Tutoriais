@@ -39,7 +39,8 @@ IS
                  CODCOBSEFAZ,              RAZAOCREDENCCARTAO,       CNPJCREDENCCARTAO,     NSUTEF,             
                  BANDEIRACARTAO,           CODMOEDABAIXA,            REINFEVENTOR4040,      CODSERVICOSPEDIRPJ, 
                  CODSERVICOSPEDIRPF,       CODSERVICOSPEDBNI,        CODTIPOCHAVEPIX,       TIPOCHAVEPIX,       
-                 CHAVEPIX,                 QRCODEPIX,                DTCOMPETENCIAIRRETIDO ';
+                 CHAVEPIX,                 QRCODEPIX,                VLBASEIR,              VLBASEPCC,
+                 DTCOMPETENCIAIRRETIDO ';
     END; --GET_FIELDS_PCLANC
     
     FUNCTION GET_FIELDS_PCRATEIOCENTROCUSTO RETURN VARCHAR2
