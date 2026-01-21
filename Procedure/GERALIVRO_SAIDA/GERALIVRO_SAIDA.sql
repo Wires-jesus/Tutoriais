@@ -9154,8 +9154,7 @@ END;
         end if;
         ---------------------------------------------------------------------------
         -- GERAR INFORMA??ES FINAIS (RECALCULO E ATRIBUI??ES DA LEGISLA??O)
-        ---------------------------------------------------------------------------
-        /* Replica? realizada no final da gera? do livro fiscal. N desconsiderar esse c??o
+        ---------------------------------------------------------------------------     
         FISCAL.GERA_CONTAS_CONTABEIS_SPED(V_LISTA_NOTAS(I).CODFILIAL,
                                           V_LISTA_NOTAS(I).DATA,
                                           V_LISTA_NOTAS(I).DATA,
@@ -9171,7 +9170,7 @@ END;
                                         V_LISTA_NOTAS(I).NUMTRANSVENDA,
                                         'N');
         END IF;
-        */
+        
 
         V_CONTADORREGISTRO := V_CONTADORREGISTRO + 1;
         IF V_CONTADORREGISTRO >= V_QUANTIDADECOMMIT THEN
