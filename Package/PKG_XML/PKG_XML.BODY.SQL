@@ -649,7 +649,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
                                 '/det/prod/cBenef/text()',
                                 UCOM varchar2(10) PATH
                                 '/det/prod/uCom/text()',
-                                XPROD varchar2(60) PATH
+                                XPROD varchar2(120) PATH
                                 '/det/prod/xProd/text()',
                                 VUNCOM varchar2(20) PATH
                                 '/det/prod/vUnCom/text()',

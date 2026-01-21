@@ -60,7 +60,7 @@ CREATE OR REPLACE PACKAGE PKG_XML AS
     EXTIPI                 NUMBER(2),
     CBENEF                 VARCHAR2(10),
     UCOM                   VARCHAR2(10),
-    XPROD                  VARCHAR2(60),
+    XPROD                  VARCHAR2(120),
     VUNCOM                 NUMBER(18, 6),
     QCOM                   NUMBER(18, 6),
     QTRIB                  NUMBER(18, 6),
