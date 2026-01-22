@@ -4,11 +4,11 @@
     "dependencias": [{
             "nome": "PKG_CENTRAL_TRIBUTOS_CONSULTAS",
             "tipo": "OBJETO_PLSQL",
-            "versao": "8.0.03.000"
+            "versao": "8.0.04.000"
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "8.0.22.000"
+            "versao": "8.0.24.000"
         }, {
             "nome": "PKG_DEBUGGING_FWPC",
             "tipo": "OBJETO_PLSQL",
