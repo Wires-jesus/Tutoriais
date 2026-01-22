@@ -6535,7 +6535,7 @@ create or replace package body FISCAL is
                          ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
                          ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
                          ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                         ||' P_PARAMETROS.CODPROD: '|| ' '|| P_PARAMETROS.CODPROD
+                         ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
                          ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
                          ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                           , 'S');
@@ -6860,7 +6860,7 @@ create or replace package body FISCAL is
                                ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
                                ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
                                ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                               ||' P_PARAMETROS.CODPROD: '|| ' '|| P_PARAMETROS.CODPRO 
+                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD 
                                ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
                                ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                                 , 'S');
