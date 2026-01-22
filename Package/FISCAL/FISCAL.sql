@@ -29,6 +29,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       CODIGO_MUNICIPIO  VARCHAR2(10),
       TIPO_IMPOSTO      VARCHAR2(6),
       CODIGO_ENDERECO_CLI NUMBER(6),
+      NFCIAP            VARCHAR2(1),
       --Filtros adicionais
       CODPROD           NUMBER(6),
       NCM               VARCHAR2(15),

@@ -6406,7 +6406,7 @@ create or replace package body FISCAL is
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_NCM.DTEXCLUSAO IS NULL
-                    AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' ||P_PARAMETROS.NCM|| '
+                    AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' || '''' || P_PARAMETROS.NCM ||''''|| '
                     )
                AND (
                   -- Não existe QUALQUER filtro de produto para esse CFOP
@@ -6525,6 +6525,7 @@ create or replace package body FISCAL is
                          ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
                          ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
                          ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
+                         ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP
                          ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
                          ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
                          ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
@@ -6736,7 +6737,7 @@ create or replace package body FISCAL is
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                   WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
                     AND PCTRIBUTACAO_FILTRO_PRODUTO.DTEXCLUSAO IS NULL
-               ) THEN 0 ELSE 1 END,
+                  ) THEN 0 ELSE 1 END,
             -----------------------------------------------------------------------------------------
             CASE WHEN NOT EXISTS (
                  SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
@@ -6849,6 +6850,7 @@ create or replace package body FISCAL is
                                ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
                                ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
                                ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
+                               ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP
                                ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
                                ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
                                ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
@@ -6858,7 +6860,7 @@ create or replace package body FISCAL is
                                ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
                                ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
                                ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
+                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD 
                                ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
                                ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                                 , 'S');
@@ -7597,3 +7599,4 @@ END;
 -- Alteração 14/01/2026 - Ajuste no metodo de busca da tributação. Foi adicionado na condição AND o OR. O que passa a considerar uma tributação ou outra.
 -- Alteração 10/01/2026 - Ajuste no metodo de busca da tributação. A ordem mudou para Cfop, Produto e NCM
 -- Alteração 10/09/2025 - Ajuste de performance no metodo CALCULARPISCOFINS_VENDA.
+-- Alteração 22/01/2026 - Incluso processo calculo da reforma para PCMOVCIAP
