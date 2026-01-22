@@ -45,7 +45,7 @@
     {
       "nome": "CARGA_TABELA_PCFILTROAVANCADOLAYOUT",
       "tipo": "MIGRATION",
-      "versao": "8.0.04.000"
+      "versao": "8.0.05.000"
     }
   ]
 }
