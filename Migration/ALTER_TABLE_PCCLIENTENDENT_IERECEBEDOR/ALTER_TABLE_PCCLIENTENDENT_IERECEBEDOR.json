@@ -1,0 +1,6 @@
+{
+	"nome": "ALTER_TABLE_PCCLIENTENDENT_IERECEBEDOR",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+}
