@@ -1,0 +1,6 @@
+{
+    "nome": "GTT_LANCAMENTO_MEMORIA",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
