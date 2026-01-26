@@ -5061,7 +5061,22 @@ IS PRAGMA SERIALLY_REUSABLE;
          nALIQFECP                 PCPEDI.ALIQICMSFECP%TYPE,
          nVLFECP                   PCPEDI.VLFECP%TYPE,
          vOBSERVACAOSTFONTE        PCPEDI.OBSERVACAOSTFONTE%TYPE,  -- HIS.03379.2017
-         vNUMLOTE                  PCPEDI.NUMLOTE%TYPE
+         vNUMLOTE                  PCPEDI.NUMLOTE%TYPE,
+         
+         --PTabela
+         vnVlDescICMS_PTABELA      PCPEDI.VLDESCSUFRAMA%TYPE,
+         vnVlDescSUFRAMA_PTABELA   PCPEDI.VLDESCSUFRAMA%TYPE,
+         vnVlDescPIS_PTABELA       PCPEDI.VLDESCREDUCAOPIS%TYPE,
+         vnVlDescCOFINS_PTABELA    PCPEDI.VLDESCREDUCAOCOFINS%TYPE,
+         
+         vnPercdescPIS           pcpedi.percdescpis%TYPE,
+         vnPercdesccofins        pcpedi.percdesccofins%TYPE,
+         vnVLdescreducaopis      pcpedi.vldescreducaopis%TYPE,
+         vnVldescreducaocofins   pcpedi.vldescreducaocofins%TYPE,
+         vnVLdescicmisencao      pcpedi.vldescicmisencao%TYPE,
+         vnPerdescisentoicms     pcpedi.perdescisentoicms%TYPE, 
+         vldescreducaopis      pcpedi.vldescreducaopis%TYPE,
+         vldescreducaocofins   pcpedi.vldescreducaocofins%TYPE
          );
     vrItemPedido                   TRecItemPedido;
 
@@ -5332,7 +5347,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     vnPrecoCusto                       PCEST.CUSTOFIN%TYPE;
     vbArredondaPreco                   BOOLEAN;
     vvRETIRAIMPOSTO201                 VARCHAR2(1);
-  vnNumviasmapasep                   NUMBER;
+    vnNumviasmapasep                   NUMBER;
+    vsTipoPreco                        VARCHAR2(10);    
    /**********************
     Declaração de Cursores
     **********************/
@@ -8734,6 +8750,53 @@ IS PRAGMA SERIALLY_REUSABLE;
 
                 END IF; -- Fim Condição Se não conseguiu formar o Preço de Venda a partir da PCEST
 
+                -- SUFRAMA
+                BEGIN
+                  SELECT VALOR_DESCONTO_PIS,
+                         PERC_DESCONTO_PIS,
+                         VALOR_DESCONTO_COFINS,
+                         PERC_DESCONTO_COFINS,
+                         VALOR_DESCONTO_ICMS,
+                         VALOR_DESCONTO_SUFRAMA,
+                         PERC_DESCONTO_ICMS
+                    INTO vrItemPedido.vnVlDescPIS_PTABELA,
+                         vrItemPedido.vnPercDescPIS,
+                         vrItemPedido.vnVlDescCOFINS_PTABELA,
+                         vrItemPedido.vnPercdesccofins,
+                         vrItemPedido.vnVlDescICMS_PTABELA,
+                         vrItemPedido.vnVlDescSUFRAMA_PTABELA,
+                         vrItemPedido.vnPerdescisentoicms
+                  FROM TABLE(PKG_TRIBUTACAO.CALCULAR_DESC_PIS_COFINS_ICMS(vc_Dados_Cab.CODFILIAL_O,
+                                                                          vc_Dados_Cab.Codfilial_o,
+                                                                          vc_Dados_Cab.Codfilialretira_o,
+                                                                          vrFilDestino.nCODCLI,
+                                                                          vc_Dados_Ite.Codprod_o,
+                                                                          vrItemPedido.nPTABELA,
+                                                                          0,
+                                                                          vrPlanoPag.nNUMDIAS,
+                                                                          'N',
+                                                                          0,
+                                                                          vrItemPedido.nCODST));
+                EXCEPTION
+                  WHEN OTHERS THEN
+                    vrItemPedido.vnVlDescPIS_PTABELA     := 0;
+                    vrItemPedido.vnPercDescPIS           := 0;
+                    vrItemPedido.vnVlDescCOFINS_PTABELA  := 0;
+                    vrItemPedido.vnPercdesccofins        := 0;
+                    vrItemPedido.vnVlDescICMS_PTABELA    := 0;
+                    vrItemPedido.vnVlDescSUFRAMA_PTABELA := 0;
+                    vrItemPedido.vnPerdescisentoicms     := 0;
+                END;              
+
+                vrItemPedido.nPTABELA := vrItemPedido.nPTABELA -
+                                         vrItemPedido.vnVlDescPIS_PTABELA -
+                                         vrItemPedido.vnVlDescSUFRAMA_PTABELA -
+                                         vrItemPedido.vnVlDescCOFINS_PTABELA -
+                                         vrItemPedido.vnVlDescICMS_PTABELA;   
+                                         
+                                                            
+                -- SUFRAMA FIM
+
                 -- Se conseguiu formar o Preço de Tabela
                 IF (NVL(vrItemPedido.nPTABELA,0) > 0) THEN
 
@@ -10568,6 +10631,14 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , CODCONFIGFUNCEPMED
                       , ROTINALANC
                       , NUMLOTE
+                      
+                      , VLDESCSUFRAMA
+                      , VLDESCICMISENCAO
+                      , PERDESCISENTOICMS
+                      , PERCDESCPIS
+                      , PERCDESCCOFINS
+                      , VLDESCREDUCAOPIS
+                      , VLDESCREDUCAOCOFINS                      
                       )
                 VALUES( vrPedido.nNUMPED                      -- NUMPED
                       , vc_Dados_Ite.CODPROD_O                -- CODPROD
@@ -10627,6 +10698,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , vrDadosFuncep.nCODCONFIGFUNCEPMED
                       , '3602'
                       , vrItemPedido.vNUMLOTE
+                      , vrItemPedido.vnVlDescSUFRAMA_PTABELA
+                      , vrItemPedido.vnVlDescICMS_PTABELA
+                      , vrItemPedido.vnVlDescSUFRAMA_PTABELA
+                      , vrItemPedido.vnPercDescPIS
+                      , vrItemPedido.vnPercdesccofins
+                      , vrItemPedido.vnVlDescPIS_PTABELA
+                      , vrItemPedido.vnVlDescCOFINS_PTABELA                                             
                       );
 
             -- Atualiza Tabela Temporária com os dados do Pedido Gerado
