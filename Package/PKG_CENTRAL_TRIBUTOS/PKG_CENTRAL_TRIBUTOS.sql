@@ -37,6 +37,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS AS
                                          P_DEVOLUCAO               IN  VARCHAR2,
                                          P_PRE_FATURAMENTO         IN  VARCHAR2,
                                          P_ESPECIE                 IN  VARCHAR2,
+                                         P_NFCIAP                  IN  VARCHAR2,
                                          P_CODIGO_MENSAGEM_RETORNO OUT NUMBER,
                                          P_MENSAGEM_RETORNO        OUT VARCHAR2
    );
