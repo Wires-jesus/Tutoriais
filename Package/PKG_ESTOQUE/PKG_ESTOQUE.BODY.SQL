@@ -13173,68 +13173,86 @@ END IF;
   -------------------------------------------------------------------------------------------------------------------------
   12/03/2025     DAVI BERNADO      DDESTOQUE-20081     Retorna filial gerencial
   ************************************************************************************************************************/
-  FUNCTION FILIAL_ESTOQUE_GERENCIAL (pnCODPROD           IN PCMOV.CODPROD%TYPE
-                                    ,pnNUMSEQ            IN PCMOV.NUMSEQ%TYPE
-                                    ,psOPERACAO          IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
-                                    ,pnIDENTIFICADOR     IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL
-                                    ,psDESBLOQUEIO_BONUS IN VARCHAR2 DEFAULT 'N')
+  FUNCTION FILIAL_ESTOQUE_GERENCIAL (PNCODPROD           IN PCMOV.CODPROD%TYPE
+                                   ,PNNUMSEQ            IN PCMOV.NUMSEQ%TYPE
+                                   ,PSOPERACAO          IN PCLOGPKG_ESTOQUE.TIPO_OPERACAO%TYPE
+                                   ,PNIDENTIFICADOR     IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TYPE DEFAULT NULL
+                                   ,PSDESBLOQUEIO_BONUS IN VARCHAR2 DEFAULT 'N')
   RETURN VARCHAR2
   IS
     VSCODFILIAL_GERENCIAL PCPEDC.CODFILIAL%TYPE;
+    -- VARIÁVEIS LOCAIS PARA BUSCA ÚNICA DE DADOS
+    VCODFILIAL      PCMOV.CODFILIAL%TYPE;
+    VCODFILIALRET   PCMOV.CODFILIALRETIRA%TYPE;
+    VCODFILIALNF    PCMOV.CODFILIALNF%TYPE;
+    VTIPOTRANSF     VARCHAR2(1);
+    VVOLTARVIRTUAL  VARCHAR2(1);
+    VVOLTARRETIRA   VARCHAR2(1);
   BEGIN
-    IF psOPERACAO = 'E' THEN
-      SELECT DISTINCT
-           CASE VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
-                                          M.CODFILIALRETIRA,
-                                          M.CODFILIALNF)
-
-               WHEN 'V' THEN
-                    CASE 
-                        WHEN NVL(E.VOLTARESTOQUEFILIALVIRTUAL,
-                                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(
-                                     'VOLTARESTOQUEFILIALVIRTUAL',
-                                     M.CODFILIAL,
-                                     'N')) = 'S'
-                        THEN M.CODFILIALNF
-                        ELSE M.CODFILIAL
-                    END
-
-               WHEN 'R' THEN
-                    CASE 
-                        WHEN NVL(E.VOLTARESTOQUEFILIALRETIRA,
-                                 FERRAMENTAS.F_BUSCARPARAMETRO_ALFA(
-                                     'VOLTARESTOQUEFILIALRETIRA',
-                                     M.CODFILIAL,
-                                     'N')) = 'N'
-                        THEN M.CODFILIAL
-                        ELSE NVL(M.CODFILIALRETIRA, M.CODFILIAL)
-                    END
-
-               ELSE M.CODFILIAL
-           END AS FILIAL_ESTOQUE
-      INTO VSCODFILIAL_GERENCIAL
-      FROM PCMOV M,
-           PCNFENT E
-      WHERE M.CODPROD = pnCODPROD
-       AND M.NUMSEQ  = pnNUMSEQ
-       AND NVL(M.NUMTRANSENTORIGDESDLOTE, M.NUMTRANSENT) = E.NUMTRANSENT
-       AND E.NUMTRANSENT = pnIDENTIFICADOR
-       AND M.DTCANCEL IS NULL
-       AND M.STATUS <> 'A'
-       AND E.ESPECIE NOT IN ('CT', 'CO', 'CF', 'OE');
-    ELSE
-      SELECT DECODE(VENDAS.TIPO_TRANSFERENCIA(M.CODFILIAL,
-                                              M.CODFILIALRETIRA,
-                                              M.CODFILIALNF),'V', M.CODFILIALNF, 'R', NVL(M.CODFILIALRETIRA, M.CODFILIAL), M.CODFILIAL) FILIAL_ESTOQUE
-        INTO VSCODFILIAL_GERENCIAL
-        FROM PCMOV M, PCNFSAID S
-       WHERE M.CODPROD = pnCODPROD
-         AND M.NUMTRANSVENDA = S.NUMTRANSVENDA
-         AND M.NUMSEQ = pnNUMSEQ
-         AND S.NUMTRANSVENDA = pnIDENTIFICADOR;
-    END IF;
     
+    IF PSOPERACAO = 'E' THEN
+        -- BUSCA OS DADOS CRUS DA TABELA EM UMA ÚNICA OPERAÇÃO ATÔMICA
+        SELECT /*+ LEADING(M) USE_NL(E) INDEX_COMBINE(M) */ 
+          M.CODFILIAL, M.CODFILIALRETIRA, M.CODFILIALNF, E.VOLTARESTOQUEFILIALVIRTUAL, E.VOLTARESTOQUEFILIALRETIRA
+          INTO VCODFILIAL, VCODFILIALRET, VCODFILIALNF, VVOLTARVIRTUAL, VVOLTARRETIRA
+          FROM PCMOV M, PCNFENT E
+         WHERE E.NUMTRANSENT = PNIDENTIFICADOR
+           AND M.CODPROD = PNCODPROD
+           AND M.NUMSEQ = PNNUMSEQ
+           AND (
+             (M.NUMTRANSENTORIGDESDLOTE IS NOT NULL AND M.NUMTRANSENTORIGDESDLOTE = E.NUMTRANSENT)
+           OR
+             (M.NUMTRANSENTORIGDESDLOTE IS NULL AND M.NUMTRANSENT = E.NUMTRANSENT)
+           )
+           AND M.DTCANCEL IS NULL
+           AND M.STATUS <> 'A'
+           AND E.ESPECIE NOT IN ('CT', 'CO', 'CF', 'OE')
+           AND ROWNUM = 1;
+
+        -- PROCESSA A REGRA DE NEGÓCIO EM MEMÓRIA (PL/SQL PURO - MUITO MAIS RÁPIDO)
+        VTIPOTRANSF := VENDAS.TIPO_TRANSFERENCIA(VCODFILIAL, VCODFILIALRET, VCODFILIALNF);
+
+        IF VTIPOTRANSF = 'V' THEN
+            IF NVL(VVOLTARVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL', VCODFILIAL, 'N')) = 'S' THEN
+               VSCODFILIAL_GERENCIAL := VCODFILIALNF;
+            ELSE
+               VSCODFILIAL_GERENCIAL := VCODFILIAL;
+            END IF;
+        ELSIF VTIPOTRANSF = 'R' THEN
+            IF NVL(VVOLTARRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA', VCODFILIAL, 'N')) = 'N' THEN
+               VSCODFILIAL_GERENCIAL := VCODFILIAL;
+            ELSE
+               VSCODFILIAL_GERENCIAL := NVL(VCODFILIALRET, VCODFILIAL);
+            END IF;
+        ELSE
+            VSCODFILIAL_GERENCIAL := VCODFILIAL;
+        END IF;
+
+    ELSE
+        -- OPERAÇÃO DE SAÍDA (S)
+        SELECT M.CODFILIAL, M.CODFILIALRETIRA, M.CODFILIALNF
+          INTO VCODFILIAL, VCODFILIALRET, VCODFILIALNF
+          FROM PCMOV M, PCNFSAID S
+         WHERE S.NUMTRANSVENDA = PNIDENTIFICADOR
+           AND M.NUMTRANSVENDA = S.NUMTRANSVENDA
+           AND M.CODPROD = PNCODPROD
+           AND M.NUMSEQ = PNNUMSEQ
+           AND ROWNUM = 1;
+
+        VTIPOTRANSF := VENDAS.TIPO_TRANSFERENCIA(VCODFILIAL, VCODFILIALRET, VCODFILIALNF);
+        
+        VSCODFILIAL_GERENCIAL := CASE VTIPOTRANSF 
+                                    WHEN 'V' THEN VCODFILIALNF 
+                                    WHEN 'R' THEN NVL(VCODFILIALRET, VCODFILIAL) 
+                                    ELSE VCODFILIAL 
+                                 END;
+    END IF;
+
     RETURN VSCODFILIAL_GERENCIAL;
+
+  EXCEPTION 
+    WHEN NO_DATA_FOUND THEN RETURN NULL;
+    WHEN OTHERS THEN RETURN NULL;
   END FILIAL_ESTOQUE_GERENCIAL;
 
   /************************************************************************************************************************
