@@ -28,7 +28,7 @@ CREATE OR REPLACE PROCEDURE P_CTBIMPORTACAO(PCODFILIAL IN VARCHAR,
     CODIGOCENTROCUSTO VARCHAR2(30)
   );
 
-  --RECORD PARA TOTALIZA«√O CENTRO DE CUSTOS
+  --RECORD PARA TOTALIZA√á√ÉO CENTRO DE CUSTOS
   TYPE VALORES_CENTROCUSTO IS RECORD(
     CODFILIAL           VARCHAR2(2),
     CODIGOCENTROCUSTO   VARCHAR2(40),
@@ -45,7 +45,7 @@ CREATE OR REPLACE PROCEDURE P_CTBIMPORTACAO(PCODFILIAL IN VARCHAR,
   CR REG_CRIMP;
 
   -----------------------------------------------------------------------------
-  -- CURSOR QUE CONT…M OS LANCAMENTOS PAIS....
+  -- CURSOR QUE CONT√âM OS LANCAMENTOS PAIS....
   -----------------------------------------------------------------------------
   V_CODPLANOCONTA    PCREGRAINTEGRACAOCTB.CODPLANOCONTA%TYPE;
   V_CODREDUZIDO_DB   PCREGRAINTEGRACAOCTB.CODREDUZIDO_DB%TYPE;
@@ -233,7 +233,7 @@ BEGIN
   V_CODREDUZIDO_CR := NVL(V_CODREDUZIDO_CR, '0');
   V_QTLOGREGISTROS_CC := 0;
   -----------------------------------------------------------------------------
-  -- VERIFICANDO SE H¡ REGISTROS A IMPORTAR
+  -- VERIFICANDO SE H√Å REGISTROS A IMPORTAR
   -----------------------------------------------------------------------------
   BEGIN
     SELECT COUNT(*)
@@ -254,17 +254,17 @@ BEGIN
       FROM   V_CTBEXPIMP;
       IF NVL(V_VALORLANCTO, 0) = 0
       THEN
-        V_MSG := 'Nenhum registro foi encontrado para integraÁ„o';
+        V_MSG := 'Nenhum registro foi encontrado para integra√ß√£o';
       END IF;
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          V_MSG := 'Nenhum registro foi encontrado para integraÁ„o';
+          V_MSG := 'Nenhum registro foi encontrado para integra√ß√£o';
         END;
     END;
   END IF;
   -----------------------------------------------------------------------------
-  -- VERIFICANDO SE PERIODO EST¡ ENCERRADO
+  -- VERIFICANDO SE PERIODO EST√Å ENCERRADO
   -----------------------------------------------------------------------------
   IF V_MSG IS NULL
   THEN
@@ -277,7 +277,7 @@ BEGIN
       IF (V_STATUSPERIODO = 'ENCERRADO_TOTAL')
          OR (V_STATUSPERIODO = 'ENCERRADO')
       THEN
-        V_MSG := 'PerÌodo informado j· est· encerrado. N„o ser· possivel efetuar a integraÁ„o.';
+        V_MSG := 'Per√≠odo informado j√° est√° encerrado. N√£o ser√° possivel efetuar a integra√ß√£o.';
         EXIT;
       ELSE
         V_DTCALCULO     := LAST_DAY(V_DTCALCULO) + 1;
@@ -286,7 +286,7 @@ BEGIN
     END LOOP;
   END IF;
   -----------------------------------------------------------------------------
-  -- Verificando se o perÌodo j· foi Importado
+  -- Verificando se o per√≠odo j√° foi Importado
   -----------------------------------------------------------------------------
   IF V_MSG IS NULL
   THEN
@@ -311,11 +311,11 @@ BEGIN
     END;
     IF V_QTLOGENCONTRADOS > 0
     THEN
-      V_MSG := 'Foi localizado integraÁıes entre o perÌodo informado. IntegraÁ„o abortada.';
+      V_MSG := 'Foi localizado integra√ß√µes entre o per√≠odo informado. Integra√ß√£o abortada.';
     END IF;
   END IF;
   -----------------------------------------------------------------------------
-  -- PEGANDO INFORMA«’ES DA REGRA CRIADA PARA EXPORTA«√O/IMPORTA«√O
+  -- PEGANDO INFORMA√á√ïES DA REGRA CRIADA PARA EXPORTA√á√ÉO/IMPORTA√á√ÉO
   -----------------------------------------------------------------------------
   IF V_MSG IS NULL
   THEN
@@ -343,7 +343,7 @@ BEGIN
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          V_MSG := 'Erro pesquisando informaÁıes de regra.';
+          V_MSG := 'Erro pesquisando informa√ß√µes de regra.';
         END;
     END;
   END IF;
@@ -432,7 +432,7 @@ BEGIN
           WHERE  VALORLANCTO > 0
           ORDER  BY DTMOVIMENTO;
 
-       ELSE -- N√O PRECISAR BUSCAR DADOS NECESS¡RIAMENTE NA PCLANC
+       ELSE -- N√ÉO PRECISAR BUSCAR DADOS NECESS√ÅRIAMENTE NA PCLANC
 
          OPEN CRIMP FOR
           SELECT DTMOVIMENTO,
@@ -449,7 +449,7 @@ BEGIN
 
        END IF;
 
-      -- EXECUTANDO LAN«AMENTOS DE FECHAMENTO DE EXERCÕCIO.
+      -- EXECUTANDO LAN√áAMENTOS DE FECHAMENTO DE EXERC√çCIO.
       --FOR CR IN CRIMP
       LOOP
         FETCH CRIMP INTO CR;
@@ -470,7 +470,7 @@ BEGIN
            END;
         END IF;
 
-        -- LAN«AMENTO DE ZERAMENTO DE CONTA.
+        -- LAN√áAMENTO DE ZERAMENTO DE CONTA.
         P_CTBSEQLANCAMENTO(PCODFILIAL,
                            V_CODPLANOCONTA,
                            CR.DTMOVIMENTO,
@@ -490,7 +490,7 @@ BEGIN
         -------------------------------------------------------------------------------
         IF V_QTCONTA = 0
         THEN
-          V_MSG := 'A regra contÈm uma conta dÈbito inexistente no plano de contas. ' ||
+          V_MSG := 'A regra cont√©m uma conta d√©bito inexistente no plano de contas. ' ||
                    CHR(13) || CHR(10) || 'Data: ' ||
                    TO_CHAR(CR.DTMOVIMENTO) || ' Documento: ' ||
                    CR.DOCUMENTO || ' Valor: ' ||
@@ -499,7 +499,7 @@ BEGIN
         ELSE
           IF V_RECEBE_LANCTO = 'N'
           THEN
-            V_MSG := 'A regra contÈm uma conta dÈbito sintÈtica, ou seja, n„o recebe lanÁamentos. ' ||
+            V_MSG := 'A regra cont√©m uma conta d√©bito sint√©tica, ou seja, n√£o recebe lan√ßamentos. ' ||
                      CHR(13) || CHR(10) || 'Data: ' ||
                      TO_CHAR(CR.DTMOVIMENTO) || ' Documento: ' ||
                      CR.DOCUMENTO || ' Valor: ' ||
@@ -521,7 +521,7 @@ BEGIN
         -------------------------------------------------------------------------------
         IF V_QTCONTA = 0
         THEN
-          V_MSG := 'A regra contÈm uma conta crÈdito inexistente no plano de contas.' ||
+          V_MSG := 'A regra cont√©m uma conta cr√©dito inexistente no plano de contas.' ||
                    CHR(13) || CHR(10) || 'Data: ' ||
                    TO_CHAR(CR.DTMOVIMENTO) || ' Documento: ' ||
                    CR.DOCUMENTO || ' Valor: ' ||
@@ -530,7 +530,7 @@ BEGIN
         ELSE
           IF V_RECEBE_LANCTO = 'N'
           THEN
-            V_MSG := 'A regra contÈm uma conta crÈdito sintÈtica, ou seja, n„o recebe lanÁamentos.' ||
+            V_MSG := 'A regra cont√©m uma conta cr√©dito sint√©tica, ou seja, n√£o recebe lan√ßamentos.' ||
                      CHR(13) || CHR(10) || 'Data: ' ||
                      TO_CHAR(CR.DTMOVIMENTO) || ' Documento: ' ||
                      CR.DOCUMENTO || ' Valor: ' ||
@@ -542,13 +542,13 @@ BEGIN
         VS_MESESTABLOQUEADO := '';
         VS_DIAESTABLOQUEADO := '';
 
-        --VALIDANDO SE M S EST¡ ABERTO
+        --VALIDANDO SE M√äS EST√Å ABERTO
         /*
         IF    TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')) = 1 THEN --JANEIRO
               VS_MESBLOQ := 'BLOQJANEIRO';
         ELSIF TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')) = 2 THEN --FEVEREIRO
               VS_MESBLOQ := 'BLOQFEVEREIRO';
-        ELSIF TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')) = 3 THEN --MAR«O
+        ELSIF TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')) = 3 THEN --MAR√áO
               VS_MESBLOQ := 'BLOQMARCO';
         ELSIF TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')) = 4 THEN --ABRIL
               VS_MESBLOQ := 'BLOQABRIL';
@@ -597,7 +597,7 @@ BEGIN
 		END;
 
         IF VS_MESESTABLOQUEADO = 'S' THEN
-            V_MSG := 'O mÍs: ' || TO_CHAR(CR.DTMOVIMENTO, 'MM/YYYY') || ' est· bloqueado/fechado para movimentaÁıes, n„o È possÌvel continuar!';
+            V_MSG := 'O m√™s: ' || TO_CHAR(CR.DTMOVIMENTO, 'MM/YYYY') || ' est√° bloqueado/fechado para movimenta√ß√µes, n√£o √© poss√≠vel continuar!';
             RAISE V_ERROCONTA;
         ELSE 
           V_SQLAUX := 'SELECT COUNT(1)   
@@ -609,7 +609,7 @@ BEGIN
         EXECUTE IMMEDIATE V_SQLAUX INTO VN_CONTADOR USING PCODFILIAL, CR.DTMOVIMENTO;
        
          IF VN_CONTADOR > 0 THEN
-           V_MSG := 'LanÁamento posterior a data de situaÁ„o especial, informada na rotina 2106. OperaÁ„o n„o permitida!';
+           V_MSG := 'Lan√ßamento posterior a data de situa√ß√£o especial, informada na rotina 2106. Opera√ß√£o n√£o permitida!';
               RAISE V_ERROCONTA;
         ELSE
 		  BEGIN
@@ -639,17 +639,17 @@ BEGIN
 			END;  
 
             IF VS_DIAESTABLOQUEADO = 'S' THEN
-              V_MSG := 'O dia: ' || TO_CHAR(CR.DTMOVIMENTO, 'DD/MM/YYYY') || ' est· bloqueado/fechado para movimentaÁıes, n„o È possÌvel continuar!';
+              V_MSG := 'O dia: ' || TO_CHAR(CR.DTMOVIMENTO, 'DD/MM/YYYY') || ' est√° bloqueado/fechado para movimenta√ß√µes, n√£o √© poss√≠vel continuar!';
               RAISE V_ERROCONTA;
             END IF;
           EXCEPTION
             WHEN NO_DATA_FOUND THEN
             BEGIN
-  	          V_MSG := 'N„o foram encontrados os dados sobre Bloqueio Di·rio para o perÌodo informado.' || 
+  	          V_MSG := 'N√£o foram encontrados os dados sobre Bloqueio Di√°rio para o per√≠odo informado.' || 
                        CHR(13) || CHR(10) ||
-					   'N„o È possÌvel continuar!' ||
+					   'N√£o √© poss√≠vel continuar!' ||
 					   CHR(13) || CHR(10) ||
-			           'Verifique a configuraÁ„o do perÌodo na Rotina 2106 (na vers„o 28.2 em diante).';
+			           'Verifique a configura√ß√£o do per√≠odo na Rotina 2106 (na vers√£o 28.2 em diante).';
   			  RAISE V_ERROTABBLOQDIA;
             END;
             WHEN OTHERS THEN RAISE;
@@ -690,7 +690,7 @@ BEGIN
 					AND PCMODELOPC.CODREDUZIDO_PC = V_CONTA_DEBITO;
           EXCEPTION
             WHEN NO_DATA_FOUND THEN
-			V_MSG := 'A conta parametrizada para o dÈbito n„o foi encontrada no plano de contas do ano de busca.';
+			V_MSG := 'A conta parametrizada para o d√©bito n√£o foi encontrada no plano de contas do ano de busca.';
           RAISE V_ERROCONTA;
 		  END; 
           BEGIN		  
@@ -704,7 +704,7 @@ BEGIN
 					AND PCMODELOPC.CODREDUZIDO_PC = V_CONTA_CREDITO;
 		  EXCEPTION
             WHEN NO_DATA_FOUND THEN
-			V_MSG := 'A conta parametrizada para o crÈdito n„o foi encontrada no plano de contas do ano de busca.';
+			V_MSG := 'A conta parametrizada para o cr√©dito n√£o foi encontrada no plano de contas do ano de busca.';
           RAISE V_ERROCONTA;
 		  END; 			
 
@@ -1070,7 +1070,7 @@ BEGIN
         END;		
       WHEN OTHERS THEN
         BEGIN
-          V_MSG := 'Ocorreu um erro ao efetuar integraÁ„o. ' || SQLCODE ||
+          V_MSG := 'Ocorreu um erro ao efetuar integra√ß√£o. ' || SQLCODE ||
                    ' - ' || SQLERRM;
           ROLLBACK;
         END;
