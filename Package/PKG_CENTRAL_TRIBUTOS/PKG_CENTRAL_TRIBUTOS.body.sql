@@ -986,6 +986,7 @@ PROCEDURE CALC_E_GRAVAR_TODOS_TRIB_TEST(P_CODIGO_FILIAL           IN  VARCHAR2,
                                         P_DEVOLUCAO               IN  VARCHAR2,
                                         P_PRE_FATURAMENTO         IN  VARCHAR2,
                                         P_ESPECIE                 IN  VARCHAR2,
+                                        P_NFCIAP                  IN  VARCHAR2,
                                         P_CODIGO_MENSAGEM_RETORNO OUT NUMBER,
                                         P_MENSAGEM_RETORNO        OUT VARCHAR2) IS
 
@@ -1002,6 +1003,7 @@ BEGIN
   V_PARAMETROS.DEVOLUCAO            := NVL(P_DEVOLUCAO, 'N');
   V_PARAMETROS.PRE_FATURAMENTO      := NVL(P_PRE_FATURAMENTO, 'N');
   V_PARAMETROS.ESPECIE              := NVL(P_ESPECIE, 'NF');
+  V_PARAMETROS.NFCIAP               := NVL(P_NFCIAP, 'N');
 
   -- Chamada da função principal
   V_PARAMETROS := PKG_CENTRAL_TRIBUTOS.CALCULAR_E_GRAVAR_TODOS_TRIB(V_PARAMETROS);
