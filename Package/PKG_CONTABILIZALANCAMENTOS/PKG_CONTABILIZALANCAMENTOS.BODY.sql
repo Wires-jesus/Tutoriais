@@ -1,0 +1,1074 @@
+CREATE OR REPLACE PACKAGE BODY PKG_CONTABILIZALANCAMENTOS IS
+
+  TYPE TYPE_INTERMEDIARIA IS RECORD(
+    CODFILIAL           PCLANCAMENTO.CODFILIAL%TYPE,
+    NUMTRANSLANCTO      PCLANCINTERMEDIARIA.NUMTRANSLANCTO%TYPE,
+    DATALANCTO          PCLANCAMENTO.DTLANC%TYPE,
+    CODREDUZIDO_PC      PCMODELOPC.CODREDUZIDO_PC%TYPE,
+    VALOR               PCLANCAMENTO.VALOR%TYPE,
+    NATUREZA            PCLANCAMENTO.NATUREZA%TYPE,
+    DOCUMENTO           PCLANCAMENTO.DOCUMENTO%TYPE,
+    CODHISTORICO        PCLANCAMENTO.CODHISTORICO%TYPE,
+    HISTORICO_COMPL     PCLANCAMENTO.HISTORICO_COMPL%TYPE,
+    CODREGRA            PCLANCAMENTO.CODREGRAINTEGRACAO%TYPE,
+    NUMTRANSOPERACAO    PCLANCINTERMEDIARIA.NUMTRANSOPERACAO%TYPE,
+    DATAINTEGRACAO      PCLANCAMENTO.DATAINTEGRACAO%TYPE,
+    INCONSISTENCIA      PCLANCINTERMEDIARIA.INCONSISTENCIA%TYPE,
+    AGRUPAMENTOREGRA    PCREGRACONTABIL.AGRUPAMENTOREGRA%TYPE,
+    DIACONTABILIZACAO   PCREGRACONTABIL.DIACONTABILIZACAO%TYPE,
+    CODFATOGERADOR      PCREGRACONTABIL.CODFATOGERADOR%TYPE,
+    NUMTRANSCENTROCUSTO PCLANCINTERMEDIARIA.NUMTRANSCENTROCUSTO%TYPE,
+    CODPARCEIRO         PCLANCAMENTO.CODPARCEIRO%TYPE,
+    TIPOPARCEIRO        PCLANCAMENTO.TIPOPARCEIRO%TYPE,
+    CODGRUPOBEM         PCPRODCIAP.CODGRUPOBEM%TYPE,
+    NUMSEQ              PCLANCINTERMEDIARIA.NUMSEQ%TYPE,
+    CODCONTA_PC         PCMODELOPC.CODCONTA_PC%TYPE,
+    OPERACAO            PCLANCINTERMEDIARIA.OPERACAO%TYPE,
+    USACENTROCUSTO      PCMODELOPC.USACENTROCUSTO%TYPE,
+    USACENTRORECEITA    PCMODELOPC.USACENTRORECEITA%TYPE);
+
+  FUNCTION GETNUMTRANSLANCTO RETURN NUMBER IS
+    V_NUMERO NUMBER;
+  BEGIN
+    SELECT SEQPCLANCAMENTO.NEXTVAL INTO V_NUMERO FROM DUAL;
+    RETURN V_NUMERO;
+  END;
+
+  FUNCTION GETNUMLOTEINTEGRACAO RETURN NUMBER IS
+    V_NUMERO NUMBER;
+  BEGIN
+    SELECT SEQ_PCLANCAMENTOLOTEINTEGRACAO.NEXTVAL INTO V_NUMERO FROM DUAL;
+    RETURN V_NUMERO;
+  END;
+
+  FUNCTION SQL_CONTABILLIZACAO(P_AGRUPAMENTOREGRA IN VARCHAR2) RETURN CLOB IS
+    V_SQL CLOB;
+  BEGIN
+  
+    V_SQL := '
+  SELECT * FROM (
+ SELECT A.CODFILIAL,
+        A.NUMTRANSLANCTO,
+        A.DATALANCTO,
+        A.CODREDUZIDO_PC,
+        A.VALOR,
+        A.NATUREZA,
+        A.DOCUMENTO,
+        A.CODHISTORICO,
+        A.HISTORICO_COMPL,
+        A.CODREGRA,
+        A.NUMTRANSOPERACAO,
+        A.DATAINTEGRACAO,
+        A.INCONSISTENCIA,
+        R.AGRUPAMENTOREGRA,
+        NVL(R.DIACONTABILIZACAO, '''') DIACONTABILIZACAO,
+        R.CODFATOGERADOR,
+        A.NUMTRANSCENTROCUSTO,
+        A.CODPARCEIRO,
+        A.TIPOPARCEIRO,
+        A.CODGRUPOBEM,
+        A.NUMSEQ,
+        M.CODCONTA_PC,
+        A.OPERACAO,
+        M.USACENTROCUSTO
+        ,COALESCE(M.USACENTRORECEITA,''N'') AS USACENTRORECEITA
+   FROM PCLANCINTERMEDIARIA A,
+        PCREGRACONTABIL R,
+        PCREGRAFILIAL RF,
+        PCMODELOPC M,
+
+        (SELECT CODFILIAL
+           FROM PCCONFFILIAL
+          WHERE DECODE(:PCONSOLIDAR,
+                       ''S'',
+                       TO_CHAR(CODGRUPOFILIAL),
+                       CODFILIAL) IN (:CODFILIAL)
+            AND ANO = EXTRACT(YEAR FROM TO_DATE(:PDTFINAL))) FI
+  WHERE A.CODFILIAL IN (FI.CODFILIAL)
+    AND A.DATAINTEGRACAO BETWEEN :PDTINICIO AND :PDTFINAL
+    AND A.CODREGRA = :PCODREGRA
+    AND A.CODFILIAL = RF.CODFILIAL
+    AND M.CODPLANOCONTA = A.CODPLANOCONTA
+    AND M.CODREDUZIDO_PC = A.CODREDUZIDO_PC
+    AND A.CODREGRA = RF.CODREGRA
+    AND RF.CODREGRA = R.CODREGRA
+    AND A.INCONSISTENCIA IN (''0'', ''6'')
+    AND A.STATUS = ''P''
+    AND NVL(A.REGRATOTALIZA,''N'') = ''N''
+    AND A.CONTABILIZAR = ''S''
+UNION ALL
+SELECT  CODFILIAL,
+        NUMTRANSLANCTO,
+        DATALANCTO,
+        CODREDUZIDO_PC,
+        SUM(VALOR) VALOR,
+        NATUREZA,
+        DOCUMENTO,
+        CODHISTORICO,
+        HISTORICO_COMPL,
+        CODREGRA,
+        NUMTRANSOPERACAO,
+        DATAINTEGRACAO,
+        INCONSISTENCIA,
+        AGRUPAMENTOREGRA,
+        DIACONTABILIZACAO,
+        CODFATOGERADOR,
+
+        NUMTRANSCENTROCUSTO,
+        CODPARCEIRO,
+        TIPOPARCEIRO,
+        CODGRUPOBEM,
+        null as NUMSEQ
+        ,CODCONTA_PC
+        ,OPERACAO
+        ,USACENTROCUSTO
+        ,USACENTRORECEITA
+FROM (
+ SELECT A.CODFILIAL,
+        A.NUMTRANSLANCTO,
+        A.DATALANCTO,
+        A.CODREDUZIDO_PC,
+        SUM(A.VALOR) VALOR,
+        A.NATUREZA,
+        A.DOCUMENTO,
+        A.CODHISTORICO,
+        A.HISTORICO_COMPL,
+        A.CODREGRA,
+        A.NUMTRANSOPERACAO,
+        A.DATAINTEGRACAO,
+        A.INCONSISTENCIA,
+        R.AGRUPAMENTOREGRA,
+        NVL(R.DIACONTABILIZACAO, '''') DIACONTABILIZACAO,
+        R.CODFATOGERADOR,
+        NVL((SELECT C.NUMTRANSLANCTO
+            FROM PCLANCINTERMEDIARIACC C
+
+           WHERE C.NUMTRANSLANCTO = A.NUMTRANSLANCTO
+             AND A.NUMTRANSCENTROCUSTO IS NOT NULL
+             AND EXISTS (SELECT 1
+                    FROM PCLANCINTERMEDIARIACC C1
+                   WHERE C1.NUMTRANSLANCTO = C.NUMTRANSLANCTO
+                     AND C1.CODIGOCENTROCUSTO = C.CODIGOCENTROCUSTO
+                AND c.NUMTRANSCENTROCUSTO <> c1.NUMTRANSCENTROCUSTO
+                     AND C1.PERCRATEIO = C.PERCRATEIO
+                     AND C1.AGRUPALANCAMENTO = C.AGRUPALANCAMENTO
+                     AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIACC B
+                        WHERE B.NUMTRANSLANCTO = C1.NUMTRANSLANCTO
+                        AND B.CODIGOCENTROCUSTO =  C1.CODIGOCENTROCUSTO
+                        AND C1.NUMTRANSCENTROCUSTO = A.NUMTRANSCENTROCUSTO)  )
+           GROUP BY C.NUMTRANSLANCTO), A.NUMTRANSCENTROCUSTO)  AS NUMTRANSCENTROCUSTO,
+        0 AS CODPARCEIRO,
+        ''0'' AS TIPOPARCEIRO,
+        A.CODGRUPOBEM,
+        NULL NUMSEQ,
+        M.CODCONTA_PC,
+        A.OPERACAO,
+        M.USACENTROCUSTO
+        ,COALESCE(M.USACENTRORECEITA,''N'') AS USACENTRORECEITA
+   FROM PCLANCINTERMEDIARIA A,
+        PCREGRACONTABIL R,
+        PCREGRAFILIAL RF,
+        PCMODELOPC M,
+
+        (SELECT CODFILIAL
+           FROM PCCONFFILIAL
+          WHERE DECODE(:PCONSOLIDAR,
+                       ''S'',
+                       TO_CHAR(CODGRUPOFILIAL),
+                       CODFILIAL) IN (:CODFILIAL)
+            AND ANO = EXTRACT(YEAR FROM TO_DATE(:PDTFINAL))) FI
+  WHERE A.CODFILIAL IN (FI.CODFILIAL)
+    AND A.DATAINTEGRACAO BETWEEN :PDTINICIO AND :PDTFINAL
+    AND A.CODREGRA = :PCODREGRA
+    AND A.CODFILIAL = RF.CODFILIAL
+    AND A.CODREGRA = RF.CODREGRA
+    AND RF.CODREGRA = R.CODREGRA
+    AND M.CODPLANOCONTA = A.CODPLANOCONTA
+    AND M.CODREDUZIDO_PC = A.CODREDUZIDO_PC
+    AND A.INCONSISTENCIA IN (''0'', ''6'')
+    AND A.STATUS = ''P''
+    AND NVL(A.REGRATOTALIZA,''N'') = ''S''
+    AND A.CONTABILIZAR = ''S''
+GROUP BY A.CODFILIAL,
+         A.NUMTRANSLANCTO,
+         A.DATALANCTO,
+         A.CODREDUZIDO_PC,
+         A.NATUREZA,
+         A.DOCUMENTO,
+         A.CODHISTORICO,
+         A.HISTORICO_COMPL,
+         A.CODREGRA,
+         A.NUMTRANSOPERACAO,
+         A.DATAINTEGRACAO,
+         A.INCONSISTENCIA,
+         R.AGRUPAMENTOREGRA,
+         NVL(R.DIACONTABILIZACAO, ''''),
+         R.CODFATOGERADOR,
+         A.NUMTRANSCENTROCUSTO,
+         A.CODGRUPOBEM,
+         M.CODCONTA_PC,
+         A.OPERACAO,
+         M.USACENTROCUSTO
+         ,COALESCE(M.USACENTRORECEITA,''N'')
+         )
+         GROUP BY         CODFILIAL,
+        NUMTRANSLANCTO,
+        DATALANCTO,
+        CODREDUZIDO_PC,
+
+        NATUREZA,
+        DOCUMENTO,
+        CODHISTORICO,
+        HISTORICO_COMPL,
+        CODREGRA,
+        NUMTRANSOPERACAO,
+        DATAINTEGRACAO,
+        INCONSISTENCIA,
+        AGRUPAMENTOREGRA,
+        DIACONTABILIZACAO,
+        CODFATOGERADOR,
+
+        NUMTRANSCENTROCUSTO,
+        CODPARCEIRO,
+        TIPOPARCEIRO,
+        CODGRUPOBEM,
+        CODCONTA_PC,
+        OPERACAO,
+        USACENTROCUSTO,
+        USACENTRORECEITA
+         )        ';
+  
+    IF P_AGRUPAMENTOREGRA = 'GRUPO_BEM' THEN
+      V_SQL := V_SQL ||
+               ' ORDER BY CODGRUPOBEM, EXTRACT(MONTH FROM DATALANCTO), NUMTRANSLANCTO, NUMSEQ '; --todo NUMSEQ
+    ELSIF P_AGRUPAMENTOREGRA = 'D' THEN
+      V_SQL := V_SQL ||
+               ' ORDER BY DATALANCTO, CODREDUZIDO_PC, NUMTRANSLANCTO ';
+    ELSE
+      V_SQL := V_SQL ||
+               ' ORDER BY EXTRACT(MONTH FROM DATALANCTO), NUMTRANSLANCTO, NUMSEQ ';
+    END IF;
+  
+    RETURN V_SQL;
+  
+  END;
+
+  PROCEDURE GRAVAR_TABELA_TEMPORARIA(PCODFILIAL        IN VARCHAR2,
+                                     PCODREGRA         IN NUMBER,
+                                     PDTINICIO         IN DATE,
+                                     PDTFINAL          IN DATE,
+                                     PCODPLANOCONTA    IN NUMBER,
+                                     PCODFUNCLOGADO    IN NUMBER,
+                                     PGERAADVERTENCIAS IN VARCHAR2,
+                                     PCONSOLIDAR       IN VARCHAR2) IS
+    CURSOR_LANCAMENTOS SYS_REFCURSOR;
+    TYPE T_PCLANCINTERMEDIARIA IS TABLE OF TYPE_INTERMEDIARIA;
+    TYPE T_LANC_TAB IS TABLE OF GTT_LANCAMENTO_MEMORIA%ROWTYPE;
+    V_BATCH  T_LANC_TAB := T_LANC_TAB();
+    V_SELECT T_PCLANCINTERMEDIARIA;
+    C_LIMIT CONSTANT PLS_INTEGER := 5000;
+    V_SQL                CLOB;
+    VS_AGRUPAMENTOREGRA  VARCHAR2(2);
+    VS_DIACONTABILIZACAO VARCHAR2(2);
+  BEGIN
+  
+    BEGIN
+      SELECT AGRUPAMENTOREGRA
+            ,DIACONTABILIZACAO
+        INTO VS_AGRUPAMENTOREGRA
+            ,VS_DIACONTABILIZACAO
+        FROM PCREGRACONTABIL
+       WHERE CODREGRA = PCODREGRA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        VS_AGRUPAMENTOREGRA := '';
+    END;
+  
+    V_SQL := SQL_CONTABILLIZACAO(VS_AGRUPAMENTOREGRA);
+  
+    OPEN CURSOR_LANCAMENTOS FOR DBMS_LOB.SUBSTR(PKG_CTBFUNCOESCONTEIS.TRATARMULTIFILIAL(PCODFILIAL,
+                                                                                        ':CODFILIAL',
+                                                                                        'N',
+                                                                                        V_SQL))
+      USING PCONSOLIDAR, PDTFINAL, PDTINICIO, PDTFINAL, PCODREGRA, PCONSOLIDAR, PDTFINAL, PDTINICIO, PDTFINAL, PCODREGRA;
+    LOOP
+      FETCH CURSOR_LANCAMENTOS BULK COLLECT
+        INTO V_SELECT LIMIT C_LIMIT;
+      EXIT WHEN V_SELECT.COUNT = 0;
+    
+      --V_BATCH.DELETE;
+    
+      IF V_SELECT.COUNT < C_LIMIT THEN
+        V_BATCH.DELETE;
+      END IF;
+      V_BATCH.EXTEND(V_SELECT.COUNT);
+    
+      FOR I IN 1 .. V_SELECT.COUNT
+      LOOP
+        IF ((V_SELECT(I).INCONSISTENCIA = '0') OR
+           ((V_SELECT(I).INCONSISTENCIA = '6') AND
+           (PGERAADVERTENCIAS = 'S'))) THEN
+        
+          V_BATCH(I).DTLANC := V_SELECT(I).DATALANCTO;
+          V_BATCH(I).NUMTRANSOPERACAO := V_SELECT(I).NUMTRANSOPERACAO;
+        
+          IF VS_AGRUPAMENTOREGRA = 'I' THEN
+            V_BATCH(I).HISTORICO_COMPL := V_SELECT(I).HISTORICO_COMPL;
+            V_BATCH(I).CODGRUPOBEM := NULL;
+          
+          ELSIF (V_SELECT(I).CODGRUPOBEM > 0) AND
+                (VS_AGRUPAMENTOREGRA = 'GRUPO_BEM') THEN
+            V_BATCH(I).CODGRUPOBEM := V_SELECT(I).CODGRUPOBEM;
+            V_BATCH(I).HISTORICO_COMPL := 'LANÇAMENTOS REFERENTE A INTEGRAÇÃO DO DIA: ' ||
+                                          TO_CHAR(LAST_DAY(V_SELECT(I)
+                                                           .DATALANCTO),
+                                                  'DD/MM/YYYY');
+          ELSE
+            V_BATCH(I).CODGRUPOBEM := NULL;
+          
+            IF VS_AGRUPAMENTOREGRA = 'D' THEN
+              V_BATCH(I).HISTORICO_COMPL := 'LANÇAMENTOS REFERENTE A INTEGRAÇÃO DO DIA: ' ||
+                                            TO_CHAR(V_SELECT(I).DATALANCTO,
+                                                    'DD/MM/YYYY');
+            ELSE
+              IF VS_DIACONTABILIZACAO = 'P' THEN
+                V_BATCH(I).DTLANC := TRUNC(V_SELECT(I).DATALANCTO, 'MM');
+              ELSE
+                V_BATCH(I).DTLANC := LAST_DAY(V_SELECT(I).DATALANCTO);
+              END IF;
+            END IF;
+          
+          END IF;
+        
+          V_BATCH(I).DTLANC_INT := V_SELECT(I).DATALANCTO;
+          V_BATCH(I).CODCONTA_PC := V_SELECT(I).CODCONTA_PC;
+          V_BATCH(I).NUMTRANSLANCTO := GETNUMTRANSLANCTO;
+          V_BATCH(I).NUMTRANSLANCTO_INT := V_SELECT(I).NUMTRANSLANCTO;
+          V_BATCH(I).NUMTRANSCENTROCUSTO := 0;
+          IF V_SELECT(I).USACENTROCUSTO = 'S' THEN
+            V_BATCH(I).NUMTRANSCENTROCUSTO := NVL(V_SELECT(I)
+                                                  .NUMTRANSCENTROCUSTO, 0);
+          END IF;
+          V_BATCH(I).USACENTRORECEITA := NVL(V_SELECT(I).USACENTRORECEITA,'N');
+          V_BATCH(I).NUMLANCTO := 0;
+          V_BATCH(I).NUMSEQ := 0;
+          V_BATCH(I).MES := EXTRACT(MONTH FROM V_SELECT(I).DATALANCTO);
+          V_BATCH(I).ANO := EXTRACT(YEAR FROM V_SELECT(I).DATALANCTO);
+          V_BATCH(I).CODFILIAL := V_SELECT(I).CODFILIAL;
+          V_BATCH(I).CODPLANOCONTA := PCODPLANOCONTA;
+          V_BATCH(I).CODREDUZIDO_PC := V_SELECT(I).CODREDUZIDO_PC;
+        
+          V_BATCH(I).NATUREZA := V_SELECT(I).NATUREZA;
+          V_BATCH(I).DOCUMENTO := V_SELECT(I).DOCUMENTO;
+          --V_BATCH(I).LOTE := GETNUMLOTEINTEGRACAO;
+          V_BATCH(I).VALOR := V_SELECT(I).VALOR;
+          V_BATCH(I).CODHISTORICO := V_SELECT(I).CODHISTORICO;
+        
+          V_BATCH(I).TIPO_LANCAMENTO := 'I';
+          V_BATCH(I).EXCLUIDO := 'N';
+          V_BATCH(I).ENCERRADO := 'N';
+          V_BATCH(I).DTHRALTERACAO := SYSDATE;
+          V_BATCH(I).CODFUNCALTERACAO := PCODFUNCLOGADO;
+          V_BATCH(I).CODLOGINTEGRACAO := PCODFUNCLOGADO;
+          V_BATCH(I).CODFILIALIMPORT := '';
+          V_BATCH(I).CODREGRAINTEGRACAO := V_SELECT(I).CODREGRA;
+          V_BATCH(I).CONCILIADO := 'N';
+          V_BATCH(I).MULTIFILIAL := 'N';
+          V_BATCH(I).COMPORFCONT := '';
+          V_BATCH(I).CODFUNCINTEGRACAO := PCODFUNCLOGADO;
+          V_BATCH(I).DATAINTEGRACAO := SYSDATE;
+          V_BATCH(I).CODPARCEIRO := V_SELECT(I).CODPARCEIRO;
+          V_BATCH(I).TIPOPARCEIRO := V_SELECT(I).TIPOPARCEIRO;
+          V_BATCH(I).LOTEINTEGRACAO := V_BATCH(I).LOTE;
+          V_BATCH(I).LOTEIMPORTACAO := V_BATCH(I).LOTE;
+        
+          V_BATCH(I).RECALCULOPENDENTE := 'N';
+          V_BATCH(I).AGRUPALANCAMENTO := V_SELECT(I)
+                                         .HISTORICO_COMPL || V_SELECT(I)
+                                         .CODREDUZIDO_PC || V_SELECT(I)
+                                         .CODFILIAL || V_SELECT(I).OPERACAO;
+        
+        END IF;
+      END LOOP;
+    
+      FORALL I IN 1 .. V_BATCH.COUNT
+        INSERT INTO GTT_LANCAMENTO_MEMORIA VALUES V_BATCH (I);
+    
+      COMMIT;
+    END LOOP;
+  END;
+
+  PROCEDURE GERA_NUMLANCTO_NUMSEQ IS
+    V_QTD_IDS_NECESSARIOS NUMBER;
+    V_ULTIMO_SEQ          NUMBER;
+    V_NOVO_SEQ_FINAL      NUMBER;
+  
+  BEGIN
+  
+    FOR R IN (SELECT DISTINCT MES
+                             ,ANO
+                             ,CODPLANOCONTA
+                FROM GTT_LANCAMENTO_MEMORIA
+               WHERE NUMLANCTO = 0)
+    LOOP
+    
+      SELECT COUNT(DISTINCT NUMTRANSLANCTO_INT)
+        INTO V_QTD_IDS_NECESSARIOS
+        FROM GTT_LANCAMENTO_MEMORIA G
+       WHERE G.MES = R.MES
+         AND G.ANO = R.ANO
+         AND NUMLANCTO = 0;
+    
+      IF V_QTD_IDS_NECESSARIOS > 0 THEN
+      
+        BEGIN
+          SELECT CASE R.MES
+                   WHEN 1 THEN
+                    NVL(MES01, 0)
+                   WHEN 2 THEN
+                    NVL(MES02, 0)
+                   WHEN 3 THEN
+                    NVL(MES03, 0)
+                   WHEN 4 THEN
+                    NVL(MES04, 0)
+                   WHEN 5 THEN
+                    NVL(MES05, 0)
+                   WHEN 6 THEN
+                    NVL(MES06, 0)
+                   WHEN 7 THEN
+                    NVL(MES07, 0)
+                   WHEN 8 THEN
+                    NVL(MES08, 0)
+                   WHEN 9 THEN
+                    NVL(MES09, 0)
+                   WHEN 10 THEN
+                    NVL(MES10, 0)
+                   WHEN 11 THEN
+                    NVL(MES11, 0)
+                   WHEN 12 THEN
+                    NVL(MES12, 0)
+                 END
+            INTO V_ULTIMO_SEQ
+            FROM PCSEQLANCAMENTO
+           WHERE CODPLANOCONTA = R.CODPLANOCONTA
+             AND ANO = R.ANO
+             FOR UPDATE;
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+          
+            V_ULTIMO_SEQ := 0;
+            INSERT INTO PCSEQLANCAMENTO
+              (CODPLANOCONTA, ANO)
+            VALUES
+              (R.CODPLANOCONTA, R.ANO);
+        END;
+      
+        V_NOVO_SEQ_FINAL := V_ULTIMO_SEQ + V_QTD_IDS_NECESSARIOS;
+      
+        UPDATE PCSEQLANCAMENTO
+           SET MES01 = DECODE(R.MES, 1, V_NOVO_SEQ_FINAL, MES01)
+              ,MES02 = DECODE(R.MES, 2, V_NOVO_SEQ_FINAL, MES02)
+              ,MES03 = DECODE(R.MES, 3, V_NOVO_SEQ_FINAL, MES03)
+              ,MES04 = DECODE(R.MES, 4, V_NOVO_SEQ_FINAL, MES04)
+              ,MES05 = DECODE(R.MES, 5, V_NOVO_SEQ_FINAL, MES05)
+              ,MES06 = DECODE(R.MES, 6, V_NOVO_SEQ_FINAL, MES06)
+              ,MES07 = DECODE(R.MES, 7, V_NOVO_SEQ_FINAL, MES07)
+              ,MES08 = DECODE(R.MES, 8, V_NOVO_SEQ_FINAL, MES08)
+              ,MES09 = DECODE(R.MES, 9, V_NOVO_SEQ_FINAL, MES09)
+              ,MES10 = DECODE(R.MES, 10, V_NOVO_SEQ_FINAL, MES10)
+              ,MES11 = DECODE(R.MES, 11, V_NOVO_SEQ_FINAL, MES11)
+              ,MES12 = DECODE(R.MES, 12, V_NOVO_SEQ_FINAL, MES12)
+         WHERE CODPLANOCONTA = R.CODPLANOCONTA
+           AND ANO = R.ANO;
+      
+        MERGE INTO GTT_LANCAMENTO_MEMORIA T
+        USING (SELECT ROWID AS RID
+                     ,DENSE_RANK() OVER(ORDER BY NUMTRANSLANCTO_INT) AS SEQ_RELATIVO
+                     ,ROW_NUMBER() OVER(PARTITION BY NUMTRANSLANCTO_INT ORDER BY CODREDUZIDO_PC) AS NOVO_NUMSEQ
+                 FROM GTT_LANCAMENTO_MEMORIA G
+                WHERE G.MES = R.MES
+                  AND G.ANO = R.ANO
+                  AND G.CODPLANOCONTA = R.CODPLANOCONTA
+                  AND NUMLANCTO = 0) S
+        ON (T.ROWID = S.RID)
+        WHEN MATCHED THEN
+          UPDATE
+             SET T.NUMLANCTO = V_ULTIMO_SEQ + S.SEQ_RELATIVO
+                ,T.NUMSEQ    = S.NOVO_NUMSEQ;
+      
+      END IF;
+    END LOOP;
+    COMMIT;
+  END;
+
+  PROCEDURE GRAVAR_PCLANCAMENTO_AGRUP IS
+  BEGIN
+    MERGE INTO PCLANCAMENTO T
+    USING (SELECT MAX(MAX(NUMLANCTO)) OVER(PARTITION BY MES, ANO, CODFILIAL, CODPLANOCONTA) AS NUMLANCTO
+                 ,MAX(NUMTRANSLANCTO) AS NUMTRANSLANCTO
+                 ,ROW_NUMBER() OVER(PARTITION BY CODFILIAL, CODPLANOCONTA, DTLANC ORDER BY CODREDUZIDO_PC) AS NUMSEQ
+                 ,MES
+                 ,ANO
+                 ,CODFILIAL
+                 ,CODPLANOCONTA
+                 ,CODREDUZIDO_PC
+                 ,DTLANC
+                 ,NATUREZA
+                 ,SUM(VALOR) AS TOTAL_VALOR
+                 ,CODHISTORICO
+                 ,HISTORICO_COMPL
+                 ,CODFUNCALTERACAO
+                 ,CODREGRAINTEGRACAO
+                 ,CODFUNCINTEGRACAO
+                 ,CODGRUPOBEM
+                 ,TIPO_LANCAMENTO
+                 ,MULTIFILIAL
+                 ,NUMTRANSCENTROCUSTO
+             FROM GTT_LANCAMENTO_MEMORIA
+            WHERE MES > 0
+              AND ANO > 0
+            GROUP BY MES
+                    ,ANO
+                    ,CODFILIAL
+                    ,CODPLANOCONTA
+                    ,CODREDUZIDO_PC
+                    ,DTLANC
+                    ,NATUREZA
+                    ,CODHISTORICO
+                    ,HISTORICO_COMPL
+                    ,CODFUNCALTERACAO
+                    ,CODREGRAINTEGRACAO
+                    ,CODFUNCINTEGRACAO
+                    ,CODGRUPOBEM
+                    ,TIPO_LANCAMENTO
+                    ,MULTIFILIAL
+                    ,NUMTRANSCENTROCUSTO) S
+    ON (T.CODFILIAL = S.CODFILIAL AND T.CODPLANOCONTA = S.CODPLANOCONTA AND T.DTLANC = S.DTLANC AND T.NATUREZA = S.NATUREZA AND T.CODREDUZIDO_PC = S.CODREDUZIDO_PC AND T.HISTORICO_COMPL = S.HISTORICO_COMPL)
+    WHEN MATCHED THEN
+      UPDATE SET T.VALOR = T.VALOR + S.TOTAL_VALOR
+    WHEN NOT MATCHED THEN
+      INSERT
+        (NUMTRANSLANCTO
+        ,NUMLANCTO
+        ,NUMSEQ
+        ,MES
+        ,ANO
+        ,CODFILIAL
+        ,CODPLANOCONTA
+        ,CODREDUZIDO_PC
+        ,DTLANC
+        ,NATUREZA
+        ,VALOR
+        ,CODHISTORICO
+        ,HISTORICO_COMPL
+        ,CODFUNCALTERACAO
+        ,CODREGRAINTEGRACAO
+        ,CODFUNCINTEGRACAO
+        ,CODGRUPOBEM
+        ,TIPO_LANCAMENTO)
+      VALUES
+        (S.NUMTRANSLANCTO
+        ,NVL(S.NUMLANCTO, 0)
+        ,S.NUMSEQ
+        ,S.MES
+        ,S.ANO
+        ,S.CODFILIAL
+        ,S.CODPLANOCONTA
+        ,S.CODREDUZIDO_PC
+        ,S.DTLANC
+        ,S.NATUREZA
+        ,S.TOTAL_VALOR
+        ,S.CODHISTORICO
+        ,S.HISTORICO_COMPL
+        ,S.CODFUNCALTERACAO
+        ,S.CODREGRAINTEGRACAO
+        ,S.CODFUNCINTEGRACAO
+        ,S.CODGRUPOBEM
+        ,S.TIPO_LANCAMENTO);
+  
+  END;
+
+  PROCEDURE ATUALIZA_PCLANCINTERMEDIARIA IS
+  BEGIN
+  
+    MERGE INTO PCLANCINTERMEDIARIA T
+    USING (SELECT NUMLANCTO
+                 ,NUMTRANSLANCTO_INT
+                 ,MAX(NUMTRANSLANCTO) AS NUMTRANSLANCTO
+                 ,MES
+                 ,ANO
+                 ,CODFILIAL
+                 ,CODPLANOCONTA
+                 ,CODREDUZIDO_PC
+                 ,DTLANC_INT
+                 ,NATUREZA
+                 ,SUM(VALOR) AS TOTAL_VALOR
+                 ,CODHISTORICO
+                 ,HISTORICO_COMPL
+                 ,CODFUNCALTERACAO
+                 ,CODREGRAINTEGRACAO
+                 ,CODFUNCINTEGRACAO
+                 ,CODGRUPOBEM
+             FROM GTT_LANCAMENTO_MEMORIA
+            WHERE MES > 0
+              AND ANO > 0
+            GROUP BY NUMLANCTO
+                    ,NUMTRANSLANCTO_INT
+                    ,MES
+                    ,ANO
+                    ,CODFILIAL
+                    ,CODPLANOCONTA
+                    ,CODREDUZIDO_PC
+                    ,DTLANC_INT
+                    ,NATUREZA
+                    ,CODHISTORICO
+                    ,HISTORICO_COMPL
+                    ,CODFUNCALTERACAO
+                    ,CODREGRAINTEGRACAO
+                    ,CODFUNCINTEGRACAO
+                    ,CODGRUPOBEM) S
+    ON (T.NUMTRANSLANCTO = S.NUMTRANSLANCTO_INT AND T.DATALANCTO = S.DTLANC_INT AND T.CODREGRA = S.CODREGRAINTEGRACAO AND T.CODFILIAL = S.CODFILIAL AND T.CODREDUZIDO_PC = S.CODREDUZIDO_PC AND T.NATUREZA = S.NATUREZA)
+    WHEN MATCHED THEN
+      UPDATE
+         SET T.NUMLANCTOCONTABIL    = S.NUMLANCTO
+            ,T.STATUS               = 'I'
+            ,T.NUMTRANSPCLANCAMENTO = S.NUMTRANSLANCTO;
+  END;
+
+  PROCEDURE ATUALIZA_PCLANCINT_AGRUPADA IS
+  BEGIN
+  
+    MERGE INTO PCLANCINTERMEDIARIA T
+    USING (SELECT MAX(NUMLANCTO) AS NUMLANCTO
+                 ,MAX(NUMTRANSLANCTO) AS NUMTRANSLANCTO
+                 ,MES
+                 ,ANO
+                 ,CODFILIAL
+                 ,CODPLANOCONTA
+                 ,CODREDUZIDO_PC
+                 ,DTLANC_INT
+                 ,NATUREZA
+                 ,SUM(VALOR) AS TOTAL_VALOR
+                 ,CODHISTORICO
+                 ,HISTORICO_COMPL
+                 ,CODFUNCALTERACAO
+                 ,CODREGRAINTEGRACAO
+                 ,CODFUNCINTEGRACAO
+                 ,CODGRUPOBEM
+             FROM GTT_LANCAMENTO_MEMORIA
+            WHERE MES > 0
+              AND ANO > 0
+            GROUP BY MES
+                    ,ANO
+                    ,CODFILIAL
+                    ,CODPLANOCONTA
+                    ,CODREDUZIDO_PC
+                    ,DTLANC_INT
+                    ,NATUREZA
+                    ,CODHISTORICO
+                    ,HISTORICO_COMPL
+                    ,CODFUNCALTERACAO
+                    ,CODREGRAINTEGRACAO
+                    ,CODFUNCINTEGRACAO
+                    ,CODGRUPOBEM) S
+    ON (T.DATALANCTO = S.DTLANC_INT AND T.CODREGRA = S.CODREGRAINTEGRACAO AND T.CODFILIAL = S.CODFILIAL AND T.CODREDUZIDO_PC = S.CODREDUZIDO_PC AND T.NATUREZA = S.NATUREZA AND S.CODPLANOCONTA = T.CODPLANOCONTA)
+    WHEN MATCHED THEN
+      UPDATE
+         SET T.NUMLANCTOCONTABIL    = S.NUMLANCTO
+            ,T.STATUS               = 'I'
+            ,T.NUMTRANSPCLANCAMENTO = S.NUMTRANSLANCTO;
+  END;
+
+  PROCEDURE GRAVAR_PCLANCAMENTO_IND IS
+  BEGIN
+  
+    INSERT /*+ APPEND */
+    INTO PCLANCAMENTO
+      (NUMTRANSLANCTO
+      ,NUMLANCTO
+      ,NUMSEQ
+      ,MES
+      ,ANO
+      ,CODFILIAL
+      ,CODPLANOCONTA
+      ,CODREDUZIDO_PC
+      ,DTLANC
+      ,NATUREZA
+      ,DOCUMENTO
+      ,LOTE
+      ,VALOR
+      ,CODHISTORICO
+      ,HISTORICO_COMPL
+      ,TIPO_LANCAMENTO
+      ,EXCLUIDO
+      ,ENCERRADO
+      ,DTHRALTERACAO
+      ,CODFUNCALTERACAO
+      ,CODLOGINTEGRACAO
+      ,CODFILIALIMPORT
+      ,CODREGRAINTEGRACAO
+      ,CONCILIADO
+      ,MULTIFILIAL
+      ,COMPORFCONT
+      ,CODFUNCINTEGRACAO
+      ,DATAINTEGRACAO
+      ,CODPARCEIRO
+      ,TIPOPARCEIRO
+      ,LOTEINTEGRACAO
+      ,LOTEIMPORTACAO
+      ,CODGRUPOBEM
+      ,ROTINAINSERT
+      ,RECALCULOPENDENTE
+      ,EXTEMPORANEO
+      ,DTEXTEMPORANEO)
+      SELECT NUMTRANSLANCTO
+            ,NUMLANCTO
+            ,NUMSEQ
+            ,MES
+            ,ANO
+            ,CODFILIAL
+            ,CODPLANOCONTA
+            ,CODREDUZIDO_PC
+            ,DTLANC
+            ,NATUREZA
+            ,DOCUMENTO
+            ,LOTE
+            ,VALOR
+            ,CODHISTORICO
+            ,HISTORICO_COMPL
+            ,TIPO_LANCAMENTO
+            ,EXCLUIDO
+            ,ENCERRADO
+            ,DTHRALTERACAO
+            ,CODFUNCALTERACAO
+            ,CODLOGINTEGRACAO
+            ,CODFILIALIMPORT
+            ,CODREGRAINTEGRACAO
+            ,CONCILIADO
+            ,MULTIFILIAL
+            ,COMPORFCONT
+            ,CODFUNCINTEGRACAO
+            ,DATAINTEGRACAO
+            ,CODPARCEIRO
+            ,TIPOPARCEIRO
+            ,LOTEINTEGRACAO
+            ,LOTEIMPORTACAO
+            ,CODGRUPOBEM
+            ,''
+            ,RECALCULOPENDENTE
+            ,EXTEMPORANEO
+            ,DTEXTEMPORANEO
+        FROM GTT_LANCAMENTO_MEMORIA
+       WHERE ANO > 0
+         AND DTLANC IS NOT NULL;
+  END;
+
+  PROCEDURE SET_MULTIFILIAL IS
+  BEGIN
+  
+    MERGE INTO GTT_LANCAMENTO_MEMORIA T
+    USING (SELECT ROWID AS RID
+                 ,COUNT(DISTINCT CODFILIAL) OVER(PARTITION BY NUMLANCTO, MES, ANO, CODPLANOCONTA) AS QTD_FILIAIS
+             FROM GTT_LANCAMENTO_MEMORIA) S
+    ON (T.ROWID = S.RID)
+    WHEN MATCHED THEN
+      UPDATE SET T.MULTIFILIAL = 'S' WHERE S.QTD_FILIAIS > 1;
+  
+  END;
+
+  PROCEDURE P_INSERE_LANCAMENTO_FILA IS
+  BEGIN
+  
+    INSERT /*+ APPEND */
+    INTO PCFILASALDOCNB
+      (CODIGO
+      ,CODFILIAL
+      ,CODPLANOCONTA
+      ,MES
+      ,ANO
+      ,CODREDUZIDO_PC
+      ,CODCONTA_PC
+      ,VALORDEBITO
+      ,VALORCREDITO
+      ,VLRDEBENCERRAMENTO
+      ,VLRCREENCERRAMENTO
+      ,VLRDEBCONCIL
+      ,VLRCRECONCIL
+      ,VLRDEBCONCILENCERRAMENTO
+      ,VLRCRECONCILENCERRAMENTO
+      ,EQUIPAMENTO
+      ,ROTINA
+      ,USUARIO
+      ,DATAHORA
+      ,CODPARCEIRO
+      ,TIPOPARCEIRO)
+      SELECT DFSEQ_PCFILASALDOCNB.NEXTVAL
+            ,CODFILIAL
+            ,CODPLANOCONTA
+            ,MES
+            ,ANO
+            ,CODREDUZIDO_PC
+            ,CODCONTA_PC
+            ,CASE
+               WHEN NATUREZA = 'D' THEN
+                VALOR
+             END
+            ,CASE
+               WHEN NATUREZA = 'C' THEN
+                VALOR
+             END
+            ,0
+            ,0
+            ,0
+            ,0
+            ,0
+            ,0
+            ,NULL
+            ,NULL
+            ,NULL
+            ,SYSDATE
+            ,CODPARCEIRO
+            ,TIPOPARCEIRO
+        FROM GTT_LANCAMENTO_MEMORIA
+       WHERE DTLANC IS NOT NULL;
+  
+  END;
+
+  PROCEDURE P_GRAVA_DADOS_CENTROCUSTO IS
+  BEGIN
+  
+    INSERT /*+ APPEND */
+    INTO PCRATEIOCONTABILCC
+      (CODFILIAL
+      ,NUMTRANSLANCTO
+      ,CODIGOCENTROCUSTO
+      ,NATUREZA
+      ,VALOR
+      ,PERCRATEIO)
+      SELECT DISTINCT S.CODFILIAL
+                     ,S.NUMTRANSLANCTO_GTT
+                     ,S.CODIGOCENTROCUSTO
+                     ,S.NATUREZA_GTT
+                     ,ABS(S.VALOR_TOTAL)
+                     ,S.PERCRATEIO_MAX
+        FROM (SELECT LC.CODFILIAL
+                    ,G.NUMTRANSLANCTO AS NUMTRANSLANCTO_GTT
+                    ,LC.CODIGOCENTROCUSTO
+                    ,G.NATUREZA AS NATUREZA_GTT
+                    ,SUM(LC.VALOR) AS VALOR_TOTAL
+                    ,MAX(LC.PERCRATEIO) AS PERCRATEIO_MAX
+                FROM GTT_LANCAMENTO_MEMORIA G
+                JOIN PCLANCINTERMEDIARIACC LC
+                  ON LC.NUMTRANSCENTROCUSTO = G.NUMTRANSCENTROCUSTO
+                 AND LC.AGRUPALANCAMENTO = G.AGRUPALANCAMENTO -- Join restrito
+                JOIN PCCENTROCUSTO CC
+                  ON LC.CODIGOCENTROCUSTO = CC.CODIGOCENTROCUSTO
+               WHERE NOT EXISTS
+               (SELECT 1
+                        FROM PCLANCINTERMEDIARIACC A
+                       WHERE A.NUMTRANSLANCTO = LC.NUMTRANSLANCTO
+                         AND A.NUMTRANSCENTROCUSTO = LC.NUMTRANSCENTROCUSTO
+                       HAVING SUM(A.PERCRATEIO) > 100
+                         AND COUNT(DISTINCT A.PERCRATEIO) > 1
+                       GROUP BY A.CODIGOCENTROCUSTO
+                               ,A.CODFILIAL
+                               ,A.PERCRATEIO
+                               ,A.NUMTRANSLANCTO)
+               GROUP BY LC.CODFILIAL
+                       ,G.NUMTRANSLANCTO
+                       ,LC.CODIGOCENTROCUSTO
+                       ,G.NATUREZA
+                       ,CC.DESCRICAO
+                       ,LC.NUMTRANSLANCTO
+              
+              UNION ALL
+              
+              SELECT LC.CODFILIAL
+                    ,G.NUMTRANSLANCTO AS NUMTRANSLANCTO_GTT
+                    ,LC.CODIGOCENTROCUSTO
+                    ,G.NATUREZA AS NATUREZA_GTT
+                    ,SUM(LC.VALOR) AS VALOR_TOTAL
+                    ,MAX(LC.PERCRATEIO) AS PERCRATEIO_MAX
+                FROM GTT_LANCAMENTO_MEMORIA G
+                JOIN PCLANCINTERMEDIARIACC LC
+                  ON LC.NUMTRANSCENTROCUSTO = G.NUMTRANSCENTROCUSTO
+                JOIN PCCENTROCUSTO CC
+                  ON LC.CODIGOCENTROCUSTO = CC.CODIGOCENTROCUSTO
+               GROUP BY LC.CODFILIAL
+                       ,G.NUMTRANSLANCTO
+                       ,LC.CODIGOCENTROCUSTO
+                       ,G.NATUREZA
+                       ,CC.DESCRICAO
+                       ,LC.NUMTRANSLANCTO) S;
+  END;
+
+  PROCEDURE P_GRAVA_DADOS_CENTRORECEITA IS
+  BEGIN
+    INSERT INTO PCRATEIOCONTABILCR
+      (CODFILIAL
+      ,NUMTRANSLANCTO
+      ,CODIGOCENTRORECEITA
+      ,NATUREZA
+      ,VALOR
+      ,PERCRATEIO)
+      SELECT CODFILIAL
+            ,NUMTRANSPCLANCAMENTO
+            ,CODIGOCENTRORECEITA
+            ,NATUREZA
+            ,ABS(VALOR) AS VALOR
+            ,PERCRATEIO
+        FROM (SELECT C.*
+                    ,CASE
+                       WHEN C.CODFATOGERADOR NOT IN (2, 6, 8) THEN
+                        C.VALORBASE - C.VALORTEMPORARIO
+                       ELSE
+                        C.VALORBASE - SUM(C.VALORTEMPORARIO) OVER()
+                     END VLDIFERENCA
+                    ,CASE
+                       WHEN C.MAIORVALOR = MAX(C.MAIORVALOR) OVER() --Aplicar a diferença no maior VALORTEMPORARIO
+                        THEN
+                        C.VALORTEMPORARIO + CASE
+                          WHEN C.CODFATOGERADOR NOT IN (2, 6, 8) THEN
+                           (SUM(C.VALORBASE - C.VALORTEMPORARIO) OVER())
+                          ELSE
+                           (C.VALORBASE - SUM(C.VALORTEMPORARIO) OVER())
+                        END
+                       ELSE
+                        C.VALORTEMPORARIO
+                     END VALOR
+                FROM (SELECT B.*
+                            ,ROUND(CASE
+                                     WHEN B.CODFATOGERADOR NOT IN (2, 6, 8) THEN
+                                      (SUM(B.VALORBASE) OVER())
+                                     ELSE
+                                      B.VALORBASE
+                                   END * (B.PERCRATEIO / 100), 2) VALORTEMPORARIO
+                            ,ROW_NUMBER() OVER(PARTITION BY B.NUMTRANSLANCTO ORDER BY B.VALORBASE) MAIORVALOR
+                        FROM (SELECT A.*
+                                    ,CASE
+                                       WHEN (SUM(A.VALORBASE)
+                                             OVER(PARTITION BY A.NUMTRANSLANCTO)) <> 0 THEN
+                                        ROUND(((A.VALORBASE /
+                                              (SUM(A.VALORBASE)
+                                               OVER(PARTITION BY
+                                                      A.NUMTRANSLANCTO))) * 100),
+                                              2)
+                                       ELSE
+                                        0
+                                     END PERCRATEIO
+                                FROM (SELECT PCCENTRORECEITA.CODIGOCENTRORECEITA
+                                            ,PCCENTRORECEITA.DESCRICAO
+                                            ,PCCONSOLIDARECEITA.CODFILIAL
+                                            ,LANCAMENTOS.CODFATOGERADOR
+                                            ,NVL(PCCONSOLIDARECEITA.NUMTRANSVENDA,
+                                                 PCCONSOLIDARECEITA.NUMTRANSENT) NUMTRANSLANCTO
+                                            ,CASE
+                                               WHEN LANCAMENTOS.CODFATOGERADOR IN
+                                                    (2, 6, 8) THEN
+                                                LANCAMENTOS.VALOR
+                                               ELSE
+                                                SUM(PCCONSOLIDARECEITA.VLTOTALNOTA)
+                                             END VALORBASE
+                                            ,LANCAMENTOS.NUMTRANSLANCTO AS NUMTRANSPCLANCAMENTO
+                                            ,LANCAMENTOS.NATUREZA
+                                        FROM PCCONSOLIDARECEITA
+                                            ,PCCENTRORECEITA
+                                            ,PCITENSCLASSIFICACAOCR
+                                            ,GTT_LANCAMENTO_MEMORIA LANCAMENTOS
+                                       WHERE PCCONSOLIDARECEITA.CODIGO =
+                                             PCITENSCLASSIFICACAOCR.CODIGOITEMCLASSIFICACAO
+                                         AND PCCONSOLIDARECEITA.CLASSIFICACAOCENTRORECEITA =
+                                             PCITENSCLASSIFICACAOCR.CLASSIFICACAO
+                                         AND PCITENSCLASSIFICACAOCR.CODIGOCENTRORECEITA =
+                                             PCCENTRORECEITA.CODIGOCENTRORECEITA
+                                         AND NVL(PCCONSOLIDARECEITA.NUMTRANSVENDA,
+                                                 PCCONSOLIDARECEITA.NUMTRANSENT) =
+                                             LANCAMENTOS.NUMTRANSOPERACAO
+                                         AND PCCONSOLIDARECEITA.DTMOV =
+                                             LANCAMENTOS.DTLANC
+                                         AND LANCAMENTOS.USACENTRORECEITA = 'S'
+                                       GROUP BY PCCENTRORECEITA.CODIGOCENTRORECEITA
+                                               ,PCCENTRORECEITA.DESCRICAO
+                                               ,PCCONSOLIDARECEITA.CODFILIAL
+                                               ,NVL(PCCONSOLIDARECEITA.NUMTRANSVENDA,
+                                                    PCCONSOLIDARECEITA.NUMTRANSENT)
+                                               ,LANCAMENTOS.CODFATOGERADOR
+                                               ,LANCAMENTOS.VALOR
+                                               ,LANCAMENTOS.NUMTRANSLANCTO
+                                               ,LANCAMENTOS.NATUREZA) A) B) C);
+  
+  END;
+
+  PROCEDURE GRAVARLANCAMENTOS(PCODFILIAL        IN VARCHAR2,
+                              PCODREGRA         IN NUMBER,
+                              PDTINICIO         IN DATE,
+                              PDTFINAL          IN DATE,
+                              PCODPLANOCONTA    IN NUMBER,
+                              PCODFUNCLOGADO    IN NUMBER,
+                              PGERAADVERTENCIAS IN VARCHAR2,
+                              PCONSOLIDAR       IN VARCHAR2,
+                              RESULTADO         OUT VARCHAR2) IS
+    VS_AGRUPAMENTOREGRA VARCHAR2(50);
+  
+  BEGIN
+  
+    BEGIN
+      SELECT AGRUPAMENTOREGRA
+        INTO VS_AGRUPAMENTOREGRA
+        FROM PCREGRACONTABIL
+       WHERE CODREGRA = PCODREGRA;
+    EXCEPTION
+      WHEN OTHERS THEN
+        VS_AGRUPAMENTOREGRA := '';
+    END;
+  
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA, TEXTO_SQL)VALUES(SYSDATE, 1,'INICIO GRAVAR_TABELA_TEMPORARIA');
+  
+    GRAVAR_TABELA_TEMPORARIA(PCODFILIAL, PCODREGRA, PDTINICIO, PDTFINAL,
+                             PCODPLANOCONTA, PCODFUNCLOGADO,
+                             PGERAADVERTENCIAS, PCONSOLIDAR);
+  
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 1,'FIM GRAVAR_TABELA_TEMPORARIA');                         
+  
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 2,'INICO P_INSERE_LANCAMENTO_FILA');
+    P_INSERE_LANCAMENTO_FILA;
+  
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 2,'FIM P_INSERE_LANCAMENTO_FILA');                       
+  
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 3,'INICIO GERA_NUMLANCTO_NUMSEQ');
+    GERA_NUMLANCTO_NUMSEQ;
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 3,'FIM GERA_NUMLANCTO_NUMSEQ');
+  
+    SET_MULTIFILIAL;
+  
+    IF VS_AGRUPAMENTOREGRA = 'I' THEN
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 4,'INICIO GRAVAR_PCLANCAMENTO_IND');
+      GRAVAR_PCLANCAMENTO_IND;
+    
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 4,'FIM GRAVAR_PCLANCAMENTO_IND');
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 5,'INICIO ATUALIZA_PCLANCINTERMEDIARIA');
+      ATUALIZA_PCLANCINTERMEDIARIA;
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 5,'FIM ATUALIZA_PCLANCINTERMEDIARIA');
+    ELSIF VS_AGRUPAMENTOREGRA IN ('D', 'M') THEN
+    
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 6,'INICIO GRAVAR_PCLANCAMENTO_AGRUP');
+      GRAVAR_PCLANCAMENTO_AGRUP;
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 6,'FIM GRAVAR_PCLANCAMENTO_AGRUP');
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 7,'INICIO ATUALIZA_PCLANCINT_AGRUPADA');
+      ATUALIZA_PCLANCINT_AGRUPADA;
+      --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 7,'FIM ATUALIZA_PCLANCINT_AGRUPADA');
+    
+    ELSE
+      GRAVAR_PCLANCAMENTO_AGRUP;
+      ATUALIZA_PCLANCINT_AGRUPADA;
+    END IF;
+  
+    P_GRAVA_DADOS_CENTROCUSTO;
+    P_GRAVA_DADOS_CENTRORECEITA;
+    --INSERT INTO SQL_GERADO(DATA, CODREGRA,TEXTO_SQL)VALUES(SYSDATE, 8,'FIM');
+    COMMIT;
+  
+    RESULTADO := 'OK';
+  END;
+
+END PKG_CONTABILIZALANCAMENTOS;

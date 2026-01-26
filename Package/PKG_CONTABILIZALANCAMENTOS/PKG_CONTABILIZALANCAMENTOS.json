@@ -1,0 +1,11 @@
+{
+    "nome": "PKG_CONTABILIZALANCAMENTOS",
+    "tipoPLSQL": "PACKAGE",
+    "dependencias": [
+	{
+	  "nome": "GTT_LANCAMENTO_MEMORIA",
+	  "tipo": "MIGRATION",
+	  "versao": "6.0.01.000"
+	}
+	]
+}
