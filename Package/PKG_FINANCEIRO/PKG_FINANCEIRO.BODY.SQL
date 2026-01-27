@@ -20,7 +20,7 @@ IS
     BEGIN
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
-        P_MENSAGEM_OUT := 'InserÁ„o realizada com sucesso!';
+        P_MENSAGEM_OUT := 'Inser√ß√£o realizada com sucesso!';
         G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()||')'||
                     '                         VALUES(:RECNUM,
                                                      :CODCONTA,
@@ -55,7 +55,7 @@ IS
             ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
-            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSER«√O da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');        
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSER√á√ÉO da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');        
     END; -- INS_PCRATEIOCENTROCUSTO
     
     ----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ IS
     BEGIN
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
-        P_MENSAGEM_OUT := 'InserÁ„o realizada com sucesso!';
+        P_MENSAGEM_OUT := 'Inser√ß√£o realizada com sucesso!';
         G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTOBLOQ('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTOBLOQ()||')'||
                     '                             VALUES(:RECNUM,
                                                          :CODCONTA,
@@ -113,7 +113,7 @@ IS
             ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
-            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSER«√O da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSER√á√ÉO da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --INS_PCRATEIOCENTROCUSTOBLOQ
     
     ----------------------------------------------------------------------------
@@ -129,7 +129,7 @@ IS
 
         /* RETORNOS DOS STATUS
         200 - Sucesso
-        204 - N„o encontrado
+        204 - N√£o encontrado
         500 - Error */
 
         P_STATUS_OUT   := '200';
@@ -138,7 +138,7 @@ IS
         G_ERROR := '1.';
         IF NOT (PKG_FINANCEIRO_SCRIPTS.TEM_PCLANCBLOQ(P_RECNUM)) THEN
            P_STATUS_OUT   := '204';
-           P_MENSAGEM_OUT := 'RecNum: '||P_RECNUM||' n„o encontrado na tabela PCLANCBLOQ !';
+           P_MENSAGEM_OUT := 'RecNum: '||P_RECNUM||' n√£o encontrado na tabela PCLANCBLOQ !';
         ELSE 
            G_ERROR  := '1.1';
            PKG_FINANCEIRO.EXP_PCLANCBLOQ(P_STATUS_OUT,
@@ -175,7 +175,7 @@ IS
             DELETE FROM PCLANCBLOQ
              WHERE RECNUM = P_RECNUM;
 
-            P_MENSAGEM_OUT := 'SuplementaÁ„o Aprovada!';
+            P_MENSAGEM_OUT := 'Suplementa√ß√£o Aprovada!';
 
             COMMIT WORK;                        
         END IF; --REPLICANCO PCLANCBLOQ         
@@ -185,7 +185,7 @@ IS
             ROLLBACK;
             G_MENSAGEM := SQLERRM;
             P_STATUS_OUT   := '500';
-            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprovaÁ„o da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprova√ß√£o da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
     END; --APROVA_SUPLEMENTACAO
     
     ----------------------------------------------------------------------------                                   
@@ -199,7 +199,7 @@ IS
     BEGIN
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
-        P_MENSAGEM_OUT := 'InserÁ„o realizada com sucesso!';
+        P_MENSAGEM_OUT := 'Inser√ß√£o realizada com sucesso!';
         G_SCRIPT := 'INSERT INTO PCLANC('||PKG_FINANCEIRO_SCRIPTS.GET_PCLANC()||')'||
                     '            SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_PCLANC()||
                     '              FROM PCLANCBLOQ 
@@ -216,7 +216,7 @@ IS
             ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
-            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na ExportaÁ„o da PCLANCBLOQ. Log recebido: ('||G_MENSAGEM||')');            
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exporta√ß√£o da PCLANCBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --EXP_PCLANCBLOQ
     
     ----------------------------------------------------------------------------                                   
@@ -230,7 +230,7 @@ IS
     BEGIN
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
-        P_MENSAGEM_OUT := 'InserÁ„o realizada com sucesso!';
+        P_MENSAGEM_OUT := 'Inser√ß√£o realizada com sucesso!';
         G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()||')'||
                     '                         SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()|| 
                     '                           FROM PCRATEIOCENTROCUSTOBLOQ 
@@ -246,7 +246,7 @@ IS
             ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
-            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na ExportaÁ„o da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exporta√ß√£o da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --EXP_PCRATEIOCENTROCUSTOBLOQ
     
 END;
