@@ -285,7 +285,8 @@ SELECT  /*+
             p.codauxiliartrib,
             0 CODCEST,
             e.QTMAXVENDA,
-            NVL(p.estoqueporlote, 'N') estoqueporlote
+            NVL(p.estoqueporlote, 'N') estoqueporlote,
+			NVL(e.checapesoetiqueta, 'N') checapesoetiqueta
        FROM PROD_ALTERADOS PA
             /*PARA PREÇO POR EMBALAGEM: VINCULA O CODPROD DO CTE COM A PCEMBALAGEM E OS REGISTROS C/ FILIAL "ZERO", PARA TRAZER TODAS AS EMBALAGENS DO PRODUTO*/
             /*PARA PREÇO POR REGIÃO :   VINCULA CODPROD E FILIAL DO CTE COM A PCEMBALAGEM(ELIMINAR REGIÕES QUE NÃO POSSUEM EMBALAGEM CADASTRADAS), PARA TRAZER TODAS AS EMBALAGENS DO PRODUTO*/
