@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS 
+﻿CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS 
 
     /*
     ----------------------------------------------------------------------------

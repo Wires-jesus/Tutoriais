@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY PKG_FINANCEIRO
+﻿CREATE OR REPLACE PACKAGE BODY PKG_FINANCEIRO
 IS
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCRATEIOCENTROCUSTO(P_STATUS_OUT	          OUT VARCHAR2,
