@@ -4973,7 +4973,9 @@ IS PRAGMA SERIALLY_REUSABLE;
          nCODICMTABPF              PCTRIBUT.CODICMTABPF%TYPE,
          nPERDESCCUSTO             PCTRIBUT.PERDESCCUSTO%TYPE,
          nCODICMTABINTERNAC        PCTRIBUT.CODICMTAB%TYPE, -- HIS.02786.2016
-         vUSAVLULTENTMEDIOBASEST   PCTRIBUT.USAVLULTENTMEDIOBASEST%TYPE );
+         vUSAVLULTENTMEDIOBASEST   PCTRIBUT.USAVLULTENTMEDIOBASEST%TYPE,
+         vUTILIZAMOTORCALCULO      PCTRIBUT.UTILIZAMOTORCALCULO%TYPE
+         );
     vrTribut                       TRecTribut;
 
     -- Dados do Pedido
@@ -8750,53 +8752,6 @@ IS PRAGMA SERIALLY_REUSABLE;
 
                 END IF; -- Fim Condição Se não conseguiu formar o Preço de Venda a partir da PCEST
 
-                -- SUFRAMA
-                BEGIN
-                  SELECT VALOR_DESCONTO_PIS,
-                         PERC_DESCONTO_PIS,
-                         VALOR_DESCONTO_COFINS,
-                         PERC_DESCONTO_COFINS,
-                         VALOR_DESCONTO_ICMS,
-                         VALOR_DESCONTO_SUFRAMA,
-                         PERC_DESCONTO_ICMS
-                    INTO vrItemPedido.vnVlDescPIS_PTABELA,
-                         vrItemPedido.vnPercDescPIS,
-                         vrItemPedido.vnVlDescCOFINS_PTABELA,
-                         vrItemPedido.vnPercdesccofins,
-                         vrItemPedido.vnVlDescICMS_PTABELA,
-                         vrItemPedido.vnVlDescSUFRAMA_PTABELA,
-                         vrItemPedido.vnPerdescisentoicms
-                  FROM TABLE(PKG_TRIBUTACAO.CALCULAR_DESC_PIS_COFINS_ICMS(vc_Dados_Cab.CODFILIAL_O,
-                                                                          vc_Dados_Cab.Codfilial_o,
-                                                                          vc_Dados_Cab.Codfilialretira_o,
-                                                                          vrFilDestino.nCODCLI,
-                                                                          vc_Dados_Ite.Codprod_o,
-                                                                          vrItemPedido.nPTABELA,
-                                                                          0,
-                                                                          vrPlanoPag.nNUMDIAS,
-                                                                          'N',
-                                                                          0,
-                                                                          vrItemPedido.nCODST));
-                EXCEPTION
-                  WHEN OTHERS THEN
-                    vrItemPedido.vnVlDescPIS_PTABELA     := 0;
-                    vrItemPedido.vnPercDescPIS           := 0;
-                    vrItemPedido.vnVlDescCOFINS_PTABELA  := 0;
-                    vrItemPedido.vnPercdesccofins        := 0;
-                    vrItemPedido.vnVlDescICMS_PTABELA    := 0;
-                    vrItemPedido.vnVlDescSUFRAMA_PTABELA := 0;
-                    vrItemPedido.vnPerdescisentoicms     := 0;
-                END;              
-
-                vrItemPedido.nPTABELA := vrItemPedido.nPTABELA -
-                                         vrItemPedido.vnVlDescPIS_PTABELA -
-                                         vrItemPedido.vnVlDescSUFRAMA_PTABELA -
-                                         vrItemPedido.vnVlDescCOFINS_PTABELA -
-                                         vrItemPedido.vnVlDescICMS_PTABELA;   
-                                         
-                                                            
-                -- SUFRAMA FIM
-
                 -- Se conseguiu formar o Preço de Tabela
                 IF (NVL(vrItemPedido.nPTABELA,0) > 0) THEN
 
@@ -8906,6 +8861,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              , PCTRIBUT.PERDESCCUSTO
                              , PCTRIBUT.CODICMTABINTERNAC -- HIS.02786.2016
                              , PCTRIBUT.USAVLULTENTMEDIOBASEST
+                             , NVL(PCTRIBUT.UTILIZAMOTORCALCULO, 'N')
                           INTO vrTribut.nPAUTA
                              , vrTribut.nIVA
                              , vrTribut.nALIQICMS1
@@ -8917,6 +8873,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              , vrTribut.nPERDESCCUSTO
                              , vrTribut.nCODICMTABINTERNAC -- HIS.02786.2016
                              , vrTribut.vUSAVLULTENTMEDIOBASEST
+                             , vrTribut.vUTILIZAMOTORCALCULO
                           FROM PCTRIBUT
                          WHERE (PCTRIBUT.CODST = vrItemPedido.nCODST);
                       EXCEPTION
@@ -9276,6 +9233,55 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vnValorIpi            := vrItemPedido.nVLIPI;
                 vnValorStPrecificacao := vrTabPreco.nVLST;
               END IF;
+
+              -- SUFRAMA
+              BEGIN
+                SELECT VALOR_DESCONTO_PIS,
+                       PERC_DESCONTO_PIS,
+                       VALOR_DESCONTO_COFINS,
+                       PERC_DESCONTO_COFINS,
+                       VALOR_DESCONTO_ICMS,
+                       VALOR_DESCONTO_SUFRAMA,
+                       PERC_DESCONTO_ICMS
+                  INTO vrItemPedido.vnVlDescPIS_PTABELA,
+                       vrItemPedido.vnPercDescPIS,
+                       vrItemPedido.vnVlDescCOFINS_PTABELA,
+                       vrItemPedido.vnPercdesccofins,
+                       vrItemPedido.vnVlDescICMS_PTABELA,
+                       vrItemPedido.vnVlDescSUFRAMA_PTABELA,
+                       vrItemPedido.vnPerdescisentoicms
+                FROM TABLE(PKG_TRIBUTACAO.CALCULAR_DESC_PIS_COFINS_ICMS(vc_Dados_Cab.CODFILIAL_O,
+                                                                        vc_Dados_Cab.Codfilial_o,
+                                                                        vc_Dados_Cab.Codfilialretira_o,
+                                                                        vrFilDestino.nCODCLI,
+                                                                        vc_Dados_Ite.Codprod_o,
+                                                                        vrItemPedido.nPTABELA,
+                                                                        0,
+                                                                        vrPlanoPag.nNUMDIAS,
+                                                                        'N',
+                                                                        0,
+                                                                        vrItemPedido.nCODST));
+              EXCEPTION
+                WHEN OTHERS THEN
+                  vrItemPedido.vnVlDescPIS_PTABELA     := 0;
+                  vrItemPedido.vnPercDescPIS           := 0;
+                  vrItemPedido.vnVlDescCOFINS_PTABELA  := 0;
+                  vrItemPedido.vnPercdesccofins        := 0;
+                  vrItemPedido.vnVlDescICMS_PTABELA    := 0;
+                  vrItemPedido.vnVlDescSUFRAMA_PTABELA := 0;
+                  vrItemPedido.vnPerdescisentoicms     := 0;
+              END;              
+
+              vrItemPedido.nPTABELA := vrItemPedido.nPTABELA -
+                                       vrItemPedido.vnVlDescPIS_PTABELA -
+                                       vrItemPedido.vnVlDescSUFRAMA_PTABELA -
+                                       vrItemPedido.vnVlDescCOFINS_PTABELA -
+                                       vrItemPedido.vnVlDescICMS_PTABELA;   
+                                       
+              vnPrecoComImpostos :=  vrItemPedido.nPTABELA;
+              vnPrecoCusto := vrItemPedido.nPTABELA;
+                                                         
+              -- SUFRAMA FIM
 
               --------------------------------------------------------
               -- Procede ao Cálculo do IPI e ST usando Regra do Pacote
@@ -10685,7 +10691,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , vrItemPedido.nBASEFECP
                       , vrItemPedido.nALIQFECP
                       , vrItemPedido.nVLFECP
-                      ,'S'
+                      , NVL(vrTribut.vUTILIZAMOTORCALCULO, 'N')
                       , vrItemPedido.vOBSERVACAOSTFONTE       -- HIS.03379.2017
                       , vrDadosFuncep.nVLBASEFCPICMS          -- HIS.04200.2017
                       , vrDadosFuncep.nVLBCFCPSTRET           -- HIS.04200.2017
@@ -10700,7 +10706,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                       , vrItemPedido.vNUMLOTE
                       , vrItemPedido.vnVlDescSUFRAMA_PTABELA
                       , vrItemPedido.vnVlDescICMS_PTABELA
-                      , vrItemPedido.vnVlDescSUFRAMA_PTABELA
+                      , vrItemPedido.vnPerdescisentoicms
                       , vrItemPedido.vnPercDescPIS
                       , vrItemPedido.vnPercdesccofins
                       , vrItemPedido.vnVlDescPIS_PTABELA
