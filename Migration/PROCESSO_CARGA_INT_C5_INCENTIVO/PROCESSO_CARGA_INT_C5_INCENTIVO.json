@@ -1,5 +1,5 @@
 {"nome":"PROCESSO_CARGA_INT_C5_INCENTIVO","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome": "VW_INT_C5_PRECOFIXO_R357","tipo": "OBJETO_PLSQL","versao": "8.0.01.000"},
-    {"nome": "PROCESSO_CARGA_INT_C5_DESC561","tipo": "MIGRATION","versao": "8.0.03.000"},
-	{"nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE","tipo": "MIGRATION","versao": "8.0.01.000"}
+	{"nome": "VW_INT_C5_PRECOFIXO_R357","tipo": "OBJETO_PLSQL","versao": "8.0.01.000"},
+   {"nome": "PROCESSO_CARGA_INT_C5_DESC561","tipo": "MIGRATION","versao": "8.0.03.000"},
+	{"nome": "PROCESSO_INT_C5_DESC2048FIDELIDADE","tipo": "MIGRATION","versao": "8.0.03.000"}
 ]}
