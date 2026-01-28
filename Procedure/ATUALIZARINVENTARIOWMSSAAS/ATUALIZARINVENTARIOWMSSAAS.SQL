@@ -110,7 +110,7 @@ BEGIN
                      W.codprod,
                      W.codfilial,
                      NVL(W.ATUALIZARITEM, 'N') AS ATUALIZARITEM,
-                     NVL(P.ESTOQUEPORLOTE, 0) AS ESTOQUEPORLOTE,
+                     NVL(P.ESTOQUEPORLOTE, 'N') AS ESTOQUEPORLOTE,
                      (nvl(SUM(W.qtwms), 0) -
                      (SELECT NVL(SUM(QTESTGER), 0)
                          FROM PCEST
