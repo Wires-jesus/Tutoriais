@@ -1439,6 +1439,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_formapagtoempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
+      UPDATE MONITORPDVMIDDLE.TB_FORMAPAGTOEMPRESA E
+         SET E.ATIVO = 'N'
+       WHERE E.ATIVO = 'S'
+         AND NOT EXISTS (SELECT 1
+                FROM VW_INT_C5_FORMAPAGTOEMPRESA V
+               WHERE E.NROFORMAPAGTO = V.NROFORMAPAGTO
+                 AND E.NROSEGMENTO = V.NROSEGMENTO
+                 AND E.NROEMPRESA = V.NROEMPRESA);
+				 
       MERGE INTO monitorpdvmiddle.tb_formapagtoempresa s
         USING (SELECT distinct * FROM VW_INT_C5_FORMAPAGTOEMPRESA) b
 
@@ -1484,11 +1493,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(s.abregaveta, '-')       <> NVL(b.abregaveta, '-')
          OR NVL(s.alternativa, '-')      <> NVL(b.alternativa, '-')
          OR NVL(s.faturamento, '-')      <> NVL(b.faturamento, '-')
-         OR NVL(s.idref, 0)            <> NVL(b.codCob, 0)
+         OR NVL(s.idref, 0)              <> NVL(b.codCob, 0)
          OR NVL(s.ativo, '-')            <> NVL(b.ativo, '-')
          OR NVL(s.nroParcelaJuro, 0)     <> NVL(b.nroParcelaJuro, 0)
          OR NVL(s.VLRMINIMOPARCELA, 0)   <> NVL(b.VLRMINIMOPARCELA, 0)
-  		   OR NVL(s.NROMAXIMOPARCELA, 0)   <> NVL(b.QTMAXPARCELAS, 0)
+  		 OR NVL(s.NROMAXIMOPARCELA, 0)   <> NVL(b.QTMAXPARCELAS, 0)
          OR NVL(s.CONTROLELIMITE, '-')   <> NVL(b.CONTROLELIMITE, '-')
 		 
       WHEN NOT MATCHED THEN
@@ -1516,7 +1525,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              s.ativo,
              s.nroParcelaJuro,
              s.VLRMINIMOPARCELA,
-			       s.NROMAXIMOPARCELA,
+			 s.NROMAXIMOPARCELA,
              s.CONTROLELIMITE
              )
           VALUES
@@ -1543,7 +1552,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              b.ativo,
              b.nroParcelaJuro,
              b.VLRMINIMOPARCELA,
-			       b.QTMAXPARCELAS,
+			 b.QTMAXPARCELAS,
              b.CONTROLELIMITE);
     
     pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
