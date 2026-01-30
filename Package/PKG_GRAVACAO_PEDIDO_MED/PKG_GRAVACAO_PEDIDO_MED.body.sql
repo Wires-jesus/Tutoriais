@@ -550,7 +550,35 @@ IS PRAGMA SERIALLY_REUSABLE;
       END;
     END IF;
     RETURN vvRetAcao;
-  END F_OBTER_ACAO_CONFORME_ACESSO;  
+  END F_OBTER_ACAO_CONFORME_ACESSO;
+  
+  FUNCTION F_TEM_PERMISSAO(P_CODIGO_ROTINA IN NUMBER,
+                           P_CODIGO_USUARIO IN NUMBER,
+                           P_CODIGO_PERMISSAO IN NUMBER) RETURN VARCHAR2
+  IS
+    V_PERMISSAO VARCHAR2(1);
+  BEGIN
+    
+    BEGIN
+      
+      SELECT ACESSO
+        INTO V_PERMISSAO
+        FROM PCCONTROI
+       WHERE CODROTINA = P_CODIGO_ROTINA
+         AND CODCONTROLE = P_CODIGO_PERMISSAO
+         AND CODUSUARIO = P_CODIGO_USUARIO;
+          
+    EXCEPTION      
+      WHEN NO_DATA_FOUND THEN
+        V_PERMISSAO := 'N';
+    END;
+    
+    RETURN V_PERMISSAO;
+    
+  EXCEPTION
+    WHEN OTHERS THEN
+      RETURN 'N';
+  END F_TEM_PERMISSAO;
 
  /*********************************************************************************
   FUNÇÃO     : F_REGRA_PERMISSAO_MATRICULA
@@ -560,9 +588,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                                        pi_nMatricula           IN NUMBER,
                                        pi_nCodMotivo           IN NUMBER,
                                        pi_vIgnoraAutoriLibBloq IN VARCHAR2,
-                                       pi_nCodMotivoBloqueio   IN NUMBER) RETURN VARCHAR2 IS
+                                       pi_nCodMotivoBloqueio   IN NUMBER,
+                                       pi_vTipoBloqueio        IN NUMBER,
+                                       pi_nCodRotina           IN NUMBER,
+                                       pi_nNumPed              IN NUMBER) RETURN VARCHAR2 IS
     vvRetRegraPermissao VARCHAR2(1);
     vnCodMotivo         NUMBER;
+    vnCondicaoVenda     NUMBER;
   BEGIN
   
     -- Verifica se Matricula tem acesso a Liberar o Bloqueio
@@ -583,6 +615,38 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vvRetRegraPermissao := 'N';
       END;
+    ELSIF pi_nCodRotina = 2336 THEN
+      SELECT CONDVENDA
+        INTO vnCondicaoVenda
+        FROM PCPEDC
+       WHERE NUMPED = pi_nNumPed;
+       
+      IF pi_nCodMotivo = 3 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 46);
+      ELSIF pi_nCodMotivo = 5 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 39);
+      ELSIF pi_nCodMotivo = 7 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 26);
+      ELSIF pi_nCodMotivo = 9 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 34);
+      ELSIF pi_nCodMotivo = 10 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 33);
+      ELSIF pi_nCodMotivo = 11 AND vnCondicaoVenda = '5' THEN        
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 36);
+      ELSIF pi_nCodMotivo = 18 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 65);
+      ELSIF pi_nCodMotivo = 22 THEN
+        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 38);
+      ELSE
+        CASE pi_vTipoBloqueio
+          WHEN 1 THEN
+            vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 25);
+          WHEN 2 THEN
+            vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 24);
+          ELSE
+            vvRetRegraPermissao := 'S';
+        END CASE;
+      END IF;
     ELSE
       vvRetRegraPermissao := 'S';
     END IF;  
@@ -1364,7 +1428,8 @@ IS PRAGMA SERIALLY_REUSABLE;
   ***********************************************************************************************/
   PROCEDURE P_HISTORICO_MOTIVO_BLOQ(pi_vChamadaProcesso IN VARCHAR2,
                                     pi_nNumPed          IN NUMBER,
-                                    pi_nMatricula       IN NUMBER) IS
+                                    pi_nMatricula       IN NUMBER,
+                                    pi_nCodRotina       IN NUMBER) IS
     vvNomeFuncLibera      PCEMPR.NOME%TYPE;
     nCODROTINA            PCMED_VALIDACAO_ESTOQUE_RESE_H.CODROTINA%TYPE;
     vNUMEROPARAMETRO      PCMED_VALIDACAO_ESTOQUE_RESE_H.NUMEROPARAMETRO%TYPE;
@@ -1393,6 +1458,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PCBLOQUEIOSPEDIDOMED.OBSERVACAOREJEICAO
                               , PCBLOQUEIOSPEDIDOMED.DTLIBERA
                               , PCBLOQUEIOSPEDIDOMED.DTINCLUSAO
+                              , PCBLOQUEIOSPEDIDOMED.TIPO
                            FROM PCBLOQUEIOSPEDIDOMED
                           WHERE (PCBLOQUEIOSPEDIDOMED.NUMPED = pi_nNumPed)) LOOP
 
@@ -1401,7 +1467,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                       pi_nMatricula,
                                                       vc_Historico.CODMOTIVO,
                                                       vvIgnoraAutoriLibBloq,
-                                                      vc_Historico.CODMOTBLOQUEIO);      
+                                                      vc_Historico.CODMOTBLOQUEIO,
+                                                      vc_Historico.TIPO,
+                                                      pi_nCodRotina,
+                                                      pi_nNumPed);
 
       -- Nome do Funcionário
       BEGIN
@@ -1612,6 +1681,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   ***********************************************************************************************/
   PROCEDURE P_LIBERAR_MOTIVO_BLOQ(pi_nNumPed                      IN NUMBER,
                                   pi_nMatricula                   IN NUMBER,
+                                  pi_nCodRotina                   IN NUMBER,
                                   po_vBloqueioPendente           OUT VARCHAR2,
                                   po_nCodMotivoBloqueioPendente  OUT NUMBER,
                                   po_vMotivoBloqueioPendente     OUT VARCHAR2,
@@ -1638,6 +1708,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                              , PCBLOQUEIOSPEDIDOMED.CODMOTBLOQUEIO
                              , PCBLOQUEIOSPEDIDOMED.CODEVENTO
                              , PCBLOQUEIOSPEDIDOMED.CODREJEICAO
+                             , PCBLOQUEIOSPEDIDOMED.TIPO
                           FROM PCBLOQUEIOSPEDIDOMED
                          WHERE (PCBLOQUEIOSPEDIDOMED.NUMPED = pi_nNumPed)
                            AND (PCBLOQUEIOSPEDIDOMED.DTLIBERA IS NULL)) LOOP
@@ -1647,7 +1718,10 @@ IS PRAGMA SERIALLY_REUSABLE;
                                                       pi_nMatricula,
                                                       vc_Bloqueio.CODMOTIVO,
                                                       vvIgnoraAutoriLibBloq,
-                                                      vc_Bloqueio.CODMOTBLOQUEIO);      
+                                                      vc_Bloqueio.CODMOTBLOQUEIO,
+                                                      vc_Bloqueio.TIPO,
+                                                      pi_nCodRotina,
+                                                      pi_nNumPed);
       
       -- Se a Matrícula tem Permissão para Liberar o Bloqueio
       IF (vvRegraPermissao = 'S') THEN
@@ -12346,6 +12420,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       -- Criticas CA PBM
       vvCriticasCaPbm               VARCHAR2(255);
       vvAcaoExcecao                 VARCHAR2(255);
+      vnTipoBloqueio                NUMBER;
 
     BEGIN
     
@@ -13122,11 +13197,25 @@ IS PRAGMA SERIALLY_REUSABLE;
         --------------------------------------------------------
         -- Regra de Permissão da Matrícula ao Motivo de Bloqueio
         --------------------------------------------------------
+
+        BEGIN
+          SELECT TIPO
+            INTO vnTipoBloqueio
+            FROM PCMOTBLOQUEIO
+           WHERE CODMOTIVO = vc_Criticas.CODMOTIVO;
+        EXCEPTION
+          WHEN OTHERS THEN
+            vnTipoBloqueio := '0';
+        END;
+
         vvRegraPermissao := F_REGRA_PERMISSAO_MATRICULA(vvUsaRegraPermissao,
                                                         pi_nMatricula,
                                                         vc_Criticas.CODMOTIVO,
                                                         vvIgnoraAutoriLibBloq,
-                                                        vc_Criticas.CODMOTBLOQUEIO);
+                                                        vc_Criticas.CODMOTBLOQUEIO,
+                                                        vnTipoBloqueio,
+                                                        pi_nCodRotina,
+                                                        pi_nNumPed);
                 
         --------------------
         -- Atualiza Críticas
@@ -18195,6 +18284,7 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Chama procedimento para Liberação dos Bloqueios
           P_LIBERAR_MOTIVO_BLOQ(pi_nNumPed,
                                 pi_nMatricula,
+                                pi_nCodRotina,
                                 vvBloqueioPendente,
                                 vnCodMotivoBloqueioPendente,
                                 vvMotivoBloqueioPendente,
@@ -18236,7 +18326,8 @@ IS PRAGMA SERIALLY_REUSABLE;
       ------------------------
       P_HISTORICO_MOTIVO_BLOQ(pi_vChamadaProcesso,
                               pi_nNumPed,
-                              pi_nMatricula);
+                              pi_nMatricula,
+                              pi_nCodRotina);
 
     END IF;
     
