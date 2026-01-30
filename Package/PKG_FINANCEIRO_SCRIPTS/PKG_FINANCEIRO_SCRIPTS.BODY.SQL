@@ -1,7 +1,7 @@
 CREATE OR REPLACE PACKAGE BODY PKG_FINANCEIRO_SCRIPTS
 IS
 
-    /* IMPORTANTE  
+    /*                                          IMPORTANTE  
     
         -- CUIDADO AO INCLUIR UM NOVO CAMPO, CERTIFIQUE-SE DELE SER REPLICADO EM TODOS AS CHAMADAS DA FUNÇÃO
         -- CERTIFIQUE-SE DE INCLUIR A DEPENDENCIA DA TABELA NO ARQUIVO .JSON
@@ -55,25 +55,30 @@ IS
     FUNCTION GET_PCRATEIOCENTROCUSTO RETURN VARCHAR2
     IS
     BEGIN
-        
-        RETURN ' RECNUM,            CODCONTA,         
-                 VALOR,             PERCRATEIO,       
-                 DTLANC,            CONTRAPARTIDA,    
-                 RECNUMPRINC,       CODFILIAL,        
-                 CODIGOCENTROCUSTO, CODFUNCAUTSUPLORC,
-                 DATAAUTSUPLORC,    ORCAMENTOEXCEDIDO ';
+        RETURN ' RECNUM,
+                 CODCONTA,
+                 CODIGOCENTROCUSTO,
+                 VALOR,
+                 PERCRATEIO,
+                 DTLANC,
+                 CONTRAPARTIDA,
+                 RECNUMPRINC,
+                 CODFILIAL,
+                 ORCAMENTOEXCEDIDO,
+                 NUMTRANSPISCOFINS,
+                 RECNUMREF,
+                 PERCRATCONTREF,
+                 TIPOTRIB,
+                 LANCIMPRETIDO ';
+				 
     END; --GET_PCRATEIOCENTROCUSTO
     
     FUNCTION GET_PCRATEIOCENTROCUSTOBLOQ RETURN VARCHAR2
     IS
     BEGIN
         
-        RETURN ' RECNUM,            CODCONTA,         
-                 VALOR,             PERCRATEIO,       
-                 DTLANC,            CONTRAPARTIDA,    
-                 RECNUMPRINC,       CODFILIAL,        
-                 CODIGOCENTROCUSTO, CODFUNCAUTSUPLORC,
-                 DATAAUTSUPLORC,    ORCAMENTOEXCEDIDO ';
+        RETURN GET_PCRATEIOCENTROCUSTO;
+		
     END; --GET_PCRATEIOCENTROCUSTOBLOQ
     
     FUNCTION TEM_PCLANC(P_RECNUM PCLANC.RECNUM%TYPE) RETURN BOOLEAN

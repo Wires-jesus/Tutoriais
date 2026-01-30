@@ -78,6 +78,7 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                          P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE,                 	P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE,               
                          P_VLBASEIR                 PCLANC.VLBASEIR%TYPE,                	P_VLBASEPCC                 PCLANC.VLBASEPCC%TYPE,
                          P_DTCOMPETENCIAIRRETIDO 	PCLANC.DTCOMPETENCIAIRRETIDO%TYPE);
+
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCLANCBLOQ(P_MENSAGEM_OUT             OUT VARCHAR2,
                          P_RECNUM					PCLANC.RECNUM%TYPE,                   	P_DTLANC                   	PCLANC.DTLANC%TYPE,                  
@@ -156,6 +157,7 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                          P_VLBASEIR                 PCLANC.VLBASEIR%TYPE,                   P_VLBASEPCC                 PCLANC.VLBASEPCC%TYPE,
                          P_DTCOMPETENCIAIRRETIDO 	PCLANC.DTCOMPETENCIAIRRETIDO%TYPE);
     */                                
+
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCRATEIOCENTROCUSTO(P_STATUS_OUT	          OUT VARCHAR2,
                                       P_MENSAGEM_OUT          OUT VARCHAR2,
@@ -168,7 +170,13 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                       P_CONTRAPARTIDA         PCRATEIOCENTROCUSTO.CONTRAPARTIDA%TYPE,
                                       P_RECNUMPRINC           PCRATEIOCENTROCUSTO.RECNUMPRINC%TYPE,
                                       P_CODFILIAL             PCRATEIOCENTROCUSTO.CODFILIAL%TYPE,
-                                      P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE);
+                                      P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE,
+                                      P_NUMTRANSPISCOFINS     PCRATEIOCENTROCUSTO.NUMTRANSPISCOFINS%TYPE,
+                                      P_RECNUMREF             PCRATEIOCENTROCUSTO.RECNUMREF%TYPE,
+                                      P_PERCRATCONTREF        PCRATEIOCENTROCUSTO.PERCRATCONTREF%TYPE,
+                                      P_TIPOTRIB              PCRATEIOCENTROCUSTO.TIPOTRIB%TYPE,
+                                      P_LANCIMPRETIDO         PCRATEIOCENTROCUSTO.LANCIMPRETIDO%TYPE);
+
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCRATEIOCENTROCUSTOBLOQ(P_STATUS_OUT	          OUT VARCHAR2,
                                           P_MENSAGEM_OUT          OUT VARCHAR2,
@@ -181,15 +189,23 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                           P_CONTRAPARTIDA         PCRATEIOCENTROCUSTO.CONTRAPARTIDA%TYPE,
                                           P_RECNUMPRINC           PCRATEIOCENTROCUSTO.RECNUMPRINC%TYPE,
                                           P_CODFILIAL             PCRATEIOCENTROCUSTO.CODFILIAL%TYPE,
-                                          P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE);                                                 
+                                          P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE,
+                                          P_NUMTRANSPISCOFINS     PCRATEIOCENTROCUSTO.NUMTRANSPISCOFINS%TYPE,
+                                          P_RECNUMREF             PCRATEIOCENTROCUSTO.RECNUMREF%TYPE,
+                                          P_PERCRATCONTREF        PCRATEIOCENTROCUSTO.PERCRATCONTREF%TYPE,
+                                          P_TIPOTRIB              PCRATEIOCENTROCUSTO.TIPOTRIB%TYPE,
+                                          P_LANCIMPRETIDO         PCRATEIOCENTROCUSTO.LANCIMPRETIDO%TYPE);
+
     ----------------------------------------------------------------------------
     PROCEDURE EXP_PCLANCBLOQ(P_STATUS_OUT	       OUT VARCHAR2,
                              P_MENSAGEM_OUT        OUT VARCHAR2,
                              P_RECNUM              PCLANC.RECNUM%TYPE);
+
     ----------------------------------------------------------------------------
     PROCEDURE EXP_PCRATEIOCENTROCUSTOBLOQ(P_STATUS_OUT	       OUT VARCHAR2,
                                           P_MENSAGEM_OUT       OUT VARCHAR2,
                                           P_RECNUM             PCLANC.RECNUM%TYPE);
+                                          
     ----------------------------------------------------------------------------
     PROCEDURE APROVAR_SUPLEMENTACAO(P_STATUS_OUT	        OUT VARCHAR2,
                                     P_MENSAGEM_OUT          OUT VARCHAR2,
