@@ -12,11 +12,16 @@ IS
                                       P_CONTRAPARTIDA         PCRATEIOCENTROCUSTO.CONTRAPARTIDA%TYPE,
                                       P_RECNUMPRINC           PCRATEIOCENTROCUSTO.RECNUMPRINC%TYPE,
                                       P_CODFILIAL             PCRATEIOCENTROCUSTO.CODFILIAL%TYPE,
-                                      P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE)
+                                      P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE,
+                                      P_NUMTRANSPISCOFINS     PCRATEIOCENTROCUSTO.NUMTRANSPISCOFINS%TYPE,
+                                      P_RECNUMREF             PCRATEIOCENTROCUSTO.RECNUMREF%TYPE,
+                                      P_PERCRATCONTREF        PCRATEIOCENTROCUSTO.PERCRATCONTREF%TYPE,
+                                      P_TIPOTRIB              PCRATEIOCENTROCUSTO.TIPOTRIB%TYPE,
+                                      P_LANCIMPRETIDO         PCRATEIOCENTROCUSTO.LANCIMPRETIDO%TYPE)
     IS
-        G_MENSAGEM                  VARCHAR2(300);
-        G_SCRIPT                    VARCHAR2(9999); 
-        G_ERROR                     VARCHAR2(10);
+        G_MENSAGEM     VARCHAR2(300);
+        G_SCRIPT       VARCHAR2(9999); 
+        G_ERROR        VARCHAR2(10);
     BEGIN
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
@@ -24,28 +29,36 @@ IS
         G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()||')'||
                     '                         VALUES(:RECNUM,
                                                      :CODCONTA,
-                                                     :VALOR,
-                                                     :PERCRATEIO,
+													 :CODIGOCENTROCUSTO,
+                                                     :VALOR,                                                     
+													 :PERCRATEIO,
                                                      :DTLANC,
                                                      :CONTRAPARTIDA,
                                                      :RECNUMPRINC,
                                                      :CODFILIAL,
-                                                     :CODIGOCENTROCUSTO,
-                                                     NULL,
-                                                     NULL,
-                                                     :ORCAMENTOEXCEDIDO)';
+													 :ORCAMENTOEXCEDIDO,
+													 :NUMTRANSPISCOFINS,
+													 :RECNUMREF,
+													 :PERCRATCONTREF,
+													 :TIPOTRIB,
+													 :LANIMPRETIDO)';
         G_ERROR := '2.';   
         EXECUTE IMMEDIATE G_SCRIPT
-                    USING P_RECNUM,
-                          P_CODCONTA,
-                          P_VALOR,
-                          P_PERCRATEIO,
-                          P_DTLANC,
-                          P_CONTRAPARTIDA,
-                          P_RECNUMPRINC,
-                          P_CODFILIAL,
-                          P_CODIGOCENTROCUSTO,
-                          P_ORCAMENTOEXCEDIDO;           
+                    USING P_RECNUM                
+                         ,P_CODCONTA              
+                         ,P_CODIGOCENTROCUSTO     
+                         ,P_VALOR                 
+                         ,P_PERCRATEIO            
+                         ,P_DTLANC                
+                         ,P_CONTRAPARTIDA         
+                         ,P_RECNUMPRINC           
+                         ,P_CODFILIAL             
+                         ,P_ORCAMENTOEXCEDIDO     
+                         ,P_NUMTRANSPISCOFINS     
+                         ,P_RECNUMREF             
+                         ,P_PERCRATCONTREF        
+                         ,P_TIPOTRIB              
+                         ,P_LANCIMPRETIDO;         
         
         G_ERROR := '3.';
         COMMIT WORK;
@@ -70,40 +83,53 @@ IS
                                           P_CONTRAPARTIDA         PCRATEIOCENTROCUSTO.CONTRAPARTIDA%TYPE,
                                           P_RECNUMPRINC           PCRATEIOCENTROCUSTO.RECNUMPRINC%TYPE,
                                           P_CODFILIAL             PCRATEIOCENTROCUSTO.CODFILIAL%TYPE,
-                                          P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE)
+                                          P_ORCAMENTOEXCEDIDO     PCRATEIOCENTROCUSTO.ORCAMENTOEXCEDIDO%TYPE,
+                                          P_NUMTRANSPISCOFINS     PCRATEIOCENTROCUSTO.NUMTRANSPISCOFINS%TYPE,
+                                          P_RECNUMREF             PCRATEIOCENTROCUSTO.RECNUMREF%TYPE,
+                                          P_PERCRATCONTREF        PCRATEIOCENTROCUSTO.PERCRATCONTREF%TYPE,
+                                          P_TIPOTRIB              PCRATEIOCENTROCUSTO.TIPOTRIB%TYPE,
+                                          P_LANCIMPRETIDO         PCRATEIOCENTROCUSTO.LANCIMPRETIDO%TYPE)
     IS
         G_MENSAGEM                  VARCHAR2(300);
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
-        P_STATUS_OUT := 200;
-        G_ERROR      := '1.';
+        P_STATUS_OUT   := 200;
+        G_ERROR        := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
         G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTOBLOQ('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTOBLOQ()||')'||
-                    '                             VALUES(:RECNUM,
+                    '                        	  VALUES(:RECNUM,
                                                          :CODCONTA,
-                                                         :VALOR,
-                                                         :PERCRATEIO,
+											 		     :CODIGOCENTROCUSTO,
+                                                         :VALOR,                                                     
+											 		     :PERCRATEIO,
                                                          :DTLANC,
                                                          :CONTRAPARTIDA,
                                                          :RECNUMPRINC,
                                                          :CODFILIAL,
-                                                         :CODIGOCENTROCUSTO,
-                                                         NULL,
-                                                         NULL,
-                                                         :ORCAMENTOEXCEDIDO)';
+											 		     :ORCAMENTOEXCEDIDO,
+											 		     :NUMTRANSPISCOFINS,
+											 		     :RECNUMREF,
+											 		     :PERCRATCONTREF,
+											 		     :TIPOTRIB,
+											 		     :LANIMPRETIDO)';
         G_ERROR := '2.';   
         EXECUTE IMMEDIATE G_SCRIPT
-                    USING P_RECNUM,
-                          P_CODCONTA,
-                          P_VALOR,
-                          P_PERCRATEIO,
-                          P_DTLANC,
-                          P_CONTRAPARTIDA,
-                          P_RECNUMPRINC,
-                          P_CODFILIAL,
-                          P_CODIGOCENTROCUSTO,
-                          P_ORCAMENTOEXCEDIDO;            
+                    USING P_RECNUM                
+                         ,P_CODCONTA              
+                         ,P_CODIGOCENTROCUSTO     
+                         ,P_VALOR                 
+                         ,P_PERCRATEIO            
+                         ,P_DTLANC                
+                         ,P_CONTRAPARTIDA         
+                         ,P_RECNUMPRINC           
+                         ,P_CODFILIAL             
+                         ,P_ORCAMENTOEXCEDIDO     
+                         ,P_NUMTRANSPISCOFINS     
+                         ,P_RECNUMREF             
+                         ,P_PERCRATCONTREF        
+                         ,P_TIPOTRIB              
+                         ,P_LANCIMPRETIDO;            
         
         G_ERROR := '3.';
         COMMIT WORK;
@@ -193,9 +219,9 @@ IS
                              P_MENSAGEM_OUT        OUT VARCHAR2,
                              P_RECNUM              PCLANC.RECNUM%TYPE)
     IS
-        G_MENSAGEM                  VARCHAR2(300);
-        G_SCRIPT                    VARCHAR2(9999); 
-        G_ERROR                     VARCHAR2(10);
+        G_MENSAGEM   VARCHAR2(300);
+        G_SCRIPT     VARCHAR2(9999); 
+        G_ERROR      VARCHAR2(10);
     BEGIN
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
