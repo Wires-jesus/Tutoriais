@@ -330,7 +330,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_EMBPROD_MATERIALIZADA",
 			"tipo": "MIGRATION",
-			"versao": "8.0.07.000"
+			"versao": "8.0.08.000"
 		  },
 		{
 		  "nome": "PCBINCARTAO",
