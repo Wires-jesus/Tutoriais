@@ -1,6 +1,10 @@
 {
     "nome": "PCNFENTPREENT_SOMAICMSTV10",
     "tipoPLSQL": "MIGRATION",
-    "dependencias":[
+    "dependencias":[{
+        "nome": "PCNFENTPREENT",
+        "tipo": "TABELA",
+        "versao": "8.0.04.000"
+      }
     ]
   }
