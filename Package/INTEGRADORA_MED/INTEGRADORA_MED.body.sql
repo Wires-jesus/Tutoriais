@@ -4667,23 +4667,7 @@ end func_HoraDigitacaoPedido;
          and pcpedc.numpedorigem is null
          and pcpedc.codcli     = pcclient.codcli
          and pcpedc.dtaberturapedpalm = p_Regpedido.dtaberturapedpalm
-         and trim(replace(replace(replace(replace(replace(replace(pcclient.cgcent,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            '')) =  trim(replace(replace(replace(replace(replace(replace(p_regpedido.cgccli,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            ''))
+         and FERRAMENTAS.RETORNAR_ALFANUMERICO(pcclient.cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
       and pcclient.dtexclusao is null ;
 
 
@@ -4717,23 +4701,7 @@ end func_HoraDigitacaoPedido;
          and pcpedc.numpedorigem is null
          and pcpedc.codcli     = pcclient.codcli
          and pcpedc.dtaberturapedpalm = p_Regpedido.dtaberturapedpalm
-         and trim(replace(replace(replace(replace(replace(replace(pcclient.cgcent,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            '')) =  trim(replace(replace(replace(replace(replace(replace(p_regpedido.cgccli,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            ''))
+         and FERRAMENTAS.RETORNAR_ALFANUMERICO(pcclient.cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
       and pcclient.dtexclusao is null ;
 
         if p_regpedido.posicao not in ('L', 'B', 'P') then
@@ -5399,23 +5367,7 @@ end func_HoraDigitacaoPedido;
       select count(*)
         into vicontador
         from pcclient
-       where  trim(replace(replace(replace(replace(replace(replace(cgcent,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            '')) =  trim(replace(replace(replace(replace(replace(replace(p_regpedido.cgccli,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            ''))
+       where FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
       and dtexclusao is null    ;
 
       if vicontador = 0 then
@@ -5529,23 +5481,7 @@ end func_HoraDigitacaoPedido;
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
                  and pcclient.codplpag = pcplpag.codplpag(+)
-                 and trim(replace(replace(replace(replace(replace(replace(cgcent,' ',''), '.', ''),
-                                                        ',',
-                                                        ''),
-                                                '-',
-                                                ''),
-                                        '/',
-                                        ''),
-                                '\',
-                                '')) =  trim(replace(replace(replace(replace(replace(replace(p_regpedido.cgccli,' ',''), '.', ''),
-                                                        ',',
-                                                        ''),
-                                                '-',
-                                                ''),
-                                        '/',
-                                        ''),
-                                '\',
-                                ''))
+                 and FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
           and dtexclusao is  null    ;
 
           p_Regpedido.codcli := p_Regcliente.codcli;
@@ -5707,23 +5643,7 @@ end func_HoraDigitacaoPedido;
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
                  and pcclient.codplpag = pcplpag.codplpag(+)
-                 and trim(replace(replace(replace(replace(replace(replace(cgcent,' ',''), '.', ''),
-                                                        ',',
-                                                        ''),
-                                                '-',
-                                                ''),
-                                        '/',
-                                        ''),
-                                '\',
-                                '')) =  trim(replace(replace(replace(replace(replace(replace(p_regpedido.cgccli,' ',''), '.', ''),
-                                                        ',',
-                                                        ''),
-                                                '-',
-                                                ''),
-                                        '/',
-                                        ''),
-                                '\',
-                                ''))
+                 and FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
           and dtexclusao is  null
           and pcclient.codcli = p_Regpedido.codcli   ;
 
@@ -8959,7 +8879,7 @@ end func_HoraDigitacaoPedido;
    end proc_validaitenscesta;
   ************************************************************************
   FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-  ************************************************************************/
+  ************************************************************************/*/
 
  /************************************************************
   Função para Retornar se Isento Rebaixa CMV
@@ -12280,7 +12200,7 @@ end if;
                                 vbvalidoprecofixocesta);
          /************************************************************************
           FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-          ************************************************************************/
+          ************************************************************************/*/
           vsmensagemcesta := 'PROBLEMAS NA VALIDAÇÃO DA CESTA BÁSICA: INTEGRADORA_MED.proc_validaitenscesta';
 
         end if;
@@ -19461,7 +19381,7 @@ end if;
                                 vbvalidoprecofixocesta);
          /************************************************************************
           FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-          ************************************************************************/
+          ************************************************************************/*/
           vsmensagemcesta := 'PROBLEMAS NA VALIDAÇÃO DA CESTA BÁSICA: INTEGRADORA_MED.proc_validaitenscesta';
 
         end if;
