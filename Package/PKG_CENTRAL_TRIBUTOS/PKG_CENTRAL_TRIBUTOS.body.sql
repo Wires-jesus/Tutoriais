@@ -557,7 +557,7 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 'VIBSUFCOMPRAGOV         = :23,' ||
                 'PIBSMUNCOMPRAGOV        = :24,' ||
                 'VIBSMUNCOMPRAGOV        = :25'  ||                             
-                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :26 AND NUMTRANSITEM = :27 AND CODPROD = :28'
+                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :26 AND CODPROD = :27'
               USING
                 P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
                 P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :2
@@ -585,8 +585,7 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV, -- :24
                 P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV,-- :25
                 P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :26
-                P_LISTA_DADOS_NOTAS.NUMTRANSITEM,          -- :27
-                P_LISTA_DADOS_NOTAS.CODPROD                -- :28
+                P_LISTA_DADOS_NOTAS.CODPROD                -- :27
                 ;
         END IF;
 
