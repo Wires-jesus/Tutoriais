@@ -1911,23 +1911,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       select codcli
         into vnCodCliAux
         from pcclient
-       where trim(replace(replace(replace(replace(replace(replace(cgcent,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            '')) =  trim(replace(replace(replace(replace(replace(replace(pi_vCgcCli,' ',''), '.', ''),
-                                                    ',',
-                                                    ''),
-                                            '-',
-                                            ''),
-                                    '/',
-                                    ''),
-                            '\',
-                            ''))
+       where FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(pi_vCgcCli)
           and dtexclusao is null
           and rownum = 1;
     EXCEPTION
