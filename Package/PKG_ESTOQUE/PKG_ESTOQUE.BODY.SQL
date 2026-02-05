@@ -11907,6 +11907,49 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
     P_INTERNO.NOME_FUNCAO     := 'DEPOSITO_TRANSFERENCIA';
     vLOG.IDENTIFICADOR   := pnCODREQUISICAO;
     PRIV_GERARLOG;
+
+    DECLARE
+      vnPEDIDO_F NUMBER := 0;    
+    BEGIN
+      -- Se achar pedido em F vinculado à requisição (via IDENTIFICADOR), pula a movimentação pois já foi movimentado
+      -- Se NÃO achar nenhum pedido vinculado, vnPEDIDO_F ficará 0 e seguirá o fluxo normal.
+      SELECT COUNT(1)
+        INTO vnPEDIDO_F
+        FROM PCREQUISICAODEPOSITO r
+        JOIN PCPEDC c
+          ON c.numped    = r.identificador
+         AND c.codfilial = r.codfilial
+       WHERE r.codrequisicao = pnCODREQUISICAO
+         AND r.posicao       = 'A'
+         AND c.posicao       = 'F';    
+    
+      IF vnPEDIDO_F > 0 THEN
+        -- Só fecha a requisição e sai (não movimenta depósitos)
+        PRIV_DEP_FECHAR(pnCODREQUISICAO, psMSG_RETORNO);
+    
+        IF psMSG_RETORNO <> 'OK' THEN
+          vLOG.MSG_RETORNO := psMSG_RETORNO;
+          PRIV_GERARLOG;
+          RETURN;
+        END IF;    
+    
+        P_INTERNO.INFORMACOES_LOG :=
+          'Pedido em POSICAO F (depósito já movimentado anteriormente - Rotina 1108). REQ='||
+          TO_CHAR(pnCODREQUISICAO);
+        PRIV_GERARLOG;
+    
+        psMSG_RETORNO := 'OK';
+        RETURN;
+      END IF;   
+    
+    EXCEPTION
+      WHEN OTHERS THEN
+        P_INTERNO.INFORMACOES_LOG :=
+          'Não há pedido para a requisição: '||
+          TO_CHAR(pnCODREQUISICAO)||'): '||SQLERRM;
+        PRIV_GERARLOG;    
+    END;
+
     -- Lista de produtos
     FOR ITEM_REQ IN (SELECT *
                        FROM PCREQUISICAODEPOSITO
@@ -20398,6 +20441,34 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                                     P_INTERNO.NUMPED,      -- pnNUMPED
                                     P_INTERNO.NUMSEQ       -- pnNUMSEQ
                                    );
+
+          -- Valida parametro ... para fechar a requisição automaticamento depois de baixar o estoque na 2030 - DDESTOQUE-20959
+          IF (vsROTINA LIKE '%2030%') AND 
+             (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FECHAREQ2030',P_INTERNO.CODFILIAL,'N') = 'S') 
+          THEN    
+             BEGIN 
+               UPDATE PCREQUISICAODEPOSITO r
+               SET r.qtseparada    = NVL(r.qt, 0),
+                   r.dtconferencia = SYSDATE,
+                   r.posicao       = 'F'
+               WHERE r.codfilial   = P_INTERNO.CODFILIAL
+               AND r.identificador = P_INTERNO.NUMPED
+               AND NVL(r.posicao,'A') <> 'F';
+
+            
+               P_INTERNO.INFORMACOES_LOG :=
+                 'Fechada requisição ' || ' (IDENTIFICADOR=' || P_INTERNO.NUMPED || ')';
+               PRIV_GERARLOG;
+            
+             EXCEPTION
+               WHEN OTHERS THEN
+               P_INTERNO.MSG_RETORNO :=
+                 'Erro ao fechar requisição '|| ' (IDENTIFICADOR=' || P_INTERNO.NUMPED || ')';
+               PRIV_GERARLOG;
+
+             END;
+
+          END IF; 
         END IF;
 
         -- Erro na administração do estoque depósito
