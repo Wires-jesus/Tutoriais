@@ -8273,7 +8273,7 @@ end func_HoraDigitacaoPedido;
      end if;
 
   end proc_verificaprecofixocesta;
- /******************************************************************************
+  ******************************************************************************
   FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_verificaprecofixocesta
   ******************************************************************************/
 
@@ -8879,7 +8879,7 @@ end func_HoraDigitacaoPedido;
    end proc_validaitenscesta;
   ************************************************************************
   FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-  ************************************************************************/*/
+  ************************************************************************/
 
  /************************************************************
   Função para Retornar se Isento Rebaixa CMV
@@ -12198,9 +12198,9 @@ end if;
                                 p_regplpag,
                                 vsmensagemitenscesta,
                                 vbvalidoprecofixocesta);
-         /************************************************************************
+          ************************************************************************
           FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-          ************************************************************************/*/
+          ************************************************************************/
           vsmensagemcesta := 'PROBLEMAS NA VALIDAÇÃO DA CESTA BÁSICA: INTEGRADORA_MED.proc_validaitenscesta';
 
         end if;
@@ -19379,9 +19379,9 @@ end if;
                                 p_regplpag,
                                 vsmensagemitenscesta,
                                 vbvalidoprecofixocesta);
-         /************************************************************************
+          ************************************************************************
           FIM: PACOTE MEDICAMENTOS NÃO USA CESTA BÁSICA - proc_validaitenscesta
-          ************************************************************************/*/
+          ************************************************************************/
           vsmensagemcesta := 'PROBLEMAS NA VALIDAÇÃO DA CESTA BÁSICA: INTEGRADORA_MED.proc_validaitenscesta';
 
         end if;
