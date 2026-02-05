@@ -139,6 +139,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHERE (PCPROMOCAOVERBAMED.CODPROMOCAOMED = pi_nCodPromocaoMed) 
           AND (PCPROMOCAOVERBAMED.NUMVERBA       = PCVERBA.NUMVERBA)
           AND (PCVERBA.CODFORNEC                 = pi_nCodFornec)
+          AND (PCVERBA.DTVENC >= trunc(SYSDATE))
           AND (ROWNUM                            = 1);
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
