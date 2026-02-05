@@ -28,6 +28,14 @@ CREATE OR REPLACE PACKAGE PKG_SINC_PDV_CONSINCO IS
   FUNCTION obter_seqaliquota RETURN NUMBER;
 
   PROCEDURE atualiza_sinc_processo(p_id IN pccontroleconsinco.id%TYPE);
+  
+  PROCEDURE atualiza_carrega_produto(vObjetoReferencia IN pccontroleconsinco.objetoreferencia%TYPE DEFAULT null,
+                                     vProessando IN pccontroleconsinco.processando%TYPE DEFAULT null
+                                     );
+
+  PROCEDURE normatizar_pcdeparaprodc5;
+  
+  PROCEDURE carrega_produtos(p_id IN pccontroleconsinco.id%TYPE);
 
   PROCEDURE carrega_tb_pessoa(p_id IN pccontroleconsinco.id%TYPE);
   
