@@ -48,6 +48,16 @@
 			"versao": "4.0.02.000"
 		},
 		{
+			"nome": "PCCARREGA_PRODUTO",
+			"tipo": "TABELA",
+			"versao": "8.0.01.000"
+		},
+		{
+			"nome": "PCPARAMETROS2651",
+			"tipo": "TABELA",
+			"versao": "6.0.01.000"
+		},
+		{
 			"nome": "VW_INT_C5_EMPRESA",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "7.0.02.000"
@@ -95,7 +105,7 @@
 		{
 			"nome": "PRC_RECORD_ERROR",
 			"tipo": "OBJETO_PLSQL",
-			"versao": "4.0.03.000"
+			"versao": "8.0.01.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_REGISTROS",
@@ -315,7 +325,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_INDICES",
 		  "tipo": "MIGRATION",
-		  "versao": "4.0.01.000"
+		  "versao": "8.0.01.000"
 		},
 		{
 		  "nome": "PROCESSO_INT_C5_AJUSTE_SEQUENCES",
