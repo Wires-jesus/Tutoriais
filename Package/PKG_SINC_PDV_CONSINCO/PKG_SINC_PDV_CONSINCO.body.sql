@@ -720,7 +720,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_produto(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    MERGE INTO monitorpdvmiddle.tb_produto s
+    atualiza_carrega_produto('carrega_tb_produto', 'S');
+	
+	MERGE INTO monitorpdvmiddle.tb_produto s
         USING (
                SELECT P.seqproduto,
                       P.desccompleta,
@@ -797,12 +799,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
              --b.idref
              );
 
-    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    --pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
-    COMMIT;
+    --COMMIT;
 
   EXCEPTION
-    WHEN E_FK_VIOLATION THEN
+    /*WHEN E_FK_VIOLATION THEN
 	  BEGIN
 	    PRC_RECORD_ALERTA(p_id);
 		ROLLBACK;
@@ -815,12 +817,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
-	  END;
+	  END;*/
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
         ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
+        
+		/*INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -828,7 +831,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            'carrega_tb_produto ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
-        COMMIT;
+        COMMIT;*/
+		
         RAISE;
       END;
   END;
@@ -1024,7 +1028,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_familia(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-  MERGE INTO monitorpdvmiddle.tb_familia S
+    atualiza_carrega_produto('carrega_tb_familia', 'S');
+  
+    MERGE INTO monitorpdvmiddle.tb_familia S
         USING (
              SELECT DISTINCT     
                     v.seqfamilia,
@@ -1280,21 +1286,23 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 					  B.VENDAFRACAO,
 					  B.CHECAPESOETIQUETA);
 
-  pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+  --pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
   
-  COMMIT;
+  --COMMIT;
 
   EXCEPTION
   WHEN OTHERS THEN
     BEGIN
       prc_record_error(p_id);
       ROLLBACK;
-      INSERT INTO PCDEVLOGCONSINCO
+	  
+      /*INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'c_tb_familia', 'c_tb_familia ERRO', SYSDATE, CURRENT_TIMESTAMP);
-      COMMIT;
-      RAISE;
+      COMMIT;*/
+      
+	  RAISE;
     END;
   END carrega_tb_familia;
 
@@ -1927,7 +1935,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_prodempresa(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    MERGE INTO monitorpdvmiddle.tb_prodempresa s
+    atualiza_carrega_produto('carrega_tb_prodempresa', 'S');
+	
+	MERGE INTO monitorpdvmiddle.tb_prodempresa s
         USING (SELECT DISTINCT
                       Ep.seqproduto,
                       Ep.idref,
@@ -1962,12 +1972,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                  b.ativo,
                  b.idref);
     
-    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    --pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
-    COMMIT;
+    --COMMIT;
 
   EXCEPTION
-    WHEN E_FK_VIOLATION THEN
+    /*WHEN E_FK_VIOLATION THEN
 	  BEGIN
 	    PRC_RECORD_ALERTA(p_id);
         ROLLBACK;
@@ -1980,12 +1990,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            SYSDATE,
            CURRENT_TIMESTAMP);
         COMMIT;
-	  END;
+	  END;*/
     WHEN OTHERS THEN
       BEGIN
         prc_record_error(p_id);
         ROLLBACK;
-        INSERT INTO PCDEVLOGCONSINCO
+        
+		/*INSERT INTO PCDEVLOGCONSINCO
           (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
         VALUES
           ('pkg_sinc_PDV_Consinco',
@@ -1993,14 +2004,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
            'c_tb_prodempresa ERRO',
            SYSDATE,
            CURRENT_TIMESTAMP);
-        COMMIT;
+        COMMIT;*/
+		
         RAISE;
       END;
   END carrega_tb_prodempresa;
 
   PROCEDURE carrega_tb_famembalagem(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-   
+    atualiza_carrega_produto('carrega_tb_famembalagem', 'S');
+	
     MERGE INTO monitorpdvmiddle.tb_famembalagem s
       USING (SELECT DISTINCT e.seqfamilia,
                     e.qtdembalagem,
@@ -2047,7 +2060,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.ativo,
                   b.nrocarga);
 
-    COMMIT;              
+    --COMMIT;              
 
     /*Carga das embalagens dos produtos filhos para seus reespectivos pais(CODPRODPRINC)*/              
 
@@ -2098,12 +2111,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                   b.nrocarga);
 
 
-    pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
+    --pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
-    COMMIT;
+    --COMMIT;
 
     EXCEPTION
-	  WHEN E_FK_VIOLATION THEN
+	  /*WHEN E_FK_VIOLATION THEN
 	    BEGIN
 	      PRC_RECORD_ALERTA(p_id);
           ROLLBACK;
@@ -2112,23 +2125,27 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           VALUES
             ('pkg_sinc_PDV_Consinco', 'carrega_tb_famembalagem', 'carrega_tb_famembalagem ALERTA', SYSDATE, CURRENT_TIMESTAMP);
           COMMIT;
-	    END;
+	    END;*/
       WHEN OTHERS THEN
         BEGIN
           prc_record_error(p_id);
           ROLLBACK;
-          INSERT INTO PCDEVLOGCONSINCO
+          
+		  /*INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
           VALUES
             ('pkg_sinc_PDV_Consinco', 'carrega_tb_famembalagem', 'carrega_tb_famembalagem ERRO', SYSDATE, CURRENT_TIMESTAMP);
-          COMMIT;
+          COMMIT;*/
+		  
           RAISE;
         END;
   END carrega_tb_famembalagem;
 
   PROCEDURE carrega_tb_prodcodigo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-      MERGE INTO monitorpdvmiddle.tb_prodcodigo s
+      atualiza_carrega_produto('carrega_tb_prodcodigo', 'S');
+	  
+	  MERGE INTO monitorpdvmiddle.tb_prodcodigo s
         USING (SELECT DISTINCT e.nroempresa,
                       e.codacesso,
                       e.seqproduto,
@@ -2165,15 +2182,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                    b.tipo,
                    b.ativo);
   
-      INSERT INTO PCDEVLOGCONSINCO
+      /*INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo OK', SYSDATE, CURRENT_TIMESTAMP);
 
-      COMMIT;
+      COMMIT;*/
 
     EXCEPTION
-	  WHEN E_FK_VIOLATION THEN
+	  /*WHEN E_FK_VIOLATION THEN
 	    BEGIN
 	      PRC_RECORD_ALERTA(p_id);
           ROLLBACK;
@@ -2182,16 +2199,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           VALUES
             ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo ALERTA', SYSDATE, CURRENT_TIMESTAMP);
           COMMIT;
-	    END;
+	    END;*/
       WHEN OTHERS THEN
         BEGIN
           prc_record_error(p_id);
           ROLLBACK;
-          INSERT INTO PCDEVLOGCONSINCO
+          
+		  /*INSERT INTO PCDEVLOGCONSINCO
             (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
           VALUES
             ('pkg_sinc_PDV_Consinco', 'c_tb_prodcodigo', 'c_tb_prodcodigo ERRO', SYSDATE, CURRENT_TIMESTAMP);
-          COMMIT;
+          COMMIT;*/
+		  
           RAISE;
         END;
     END carrega_tb_prodcodigo;
@@ -2199,7 +2218,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   PROCEDURE carrega_tb_prodpreco(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
-    -- VOLTANDO PRECO NORMAL CASO ENCERRE VIGENCIA - 357 
+    atualiza_carrega_produto('carrega_tb_prodpreco', 'S');
+	
+	-- VOLTANDO PRECO NORMAL CASO ENCERRE VIGENCIA - 357 
     UPDATE MONITORPDVMIDDLE.TB_PRODPRECO TB_PRODPRECO SET
         PRECO = PRECONORMAL,
         PROMOCAO = 'N',
@@ -2356,12 +2377,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                      AND   P.NROEMPRESA = TB_PRODPRECO.NROEMPRESA
                      );
 		
-    INSERT INTO PCDEVLOGCONSINCO
+    /*INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
 
-  COMMIT;
+    COMMIT;*/
 
   /*Atualização do cabeçalho da cesta básica e kit */
     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
@@ -2370,15 +2391,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       WHEN MATCHED THEN
       UPDATE SET TB_PRODPRECO_C5.preco = VIEW_TB_PRODPRECO.preco;
 
-    INSERT INTO PCDEVLOGCONSINCO
+    /*INSERT INTO PCDEVLOGCONSINCO
       (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
     VALUES
       ('pkg_sinc_PDV_Consinco', 'carrega_tb_prodpreco', 'carrega_tb_prodpreco OK', SYSDATE, CURRENT_TIMESTAMP);
 
-  COMMIT;
+    COMMIT;*/
 
   EXCEPTION
-   WHEN E_FK_VIOLATION THEN
+   /*WHEN E_FK_VIOLATION THEN
 	BEGIN
 	  PRC_RECORD_ALERTA(p_id);
       ROLLBACK;
@@ -2391,12 +2412,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           SYSDATE,
           CURRENT_TIMESTAMP);
       COMMIT;
-	END;
+	END;*/
   WHEN OTHERS THEN
     BEGIN
       prc_record_error(p_id);
       ROLLBACK;
-      INSERT INTO PCDEVLOGCONSINCO
+      
+	  /*INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
       VALUES
         ('pkg_sinc_PDV_Consinco',
@@ -2404,7 +2426,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
           'carrega_tb_prodpreco ERRO',
           SYSDATE,
           CURRENT_TIMESTAMP);
-      COMMIT;
+      COMMIT;*/
+	  
       RAISE;
     END;
   END;
