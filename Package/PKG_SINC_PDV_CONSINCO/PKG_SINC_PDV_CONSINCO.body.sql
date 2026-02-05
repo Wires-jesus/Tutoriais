@@ -205,6 +205,99 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
       COMMIT;
       RAISE;
   END;
+  
+  PROCEDURE atualiza_carrega_produto(vObjetoReferencia IN pccontroleconsinco.objetoreferencia%TYPE DEFAULT null,
+                                     vProessando IN pccontroleconsinco.processando%TYPE DEFAULT null
+                                     )
+  IS
+   PRAGMA AUTONOMOUS_TRANSACTION;
+  BEGIN
+     DELETE FROM PCCARREGA_PRODUTO; 
+     
+     INSERT INTO PCCARREGA_PRODUTO(OBJETOREFERENCIA, ULTIMAEXECUCAO, PROCESSANDO)
+     VALUES (vObjetoReferencia, CURRENT_TIMESTAMP, vProessando);
+   
+     COMMIT;
+   EXCEPTION
+    WHEN OTHERS THEN
+         ROLLBACK;
+  END;
+  
+  PROCEDURE normatizar_pcdeparaprodc5 AS
+    v_contagem NUMBER;
+  BEGIN
+    atualiza_carrega_produto('Normatizando produtos', 'S');
+    
+    UPDATE PCDEPARAPRODC5 C SET C.ATIVO = 'N'
+    WHERE EXISTS (SELECT 1                     
+                  FROM VW_INT_C5_FAMILIA F            
+                  WHERE  C.CODPROD = F.CODPROD)
+    AND C.ATIVO = 'S';
+    
+    MERGE INTO PCDEPARAPRODC5 A
+        USING (SELECT DISTINCT 
+                      C.SEQFAMILIA,
+                      C.ATIVO, 
+                      C.CODPROD,
+                      C.CODAUXILIAR
+               FROM VW_INT_C5_FAMILIA C
+               ) B
+
+      ON (A.CODPROD = B.CODPROD AND A.CODAUXILIAR = B.CODAUXILIAR)
+      WHEN MATCHED THEN
+         UPDATE SET A.ATIVO = 'S'
+      WHEN NOT MATCHED THEN
+        INSERT (A.CODPROD,
+                A.CODAUXILIAR,
+                A.SEQPRODUTO,
+                A.SEQFAMILIA,
+                A.ATIVO)
+         VALUES
+               (B.CODPROD,
+                B.CODAUXILIAR,
+                DFSEQ_INT_C5_SEQ_PRODUTO.NextVal,
+                DFSEQ_INT_C5_SEQ_PRODUTO.CurrVal,
+                B.ATIVO);
+    EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        prc_record_error(0, 'NORMATIZAR TABELA PCDEPARAPRODC5');
+        ROLLBACK;            
+        RAISE;
+      END;   
+  END;
+  
+  PROCEDURE carrega_produtos(p_id IN pccontroleconsinco.id%TYPE) AS
+    vSimulaErro VARCHAR2(1);
+  BEGIN
+    normatizar_pcdeparaprodc5;
+    
+    carrega_tb_familia(10);
+    carrega_tb_famembalagem(11);
+    carrega_tb_produto(12);
+    carrega_tb_prodempresa(13);
+    carrega_tb_prodcodigo(14);
+    carrega_tb_prodpreco(15);
+    
+    BEGIN
+      SELECT NVL(VALOR, 'N') VALOR INTO vSimulaErro FROM PCPARAMETROS2651 WHERE NOME = 'SIMULA_ERRO_PRODUTO';
+    EXCEPTION
+    WHEN OTHERS THEN
+         vSimulaErro := 'N';
+    END;     
+    
+    IF vSimulaErro = 'S' THEN     
+       RAISE_APPLICATION_ERROR(-20001, 'Erro: Simulando falha na carga de produtos.');
+    END IF; 
+  
+    COMMIT;
+  EXCEPTION
+    WHEN OTHERS THEN
+      BEGIN
+        ROLLBACK;
+        RAISE;
+      END;
+  END;
 
   PROCEDURE carrega_tb_usuario(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
