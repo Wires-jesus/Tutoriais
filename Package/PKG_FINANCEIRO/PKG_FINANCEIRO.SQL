@@ -211,5 +211,14 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                     P_MENSAGEM_OUT          OUT VARCHAR2,
                                     P_RECNUM                PCLANC.RECNUM%TYPE,
                                     P_MATRICULA             PCLANC.CODFUNCAUTSUPLORC%TYPE);
-
+									
+	----------------------------------------------------------------------------
+    PROCEDURE DEL_PCRATEIOCENTROCUSTO(P_STATUS_OUT	       OUT VARCHAR2,
+									  P_MENSAGEM_OUT       OUT VARCHAR2,
+									  P_RECNUM             PCLANC.RECNUM%TYPE);
+	----------------------------------------------------------------------------
+    PROCEDURE DEL_PCRATEIOCENTROCUSTOBLOQ(P_STATUS_OUT	      OUT VARCHAR2,
+									      P_MENSAGEM_OUT      OUT VARCHAR2,
+									      P_RECNUM            PCLANC.RECNUM%TYPE);
+    
 END PKG_FINANCEIRO;

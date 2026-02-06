@@ -77,7 +77,16 @@ IS
     IS
     BEGIN
         
-        RETURN GET_PCRATEIOCENTROCUSTO;
+        RETURN ' RECNUM,
+                 CODCONTA,
+                 CODIGOCENTROCUSTO,
+                 VALOR,
+                 PERCRATEIO,
+                 DTLANC,
+                 CONTRAPARTIDA,
+                 RECNUMPRINC,
+                 CODFILIAL,
+                 ORCAMENTOEXCEDIDO ';
 		
     END; --GET_PCRATEIOCENTROCUSTOBLOQ
     
