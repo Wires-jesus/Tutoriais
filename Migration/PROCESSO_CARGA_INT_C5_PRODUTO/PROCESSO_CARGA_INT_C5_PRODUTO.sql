@@ -770,7 +770,8 @@ CREATE OR REPLACE VIEW VW_INT_C5_PROMOCOES_VIGENTES AS
         VW_INT_C5_OBTER_FILIAIS_C5 c5,
         (select s.ultimaexecucao
          from pccontroleconsinco s
-         where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECO')) DTPADRAO
+         --where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_PRODPRECO')) DTPADRAO
+		 where (upper(s.objetoreferencia) = 'PKG_SINC_PDV_CONSINCO.CARREGA_PRODUTOS')) DTPADRAO
    WHERE R.FRENTECX = 'S' 
    AND E.CODPROD = R.CODPROD
    AND (E.CODAUXILIAR = R.CODAUXILIAR or R.CODAUXILIAR IS NULL)
