@@ -9351,7 +9351,7 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
               P_INTERNO.vtAVARIA.CODPROD       := pnCODPROD;
               P_INTERNO.vtAVARIA.CODCLI        := NULL;
               P_INTERNO.vtAVARIA.QT            := vnQTAVARIA;
-              P_INTERNO.vtAVARIA.CODOPER       := 'E'; -- TROCA DE BC POR E - ENTRADA DE BONUS
+              P_INTERNO.vtAVARIA.CODOPER       := 'BC';
               P_INTERNO.vtAVARIA.CODFUNCLANC   := vnCODFUNC;
               P_INTERNO.vtAVARIA.OBS           := 'CANC. DE BONUS ENTRADA';
               P_INTERNO.vtAVARIA.CODFILIAL     := vsCODFILIAL;
