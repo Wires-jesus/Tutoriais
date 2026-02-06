@@ -41,7 +41,7 @@ IS
 													 :RECNUMREF,
 													 :PERCRATCONTREF,
 													 :TIPOTRIB,
-													 :LANIMPRETIDO)';
+													 :LANCIMPRETIDO)';
         G_ERROR := '2.';   
         EXECUTE IMMEDIATE G_SCRIPT
                     USING P_RECNUM                
@@ -107,12 +107,7 @@ IS
                                                          :CONTRAPARTIDA,
                                                          :RECNUMPRINC,
                                                          :CODFILIAL,
-											 		     :ORCAMENTOEXCEDIDO,
-											 		     :NUMTRANSPISCOFINS,
-											 		     :RECNUMREF,
-											 		     :PERCRATCONTREF,
-											 		     :TIPOTRIB,
-											 		     :LANIMPRETIDO)';
+											 		     :ORCAMENTOEXCEDIDO)';
         G_ERROR := '2.';   
         EXECUTE IMMEDIATE G_SCRIPT
                     USING P_RECNUM                
@@ -124,12 +119,7 @@ IS
                          ,P_CONTRAPARTIDA         
                          ,P_RECNUMPRINC           
                          ,P_CODFILIAL             
-                         ,P_ORCAMENTOEXCEDIDO     
-                         ,P_NUMTRANSPISCOFINS     
-                         ,P_RECNUMREF             
-                         ,P_PERCRATCONTREF        
-                         ,P_TIPOTRIB              
-                         ,P_LANCIMPRETIDO;            
+                         ,P_ORCAMENTOEXCEDIDO;            
         
         G_ERROR := '3.';
         COMMIT WORK;
@@ -257,8 +247,8 @@ IS
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
-        G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()||')'||
-                    '                         SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTO()|| 
+        G_SCRIPT := 'INSERT INTO PCRATEIOCENTROCUSTO('||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTOBLOQ()||')'||
+                    '                         SELECT '||PKG_FINANCEIRO_SCRIPTS.GET_PCRATEIOCENTROCUSTOBLOQ()|| 
                     '                           FROM PCRATEIOCENTROCUSTOBLOQ 
                                                WHERE RECNUM = :RECNUM';
         G_ERROR := '2.';                                               
