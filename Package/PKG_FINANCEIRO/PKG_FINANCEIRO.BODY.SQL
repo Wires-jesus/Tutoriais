@@ -265,4 +265,59 @@ IS
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exportação da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --EXP_PCRATEIOCENTROCUSTOBLOQ
     
+    ----------------------------------------------------------------------------                                   
+	PROCEDURE DEL_PCRATEIOCENTROCUSTO(P_STATUS_OUT	       OUT VARCHAR2,
+									  P_MENSAGEM_OUT       OUT VARCHAR2,
+									  P_RECNUM             PCLANC.RECNUM%TYPE)
+    IS										
+		G_MENSAGEM                  VARCHAR2(300);
+        G_SCRIPT                    VARCHAR2(9999); 
+        G_ERROR                     VARCHAR2(10);
+    BEGIN
+        P_STATUS_OUT   := 200;
+        G_ERROR        := '1.';
+        P_MENSAGEM_OUT := 'Exclusão realizada com sucesso!';
+		G_SCRIPT       := 'DELETE FROM PCRATEIOCENTROCUSTO WHERE RECNUM = :RECNUM';
+		
+		G_ERROR := '2.';                                               
+        EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
+        
+        G_ERROR := '3.';
+        COMMIT WORK;
+        
+        EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            G_MENSAGEM   := SQLERRM;
+            P_STATUS_OUT := '500';
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
+	END;
+	----------------------------------------------------------------------------
+    PROCEDURE DEL_PCRATEIOCENTROCUSTOBLOQ(P_STATUS_OUT	      OUT VARCHAR2,
+									      P_MENSAGEM_OUT      OUT VARCHAR2,
+									      P_RECNUM            PCLANC.RECNUM%TYPE)
+    IS										
+		G_MENSAGEM                  VARCHAR2(300);
+        G_SCRIPT                    VARCHAR2(9999); 
+        G_ERROR                     VARCHAR2(10);
+    BEGIN
+        P_STATUS_OUT   := 200;
+        G_ERROR        := '1.';
+        P_MENSAGEM_OUT := 'Exclusão realizada com sucesso!';
+		G_SCRIPT       := 'DELETE FROM PCRATEIOCENTROCUSTOBLOQ WHERE RECNUM = :RECNUM';
+		
+		G_ERROR := '2.';                                               
+        EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
+        
+        G_ERROR := '3.';
+        COMMIT WORK;
+        
+        EXCEPTION
+        WHEN OTHERS THEN
+            ROLLBACK;
+            G_MENSAGEM   := SQLERRM;
+            P_STATUS_OUT := '500';
+            RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
+	END;	
+    
 END;
