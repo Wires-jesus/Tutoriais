@@ -20,7 +20,7 @@ BEGIN
        ROTINA)
     VALUES
       (1611,
-       'Cadastros Operacionais da ProduÃ§Ã£o',
+       'Cadastros Operacionais da Produção',
        16,
        1,
        0,
@@ -31,7 +31,7 @@ BEGIN
        'PCSIS1611');
   ELSE
     UPDATE PCROTINA
-       SET NOMEROTINA  = 'Cadastros Operacionais da ProduÃ§Ã£o',
+       SET NOMEROTINA  = 'Cadastros Operacionais da Produção',
            CODMODULO  = 16,
            CODSUBMODULO = 1,
            ROTINA      = 'PCSIS1611'
