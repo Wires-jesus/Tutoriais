@@ -59,13 +59,9 @@ IS
                          ,P_PERCRATCONTREF        
                          ,P_TIPOTRIB              
                          ,P_LANCIMPRETIDO;         
-        
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSERÇÃO da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');        
@@ -122,11 +118,8 @@ IS
                          ,P_ORCAMENTOEXCEDIDO;            
         
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSERÇÃO da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
@@ -193,12 +186,10 @@ IS
 
             P_MENSAGEM_OUT := 'Suplementação Aprovada!';
 
-            COMMIT WORK;                        
         END IF; --REPLICANCO PCLANCBLOQ         
 
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM := SQLERRM;
             P_STATUS_OUT   := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprovação da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
@@ -225,11 +216,8 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;            
         
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exportação da PCLANCBLOQ. Log recebido: ('||G_MENSAGEM||')');            
@@ -255,11 +243,8 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exportação da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
@@ -283,11 +268,8 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
@@ -310,14 +292,11 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
-        COMMIT WORK;
-        
         EXCEPTION
         WHEN OTHERS THEN
-            ROLLBACK;
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
-	END;	
+	END;
     
 END;
