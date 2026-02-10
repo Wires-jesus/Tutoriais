@@ -1514,7 +1514,8 @@ IS
       -- Inserindo dados de entrada
       BEGIN
         -- Buscar transação de entrada
-        IF (ptAVARIA.NUMTRANSENT > 0) AND (NVL(ptAVARIA.CODROTINALANC,0) <> 2641) THEN
+        IF (ptAVARIA.NUMTRANSENT > 0) AND (NVL(ptAVARIA.CODROTINALANC,0) <> 2641) OR (ptAVARIA.NUMTRANSVENDA > 0 AND P_INTERNO.CANCELAMENTO = 'S') THEN
+
           vnNUMTRANSACAO := ptAVARIA.NUMTRANSENT;
         ELSE
           vnNUMTRANSACAO := FERRAMENTAS.F_PROX_NUMTRANSENT;
@@ -1540,7 +1541,13 @@ IS
       BEGIN
         -- Buscar transação de saída
         IF (ptAVARIA.NUMTRANSVENDA > 0) AND (NVL(ptAVARIA.CODROTINALANC,0) <> 2641) THEN
-          vnNUMTRANSACAO := ptAVARIA.NUMTRANSVENDA;
+          IF (P_INTERNO.CANCELAMENTO = 'S') THEN
+            vnNUMTRANSACAO := ptAVARIA.NUMTRANSVENDA;
+            ptAVARIA.QT := ptAVARIA.QT *(-1);
+            ptAVARIA.OBS := 'CANCELAMENTO DE BAIXA DE ESTOQUE AVARIADO';      
+          ELSE 
+            vnNUMTRANSACAO := ptAVARIA.NUMTRANSVENDA;          
+          END IF;
         ELSE
           vnNUMTRANSACAO := FERRAMENTAS.F_PROX_NUMTRANSVENDA;
         END IF;
@@ -7905,10 +7912,11 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
               P_INTERNO.vtAVARIA.NUMNOTA       := NULL;
               P_INTERNO.vtAVARIA.NUMTRANSENT   := pnIDENTIFICADOR;
               P_INTERNO.vtAVARIA.NUMTRANSVENDA := NULL;
-              P_INTERNO.vtAVARIA.OBS           := 'CANC. DE BONUS';
+              P_INTERNO.vtAVARIA.OBS           := 'CANC. DE BONUS DE SAÍDA';
               P_INTERNO.vtAVARIA.DTMOVLOG      := SYSDATE;
               P_INTERNO.vtAVARIA.CODFILIAL     := vsCODFILIAL;
               P_INTERNO.vtAVARIA.NUMLOTE       := NULL;
+              P_INTERNO.vtAVARIA.CODOPER       := 'BC';
               --vtAVARIA.CODROTINALANC := SOMENTENUMERO(vsROTINA);
               P_INTERNO.vtAVARIA.CODDEVOL      := vnCODMOTIVO;
               --vtAVARIA.CODROTINA     := vsROTINA;
@@ -9324,7 +9332,7 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
               P_INTERNO.vtAVARIA.QT            := vnQTAVARIA;
               P_INTERNO.vtAVARIA.CODOPER       := 'BC';
               P_INTERNO.vtAVARIA.CODFUNCLANC   := vnCODFUNC;
-              P_INTERNO.vtAVARIA.OBS           := 'CANC. DE BONUS';
+              P_INTERNO.vtAVARIA.OBS           := 'CANC. DE BONUS ENTRADA';
               P_INTERNO.vtAVARIA.CODFILIAL     := vsCODFILIAL;
               P_INTERNO.vtAVARIA.NUMLOTE       := NULL;
               -- vtAVARIA.CODROTINALANC := SOMENTENUMERO(vsROTINA);
@@ -19365,6 +19373,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     vsUTILIZOUCFAT               VARCHAR2(2);
     vnUTILIZOUCFAT               NUMBER;
     vnNUMPED                     PCPEDC.NUMPED%TYPE;
+    vsCODOPER                    PCMOV.CODOPER%TYPE;
   BEGIN
     -- Limpar variável P_INTERNO
     PRIV_LIMPAR_P_INTERNO;
@@ -19482,6 +19491,8 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                             ,PCMOV.NUMSEQ
                             ,PCMOV.CODFISCAL
                             ,PCMOV.CODCLI
+                            ,PCMOV.NUMTRANSVENDA
+                            ,PCMOV.CODFUNCLANC
                         FROM PCMOV,
                              PCEST ESTOQUEGERENCIAL
                             ,PCEST ESTOQUECONTABIL
@@ -19688,12 +19699,40 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
           WHEN 'N' THEN
             -- Transfere estoque bloqueado - Fatura estoque bloqueado e avariado em pedido de avaria - vbEH_PED_AVARIA - DDMEDICA-1400
             IF (REGISTROS.MOVESTOQUEGERENCIAL = 'S') AND (vsROTINA LIKE '%1124%' OR vsROTINA LIKE '%1322%'  OR vsROTINA LIKE '%1326%' OR vsROTINA LIKE '%1316%' OR vbEH_PED_AVARIA) THEN
+
+              -- Definir codigo de operação
+              vsCODOPER := CASE
+                               WHEN NVL(psECANCELAMENTO ,'N')= 'N'  THEN
+                                'S'
+                             ELSE
+                               'S'
+                             END;
+              -- Atualizar movimentação de avaria
+              P_INTERNO.vtAVARIA.DATA          := SYSDATE;
+              P_INTERNO.vtAVARIA.CODPROD       := REGISTROS.CODPROD;
+              P_INTERNO.vtAVARIA.CODCLI        := 0;
+              P_INTERNO.vtAVARIA.QT            := REGISTROS.NOTA_QTAVARIA;
+              P_INTERNO.vtAVARIA.CODOPER       := vsCODOPER;
+              P_INTERNO.vtAVARIA.CODFUNCLANC   := REGISTROS.CODFUNCLANC;
+              P_INTERNO.vtAVARIA.OBS           := 'BAIXA ESTOQUE AVARIADO';
+              P_INTERNO.vtAVARIA.CODFILIAL     := REGISTROS.CODFILIALVENDA;
+              P_INTERNO.vtAVARIA.NUMTRANSVENDA := REGISTROS.NUMTRANSVENDA; 
+              P_INTERNO.vtAVARIA.CODROTINALANC := REGEXP_REPLACE(REGISTROS.ROTINACAD, '[^0-9]', ''); -- Campo da PCMOVAVARIA está como number, será realizada nova tratativa para correção do log          
+                
+              -- Validar se conseguiu atualizar o estoque
+              IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
+                PRIV_GERARLOG;
+                RETURN 'N';
+              END IF;
+
               -- Caso tenha Qtde Avariada e não esteja cancelando
               IF (psECANCELAMENTO = 'N' AND REGISTROS.NOTA_QTAVARIA > 0) THEN
                 vnESTOQUE_QTINDENIZ := GREATEST((vnESTOQUE_QTINDENIZ - REGISTROS.NOTA_QTAVARIA),0);
+                PRIV_ATUALIZAR_PCMOVAVARIA (P_INTERNO.vtAVARIA,SUBSTR(vsCODOPER,1,1));
               -- Caso tenha Qtde Avariada e esteja cancelando
               ELSIF (psECANCELAMENTO = 'S' AND REGISTROS.NOTA_QTAVARIA > 0) THEN
                 vnESTOQUE_QTINDENIZ := GREATEST((vnESTOQUE_QTINDENIZ + REGISTROS.NOTA_QTAVARIA),0);
+                PRIV_ATUALIZAR_PCMOVAVARIA (P_INTERNO.vtAVARIA,SUBSTR(vsCODOPER,1,1));
               END IF;
               -- Caso tenha Qtde Bloqueada e não esteja cancelando
               IF (psECANCELAMENTO = 'N' AND REGISTROS.NOTA_QTBLOQUEADA > 0) THEN
