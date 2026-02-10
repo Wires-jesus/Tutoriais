@@ -273,11 +273,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     normatizar_pcdeparaprodc5;
     
     carrega_tb_familia(10);
-    carrega_tb_famembalagem(11);
-    carrega_tb_produto(12);
-    carrega_tb_prodempresa(13);
-    carrega_tb_prodcodigo(14);
-    carrega_tb_prodpreco(15);
+    carrega_tb_famembalagem(10);
+    carrega_tb_produto(10);
+    carrega_tb_prodempresa(10);
+    carrega_tb_prodcodigo(10);
+    carrega_tb_prodpreco(10);
     
     BEGIN
       SELECT NVL(VALOR, 'N') VALOR INTO vSimulaErro FROM PCPARAMETROS2651 WHERE NOME = 'SIMULA_ERRO_PRODUTO';

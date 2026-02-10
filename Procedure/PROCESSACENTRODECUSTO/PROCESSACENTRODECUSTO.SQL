@@ -38,7 +38,7 @@ CREATE OR REPLACE PROCEDURE PROCESSACENTRODECUSTO (
       SELECT NVL(VALOR, 'N')
       INTO v_utilizaCentroCusto_2663
       FROM PCPARAMFILIAL
-      WHERE CODFILIAL = '1';
+      WHERE CODFILIAL = p_codFilial;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         v_utilizaCentroCusto_2663 := 'N';

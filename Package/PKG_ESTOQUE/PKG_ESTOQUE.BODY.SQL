@@ -3413,27 +3413,6 @@ IS
           VALUES ptREQUISICAO;
       -- Todos os itens
       END IF;
-
-      -- Valida parametro ... para fechar a requisição automaticamento depois de baixar o estoque na 2030 - DDESTOQUE-20959
-      IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FECHAREQ2030',P_INTERNO.CODFILIAL,'N') = 'S' THEN 
-      BEGIN    
-        UPDATE PCREQUISICAODEPOSITO
-        SET QTSEPARADA    = ptREQUISICAO.Qt,
-            DTCONFERENCIA = SYSDATE,
-            POSICAO       = 'F'
-        WHERE CODREQUISICAO = ptREQUISICAO.CODREQUISICAO
-        AND   CODPROD       = ptREQUISICAO.CODPROD;
-          
-        -- Inserindo informações de debug (LOG)
-        P_INTERNO.INFORMACOES_LOG := 'Sucesso no fechamento da Requisição: ' || ptREQUISICAO.CODREQUISICAO;
-        PRIV_GERARLOG;
-        EXCEPTION
-        -- Inserindo informações de debug (LOG)
-        WHEN OTHERS THEN
-          P_INTERNO.MSG_RETORNO := 'Erro ao fechar Requisição: ' || ptREQUISICAO.CODREQUISICAO;
-          PRIV_GERARLOG;
-        END;
-      END IF;  
     -- Gerar requisição
     END IF;
     -- Inserindo informações de debug (LOG)
