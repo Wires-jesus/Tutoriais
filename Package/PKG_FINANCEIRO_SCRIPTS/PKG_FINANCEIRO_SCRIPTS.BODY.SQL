@@ -12,81 +12,84 @@ IS
     IS
     BEGIN
         
-        RETURN ' RECNUM,                   DTLANC,                   HISTORICO,             DUPLIC,             
-                 LOCALIZACAO,              CODFILIAL,                INDICE,                NUMCHEQUE,          
-                 TIPOLANC,                 TIPOPARCEIRO,             NOMEFUNC,              ASSINATURA,         
-                 TIPOPAGTO,                NUMDVDESTDOC,             NUMCODBARRA,           HISTORICO2,         
-                 MOEDA,                    DVAG,                     PORTADORCHEQUE,        NUMDIIMPORTACAO,    
-                 ADIANTAMENTO,             NFSERVICO,                PREST,                 BOLETO,             
-                 PAGTONOMEDOCLIENTE,       OBSBLOQ,                  AGENDAMENTO,           NUMCONTRATOCAMBIO,  
-                 IDCONTROLEEMBARQUE,       FORMAPGTO,                CODROTINACAD,          DTMOEDA,            
-                 CODROTINAALT,             PARCELA,                  NUMNOTA,               CODFORNEC,          
-                 VLRUTILIZADOADIANTFORNEC, TIPOSERVICO,              IDENTIFICADORFGTS,     LACREDIGCONECSOCIAL,
-                 OPCAOPAGAMENTOIPVA,       VALOR,                    CODCONTA,              VPAGO,              
-                 NUMNOTADEV,               VALORDEV,                 PRORROG,               NUMBORDERO,         
-                 VPAGOBORDERO,             NUMSEQBORDERO,            NUMCHEQUE2,            NUMBANCO,           
-                 DESCONTOFIN,              TXPERM,                   NUMVIA,                NUMBCODESTDOC,      
-                 NUMAGDESTDOC,             NUMCCDESTDOC,             NUMTRANSENT,           NUMTAB,             
-                 CODFORNECPRINC,           VLIRRF,                   VLSESTSENAT,           NUMTRANSADIANTFOR,  
-                 CODFUNCBAIXA,             NUMAGDESTDOC2,            NUMVIASFICHACP,        CODFUNCAUTOR,       
-                 NUMTRANS,                 CODFUNCESTORNOBAIXA,      CODFUNCRECLASSIFIC,    CODCOMPRADOR,       
-                 MOEDAESTRANGEIRA,         COTACAO,                  RECNUMPRINC,           COTACAOBAIXA,       
-                 FROTA_QTLITROS,           FROTA_CODPRACA,           FROTA_NUMCAR,          FROTA_CODVEICULO,   
-                 FROTA_COMISSAO,           FROTA_KMABASTECE,         NUMTRANSVENDA,         NUMNEGOCIACAO,      
-                 PERCDESCFINREAL,          VALORMOEDAESTRANGEIRA,    FROTA_PESO,            CODFUNCULTALTER,    
-                 CODPROJETO,               VLISS,                    VLINSS,                VLCSRF,             
-                 FUNCBLOQ,                 VLPIS,                    VLCOFINS,              VLVARIACAOCAMBIAL,  
-                 VLOUTRAS,                 NUMTRANSENTNF,            CODRECEITA,            VRECEITABRUTA,      
-                 PERCRECEITABRUTA,         NUMPARCELAMENTO,          NUMSEQPARCELAMENTO,    VLRPARIDADEMOEDA,   
-                 MOEDAPARIDADE,            NUMSEQCONTRATOEMPRESTIMO, CODROTINABAIXA,        VLDESPFIN,          
-                 DTVENC,                   DTPAGTO,                  DTBORDER,              DTEMISSAO,          
-                 DTCHEQ,                   DTASSINATURA,             DTAUTOR,               DTESTORNOBAIXA,     
-                 DTRECLASSIFIC,            DTPRORROG,                FROTA_DTABASTECE,      DTCOTACAO,          
-                 DTPAGADIANTFOR,           DTULTALTER,               DTCOMPETENCIA,         DTDESD,             
-                 DTBLOQ,                   DTAGENDAMENTO,            DTCANCEL,              DTIMPRESSAO,        
-                 CODLANCAMENTORM,          FORNECEDOR,               CODSERVICOSPEDEFD,     RECNUMBAIXA,        
-                 CODCOBSEFAZ,              RAZAOCREDENCCARTAO,       CNPJCREDENCCARTAO,     NSUTEF,             
-                 BANDEIRACARTAO,           CODMOEDABAIXA,            REINFEVENTOR4040,      CODSERVICOSPEDIRPJ, 
-                 CODSERVICOSPEDIRPF,       CODSERVICOSPEDBNI,        CODTIPOCHAVEPIX,       TIPOCHAVEPIX,       
-                 CHAVEPIX,                 QRCODEPIX,                VLBASEIR,              VLBASEPCC,
-                 DTCOMPETENCIAIRRETIDO ';
+        RETURN '  RECNUM                   ,DTLANC                   ,HISTORICO             ,DUPLIC             
+                 ,LOCALIZACAO              ,CODFILIAL                ,INDICE                ,NUMCHEQUE          
+                 ,TIPOLANC                 ,TIPOPARCEIRO             ,NOMEFUNC              ,ASSINATURA         
+                 ,TIPOPAGTO                ,NUMDVDESTDOC             ,NUMCODBARRA           ,HISTORICO2         
+                 ,MOEDA                    ,DVAG                     ,PORTADORCHEQUE        ,NUMDIIMPORTACAO    
+                 ,ADIANTAMENTO             ,NFSERVICO                ,PREST                 ,BOLETO             
+                 ,PAGTONOMEDOCLIENTE       ,OBSBLOQ                  ,AGENDAMENTO           ,NUMCONTRATOCAMBIO  
+                 ,IDCONTROLEEMBARQUE       ,FORMAPGTO                ,CODROTINACAD          ,DTMOEDA            
+                 ,CODROTINAALT             ,PARCELA                  ,NUMNOTA               ,CODFORNEC          
+                 ,VLRUTILIZADOADIANTFORNEC ,TIPOSERVICO              ,IDENTIFICADORFGTS     ,LACREDIGCONECSOCIAL
+                 ,OPCAOPAGAMENTOIPVA       ,VALOR                    ,CODCONTA              ,VPAGO              
+                 ,NUMNOTADEV               ,VALORDEV                 ,PRORROG               ,NUMBORDERO         
+                 ,VPAGOBORDERO             ,NUMSEQBORDERO            ,NUMCHEQUE2            ,NUMBANCO           
+                 ,DESCONTOFIN              ,TXPERM                   ,NUMVIA                ,NUMBCODESTDOC      
+                 ,NUMAGDESTDOC             ,NUMCCDESTDOC             ,NUMTRANSENT           ,NUMTAB             
+                 ,CODFORNECPRINC           ,VLIRRF                   ,VLSESTSENAT           ,NUMTRANSADIANTFOR  
+                 ,CODFUNCBAIXA             ,NUMAGDESTDOC2            ,NUMVIASFICHACP        ,CODFUNCAUTOR       
+                 ,NUMTRANS                 ,CODFUNCESTORNOBAIXA      ,CODFUNCRECLASSIFIC    ,CODCOMPRADOR       
+                 ,MOEDAESTRANGEIRA         ,COTACAO                  ,RECNUMPRINC           ,COTACAOBAIXA       
+                 ,FROTA_QTLITROS           ,FROTA_CODPRACA           ,FROTA_NUMCAR          ,FROTA_CODVEICULO   
+                 ,FROTA_COMISSAO           ,FROTA_KMABASTECE         ,NUMTRANSVENDA         ,NUMNEGOCIACAO      
+                 ,PERCDESCFINREAL          ,VALORMOEDAESTRANGEIRA    ,FROTA_PESO            ,CODFUNCULTALTER    
+                 ,CODPROJETO               ,VLISS                    ,VLINSS                ,VLCSRF             
+                 ,FUNCBLOQ                 ,VLPIS                    ,VLCOFINS              ,VLVARIACAOCAMBIAL  
+                 ,VLOUTRAS                 ,NUMTRANSENTNF            ,CODRECEITA            ,VRECEITABRUTA      
+                 ,PERCRECEITABRUTA         ,NUMPARCELAMENTO          ,NUMSEQPARCELAMENTO    ,VLRPARIDADEMOEDA   
+                 ,MOEDAPARIDADE            ,NUMSEQCONTRATOEMPRESTIMO ,CODROTINABAIXA        ,VLDESPFIN          
+                 ,DTVENC                   ,DTPAGTO                  ,DTBORDER              ,DTEMISSAO          
+                 ,DTCHEQ                   ,DTASSINATURA             ,DTAUTOR               ,DTESTORNOBAIXA     
+                 ,DTRECLASSIFIC            ,DTPRORROG                ,FROTA_DTABASTECE      ,DTCOTACAO          
+                 ,DTPAGADIANTFOR           ,DTULTALTER               ,DTCOMPETENCIA         ,DTDESD             
+                 ,DTBLOQ                   ,DTAGENDAMENTO            ,DTCANCEL              ,DTIMPRESSAO        
+                 ,CODLANCAMENTORM          ,FORNECEDOR               ,CODSERVICOSPEDEFD     ,RECNUMBAIXA        
+                 ,CODCOBSEFAZ              ,RAZAOCREDENCCARTAO       ,CNPJCREDENCCARTAO     ,NSUTEF             
+                 ,BANDEIRACARTAO           ,CODMOEDABAIXA            ,REINFEVENTOR4040      ,CODSERVICOSPEDIRPJ 
+                 ,CODSERVICOSPEDIRPF       ,CODSERVICOSPEDBNI        ,CODTIPOCHAVEPIX       ,TIPOCHAVEPIX       
+                 ,CHAVEPIX                 ,QRCODEPIX                ,DTCOMPETENCIAIRRETIDO 
+				 ,VLBASEIR,                ,VLBASEPCC
+			   ';
+			   
     END; --GET_PCLANC
     
     FUNCTION GET_PCRATEIOCENTROCUSTO RETURN VARCHAR2
     IS
-    BEGIN
-        RETURN ' RECNUM,
-                 CODCONTA,
-                 CODIGOCENTROCUSTO,
-                 VALOR,
-                 PERCRATEIO,
-                 DTLANC,
-                 CONTRAPARTIDA,
-                 RECNUMPRINC,
-                 CODFILIAL,
-                 ORCAMENTOEXCEDIDO,
-                 NUMTRANSPISCOFINS,
-                 RECNUMREF,
-                 PERCRATCONTREF,
-                 TIPOTRIB,
-                 LANCIMPRETIDO ';
+    BEGIN 
+		--OBS: Os Fields entre PCRATEIOCENTROCUSTO e PCRATEIOCENTROCUSTOBLOQ não são iguais 	
+        RETURN '  RECNUM
+                 ,CODCONTA
+                 ,CODIGOCENTROCUSTO
+                 ,VALOR
+                 ,PERCRATEIO
+                 ,DTLANC
+                 ,CONTRAPARTIDA
+                 ,RECNUMPRINC
+                 ,CODFILIAL
+                 ,ORCAMENTOEXCEDIDO
+                 ,NUMTRANSPISCOFINS
+                 ,RECNUMREF
+                 ,PERCRATCONTREF
+                 ,TIPOTRIB
+                 ,LANCIMPRETIDO ';
 				 
     END; --GET_PCRATEIOCENTROCUSTO
     
     FUNCTION GET_PCRATEIOCENTROCUSTOBLOQ RETURN VARCHAR2
     IS
     BEGIN
-        
-        RETURN ' RECNUM,
-                 CODCONTA,
-                 CODIGOCENTROCUSTO,
-                 VALOR,
-                 PERCRATEIO,
-                 DTLANC,
-                 CONTRAPARTIDA,
-                 RECNUMPRINC,
-                 CODFILIAL,
-                 ORCAMENTOEXCEDIDO ';
+        --OBS: Os Fields entre PCRATEIOCENTROCUSTOBLOQ e PCRATEIOCENTROCUSTO não são iguais 	
+        RETURN '  RECNUM
+                 ,CODCONTA
+                 ,CODIGOCENTROCUSTO
+                 ,VALOR
+                 ,PERCRATEIO
+                 ,DTLANC
+                 ,CONTRAPARTIDA
+                 ,RECNUMPRINC
+                 ,CODFILIAL
+                 ,ORCAMENTOEXCEDIDO ';
 		
     END; --GET_PCRATEIOCENTROCUSTOBLOQ
     
