@@ -77,7 +77,7 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                          ,P_CODTIPOCHAVEPIX    			PCLANC.CODTIPOCHAVEPIX%TYPE    			,P_TIPOCHAVEPIX        			PCLANC.DUPLIC%TYPE             
                          ,P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE                	,P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE               
                          ,P_DTCOMPETENCIAIRRETIDO 		PCLANC.DTCOMPETENCIAIRRETIDO%TYPE
-                         ,P_VLBASEIR                    PCLANC.VLBASEIR%TYPE                	,P_VLBASEPCC                 PCLANC.VLBASEPCC%TYPE
+                         ,P_VLBASEIR                    PCLANC.VLBASEIR%TYPE                	,P_VLBASEPCC                 	PCLANC.VLBASEPCC%TYPE
                          );
 
     ----------------------------------------------------------------------------
