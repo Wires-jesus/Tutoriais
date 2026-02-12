@@ -1,0 +1,6 @@
+{
+    "nome": "DICIONARIO_PESQUISA",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+  }
