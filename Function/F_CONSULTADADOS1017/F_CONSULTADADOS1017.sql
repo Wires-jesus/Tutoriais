@@ -26,8 +26,8 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
-      NULL,NULL,NULL
-      ); -- 203 colunas
+      NULL,NULL,NULL,NULL,NULL
+      ); -- 205 colunas
 ---------------------------------------------------------------------------------
   BEGIN
 ---------------------------------------------------------------------------------
@@ -1293,6 +1293,8 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                            ROUND(ME.QTCONT * NVL(MCE.VLFECPSTGUIA,0), 2) VLFECPSTGUIAENT,
                            NVL(MCE.VLACRESCIMOFUNCEP,0) VLACRESCIMOFUNCEP_UNIT,
                            ROUND(ME.QTCONT * NVL(MCE.VLACRESCIMOFUNCEP,0), 2) VLACRESCIMOFUNCEPENT,
+                           NVL(ME.VLIMPORTACAO,0) VLIIENT_UNIT,
+                           ROUND(ME.QTCONT * NVL(ME.VLIMPORTACAO,0), 2) VLIIENT,
                            ------------------------------------------------------
                            -- Informações de Saídas
                            ------------------------------------------------------
@@ -1750,6 +1752,8 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
             OUTROW.QTUNITCXSAI                    := DADOS.QTUNITCXSAI                     ;
             OUTROW.QTDEVOL                        := DADOS.QTDEVOL                         ;
             OUTROW.QTCONTMOVSAI                   := DADOS.QTCONTMOVSAI                    ;
+            OUTROW.VLIIENT_UNIT                   := DADOS.VLIIENT_UNIT                    ;
+            OUTROW.VLIIENT                        := DADOS.VLIIENT                         ;
      pipe row(OUTROW);
      END LOOP;
   END IF;
