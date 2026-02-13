@@ -1,5 +1,11 @@
 {
 	"nome" : "F_CONSULTADADOS1017",
 	"tipoPLSQL" : "FUNCTION",
-	"dependencias" : ""
+    "dependencias": [
+  {
+   "nome": "TABELA_ROTINA_1017",
+   "tipo": "OBJETO_PLSQL",
+   "versao": "6.0.01.000"
+  }
+ ]
 }
