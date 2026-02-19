@@ -7360,7 +7360,7 @@ create or replace package body FISCAL is
                   THEN 'S'
                   ELSE 'N'
                END AS ORGAO_PUBLICO,
-               NVL(PCCLIENT.TIPOORGAOPUB,'0') TIPOORGAOPUB,
+               NVL(PCCLIENT.TIPOORGAOPUB,'0'),
                NVL(PCCLIENT.PERCREDORGAOPUB,0)
           INTO V_CODIGO_MUNICIPIO,
                V_UF,
@@ -7425,7 +7425,7 @@ create or replace package body FISCAL is
                   THEN 'S'
                   ELSE 'N'
                END AS ORGAO_PUBLICO,
-               NVL(PCFORNEC.TIPOORGAOPUB, NVL(PCCLIENT.TIPOORGAOPUB,'0')) TIPOORGAOPUB,
+               NVL(PCFORNEC.TIPOORGAOPUB, NVL(PCCLIENT.TIPOORGAOPUB,'0')),
                NVL(PCFORNEC.PERCREDORGAOPUB,0)
           INTO V_CODIGO_MUNICIPIO,
                V_UF,
