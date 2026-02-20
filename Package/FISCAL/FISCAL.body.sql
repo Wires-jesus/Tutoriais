@@ -6931,7 +6931,7 @@ create or replace package body FISCAL is
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
     BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO referente ao Tributo Regular:'
+    PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Iniciando consulta na PCTRIBUTACAO:'
                          ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
                          ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
                          ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
@@ -7000,7 +7000,7 @@ create or replace package body FISCAL is
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com o parâmetros do código de tributação regular:'
+          PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com o parâmetros:'
                                ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
                                ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
                                ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
@@ -7310,9 +7310,10 @@ create or replace package body FISCAL is
            V_TIPO_IMPOSTO := 'BASE_CBSIBS';
            CALCULAR_VALOR_CBSIBS;
 
-           IF P_PARAMETROS.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR > 0 THEN 
+           IF P_PARAMETROS.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR > 0 AND 
+              P_PARAMETROS.TRIBUTACAO_REGULAR.CCLASSTRIB_REG <> '' THEN 
              CALCULAR_VALOR_TRIBUTO_REGULAR;
-           END IF;           
+           END IF;          
          ELSE
            V_TIPO_IMPOSTO := 'BASE_IS';
            CALCULAR_VALOR_IS;
@@ -7810,6 +7811,6 @@ create or replace package body FISCAL is
   END;
 
 END;
+-- Alteração 20/02/2026 - Inclusão de tratamento para o tributo regular não calcular se objeto não for preenchido.
 -- Alteração 26/01/2026 - Inclusão do processo de retorno do Tributo Regular
 -- Alteração 22/01/2026 - Incluso processo calculo da reforma para PCMOVCIAP
--- Alteração 14/01/2026 - Ajuste no metodo de busca da tributação. Foi adicionado na condição AND o OR. O que passa a considerar uma tributação ou outra.
