@@ -1882,18 +1882,18 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   
   vRegProcessados := SQL%ROWCOUNT;
   
-    UPDATE monitorpdvmiddle.tb_famdivisaocategoria f
+  /*  UPDATE monitorpdvmiddle.tb_famdivisaocategoria f
      set f.idref = f.idref
    where (f.SEQCATEGORIA, f.NRODIVISAO, f.SEQFAMILIA)
       IN (SELECT v.SEQCATEGORIA, v.NRODIVISAO, v.SEQFAMILIA 
-            FROM VW_INT_C5_FAMDIVISAOCATEGORIA v);
+            FROM VW_INT_C5_FAMDIVISAOCATEGORIA v);*/
   
   pkg_sinc_PDV_Consinco.set_final_execucao(CURRENT_TIMESTAMP);
 
   COMMIT;
   
   IF (vRegProcessados > 0) THEN
-    UPDATE MONITORPDVMIDDLE.tb_famdivisaocategoria D SET
+    /*UPDATE MONITORPDVMIDDLE.tb_famdivisaocategoria D SET
            ATIVO = 'N'
     WHERE ATIVO = 'S'
     AND   D.SEQCATEGORIA||D.SEQFAMILIA||NRODIVISAO in 
@@ -1914,10 +1914,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                                                ) TAB_FAMCATEGORIA
                                           WHERE TAB_FAMCATEGORIA.SEQUENCIA > 1
                                           AND   TAB_FAMCATEGORIA.SEQFAMILIA = D.SEQFAMILIA
-                                          AND   TAB_FAMCATEGORIA.NRODIVISAO = D.NRODIVISAO);
+                                          AND   TAB_FAMCATEGORIA.NRODIVISAO = D.NRODIVISAO);*/
+	 MERGE /*+ USE_HASH(D X) */
+      INTO MONITORPDVMIDDLE.TB_FAMDIVISAOCATEGORIA D
+     USING (
+         SELECT ROWID RID
+         FROM (
+               SELECT /*+ INDEX(FD TB_FAMDIVISAOCATEGORIA_IE1) cardinality(FD 100) */ 
+             ROWID RID,
+                   ROW_NUMBER() OVER (PARTITION BY SEQFAMILIA, NRODIVISAO ORDER BY dtahoralteracao DESC) RN
+               FROM MONITORPDVMIDDLE.TB_FAMDIVISAOCATEGORIA FD
+               WHERE ATIVO = 'S'
+               )
+         WHERE RN > 1
+        ) X
+    ON (D.ROWID = X.RID)
+    WHEN MATCHED THEN
+       UPDATE SET D.ATIVO = 'N'; 
+
+    COMMIT;	   
   END IF;                         
-  
-  COMMIT;
 
   EXCEPTION
   WHEN OTHERS THEN
