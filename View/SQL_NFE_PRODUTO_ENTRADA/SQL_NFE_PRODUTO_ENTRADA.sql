@@ -1475,8 +1475,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                        'L',
                                        0,
                                        'LR',
-                                       --devolução tem que ser a msm regra da venda, que é 0 quando parametro = LR
-                                       DECODE(PCMOV.CODOPER, 'ED', 0, NVL(PCMOV.VLREPASSE,0)),
+                                       NVL(ABS(PCMOV.VLREPASSE),0),
                                        DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                         (ROUND( PCMOV.QTCONT *
                                         (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),
@@ -1660,9 +1659,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                                                'L',
                                                0,
                                                'LR',
-                                               --devolução tem que ser a msm regra da venda, que é 0 quando parametro = LR
-                                               DECODE(PCMOV.CODOPER, 'ED', 0, NVL(PCMOV.VLREPASSE,0)),
-
+                                               NVL(ABS(PCMOV.VLREPASSE),0),
                                                --Adicionado mesmo arredondamento de desconto que existe na saida para corrigir rejeição 610 31/08/2018
                                        DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                           (ROUND( PCMOV.QTCONT *
@@ -1770,7 +1767,7 @@ SELECT PCMOV.NUMTRANSENT AS NUM_TRANSACAO
                             'L',
                             0,
                             'LR',
-                            0,
+                            NVL(ABS(PCMOV.VLREPASSE),0),
                         DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                     (ROUND( PCMOV.QTCONT *
                                     (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),

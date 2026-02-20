@@ -878,7 +878,7 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                    'L',
                                       0,
                                    'LR',
-                                      0,
+                                      NVL(ABS(PCMOV.VLREPASSE), 0),,
                                       DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                         (ROUND( PCMOV.QTCONT *
                                         (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),
@@ -1006,7 +1006,8 @@ FROM   (SELECT PCMOV.NUMTRANSVENDA AS NUM_TRANSACAO
                                  'L'))),
                              'L',
                                  0,
-                             'LR',0,
+                             'LR',
+								 NVL(ABS(PCMOV.VLREPASSE), 0),
                                 DECODE(NVL(PCMOVCOMPLE.VLDESCONTONF, 0), 0,
                                  (ROUND( PCMOV.QTCONT *
                                       (DECODE((NVL(PCMOV.PTABELA, 0) - NVL(PCMOV.VLREPASSE, 0)),
@@ -2813,11 +2814,10 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                                                               PCPRODFILIAL.PRECOUTILIZADONFE),
                                                       PCCLIENT.PRECOUTILIZADONFE),NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('PRECOUTILIZADONFE', PCFILIAL.CODIGO),'L'))),
                                    'L',
-
-
                                       (NVL(PCMOVPREFAT.VLDESCREDUCAOCOFINS,0) + NVL
                                       (PCMOVPREFAT.VLDESCREDUCAOPIS,0)),
-                                   'LR', 0,
+                                   'LR', 
+								      0,
                                       NVL(PCMOVCOMPLEPREFAT.VLSUBTOTDESCONTO,0))
                          ELSE
                               (DECODE(NVL(PCMOVCOMPLEPREFAT.PRECOUTILIZADONFE,
@@ -2828,7 +2828,7 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                    'L',
                                       0,
                                    'LR',
-                                      0,
+                                      NVL(ABS(PCMOVPREFAT.VLREPASSE), 0),
                                       DECODE(NVL(PCMOVCOMPLEPREFAT.VLDESCONTONF, 0), 0,
                                         (ROUND( PCMOVPREFAT.QTCONT *
                                         (DECODE((NVL(PCMOVPREFAT.PTABELA, 0) - NVL(PCMOVPREFAT.VLREPASSE, 0)),
@@ -2958,7 +2958,8 @@ FROM   (SELECT PCMOVPREFAT.NUMTRANSVENDA AS NUM_TRANSACAO
                                  'L'))),
                              'L',
                                  0,
-                             'LR',0,
+                             'LR',
+							     NVL(ABS(PCMOVPREFAT.VLREPASSE), 0),
                                 DECODE(NVL(PCMOVCOMPLEPREFAT.VLDESCONTONF, 0), 0,
                                  (ROUND( PCMOVPREFAT.QTCONT *
                                       (DECODE((NVL(PCMOVPREFAT.PTABELA, 0) - NVL(PCMOVPREFAT.VLREPASSE, 0)),
