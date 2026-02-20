@@ -2070,7 +2070,12 @@ IS
             CODCONTADESP PCMODELOPC.CODREDUZIDO_PC%TYPE,
             VALORICMSBCR PCNFBASEENT.VLICMSBCR%TYPE,
             VALORSTBCR PCNFBASEENT.VLSTBCR%TYPE,
-            VALORFECPSTGUIA PCNFBASEENT.VLFECPSTGUIA%TYPE
+            VALORFECPSTGUIA PCNFBASEENT.VLFECPSTGUIA%TYPE,
+            VALORCBS PCNFBASEENT.VLCBS%TYPE,
+            VALORIBSMUN PCNFBASEENT.VLIBSMUN%TYPE,
+            VALORIBSUF PCNFBASEENT.VLIBSUF%TYPE,
+            VALORIS PCNFBASEENT.VLIS%TYPE,
+            VALORTOTALIBS PCNFBASEENT.VLTOTALIBS%TYPE
         );
 
         ITEM                          CONSULTA_ENTRADAS;
@@ -2476,6 +2481,36 @@ IS
                             VS_FORMULA,
                             'VALORFECPSTGUIA([^_[:alnum:]])',
                             NVL (ITEM.VALORFECPSTGUIA, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORCBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORCBS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSMUN([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSMUN, 0) || '\1');
+                     
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSUF([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSUF, 0) || '\1');
+                                                   
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIS([^_[:alnum:]])',
+                            NVL (ITEM.VALORIS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORTOTALIBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORTOTALIBS, 0) || '\1');        
 
 
                     CALCULAREXPRESSAO;
@@ -2966,7 +3001,11 @@ IS
             VALORFCEP PCNFBASESAID.VLFECP%TYPE,
             VALORACRESCIMOFUNCEP PCNFBASESAID.VLACRESCIMOFUNCEP%TYPE,
             VALORICMSBCR PCNFBASESAID.VLICMSBCR%TYPE,
-            VALORSTBCR PCNFBASESAID.VLSTBCR%TYPE
+            VALORSTBCR PCNFBASESAID.VLSTBCR%TYPE,
+            VALORCBS PCNFBASESAID.VLCBS%TYPE,
+            VALORIBSMUN PCNFBASESAID.VLIBSMUN%TYPE,
+            VALORIBSUF PCNFBASESAID.VLIBSUF%TYPE,
+            VALORIS PCNFBASESAID.VLIS%TYPE
         );
 
         ITEM               CONSULTA_SAIDAS;
@@ -3257,6 +3296,31 @@ IS
                         REGEXP_REPLACE (VS_FORMULA,
                                 'VALORFCPPART([^_[:alnum:]])',
                                 NVL (ITEM.VALORFCPPART, 0) || '\1');
+                                
+                   VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORCBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORCBS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSMUN([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSMUN, 0) || '\1');
+                     
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSUF([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSUF, 0) || '\1');
+                                                   
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIS([^_[:alnum:]])',
+                            NVL (ITEM.VALORIS, 0) || '\1');             
+                                
 
                     CALCULAREXPRESSAO;
 
