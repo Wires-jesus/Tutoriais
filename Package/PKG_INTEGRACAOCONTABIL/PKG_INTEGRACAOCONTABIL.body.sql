@@ -543,14 +543,14 @@ IS
                 || CHR (10)
                 || -- 'AND NVL(TEMINTEGRACAO, ''P'') <> ''I''' || CHR(13) || CHR(10) ||
                    'ORDER BY DATAOPERACAO2, NUMTRANSOPERACAO';
-		ELSIF (V_CODFATOGERADOR = 9) AND (VS_FORMADTCONTABILIZACAO = 'E')
+    ELSIF (V_CODFATOGERADOR = 9) AND (VS_FORMADTCONTABILIZACAO = 'E')
         THEN
             RESULTADO :=
                    RESULTADO
                 || CHR (13)
                 || CHR (10)
                 || 
-                   'ORDER BY DATAOPERACAO3, NUMTRANSOPERACAO';		   
+                   'ORDER BY DATAOPERACAO3, NUMTRANSOPERACAO';       
         ELSIF (V_CODFATOGERADOR = 14)
         THEN
             RESULTADO :=
@@ -637,12 +637,12 @@ IS
         FILIAIS             SYS_REFCURSOR;
         VS_CODFILIAL_AUX    VARCHAR2 (2);
         VN_CODFATOGERADOR   NUMBER;
-		v_count NUMBER;
-		PRAGMA AUTONOMOUS_TRANSACTION;
+    v_count NUMBER;
+    PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
-	
-	    v_count := 0;
-		
+  
+      v_count := 0;
+    
         SELECT CODFATOGERADOR
           INTO VN_CODFATOGERADOR
           FROM PCREGRACONTABIL
@@ -687,8 +687,8 @@ IS
                                         AND CODFILIAL = VS_CODFILIAL_AUX
                                         AND STATUS = 'P');
             END IF;
-			
-			LOOP
+      
+      LOOP
               
               DELETE FROM PCLANCINTERMEDIARIA
                     WHERE DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
@@ -703,30 +703,30 @@ IS
               
               EXIT WHEN v_count = 0; 
             END LOOP;
-			
-			v_count := 0;
-			
-			LOOP
-			
-				DELETE FROM PCLANCINTERMEDIARIA L
-					  WHERE L.CODREGRA = PCODREGRA
-					  AND L.CODFILIAL = VS_CODFILIAL_AUX
-					  AND L.STATUS = 'P'  
-					  AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIA A
-								   WHERE    A.DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
-										AND A.CODREGRA = PCODREGRA
-										AND A.CODFILIAL = VS_CODFILIAL_AUX
-										AND A.NUMTRANSOPERACAO = L.NUMTRANSOPERACAO
-										AND A.STATUS = 'I')
-					  AND ROWNUM <= 5000;
-			
-			v_count := SQL%ROWCOUNT;
-			
-			COMMIT;
-			
-			EXIT WHEN v_count = 0; 
-            END LOOP;						
-			
+      
+      v_count := 0;
+      
+      LOOP
+      
+        DELETE FROM PCLANCINTERMEDIARIA L
+            WHERE L.CODREGRA = PCODREGRA
+            AND L.CODFILIAL = VS_CODFILIAL_AUX
+            AND L.STATUS = 'P'  
+            AND EXISTS (SELECT 1 FROM PCLANCINTERMEDIARIA A
+                   WHERE    A.DATAINTEGRACAO BETWEEN PDATAINI AND PDATAFIM
+                    AND A.CODREGRA = PCODREGRA
+                    AND A.CODFILIAL = VS_CODFILIAL_AUX
+                    AND A.NUMTRANSOPERACAO = L.NUMTRANSOPERACAO
+                    AND A.STATUS = 'I')
+            AND ROWNUM <= 5000;
+      
+      v_count := SQL%ROWCOUNT;
+      
+      COMMIT;
+      
+      EXIT WHEN v_count = 0; 
+            END LOOP;            
+      
         END LOOP;
 
         COMMIT;
@@ -5569,7 +5569,12 @@ IS
             VALORFCEP PCNFBASEENT.VLFECP%TYPE,
             VALORACRESCIMOFUNCEP PCNFBASEENT.VLACRESCIMOFUNCEP%TYPE,
             VALORICMSBCR PCNFBASEENT.VLICMSBCR%TYPE,
-            VALORSTBCR PCNFBASEENT.VLSTBCR%TYPE
+            VALORSTBCR PCNFBASEENT.VLSTBCR%TYPE,
+            VALORCBS PCNFBASESAID.VLCBS%TYPE,
+            VALORIBSMUN PCNFBASESAID.VLIBSMUN%TYPE,
+            VALORIBSUF PCNFBASESAID.VLIBSUF%TYPE,
+            VALORIS PCNFBASESAID.VLIS%TYPE
+            
         );
 
         ITEM                          CONSULTA_DEVFORNECEDOR;
@@ -5857,6 +5862,32 @@ IS
                         REGEXP_REPLACE (VS_FORMULA,
                                         'VALORSTBCR([^_[:alnum:]])',
                                         NVL (ITEM.VALORSTBCR, 0) || '\1');
+                                        
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORCBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORCBS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSMUN([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSMUN, 0) || '\1');
+                     
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSUF([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSUF, 0) || '\1');
+                                                   
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIS([^_[:alnum:]])',
+                            NVL (ITEM.VALORIS, 0) || '\1');                    
+                                       
 
                     CALCULAREXPRESSAO;
 
@@ -6227,7 +6258,12 @@ IS
             VALORACRESCIMOFUNCEP PCNFBASEENT.VLACRESCIMOFUNCEP%TYPE,
             VALORICMSBCR PCNFBASEENT.VLICMSBCR%TYPE,
             VALORSTBCR PCNFBASEENT.VLSTBCR%TYPE,
-            VALORFECPSTGUIA PCNFBASEENT.VLFECPSTGUIA%TYPE
+            VALORFECPSTGUIA PCNFBASEENT.VLFECPSTGUIA%TYPE,
+            VALORCBS PCNFBASEENT.VLCBS%TYPE,
+            VALORIBSMUN PCNFBASEENT.VLIBSMUN%TYPE,
+            VALORIBSUF PCNFBASEENT.VLIBSUF%TYPE,
+            VALORIS PCNFBASEENT.VLIS%TYPE,
+            VALORTOTALIBS PCNFBASEENT.VLTOTALIBS%TYPE
         );
 
         ITEM               CONSULTA_DEVCLIENTES;
@@ -6500,6 +6536,36 @@ IS
                             VS_FORMULA,
                             'VALORFECPSTGUIA([^_[:alnum:]])',
                             NVL (ITEM.VALORFECPSTGUIA, 0) || '\1');
+                            
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORCBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORCBS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSMUN([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSMUN, 0) || '\1');
+                     
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSUF([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSUF, 0) || '\1');
+                                                   
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIS([^_[:alnum:]])',
+                            NVL (ITEM.VALORIS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORTOTALIBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORTOTALIBS, 0) || '\1');         
 
                     CALCULAREXPRESSAO;
 
@@ -12458,7 +12524,7 @@ IS
             V_SQLFATO :=
                 REPLACE (V_SQLFATO,
                          'AND R.DTESTORNO IS NULL',
-                         'AND R.DTESTORNO IS NOT NULL');						 
+                         'AND R.DTESTORNO IS NOT NULL');             
         ELSIF V_CODFATOGERADOR = 13
         THEN
             SELECT SQLFATOGERADOR
@@ -12671,10 +12737,10 @@ IS
         END IF;
 
         IF (V_CODFATOGERADOR = 13) AND (VS_BAIXA_ADIANT_FOR_MOV_NUM = 'N') THEN
-		   V_SQLFATO := REPLACE(V_SQLFATO, '--BAIXA_ADIANT_FORNEC_MOV_NUM', 'AND NOT EXISTS (SELECT 1 FROM PCCONSUM WHERE PCCONSUM.CODCONTAADIANTFOR = L.CODCONTA OR L.CODCONTA = CODCONTAADIANTFOROUTROS)');
-		ELSE
-		   V_SQLFATO := REPLACE(V_SQLFATO, '--BAIXA_ADIANT_FORNEC_MOV_NUM', 'AND EXISTS (SELECT 1 FROM PCCONSUM WHERE PCCONSUM.CODCONTAADIANTFOR = L.CODCONTA OR L.CODCONTA = CODCONTAADIANTFOROUTROS)');    
-		END IF;
+       V_SQLFATO := REPLACE(V_SQLFATO, '--BAIXA_ADIANT_FORNEC_MOV_NUM', 'AND NOT EXISTS (SELECT 1 FROM PCCONSUM WHERE PCCONSUM.CODCONTAADIANTFOR = L.CODCONTA OR L.CODCONTA = CODCONTAADIANTFOROUTROS)');
+    ELSE
+       V_SQLFATO := REPLACE(V_SQLFATO, '--BAIXA_ADIANT_FORNEC_MOV_NUM', 'AND EXISTS (SELECT 1 FROM PCCONSUM WHERE PCCONSUM.CODCONTAADIANTFOR = L.CODCONTA OR L.CODCONTA = CODCONTAADIANTFOROUTROS)');    
+    END IF;
 
         IF V_CODFATOGERADOR IN (4, 10) AND VS_BUSCAPORFILIALNF = 'N'
         THEN
@@ -12901,7 +12967,7 @@ IS
                         REPLACE (VS_DOCUMENTO, 'CODCLI', ITEM.CODCLIENTE);
                     VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'CLIENTE', ITEM.CLIENTE);
-					VS_DOCUMENTO :=
+          VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'NUMEROCREDITO', ITEM.NUMEROCREDITO);
 
                     --FORMULA INFORMADA NO FILTRO--------------------------------------------------------
