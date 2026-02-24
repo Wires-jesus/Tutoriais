@@ -2311,7 +2311,12 @@ GROUP BY   TAB.NUMSQL,
               A.OBS,
               A.TIPOVENDA,
               MC.PERDIFEREIMENTOICMS,
-              NVL(B.PERCIPI, 0),
+              CASE WHEN (V_CONSCALCCREDIPIDANFE = 'N') AND
+                  (B.CALCCREDIPI = 'S') THEN
+               NVL(B.PERCIPI, 0)
+              ELSE
+               0
+              END,
               A.CONTAORDEM,
               A.UF,
               C.ESTENT,
@@ -6533,6 +6538,10 @@ GROUP BY   TAB.NUMSQL,
     --------------------------------------------------------------------------
     for DADOS in (select M.CODFISCAL,
                          M.SITTRIBUT,
+                         M.ROTINACAD,
+                         CASE WHEN M.ROTINACAD LIKE '%1302%' THEN CASE WHEN (V_CONSCALCCREDIPIDANFE = 'N') AND
+                                                                            (M.CALCCREDIPI = 'S') THEN ROUND(NVL(M.PERCIPI, 0),2) ELSE 0 END 
+                         ELSE 0 END PERCIPI,                        
                          DECODE(M.GERAICMSLIVROFISCAL, 'N', 0, NVL(M.PERCICM, 0)) PERCICM,
                          DECODE(M.GERAICMSLIVROFISCAL, 'N', NVL(M.PERCICM, 0), 0) PERCICMNAOTRIB,
                          sum(ROUND(M.QTCONT * NVL(M.VLFRETE, 0), 2)) VLFRETE,
@@ -6556,7 +6565,11 @@ GROUP BY   TAB.NUMSQL,
                    group by M.GERAICMSLIVROFISCAL,
                             M.CODFISCAL,
                             M.PERCICM,
-                            M.SITTRIBUT)
+                            M.SITTRIBUT,
+                            M.ROTINACAD,
+                            CASE WHEN (V_CONSCALCCREDIPIDANFE = 'N') AND
+                                      (M.CALCCREDIPI = 'S') THEN ROUND(NVL(M.PERCIPI, 0),2) ELSE 0 END
+                            )
     loop
       update PCNFBASESAID A
          set VLDESDOBRADO  = NVL(VLDESDOBRADO, 0) + NVL(DADOS.VLFRETE, 0) +
@@ -6587,6 +6600,7 @@ GROUP BY   TAB.NUMSQL,
          and CODFISCAL = DADOS.CODFISCAL
          and PERCICM = DADOS.PERCICM
          and DECODE(LENGTH(DADOS.SITTRIBUT), 3, SITTRIBUT, DECODE(LENGTH(SITTRIBUT), 3, SUBSTR(SITTRIBUT, 2, 2), SUBSTR(SITTRIBUT, 1, 2))) = DADOS.SITTRIBUT
+         and PERCIPI = CASE WHEN DADOS.ROTINACAD LIKE '%1302%' THEN DADOS.PERCIPI ELSE A.PERCIPI END
          and ROWNUM = 1;
     end loop;
   end;
