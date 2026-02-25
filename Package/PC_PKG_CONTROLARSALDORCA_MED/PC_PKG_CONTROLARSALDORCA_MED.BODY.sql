@@ -1897,7 +1897,8 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
                             p_stpvenda                  IN pcpedi.st%TYPE,
                             p_stptabela                 IN pcpedi.stptabela%TYPE,
                             p_stpbaserca                IN pcpedi.stpbaserca%TYPE,
-                            p_prodBonific               IN pcpedi.BONIFIC%TYPE DEFAULT 'N' -- CC_ITEMBNF
+                            p_prodBonific               IN pcpedi.BONIFIC%TYPE DEFAULT 'N', -- CC_ITEMBNF
+                            p_perdesc                   IN pcpedi.perdesc%TYPE DEFAULT 0
                             ) RETURN NUMBER IS
     vnvlsaldoitem NUMBER;
     vsmsg         VARCHAR2(400);
@@ -1906,7 +1907,7 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
   BEGIN
     --RNG03
     SELECT (DECODE(p_condvenda, 5, 0, NVL(p_pvenda, 0) - NVL(p_stpvenda,0)) -
-            DECODE(p_pbaserca,0, NVL(p_ptabela, 0) - NVL(p_stptabela,0),p_pbaserca - NVL(p_stpbaserca,0))) * NVL(p_qt, 0)
+            DECODE(p_pbaserca,0, (case when p_perdesc = 100 then 0 else NVL(p_ptabela, 0) end) - NVL(p_stptabela,0),p_pbaserca - NVL(p_stpbaserca,0))) * NVL(p_qt, 0)
       INTO vnvlsaldoitem
       FROM DUAL;
 
@@ -2120,6 +2121,7 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
     vsbonific                   pcpedi.bonific%TYPE;
     -- DDVENDAS-41579
     vsItemBrinde                pcpedi.brinde%TYPE;
+    vnPerdesc                   pcpedi.perdesc%TYPE;
   BEGIN
     proc_lerparametros(vsmsg);
 
@@ -2168,7 +2170,8 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
            NVL(stpbaserca,0),
            NVL(vlunitlimcredrcautilizmed,0), -- LIMITE_FLEX
            nvl(pcpedi.BONIFIC, 'N') BONIFIC, -- CC_ITEMBNF
-           pcpedi.brinde -- DDVENDAS-41579
+           pcpedi.brinde, -- DDVENDAS-41579
+           pcpedi.perdesc
       INTO vnpvenda,
            vnptabela,
            vnpbaserca,
@@ -2179,7 +2182,8 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
            vnstpbaserca,
            vnVlUnitLimCredRcaUtiliz, -- LIMITE_FLEX
            vsbonific, -- CC_ITEMBNF
-           vsItemBrinde -- DDVENDAS-41579
+           vsItemBrinde, -- DDVENDAS-41579
+           vnPerdesc
       FROM pcpedi
      WHERE numped = p_numped
        AND codprod = p_codprod
@@ -2222,7 +2226,8 @@ CREATE OR REPLACE PACKAGE BODY PC_PKG_CONTROLARSALDORCA_MED IS
                                    vnstpvenda,
                                    vnstptabela,
                                    vnstpbaserca,
-                                   vsbonific -- CC_ITEMBNF
+                                   vsbonific, -- CC_ITEMBNF
+                                   vnPerdesc
                                    );
       END IF;
     ELSE

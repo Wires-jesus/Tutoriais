@@ -454,7 +454,8 @@ CREATE OR REPLACE PACKAGE PC_PKG_CONTROLARSALDORCA_MED IS
                             p_stpvenda                  IN pcpedi.st%TYPE,
                             p_stptabela                 IN pcpedi.stptabela%TYPE,
                             p_stpbaserca                IN pcpedi.stpbaserca%TYPE,
-                            p_prodBonific               IN pcpedi.BONIFIC%TYPE DEFAULT 'N' -- CC_ITEMBNF
+                            p_prodBonific               IN pcpedi.BONIFIC%TYPE DEFAULT 'N', -- CC_ITEMBNF
+                            p_perdesc                   IN pcpedi.perdesc%TYPE DEFAULT 0
                             )
     return number;    
 
