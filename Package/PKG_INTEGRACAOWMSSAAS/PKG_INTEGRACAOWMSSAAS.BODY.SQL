@@ -822,110 +822,113 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
   END EFETUAR_TROCA_ESTOQUE_AVARIA;
 
   PROCEDURE GERAR_PENDENCIA_MOV_ESTOQUE(pCODFILIAL  IN VARCHAR2,
-                                          pCODPROD    IN NUMBER,
-                                          pCODOPER    IN VARCHAR2,
-                                          pQUANTIDADE IN NUMBER,
-                                          pORIGEM     IN VARCHAR2,
-                                          pNUMLOTE    IN VARCHAR2,
-                                          pVALIDADE   IN VARCHAR2) IS
-      vIDENTIFICADOR        NUMBER;
-      vCODFILIAL            VARCHAR2(2) := pCODFILIAL;
-      vCODPROD              NUMBER := pCODPROD;
-      vCODOPER              VARCHAR2(1) := pCODOPER;
-      vQT                   NUMBER := pQUANTIDADE;
-      vORIGEM               VARCHAR2(50) := pORIGEM;
-      vNUMLOTE              VARCHAR2(20) := pNUMLOTE;
-      vDATAVALIDADE         DATE;
-      vLOTE                 VARCHAR2(15);
-      vUSA_ESTOQUE_POR_LOTE VARCHAR2(2);
+                                        pCODPROD    IN NUMBER,
+                                        pCODOPER    IN VARCHAR2,
+                                        pQUANTIDADE IN NUMBER,
+                                        pORIGEM     IN VARCHAR2,
+                                        pNUMLOTE    IN VARCHAR2,
+                                        pVALIDADE   IN VARCHAR2) IS
+    vIDENTIFICADOR        NUMBER;
+    vCODFILIAL            VARCHAR2(2) := pCODFILIAL;
+    vCODPROD              NUMBER := pCODPROD;
+    vCODOPER              VARCHAR2(1) := pCODOPER;
+    vQT                   NUMBER := pQUANTIDADE;
+    vORIGEM               VARCHAR2(50) := pORIGEM;
+    vNUMLOTE              VARCHAR2(20) := pNUMLOTE;
+    vDATAVALIDADE         DATE;
+    vLOTE                 VARCHAR2(15);
+    vUSA_ESTOQUE_POR_LOTE VARCHAR2(2);
 
-    BEGIN
+  BEGIN
 
-      SELECT NVL(ESTOQUEPORLOTE, 'N')
-        INTO vUSA_ESTOQUE_POR_LOTE
-        FROM PCPRODUT
-       WHERE CODPROD = pCODPROD;
+    SELECT NVL(ESTOQUEPORLOTE, 'N')
+      INTO vUSA_ESTOQUE_POR_LOTE
+      FROM PCPRODUT
+     WHERE CODPROD = pCODPROD;
 
-      IF vUSA_ESTOQUE_POR_LOTE = 'N' THEN
-        vLOTE         := NULL;
-        vDATAVALIDADE := NULL;
-      END IF;
+    IF vUSA_ESTOQUE_POR_LOTE = 'N' THEN
+      vLOTE         := NULL;
+      vDATAVALIDADE := NULL;
+    END IF;
 
-      IF vUSA_ESTOQUE_POR_LOTE = 'S' THEN
-        vLOTE         := pNUMLOTE;
+    IF vUSA_ESTOQUE_POR_LOTE = 'S' THEN
+      vLOTE := pNUMLOTE;
 
-        /*CASO SEJA UMA TROCA DE ESTOQUE O LOTE INFORMADO JÁ DEVE EXISTIR*/
-        IF pORIGEM LIKE '%AVARIA%' THEN
-          BEGIN
-            SELECT DTVALIDADE
-              INTO vDATAVALIDADE
-              FROM PCLOTE
-             WHERE CODFILIAL = pCODFILIAL
-               AND CODPROD = pCODPROD
-               AND NUMLOTE = pNUMLOTE;
-          EXCEPTION
+      /*CASO SEJA UMA TROCA DE ESTOQUE O LOTE INFORMADO JÁ DEVE EXISTIR*/
+      IF pORIGEM LIKE '%AVARIA%' THEN
+        BEGIN
+          SELECT DTVALIDADE
+            INTO vDATAVALIDADE
+            FROM PCLOTE
+           WHERE CODFILIAL = pCODFILIAL
+             AND CODPROD = pCODPROD
+             AND NUMLOTE = pNUMLOTE;
+        EXCEPTION
           WHEN NO_DATA_FOUND THEN
-              raise_application_error(-20002, 'VALIDADE DO LOTE INFORMADO NÃO ENCONTRADA');
-          END;
-        ELSE
-          /*CASO SEJA UM AJUSTE DE ESTOQUE A VALIDADE DEVE SER INFORMADA*/
-          IF vDATAVALIDADE = 'VAL_NAO_INFO' THEN
-          raise_application_error (-20002,'VALIDADE DO LOTE NÃO INFORMADA' );
-          END IF;
-
-          BEGIN
-          vDATAVALIDADE := TO_DATE(pVALIDADE, 'yyyymmdd');
-      EXCEPTION
-          WHEN OTHERS THEN
-              raise_application_error(-20002, 'ERRO AO CONVERTER VALIDADE INFORMADA: ' || SQLERRM);
-      END;
-
+            raise_application_error(-20002,
+                                    'VALIDADE DO LOTE INFORMADO NÃO ENCONTRADA');
+        END;
+      ELSE
+        /*CASO SEJA UM AJUSTE DE ESTOQUE A VALIDADE DEVE SER INFORMADA*/
+        IF vDATAVALIDADE = 'VAL_NAO_INFO' THEN
+          raise_application_error(-20002, 'VALIDADE DO LOTE NÃO INFORMADA');
         END IF;
 
+        BEGIN
+          vDATAVALIDADE := TO_DATE(pVALIDADE, 'yyyymmdd');
+        EXCEPTION
+          WHEN OTHERS THEN
+            raise_application_error(-20002,
+                                    'ERRO AO CONVERTER VALIDADE INFORMADA: ' ||
+                                    SQLERRM);
+        END;
+
       END IF;
 
-      IF vCODOPER = 'E' THEN
-        SELECT NVL(PROXNUMTRANSENT, 1)
-          INTO vIDENTIFICADOR
-          FROM PCCONSUM
-           FOR UPDATE;
+    END IF;
 
-        UPDATE PCCONSUM SET PROXNUMTRANSENT = NVL(PROXNUMTRANSENT, 1) + 1;
+    IF vCODOPER = 'E' THEN
+      SELECT NVL(PROXNUMTRANSENT, 1)
+        INTO vIDENTIFICADOR
+        FROM PCCONSUM
+         FOR UPDATE;
 
-      ELSIF vCODOPER = 'S' THEN
-        SELECT NVL(PROXNUMTRANSVENDA, 1)
-          INTO vIDENTIFICADOR
-          FROM PCCONSUM
-           FOR UPDATE;
+      UPDATE PCCONSUM SET PROXNUMTRANSENT = NVL(PROXNUMTRANSENT, 1) + 1;
 
-        UPDATE PCCONSUM
-           SET PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
-      END IF;
+    ELSIF vCODOPER = 'S' THEN
+      SELECT NVL(PROXNUMTRANSVENDA, 1)
+        INTO vIDENTIFICADOR
+        FROM PCCONSUM
+         FOR UPDATE;
 
-      INSERT INTO PCMOVESTOQUEWMSSAAS
-        (IDENTIFICADOR,
-         CODFILIAL,
-         CODPROD,
-         CODOPER,
-         QT,
-         ORIGEM,
-         NUMLOTE,
-         DATAVALIDADE,
-         DATACRIACAO,
-         DTCANCEL,
-         DTFINALIZACAO)
-      VALUES
-        (vIDENTIFICADOR,
-         vCODFILIAL,
-         vCODPROD,
-         vCODOPER,
-         vQT,
-         vORIGEM,
-         vLOTE,
-         vDATAVALIDADE,
-         SYSDATE,
-         NULL,
-         NULL);
+      UPDATE PCCONSUM
+         SET PROXNUMTRANSVENDA = NVL(PROXNUMTRANSVENDA, 1) + 1;
+    END IF;
+
+    INSERT INTO PCMOVESTOQUEWMSSAAS
+      (IDENTIFICADOR,
+       CODFILIAL,
+       CODPROD,
+       CODOPER,
+       QT,
+       ORIGEM,
+       NUMLOTE,
+       DATAVALIDADE,
+       DATACRIACAO,
+       DTCANCEL,
+       DTFINALIZACAO)
+    VALUES
+      (vIDENTIFICADOR,
+       vCODFILIAL,
+       vCODPROD,
+       vCODOPER,
+       vQT,
+       vORIGEM,
+       vLOTE,
+       vDATAVALIDADE,
+       SYSDATE,
+       NULL,
+       NULL);
 
   END GERAR_PENDENCIA_MOV_ESTOQUE;
 
@@ -1047,372 +1050,839 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
   END ENVIARDOCFILAINTEGRACAOITEM;
 
-  PROCEDURE CANCELAR_SEPARACAO_PEDIDO(pNUMDOCWMSSAAS IN NUMBER) IS
+  PROCEDURE CANCELAR_SEPARACAO_PEDIDO(pNUMPED IN NUMBER) IS
 
-      vTIPOGERACAODOC             VARCHAR2(20);
-      vNUMPED                     NUMBER;
-      vQTRESERVADA                NUMBER;
-      vPOSICAO                    VARCHAR2(2);
-      vEXISTE_PENDENCIA_SEPARACAO VARCHAR2(2);
-      vDTCANCEL DATE;
+    vTIPOGERACAODOC             VARCHAR2(20);
+    vNUMPED                     NUMBER;
+    vQTRESERVADA                NUMBER;
+    vPOSICAO                    VARCHAR2(2);
+    vEXISTE_PENDENCIA_SEPARACAO VARCHAR2(2);
+    vDTCANCEL                   DATE;
 
     PROCEDURE CANCELAR_SEPARACAO_PCPEDI IS
     BEGIN
       UPDATE PCPEDI
-           SET QTSEPARADA   = NULL,
-               DTINICIALSEP = NULL,
-               DTFINALSEP   = NULL,
-               QTAPANHA     = NULL,
-               DATACONF     = NULL,
-               DATACONFFIM  = NULL,
-               CODFUNCSEP   = NULL,
-               CODFUNCCONF  = NULL,
-               NUMLOTE      = NULL
-         WHERE NUMPED = vNUMPED;
+         SET QTSEPARADA   = NULL,
+             DTINICIALSEP = NULL,
+             DTFINALSEP   = NULL,
+             QTAPANHA     = NULL,
+             DATACONF     = NULL,
+             DATACONFFIM  = NULL,
+             CODFUNCSEP   = NULL,
+             CODFUNCCONF  = NULL,
+             NUMLOTE      = NULL
+       WHERE NUMPED = vNUMPED;
     END;
 
     PROCEDURE CANCELAR_SEPARACAO_PCPEDC IS
     BEGIN
       UPDATE PCPEDC
-             SET DTINICIALSEP      = NULL,
-                 DTFINALSEP        = NULL,
-                 DTINICIALCHECKOUT = NULL,
-                 DTFINALCHECKOUT   = NULL,
-                 CODFUNCSEP        = NULL,
-                 CODFUNCCONF       = NULL,
-                 NUMVOLUME         = NULL
-           WHERE NUMPED = vNUMPED;
+         SET DTINICIALSEP      = NULL,
+             DTFINALSEP        = NULL,
+             DTINICIALCHECKOUT = NULL,
+             DTFINALCHECKOUT   = NULL,
+             CODFUNCSEP        = NULL,
+             CODFUNCCONF       = NULL,
+             NUMVOLUME         = NULL
+       WHERE NUMPED = vNUMPED;
     END;
 
-    PROCEDURE CANCELAR_SEP_INTEGRACAO_ITEM IS
+    /****INICIO DO CANCELAMENTO DA SEPARACAO PEDIDO***/
+  BEGIN
+
     BEGIN
-      UPDATE PCINTEGRACAOWMSSAASITEM
-           SET QTSEPARADA = NULL, NUMLOTE = NULL, DTVALIDADE = NULL
-         WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS;
+      SELECT POSICAO, DTCANCEL, NUMPED
+        INTO vPOSICAO, vDTCANCEL, vNUMPED
+        FROM PCPEDC
+       WHERE NUMPED = pNUMPED;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vPOSICAO := 'F';
+        vNUMPED  := 0;
     END;
 
-    PROCEDURE CANCELAR_SEP_INTEGRACAO IS
-    BEGIN
-      UPDATE PCINTEGRACAOWMSSAAS
-             SET DTFIMSEPARACAO = NULL, TOTVOLUME = NULL
-           WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS;
-    END;
+    IF vNUMPED = 0 THEN
+      RETURN;
+    END IF;
 
-    /*INICIO DE EXECUÇÃO DA PROCEDURE*/
-    BEGIN
+    IF vPOSICAO = 'F' THEN
+      RETURN;
+    END IF;
 
-      BEGIN
-        SELECT TIPOGERACAODOC, NUMDOCWINTHOR
-          INTO vTIPOGERACAODOC, vNUMPED
-          FROM PCINTEGRACAOWMSSAAS
-         WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS;
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          RAISE_APPLICATION_ERROR(-20001, 'PEDIDO NÃO ENCONTRADO NO WINTHOR - PCINTEGRACAOWMSSAAS');
-      END;
+    IF vDTCANCEL IS NOT NULL THEN
+      RETURN;
+    END IF;
 
-      BEGIN
-        SELECT POSICAO, DTCANCEL
-         INTO vPOSICAO, vDTCANCEL
-        FROM PCPEDC WHERE NUMPED = vNUMPED;
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          RAISE_APPLICATION_ERROR(-20001, 'PEDIDO NÃO ENCONTRADO NO WINTHOR - PCPEDC');
-      END;
+    /*BUSCAR LOTES PARA RETIRAR RESERVAS DOS LOTES DA SEPARAÇÃO QUE VAI SER CANCELADA*/
+    FOR REG_PED_ITEM IN (SELECT C.CODFILIAL,
+                                I.CODPROD,
+                                I.NUMLOTE,
+                                I.QTSEPARADA,
+                                NVL(P.ESTOQUEPORLOTE, 'N') AS ESTOQUEPORLOTE
+                           FROM PCPEDI I, PCPEDC C, PCPRODUT P
+                          WHERE C.NUMPED = I.NUMPED
+                            AND P.CODPROD = I.CODPROD
+                            AND C.DTFINALSEP IS NOT NULL
+                            AND C.NUMPED = vNUMPED)
 
-      IF vPOSICAO = 'F' THEN
-        RAISE_APPLICATION_ERROR(-20001, 'PEDIDO JÁ FATURADO!');
+     LOOP
+
+      /*RETIRAR RESERVA DO LOTES*/
+      IF REG_PED_ITEM.ESTOQUEPORLOTE = 'S' THEN
+        BEGIN
+          SELECT NVL(QTRESERV, 0)
+            INTO vQTRESERVADA
+            FROM PCLOTE
+           WHERE CODFILIAL = REG_PED_ITEM.CODFILIAL
+             AND CODPROD = REG_PED_ITEM.CODPROD
+             AND NUMLOTE = REG_PED_ITEM.NUMLOTE;
+        EXCEPTION
+          WHEN NO_DATA_FOUND THEN
+            RAISE_APPLICATION_ERROR(-20001,
+                                    'Lote ' || REG_PED_ITEM.NUMLOTE ||
+                                    ' não encontrado para o produto ' ||
+                                    REG_PED_ITEM.CODPROD || ' na filial ' ||
+                                    REG_PED_ITEM.CODFILIAL);
+        END;
+
+        /*ATUALIZAÇÃO DA QUANTIDADE RESERVADA DO LOTE*/
+        IF vQTRESERVADA < REG_PED_ITEM.QTSEPARADA THEN
+          RAISE_APPLICATION_ERROR(-20001,
+                                  'Não foi possível remover a reserva. Produto: ' ||
+                                  REG_PED_ITEM.CODPROD || ', Lote: ' ||
+                                  REG_PED_ITEM.NUMLOTE || ', Filial: ' ||
+                                  REG_PED_ITEM.CODFILIAL ||
+                                  '. Reservado atual: ' || vQTRESERVADA ||
+                                  ', Quantidade a remover: ' ||
+                                  REG_PED_ITEM.QTSEPARADA);
+        ELSE
+          UPDATE PCLOTE
+             SET QTRESERV = QTRESERV - REG_PED_ITEM.QTSEPARADA
+           WHERE CODFILIAL = REG_PED_ITEM.CODFILIAL
+             AND CODPROD = REG_PED_ITEM.CODPROD
+             AND NUMLOTE = REG_PED_ITEM.NUMLOTE;
+        END IF;
+
       END IF;
 
-      IF vDTCANCEL IS NOT NULL THEN
-        RAISE_APPLICATION_ERROR(-20001, 'PEDIDO JÁ CANCELADO!');
+    /* FINAL LAÇO REG_PED_ITEM*/
+    END LOOP;
+
+    /*RETIRAR QUANTIDADE SEPARADA DOS ITENS DO PEDIDO*/
+    CANCELAR_SEPARACAO_PCPEDI;
+
+    /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO NO ERP*/
+    CANCELAR_SEPARACAO_PCPEDC;
+
+  END CANCELAR_SEPARACAO_PEDIDO;
+
+  FUNCTION HORARIO_VALIDO_PARA_INTEGRACAO(pCODFILIAL IN VARCHAR2)
+    RETURN VARCHAR2 IS
+    v_HORARIO_INICIAL NUMBER := 0;
+    v_HORARIO_FINAL   NUMBER := 0;
+    v_HORARIO_ATUAL   NUMBER := 0;
+    v_CODFILIAL       VARCHAR2(2);
+  BEGIN
+
+    BEGIN
+      SELECT TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')) AS hora_atual
+        INTO v_HORARIO_ATUAL
+        FROM DUAL;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        v_HORARIO_ATUAL := 0;
+    END;
+
+    BEGIN
+      SELECT TO_NUMBER(VALOR)
+        INTO v_HORARIO_INICIAL
+        FROM PCPARAMINTEGRACAOWMSSAAS
+       WHERE PARAMETRO = 'HORA_INICIAL_PERIODO_INTEGRACAO'
+         AND CODFILIAL = pCODFILIAL;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        v_HORARIO_INICIAL := 0;
+    END;
+
+    BEGIN
+      SELECT TO_NUMBER(VALOR)
+        INTO v_HORARIO_FINAL
+        FROM PCPARAMINTEGRACAOWMSSAAS
+       WHERE PARAMETRO = 'HORA_FINAL_PERIODO_INTEGRACAO'
+         AND CODFILIAL = pCODFILIAL;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        v_HORARIO_FINAL := 23;
+    END;
+
+    IF (v_HORARIO_ATUAL >= v_HORARIO_INICIAL) AND
+       (v_HORARIO_ATUAL <= v_HORARIO_FINAL) THEN
+      RETURN 'S';
+    ELSE
+      RETURN 'N';
+    END IF;
+
+  END HORARIO_VALIDO_PARA_INTEGRACAO;
+
+  PROCEDURE EFETUAR_MOV_POR_TIPO_ESTOQUE(pCODFILIAL            IN VARCHAR2,
+                                         pCODPROD              IN NUMBER,
+                                         pQUANTIDADE           IN NUMBER,
+                                         pNUMLOTE              IN VARCHAR2,
+                                         pTIPO_ESTOQUE_ORIGEM  IN VARCHAR2,
+                                         pTIPO_ESTOQUE_DESTINO IN VARCHAR2) IS
+    vNUMTRANSENT  NUMBER(10);
+    VSRETORNO     VARCHAR2(60);
+    PSMSG_RETORNO VARCHAR2(6000);
+
+    vTIPO_ESTOQUE_ORIGEM_BLOQUEIO  VARCHAR2(1);
+    vTIPO_ESTOQUE_DESTINO_BLOQUEIO VARCHAR2(1);
+
+  BEGIN
+
+    SELECT DECODE(COUNT(1), 0, 'N', 'S')
+      INTO vTIPO_ESTOQUE_ORIGEM_BLOQUEIO
+      FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
+     WHERE CODFILIAL = pCODFILIAL
+       AND TIPOESTOQUE = pTIPO_ESTOQUE_ORIGEM;
+
+    SELECT DECODE(COUNT(1), 0, 'N', 'S')
+      INTO vTIPO_ESTOQUE_DESTINO_BLOQUEIO
+      FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
+     WHERE CODFILIAL = pCODFILIAL
+       AND TIPOESTOQUE = pTIPO_ESTOQUE_DESTINO;
+
+    /**SE A TROCA DO TIPO DE ESTOQUE FOR DE NORMAL PARA UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, ENTÃO EFETUAR BLOQUEIO**/
+    IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'N' AND
+       vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'S' THEN
+
+      VSRETORNO := PKG_ESTOQUE.BLOQUEIO_INCLUIR(PNIDENTIFICADOR => 0,
+                                                PSCODFILIAL     => pCODFILIAL,
+                                                PNCODPROD       => pCODPROD,
+                                                PNNUMSEQ        => 0,
+                                                PNQTDE          => pQUANTIDADE,
+                                                PNQTAVARIA      => 0,
+                                                PSOPERACAO      => 'IU',
+                                                psCODOPER       => 'IG',
+                                                psOBSERVACAO    => 'BLOQUEIO DE ESTOQUE',
+                                                psNUMLOTE       => pNUMLOTE,
+                                                PSMSG_RETORNO   => PSMSG_RETORNO);
+
+      IF VSRETORNO <> 'S' THEN
+        raise_application_error(-20002,
+                                'Não foi possível efetuar bloqueio');
       END IF;
 
-      /* 1 - FLUXO PADRÃO, QUANDO O PEDIDO DO ERP NÃO FOI SEGREGADO EM DOIS (CAIXA E FRACIONADO) AO ENVIAR PARA O WMS SAAS*/
-      IF vTIPOGERACAODOC = 'COMPLETO' THEN
+    END IF;
 
-        /*BUSCAR LOTES PARA RETIRAR RESERVAS DOS LOTES DA SEPARAÇÃO QUE VAI SER CANCELADA*/
-        FOR REG_PED_ITEM IN (SELECT C.CODFILIAL,
-                                    I.CODPROD,
-                                    I.NUMLOTE,
-                                    I.QTSEPARADA,
-                                    NVL(P.ESTOQUEPORLOTE, 'N') AS ESTOQUEPORLOTE
-                               FROM PCPEDI I, PCPEDC C, PCPRODUT P
-                              WHERE C.NUMPED = I.NUMPED
-                                AND P.CODPROD = I.CODPROD
-                                AND C.DTFINALSEP IS NOT NULL
-                                AND C.NUMPED = vNUMPED)
+    /**SE A TROCA DO TIPO DE ESTOQUE FOR DE UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, PARA UM TIPO DE ESTOQUE NÃO MAPEADO PARA BLOQUEIO, ENTÃO DESBLOQUEAR**/
+    IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'S' AND
+       vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'N' THEN
 
-         LOOP
-          /* INICIO LAÇO REG_PED_ITEM*/
-          /*RETIRAR RESERVA DO LOTES*/
-          IF REG_PED_ITEM.ESTOQUEPORLOTE = 'S' THEN
-            BEGIN
-              SELECT NVL(QTRESERV, 0)
-                INTO vQTRESERVADA
-                FROM PCLOTE
-               WHERE CODFILIAL = REG_PED_ITEM.CODFILIAL
-                 AND CODPROD = REG_PED_ITEM.CODPROD
-                 AND NUMLOTE = REG_PED_ITEM.NUMLOTE;
-            EXCEPTION
-              WHEN NO_DATA_FOUND THEN
-                RAISE_APPLICATION_ERROR(-20001,
-                                        'Lote ' || REG_PED_ITEM.NUMLOTE ||
-                                        ' não encontrado para o produto ' || REG_PED_ITEM.CODPROD ||
-                                        ' na filial ' || REG_PED_ITEM.CODFILIAL);
-            END;
+      VSRETORNO := PKG_ESTOQUE.BLOQUEIO_BAIXAR(PNIDENTIFICADOR => 0,
+                                               PSCODFILIAL     => pCODFILIAL,
+                                               PNCODPROD       => pCODPROD,
+                                               PNNUMSEQ        => 0,
+                                               PNQTDE          => pQUANTIDADE,
+                                               PNQTAVARIA      => 0,
+                                               PSOPERACAO      => 'BU',
+                                               psCODOPER       => 'BG',
+                                               psOBSERVACAO    => 'DESBLOQUEIO DE ESTOQUE',
+                                               psNUMLOTE       => pNUMLOTE,
+                                               PSMSG_RETORNO   => PSMSG_RETORNO);
 
-            /*ATUALIZAÇÃO DA QUANTIDADE RESERVADA DO LOTE*/
-            IF vQTRESERVADA < REG_PED_ITEM.QTSEPARADA THEN
-              RAISE_APPLICATION_ERROR(-20001,
-                                      'Não foi possível remover a reserva. Produto: ' || REG_PED_ITEM.CODPROD ||
-                                      ', Lote: ' || REG_PED_ITEM.NUMLOTE ||
-                                      ', Filial: ' || REG_PED_ITEM.CODFILIAL ||
-                                      '. Reservado atual: ' || vQTRESERVADA ||
-                                      ', Quantidade a remover: ' || REG_PED_ITEM.QTSEPARADA);
-            ELSE
-              UPDATE PCLOTE
-                 SET QTRESERV = QTRESERV - REG_PED_ITEM.QTSEPARADA
-               WHERE CODFILIAL = REG_PED_ITEM.CODFILIAL
-                 AND CODPROD = REG_PED_ITEM.CODPROD
-                 AND NUMLOTE = REG_PED_ITEM.NUMLOTE;
-            END IF;
+      IF VSRETORNO <> 'S' THEN
+        raise_application_error(-20002,
+                                'Não foi possível efetuar desbloqueio');
+      END IF;
+
+    END IF;
+
+  END EFETUAR_MOV_POR_TIPO_ESTOQUE;
+
+  PROCEDURE FINALIZARSEPARACAOPEDIDO(pCODFILIAL IN VARCHAR2,
+                                     pNUMPED    IN NUMBER,
+                                     pVOLUME    IN NUMBER) IS
+
+    vSEPARACAO_DIVERGENTE         VARCHAR2(1);
+    vBODY                         VARCHAR2(500);
+    vSEP_FINALIZADA_OU_PEDIDO_FAT VARCHAR2(1);
+
+  BEGIN
+
+    SELECT DECODE(COUNT(1), 0, 'N', 'S')
+      INTO vSEP_FINALIZADA_OU_PEDIDO_FAT
+      FROM PCPEDC
+     WHERE NUMPED = pNUMPED
+       AND (DTFINALSEP IS NOT NULL OR POSICAO = 'F');
+
+    /***SE O PEDIDO JÁ TEVE SEPARACAO FINALIZADA OU O PEDIDO JÁ ESTÁ FATURADO ENTÃO NÃO FAZER NADA****/
+    IF vSEP_FINALIZADA_OU_PEDIDO_FAT = 'S' THEN
+      RETURN;
+    END IF;
+
+    SELECT DECODE(COUNT(1), 0, 'N', 'S') SEPARACAO_DIVERGENTE
+      INTO vSEPARACAO_DIVERGENTE
+      FROM PCPEDI
+     WHERE NUMPED = pNUMPED
+       AND NVL(QT, 0) <> NVL(QTSEPARADA, 0);
+
+    UPDATE PCPEDC
+       SET DTINICIALSEP      = TRUNC(SYSDATE),
+           DTFINALSEP        = TRUNC(SYSDATE),
+           DTINICIALCHECKOUT = TRUNC(SYSDATE),
+           DTFINALCHECKOUT   = TRUNC(SYSDATE),
+           CODFUNCSEP        = 1,
+           CODFUNCCONF       = 1,
+           NUMVOLUME         = pVOLUME
+     WHERE NUMPED = pNUMPED;
+
+    /***ATUALIZAR PEDIDO COM QUANTIDADES SEPARADAS (CORTE OU ACRESCIMO), CASO HAJA QUANTIDADES DIVERGENTES DO PEDIDO ORIGINAL ****/
+    IF vSEPARACAO_DIVERGENTE = 'S' THEN
+
+      /***ATUALIZANDO ITEMS***/
+      PROCESSAR_CORTE(pCODFILIAL, pNUMPED);
+
+    END IF;
+
+  END FINALIZARSEPARACAOPEDIDO;
+
+  PROCEDURE PROCESSAR_CORTE(pCODFILIAL IN VARCHAR2, pNUMPED IN NUMBER) IS
+
+    vVLDESCONTO   NUMBER := 0;
+    vVLOUTRASDESP NUMBER := 0;
+    vVLFRETE      NUMBER := 0;
+    vCONDVENDA    NUMBER := 0;
+
+    vVLATEND_AGG  NUMBER := 0;
+    vVLTOTAL_AGG  NUMBER := 0;
+    vVLTABELA_AGG NUMBER := 0;
+    vVLCUSTOFIN   NUMBER := 0;
+    vVLCUSTOREAL  NUMBER := 0;
+    vVLCUSTOREP   NUMBER := 0;
+    vVLCUSTOCONT  NUMBER := 0;
+    vNUMITENS     NUMBER := 0;
+    vTOTPESO      NUMBER := 0;
+    vTOTVOLUME    NUMBER := 0;
+
+    vVlTotal  NUMBER := 0;
+    vVlAtend  NUMBER := 0;
+    vVlTabela NUMBER := 0;
+
+    v_COUNT          NUMBER := 0;
+    vNUMCAR          NUMBER := 0;
+    vNUMPED          NUMBER := 0;
+    vCODCLI          NUMBER := 0;
+    vPOSICAO         VARCHAR2(1);
+    vTIPODIVERGENCIA VARCHAR2(20);
+    vsMSGCCRCA       VARCHAR2(2000);
+    vbgerousaldorca  BOOLEAN;
+
+  BEGIN
+
+    BEGIN
+      SELECT NVL(NUMCAR, 0),
+             NVL(NUMPED, 0),
+             NVL(CODCLI, 0),
+             CONDVENDA,
+             POSICAO
+        INTO vNUMCAR, vNUMPED, vCODCLI, vCONDVENDA, vPOSICAO
+        FROM PCPEDC
+       WHERE NUMPED = pNUMPED;
+
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vNUMCAR    := 0;
+        vNUMPED    := 0;
+        vCODCLI    := 0;
+        vCONDVENDA := 0;
+        vPOSICAO   := 'X';
+    END;
+
+    /***ARMAZENANDO QUANTIDADES ORIGINAIS DO PEDIDO***/
+    UPDATE PCPEDI SET QTORIG = QT WHERE NUMPED = pNUMPED;
+
+    /***ATUALIZANDO ITEMS (PCPEDI)***/
+    FOR REG IN (SELECT ROWID,
+                       NUMPED,
+                       CODPROD,
+                       NVL(QTORIG, 0) AS QTORIG,
+                       NVL(QT, 0) AS QT,
+                       NVL(QTSEPARADA, 0) AS QTSEPARADA,
+                       NUMSEQ,
+                       NVL(CODFILIALRETIRA, pCODFILIAL) CODFILIAL
+                  FROM PCPEDI
+                 WHERE NVL(QT, 0) <> NVL(QTSEPARADA, 0)
+                   AND NUMPED = pNUMPED) LOOP
+      UPDATE PCPEDI
+         SET QT = QTSEPARADA, QTAPANHA = QTSEPARADA
+       WHERE NUMPED = REG.NUMPED
+         AND NUMSEQ = REG.NUMSEQ
+         AND CODPROD = REG.CODPROD
+         AND ROWID = REG.ROWID;
+
+      /***GERA TABELAS PCCORTE E PCCORTEI***/
+      IF REG.QTSEPARADA < REG.QT THEN
+
+        /***GERA PCCORTE**/
+        IF vNUMCAR > 0 THEN
+          UPDATE pccorte
+             SET qtseparada = REG.QTSEPARADA,
+                 qtcortada  = (REG.QT - REG.QTSEPARADA),
+                 DATA       = TRUNC(SYSDATE),
+                 hora       = TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')),
+                 minuto     = TO_NUMBER(TO_CHAR(SYSDATE, 'MI')),
+                 codfunc    = 1,
+                 numped     = REG.NUMPED,
+                 codrotina  = 1402,
+                 codcli     = vCODCLI,
+                 condvenda  = vCONDVENDA
+           WHERE codprod = REG.CODPROD
+             AND numcar = vNUMCAR;
+
+          v_COUNT := SQL%ROWCOUNT;
+
+          IF v_COUNT = 0 THEN
+
+            INSERT INTO PCCORTE
+              (data,
+               qtseparada,
+               qtcortada,
+               codfunc,
+               numped,
+               codrotina,
+               codcli,
+               condvenda,
+               numcar,
+               codprod)
+            VALUES
+              (sysdate,
+               REG.QTSEPARADA,
+               (REG.QT - REG.QTSEPARADA),
+               1,
+               REG.NUMPED,
+               1402,
+               vCODCLI,
+               vCONDVENDA,
+               vNUMCAR,
+               REG.CODPROD);
 
           END IF;
 
-        /* FINAL LAÇO REG_PED_ITEM*/
-        END LOOP;
+        END IF;
 
-        /*RETIRAR QUANTIDADE SEPARADA DOS ITENS DO PEDIDO*/
-        CANCELAR_SEPARACAO_PCPEDI;
+        /***GERA PCCORTEI**/
+        IF vNUMPED > 0 THEN
 
-        /*ELIMINANDO POSSIVEIS LINHAS DUPLICADAS DO PRODUTO PROVENIENTES DE DESDOBRAMENTOS ANTERIORES - PCPEDI*/
-        DELETE FROM PCPEDI I
-         WHERE I.ROWID NOT IN (SELECT MIN(J.ROWID)
-                                 FROM PCPEDI J
-                                WHERE J.NUMPED = vNUMPED
-                                GROUP BY J.CODPROD)
-           AND I.NUMPED = vNUMPED;
+          UPDATE pccortei
+             SET qtseparada = REG.QTSEPARADA,
+                 qtcortada  = (REG.QT - REG.QTSEPARADA),
+                 DATA       = TRUNC(SYSDATE),
+                 hora       = TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')),
+                 minuto     = TO_NUMBER(TO_CHAR(SYSDATE, 'MI')),
+                 codfunc    = 1,
+                 numped     = REG.NUMPED,
+                 codrotina  = 1402,
+                 codcli     = vCODCLI,
+                 condvenda  = vCONDVENDA
+           WHERE codprod = REG.CODPROD
+             AND numped = REG.NUMPED
+             AND NUMSEQ = REG.NUMSEQ;
 
-        /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DOS ITENS DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-        CANCELAR_SEP_INTEGRACAO_ITEM;
+          IF v_COUNT = 0 THEN
 
-        /*ELIMINANDO POSSIVEIS LINHAS DUPLICADAS DO PRODUTO PROVENIENTES DE DESDOBRAMENTOS ANTERIORES - PCINTEGRACAOWMSSAASITEM*/
-        DELETE FROM PCINTEGRACAOWMSSAASITEM I
-         WHERE I.ROWID NOT IN (SELECT MIN(J.ROWID)
-                                 FROM PCINTEGRACAOWMSSAASITEM J
-                                WHERE J.NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-                                GROUP BY J.CODPROD)
-           AND I.NUMDOCWMSSAAS = pNUMDOCWMSSAAS;
+            INSERT INTO PCCORTEI
+              (codprod,
+               qtseparada,
+               qtcortada,
+               NUMSEQ,
+               DATA,
+               hora,
+               minuto,
+               numcar,
+               codfunc,
+               numped,
+               pvenda,
+               codfilial,
+               codrotina,
+               codcli,
+               condvenda,
+               motivo)
+            VALUES
+              (REG.CODPROD,
+               REG.QTSEPARADA,
+               (REG.QT - REG.QTSEPARADA),
+               REG.NUMSEQ,
+               SYSDATE,
+               TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')),
+               TO_NUMBER(TO_CHAR(SYSDATE, 'MI')),
+               vNUMCAR,
+               1,
+               REG.NUMPED,
+               NVL((select max(pvenda)
+                     from pcpedi
+                    where numped = REG.NUMPED
+                      and codprod = REG.CODPROD),
+                   0),
+               pCODFILIAL,
+               1402,
+               vCODCLI,
+               vCONDVENDA,
+               'Corte no WMS Saas');
 
-        /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO NO ERP*/
-        CANCELAR_SEPARACAO_PCPEDC;
-
-        /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-        CANCELAR_SEP_INTEGRACAO;
-
-      ELSE
-        /*2 - FLUXO DE DOCUMENTO SEGREGADO ENTRE CAIXA E FRACIONADO, NESSE CASO O PEDIDO ORIGINAL DO ERP (PCPEDC) FOI DIVIDIDO EM DOIS (PCINTEGRACAOWMSSAAS)
-        E ESSES DOCUMENTOS SEGREGADOS ENTRE CAIXA E FRACIONADO E QUE FORAM ENVIADOS PARA O WMS SAAS*/
-
-        /*VERIFICANDO SE OS DOIS DOCUMENTOS (CAIXA/FRACIONADO) JÁ TIVERAM SEPARAÇÃO FINALIZADA, SE NÃO HOUVER BASTA RETIRAR A SEPARAÇÃO DA TABELA INTERMEDIARIA PCINTEGRACAOWMSSAAS
-        POIS A ATUALIZAÇÃO NA TABELA DO ERP PCPEDI SOMENTE E FEITA QUANDO TODOS OS DOCUMENTOS SEGREGADOS ASSOCIADOS A ESSE PEDIDO SÃO SEPARADOS*/
-        SELECT DECODE(COUNT(1), 0, 'N', 'S')
-          INTO vEXISTE_PENDENCIA_SEPARACAO
-          FROM PCINTEGRACAOWMSSAAS
-         WHERE DTFIMSEPARACAO IS NULL
-           AND NUMDOCWINTHOR = vNUMPED;
-
-        IF vEXISTE_PENDENCIA_SEPARACAO = 'S' THEN
-          /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-          CANCELAR_SEP_INTEGRACAO;
-
-          /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DOS ITENS DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-          CANCELAR_SEP_INTEGRACAO_ITEM;
-
-          /*ELIMINANDO POSSIVEIS LINHAS DUPLICADAS DO PRODUTO PROVENIENTES DE DESDOBRAMENTOS ANTERIORES - PCINTEGRACAOWMSSAASITEM*/
-          DELETE FROM PCINTEGRACAOWMSSAASITEM I
-           WHERE I.ROWID NOT IN (SELECT MIN(J.ROWID)
-                                   FROM PCINTEGRACAOWMSSAASITEM J
-                                  WHERE J.NUMDOCWMSSAAS = pNUMDOCWMSSAAS
-                                  GROUP BY J.CODPROD)
-             AND I.NUMDOCWMSSAAS = pNUMDOCWMSSAAS;
-
-        ELSE
-          /*NESSE CENARIO TODOS OS DOCUMENTOS SEGREGADOS JÁ TIVERAM SUA SEPARAÇÃO FINALIZADAS, PORTANTO SE DEVE DEDUZIR A QUANTIDADE SEPARADA NO PEDIDO DO ERP
-          E LIMPAR A QUANTIDADE SEPARADA DAQUELE DOCUMENTO NA TABELA INTERMEDIARIA DE INTEGRAÇÃO */
-
-          FOR REG_DOC_WMS_SAAS IN (SELECT ROWID,
-                                          CODPROD,
-                                          NUMLOTE,
-                                          NVL(QTSEPARADA, 0) AS QTSEPARADA
-                                     FROM PCINTEGRACAOWMSSAASITEM
-                                    WHERE NUMDOCWMSSAAS = pNUMDOCWMSSAAS)
-
-           LOOP
-            /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DOS ITENS DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-            UPDATE PCINTEGRACAOWMSSAASITEM
-               SET QTSEPARADA = NULL, NUMLOTE = NULL, DTVALIDADE = NULL
-             WHERE ROWID = REG_DOC_WMS_SAAS.ROWID;
-
-            /*DEDUZINDO QUANTIDADE SEPARADA DO DOCUMENTO COM SEPARAÇÃO CANCELADA*/
-            UPDATE PCPEDI
-               SET QTSEPARADA = NVL(QTSEPARADA, 0) -
-                                REG_DOC_WMS_SAAS.QTSEPARADA
-             WHERE NUMPED = vNUMPED
-               AND CODPROD = REG_DOC_WMS_SAAS.CODPROD
-               AND NVL(NUMLOTE, 1) = NVL(REG_DOC_WMS_SAAS.NUMLOTE, 1);
-
-            /*RETIRANDO DUPLICIDADE E POSSIVEL LINHA ZERADA EXTRA, APÓS A DEDUÇÃO DA QUANTIDADE SEPARADA*/
-            DELETE PCPEDI
-             WHERE NUMPED = vNUMPED
-               AND CODPROD = REG_DOC_WMS_SAAS.CODPROD
-               AND NVL(NUMLOTE, 1) = NVL(REG_DOC_WMS_SAAS.NUMLOTE, 1)
-               AND NVL(QTSEPARADA, 0) = 0
-               AND EXISTS
-             (SELECT 1
-                      FROM PCPEDI
-                     WHERE NUMPED = vNUMPED
-                       AND CODPROD = REG_DOC_WMS_SAAS.CODPROD
-                       AND NVL(NUMLOTE, 1) = NVL(REG_DOC_WMS_SAAS.NUMLOTE, 1)
-                       AND NVL(QTSEPARADA, 0) > 0);
-
-          END LOOP;
-
-          /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO WMS SAAS (PCINTEGRACAOWMSSAAS) */
-          CANCELAR_SEP_INTEGRACAO;
-
-          /*CANCELAR FINALIZAÇÃO DA SEPARAÇÃO DO CABEÇALHO DO PEDIDO NO ERP*/
-          CANCELAR_SEPARACAO_PCPEDC;
+          END IF;
 
         END IF;
 
       END IF;
 
-    END CANCELAR_SEPARACAO_PEDIDO;
+      IF PC_PKG_CONTROLARSALDORCA.CONTROLASALDORCA(REG.NUMPED, vsMSGCCRCA) = 'S' THEN
+        vbgerousaldorca := pc_pkg_controlarsaldorca.ccrca_alterar_preco_qt(1,
+                                                                           1401,
+                                                                           1,
+                                                                           REG.NUMPED,
+                                                                           REG.CODPROD,
+                                                                           REG.NUMSEQ,
+                                                                           REG.QTORIG);
+      END IF;
 
-    FUNCTION HORARIO_VALIDO_PARA_INTEGRACAO(pCODFILIAL  IN VARCHAR2) RETURN VARCHAR2 IS
-        v_HORARIO_INICIAL          NUMBER := 0;
-        v_HORARIO_FINAL            NUMBER := 0;
-        v_HORARIO_ATUAL            NUMBER := 0;
-        v_CODFILIAL                VARCHAR2(2);
-      BEGIN
+    /***IMPLEMNETAR FLUXO DE CANCELAMENTO PCNFCAN****/
 
-        BEGIN
-          SELECT TO_NUMBER(TO_CHAR(SYSDATE, 'HH24')) AS hora_atual
-          INTO v_HORARIO_ATUAL
-          FROM DUAL;
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            v_HORARIO_ATUAL := 0;
-        END;
+    END LOOP;
 
+    /***ATUALIZANDO CABECALHO (PCPEDC)***/
 
-        BEGIN
-          SELECT TO_NUMBER(VALOR)
-          INTO v_HORARIO_INICIAL
-          FROM PCPARAMINTEGRACAOWMSSAAS
-          WHERE PARAMETRO = 'HORA_INICIAL_PERIODO_INTEGRACAO'
-          AND CODFILIAL = pCODFILIAL;
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            v_HORARIO_INICIAL := 0;
-        END;
+    BEGIN
+      SELECT NVL(c.VLDESCONTO, 0) AS VLDESCONTO,
+             NVL(c.VLOUTRASDESP, 0) AS VLOUTRASDESP,
+             NVL(c.VLFRETE, 0) AS VLFRETE,
+             c.CONDVENDA AS CONDVENDA,
 
+             /***VLATEND ***/
+             SUM(ROUND(DECODE(c.CONDVENDA,
+                              4,
+                              0,
+                              5,
+                              0,
+                              8,
+                              0,
+                              11,
+                              0,
+                              NVL(i.QT, 0) * NVL(i.PVENDA, 0)),
+                       2)) AS VLATEND,
 
-        BEGIN
-          SELECT TO_NUMBER(VALOR)
-          INTO v_HORARIO_FINAL
-          FROM PCPARAMINTEGRACAOWMSSAAS
-          WHERE PARAMETRO = 'HORA_FINAL_PERIODO_INTEGRACAO'
-          AND CODFILIAL = pCODFILIAL;
-        EXCEPTION
-          WHEN NO_DATA_FOUND THEN
-            v_HORARIO_FINAL := 23;
-        END;
+             /***VLTOTAL ***/
+             SUM(ROUND((NVL(i.QT, 0) + NVL(i.QTFALTA, 0)) *
+                       NVL(i.PVENDA, 0),
+                       2)) AS VLTOTAL,
 
+             /***VLTABELA***/
+             SUM(ROUND(DECODE(c.CONDVENDA,
+                              4,
+                              0,
+                              7,
+                              0,
+                              NVL(i.QT, 0) * NVL(i.PTABELA, 0)),
+                       2)) AS VLTABELA,
 
-        IF (v_HORARIO_ATUAL >= v_HORARIO_INICIAL) AND (v_HORARIO_ATUAL <= v_HORARIO_FINAL) THEN
-        RETURN 'S';
-        ELSE
-        RETURN 'N';
+             /***CUSTOS ***/
+             SUM(DECODE(c.CONDVENDA,
+                        4,
+                        0,
+                        7,
+                        0,
+                        NVL(i.QT, 0) * NVL(i.VLCUSTOFIN, 0))) AS VLCUSTOFIN,
+
+             SUM(DECODE(c.CONDVENDA,
+                        4,
+                        0,
+                        7,
+                        0,
+                        NVL(i.QT, 0) * NVL(i.VLCUSTOREAL, 0))) AS VLCUSTOREAL,
+
+             COUNT(*) AS NUMITENS,
+
+             SUM(NVL(i.QT, 0) * NVL(i.VLCUSTOREP, 0)) AS VLCUSTOREP,
+             SUM(NVL(i.QT, 0) * NVL(i.VLCUSTOCONT, 0)) AS VLCUSTOCONT,
+
+             SUM(NVL(i.QT, 0) * NVL(p.PESOBRUTO, 0)) AS TOTPESO,
+             SUM(NVL(i.QT, 0) * NVL(p.VOLUME, 0)) AS TOTVOLUME
+
+        INTO vVLDESCONTO,
+             vVLOUTRASDESP,
+             vVLFRETE,
+             vCONDVENDA,
+             vVLATEND_AGG,
+             vVLTOTAL_AGG,
+             vVLTABELA_AGG,
+             vVLCUSTOFIN,
+             vVLCUSTOREAL,
+             vNUMITENS,
+             vVLCUSTOREP,
+             vVLCUSTOCONT,
+             vTOTPESO,
+             vTOTVOLUME
+        FROM PCPEDI i
+        JOIN PCPEDC c ON c.NUMPED = i.NUMPED
+        JOIN PCPRODUT p ON p.CODPROD = i.CODPROD
+       WHERE c.NUMPED = vNUMPED
+       GROUP BY NVL(c.VLDESCONTO, 0),
+                NVL(c.VLOUTRASDESP, 0),
+                NVL(c.VLFRETE, 0),
+                c.CONDVENDA;
+
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        RETURN;
+    END;
+
+    /** VLTOTAL CALCULANDO VALOR TOTAL ***/
+    vVlTotal := vVLTOTAL_AGG - vVLDESCONTO + vVLOUTRASDESP + vVLFRETE;
+
+    IF vCONDVENDA NOT IN (4, 5, 8, 11) THEN
+      vVlAtend := vVLATEND_AGG - vVLDESCONTO + vVLOUTRASDESP + vVLFRETE;
+    ELSE
+      vVlAtend := 0;
+    END IF;
+
+    IF vCONDVENDA NOT IN (4, 7) THEN
+      vVlTabela := vVLTABELA_AGG - vVLDESCONTO + vVLOUTRASDESP + vVLFRETE;
+
+    ELSE
+      vVlTabela    := 0;
+      vVLCUSTOFIN  := 0;
+      vVLCUSTOREAL := 0;
+      vVLCUSTOREP  := 0;
+      vVLCUSTOCONT := 0;
+    END IF;
+
+    /** UPDATE PCPEDC***/
+    UPDATE PCPEDC
+       SET TOTPESO     = vTOTPESO,
+           TOTVOLUME   = vTOTVOLUME,
+           NUMITENS    = vNUMITENS,
+           VLATEND     = vVlAtend,
+           VLTABELA    = vVlTabela,
+           VLCUSTOFIN  = vVLCUSTOFIN,
+           VLCUSTOREAL = vVLCUSTOREAL,
+           VLCUSTOREP  = vVLCUSTOREP,
+           VLCUSTOCONT = vVLCUSTOCONT
+     WHERE NUMPED = vNUMPED;
+
+    /** UPDATE PCCARREG***/
+    IF vNUMCAR > 0 THEN
+      UPDATE pccarreg car
+         SET (vltotal, totpeso, totvolume) = (SELECT SUM(NVL(i.qt, 0) *
+                                                         NVL(i.pvenda, 0)),
+                                                     SUM(NVL(i.qt, 0) *
+                                                         NVL(p.pesobruto, 0)),
+                                                     SUM(NVL(i.qt, 0) *
+                                                         NVL(p.volume, 0))
+                                                FROM pcpedc   c,
+                                                     pcpedi   i,
+                                                     pcprodut p
+                                               WHERE i.numped = c.numped
+                                                 AND i.codprod = p.codprod
+                                                 AND c.numcar = vNUMCAR)
+       WHERE car.numcar = vNUMCAR;
+    END IF;
+
+    /** ATUALIZA QUANTIDADE RESERVADA PARA PRODUTOS MONTADOS OU LIBERADOS**/
+    IF vPOSICAO IN ('M', 'L') THEN
+
+      FOR REG_RESERV IN (SELECT CODPROD,
+                                SUM(NVL(QTORIG, 0)) AS QTORIGINAL,
+                                SUM(NVL(QTSEPARADA, 0)) AS QTSEPARADA
+                           FROM PCPEDI
+                          WHERE NUMPED = vNUMPED HAVING
+                          SUM(NVL(QTORIG, 0)) <>
+                                SUM(NVL(QTSEPARADA, 0))
+                          GROUP BY CODPROD)
+
+       LOOP
+
+        /****RETIRANDO A QUANTIDADE CORTADA DA RESERVA****/
+        IF REG_RESERV.QTORIGINAL > REG_RESERV.QTSEPARADA THEN
+
+          UPDATE PCEST
+             SET qtreserv = Least(greatest(0,
+                                           NVL(qtreserv, 0) -
+                                           (REG_RESERV.QTORIGINAL -
+                                            REG_RESERV.QTSEPARADA)),
+                                  nvl(qtestger, 0))
+           WHERE codfilial = pCODFILIAL
+             AND codprod = REG_RESERV.CODPROD;
+
         END IF;
 
-      END HORARIO_VALIDO_PARA_INTEGRACAO;
+        IF REG_RESERV.QTORIGINAL < REG_RESERV.QTSEPARADA THEN
 
-      PROCEDURE EFETUAR_MOV_POR_TIPO_ESTOQUE(pCODFILIAL  IN VARCHAR2,
-                                               pCODPROD    IN NUMBER,
-                                               pQUANTIDADE IN NUMBER,
-                                               pNUMLOTE    IN VARCHAR2,
-                                               pTIPO_ESTOQUE_ORIGEM  IN VARCHAR2,
-                                               pTIPO_ESTOQUE_DESTINO  IN VARCHAR2) IS
-        vNUMTRANSENT  NUMBER(10);
-        VSRETORNO     VARCHAR2(60);
-        PSMSG_RETORNO VARCHAR2(6000);
-
-        vTIPO_ESTOQUE_ORIGEM_BLOQUEIO VARCHAR2(1);
-        vTIPO_ESTOQUE_DESTINO_BLOQUEIO VARCHAR2(1);
-
-        BEGIN
-
-        SELECT DECODE(COUNT(1), 0, 'N', 'S')
-        INTO vTIPO_ESTOQUE_ORIGEM_BLOQUEIO
-        FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
-        WHERE CODFILIAL = pCODFILIAL
-        AND TIPOESTOQUE = pTIPO_ESTOQUE_ORIGEM;
-
-
-        SELECT DECODE(COUNT(1), 0, 'N', 'S')
-        INTO vTIPO_ESTOQUE_DESTINO_BLOQUEIO
-        FROM PCMAPEAMENTOTIPOESTOQUEWMSSAAS
-        WHERE CODFILIAL = pCODFILIAL
-        AND TIPOESTOQUE = pTIPO_ESTOQUE_DESTINO;
-
-        /**SE A TROCA DO TIPO DE ESTOQUE FOR DE NORMAL PARA UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, ENTÃO EFETUAR BLOQUEIO**/
-        IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'N' AND vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'S' THEN
-
-          VSRETORNO := PKG_ESTOQUE.BLOQUEIO_INCLUIR(PNIDENTIFICADOR => 0,
-                                                  PSCODFILIAL     => pCODFILIAL,
-                                                  PNCODPROD       => pCODPROD ,
-                                                  PNNUMSEQ        => 0,
-                                                  PNQTDE          => pQUANTIDADE,
-                                                  PNQTAVARIA      => 0,
-                                                  PSOPERACAO      => 'IU',
-                                                  psCODOPER       => 'IG',
-                                                  psOBSERVACAO    => 'BLOQUEIO DE ESTOQUE',
-                                                  psNUMLOTE       => pNUMLOTE,
-                                                  PSMSG_RETORNO   => PSMSG_RETORNO);
-
-
-         IF VSRETORNO <> 'S' THEN
-            raise_application_error (-20002,'Não foi possível efetuar bloqueio' );
-         END IF;
-
-         END IF;
-
-
-         /**SE A TROCA DO TIPO DE ESTOQUE FOR DE UM ESTOQUE MAPEADO NA PCMAPEAMENTOTIPOESTOQUEWMSSAAS PARA BLOQUEIO, PARA UM TIPO DE ESTOQUE NÃO MAPEADO PARA BLOQUEIO, ENTÃO DESBLOQUEAR**/
-        IF vTIPO_ESTOQUE_ORIGEM_BLOQUEIO = 'S' AND vTIPO_ESTOQUE_DESTINO_BLOQUEIO = 'N' THEN
-
-          VSRETORNO := PKG_ESTOQUE.BLOQUEIO_BAIXAR(PNIDENTIFICADOR => 0,
-                                                  PSCODFILIAL     => pCODFILIAL,
-                                                  PNCODPROD       => pCODPROD ,
-                                                  PNNUMSEQ        => 0,
-                                                  PNQTDE          => pQUANTIDADE,
-                                                  PNQTAVARIA      => 0,
-                                                  PSOPERACAO      => 'BU',
-                                                  psCODOPER       => 'BG',
-                                                  psOBSERVACAO    => 'DESBLOQUEIO DE ESTOQUE',
-                                                  psNUMLOTE       => pNUMLOTE,
-                                                  PSMSG_RETORNO   => PSMSG_RETORNO);
-
-
-         IF VSRETORNO <> 'S' THEN
-            raise_application_error (-20002,'Não foi possível efetuar desbloqueio');
-         END IF;
+          UPDATE PCEST
+             SET qtreserv = Least(greatest(0,
+                                           NVL(qtreserv, 0) +
+                                           (REG_RESERV.QTSEPARADA -
+                                            REG_RESERV.QTORIGINAL)),
+                                  nvl(qtestger, 0))
+           WHERE codfilial = pCODFILIAL
+             AND codprod = REG_RESERV.CODPROD;
 
         END IF;
 
-      END EFETUAR_MOV_POR_TIPO_ESTOQUE;
+      END LOOP;
+
+    END IF;
+
+  END PROCESSAR_CORTE;
+
+  PROCEDURE SEPERAR_ITEM_PEDIDO_POR_LOTE(pCODFILIAL     IN VARCHAR2,
+                                         pNUMPED        IN NUMBER,
+                                         pCODPROD       IN NUMBER,
+                                         pNUMSEQ        IN NUMBER,
+                                         pQUANTIDADESEP IN NUMBER,
+                                         pNUMLOTE       IN VARCHAR2) IS
+
+    v_COUNT                      NUMBER;
+    vITEM_COM_SEPARACAO_INICIADA VARCHAR2(1);
+    VPROX_NUM_PED                NUMBER;
+    VROW_PCPEDI                  PCPEDI%ROWTYPE;
+    vPOSICAOPEDIDO               VARCHAR2(1);
+    vNUMPED                      NUMBER;
+
+  BEGIN
+
+    BEGIN
+      SELECT POSICAO, NUMPED
+        INTO vPOSICAOPEDIDO, vNUMPED
+        FROM PCPEDC
+       WHERE NUMPED = pNUMPED;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+        vPOSICAOPEDIDO := 'X';
+        vNUMPED        := 0;
+    END;
+
+    /***SE O PEDIDO NÃO FOR ENCONTRADO NÃO FAZER NADA ***/
+    IF vNUMPED = 0 THEN
+      RETURN;
+    END IF;
+
+    /***SE O PEDIDO JÁ ESTÁ FATURADO NÃO FAZER NADA ***/
+    IF vPOSICAOPEDIDO = 'F' THEN
+      RETURN;
+    END IF;
+
+    vITEM_COM_SEPARACAO_INICIADA := 'N';
+
+    SELECT COUNT(1)
+      INTO v_COUNT
+      FROM PCPEDI
+     WHERE NVL(QTSEPARADA, 0) > 0
+       AND CODPROD = pCODPROD
+       AND NUMSEQ = pNUMSEQ
+       AND NUMPED = pNUMPED;
+
+    IF v_COUNT > 0 THEN
+      vITEM_COM_SEPARACAO_INICIADA := 'S';
+    END IF;
+
+    IF vITEM_COM_SEPARACAO_INICIADA = 'S' THEN
+      /****TENTA ATUALIZAR UMA LINHA QUE JA EXISTA COM AQUELE LOTE****/
+      UPDATE PCPEDI
+         SET QTSEPARADA   = NVL(QTSEPARADA, 0) + pQUANTIDADESEP,
+             DTINICIALSEP = TRUNC(SYSDATE),
+             QTAPANHA     = NVL(QTAPANHA, 0) + pQUANTIDADESEP,
+             DTFINALSEP   = TRUNC(SYSDATE),
+             DATACONF     = TRUNC(SYSDATE),
+             DATACONFFIM  = TRUNC(SYSDATE),
+             CODFUNCSEP   = 1,
+             CODFUNCCONF  = 1
+       WHERE NUMPED = pNUMPED
+         AND CODPROD = pCODPROD
+         AND NUMSEQ = pNUMSEQ
+         AND NUMLOTE = pNUMLOTE;
+
+      v_COUNT := SQL%ROWCOUNT;
+
+      /****SE NÃO ENCONTRAR, SIGNIFICA QUE A LINHA DESSE RESPECTIVO PRODUTO/NUMSEQ JÁ FOI SEPARADA COM OUTRO LOTE PORTANTO SERÁ NECESSARIO DESDOBRAR A LINHA PARA O NOVO LOTE ****/
+      /***INICIO DESDOBRAMENTO LOTE PCPEDI ***/
+      IF v_COUNT = 0 THEN
+
+        /***CLONANDO A LINHA CODPROD/NUMSEQ***/
+        SELECT I.*
+          INTO VROW_PCPEDI
+          FROM PCPEDI I
+         WHERE I.NUMPED = PNUMPED
+           AND I.CODPROD = PCODPROD
+           AND I.NUMSEQ = PNUMSEQ;
+
+        /***DESCONTANDO A QUANTIDADE QUE VAI SER INSERIDA EM OUTRA LINHA***/
+        VROW_PCPEDI.QT := VROW_PCPEDI.QT - pQUANTIDADESEP;
+
+        UPDATE PCPEDI I
+           SET I.QT = VROW_PCPEDI.QT
+         WHERE I.NUMPED = VROW_PCPEDI.NUMPED
+           AND I.CODPROD = VROW_PCPEDI.CODPROD
+           AND I.NUMSEQ = VROW_PCPEDI.NUMSEQ;
+
+        SELECT MAX(COALESCE(PCPEDI.NUMSEQ, 0)) + 1
+          INTO VPROX_NUM_PED
+          FROM PCPEDI
+         WHERE NUMPED = PNUMPED;
+
+        VROW_PCPEDI.NUMSEQ     := VPROX_NUM_PED;
+        VROW_PCPEDI.QT         := pQUANTIDADESEP;
+        VROW_PCPEDI.QTSEPARADA := pQUANTIDADESEP;
+        VROW_PCPEDI.QTAPANHA   := pQUANTIDADESEP;
+        VROW_PCPEDI.NUMLOTE    := pNUMLOTE;
+
+        INSERT INTO PCPEDI VALUES VROW_PCPEDI;
+
+      END IF;
+      /***FIM DESDOBRAMENTO LOTE PCPEDI ***/
+
+    ELSE
+      /****ATUALIZAÇÃO DA PRIMEIRA LINHA DO CODPROD/NUMSEQ****/
+      UPDATE PCPEDI
+         SET QTSEPARADA   = NVL(QTSEPARADA, 0) + pQUANTIDADESEP,
+             DTINICIALSEP = TRUNC(SYSDATE),
+             QTAPANHA     = NVL(QTAPANHA, 0) + pQUANTIDADESEP,
+             DTFINALSEP   = TRUNC(SYSDATE),
+             DATACONF     = TRUNC(SYSDATE),
+             DATACONFFIM  = TRUNC(SYSDATE),
+             CODFUNCSEP   = 1,
+             CODFUNCCONF  = 1,
+             NUMLOTE      = pNUMLOTE
+       WHERE NUMPED = pNUMPED
+         AND CODPROD = pCODPROD
+         AND NUMSEQ = pNUMSEQ;
+
+    END IF;
+
+  END SEPERAR_ITEM_PEDIDO_POR_LOTE;
+
+  PROCEDURE INATIVAR_INTEGRACAO_DOC_SAIDA(pCODFILIAL     IN VARCHAR2,
+                                          pNUMDOC        IN NUMBER,
+                                          pTIPODOCUMENTO IN VARCHAR2) IS
+
+    v_COUNT NUMBER;
+
+  BEGIN
+
+    IF pTIPODOCUMENTO = 'PEDIDO DE VENDA' THEN
+      UPDATE PCPEDC
+         SET DTWMS = NULL
+       WHERE NUMPED = pNUMDOC
+         AND CODFILIAL = pCODFILIAL;
+
+      UPDATE PCPEDI SET CODIGOINTEGRACAOWMS = NULL WHERE NUMPED = pNUMDOC;
+    END IF;
+
+    IF pTIPODOCUMENTO = 'NOTA FISCAL' THEN
+      UPDATE PCNFSAID
+         SET DTWMS = NULL
+       WHERE NUMNOTA = pNUMDOC
+         AND CODFILIAL = pCODFILIAL;
+    END IF;
+
+  END INATIVAR_INTEGRACAO_DOC_SAIDA;
 
 END PKG_INTEGRACAOWMSSAAS;
