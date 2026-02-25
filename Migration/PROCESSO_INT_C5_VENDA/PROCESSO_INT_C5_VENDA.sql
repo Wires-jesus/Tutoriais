@@ -659,7 +659,8 @@ AS
                 WHERE X.SEQDOCTO = i.seqdocto
               AND X.nroempresa = i.nroempresa
             AND X.nrocheckout = i.nrocheckout
-            AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO)
+            AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+			AND X.SEQITEMPRODCOMPOSTO = I.SEQITEMPRODCOMPOSTO)
           ELSE
           (i.vlrtotal)
         END )  vlsubtotitem,
@@ -1196,7 +1197,8 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
               WHERE X.SEQDOCTO = i.seqdocto
             AND X.nroempresa = i.nroempresa
           AND X.nrocheckout = i.nrocheckout
-          AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO)
+          AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
+		  AND X.SEQITEMPRODCOMPOSTO = I.SEQITEMPRODCOMPOSTO)
         ELSE
         (i.vlrtotal)
         END )  vlsubtotitem,
