@@ -191,10 +191,10 @@ BEGIN
       RETORNO(RETORNO.COUNT).QBCMONORET                  := 0;
       RETORNO(RETORNO.COUNT).VICMSMONORET                := 0;   
       RETORNO(RETORNO.COUNT).VIS                         := 0;
-      RETORNO(RETORNO.COUNT).VBCIBSCBS                   := 0;
-      RETORNO(RETORNO.COUNT).VIBSUF                      := 0;
-	  RETORNO(RETORNO.COUNT).VIBSMUN                     := 0;
-      RETORNO(RETORNO.COUNT).VCBS                        := 0; 
+      RETORNO(RETORNO.COUNT).VBCIBSCBS                   := RODAPE.VBCIBSCBS;
+      RETORNO(RETORNO.COUNT).VIBSUF                      := RODAPE.VIBSUF;
+	    RETORNO(RETORNO.COUNT).VIBSMUN                     := RODAPE.VIBSMUN;
+      RETORNO(RETORNO.COUNT).VCBS                        := RODAPE.VCBS;
     END LOOP;
   END IF;
   RETURN RETORNO;
