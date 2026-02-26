@@ -8,6 +8,11 @@
       "versao": "8.0.01.000"
     },
     {
+      "nome": "PCRESTRICAOAVANCADACONFIG",
+      "tipo": "TABELA",
+      "versao": "8.0.01.000"
+    },
+    {
       "nome": "PCRESTRICAOAVANCADACONDICAO",
       "tipo": "TABELA",
       "versao": "7.0.02.000"
@@ -26,7 +31,12 @@
       "nome": "PCFILTROAVANCADO",
       "tipo": "TABELA",
       "versao": "8.0.02.000"
-    },  
+    },
+    {
+      "nome": "PCFILTROAVANCADOCONFIG",
+      "tipo": "TABELA",
+      "versao": "8.0.04.000"
+    },
     {
       "nome": "PCFILTROAVANCADOCONDICAO",
       "tipo": "TABELA",
