@@ -478,7 +478,7 @@ FROM (
 					   fnc_remove_char_esp_v2(NVL(p.descricaoreduzida, p.descricao))
 					 ELSE
 					   fnc_remove_char_esp(NVL(p.descricaoreduzida, p.descricao))
-				   END as desccompleta,
+				   END as desccompleta,               
                    SUBSTR(
 				     CASE
 					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
@@ -489,7 +489,11 @@ FROM (
 					 1,
 					 24
 				   ) as descreduzida,
-                   'N' produtocomposto,
+                   (CASE
+                      WHEN p.TIPOMERC IN ('CB', 'KT') THEN
+                           'S'
+                      ELSE 'N'     
+                   END) PRODUTOCOMPOSTO,
                    0 QTDDIAVALIDADE,
                    nvl(p.anp, 0) codanp,
                    p.descanp descanp_prod,
