@@ -193,7 +193,7 @@ IS
                     END IF;
 
                     IF VPOSICAO IS NULL THEN
-                        PMENSAGEM := '[SC02] - Posição do pedido não encontrada:' ||
+                        PMENSAGEM := '[SC03] - Posição do pedido não encontrada:' ||
                                      ' Pedido número: '||DADOS.NUMPED||
                                      ' Cliente: '||DADOS.CODCLI||
                                      ' Filial: '||DADOS.CODFILIAL;
@@ -202,19 +202,19 @@ IS
                     END IF;
 
                     IF VPOSICAO IN ('M','L') THEN
-                        PMENSAGEM := '[SC03] - Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
+                        PMENSAGEM := '[SC04] - Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
                         ROLLBACK;
                         RETURN;
                     END IF;
 
                     IF VPOSICAO IN ('F') THEN 
-                        PMENSAGEM := '[SC04] - Não é possível cancelar pois o pedido já foi faturado.';
+                        PMENSAGEM := '[SC05] - Não é possível cancelar pois o pedido já foi faturado.';
                         ROLLBACK;
                         RETURN;
                     END IF;
 
                     IF VPERMISSAO = 'N' THEN
-                        PMENSAGEM := '[SC05] - Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
+                        PMENSAGEM := '[SC06] - Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
                         ROLLBACK;
                         RETURN;
                     END IF;
@@ -274,7 +274,7 @@ IS
                  WHERE NUMTRANSPAGADIANTADO = DADOS.NUMTRANSPAGADIANTADO
                    AND NVL(SITUACAO,'1')    NOT IN ('A');
 
-                 PMENSAGEM := '[SC06] - Cancelamento concluído com sucesso';
+                 PMENSAGEM := '[SC07] - Cancelamento concluído com sucesso';
 
             END IF; 
             --------------------------------------------------------------------            
@@ -284,7 +284,7 @@ IS
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, '[SC07] - Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
+            RAISE_APPLICATION_ERROR(-20001, '[SC08] - Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
     END; --SOLICITA_CANCELAMENTO
 
     ----------------------------------------------------------------------------
