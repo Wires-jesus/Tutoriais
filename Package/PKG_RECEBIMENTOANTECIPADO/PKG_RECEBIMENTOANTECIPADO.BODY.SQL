@@ -169,7 +169,7 @@ IS
 
                 IF DADOS.STATUSPGTO = 'PAGO' THEN
 
-                    IF DADOS.NUMORCA IS NOT NULL THEN
+                    IF NVL(DADOS.NUMORCA,0) > 0 THEN
                         SELECT POSICAO 
                           INTO VPOSICAO
                           FROM PCORCAVENDAC 
@@ -349,7 +349,7 @@ IS
                 RETURN;
             END IF;
 
-            IF (DADOS.NUMTRANS = 0) THEN 
+            IF (NVL(DADOS.NUMTRANS,0) = 0) THEN 
                 SELECT NVL(PROXNUMTRANS,1)
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
@@ -361,7 +361,7 @@ IS
 
             COMMIT WORK;
 
-            IF (DADOS.NUMTRANS > 0) THEN
+            IF (NVL(DADOS.NUMTRANS,0) > 0) THEN
                 SELECT COUNT(*)
                   INTO VOLDNUMTRANS
                   FROM PCMOVCR
@@ -422,7 +422,7 @@ IS
 
             END IF; --VQUITAPCPREST
 
-            IF (DADOS.NUMTRANS > 0) THEN
+            IF (NVL(DADOS.NUMTRANS,0) > 0) THEN
                 SELECT COUNT(*)
                   INTO VOLDNUMTRANS
                   FROM PCCRECLI 
@@ -535,7 +535,7 @@ IS
                          AND A.NUMTRANSPAGADIANTADO  = PNUMTRANSPAGADIANTADO)
         LOOP
 
-            IF (DADOS.NUMTRANS <> 0) THEN 
+            IF (NVL(DADOS.NUMTRANS,0) <> 0) THEN 
                 SELECT NVL(PROXNUMTRANS,1)
                   INTO VNUMTRANS 
                   FROM PCCONSUM FOR UPDATE;
