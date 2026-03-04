@@ -621,7 +621,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
                        TABELA_ITEM.PAliqIBSMun_GOV,
                        TABELA_ITEM.VTribIBSMun_GOV,
                        TABELA_ITEM.PAliqCBS_GOV,
-                       TABELA_ITEM.VTribCBS_GOV
+                       TABELA_ITEM.VTribCBS_GOV,
+					   TABELA_ITEM.CSTReg,
+					   TABELA_ITEM.cClassTribReg
                   FROM PCNFENTXML XMLX,
                        XMLTable(XMLNAMESPACES(DEFAULT 'http://www.portalfiscal.inf.br/nfe'),
                                 '/nfeProc/NFe/infNFe/det' PASSING
@@ -823,7 +825,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
                                 PAliqIBSMun_GOV varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribCompraGov/pAliqIBSMun/text()',
                                 VTribIBSMun_GOV varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribCompraGov/vTribIBSMun/text()',
                                 PAliqCBS_GOV varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribCompraGov/pAliqCBS/text()',
-                                VTribCBS_GOV varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribCompraGov/vTribCBS/text()'
+                                VTribCBS_GOV varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribCompraGov/vTribCBS/text()',
+								CSTReg varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribRegular/CSTReg/text()',
+								cClassTribReg varchar2(20) PATH '/det/imposto/IBSCBS/gIBSCBS/gTribRegular/cClassTribReg/text()'
                                 )TABELA_ITEM
                  WHERE XMLX.CHAVENFE = SCHAVENFE) LOOP
       RINCLUIR                     := 1;
@@ -951,9 +955,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_XML AS
       ITENS.PAliqIBSUF_GOV         := TONUMERO(REG.PAliqIBSUF_GOV);
       ITENS.VTribIBSUF_GOV         := TONUMERO(REG.VTribIBSUF_GOV, ITENS.QCOM);
       ITENS.PAliqIBSMun_GOV        := TONUMERO(REG.PAliqIBSMun_GOV);
-      ITENS.VTribIBSMun_GOV       := TONUMERO(REG.VTribIBSMun_GOV, ITENS.QCOM);
+      ITENS.VTribIBSMun_GOV        := TONUMERO(REG.VTribIBSMun_GOV, ITENS.QCOM);
       ITENS.PAliqCBS_GOV           := TONUMERO(REG.PAliqCBS_GOV);
       ITENS.VTribCBS_GOV           := TONUMERO(REG.VTribCBS_GOV, ITENS.QCOM);
+	  ITENS.cClassTribReg          := REG.cClassTribReg;
+	  ITENS.CSTReg                 := REG.CSTReg;
       IF REG.TAGICMS60 IS NOT NULL THEN
         ITENS.TAGICMS60 := 'S';
       END IF;
