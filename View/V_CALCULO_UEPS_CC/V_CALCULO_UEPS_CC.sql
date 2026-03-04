@@ -73,17 +73,17 @@ SELECT NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
        CASE WHEN E.TIPODESCARGA IN ('6','8','C','T') THEN 
                ROUND(ME.QTCONT * (NVL(ME.BASEICMS,0) + NVL(MCE.VLBASEFRETE,0) + NVL(MCE.VLBASEOUTROS,0)) * NVL(ME.PERCICM, 0) / 100, 2) 
             ELSE 
-               ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100) 
+               ROUND(ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100),2) 
        END VLICMSENT, 
        --------------------------- 
        CASE WHEN E.TIPODESCARGA IN ('6','8','C','T') THEN 
                ROUND((NVL(ME.BASEICMS,0) + NVL(MCE.VLBASEFRETE,0) + NVL(MCE.VLBASEOUTROS,0)) * NVL(ME.PERCICM, 0) / 100, 2) 
             ELSE 
-               (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100) 
+               ROUND((NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100),2) 
        END VLICMSENT_UNIT, 
        ------------------------------------------------------
        CASE WHEN E.TIPODESCARGA IN ('N','F') THEN 
-               ME.QTCONT * NVL(ME.VLIMPORTACAO,0) 
+               ROUND(ME.QTCONT * NVL(ME.VLIMPORTACAO,0),2) 
             ELSE 
                0 
        END VLIIENT, 
@@ -126,29 +126,29 @@ SELECT NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
        NVL(ME.ALIQICMS2, 0) ALIQICMSEXTENT, 
        NVL(ME.PERCALIQEXTGUIA, 0) PERCALIQEXTGUIAENT, 
        NVL(ME.PERCIVA, 0) PERCMVAAJUSTADOENT, 
-       ME.QTCONT * NVL(ME.BASEICST, 0) VLBASEICMSSTENT, 
+       ROUND(ME.QTCONT * NVL(ME.BASEICST, 0),2) VLBASEICMSSTENT, 
        NVL(ME.BASEICST, 0) VLBASEICMSSTENT_UNIT, 
-       ME.QTCONT * NVL(ME.ST, 0) VLSTENT, 
+       ROUND(ME.QTCONT * NVL(ME.ST, 0),2) VLSTENT, 
        NVL(ME.ST, 0) VLSTENT_UNIT, 
-       ME.QTCONT * NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA, 
+       ROUND(ME.QTCONT * NVL(ME.VLBASESTFORANF, 0),2) VLBASEICMSSTENTGUIA, 
        NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA_UNIT, 
-       ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT, 
-       ME.QTCONT * NVL(ME.STBCR,0) VLSTBCRENT, 
+       ROUND(ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0),2) VLSTGUIAENT, 
+       ROUND(ME.QTCONT * NVL(ME.STBCR,0),2) VLSTBCRENT, 
        NVL(ME.STBCR,0) VLSTBCRENT_UNIT, 
        NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT_UNIT, 
        ROUND(ME.QTCONT * NVL(ME.VLBASEIPI, 0), 2) VLBASEIPIENT, 
        NVL(ME.PERCIPI, 0) PERCIPIENT, 
        ROUND(ME.QTCONT * NVL(ME.VLIPI, 0), 2) VLIPIENT, 
        NVL(ME.VLIPI, 0) VLIPIENT_UNIT, 
-       (ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin. 
+       ROUND((ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))),2) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin. 
        NVL(MCE.PERCMVAORIG, 0) VLAGREGADOMVA_ENT, --Margem de Valor Agregado - MVA 
        ------------------------------------------------------
        CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN 
                ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTROS,0)), 2) 
             WHEN E.TIPODESCARGA IN ('N','F','I') THEN 
-               (ME.QTCONT * ME.PUNITCONT) 
+               ROUND( (ME.QTCONT * ME.PUNITCONT), 2) 
             ELSE 
-               ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0)) 
+               ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0)),2) 
        END VLCONTABILENT, 
        ------------------------------------------------------
        CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN 
@@ -358,7 +358,7 @@ FROM PCNFENT E,
              NVL(MS.PERCIPI, 0) PERCIPISAI, 
              SUM(ROUND(MS.QTCONT * NVL(MS.VLIPI, 0), 2)) VLIPISAI, 
              MAX(NVL(MS.VLIPI, 0)) VLIPISAI_UNIT, 
-             SUM((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0)))) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin. 
+             SUM( ROUND((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0))),2) ) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin. 
              MAX(NVL(MCS.PERCMVAORIG, 0)) VLAGREGADOMVASAI, --Margem de Valor Agregado - MVA 
              SUM(ROUND(MS.QTCONT * NVL(MS.VLFRETE, 0), 2)) VLFRETESAI, 
              MAX(NVL(MS.VLFRETE, 0)) VLFRETESAI_UNIT, 
@@ -445,5 +445,5 @@ WHERE E.NUMTRANSENT = ME.NUMTRANSENT
   AND E.ESPECIE = 'NF' 
   AND ME.DTCANCEL IS NULL 
   AND ME.STATUS IN ('A','AB') 
--- 13/12/2024 - Gleibe - Implementado a utilização do objeto fiscal de filtros data e filial;
+-- 04/03/2026 - Gleibe - Implementado a função round para todas as colunas que são multiplicadas pelo QTCONT
 -- 12/02/2026 - Messias - Migração da view V_CALCULO_UEPS_CC do portal ADM DB para o repositório do Azure
