@@ -100,7 +100,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_BRINDE",
 			"tipo": "MIGRATION",
-			"versao": "8.0.03.000"
+			"versao": "8.0.04.000"
 		},
 		{
 			"nome": "PRC_RECORD_ERROR",
