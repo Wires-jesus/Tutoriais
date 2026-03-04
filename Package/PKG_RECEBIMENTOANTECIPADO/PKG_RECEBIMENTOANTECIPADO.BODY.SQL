@@ -32,15 +32,16 @@ IS
                   ,MATRICULACONFIRMACAO
                   ,MATRICULAESTORNO
               FROM PCPRESTANTECIPADA
-             WHERE CODFILIAL           = PCODFILIAL
-               AND CODCLI              = PCODCLI
-               AND NVL(NUMORCA,NUMPED) = PNUMPED;
+             WHERE CODFILIAL  = PCODFILIAL
+               AND CODCLI     = PCODCLI
+               AND DECODE(NVL(NUMORCA,0),0,NVL(NUMPED,NUMORCA),NUMORCA) = PNUMPED;
 
         RETURN VCURSOR;
     END;
 
     ----------------------------------------------------------------------------
-    FUNCTION CONSULTA_PAGANTECIPADO(PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
+    FUNCTION CONSULTA_PAGANTECIPADO(PMENSAGEM   OUT VARCHAR2,
+                                    PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
                                     PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
                                     PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE
                                     )
@@ -50,30 +51,30 @@ IS
     DADOS_SAIDA T_PCPRESTANTECIPADA;
     VCURSOR     SYS_REFCURSOR;
     VMENSAGEM   VARCHAR2(300);
+	V_ENCONTROU BOOLEAN := FALSE;
     BEGIN
-        VMENSAGEM := 'Pagamento antecipado não encontrado';
+		PMENSAGEM := NULL;
         VCURSOR := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
 
         LOOP
             FETCH VCURSOR INTO DADOS_SAIDA;
             EXIT WHEN VCURSOR%NOTFOUND;
-            PIPE ROW(DADOS_SAIDA);
-            VMENSAGEM := NULL;
+			V_ENCONTROU := TRUE;
+            PIPE ROW(DADOS_SAIDA);            
         END LOOP;
-
-        IF VMENSAGEM IS NOT NULL THEN 
-          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
-        END IF;
-
+		IF NOT V_ENCONTROU THEN
+		   PMENSAGEM := '[CP01] - Pagamento antecipado não encontrado';		   
+		END IF;        
         RETURN;
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
+            RAISE_APPLICATION_ERROR(-20001, '[CP02] - '||VMENSAGEM);
     END; --CONSULTA_PAGANTECIPADO
 
     ----------------------------------------------------------------------------
-    FUNCTION CONSULTA_STATUS(PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
+    FUNCTION CONSULTA_STATUS(PMENSAGEM   OUT VARCHAR2,
+                             PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
                              PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
                              PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE
                              )
@@ -81,28 +82,27 @@ IS
     PIPELINED
     IS
     DADOS_SAIDA T_PCPRESTANTECIPADA;
-    VCURSOR  SYS_REFCURSOR;
+    VCURSOR     SYS_REFCURSOR;
     VMENSAGEM   VARCHAR2(300);
+	V_ENCONTROU BOOLEAN := FALSE;
     BEGIN
-        VMENSAGEM := 'Pagamento antecipado não encontrado!';
-        VCURSOR := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
+		PMENSAGEM := NULL; 
+        VCURSOR   := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
 
         LOOP
             FETCH VCURSOR INTO DADOS_SAIDA;
             EXIT WHEN VCURSOR%NOTFOUND;
-            PIPE ROW(DADOS_SAIDA);
-            VMENSAGEM := NULL;
-        END LOOP;
-
-        IF VMENSAGEM IS NOT NULL THEN 
-          RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
-        END IF;
-
+			V_ENCONTROU := TRUE;
+            PIPE ROW(DADOS_SAIDA);            
+        END LOOP;        
+		IF NOT V_ENCONTROU THEN
+		   PMENSAGEM := '[CS01] - Pagamento antecipado não encontrado!';
+		END IF;        
         RETURN;
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, VMENSAGEM);
+            RAISE_APPLICATION_ERROR(-20001, '[CS02] - '||VMENSAGEM);
     END; --CONSULTA_STATUS
 
     ----------------------------------------------------------------------------
@@ -117,7 +117,7 @@ IS
         VACESSO               PCCONTROI.ACESSO%TYPE;
     BEGIN
 
-        PMENSAGEM := 'Pagamento antecipado não encontrado!';
+        PMENSAGEM := '[SC01] - Pagamento antecipado não encontrado!';
 
         BEGIN
           SELECT NVL(PCCONTROI.ACESSO,'N')
@@ -139,7 +139,7 @@ IS
         END;
 
         IF (VACESSO = 'N') THEN
-            PMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno (530 - 1295 - Permitir efetuar estorno do pagamento digital). Processo não será concluído!';            
+            PMENSAGEM := '[SC02] - Pagamento quitado e usuário sem permissão para estorno (530 - 1295 - Permitir efetuar estorno do pagamento digital). Processo não será concluído!';            
             ROLLBACK;
             RETURN;
         END IF;
@@ -193,7 +193,7 @@ IS
                     END IF;
 
                     IF VPOSICAO IS NULL THEN
-                        PMENSAGEM := 'Posição do pedido não encontrada:' ||
+                        PMENSAGEM := '[SC03] - Posição do pedido não encontrada:' ||
                                      ' Pedido número: '||DADOS.NUMPED||
                                      ' Cliente: '||DADOS.CODCLI||
                                      ' Filial: '||DADOS.CODFILIAL;
@@ -202,19 +202,19 @@ IS
                     END IF;
 
                     IF VPOSICAO IN ('M','L') THEN
-                        PMENSAGEM := 'Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
+                        PMENSAGEM := '[SC04] - Não é possível cancelar pois o pedido já foi liberado. Para cancelar o pagamento, será necessário bloquear ou cancelar o pedido antes.';
                         ROLLBACK;
                         RETURN;
                     END IF;
 
                     IF VPOSICAO IN ('F') THEN 
-                        PMENSAGEM := 'Não é possível cancelar pois o pedido já foi faturado.';
+                        PMENSAGEM := '[SC05] - Não é possível cancelar pois o pedido já foi faturado.';
                         ROLLBACK;
                         RETURN;
                     END IF;
 
                     IF VPERMISSAO = 'N' THEN
-                        PMENSAGEM := 'Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
+                        PMENSAGEM := '[SC06] - Pagamento quitado e usuário sem permissão para estorno. Processo não será concluído.';
                         ROLLBACK;
                         RETURN;
                     END IF;
@@ -274,7 +274,7 @@ IS
                  WHERE NUMTRANSPAGADIANTADO = DADOS.NUMTRANSPAGADIANTADO
                    AND NVL(SITUACAO,'1')    NOT IN ('A');
 
-                 PMENSAGEM := 'Cancelamento concluído com sucesso';
+                 PMENSAGEM := '[SC07] - Cancelamento concluído com sucesso';
 
             END IF; 
             --------------------------------------------------------------------            
@@ -284,7 +284,7 @@ IS
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, 'Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
+            RAISE_APPLICATION_ERROR(-20001, '[SC08] - Erro no estorno do pagamento. Log recebido: ('||VMENSAGEM||')');    
     END; --SOLICITA_CANCELAMENTO
 
     ----------------------------------------------------------------------------
@@ -308,7 +308,7 @@ IS
           INTO VHORA,VMINUTO
           FROM DUAL;
 
-        PMENSAGEM := 'Atualização realizada com sucesso!';
+        PMENSAGEM := '[AS01] - Atualização realizada com sucesso!';
 
         FOR DADOS IN (SELECT A.NUMTRANSPAGADIANTADO,                            /*01*/
                              A.CODCLI,                                          /*02*/
@@ -338,13 +338,13 @@ IS
                          AND A.NUMTRANSPAGADIANTADO  = PNUMTRANSPAGADIANTADO)
         LOOP
             IF DADOS.CODBCOCOBANTECIPADA IS NULL THEN
-                PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
+                PMENSAGEM := '[AS02] - Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
                 ROLLBACK;
                 RETURN;
             END IF;
 
             IF ((DADOS.CODMOEDACOBANTECIPADA IS NULL) AND (DADOS.QUITAPCPREST = 'S')) THEN
-                PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
+                PMENSAGEM := '[AS03] - Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
                 ROLLBACK;
                 RETURN;
             END IF;
@@ -500,7 +500,7 @@ IS
     BEGIN
         VROTINA      := SYS_CONTEXT('USERENV', 'MODULE');
 
-        PMENSAGEM := 'Estorno realizado com sucesso!';
+        PMENSAGEM := '[ER01] - Estorno realizado com sucesso!';
 
         SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP),
                EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) 
@@ -727,11 +727,11 @@ IS
         PNUMTRANS              := 0;
 
         PSTATUS := 'OK';
-        PMENSAGEM := 'Crédito gerado com sucesso';
+        PMENSAGEM := '[CRA01] - Crédito gerado com sucesso';
 
         IF (PCODCLI <= 0) OR (PCODCLI IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o código do cliente.';
+            PMENSAGEM := '[CRA02] - Necessário informar o código do cliente.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -742,7 +742,7 @@ IS
 
         IF (PNUMPED <= 0) OR (PNUMPED IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o número do pedido.';
+            PMENSAGEM := '[CRA03] - Necessário informar o número do pedido.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -753,7 +753,7 @@ IS
 
         IF (PVALOR <= 0) OR (PVALOR IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o valor do recebimento antecipado.';
+            PMENSAGEM := '[CRA04] - Necessário informar o valor do recebimento antecipado.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -764,7 +764,7 @@ IS
 
         IF (PCODFILIAL = '') OR (PCODFILIAL IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a filial.';
+            PMENSAGEM := '[CRA05] - Necessário informar a filial.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -775,7 +775,7 @@ IS
 
         IF (PVALORPEDIDO <= 0) OR (PVALORPEDIDO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o valor do pedido.';
+            PMENSAGEM := '[CRA06] - Necessário informar o valor do pedido.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -786,7 +786,7 @@ IS
 
         IF (PCODCOBPGTO = '') OR (PCODCOBPGTO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a cobrança do pagamento.';
+            PMENSAGEM := '[CRA07] - Necessário informar a cobrança do pagamento.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -797,7 +797,7 @@ IS
 
         IF (PDTEMISSAOPED = '') OR (PDTEMISSAOPED IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a data de emissão do pedido.';
+            PMENSAGEM := '[CRA08] - Necessário informar a data de emissão do pedido.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -808,7 +808,7 @@ IS
 
         IF (PDTGERACAOPGTO = '') OR (PDTGERACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a data de geração do pagamento.';
+            PMENSAGEM := '[CRA09] - Necessário informar a data de geração do pagamento.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -819,7 +819,7 @@ IS
 
         IF (PDTCONFIRMACAOPGTO = '') OR (PDTCONFIRMACAOPGTO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a data de confirmação do pagamento.';
+            PMENSAGEM := '[CRA10] - Necessário informar a data de confirmação do pagamento.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -830,7 +830,7 @@ IS
 
         IF (PDTPGTO = '') OR (PDTPGTO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a data de pagamento informada na API.';
+            PMENSAGEM := '[CRA11] - Necessário informar a data de pagamento informada na API.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -841,7 +841,7 @@ IS
 
         IF (PMATRICULAGERACAO <= 0) OR (PMATRICULAGERACAO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a matrícula do usuário que gerou o pagamento.';
+            PMENSAGEM := '[CRA12] - Necessário informar a matrícula do usuário que gerou o pagamento.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -852,7 +852,7 @@ IS
 
         IF (PMATRICULACONFIRMACAO <= 0) OR (PMATRICULACONFIRMACAO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a matrícula do usuário que confirmou o pagamento.';
+            PMENSAGEM := '[CRA13] - Necessário informar a matrícula do usuário que confirmou o pagamento.';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -870,7 +870,7 @@ IS
 
         IF VCODBCOCOBANTECIPADA IS NULL THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
+            PMENSAGEM := '[CRA14] - Necessário informar o banco para baixa na ABA -> Pagamento Antecipado na 522';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -881,7 +881,7 @@ IS
 
         IF VCODMOEDACOBANTECIPADA IS NULL THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
+            PMENSAGEM := '[CRA15] - Necessário informar a moeda para baixa na ABA -> Pagamento Antecipado na 522';
 
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
@@ -1092,7 +1092,7 @@ IS
                 ROLLBACK;
             END IF;
             PMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, 'Erro ao criar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
+            RAISE_APPLICATION_ERROR(-20001, '[CRA16] - Erro ao criar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
     END; --CRIAR_RECEB_ANTECIPADO
 
     ----------------------------------------------------------------------------
@@ -1114,11 +1114,11 @@ IS
         VNUMTRANSPAGOADIANTADO PCPRESTANTECIPADA.NUMTRANSPAGADIANTADO%TYPE;
     BEGIN
         PSTATUS := 'OK';
-        PMENSAGEM := 'Recebimento antecipado estornado com sucesso';
+        PMENSAGEM := '[ERA01] - Recebimento antecipado estornado com sucesso';
 
         IF (PCODCLI <= 0) OR (PCODCLI IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o código do cliente.';
+            PMENSAGEM := '[ERA02] - Necessário informar o código do cliente.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1127,7 +1127,7 @@ IS
 
         IF (PNUMPED <= 0) OR (PNUMPED IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o número do pedido.';
+            PMENSAGEM := '[ERA03] - Necessário informar o número do pedido.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1136,7 +1136,7 @@ IS
 
         IF (PVALOR <= 0) OR (PVALOR IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o valor do estorno';
+            PMENSAGEM := '[ERA04] - Necessário informar o valor do estorno';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1145,7 +1145,7 @@ IS
 
         IF (PNUMTRANSPAGOADIANTADO <= 0) OR (PNUMTRANSPAGOADIANTADO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar o código do recebimento antecipado.';
+            PMENSAGEM := '[ERA05] - Necessário informar o código do recebimento antecipado.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1154,7 +1154,7 @@ IS
 
         IF (PMATRICULAESTORNO <= 0) OR (PMATRICULAESTORNO IS NULL) THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Necessário informar a matrícula do usuário que confirmou o estorno.';
+            PMENSAGEM := '[ERA06] - Necessário informar a matrícula do usuário que confirmou o estorno.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1187,7 +1187,7 @@ IS
 
         IF VNUMTRANSPAGOADIANTADO = 0 THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'Recebimento antecipado não encontrado com o código ' || PNUMTRANSPAGOADIANTADO || '.';
+            PMENSAGEM := '[ERA07] - Recebimento antecipado não encontrado com o código ' || PNUMTRANSPAGOADIANTADO || '.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1196,7 +1196,7 @@ IS
 
         IF PVALOR > VVALOR THEN
             PSTATUS := 'Erro';
-            PMENSAGEM := 'O valor informado para estorno de recebimento antecipado é maior que o valor do documento.';
+            PMENSAGEM := '[ERA08] - O valor informado para estorno de recebimento antecipado é maior que o valor do documento.';
             IF PEXECUTACOMMITROLLBACK = 'S' THEN
                 ROLLBACK;
             END IF;
@@ -1205,8 +1205,8 @@ IS
 
         SOLICITA_CANCELAMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, PMATRICULAESTORNO);
 
-        IF PMENSAGEM <> 'Cancelamento concluído com sucesso' THEN
-            RAISE_APPLICATION_ERROR(-20001, PMENSAGEM);
+        IF PMENSAGEM <> '[SC06] - Cancelamento concluído com sucesso' THEN
+            RAISE_APPLICATION_ERROR(-20001, '[ERA09] - '||PMENSAGEM);
         END IF;
 
         ESTORNO_RECEBIMENTO(PMENSAGEM, PNUMTRANSPAGOADIANTADO, PMATRICULAESTORNO);
@@ -1220,6 +1220,6 @@ IS
                 ROLLBACK;
             END IF;
             PMENSAGEM := SQLERRM;
-            RAISE_APPLICATION_ERROR(-20001, 'Erro ao estornar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
+            RAISE_APPLICATION_ERROR(-20001, '[ERA10] - Erro ao estornar recebimento antecipado. Log recebido: (' || PMENSAGEM || ')');
     END; --ESTORNAR_RECEBIMENTO_ANTECIPADO
 END;
