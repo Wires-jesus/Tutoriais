@@ -133,7 +133,7 @@ EXECUTE IMMEDIATE
       CODFILIALSAI              VARCHAR2(3),
       NUMTRANSVENDA             NUMBER(10),
       NUMNOTASAI                NUMBER(10),
-      CODCLISAI                 NUMBER(6),
+      CODCLISAI                 NUMBER(9),
       CLIENTESAI                VARCHAR2(60),
       CNPJSAI                   VARCHAR2(20),
       IESAI                     VARCHAR2(60),
