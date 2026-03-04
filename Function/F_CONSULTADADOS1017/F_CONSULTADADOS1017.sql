@@ -155,7 +155,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                                      ELSE '2'                         
                                                   END                                   
                                                  END = 2) THEN
-                                    (LEAST (                                    
+                                    ROUND((LEAST (                                    
                                          /*CAMPO 12*/
                                         CASE WHEN E.TIPODESCARGA IN ('6','8','C','T') THEN
                                            ROUND((NVL(ME.BASEICMS,0) + NVL(MCE.VLBASEFRETE,0) + NVL(MCE.VLBASEOUTROS,0)), 2)
@@ -184,9 +184,9 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                                         ROUND(NVL(ME.BASEICST, 0),2)
                                              END
                                         /*FIM CAMPO 09*/     
-                                          ) *  ((NVL(ME.PERCICM, 0) / 100))) * ME.QTCONT
+                                          ) *  ((NVL(ME.PERCICM, 0) / 100))) * ME.QTCONT, 2)
                                     ELSE
-                                        ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100)
+                                        ROUND(ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100),2)
                                     END                                 
                              END VLICMSENT,
                              ------------------------------------------------------
@@ -345,7 +345,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                              NVL(ME.ALIQICMS2, 0) ALIQICMSEXTENT,
                              NVL(ME.PERCALIQEXTGUIA, 0) PERCALIQEXTGUIAENT,
                              NVL(ME.PERCIVA, 0) PERCMVAAJUSTADOENT,
-                             ME.QTCONT * NVL(ME.BASEICST, 0) VLBASEICMSSTENT,
+                             ROUND(ME.QTCONT * NVL(ME.BASEICST, 0),2) VLBASEICMSSTENT,
                              -----------------------CAMPO 09-----------------------
                              CASE WHEN NVL(ME.BASEICST,0) > 0  THEN
                                         ROUND(NVL(ME.BASEICST, 0),2)
@@ -357,27 +357,27 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                         ROUND(NVL(ME.BASEICST, 0),2)
                              END VLBASEICMSSTENT_UNIT,
 
-                             ME.QTCONT * NVL(ME.ST, 0) VLSTENT,
+                             ROUND(ME.QTCONT * NVL(ME.ST, 0),2) VLSTENT,
                              NVL(ME.ST, 0) VLSTENT_UNIT,
-                             ME.QTCONT * NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA,
+                             ROUND(ME.QTCONT * NVL(ME.VLBASESTFORANF, 0),2) VLBASEICMSSTENTGUIA,
                              NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA_UNIT,
-                             ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT,
-                             ME.QTCONT * NVL(ME.STBCR,0) VLSTBCRENT,
+                             ROUND(ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0),2) VLSTGUIAENT,
+                             ROUND(ME.QTCONT * NVL(ME.STBCR,0),2) VLSTBCRENT,
                              NVL(ME.STBCR,0) VLSTBCRENT_UNIT,
                              NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT_UNIT,
                              ROUND(ME.QTCONT * NVL(ME.VLBASEIPI, 0), 2) VLBASEIPIENT,
                              NVL(ME.PERCIPI, 0) PERCIPIENT,
                              ROUND(ME.QTCONT * NVL(ME.VLIPI, 0), 2) VLIPIENT,
                              NVL(ME.VLIPI, 0) VLIPIENT_UNIT,
-                             (ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
+                             ROUND((ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))),2) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
                              NVL(MCE.PERCMVAORIG, 0) VLAGREGADOMVA_ENT, --Margem de Valor Agregado - MVA
                              ------------------------------------------------------
                              CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN
                                      ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTROS,0)), 2)
                                   WHEN E.TIPODESCARGA IN ('N','F','I') THEN
-                                     (ME.QTCONT * ME.PUNITCONT)
+                                     ROUND((ME.QTCONT * ME.PUNITCONT),2)
                                   ELSE
-                                     ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0))
+                                     ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0)),2)
                              END VLCONTABILENT,
                              ------------------------------------------------------
                              CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN
@@ -584,7 +584,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                    NVL(MS.PERCIPI, 0) PERCIPISAI,
                                    SUM(ROUND(MS.QTCONT * NVL(MS.VLIPI, 0), 2)) VLIPISAI,
                                    MAX(NVL(MS.VLIPI, 0)) VLIPISAI_UNIT,
-                                   SUM((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0)))) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
+                                   SUM( ROUND((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0))),2)) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
                                    MAX(NVL(MCS.PERCMVAORIG, 0)) VLAGREGADOMVASAI, --Margem de Valor Agregado - MVA
                                    SUM(ROUND(MS.QTCONT * NVL(MS.VLFRETE, 0), 2)) VLFRETESAI,
                                    MAX(NVL(MS.VLFRETE, 0)) VLFRETESAI_UNIT,
@@ -1019,7 +1019,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                                      ELSE '2'                         
                                                   END                                   
                                                  END = 2) THEN
-                                    (LEAST (                                    
+                                    ROUND((LEAST (                                    
                                          /*CAMPO 12*/
                                         CASE WHEN E.TIPODESCARGA IN ('6','8','C','T') THEN
                                            ROUND((NVL(ME.BASEICMS,0) + NVL(MCE.VLBASEFRETE,0) + NVL(MCE.VLBASEOUTROS,0)), 2)
@@ -1048,9 +1048,9 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                                         ROUND(NVL(ME.BASEICST, 0),2)
                                              END
                                         /*FIM CAMPO 09*/     
-                                          ) *  ((NVL(ME.PERCICM, 0) / 100))) * ME.QTCONT
+                                          ) *  ((NVL(ME.PERCICM, 0) / 100))) * ME.QTCONT,2)
                                     ELSE
-                                        ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100)
+                                        ROUND(ME.QTCONT * (NVL(ME.BASEICMS, 0) * NVL(ME.PERCICM, 0) / 100),2)
                                     END 
                            END VLICMSENT,
                            ---------------------------
@@ -1208,7 +1208,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                            NVL(ME.ALIQICMS2, 0) ALIQICMSEXTENT,
                            NVL(ME.PERCALIQEXTGUIA, 0) PERCALIQEXTGUIAENT,
                            NVL(ME.PERCIVA, 0) PERCMVAAJUSTADOENT,
-                           ME.QTCONT * NVL(ME.BASEICST, 0) VLBASEICMSSTENT,
+                           ROUND(ME.QTCONT * NVL(ME.BASEICST, 0),2) VLBASEICMSSTENT,
                              -----------------------CAMPO 09-----------------------
                            CASE WHEN NVL(ME.BASEICST,0) > 0  THEN
                                         ROUND(NVL(ME.BASEICST, 0),2)
@@ -1219,27 +1219,27 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                     ELSE
                                         ROUND(NVL(ME.BASEICST, 0),2)
                            END VLBASEICMSSTENT_UNIT,
-                           ME.QTCONT * NVL(ME.ST, 0) VLSTENT,
+                           ROUND(ME.QTCONT * NVL(ME.ST, 0),2) VLSTENT,
                            NVL(ME.ST, 0) VLSTENT_UNIT,
-                           ME.QTCONT * NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA,
+                           ROUND(ME.QTCONT * NVL(ME.VLBASESTFORANF, 0),2) VLBASEICMSSTENTGUIA,
                            NVL(ME.VLBASESTFORANF, 0) VLBASEICMSSTENTGUIA_UNIT,
-                           ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT,
-                           ME.QTCONT * NVL(ME.STBCR,0) VLSTBCRENT,
+                           ROUND(ME.QTCONT * NVL(ME.VLDESPADICIONAL, 0),2) VLSTGUIAENT,
+                           ROUND(ME.QTCONT * NVL(ME.STBCR,0),2) VLSTBCRENT,
                            NVL(ME.STBCR,0) VLSTBCRENT_UNIT,
                            NVL(ME.VLDESPADICIONAL, 0) VLSTGUIAENT_UNIT,
                            ROUND(ME.QTCONT * NVL(ME.VLBASEIPI, 0), 2) VLBASEIPIENT,
                            NVL(ME.PERCIPI, 0) PERCIPIENT,
                            ROUND(ME.QTCONT * NVL(ME.VLIPI, 0), 2) VLIPIENT,
                            NVL(ME.VLIPI, 0) VLIPIENT_UNIT,
-                           (ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
+                           ROUND((ME.QTCONT * (NVL(ME.VLFRETE, 0) + NVL(ME.VLOUTRASDESP, 0))),2) VLENCARGOSENT, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
                            NVL(MCE.PERCMVAORIG, 0) VLAGREGADOMVA_ENT, --Margem de Valor Agregado - MVA
                            ------------------------------------------------------
                            CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN
                                    ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTROS,0)), 2)
                                 WHEN E.TIPODESCARGA IN ('N','F','I') THEN
-                                   (ME.QTCONT * ME.PUNITCONT)
+                                   ROUND((ME.QTCONT * ME.PUNITCONT),2)
                                 ELSE
-                                   ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0))
+                                  ROUND(ME.QTCONT * (ME.PUNITCONT + NVL(ME.VLIPI,0) + NVL(ME.ST,0) + NVL(ME.VLFRETE,0) + NVL(ME.VLOUTRASDESP,0) - NVL(ME.VLDESCONTO,0) - NVL(ME.VLSUFRAMA,0)),2)
                            END VLCONTABILENT,
                            ------------------------------------------------------
                            CASE WHEN (E.TIPODESCARGA IN ('6','8','C','T')) THEN
@@ -1451,7 +1451,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                                  NVL(MS.PERCIPI, 0) PERCIPISAI,
                                  SUM(ROUND(MS.QTCONT * NVL(MS.VLIPI, 0), 2)) VLIPISAI,
                                  MAX(NVL(MS.VLIPI, 0)) VLIPISAI_UNIT,
-                                 SUM((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0)))) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
+                                 SUM(ROUND((MS.QTCONT * (NVL(MS.VLFRETE, 0) + NVL(MS.VLOUTRASDESP, 0))),2)) VLENCARGOSSAI, --Frete, Seguro, Impostos e outros encargos transf. ou cobr. do destin.
                                  MAX(NVL(MCS.PERCMVAORIG, 0)) VLAGREGADOMVASAI, --Margem de Valor Agregado - MVA
                                  SUM(ROUND(MS.QTCONT * NVL(MS.VLFRETE, 0), 2)) VLFRETESAI,
                                  MAX(NVL(MS.VLFRETE, 0)) VLFRETESAI_UNIT,
@@ -1769,4 +1769,5 @@ END;
 ---------------------------------------------------------------------------------
 -- 001 - 21/03/2023 - Performance --
 -- 002 - 13/12/2024 - Performance -- Alteração nos objetos vinculados
+-- 003 - 04/03/2026 - Implementado a função Round em todas as colunas do sql que são multiplicadas pelo qtcont
 ---------------------------------------------------------------------------------
