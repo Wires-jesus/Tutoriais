@@ -110,7 +110,9 @@ BEGIN
 
   INSERT_DATA('MANTER_LOTES_ATRIBUIDOS', 'N', NULL, 'Manter lotes atribuídos antes da separação/conferência do RF?', 'EXPEDICAO', 'BOOLEAN'); 
 
-  INSERT_DATA('ETIQUETA_ZPL', 'N', 'N-Utiliza impressão padrão via jaspersoft;S-Utilizar impressão via código ZPL;F-Utilizar código ZPL forçando o modo de impressão térmico direto da impressora', 'Utiliza impressão via código ZPL?', 'EXPEDICAO', 'SELECT');  
+  INSERT_DATA('ETIQUETA_ZPL', 'N', 'N-Utiliza impressão padrão via jaspersoft;S-Utilizar impressão via código ZPL;F-Utilizar código ZPL forçando o modo de impressão térmico direto da impressora', 'Utiliza impressão via código ZPL?', 'EXPEDICAO', 'SELECT');
+
+  INSERT_DATA('USAR_FATOR_EMB_SELECIONADA_CHECKOUT', 'N', NULL, 'Usar fator de conversão da embalagem no Checkout da separação', 'EXPEDICAO', 'BOOLEAN');
 END;
 
 
