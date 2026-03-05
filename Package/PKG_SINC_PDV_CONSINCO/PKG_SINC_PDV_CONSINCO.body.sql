@@ -4435,7 +4435,13 @@ BEGIN
 
   UPDATE MONITORPDVMIDDLE.TB_COMBOITEM CI
   SET ATIVO = 'N'
-  WHERE SEQPRODUTO EXISTS (SELECT 1 FROM PCDEPARAPRODC5 C5 WHERE CI.SEQPRODUTO = C5.SEQPRODUTO AND ATIVO = 'N');
+  WHERE CI.ATIVO = 'S' 
+  AND EXISTS (
+         SELECT 1 
+         FROM PCDEPARAPRODC5 C5 
+         WHERE CI.SEQPRODUTO = C5.SEQPRODUTO 
+         AND C5.ATIVO = 'N'
+      );
 
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_comboitem', 'carrega_tb_comboitem OK', SYSDATE, CURRENT_TIMESTAMP);
