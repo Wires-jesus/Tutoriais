@@ -6,10 +6,10 @@ CREATE OR REPLACE PACKAGE BODY pkg_cnpj_validator AS
    -------------------------------------------------------------------
    -- FUNÇÕES PRIVADAS (Helpers internos)
    -------------------------------------------------------------------
-   FUNCTION clean_cnpj(p_cnpj IN VARCHAR2) RETURN VARCHAR2 IS
+   FUNCTION limpar_cnpj(p_cnpj IN VARCHAR2) RETURN VARCHAR2 IS
    BEGIN
-      RETURN REGEXP_REPLACE(p_cnpj, '[^[:alnum:]]', '');
-   END clean_cnpj;
+      RETURN REGEXP_REPLACE(p_cnpj, C_REGEX_CNPJ_ALFA, '');
+   END limpar_cnpj;
 
    FUNCTION obter_valor_char(p_char IN CHAR) RETURN NUMBER IS
    BEGIN
@@ -80,7 +80,7 @@ CREATE OR REPLACE PACKAGE BODY pkg_cnpj_validator AS
       v_dv_calculado VARCHAR2(2);
    BEGIN
       IF p_cnpj IS NULL THEN RETURN FALSE; END IF;
-      v_clean_cnpj := clean_cnpj(p_cnpj);
+      v_clean_cnpj := limpar_cnpj(p_cnpj);
       IF LENGTH(v_clean_cnpj) != 14 THEN RETURN FALSE; END IF;
 
       v_base := SUBSTR(v_clean_cnpj, 1, 12);
@@ -104,5 +104,21 @@ CREATE OR REPLACE PACKAGE BODY pkg_cnpj_validator AS
          RETURN 'N';
       END IF;
    END validar_cnpj;
+   
+   -- Retorna S caso os CNPJs sejam iguais, e N caso sejam diferentes
+   FUNCTION comparar_cnpjs(p_cnpj1 IN VARCHAR2, p_cnpj2 IN VARCHAR2) RETURN VARCHAR2 IS
+   BEGIN
+     IF UPPER(REGEXP_REPLACE(P_CNPJ1, C_REGEX_CNPJ_ALFA, '')) = UPPER(REGEXP_REPLACE(P_CNPJ2, C_REGEX_CNPJ_ALFA, '')) THEN
+        RETURN 'S';
+     ELSE
+        RETURN 'N';
+     END IF;
+   END;
+   
+   -- Retorna apenas o radical do CNPJ limpo, sem máscaras (8 caracteres)
+   FUNCTION get_radical(p_cnpj IN VARCHAR2) RETURN VARCHAR2 IS
+   BEGIN
+     RETURN SUBSTR(limpar_cnpj(p_cnpj), 1, 8);
+   END;
 
 END pkg_cnpj_validator;
