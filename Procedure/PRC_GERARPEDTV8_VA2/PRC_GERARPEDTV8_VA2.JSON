@@ -1,1 +1,16 @@
-{"nome":"PRC_GERARPEDTV8_VA2","tipoPLSQL":"PROCEDURE","dependencias":""}
+{
+  "nome": "PRC_GERARPEDTV8_VA2",
+  "tipoPLSQL": "PROCEDURE",
+  "dependencias": [
+    {
+      "nome": "PCPEDI",
+      "tipo": "TABELA",
+      "versao": "8.0.06.000"
+    },
+    {
+      "nome": "PCPEDICESTA",
+      "tipo": "TABELA",
+      "versao": "8.0.06.000"
+    }
+  ]
+}
