@@ -5,12 +5,12 @@
     {
       "nome": "PCPEDI",
       "tipo": "TABELA",
-      "versao": "6.0.08.000"
+      "versao": "8.0.06.000"
     },
     {
       "nome": "PCPEDICESTA",
       "tipo": "TABELA",
-      "versao": "6.0.06.000"
+      "versao": "8.0.06.000"
     }
   ]
 }
