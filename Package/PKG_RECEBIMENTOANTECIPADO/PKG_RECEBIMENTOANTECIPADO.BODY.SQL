@@ -40,8 +40,7 @@ IS
     END;
 
     ----------------------------------------------------------------------------
-    FUNCTION CONSULTA_PAGANTECIPADO(PMENSAGEM   OUT VARCHAR2,
-                                    PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
+    FUNCTION CONSULTA_PAGANTECIPADO(PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
                                     PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
                                     PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE
                                     )
@@ -53,8 +52,7 @@ IS
     VMENSAGEM   VARCHAR2(300);
 	V_ENCONTROU BOOLEAN := FALSE;
     BEGIN
-		PMENSAGEM := NULL;
-        VCURSOR := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
+		VCURSOR := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
 
         LOOP
             FETCH VCURSOR INTO DADOS_SAIDA;
@@ -62,10 +60,7 @@ IS
 			V_ENCONTROU := TRUE;
             PIPE ROW(DADOS_SAIDA);            
         END LOOP;
-		IF NOT V_ENCONTROU THEN
-		   PMENSAGEM := '[CP01] - Pagamento antecipado não encontrado';		   
-		END IF;        
-        RETURN;
+		RETURN;
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
@@ -73,8 +68,7 @@ IS
     END; --CONSULTA_PAGANTECIPADO
 
     ----------------------------------------------------------------------------
-    FUNCTION CONSULTA_STATUS(PMENSAGEM   OUT VARCHAR2,
-                             PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
+    FUNCTION CONSULTA_STATUS(PCODFILIAL  PCPRESTANTECIPADA.CODFILIAL%TYPE,
                              PCODCLI     PCPRESTANTECIPADA.CODCLI%TYPE,
                              PNUMPED     PCPRESTANTECIPADA.NUMPED%TYPE
                              )
@@ -86,8 +80,7 @@ IS
     VMENSAGEM   VARCHAR2(300);
 	V_ENCONTROU BOOLEAN := FALSE;
     BEGIN
-		PMENSAGEM := NULL; 
-        VCURSOR   := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
+		VCURSOR   := DADOS_PCPRESTANTECIPADA(PCODFILIAL,PCODCLI,PNUMPED);
 
         LOOP
             FETCH VCURSOR INTO DADOS_SAIDA;
@@ -95,10 +88,7 @@ IS
 			V_ENCONTROU := TRUE;
             PIPE ROW(DADOS_SAIDA);            
         END LOOP;        
-		IF NOT V_ENCONTROU THEN
-		   PMENSAGEM := '[CS01] - Pagamento antecipado não encontrado!';
-		END IF;        
-        RETURN;
+		RETURN;
     EXCEPTION
         WHEN OTHERS THEN
             VMENSAGEM := SQLERRM;
