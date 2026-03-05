@@ -1409,7 +1409,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                        NVL(QT, 0) AS QT,
                        NVL(QTSEPARADA, 0) AS QTSEPARADA,
                        NUMSEQ,
-                       NVL(CODFILIALRETIRA, pCODFILIAL) CODFILIAL
+                       NVL(CODFILIALRETIRA, pCODFILIAL) CODFILIAL,
+                       PTABELA,
+                       PBASERCA,
+                       CODAUXILIAR
                   FROM PCPEDI
                  WHERE NVL(QT, 0) <> NVL(QTSEPARADA, 0)
                    AND NUMPED = pNUMPED) LOOP
@@ -1545,7 +1548,57 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                                                                            REG.QTORIG);
       END IF;
 
-    /***IMPLEMNETAR FLUXO DE CANCELAMENTO PCNFCAN****/
+      /***IMPLEMNETAR FLUXO DE CANCELAMENTO PCNFCAN NO CORTE TOTAL DO ITEM****/
+      IF REG.QTSEPARADA = 0 THEN
+
+        INSERT INTO PCNFCANITEM
+          (NUMPED,
+           CODROTINA,
+           MOTIVO,
+           CODCLI,
+           CodProd,
+           PVENDA,
+           PTABELA,
+           NUMSEQ,
+           DATACANC,
+           CODFUNCCANC,
+           DATAEMISSAO,
+           CODFUNCEMITE,
+           CODUSUR,
+           NUMCAR,
+           QT,
+           PBASERCA,
+           HORACANC,
+           CODAUXILIAR)
+        VALUES
+          (REG.NUMPED,
+           1700,
+           'CANCELAMENTO AUTOMATICO POR MOTIVO DE CORTE TOTAL',
+           vCODCLI,
+           REG.CODPROD,
+           NVL((select max(pvenda)
+                 from pcpedi
+                where numped = REG.NUMPED
+                  and codprod = REG.CODPROD),
+               0),
+           REG.PTABELA,
+           REG.NUMSEQ,
+           TRUNC(SYSDATE),
+           1,
+           TRUNC(SYSDATE),
+           1,
+           1,
+           vNUMCAR,
+           REG.QT,
+           REG.PBASERCA,
+           SYSDATE,
+           REG.CODAUXILIAR);
+
+        DELETE PCPEDI
+         WHERE ROWID = REG.ROWID
+           AND CODPROD = REG.CODPROD
+           AND NVL(QTSEPARADA, 0) = 0;
+      END IF;
 
     END LOOP;
 
