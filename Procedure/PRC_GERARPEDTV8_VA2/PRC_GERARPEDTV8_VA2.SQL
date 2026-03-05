@@ -518,6 +518,8 @@ BEGIN
                     ,VLICMSPARTREM -- fim partilha
                     ,ALIQINTERORIGPART
                     ,UTILIZOUMOTORCALCULO
+                    ,CPFRESPTECNICOAGRICOLA
+                    ,NUMRECEITUARIOAGRICOLA
                     )
             (SELECT vnproxnumped
                     ,CODPROD
@@ -588,6 +590,8 @@ BEGIN
                     ,VLICMSPARTREM -- fim partilha
                     ,ALIQINTERORIGPART
                     ,UTILIZOUMOTORCALCULO
+                    ,CPFRESPTECNICOAGRICOLA
+                    ,NUMRECEITUARIOAGRICOLA
                     FROM pcpedicesta
                     WHERE numped = pnumped);
 
