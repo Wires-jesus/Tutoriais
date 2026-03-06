@@ -19716,7 +19716,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
               P_INTERNO.vtAVARIA.OBS           := 'BAIXA ESTOQUE AVARIADO';
               P_INTERNO.vtAVARIA.CODFILIAL     := REGISTROS.CODFILIALVENDA;
               P_INTERNO.vtAVARIA.NUMTRANSVENDA := REGISTROS.NUMTRANSVENDA; 
-              P_INTERNO.vtAVARIA.CODROTINALANC := REGEXP_REPLACE(REGISTROS.ROTINACAD, '[^0-9]', ''); -- Campo da PCMOVAVARIA está como number, será realizada nova tratativa para correção do log          
+              P_INTERNO.vtAVARIA.CODROTINALANC := NVL(TO_NUMBER(SUBSTR(REGEXP_SUBSTR(REGISTROS.ROTINACAD, '[0-9]+'), 1, 4)), 0);
                 
               -- Validar se conseguiu atualizar o estoque
               IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
