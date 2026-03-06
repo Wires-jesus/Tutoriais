@@ -1066,7 +1066,8 @@ create or replace package body FISCAL is
                                    ,pEXCLUIRICMSBASEPC_ATUAL   in varchar2
                                    ,pAGREGARFCPBASEPISCOFINSSAIDA in varchar2
                                    ,pEXCLUIRDIFALBASEPC_ATUAL   in varchar2
-                                   ,PVLDIFALIQUOTAS in number) return boolean is
+                                   ,PVLDIFALIQUOTAS in NUMBER
+                                   ,PVLICMSBCR       in number) return boolean is
       VCODTRIB                    number;
       VPERPIS                     number;
       VPERCOFINS                  number;
@@ -1243,7 +1244,12 @@ create or replace package body FISCAL is
                                      else
                                        0
                                   end
-                           AS VLBASEPISCOFINS
+                                - case when (T.EXCLUIRVLICMSBCRBASEPISCOFINS  = 'S') AND (PVLICMS = 0) then
+                                       PVLICMSBCR
+                                     else
+                                       0
+                                  end  
+                          AS VLBASEPISCOFINS
                            ------------------
                            ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
                                        (T.EXCLUIRICMSBASEPISCOFINS = 'S') then
@@ -1397,6 +1403,11 @@ create or replace package body FISCAL is
                                else
                                  0
                              end
+                          - case when (T.EXCLUIRVLICMSBCRBASEPISCOFINS  = 'S') AND (PVLICMS = 0) THEN
+                                       PVLICMSBCR
+                                     else
+                                       0
+                             end    
                       as VLBASEPISCOFINS
                       ------------------
                      ,(case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
@@ -1508,6 +1519,7 @@ create or replace package body FISCAL is
       PKG_DEBUGGING_FWPC.LOG('Valor do PVLICMS| '||PVLICMS,'S');
       PKG_DEBUGGING_FWPC.LOG('Valor do PVLFCPICMS| '||PVLFCPICMS,'S');
       PKG_DEBUGGING_FWPC.LOG('Valor do PVLSTBCR| '||PVLSTBCR,'S');
+      PKG_DEBUGGING_FWPC.LOG('Valor do PVLICMSBCR| '||PVLICMSBCR,'S');
       PKG_DEBUGGING_FWPC.LOG('Valor do Pis/Cofins| '||VBASEPISCOFINS,'S');
 
       -----------------------------------------------------------------
@@ -1891,6 +1903,7 @@ create or replace package body FISCAL is
                           ,'N' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0)  VLICMSDESONERACAO
                           ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR
+                          ,DECODE(M.SITTRIBUT,'60',NVL(M.VLICMSBCR, 0),0) AS VLICMSBCR
                           ,NVL(M.VLBASEPISCOFINS,0)     VLBASEPISCOFINS_ATUAL
                           ,NVL(M.PERPIS,0)              PERPIS_ATUAL
                           ,NVL(M.PERCOFINS,0)           PERCOFINS_ATUAL
@@ -2015,6 +2028,7 @@ create or replace package body FISCAL is
                           ,'S' PREFATURAMENTO
                           ,NVL(MC.VLICMSDESONERACAO,0) VLICMSDESONERACAO
                           ,DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0) AS VLSTBCR
+                          ,DECODE(M.SITTRIBUT,'60',NVL(M.VLICMSBCR, 0),0) AS VLICMSBCR
                           ,NVL(M.VLBASEPISCOFINS,0)     VLBASEPISCOFINS_ATUAL
                           ,NVL(M.PERPIS,0)              PERPIS_ATUAL
                           ,NVL(M.PERCOFINS,0)           PERCOFINS_ATUAL
@@ -2121,7 +2135,8 @@ create or replace package body FISCAL is
                                        ,DADOS.EXCLUIRICMSBASEPC_ATUAL
                                        ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                        ,DADOS.EXCLUIRDIFALBASEPC_ATUAL
-                                       ,DADOS.VLICMSPARTDEST)
+                                       ,DADOS.VLICMSPARTDEST
+                                       ,DADOS.VLICMSBCR)
          then
             if LENGTH(VMENSAGENS || CHR(13) || VMSG_ITEM) <= 3800
             then
@@ -2291,6 +2306,7 @@ create or replace package body FISCAL is
                           ,VLICMSDESONERACAO
                           ,VLSTBCR
                           ,VLICMSPARTDEST
+                          ,VLICMSBCR
                       from (select N.CODFILIAL
                                   ,M.CODPROD
                                   ,M.ROWID IDREGISTRO
@@ -2439,6 +2455,7 @@ create or replace package body FISCAL is
                                   ,MAX(NVL(MC.VLICMSDESONERACAO,0)) VLICMSDESONERACAO
                                   ,MAX(DECODE(M.SITTRIBUT,'60',NVL(M.STBCR, 0),0)) AS VLSTBCR
                                   ,MAX(NVL(MCE.VLICMSPARTDEST,0)) VLICMSPARTDEST
+                                  ,MAX(DECODE(M.SITTRIBUT,'60',NVL(M.VLICMSBCR, 0),0)) AS VLICMSBCR
                               from PCNFENT     N
                                   ,PCMOV       M
                                   ,PCESTCOM    E
@@ -2572,7 +2589,8 @@ create or replace package body FISCAL is
                                           ,0
                                           ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                           ,0
-                                          ,DADOS.VLICMSPARTDEST)
+                                          ,DADOS.VLICMSPARTDEST
+                                          ,DADOS.VLICMSBCR)
             then
                if LENGTH(VMENSAGENS || CHR(13) || VMSG_ITEM) <= 3800
                then
@@ -2738,7 +2756,8 @@ create or replace package body FISCAL is
                                           ,0
                                           ,V_AGREGARFCPBASEPISCOFINSSAIDA
                                           ,0
-                                          ,DADOS.VLICMSPARTDEST)
+                                          ,DADOS.VLICMSPARTDEST
+                                          ,0)
             then
                if LENGTH(VMENSAGENS || CHR(13) || VMSG_ITEM) <= 3800
                then
@@ -7134,7 +7153,7 @@ create or replace package body FISCAL is
 
       -- Cálculo para Orgão Publico --
       IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO <> '0' AND 
-	     V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB >= 0 THEN
+       V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB >= 0 THEN
 
          V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_OPERACAO_GOV := '1';
 
