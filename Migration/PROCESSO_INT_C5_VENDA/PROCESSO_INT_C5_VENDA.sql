@@ -801,7 +801,7 @@ AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRDIFERIDO') ,'0')) VDIFIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSUF,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRTRIBUTO') ,'0')) VIBSUF,
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRIMPOSTO') ,'0')) VIBSUF,
   
   --IBSMUN
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCALIQUOTA'),'0')) PIBSMUN,
@@ -809,7 +809,7 @@ AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRDIFERIDO') ,'0')) VDIFIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRIMPOSTO') ,'0'))  VIBSMUN
 FROM  monitorpdvmiddle.tb_doctoitem     i,
         monitorpdvmiddle.tb_docto       d,
         monitorpdvmiddle.tb_doctocupom  c,
@@ -1339,7 +1339,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRDIFERIDO') ,'0')) VDIFIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSUF,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRTRIBUTO') ,'0')) VIBSUF,
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRIMPOSTO') ,'0')) VIBSUF,
   
   --IBSMUN
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCALIQUOTA'),'0')) PIBSMUN,
@@ -1347,7 +1347,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRDIFERIDO') ,'0')) VDIFIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRIMPOSTO') ,'0'))  VIBSMUN
 
 FROM  monitorpdvmiddle.tb_doctoitem      i,
         monitorpdvmiddle.tb_docto        d,
@@ -1679,7 +1679,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRDIFERIDO') ,'0')) VDIFIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSUF,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRTRIBUTO') ,'0')) VIBSUF,
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRIMPOSTO') ,'0')) VIBSUF,
   
   --IBSMUN
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCALIQUOTA'),'0')) PIBSMUN,
@@ -1687,7 +1687,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRDIFERIDO') ,'0')) VDIFIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRIMPOSTO') ,'0'))  VIBSMUN
  FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,
@@ -1996,14 +1996,14 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRDIFERIDO') ,'0')) VDIFIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSUF,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSUF,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRTRIBUTO') ,'0')) VIBSUF,
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 21, 'VLRIMPOSTO') ,'0')) VIBSUF,
   --IBSMUN
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCALIQUOTA'),'0')) PIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERDIFERIMENTO'),'0')) PDIFIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRDIFERIDO') ,'0')) VDIFIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERCREDALIQUOTA') ,'0')) PREDALIQIBSMUN,
   TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'PERALIQEFETIVA') ,'0')) PALIQEFETIBSMUN,
-  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRTRIBUTO') ,'0'))  VIBSMUN
+  TO_NUMBER(NVL(fnc_int_c5_BUSCATRIB(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem, 22, 'VLRIMPOSTO') ,'0'))  VIBSMUN
  FROM 
     MONITORPDVMIDDLE.TB_DOCTOITEM   I,
     MONITORPDVMIDDLE.TB_DOCTO       D,
