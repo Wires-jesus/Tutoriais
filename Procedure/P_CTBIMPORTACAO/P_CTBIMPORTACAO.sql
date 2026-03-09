@@ -89,7 +89,8 @@ CREATE OR REPLACE PROCEDURE P_CTBIMPORTACAO(PCODFILIAL IN VARCHAR,
   V_QTLOGREGISTROS_CC   NUMERIC;
   
   V_CODCONTA_PC_CRED PCMODELOPC.CODCONTA_PC%TYPE;
-  V_CODCONTA_PC_DEB  PCMODELOPC.CODCONTA_PC%TYPE;  
+  V_CODCONTA_PC_DEB  PCMODELOPC.CODCONTA_PC%TYPE;
+  V_USA_PERFIL_CONTADOR VARCHAR2(1) := 'N';
 
   -----------------------------------------------------------------------------
   
@@ -587,33 +588,54 @@ BEGIN
                           AND P.CODFILIAL = d.CODFILIAL
                         )
                        ';
-					   
-		BEGIN  			   
+
+    BEGIN
 
         EXECUTE IMMEDIATE V_SQLAUX INTO VS_MESESTABLOQUEADO USING PCODFILIAL, TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'YYYY')), TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM'));
-		EXCEPTION
-			WHEN NO_DATA_FOUND THEN
-		      VS_MESESTABLOQUEADO := 'N';
-		END;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+          VS_MESESTABLOQUEADO := 'N';
+    END;
 
-        IF VS_MESESTABLOQUEADO = 'S' THEN
+    BEGIN
+    V_SQLAUX := 'SELECT NVL(C.ACESSO, ''N'') ACESSO
+                       FROM PCCONTROI C
+            WHERE C.CODROTINA = 2106
+              AND C.CODUSUARIO = :CODFUNC
+              AND C.CODCONTROLE = 4 ';
+
+    EXECUTE IMMEDIATE V_SQLAUX INTO V_USA_PERFIL_CONTADOR USING PCODFUNC;
+    EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+          V_USA_PERFIL_CONTADOR := 'N';
+    
+    END;
+
+        
+
+        IF (VS_MESESTABLOQUEADO = 'S') AND (V_USA_PERFIL_CONTADOR = 'N') THEN
             V_MSG := 'O mês: ' || TO_CHAR(CR.DTMOVIMENTO, 'MM/YYYY') || ' está bloqueado/fechado para movimentações, não é possível continuar!';
             RAISE V_ERROCONTA;
-        ELSE 
-          V_SQLAUX := 'SELECT COUNT(1)   
-                    FROM PCCONFFILIALSITUACAOESPECIAL F           
-                   WHERE F.SITUACAOESPECIAL IN (1, 2, 3, 5)  
-                     AND F.CODFILIAL  = :CODFILIAL 
+        ELSE
+          V_SQLAUX := 'SELECT COUNT(1)
+                    FROM PCCONFFILIALSITUACAOESPECIAL F
+                   WHERE F.SITUACAOESPECIAL IN (1, 2, 3, 5)
+                     AND F.CODFILIAL  = :CODFILIAL
                      AND F.DATASITUACAOESPECIAL < :DATALANCTO ';
-      
+
         EXECUTE IMMEDIATE V_SQLAUX INTO VN_CONTADOR USING PCODFILIAL, CR.DTMOVIMENTO;
-       
+
          IF VN_CONTADOR > 0 THEN
            V_MSG := 'Lançamento posterior a data de situação especial, informada na rotina 2106. Operação não permitida!';
               RAISE V_ERROCONTA;
         ELSE
-		  BEGIN
-            V_SQLAUX := 'SELECT NVL(BLOQUEADO, ''N'') BLOQUEADO
+      BEGIN
+            IF V_USA_PERFIL_CONTADOR = 'S' THEN
+              V_SQLAUX := 'SELECT NVL(BLOQUEIOPERFILCONTADOR, ''N'') BLOQUEADO ';
+            ELSE
+              V_SQLAUX := 'SELECT NVL(BLOQUEADO, ''N'') BLOQUEADO ';
+            END IF;       
+            V_SQLAUX := V_SQLAUX || '
                          FROM PCBLOQCONTABDIA D
                          WHERE CODFILIAL = :CODFILIAL
                            AND ANO = :ANO
@@ -630,16 +652,20 @@ BEGIN
                                 AND P.CODFILIAL = d.CODFILIAL
                             )
                           ';
-            BEGIN 
+            BEGIN
               EXECUTE IMMEDIATE V_SQLAUX INTO VS_DIAESTABLOQUEADO
               USING PCODFILIAL, TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'YYYY')), TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'MM')), TO_NUMBER(TO_CHAR(CR.DTMOVIMENTO, 'DD'));
-			EXCEPTION
-				WHEN NO_DATA_FOUND THEN
-			       VS_DIAESTABLOQUEADO := 'N';
-			END;  
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+             VS_DIAESTABLOQUEADO := 'N';
+      END;
 
             IF VS_DIAESTABLOQUEADO = 'S' THEN
-              V_MSG := 'O dia: ' || TO_CHAR(CR.DTMOVIMENTO, 'DD/MM/YYYY') || ' está bloqueado/fechado para movimentações, não é possível continuar!';
+              IF V_USA_PERFIL_CONTADOR = 'S' THEN
+                V_MSG := 'O dia: ' || TO_CHAR(CR.DTMOVIMENTO, 'DD/MM/YYYY') || ' está bloqueado no Perfil Contador, não é possível continuar!';
+              ELSE   
+               V_MSG := 'O dia: ' || TO_CHAR(CR.DTMOVIMENTO, 'DD/MM/YYYY') || ' está bloqueado/fechado para movimentações, não é possível continuar!';
+              END IF;
               RAISE V_ERROCONTA;
             END IF;
           EXCEPTION
@@ -656,7 +682,7 @@ BEGIN
           END;
 
         END IF;
-        
+
         END IF;
 
         -------------------------------------------------------------------------------
