@@ -68,7 +68,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL indicadordesconto,
         NULL jsonvendacrm,
         NULL logerro,
-/*        CASE WHEN NF.TIPOENVIO = 'N'
+        CASE WHEN NF.TIPOENVIO = 'N'
              AND EXISTS (select count(*), vnf.protocoloenvio, vnf.NROEMPRESA, vnf.NROCHECKOUT
                            from VW_INT_C5_NFESAT vnf
                           where vnf.protocoloenvio = nf.protocoloenvio
@@ -79,8 +79,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
                          having count(*) > 1)
                   THEN 'S'
              ELSE 'N'
-        END AS */
-        NULL notadupliquesvc,
+        END AS notadupliquesvc,
         NULL naturezanfce,
         FNC_INT_C5_OBTERNUMCAR(a.seqdocto, a.nroempresa, a.nrocheckout) numcar,
         NULL numecf,
@@ -127,12 +126,11 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         ferramentas.F_BUSCARPARAMETRO_NUM('NUMREGIAOPADRAOVAREJO',a.nroempresa,1) numregiao,
         1 numviasmapasep,
         0 taxaentrega,
-/*        CASE
+        CASE
            WHEN NF.TIPOENVIO = 'T'
                 THEN 9
            ELSE 1
-        END AS */
-        1 tipoemissao,
+        END AS tipoemissao,
         0 totvolume,
         NULL transportadora,
         NULL uffrete,
