@@ -1,5 +1,5 @@
 {
-  "nome": "PCGLOBTMPFINAN",
+  "nome": "TABELA_TEMPORARIA_GLOBAL_FINAN",
   "tipoPLSQL": "MIGRATION",
   "dependencias": [
     {
