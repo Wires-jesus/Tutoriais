@@ -7302,7 +7302,7 @@ BEGIN
       S.IDREF
     );
 
-  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
+/*  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
   SET CCT.ATIVO = 'N'
   WHERE CCT.ATIVO = 'S'
     AND (( CCT.IDENTIFICADOR = 'PRODUTO'
@@ -7369,7 +7369,7 @@ BEGIN
                       AND T.DTEXCLUSAO IS NULL
                 )
         )
-  		);
+  		);*/
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
