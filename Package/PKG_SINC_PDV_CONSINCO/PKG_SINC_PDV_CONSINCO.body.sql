@@ -224,47 +224,85 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
   END;
   
   PROCEDURE normatizar_pcdeparaprodc5 AS
-    v_contagem NUMBER;
-  BEGIN
-    atualiza_carrega_produto('Normatizando produtos', 'S');
-    
-    UPDATE PCDEPARAPRODC5 C SET C.ATIVO = 'N'
-    WHERE EXISTS (SELECT 1                     
-                  FROM VW_INT_C5_FAMILIA F            
-                  WHERE  C.CODPROD = F.CODPROD)
-    AND C.ATIVO = 'S';
-    
-    MERGE INTO PCDEPARAPRODC5 A
-        USING (SELECT DISTINCT 
-                      C.SEQFAMILIA,
-                      C.ATIVO, 
-                      C.CODPROD,
-                      C.CODAUXILIAR
-               FROM VW_INT_C5_FAMILIA C
-               ) B
+	  v_contagem NUMBER;
 
-      ON (A.CODPROD = B.CODPROD AND A.CODAUXILIAR = B.CODAUXILIAR)
-      WHEN MATCHED THEN
-         UPDATE SET A.ATIVO = 'S'
-      WHEN NOT MATCHED THEN
-        INSERT (A.CODPROD,
-                A.CODAUXILIAR,
-                A.SEQPRODUTO,
-                A.SEQFAMILIA,
-                A.ATIVO)
-         VALUES
-               (B.CODPROD,
-                B.CODAUXILIAR,
-                DFSEQ_INT_C5_SEQ_PRODUTO.NextVal,
-                DFSEQ_INT_C5_SEQ_PRODUTO.CurrVal,
-                B.ATIVO);
-    EXCEPTION
-    WHEN OTHERS THEN
-      BEGIN
-        prc_record_error(0, 'NORMATIZAR TABELA PCDEPARAPRODC5');
-        ROLLBACK;            
-        RAISE;
-      END;   
+	  CURSOR c_dados IS
+		SELECT f.CODPROD, f.CODAUXILIAR, f.ATIVO, d.ROWID as row_id
+		FROM (SELECT DISTINCT CODPROD, CODAUXILIAR, ATIVO FROM VW_INT_C5_FAMILIA) f
+		LEFT JOIN PCDEPARAPRODC5 d 
+		  ON f.CODPROD = d.CODPROD AND f.CODAUXILIAR = d.CODAUXILIAR;
+		  
+	  TYPE t_dados IS TABLE OF c_dados%ROWTYPE;
+	  v_lote t_dados;
+	  
+	  TYPE t_rowid IS TABLE OF UROWID;
+	  v_upd_rowids t_rowid := t_rowid();
+	  
+	  v_seq_val NUMBER;
+
+	BEGIN
+	  atualiza_carrega_produto('Normatizando produtos', 'S');
+	  
+	  -- Inativação (mantida a sua lógica original)
+	  UPDATE PCDEPARAPRODC5 C SET C.ATIVO = 'N'
+	  WHERE EXISTS (SELECT 1                     
+					FROM VW_INT_C5_FAMILIA F            
+					WHERE  C.CODPROD = F.CODPROD)
+	  AND C.ATIVO = 'S';
+	  
+	  OPEN c_dados;
+	  LOOP
+		FETCH c_dados BULK COLLECT INTO v_lote LIMIT 5000;
+		EXIT WHEN v_lote.COUNT = 0;
+		
+		v_upd_rowids.DELETE;
+		
+		FOR i IN 1..v_lote.COUNT LOOP
+		  IF v_lote(i).row_id IS NOT NULL THEN
+			v_upd_rowids.EXTEND;
+			v_upd_rowids(v_upd_rowids.LAST) := v_lote(i).row_id;
+		  END IF;
+		END LOOP;
+		
+		IF v_upd_rowids.COUNT > 0 THEN
+		  FORALL i IN 1..v_upd_rowids.COUNT
+			UPDATE PCDEPARAPRODC5 
+			   SET ATIVO = 'S' 
+			 WHERE ROWID = v_upd_rowids(i);
+		END IF;
+		
+		FOR i IN 1..v_lote.COUNT LOOP
+		  IF v_lote(i).row_id IS NULL THEN
+			-- Consulta a Sequence SOMENTE se for um registro novo
+			SELECT DFSEQ_INT_C5_SEQ_PRODUTO.NextVal INTO v_seq_val FROM DUAL;
+			
+			-- Utiliza a variável para garantir o mesmo número em SEQPRODUTO e SEQFAMILIA
+			INSERT INTO PCDEPARAPRODC5 (
+			  CODPROD,
+			  CODAUXILIAR,
+			  SEQPRODUTO,
+			  SEQFAMILIA,
+			  ATIVO
+			) VALUES (
+			  v_lote(i).CODPROD,
+			  v_lote(i).CODAUXILIAR,
+			  v_seq_val,
+			  v_seq_val,
+			  v_lote(i).ATIVO
+			);
+		  END IF;
+		END LOOP;
+		
+	  END LOOP;
+	  CLOSE c_dados;
+
+	EXCEPTION
+	  WHEN OTHERS THEN
+		BEGIN
+		  prc_record_error(0, 'NORMATIZAR TABELA PCDEPARAPRODC5');
+		  ROLLBACK;            
+		  RAISE;
+		END; 
   END;
   
   PROCEDURE carrega_produtos(p_id IN pccontroleconsinco.id%TYPE) AS
