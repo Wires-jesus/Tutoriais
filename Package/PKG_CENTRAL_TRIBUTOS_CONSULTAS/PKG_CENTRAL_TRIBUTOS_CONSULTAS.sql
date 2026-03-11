@@ -17,7 +17,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.SITTRIBUT,
             M.CODFISCAL,
             M.NBM NCM,
-            M.PUNITCONT,
+            -- PUNITCONT
+            ROUND( (ROUND((M.QTCONT * M.PUNITCONT),2) / M.QTCONT) ,10) PUNITCONT,
             M.VLIPI,
             M.VLFRETE,
             M.ST VLST,
@@ -31,23 +32,25 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.VLPIS, 
             M.VLCOFINS
             -- VLICMS             
-            ,CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 
-                  ELSE CASE WHEN (M.CODOPER = 'SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') 
-                                  AND PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') 
-                  THEN 0
-             ELSE
-                  (ROUND(ROUND( (DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
-                                          AND (NVL(PD.ROTINA,'X') = 'PCMED316') THEN 'S'
-                                          ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
-                            NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2)) 
+            ,CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 ELSE
+               CASE WHEN (M.CODOPER ='SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') AND
+                 PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') THEN
+                 0
+               ELSE
+                 (ROUND(ROUND((DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
+                          AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                          ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0))
+                           * M.QTCONT , 2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2))
                   -
-                  (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
-                                               AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
-                                              ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
-                            NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
-                          (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
+                 (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(C.TIPOCLIMED,'X') IN ('D','E','M')
+                          AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                          ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0))
+                           * M.QTCONT, 2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                         (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
                 END
-            END AS VLICMS,            
+            END / M.QTCONT AS VLICMS, 
             NVL(MC.VLICMSPARTDEST,0) AS VLICMSUFDEST,
             (NVL(MC.VLFCPPART,0) + NVL(MC.VLACRESCIMOFUNCEP,0))  AS VLFCP
        from PCNFSAID       N,
@@ -87,7 +90,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.SITTRIBUT,
             M.CODFISCAL,
             M.NBM NCM,
-            M.PUNITCONT,
+            -- PUNITCONT
+            ROUND( (ROUND((M.QTCONT * M.PUNITCONT),2) / M.QTCONT) ,10) PUNITCONT,
             M.VLIPI,
             M.VLFRETE,
             M.ST VLST,
@@ -101,23 +105,26 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.VLPIS, 
             M.VLCOFINS,
             -- VLICMS             
-            CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 
-                 ELSE CASE WHEN (M.CODOPER = 'SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') 
-                                 AND PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') 
-                 THEN 0
-            ELSE
-                 (ROUND(ROUND( (DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
-                                         AND (NVL(PD.ROTINA,'X') = 'PCMED316') THEN 'S'
-                                         ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
-                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2)) 
-                 -
-                 (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
-                                              AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
-                                             ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
-                           NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)),2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
-                         (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
-               END
-            END AS VLICMS,   
+            CASE WHEN MC.SOMARVALORDIFBCICMS = 'S' THEN 0 ELSE
+              CASE WHEN (M.CODOPER ='SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', FI.CODIGO) = 'N') AND
+                      PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', FI.CODIGO) IN  ('E', 'S') THEN
+                    0
+               ELSE
+                    (ROUND(ROUND((DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                              NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0))
+                              * M.QTCONT , 2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2))
+                     -
+                    (ROUND(ROUND(ROUND((DECODE((CASE WHEN NVL(CLIENTE.TIPOCLIMED,'X') IN ('D','E','M')
+                           AND (NVL(PD.ROTINA,'X')='PCMED316') THEN 'S'
+                           ELSE 'N' END), 'S', NVL(M.VLDESCRODAPE, 0), 0) +
+                              NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0))
+                              * M.QTCONT, 2) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100), 2) *
+                            (NVL(MC.PERDIFEREIMENTOICMS,NVL(M.PERCDESCICMSDIF,0))/100), 2))
+
+                END
+            END / M.QTCONT AS VLICMS, 
             NVL(MC.VLICMSPARTDEST,0) AS VLICMSUFDEST,
       (NVL(MC.VLFCPPART,0) + NVL(MC.VLACRESCIMOFUNCEP,0))  AS VLFCP
       from PCNFSAIDPREFAT       N,
@@ -169,17 +176,17 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             0 VLFRETE,
             0 VLST,
             0 VLFECP,
-            0 VLOUTROS,
-            0 BASEICMS,
+            NVL(N.VLOUTRAS,0) VLOUTROS,
+            NVL(B.VLBASE,0) BASEICMS,
             0 PERCBASERED, 
-            0 VLSEGURO,
-            0 VLDESCONTO, 
+            NVL(N.VLSEGURO,0) VLSEGURO,
+            NVL(N.VLDESCONTO,0) VLDESCONTO,  
             0 VLVII, 
-            0 VLPIS, 
-            0 VLCOFINS,
-            0 VLICMS,
+            NVL(N.VLPIS,0) VLPIS, 
+            NVL(N.VLCOFINS,0) VLCOFINS,
+            NVL(B.VLICMS,0) VLICMS, 
             0 VLICMSUFDEST,
-            0 VLFCP            
+            0 VLFCP           
        from PCNFSAID N, PCNFBASE B  
       where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
         and N.ESPECIE IN ('CT', 'CO', 'CE')
@@ -467,3 +474,4 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
    
 
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
+-- 11/03/2026 - Alteração de arredondamento das colunas PunitCont e VlIcms e também ajuste no retorno dos impostos do CTe, vlpis, vlcofins e vlicms. 
