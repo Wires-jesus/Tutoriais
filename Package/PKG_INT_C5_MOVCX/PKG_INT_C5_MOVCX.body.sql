@@ -190,17 +190,19 @@ CREATE OR REPLACE PACKAGE BODY pkg_int_c5_movcx IS
 
       dados_pcfilamensagem.rowpcfilamensagem.idmensagem          := dfseq_pcfilamensagem.NEXTVAL;
       dados_pcfilamensagem.rowpcfilamensagem.datatransacao       := SYSDATE;
-      dados_pcfilamensagem.rowpcfilamensagem.codfilial           := r_logaberturacx.nroempresa;
+      dados_pcfilamensagem.rowpcfilamensagem.codfilial           := r_logaberturacx.codfilial;
       dados_pcfilamensagem.rowpcfilamensagem.numcaixa            := r_logaberturacx.numcaixa;
       dados_pcfilamensagem.rowpcfilamensagem.numnota             := r_logaberturacx.numnota;
       dados_pcfilamensagem.rowpcfilamensagem.serie               := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.chavesefaz          := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.protocolo           := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.contingencia        := 'N';
+
       dados_pcfilamensagem.rowpcfilamensagem.idexterno           := dados_pcfilamensagem.rowpcfilamensagem.idmensagem || '-' ||
                                                                     r_logaberturacx.seqdocto || '-' ||
                                                                     r_logaberturacx.numcaixa || '-' ||
                                                                     r_logaberturacx.especie;
+
       dados_pcfilamensagem.rowpcfilamensagem.status              := 0;
       dados_pcfilamensagem.rowpcfilamensagem.qtprocessamento     := NULL;
       dados_pcfilamensagem.rowpcfilamensagem.tipodocumento       := 'OD';
