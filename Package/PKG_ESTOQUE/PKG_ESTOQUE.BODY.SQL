@@ -13821,7 +13821,7 @@ END IF;
         IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
           psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
           PRIV_GERARLOG;
-          RETURN 'N';
+          RETURN 0;
         END IF;
       --
       END IF;
