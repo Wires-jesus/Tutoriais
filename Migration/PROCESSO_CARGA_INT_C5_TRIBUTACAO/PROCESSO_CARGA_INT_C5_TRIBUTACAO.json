@@ -30,6 +30,8 @@
 	  {"nome": "DICIONARIO.4000", "tipo": "DICIONARIO", "versao": "7.0.34.000"},
 	  {"nome": "PCDICIONARIOITEM", "tipo": "TABELA", "versao": "5.0.01.000"},
 	  {"nome": "PCDICIONARIOITEMROTCUST", "tipo": "TABELA", "versao": "7.0.01.000"},
-	  {"nome": "TABELA_PCDICIONARIOITEMROT", "tipo": "MIGRATION", "versao": "5.0.01.000"}
+	  {"nome": "TABELA_PCDICIONARIOITEMROT", "tipo": "MIGRATION", "versao": "5.0.01.000"},
+	  {"nome": "PCTRIBUTACAO_FILTRO_CFOP", "tipo": "TABELA", "versao": "8.0.02.000"},
+	  {"nome": "PCCSTTRIBUTACAOIBSCBS", "tipo": "TABELA", "versao": "8.0.03.000"}
 	]
 }
