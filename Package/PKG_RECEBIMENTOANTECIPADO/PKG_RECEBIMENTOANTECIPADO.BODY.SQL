@@ -535,6 +535,12 @@ IS
                 VNUMTRANS := DADOS.NUMTRANS;
             END IF;
 
+			IF (DADOS.CODBCOCOBANTECIPADA IS NULL) OR (DADOS.CODMOEDACOBANTECIPADA IS NULL) THEN
+                PMENSAGEM := '[ER02] - Não é possível registrar o estorno do recebimento, não foram encontrados [Banco para Baixa] e/ou [Moeda para Baixa] informados na 522 para a cobrança '||DADOS.CODCOBPGTO;
+                ROLLBACK;
+                RETURN;
+            END IF;
+
             SELECT VLSALDO,CODBANCO,CODCOB
               INTO VVLSALDO,VCODBANCO,VCODCOB
               FROM PCMOVCR
@@ -550,6 +556,17 @@ IS
             UPDATE PCMOVCR
                SET ESTORNO  = 'N'
              WHERE NUMTRANS = DADOS.NUMTRANS;
+
+			IF VNUMTRANS IS NULL THEN
+                PMENSAGEM := '[ER03] - Não é possível estornar o recebimento, não foi encontrado um NumTrans válido para registro!';
+                ROLLBACK;
+                RETURN;
+            END IF;
+            IF (VCODBANCO IS NULL) OR (VCODCOB IS NULL) THEN
+                PMENSAGEM := '[ER04] - Não é possível estornar o recebimento, não foi encontrado um Banco e/ou uma Moeda para registro da movimentação de númerario!';
+                ROLLBACK;
+                RETURN;
+            END IF;             
 
             --INSERT NA PCMOVCR
             INSERT INTO PCMOVCR(NUMTRANS,                                       /*01*/
