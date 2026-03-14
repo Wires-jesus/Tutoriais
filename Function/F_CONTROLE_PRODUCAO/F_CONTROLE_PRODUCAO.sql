@@ -67,7 +67,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
-                                                          NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL ); -- 78 colunas
+                                                          NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+														  NULL); -- 81 colunas
   --V_RETORNO                      TABELA_CONTROLE_PRODUCAO;
   V_CUSTOTOTAL                   number(22, 6);
   V_CUSTOMEDIO                   number(22, 6);
@@ -303,12 +304,13 @@ BEGIN
                          ESTOQUE.VALORULTENT VALORULTENT_ESTOQUE,MOV.HISTORICO,MOV.DTCANCEL,
                          MOV.SITUACAOTRIBUTARIA,MOV.TIPODESCARGA,MOV.MINUTOLANC,MOV.HORALANC,MOV.NCM,MOV.POSSE
                         ,MOV.DTMOVLOG, ESTOQUE.CUSTOFISCAL CUSTOFISCAL_ESTOQUE, MOV.CUSTOFISCAL, MOV.CUSTOULTENTCONT
+						,MOV.CUSTOULTENTFISCAL, MOV.NUMTRANSITEM
                    FROM (SELECT TIPO,SEQMOV,BASECUSTOCONT,CUSTOCONT,CUSTOFIN,CUSTOREAL,CUSTOREP,CUSTOULTENT
                                ,CUSTOREALSEMST,VALORULTENT,ESPECIE,SERIE,CODCONT,OBSERVACAO,CODPROD,CODOPER
                                ,NUMNOTA,DATA,HORALANC,CODFISCAL,QTCONT,QTENTRADA,QTSAIDA,QTSAIDA_DENTRO
                                ,QTSAIDA_FORA,HISTORICO,PUNITCONT,VALORITEMNOTA_ENT,VALORITEMNOTA_SAID,NUMTRANSENT
                                ,NUMTRANSVENDA,VLIPI,ST,STGUIA,DTCANCEL,SITUACAOTRIBUTARIA,TIPODESCARGA,MINUTOLANC
-                               ,ROTINACAD,NCM,POSSE,DTMOVLOG, CUSTOFISCAL,CUSTOULTENTCONT
+                               ,ROTINACAD,NCM,POSSE,DTMOVLOG,CUSTOFISCAL,CUSTOULTENTCONT,CUSTOULTENTFISCAL,NUMTRANSITEM
                           FROM TABLE (F_CONTROLE_PRODUCAO_MOV(PCODFILIAL,
                                                               PDTINICIO,
                                                               PDTFIM,
@@ -706,6 +708,8 @@ BEGIN
             OUTROW.NCM           := DADOS.NCM;
             OUTROW.POSSE         := DADOS.POSSE;
             OUTROW.DTMOVLOG      := DADOS.DTMOVLOG;
+			OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
+			OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
             
             pipe row(OUTROW);
           END LOOP;
@@ -812,7 +816,9 @@ BEGIN
                                MOV.POSSE,-- NÃO EXIBE NENHUMA INFORMAÇÃO
                                MOV.DTMOVLOG, 
                                MOV.CUSTOFISCAL,
-                               ESTOQUE.CUSTOFISCAL AS CUSTOFISCAL_ESTOQUE
+                               ESTOQUE.CUSTOFISCAL AS CUSTOFISCAL_ESTOQUE,
+							   MOV.CUSTOULTENTFISCAL,
+							   MOV.NUMTRANSITEM
                   FROM (SELECT TIPO
                               ,SEQMOV
                               ,BASECUSTOCONT
@@ -856,7 +862,9 @@ BEGIN
                               ,'' AS NCM
                               ,'' AS POSSE
                               ,DTMOVLOG
-                              ,CUSTOFISCAL 
+                              ,CUSTOFISCAL
+							  ,CUSTOULTENTFISCAL
+							  ,NUMTRANSITEM
                           FROM PCDADOS1070_TEMP
                          WHERE DATA BETWEEN PDTINICIO AND PDTFIM) MOV,
                              (SELECT PCPRODUT.CODPROD,
@@ -1216,7 +1224,9 @@ BEGIN
             OUTROW.NCM           := DADOS.NCM;
             OUTROW.POSSE         := DADOS.POSSE;
             OUTROW.DTMOVLOG      := DADOS.DTMOVLOG;
-            OUTROW.CUSTOFISCAL   := DADOS.CUSTOFISCAL;            
+            OUTROW.CUSTOFISCAL   := DADOS.CUSTOFISCAL;
+			OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
+			OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
             pipe row(OUTROW);
           END LOOP;
  END IF;

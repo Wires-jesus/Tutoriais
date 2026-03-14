@@ -139,20 +139,23 @@ CREATE OR REPLACE PROCEDURE PRC_CONTROLE_PRODUCAO(PCODFILIAL            in varch
                           pROTINALANC         in varchar2,
                           pDTMOVLOG           date,
                           pCUSTOFISCAL        in number,
-                          pCUSTOULTENTCONT    in number) is
+                          pCUSTOULTENTCONT    in number,
+						  pCUSTOULTENTFISCAL  in number,
+						  pNUMTRANSITEM       in number) is
    begin
       insert into PCDADOS1070_TEMP (TIPO,SEQMOV,BASECUSTOCONT,CUSTOCONT,CUSTOFIN,CUSTOREAL,CUSTOREP ,
                                     CUSTOULTENT,CUSTOREALSEMST,VALORULTENT,ESPECIE,SERIE,CODCONT,OBSERVACAO,
                                     CODPROD,CODOPER,NUMNOTA,DATA,HORALANC,CODFISCAL,QTCONT,QTENTRADA,
                                     QTSAIDA,QTSAIDA_DENTRO,QTSAIDA_FORA,HISTORICO,PUNITCONT,VALORITEMNOTA_ENT,
                                     VALORITEMNOTA_SAID,NUMTRANSENT,NUMTRANSVENDA,VLIPI,ST,STGUIA,DTCANCEL,
-                                    SITUACAOTRIBUTARIA,TIPODESCARGA,MINUTOLANC,CUSTOCONTANT,ROTINALANC, DTMOVLOG, CUSTOFISCAL,CUSTOULTENTCONT)
+                                    SITUACAOTRIBUTARIA,TIPODESCARGA,MINUTOLANC,CUSTOCONTANT,ROTINALANC, DTMOVLOG, CUSTOFISCAL,CUSTOULTENTCONT,
+									CUSTOULTENTFISCAL, NUMTRANSITEM)
                              values(pTIPO,pSEQMOV,pBASECUSTOCONT,pCUSTOCONT,pCUSTOFIN,pCUSTOREAL,pCUSTOREP,pCUSTOULTENT
                                    ,pCUSTOREALSEMST,pVALORULTENT,pESPECIE,pSERIE,pCODCONT,pOBSERVACAO,pCODPROD,pCODOPER
                                    ,pNUMNOTA,pDATA,pHORALANC,pCODFISCAL,pQTCONT,pQTENTRADA,pQTSAIDA,pQTSAIDA_DENTRO,pQTSAIDA_FORA
                                    ,pHISTORICO,pPUNITCONT,pVALORITEMNOTA_ENT,pVALORITEMNOTA_SAID,pNUMTRANSENT,pNUMTRANSVENDA,pVLIPI
                                    ,pST,pSTGUIA,pDTCANCEL,pSITUACAOTRIBUTARIA,pTIPODESCARGA,pMINUTOLANC, pCUSTOCONTANT, pROTINALANC
-                                   ,pDTMOVLOG,pCUSTOFISCAL,pCUSTOULTENTCONT);
+                                   ,pDTMOVLOG,pCUSTOFISCAL,pCUSTOULTENTCONT,pCUSTOULTENTFISCAL, pNUMTRANSITEM );
    end;
    -----------------------------
 
@@ -303,6 +306,8 @@ BEGIN
                             ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                             ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                             ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+							,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+							,PCMOV.NUMTRANSITEM	
                        FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                       WHERE PCMOV.NUMNOTA = PCNFENT.NUMNOTA
                         AND PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
@@ -382,7 +387,9 @@ BEGIN
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG, 
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 
@@ -400,7 +407,7 @@ COMMIT;
                          TAB.CODFISCAL,TAB.QTCONT,TAB.QTENTRADA,TAB.QTSAIDA,TAB.QTSAIDA_DENTRO,TAB.QTSAIDA_FORA,TAB.HISTORICO,TAB.PUNITCONT,TAB.VALORITEMNOTA_ENT,
                          TAB.VALORITEMNOTA_SAID,TAB.NUMTRANSENT,TAB.NUMTRANSVENDA,TAB.VLIPI,TAB.ST,TAB.STGUIA,TAB.DTCANCEL,TAB.SITUACAOTRIBUTARIA,TAB.TIPODESCARGA,
                          TAB.MINUTOLANC,TAB.CUSTOCONTANT,TAB.ROTINACAD,TAB.CUSTO_SEM_IPI_PIS_COFINS,TAB.ID_PCMOV,TAB.ID_PCMOVCOMPLE,TAB.NUMTRANSORIGEM,TAB.VLR_CRED_ICMS,
-                         TAB.CUSTOULTENTCONT,TAB.NUMSEQ,TAB.VLR_ICMS_REAL,TAB.VLR_CRED_COFINS,TAB.VLR_CRED_PIS,TAB.NCM, TAB.CUSTOFISCAL   
+                         TAB.CUSTOULTENTCONT,TAB.NUMSEQ,TAB.VLR_ICMS_REAL,TAB.VLR_CRED_COFINS,TAB.VLR_CRED_PIS,TAB.NCM, TAB.CUSTOFISCAL, TAB.CUSTOULTENTFISCAL, TAB.NUMTRANSITEM   
                       FROM (   
                               SELECT 'EC' TIPO,--- NF ENTRADA CANCELADA
                                      PCMOV.SEQMOV,
@@ -541,6 +548,8 @@ COMMIT;
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,TRUNC(PCNFENT.DTCANCEL) DTCANCEL_ORIG
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                               FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                               WHERE PCMOV.NUMNOTA = PCNFENT.NUMNOTA
                                 AND PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
@@ -622,7 +631,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -750,6 +761,8 @@ COMMIT;
                                     ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                               FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                               WHERE PCMOV.NUMNOTA = PCNFENT.NUMNOTA
                                 AND PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
@@ -825,7 +838,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM
                   );
   END LOOP;
 COMMIT;
@@ -953,6 +968,8 @@ COMMIT;
                                     ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                                FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                               WHERE PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
                                 AND PCMOVCOMPLE.NUMTRANSITEM(+) = PCMOV.NUMTRANSITEM
@@ -1026,7 +1043,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -1166,6 +1185,8 @@ COMMIT;
                                     ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                               FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                               WHERE PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
                                 AND PCMOVCOMPLE.NUMTRANSITEM(+) = PCMOV.NUMTRANSITEM
@@ -1238,7 +1259,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 
@@ -1366,6 +1389,8 @@ COMMIT;
                                     ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                               FROM PCNFENT, PCMOV, PCMOVCOMPLE, PCCONSUM, PCFILIAL, PCPRODUT
                               WHERE PCMOV.NUMTRANSENT = PCNFENT.NUMTRANSENT
                                 AND PCMOVCOMPLE.NUMTRANSITEM(+) = PCMOV.NUMTRANSITEM
@@ -1438,7 +1463,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -1513,6 +1540,8 @@ COMMIT;
                           ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                           ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                           ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+						  ,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+						  ,PCMOV.NUMTRANSITEM
                     FROM PCMOV, PCMOVCOMPLE, PCPEDC P, PCPRODUT
                     WHERE PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM (+)
                       AND DTMOV between PDTINICIO AND PDTFIM
@@ -1578,7 +1607,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -1665,6 +1696,8 @@ COMMIT;
                             ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                             ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                             ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+							,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+							,PCMOV.NUMTRANSITEM
                       FROM PCNFSAID, PCMOV, PCMOVCOMPLE, PCPRODUT
                       WHERE PCMOV.NUMNOTA = PCNFSAID.NUMNOTA
                         AND PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
@@ -1747,7 +1780,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -1834,6 +1869,8 @@ COMMIT;
                                     ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                                     ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                                     ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+									,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+									,PCMOV.NUMTRANSITEM
                               FROM PCNFSAID, PCMOV, PCMOVCOMPLE, PCPRODUT
                               WHERE PCMOV.NUMNOTA = PCNFSAID.NUMNOTA
                                 AND PCMOV.NUMTRANSVENDA = PCNFSAID.NUMTRANSVENDA
@@ -1917,7 +1954,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -2022,6 +2061,8 @@ COMMIT;
                             ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                             ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                             ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+							,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+							,PCMOV.NUMTRANSITEM
                       FROM PCMOV, PCMOVCOMPLE, PCPRODUT
                       WHERE PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM (+)
                         AND PCMOV.DTMOV between PDTINICIO AND PDTFIM
@@ -2095,7 +2136,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -2192,6 +2235,8 @@ COMMIT;
                             ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                             ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                             ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+							,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+							,PCMOV.NUMTRANSITEM
                       FROM PCMOV, PCMOVCOMPLE, PCPRODUT
                       WHERE PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM(+)
                         --AND PCMOV.DTMOV between PDTINICIO AND PDTFIM
@@ -2261,7 +2306,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -2351,6 +2398,8 @@ COMMIT;
                           ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                           ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                           ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+						  ,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+					      ,PCMOV.NUMTRANSITEM
                       FROM PCMOV, PCMOVCOMPLE, PCPRODUT
                     WHERE PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM (+)
                       AND PCMOV.DTMOV BETWEEN PDTINICIO AND PDTFIM
@@ -2416,7 +2465,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
   END LOOP;
 COMMIT;
 ---------------------------------------------------------------------------------------------------------
@@ -2503,6 +2554,8 @@ COMMIT;
                           ,NVL(PCMOV.VLCREDPIS,PCMOV.VLPIS) VLR_CRED_PIS
                           ,NVL(PCMOV.NBM, PCPRODUT.NBM) AS NCM
                           ,NVL(PCMOVCOMPLE.CUSTOFISCAL,0) AS CUSTOFISCAL
+						  ,NVL(PCMOVCOMPLE.CUSTOULTENTFISCAL,0) AS CUSTOULTENTFISCAL
+						  ,PCMOV.NUMTRANSITEM
                     FROM PCMOV, PCMOVCOMPLE, PCPRODUT
                     WHERE PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM (+)
                       AND PCMOV.DTCANCEL BETWEEN PDTINICIO AND PDTFIM -- alterado de dtmov para dtcancel (Gleibe 17/07/2018)
@@ -2568,7 +2621,9 @@ COMMIT;
                   REGISTROS.ROTINACAD,
                   REGISTROS.DTMOVLOG,
                   REGISTROS.CUSTOFISCAL,
-                  REGISTROS.CUSTOULTENTCONT);
+                  REGISTROS.CUSTOULTENTCONT,
+				  REGISTROS.CUSTOULTENTFISCAL,
+				  REGISTROS.NUMTRANSITEM);
    END LOOP;
  COMMIT;
 
