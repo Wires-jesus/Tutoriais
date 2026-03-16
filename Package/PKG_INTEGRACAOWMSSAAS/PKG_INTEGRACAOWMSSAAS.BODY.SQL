@@ -1,6 +1,6 @@
 CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
-  PROCEDURE INTEGRARDOCUMENTONOWMSSAAS(pCODFILIAL      IN VARCHAR2,
+  PROCEDURE INTEGRARDOCMANUALMENTEWMSSAAS(pCODFILIAL      IN VARCHAR2,
                                        pNUMDOCWINTHOR  IN NUMBER,
                                        pTIPOINTEGRACAO IN VARCHAR2,
                                        pTIPODOCWINTHOR IN VARCHAR2) IS
@@ -39,21 +39,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
              vIDENTIFCADOR_OPERACAO || ', Tipo Documento: ' ||
              pTIPODOCWINTHOR;
 
-    vDOCWMSSAAS_FRACIONADO := TO_NUMBER(TO_CHAR(pNUMDOCWINTHOR) || '0001');
-    vDOCWMSSAAS_CAIXA      := TO_NUMBER(TO_CHAR(pNUMDOCWINTHOR) || '0002');
 
-    BEGIN
-      SELECT VALOR
-        INTO vDIVIDIRDOCUMENTO
-        FROM PCPARAMINTEGRACAOWMSSAAS
-       WHERE PARAMETRO = 'DIVIDIRDOCUMENTOENTRECXEFRACIONADO'
-         AND CODFILIAL = pCODFILIAL;
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        vDIVIDIRDOCUMENTO := 'N';
-    END;
-
-    --VERIFA SE ´PEDIDO JÁ NÃO FOI COLOCADO NA LISTA DE PENDENCIAS DE INTEGRAÇÕES
     SELECT COUNT(1)
       INTO v_COUNT
       FROM PCINTEGRACAOWMSSAAS
@@ -65,16 +51,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
        AND DTFILAINTEGRACAO IS NOT NULL;
 
     IF (v_COUNT > 0) THEN
-      ----DOCUMENTO JÁ EXISTE NA FILA DE INTEGRAÇÃO
-      GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
-                 'PROCESSAMENTO_INTERNO_OBJETO',
-                 vBODY ||
-                 ', Descrição: Tentou processar documento já existente, quantidade existente:' ||
-                 TO_CHAR(v_COUNT));
+      RETURN;
     END IF;
 
     IF (pTIPODOCWINTHOR = 'PEDIDO_VENDA') AND (v_COUNT = 0) THEN
-      GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
+      GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCMANUALMENTEWMSSAAS',
                  'PROCESSAMENTO_INTERNO_OBJETO',
                  vBODY || ', Descrição: Integração de novo documento');
 
@@ -150,56 +131,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                              AND DTFILAINTEGRACAO IS NOT NULL))
 
        LOOP
-        --VERIFICA SE ESTÁ APTO A GERAR DOIS DOCUMENTOS (CAIXA E FRACIONADO)
-        IF vDIVIDIRDOCUMENTO = 'S' AND
-           (REG.FRACIONADO = 'S' OR REG.EMBALADO = 'S') THEN
-
-          vDOCUMENTOFOIDIVIDIDO := 'S';
-
-          --GERA DOCUMENTO COM A QUANTIDADE FRACIONADA
-          IF REG.QTUNIDADESFORACAIXA > 0 THEN
-
-            ENVIARDOCFILAINTEGRACAOITEM(vDOCWMSSAAS_FRACIONADO,
-                                        REG.CODPROD,
-                                        REG.QTUNIDADESFORACAIXA,
-                                        REG.QTUNIDADESFORACAIXA,
-                                        REG.NUMSEQ);
-
-            vDOCUMENTOFOIGERADOFRAC := 'S';
-          END IF;
-
-          --GERA DOCUMENTO COM A QUANTIDADE UN(CAIXA)
-          IF REG.QTUNIDADESDENTROCAIXA > 0 THEN
-
-            ENVIARDOCFILAINTEGRACAOITEM(vDOCWMSSAAS_CAIXA,
-                                        REG.CODPROD,
-                                        REG.QTUNIDADESDENTROCAIXA,
-                                        REG.QTUNIDADESDENTROCAIXA,
-                                        REG.NUMSEQ);
-
-            vDOCUMENTOFOIGERADOCX := 'S';
-          END IF;
-
-          vBODY := 'Filial: ' || pCODFILIAL || ', Documento Winthor: ' ||
-                   TO_CHAR(REG.NUMPED) || ', Codprod: ' ||
-                   TO_CHAR(REG.CODPROD) || ', Fracionado: ' ||
-                   REG.FRACIONADO || ', Qt.Fracionada(UN): ' ||
-                   TO_CHAR(REG.QTUNIDADESFORACAIXA) || ', Qt.Caixas(UN): ' ||
-                   TO_CHAR(REG.QTUNIDADESDENTROCAIXA) || ', Embalado: ' ||
-                   REG.EMBALADO || ', Documento dividido: ' || 'S' ||
-                   ', Numseq: ' || TO_CHAR(REG.NUMSEQ) ||
-                   ', Identificador: ' || vIDENTIFCADOR_OPERACAO ||
-                   ', Quantidade: ' || TO_CHAR(REG.QT) ||
-                   ', Tipo Documento: ' || pTIPODOCWINTHOR;
-
-          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
-                     'INSERT_PCINTEGRACAOWMSSAASITEM',
-                     vBODY ||
-                     ', Descrição: Inserção do item na tabela PCINTEGRACAOWMSSAASITEM');
-
-          --CASO CONTRARIO GERA APENAS UM DOCUMENTO
-        ELSE
-
+          /***INSERIR ITEM NA TABELA DE GESTÃO DE INTEGRAÇÃO MANUAL***/
           ENVIARDOCFILAINTEGRACAOITEM(REG.NUMPED,
                                       REG.CODPROD,
                                       REG.QT,
@@ -218,16 +150,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                    TO_CHAR(REG.QT) || ', Tipo Documento: ' ||
                    pTIPODOCWINTHOR;
 
-          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
+          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCMANUALMENTEWMSSAAS',
                      'INSERT_PCINTEGRACAOWMSSAASITEM',
                      vBODY ||
                      ', Descrição: Inserção do item na tabela PCINTEGRACAOWMSSAASITEM');
 
-        END IF;
+
 
       END LOOP;
 
-      --GERAR CABECHALO DOS DOCUMETOS (COMPLETO, FRACIONADO ou CAIXA)
+      --GERAR CABECHALO DOS DOCUMETOS (COMPLETO)
 
       IF vDOCUMENTOFOIGERADOCOMPLETO = 'S' THEN
         ENVIARDOCFILAINTEGRACAO(pCODFILIAL,
@@ -245,70 +177,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
                  vIDENTIFCADOR_OPERACAO || ', Tipo Geração Doc: ' ||
                  'COMPLETO' || ', Tipo Documento: ' || pTIPODOCWINTHOR;
 
-        GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
+        GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCMANUALMENTEWMSSAAS',
                    'INSERT_PCINTEGRACAOWMSSAAS',
                    vBODY ||
                    ', Descrição: Inserção do documento na tabela PCINTEGRACAOWMSSAAS');
 
       END IF;
 
-      IF vDOCUMENTOFOIDIVIDIDO = 'S' THEN
-
-        IF vDOCUMENTOFOIGERADOFRAC = 'S' THEN
-          ENVIARDOCFILAINTEGRACAO(pCODFILIAL,
-                                  pNUMDOCWINTHOR,
-                                  vDOCWMSSAAS_FRACIONADO,
-                                  pTIPOINTEGRACAO,
-                                  pTIPODOCWINTHOR,
-                                  'FRACIONADO',
-                                  'S');
-
-          vBODY := 'Filial: ' || pCODFILIAL || ', Documento Winthor: ' ||
-                   TO_CHAR(pNUMDOCWINTHOR) || ', Documento WMS Saas:' ||
-                   TO_CHAR(vDOCWMSSAAS_FRACIONADO) || ', Tipo Integração: ' ||
-                   pTIPOINTEGRACAO || ', Identificador: ' ||
-                   vIDENTIFCADOR_OPERACAO || ', Tipo Geração Doc: ' ||
-                   'FRACIONADO' || ', Tipo Documento: ' || pTIPODOCWINTHOR;
-
-          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
-                     'INSERT_PCINTEGRACAOWMSSAAS',
-                     vBODY ||
-                     ', Descrição: Inserção do documento na tabela PCINTEGRACAOWMSSAAS');
-
-        END IF;
-
-        IF vDOCUMENTOFOIGERADOCX = 'S' THEN
-
-          vLIBERARINTEGRACAODOCCAIXA := 'S';
-          IF vDOCUMENTOFOIGERADOFRAC = 'S' THEN
-            vLIBERARINTEGRACAODOCCAIXA := 'N';
-          END IF;
-
-          ENVIARDOCFILAINTEGRACAO(pCODFILIAL,
-                                  pNUMDOCWINTHOR,
-                                  vDOCWMSSAAS_CAIXA,
-                                  pTIPOINTEGRACAO,
-                                  pTIPODOCWINTHOR,
-                                  'CAIXA',
-                                  vLIBERARINTEGRACAODOCCAIXA);
-
-          vBODY := 'Filial: ' || pCODFILIAL || ', Documento Winthor: ' ||
-                   TO_CHAR(pNUMDOCWINTHOR) || ', Documento WMS Saas:' ||
-                   TO_CHAR(vDOCWMSSAAS_CAIXA) || ', Tipo Integração: ' ||
-                   pTIPOINTEGRACAO || ', Identificador: ' ||
-                   vIDENTIFCADOR_OPERACAO || ', Tipo Geração Doc: ' ||
-                   'CAIXA' || ', Tipo Documento: ' || pTIPODOCWINTHOR;
-
-          GRAVAR_LOG('PKG_INTEGRACAOWMSSAAS.INTEGRARDOCUMENTONOWMSSAAS',
-                     'INSERT_PCINTEGRACAOWMSSAAS',
-                     vBODY ||
-                     ', Descrição: Inserção do documento na tabela PCINTEGRACAOWMSSAAS');
-        END IF;
-
-      END IF;
 
     END IF;
-  END INTEGRARDOCUMENTONOWMSSAAS;
+  END INTEGRARDOCMANUALMENTEWMSSAAS;
 
   PROCEDURE ENVIARDOCFILAINTEGRACAO(pCODFILIAL              IN VARCHAR2,
                                     pNUMDOCWINTHOR          IN NUMBER,
@@ -430,6 +308,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
   END ENVIARDOCFILAINTEGRACAO;
 
+  /***METODO FINALIZARSEPARACAOITEMFILA DEPRECIADO***/
   PROCEDURE FINALIZARSEPARACAOITEMFILA(pCODFILIAL     IN VARCHAR2,
                                        pNUMDOCWMSSAAS IN NUMBER,
                                        pCODPROD       IN NUMBER,
@@ -1105,11 +984,15 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
       RETURN;
     END IF;
 
-    IF vPOSICAO = 'F' THEN
+
+    IF vDTCANCEL IS NOT NULL THEN
       RETURN;
     END IF;
 
-    IF vDTCANCEL IS NOT NULL THEN
+    /*SE O PEDIDO JÁ ESTÁ FATURADO ENTÃO NÃO PODE ESTORNAR AS RESERVAS, DEVE APENAS LIMPAR A QUANTIDADE SEPARADA PELO WMS*/
+    IF vPOSICAO = 'F' THEN
+      CANCELAR_SEPARACAO_PCPEDI;
+      CANCELAR_SEPARACAO_PCPEDC;
       RETURN;
     END IF;
 
@@ -1305,20 +1188,16 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
 
     vSEPARACAO_DIVERGENTE         VARCHAR2(1);
     vBODY                         VARCHAR2(500);
-    vSEP_FINALIZADA_OU_PEDIDO_FAT VARCHAR2(1);
+    vPEDIDO_FAT VARCHAR2(1);
 
   BEGIN
 
     SELECT DECODE(COUNT(1), 0, 'N', 'S')
-      INTO vSEP_FINALIZADA_OU_PEDIDO_FAT
+      INTO vPEDIDO_FAT
       FROM PCPEDC
      WHERE NUMPED = pNUMPED
-       AND (DTFINALSEP IS NOT NULL OR POSICAO = 'F');
+       AND POSICAO = 'F';
 
-    /***SE O PEDIDO JÁ TEVE SEPARACAO FINALIZADA OU O PEDIDO JÁ ESTÁ FATURADO ENTÃO NÃO FAZER NADA****/
-    IF vSEP_FINALIZADA_OU_PEDIDO_FAT = 'S' THEN
-      RETURN;
-    END IF;
 
     SELECT DECODE(COUNT(1), 0, 'N', 'S') SEPARACAO_DIVERGENTE
       INTO vSEPARACAO_DIVERGENTE
@@ -1335,6 +1214,11 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
            CODFUNCCONF       = 1,
            NUMVOLUME         = pVOLUME
      WHERE NUMPED = pNUMPED;
+
+    /***SE O EDIDO JÁ ESTÁ FATURADO ENTÃO NÃO TEM CORTE****/
+    IF vPEDIDO_FAT = 'S' THEN
+      RETURN;
+    END IF;
 
     /***ATUALIZAR PEDIDO COM QUANTIDADES SEPARADAS (CORTE OU ACRESCIMO), CASO HAJA QUANTIDADES DIVERGENTES DO PEDIDO ORIGINAL ****/
     IF vSEPARACAO_DIVERGENTE = 'S' THEN
@@ -1927,6 +1811,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_INTEGRACAOWMSSAAS IS
          AND CODFILIAL = pCODFILIAL;
 
       UPDATE PCPEDI SET CODIGOINTEGRACAOWMS = NULL WHERE NUMPED = pNUMDOC;
+
+
+      /****DELETANDO TABELAS DE REGISTRO DE INTEGRAÇÃO MANUAL****/
+      DELETE PCINTEGRACAOWMSSAASITEM WHERE NUMDOCWMSSAAS = pNUMDOC;
+      DELETE PCINTEGRACAOWMSSAAS WHERE NUMDOCWINTHOR = pNUMDOC;
+
     END IF;
 
     IF pTIPODOCUMENTO = 'NOTA FISCAL' THEN
