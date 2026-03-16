@@ -40,12 +40,7 @@
 		{
 		  "nome": "PROCESSO_INT_C5_DOC_UTILS",
 		  "tipo": "MIGRATION",
-		  "versao": "8.0.08.000"
-		},
-		{
-		  "nome": "VW_INT_C5_NFESAT",
-		  "tipo": "OBJETO_PLSQL",
-		  "versao": "8.0.02.000"
+		  "versao": "8.0.09.000"
 		}
 	]
 }
