@@ -4611,7 +4611,7 @@ end func_HoraDigitacaoPedido;
          and pcpedc.numpedorigem is null
          and pcpedc.codcli     = pcclient.codcli
          and pcpedc.dtaberturapedpalm = p_Regpedido.dtaberturapedpalm
-         and FERRAMENTAS.RETORNAR_ALFANUMERICO(pcclient.cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
+         and pkg_cnpj_validator.limpar_cnpj(pcclient.cgcent) = pkg_cnpj_validator.limpar_cnpj(p_regpedido.cgccli)
       and pcclient.dtexclusao is null ;
 
 
@@ -4645,7 +4645,7 @@ end func_HoraDigitacaoPedido;
          and pcpedc.numpedorigem is null
          and pcpedc.codcli     = pcclient.codcli
          and pcpedc.dtaberturapedpalm = p_Regpedido.dtaberturapedpalm
-         and FERRAMENTAS.RETORNAR_ALFANUMERICO(pcclient.cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
+         and pkg_cnpj_validator.limpar_cnpj(pcclient.cgcent) = pkg_cnpj_validator.limpar_cnpj(p_regpedido.cgccli)
       and pcclient.dtexclusao is null ;
 
         if p_regpedido.posicao not in ('L', 'B', 'P') then
@@ -5283,7 +5283,7 @@ end func_HoraDigitacaoPedido;
       select count(*)
         into vicontador
         from pcclient
-       where FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
+       where pkg_cnpj_validator.limpar_cnpj(cgcent) = pkg_cnpj_validator.limpar_cnpj(p_regpedido.cgccli)
       and dtexclusao is null    ;
 
       if vicontador = 0 then
@@ -5397,7 +5397,7 @@ end func_HoraDigitacaoPedido;
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
                  and pcclient.codplpag = pcplpag.codplpag(+)
-                 and FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
+                 and pkg_cnpj_validator.limpar_cnpj(cgcent) = pkg_cnpj_validator.limpar_cnpj(p_regpedido.cgccli)
           and dtexclusao is  null    ;
 
           p_Regpedido.codcli := p_Regcliente.codcli;
@@ -5559,7 +5559,7 @@ end func_HoraDigitacaoPedido;
                 from pcclient, pcpraca, pcplpag
                where pcclient.codpraca = pcpraca.codpraca
                  and pcclient.codplpag = pcplpag.codplpag(+)
-                 and FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(p_regpedido.cgccli)
+                 and pkg_cnpj_validator.limpar_cnpj(cgcent) = pkg_cnpj_validator.limpar_cnpj(p_regpedido.cgccli)
           and dtexclusao is  null
           and pcclient.codcli = p_Regpedido.codcli   ;
 
