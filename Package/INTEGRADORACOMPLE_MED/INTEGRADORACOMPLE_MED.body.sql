@@ -1911,7 +1911,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       select codcli
         into vnCodCliAux
         from pcclient
-       where FERRAMENTAS.RETORNAR_ALFANUMERICO(cgcent) = FERRAMENTAS.RETORNAR_ALFANUMERICO(pi_vCgcCli)
+       where pkg_cnpj_validator.limpar_cnpj(cgcent) = pkg_cnpj_validator.limpar_cnpj(pi_vCgcCli)
           and dtexclusao is null
           and rownum = 1;
     EXCEPTION
