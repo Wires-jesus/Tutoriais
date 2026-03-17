@@ -744,4 +744,4 @@ AS
           ,SELF.NUMTRANSVENDA
           ,SELF.PREST;
  END;
-END
+END;
