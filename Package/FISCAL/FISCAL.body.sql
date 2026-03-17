@@ -148,7 +148,28 @@ create or replace package body FISCAL is
                return false;
          end;
    end;
-
+   
+   function FIL_OPTANTESIMPLESNACIONAL(P_CODFILIAL VARCHAR2) return boolean is
+      VRET VARCHAR2(1);
+   begin
+     VRET := PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', P_CODFILIAL);
+      IF VRET IN ('S','E') THEN
+        PKG_DEBUGGING_FWPC.LOG(
+           'Tributos não calculados.' || CHR(10) ||
+           'Motivo: Filial optante pelo Simples Nacional.' || CHR(10) ||
+           'Filial: ' || P_CODFILIAL,'S');
+        RETURN TRUE;
+     ELSE
+        RETURN FALSE;
+     END IF;
+  EXCEPTION
+     WHEN OTHERS THEN
+        PKG_DEBUGGING_FWPC.LOG(
+           'Erro ao verificar Simples Nacional. Filial: ' ||
+           P_CODFILIAL || ' - ' || SQLERRM,'S');
+        RETURN FALSE;
+  end;
+  
    function RETORNAULTIMAENTRADA(PCOPROD in number
                                 ,PDATA   in date
                                 ,PFILIAL in varchar2) return number is
@@ -6092,22 +6113,22 @@ create or replace package body FISCAL is
                                                                    P_TIPOMOV)
        LOOP
        V_Entrou := TRUE;
-       PKG_DEBUGGING_FWPC.LOG('Dados : CODBENEFICIOFISCAL '||DADOS_CREDITOPRESUMIDO.CODBENEFICIOFISCAL||
-                                       ' CODST '||DADOS_CREDITOPRESUMIDO.CODST||
-                                       ' PERCICM '||DADOS_CREDITOPRESUMIDO.PERCICM||
-                                       ' CONTRIBUINTECONSFINAL '||DADOS_CREDITOPRESUMIDO.CONTRIBUINTECONSFINAL||
-                                       ' TIPOEMPRESA '||DADOS_CREDITOPRESUMIDO.TIPOEMPRESA||
-                                       ' TIPOPESSOA '||DADOS_CREDITOPRESUMIDO.TIPOPESSOA||
-                                       ' ORIGMERCTRIB '||DADOS_CREDITOPRESUMIDO.ORIGMERCTRIB||
-                                       ' SITTRIBUT '||DADOS_CREDITOPRESUMIDO.SITTRIBUT||
-                                       ' CODFISCAL '||DADOS_CREDITOPRESUMIDO.CODFISCAL||
-                                       ' NBM '||DADOS_CREDITOPRESUMIDO.NBM||
-                                       ' PUNITCONT '||DADOS_CREDITOPRESUMIDO.PUNITCONT||
-                                       ' VLIPI '||DADOS_CREDITOPRESUMIDO.VLIPI||
-                                       ' VLFRETE '||DADOS_CREDITOPRESUMIDO.VLFRETE||
-                                       ' VLST '||DADOS_CREDITOPRESUMIDO.VLST||
-                                       ' VLOUTROS '||DADOS_CREDITOPRESUMIDO.VLOUTROS||
-                                       ' BASEICMS '||DADOS_CREDITOPRESUMIDO.BASEICMS||
+       PKG_DEBUGGING_FWPC.LOG('Dados : CODBENEFICIOFISCAL '||DADOS_CREDITOPRESUMIDO.CODBENEFICIOFISCAL|| CHR(10) ||
+                                       ' CODST '||DADOS_CREDITOPRESUMIDO.CODST|| CHR(10) ||
+                                       ' PERCICM '||DADOS_CREDITOPRESUMIDO.PERCICM|| CHR(10) ||
+                                       ' CONTRIBUINTECONSFINAL '||DADOS_CREDITOPRESUMIDO.CONTRIBUINTECONSFINAL|| CHR(10) ||
+                                       ' TIPOEMPRESA '||DADOS_CREDITOPRESUMIDO.TIPOEMPRESA|| CHR(10) ||
+                                       ' TIPOPESSOA '||DADOS_CREDITOPRESUMIDO.TIPOPESSOA|| CHR(10) ||
+                                       ' ORIGMERCTRIB '||DADOS_CREDITOPRESUMIDO.ORIGMERCTRIB|| CHR(10) ||
+                                       ' SITTRIBUT '||DADOS_CREDITOPRESUMIDO.SITTRIBUT|| CHR(10) ||
+                                       ' CODFISCAL '||DADOS_CREDITOPRESUMIDO.CODFISCAL|| CHR(10) ||
+                                       ' NBM '||DADOS_CREDITOPRESUMIDO.NBM|| CHR(10) ||
+                                       ' PUNITCONT '||DADOS_CREDITOPRESUMIDO.PUNITCONT|| CHR(10) ||
+                                       ' VLIPI '||DADOS_CREDITOPRESUMIDO.VLIPI|| CHR(10) ||
+                                       ' VLFRETE '||DADOS_CREDITOPRESUMIDO.VLFRETE|| CHR(10) ||
+                                       ' VLST '||DADOS_CREDITOPRESUMIDO.VLST|| CHR(10) ||
+                                       ' VLOUTROS '||DADOS_CREDITOPRESUMIDO.VLOUTROS|| CHR(10) ||
+                                       ' BASEICMS '||DADOS_CREDITOPRESUMIDO.BASEICMS|| CHR(10) ||
                                        ' PERCBASERED '||DADOS_CREDITOPRESUMIDO.PERCBASERED
                                        ,'S');
 
@@ -6543,22 +6564,22 @@ create or replace package body FISCAL is
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
     BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO com os seguintes parâmetros:'
-                         ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
-                         ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
-                         ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
-                         ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP
-                         ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
-                         ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
-                         ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
-                         ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA
-                         ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO
-                         ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA
-                         ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
-                         ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
-                         ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                         ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
-                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO com os seguintes parâmetros:' || CHR(10)
+                         ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
+                         ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
+                         ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
+                         ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP || CHR(10)
+                         ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL || CHR(10)
+                         ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE || CHR(10)
+                         ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA || CHR(10)
+                         ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA || CHR(10)
+                         ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO || CHR(10)
+                         ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA || CHR(10)
+                         ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC || CHR(10)
+                         ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO || CHR(10)
+                         ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO || CHR(10)
+                         ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD || CHR(10)
+                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM || CHR(10)
                          ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                           , 'S');
 
@@ -6793,11 +6814,6 @@ create or replace package body FISCAL is
     )
     WHERE ROWNUM = 1;
 
-
- 
-
-
-
       IF (P_PARAMETROS.TIPO_IMPOSTO = 'CBSIBS') THEN
         V_PARAMETROS.CODIGO_TRIBUTACAO_CBSIBS  := V_CODIGO_TRIBUTACAO_CBSIBS;
         V_PARAMETROS.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR := V_CODIGO_TRIBUTACAO_REGULAR;
@@ -6873,22 +6889,22 @@ create or replace package body FISCAL is
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com os parâmetros:'
-                               ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
-                               ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
-                               ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
-                               ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP
-                               ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
-                               ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
-                               ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
-                               ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA
-                               ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO
-                               ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA
-                               ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
-                               ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
-                               ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD 
-                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+          PKG_DEBUGGING_FWPC.LOG('Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com os parâmetros:' || CHR(10)
+                               ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
+                               ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
+                               ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
+                               ||' P_PARAMETROS.NFCIAP:'||' '|| P_PARAMETROS.NFCIAP || CHR(10)
+                               ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL || CHR(10)
+                               ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE || CHR(10)
+                               ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA || CHR(10)
+                               ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA || CHR(10)
+                               ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO || CHR(10)
+                               ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA || CHR(10)
+                               ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC || CHR(10)
+                               ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO || CHR(10)
+                               ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO || CHR(10)
+                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD || CHR(10) 
+                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM || CHR(10)
                                ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                                 , 'S');
           RETURN FALSE;
@@ -6950,21 +6966,21 @@ create or replace package body FISCAL is
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
     BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Iniciando consulta na PCTRIBUTACAO:'
-                         ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
-                         ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
-                         ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
-                         ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
-                         ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
-                         ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
-                         ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA
-                         ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO
-                         ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA
-                         ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
-                         ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
-                         ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                         ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
-                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+    PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Iniciando consulta na PCTRIBUTACAO:' || CHR(10)
+                         ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
+                         ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
+                         ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
+                         ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL || CHR(10)
+                         ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE || CHR(10)
+                         ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA || CHR(10)
+                         ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA || CHR(10)
+                         ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO || CHR(10)
+                         ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA || CHR(10)
+                         ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC || CHR(10)
+                         ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO || CHR(10)
+                         ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO || CHR(10)
+                         ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD || CHR(10)
+                         ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM || CHR(10)
                          ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                           , 'S');
 
@@ -7019,21 +7035,21 @@ create or replace package body FISCAL is
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com o parâmetros:'
-                               ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO
-                               ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO
-                               ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO
-                               ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL
-                               ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE
-                               ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA
-                               ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA
-                               ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO
-                               ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA
-                               ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC
-                               ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO
-                               ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO
-                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD
-                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM
+          PKG_DEBUGGING_FWPC.LOG('Tributação Regular - Não foi encontrado nenhum registro na tabela PCTRIBUTACAO com o parâmetros:' || CHR(10)
+                               ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
+                               ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
+                               ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
+                               ||' P_PARAMETROS.CONSUMIDOR_FINAL:'||' '||P_PARAMETROS.CONSUMIDOR_FINAL || CHR(10)
+                               ||' P_PARAMETROS.CONTRIBUINTE:'||' '||P_PARAMETROS.CONTRIBUINTE || CHR(10)
+                               ||' P_PARAMETROS.TIPO_EMPRESA:'||' '||P_PARAMETROS.TIPO_EMPRESA || CHR(10)
+                               ||' P_PARAMETROS.TIPO_PESSOA:'||' '||P_PARAMETROS.TIPO_PESSOA || CHR(10)
+                               ||' P_PARAMETROS.ORGAO_PUBLICO:'||' '||P_PARAMETROS.ORGAO_PUBLICO || CHR(10)
+                               ||' P_PARAMETROS.ORIGEM_MERCADORIA:'||' '||P_PARAMETROS.ORIGEM_MERCADORIA || CHR(10)
+                               ||' P_PARAMETROS.TIPO_MERC:'||' '||P_PARAMETROS.TIPO_MERC || CHR(10)
+                               ||' P_TIPO_LOCAL_CONSUMO:'||' '||P_TIPO_LOCAL_CONSUMO || CHR(10)
+                               ||' P_LOCAL_CONSUMO:'||' '||P_LOCAL_CONSUMO || CHR(10)
+                               ||' P_PARAMETROS.CODPROD:'||' '||P_PARAMETROS.CODPROD || CHR(10)
+                               ||' P_PARAMETROS.NCM:'||' '|| P_PARAMETROS.NCM || CHR(10)
                                ||' P_PARAMETROS.CFOP:'||' '|| P_PARAMETROS.CFOP
                                 , 'S');
           RETURN FALSE;
@@ -7408,13 +7424,13 @@ create or replace package body FISCAL is
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO  := V_TIPO_ORGAOPUBLICO;
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB := V_PERC_RED_ORG_PUB;
 
-        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||V_PARAMETROS.CODCLI||
-                               ' Cód Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO||
-                               ' UF Cliente: '||V_PARAMETROS.UF_CLIENTE||
-                               ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL||
-                               ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA||
-                               ' Tipo Pessoa: '||V_PARAMETROS.TIPO_PESSOA||
-                               ' Contribuinte: '||V_PARAMETROS.CONTRIBUINTE||
+        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado código de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||V_PARAMETROS.CODCLI|| CHR(10) ||
+                               ' Cód Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
+                               ' UF Cliente: '||V_PARAMETROS.UF_CLIENTE|| CHR(10) ||
+                               ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL|| CHR(10) ||
+                               ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA|| CHR(10) ||
+                               ' Tipo Pessoa: '||V_PARAMETROS.TIPO_PESSOA|| CHR(10) ||
+                               ' Contribuinte: '||V_PARAMETROS.CONTRIBUINTE|| CHR(10) ||
                                ' Contribuinte: '||V_PARAMETROS.ORGAO_PUBLICO,
                                'S');
       EXCEPTION
@@ -7474,13 +7490,13 @@ create or replace package body FISCAL is
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO  := V_TIPO_ORGAOPUBLICO;
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB := V_PERC_RED_ORG_PUB;
 
-        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado dados para o fornecedor codfornec: '||V_PARAMETROS.CODFORNEC||
-                               ' Cód Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO||
-                               ' UF Cliente: '||V_PARAMETROS.UF_FORNECEDOR||
-                               ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL||
-                               ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA||
-                               ' Tipo Pessoa: '||V_PARAMETROS.TIPO_PESSOA||
-                               ' Contribuinte: '||V_PARAMETROS.CONTRIBUINTE||
+        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado dados para o fornecedor codfornec: '||V_PARAMETROS.CODFORNEC|| CHR(10) ||
+                               ' Cód Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
+                               ' UF Cliente: '||V_PARAMETROS.UF_FORNECEDOR|| CHR(10) ||
+                               ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL|| CHR(10) ||
+                               ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA|| CHR(10) ||
+                               ' Tipo Pessoa: '||V_PARAMETROS.TIPO_PESSOA|| CHR(10) ||
+                               ' Contribuinte: '||V_PARAMETROS.CONTRIBUINTE|| CHR(10) ||
                                ' Contribuinte: '||V_PARAMETROS.ORGAO_PUBLICO,
                                'S');
       EXCEPTION
@@ -7559,83 +7575,80 @@ create or replace package body FISCAL is
                              ' Produto: '||P_PARAMETROS.CODPROD||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
 
-      REMOVER_TRIBUTOS_OBSOLETOS;
+      IF NOT FIL_OPTANTESIMPLESNACIONAL(P_PARAMETROS.CODFILIAL) THEN 
+        REMOVER_TRIBUTOS_OBSOLETOS;
 
-      V_DADOS_TRIBUTACAO                  := P_PARAMETROS;
-      V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IS';
+        V_DADOS_TRIBUTACAO                  := P_PARAMETROS;
+        V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IS';
 
-      --Busca os dados do cliente ou fornecedor
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
+        --Busca os dados do cliente ou fornecedor
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados do endereço de entrega do cliente
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
+        --Busca os dados do endereço de entrega do cliente
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados de cadastro da rotina 4000
-      V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Busca os dados de cadastro da rotina 4000
+        V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      --Calcula os novos impostos com base na tributação que foi encontrada
-      V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Calcula os novos impostos com base na tributação que foi encontrada
+        V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+ 
+        PKG_DEBUGGING_FWPC.LOG(' Inicio cálculo CBSIBS para filial| '|| P_PARAMETROS.CODFILIAL || CHR(10) ||
+                               ' Produto: '||P_PARAMETROS.CODPROD || CHR(10) ||
+                               ' Ncm:'||P_PARAMETROS.NCM,'S');
 
-      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo CBSIBS para filial| '||P_PARAMETROS.CODFILIAL||
-                             ' Produto: '||P_PARAMETROS.CODPROD||
-                             ' Ncm:'||P_PARAMETROS.NCM,'S');
+        V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBSIBS';
 
-      V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBSIBS';
+        --Busca os dados de cadastro da rotina 4000
+        V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        
+        IF V_DADOS_TRIBUTACAO.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR > 0 THEN 
+          V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTO_REGULAR(V_DADOS_TRIBUTACAO);
+        END IF;      
+        
+        --Calcula os novos impostos com base na tributação que foi encontrada
+        V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados de cadastro da rotina 4000
-      V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
-      
-      IF V_DADOS_TRIBUTACAO.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR > 0 THEN 
-        V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTO_REGULAR(V_DADOS_TRIBUTACAO);
-      END IF;      
-      
-      --Calcula os novos impostos com base na tributação que foi encontrada
-      V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:' || CHR(10) ||
+                               ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
+                               ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
+                               ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS|| CHR(10) ||
+                               ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS|| CHR(10) ||
+                               ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
+                               ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS|| CHR(10) ||
+                               ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS|| CHR(10) ||
+                               ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF|| CHR(10) ||
+                               ' Perc Red IBS UF: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_UF|| CHR(10) ||
+                               ' Valor IBS UF calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_UF|| CHR(10) ||
+                               ' Perc IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_IBS_MUN|| CHR(10) ||
+                               ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN|| CHR(10) ||
+                               ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN|| CHR(10) ||
+                               ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS|| CHR(10) ||
+                               ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
+                               ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
+                               ' CST: '||V_DADOS_TRIBUTACAO.CST_IS|| CHR(10) ||
+                               ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS|| CHR(10) ||
+                               ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
+                               ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS|| CHR(10) ||
+                               ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
+                               ,'S');
 
-      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:'||
-                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS||
-                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS||
-                             ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS||
-                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS||
-
-                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS||
-                             ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS||
-                             ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS||
-
-                             ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF||
-                             ' Perc Red IBS UF: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_UF||
-                             ' Valor IBS UF calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_UF||
-
-                             ' Perc IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_IBS_MUN||
-                             ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN||
-                             ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN||
-
-                             ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS||
-
-                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS||
-                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS||
-                             ' CST: '||V_DADOS_TRIBUTACAO.CST_IS||
-                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS||
-                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS||
-                             ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS||
-                             ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
-                             ,'S');
-
-      --PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
-
-      P_MSG := 'OK';
-      RETURN(V_DADOS_TRIBUTACAO);
-    EXCEPTION
-      WHEN OTHERS THEN
-        BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do CALCULAR_TODOS_TRIBUTOS: '||SQLERRM,'S');
-          P_MSG := 'ERRO: '||SQLERRM;
-          RETURN(V_DADOS_TRIBUTACAO);
-        END;
-    END;
+        P_MSG := 'OK';
+        RETURN(V_DADOS_TRIBUTACAO);
+      ELSE 
+        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        RETURN(V_DADOS_TRIBUTACAO);
+      END IF;
+        
+      EXCEPTION
+        WHEN OTHERS THEN
+          BEGIN
+            PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de cálculo do CALCULAR_TODOS_TRIBUTOS: '||SQLERRM,'S');
+            P_MSG := 'ERRO: '||SQLERRM;
+            RETURN(V_DADOS_TRIBUTACAO);
+          END;
+      END;
   END CALCULAR_TODOS_TRIBUTOS;
-
-
 
   FUNCTION CALCULAR_CBSIBS(P_PARAMETROS in TIPO_TRIBUT_REFORMA,
                            P_MSG        out varchar2)
@@ -7644,54 +7657,56 @@ create or replace package body FISCAL is
   BEGIN
     BEGIN
       --PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_CBSIBS', '1.0');
-      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo CBS para filial| '||P_PARAMETROS.CODFILIAL||
-                             ' Produto: '||P_PARAMETROS.CODPROD||
+      PKG_DEBUGGING_FWPC.LOG('Inicio cálculo CBS para filial| '||P_PARAMETROS.CODFILIAL|| CHR(10) ||
+                             ' Produto: '||P_PARAMETROS.CODPROD|| CHR(10) ||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
 
 
       V_DADOS_TRIBUTACAO                  := P_PARAMETROS;
       V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'CBSIBS';
+      
+      IF NOT FIL_OPTANTESIMPLESNACIONAL(P_PARAMETROS.CODFILIAL) THEN       
 
-      --Busca os dados do cliente ou fornecedor
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
+        --Busca os dados do cliente ou fornecedor
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados do endereço de entrega do cliente
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
+        --Busca os dados do endereço de entrega do cliente
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados de cadastro da rotina 4000
-      V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Busca os dados de cadastro da rotina 4000
+        V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      --Calcula os novos impostos com base na tributação que foi encontrada
-      V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Calcula os novos impostos com base na tributação que foi encontrada
+        V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:'||
-                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS||
-                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS||
-                             ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS||
-                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS||
-
-                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS||
-                             ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS||
-                             ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS||
-
-                             ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF||
-                             ' Perc Red IBS UF: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_UF||
-                             ' Valor IBS UF calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_UF||
-
-                             ' Perc IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_IBS_MUN||
-                             ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN||
-                             ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN||
-
-                             ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS
-                             ,'S');
+        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo CBS com os seguintes dados:'|| CHR(10) ||
+                               ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
+                               ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
+                               ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS|| CHR(10) ||
+                               ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS|| CHR(10) ||
+                               ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
+                               ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS|| CHR(10) ||
+                               ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS|| CHR(10) ||
+                               ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF|| CHR(10) ||
+                               ' Perc Red IBS UF: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_UF|| CHR(10) ||
+                               ' Valor IBS UF calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_UF|| CHR(10) ||
+                               ' Perc IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_IBS_MUN|| CHR(10) ||
+                               ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN|| CHR(10) ||
+                               ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN|| CHR(10) ||
+                               ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS
+                               ,'S');
 
 
 
-      PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
+        PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
 
-      P_MSG := 'OK';
+        P_MSG := 'OK';
 
-      RETURN(V_DADOS_TRIBUTACAO);
+        RETURN(V_DADOS_TRIBUTACAO);
+      ELSE 
+        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        RETURN(V_DADOS_TRIBUTACAO);
+      END IF;
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
@@ -7718,33 +7733,38 @@ create or replace package body FISCAL is
       V_DADOS_TRIBUTACAO                  := P_PARAMETROS;
       V_DADOS_TRIBUTACAO.TIPO_IMPOSTO     := 'IS';
 
-      --Busca os dados do cliente ou fornecedor
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
+      IF NOT FIL_OPTANTESIMPLESNACIONAL(P_PARAMETROS.CODFILIAL) THEN     
+        --Busca os dados do cliente ou fornecedor
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados do endereço de entrega do cliente
-      V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
+        --Busca os dados do endereço de entrega do cliente
+        V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
-      --Busca os dados de cadastro da rotina 4000
-      V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Busca os dados de cadastro da rotina 4000
+        V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      --Calcula os novos impostos com base na tributação que foi encontrada
-      V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
+        --Calcula os novos impostos com base na tributação que foi encontrada
+        V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-      PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo IS com os seguintes dados:'||
-                             ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS||
-                             ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS||
-                             ' CST: '||V_DADOS_TRIBUTACAO.CST_IS||
-                             ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS||
-                             ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS||
-                             ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS||
-                             ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
-                             ,'S');
+        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de cálculo IS com os seguintes dados:'|| CHR(10) ||
+                               ' Código Tributação: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
+                               ' Código da Base de Cálculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
+                               ' CST: '||V_DADOS_TRIBUTACAO.CST_IS|| CHR(10) ||
+                               ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS|| CHR(10) ||
+                               ' Valor da base de cálculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
+                               ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS|| CHR(10) ||
+                               ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
+                               ,'S');
 
-      PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
+        PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
 
-      P_MSG := 'OK';
+        P_MSG := 'OK';
 
-      RETURN(V_DADOS_TRIBUTACAO);
+        RETURN(V_DADOS_TRIBUTACAO);
+      ELSE 
+        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional'; 
+        RETURN(V_DADOS_TRIBUTACAO);
+      END IF;   
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
@@ -7833,6 +7853,6 @@ create or replace package body FISCAL is
   END;
 
 END;
+-- Alteração 17/03/2026 - Inclusão do processo de não calcular os tributos para filial do simples nacional.
 -- Alteração 20/02/2026 - Inclusão de tratamento para o tributo regular não calcular se objeto não for preenchido.
 -- Alteração 26/01/2026 - Inclusão do processo de retorno do Tributo Regular
--- Alteração 22/01/2026 - Incluso processo calculo da reforma para PCMOVCIAP
