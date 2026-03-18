@@ -1,0 +1,100 @@
+DECLARE
+   V_EXISTE ALL_TYPES.TYPE_NAME%TYPE;
+BEGIN
+   SELECT T.TYPE_NAME
+     INTO V_EXISTE
+     FROM ALL_TYPES T
+    WHERE T.TYPE_NAME = 'TABELA_CONTROLE_PRODUCAO'
+      AND OWNER = SYS_CONTEXT('USERENV', 'SESSION_USER');
+   IF NOT V_EXISTE IS NULL THEN
+      EXECUTE IMMEDIATE 'DROP TYPE TABELA_CONTROLE_PRODUCAO';
+   END IF;
+EXCEPTION
+   WHEN OTHERS THEN
+      V_EXISTE := NULL;
+END;
+\
+CREATE OR REPLACE TYPE TIPO_CONTROLE_PRODUCAO AS OBJECT
+  (CODFILIAL                 VARCHAR2(2),
+  TIPO                      VARCHAR2(5),
+  INFORMACAO                VARCHAR2(1000),
+  NUMTRANSENT               NUMBER(22, 6),
+  NUMTRANSVENDA             NUMBER(22, 6),
+  ESPECIE                   VARCHAR2(2),
+  SERIE                     VARCHAR2(3),
+  NUMNOTA                   NUMBER(10),
+  DATA                      DATE,
+  CODCONT                   VARCHAR2(11),
+  OBSERVACAO                VARCHAR2(1000),
+  CODPROD                   NUMBER(10),
+  DESCRICAO                 VARCHAR2(100),
+  EMBALAGEM                 VARCHAR2(50),
+  UNIDADE                   VARCHAR2(2),
+  CODOPER                   VARCHAR2(2),
+  CODFISCAL                 NUMBER(15),
+  QTCONT                    NUMBER(22, 6),
+  QTSAIDA_DENTRO            NUMBER(22, 6),
+  QTSAIDA_FORA              NUMBER(22, 6),
+  CUSTOULTENT               NUMBER(22, 6),
+  CUSTOCONT                 NUMBER(22, 6),
+  CUSTOREAL                 NUMBER(22, 6),
+  CUSTOREALSEMST            NUMBER(22, 6),
+  CUSTOFIN                  NUMBER(22, 6),
+  CUSTOREP                  NUMBER(22, 6),
+  VALORULTENT               NUMBER(22, 6),
+  PUNITCONT                 NUMBER(22, 6),
+  VLIPI                     NUMBER(22, 6),
+  CODSEC                    NUMBER(10),
+  CODEPTO                   NUMBER(10),
+  TIPOMERC                  VARCHAR2(2),
+  HISTORICO                 VARCHAR2(100),
+  QTENTRADA                 NUMBER(22, 6),
+  BASECUSTOCONT             NUMBER(22, 6),
+  CUSTOTOTAL_ENTRADA        NUMBER(22, 6),
+  QTSAIDA                   NUMBER(22, 6),
+  CUSTOCONTSAIDA            NUMBER(22, 6),
+  CUSTOTOTAL_SAIDA          NUMBER(22, 6),
+  CUSTOCONT_ESTOQUE         NUMBER(22, 6),
+  CUSTOULTENT_ESTOQUE       NUMBER(22, 6),
+  CUSTOREP_ESTOQUE          NUMBER(22, 6),
+  CUSTOFIN_ESTOQUE          NUMBER(22, 6),
+  CUSTOREAL_ESTOQUE         NUMBER(22, 6),
+  CUSTOREALSEMST_ESTOQUE    NUMBER(22, 6),
+  VALORULTENT_ESTOQUE       NUMBER(22, 6),
+  SALDOQT_ANTERIOR          NUMBER(22, 6),
+  CUSTOMEDIO_ANTERIOR       NUMBER(22, 6),
+  CUSTOTOTAL_ANTERIOR       NUMBER(22, 6),
+  CUSTOMEDIO_ATUAL          NUMBER(22, 6),
+  SALDOQT_ATUAL             NUMBER(22, 6),
+  CUSTOTOTAL_ATUAL          NUMBER(22, 6),
+  DTCANCEL                  DATE,
+  TIPODESCARGA              VARCHAR2(1),
+  SITUACAOTRIBUTARIA        VARCHAR2(3),
+  ST                        NUMBER(18,6),
+  MINUTOLANC                VARCHAR2(2),
+  HORALANC                  VARCHAR2(2),
+  SEQMOV                    NUMBER(18),
+  CUSTOCONTANT              NUMBER(22,6),
+  ROTINACAD                 VARCHAR2(48),
+  DTMOVLOG                  DATE,
+  VLFRETEFOB_LIQ            NUMBER(22, 6),
+  CUSTO_SEM_IPI_PIS_COFINS  NUMBER(22,6),
+  ID_PCMOV                  VARCHAR2(100),
+  ID_PCMOVCOMPLE            VARCHAR2(100),
+  VLR_CRED_ICMS             NUMBER(22,6),
+  NUMTRANSORIGEM            NUMBER(10),
+  CUSTOULTENTCONT           NUMBER(22,6),
+  NUMSEQ                    NUMBER(20),
+  VLR_ICMS_REAL             NUMBER(24,6),
+  VLR_CRED_COFINS           NUMBER(24,6),
+  VLR_CRED_PIS              NUMBER(24,6),
+  NCM                       VARCHAR(20),
+  POSSE                     VARCHAR(20),
+  VALORITEMNOTA_ENT         NUMBER(24,6),
+  VALORITEMNOTA_SAID        NUMBER(24,6),
+  STGUIA                    NUMBER(24,6),
+  CUSTOFISCAL               NUMBER(24,6),
+  CUSTOULTENTFISCAL         NUMBER(18,6),
+  NUMTRANSITEM              NUMBER(18));
+\
+CREATE OR REPLACE TYPE TABELA_CONTROLE_PRODUCAO IS TABLE OF TIPO_CONTROLE_PRODUCAO;
