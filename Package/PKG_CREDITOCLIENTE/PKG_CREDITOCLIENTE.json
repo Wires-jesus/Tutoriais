@@ -10,6 +10,6 @@
    {"nome":"LISTA_PC_CONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
    {"nome":"T_PC_DESDCONTASRECEBER","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
    {"nome":"T_PC_DESDCREDITOCLIENTE","tipo":"OBJETO_PLSQL","versao":"5.0.01.000"},
-   {"nome": "T_PC_CARREGAMENTO","tipo": "OBJETO_PLSQL","versao": "8.0.02.000"}
+   {"nome": "T_PC_CARREGAMENTO","tipo": "OBJETO_PLSQL","versao": "8.0.03.000"}
   ]
 }
