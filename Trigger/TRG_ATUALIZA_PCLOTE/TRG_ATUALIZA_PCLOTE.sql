@@ -810,7 +810,7 @@ BEGIN
                                                 DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',:NEW.CODFILIAL,'N')), 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL)), :NEW.CODFILIAL)
                                            FROM PCNFENT E
                                           WHERE E.NUMTRANSENT = NVL(:NEW.NUMTRANSENTORIGDESDLOTE, :NEW.NUMTRANSENT)
-                                            AND E.ESPECIE NOT IN ('CT', 'CO', 'CF', 'OE'));
+                                            AND E.ESPECIE NOT IN ('CT', 'CO', 'CF'));
                  END IF;
                EXCEPTION
                  WHEN OTHERS THEN
