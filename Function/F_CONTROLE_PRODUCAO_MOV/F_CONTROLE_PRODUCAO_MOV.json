@@ -24,7 +24,7 @@
         },
 		{
             "nome": "TIPO_CONTROLE_PRODUCAO",
-            "tipo": "OBJETO_PLSQL",
+            "tipo": "MIGRATION",
             "versao": "8.0.02.000"
         }
     ]
