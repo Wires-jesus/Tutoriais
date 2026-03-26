@@ -20,7 +20,12 @@
         }, {
             "nome": "PCDADOS1070_TEMP",
             "tipo": "TABELA",
-            "versao": "4.0.02.000"
+            "versao": "8.0.03.000"
+        },
+		{
+            "nome": "TIPO_CONTROLE_PRODUCAO",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "8.0.02.000"
         }
     ]
 }
