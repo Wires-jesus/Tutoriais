@@ -8,11 +8,16 @@
         }, {
             "nome": "PRC_CONTROLE_PRODUCAO",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.02.000"
+            "versao": "8.0.02.000"
         }, {
             "nome": "F_CONTROLE_PRODUCAO_MOV",
             "tipo": "OBJETO_PLSQL",
-            "versao": "7.0.02.000"
+            "versao": "8.0.01.000"
+        },
+		{
+            "nome": "TIPO_CONTROLE_PRODUCAO",
+            "tipo": "MIGRATION",
+            "versao": "8.0.02.000"
         }
     ]
 }

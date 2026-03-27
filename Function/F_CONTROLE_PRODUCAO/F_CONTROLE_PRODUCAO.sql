@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                                                PDTINVENTARIO            in date default null,
                                                PTIPOCUSTO               in number default 0,     --
                                                PPROD_SEM_MOV            in varchar2 default 'N', -- 02 - Gerar itens sem movimentação.
-                                               PUTILIZA_METODO_PEPS     in varchar2 default 'N', -- 
+                                               PUTILIZA_METODO_PEPS     in varchar2 default 'N', --
                                                PUTILIZA_PRECO_NOTA      in varchar2 default 'N', -- 05 - Utiliza o preço unitário do produto.
                                                PNUMCASAS_QT             in number default 3,
                                                PNUMCASAS_UNIT           in number default 6,
@@ -32,8 +32,8 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                                                PDESCONS_ITEM_BRINDE     in varchar2 default 'S', -- 08 - (S) Descons.o item do Estoque/Movimentação(NFs) com a informação TIPOMERC = BD.
                                                PCONS_CUSTO_ZERO         in varchar2 default 'N', -- 26 - (S) Considera no estoque e movimentação entrada com custo zero. (N) mantém o custo anterior
                                                PSTATUSPROD              in varchar2 default 'T',  -- 27 - Status do Produto DTEXCLUSAO - T - Todos / A - Ativo / I - Inativo
-                                               PCONSCUSTODEVENT_ENTVINC in varchar2 default 'N' -- 28 - Gerar custo da entrada vinculada para dev.de entrada
-                                               )
+                                               PCONSCUSTODEVENT_ENTVINC in varchar2 default 'N', -- 28 - Gerar custo da entrada vinculada para dev.de entrada
+                                               PSOMENTEENTRADAS         in varchar2 default 'N')
 ---------------------------------------------------------------------------------
   -- Função para retorno de movimentação de controle de produção
   ---------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                                                           NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
-														  NULL); -- 81 colunas
+                                                          NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); -- 88 colunas
   --V_RETORNO                      TABELA_CONTROLE_PRODUCAO;
   V_CUSTOTOTAL                   number(22, 6);
   V_CUSTOMEDIO                   number(22, 6);
@@ -84,7 +84,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
   V_CODPROD                      PCPRODUT.CODPROD%type;
   V_INFORMACAO                   varchar2(50);
   V_DATA_INVENTARIO              date;
-  V_UTILIZA_PROCEDURE            varchar2(1);  
+  V_UTILIZA_PROCEDURE            varchar2(1);
   -- PARAMETROS FRETE FOB -------------------
   V_FIL_CALCREDPISFRETECONT      varchar2(1);
   V_UTICREDICMSFRETEFOBCUSTOCONT varchar2(1);
@@ -182,7 +182,7 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
                    END,
                    PNUMCASAS_UNIT)
         INTO PVLCUSTO
-        FROM PCMOVSAID MS, PCMOV M, PCMOVCOMPLE MC 
+        FROM PCMOVSAID MS, PCMOV M, PCMOVCOMPLE MC
        WHERE ((PBUSCAR_CUSTO_ANTERIOR = 'N' AND
              MS.NUMTRANSVENDA = PNUMTRANSVENDA) or
              (MS.NUMTRANSVENDA =
@@ -219,9 +219,9 @@ CREATE OR REPLACE FUNCTION F_CONTROLE_PRODUCAO(PCODFILIAL               in varch
       PSALDOQT := NVL(PSALDOQT, 0) - ROUND(NVL(PQTMOV, 0), PNUMCASAS_QT);
     END if;
 
-    if ((PNOVOCUSTO > 0) or 
-        (PCODOPER = 'EB') or 
-        (PCONS_CUSTO_ZERO = 'S')) 
+    if ((PNOVOCUSTO > 0) or
+        (PCODOPER = 'EB') or
+        (PCONS_CUSTO_ZERO = 'S'))
         and (CODOPER_ALTERA_CUSTO_ESTOQUE(PCODOPER,PDTCANCEL))
     then
       V_CUSTO := ROUND(PNOVOCUSTO, PNUMCASAS_UNIT);
@@ -302,15 +302,17 @@ BEGIN
                          ESTOQUE.CUSTOREP CUSTOREP_ESTOQUE,ESTOQUE.CUSTOFIN CUSTOFIN_ESTOQUE,
                          ESTOQUE.CUSTOREAL CUSTOREAL_ESTOQUE,ESTOQUE.CUSTOREALSEMST CUSTOREALSEMST_ESTOQUE,
                          ESTOQUE.VALORULTENT VALORULTENT_ESTOQUE,MOV.HISTORICO,MOV.DTCANCEL,
-                         MOV.SITUACAOTRIBUTARIA,MOV.TIPODESCARGA,MOV.MINUTOLANC,MOV.HORALANC,MOV.NCM,MOV.POSSE
-                        ,MOV.DTMOVLOG, ESTOQUE.CUSTOFISCAL CUSTOFISCAL_ESTOQUE, MOV.CUSTOFISCAL, MOV.CUSTOULTENTCONT
-						,MOV.CUSTOULTENTFISCAL, MOV.NUMTRANSITEM
+                         MOV.SITUACAOTRIBUTARIA,MOV.TIPODESCARGA,MOV.MINUTOLANC,MOV.HORALANC,MOV.NCM,MOV.POSSE,
+                         MOV.DTMOVLOG,ESTOQUE.CUSTOFISCAL CUSTOFISCAL_ESTOQUE, MOV.CUSTOFISCAL, MOV.CUSTOULTENTCONT,
+                         MOV.CUSTOULTENTFISCAL,MOV.NUMTRANSITEM,MOV.CUSTOFINSEMST,MOV.CUSTOULTENTFIN,MOV.CUSTOULTENTSEMST,
+                         MOV.CUSTOULTENTFINSEMST,MOV.CUSTOULTENTLIQ,MOV.STATUS, MOV.CUSTOREALLIQ
                    FROM (SELECT TIPO,SEQMOV,BASECUSTOCONT,CUSTOCONT,CUSTOFIN,CUSTOREAL,CUSTOREP,CUSTOULTENT
                                ,CUSTOREALSEMST,VALORULTENT,ESPECIE,SERIE,CODCONT,OBSERVACAO,CODPROD,CODOPER
                                ,NUMNOTA,DATA,HORALANC,CODFISCAL,QTCONT,QTENTRADA,QTSAIDA,QTSAIDA_DENTRO
                                ,QTSAIDA_FORA,HISTORICO,PUNITCONT,VALORITEMNOTA_ENT,VALORITEMNOTA_SAID,NUMTRANSENT
                                ,NUMTRANSVENDA,VLIPI,ST,STGUIA,DTCANCEL,SITUACAOTRIBUTARIA,TIPODESCARGA,MINUTOLANC
                                ,ROTINACAD,NCM,POSSE,DTMOVLOG,CUSTOFISCAL,CUSTOULTENTCONT,CUSTOULTENTFISCAL,NUMTRANSITEM
+                               ,CUSTOFINSEMST,CUSTOULTENTFIN,CUSTOULTENTSEMST,CUSTOULTENTFINSEMST,CUSTOULTENTLIQ,STATUS,CUSTOREALLIQ
                           FROM TABLE (F_CONTROLE_PRODUCAO_MOV(PCODFILIAL,
                                                               PDTINICIO,
                                                               PDTFIM,
@@ -343,7 +345,9 @@ BEGIN
                                                               PDESCONS_ENT_AJUSTE_ER,
                                                               PDESCONS_CUSTO_NFENTCANC,
                                                               PDESCONS_ITEM_BRINDE,
-                                                              PSTATUSPROD
+                                                              PSTATUSPROD,
+                                                              PCONSCUSTODEVENT_ENTVINC,
+                                                              PSOMENTEENTRADAS
                                                               ))
                            WHERE DATA BETWEEN PDTINICIO AND PDTFIM) MOV,
                                  (SELECT PCPRODUT.CODPROD,
@@ -376,7 +380,7 @@ BEGIN
                                                CUSTOREALSEMST,
                                                CUSTOULTENT,
                                                VALORULTENT,
-                                               TIPOMERC, 
+                                               TIPOMERC,
                                                CUSTOFISCAL,
                                                CUSTOULTENTCONT
                                         FROM PCHISTEST
@@ -391,21 +395,21 @@ BEGIN
                                                    WHEN PSTATUSPROD = 'T'
                                                       THEN 'S'
                                                    WHEN PSTATUSPROD = 'A'
-                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO) 
+                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO)
                                                       THEN 'S'
                                                    WHEN PSTATUSPROD = 'I'
                                                          AND (PCHISTEST.DTEXCLUSAOPROD IS NOT NULL AND DTEXCLUSAOPROD <= V_DATA_INVENTARIO)
                                                       THEN 'N'
                                                    ELSE 'N'
                                                END = 'S')
-											   
+
                                           ) HISTEST,
                                              PCPRODUT
                                         WHERE PCPRODUT.CODPROD = HISTEST.CODPROD(+)
                                           AND PCPRODUT.CODPROD BETWEEN PCODPROD1 AND PCODPROD2
                                           AND NVL(PCPRODUT.TIPOMERC, 'X') <> 'SS'
                                           ) ESTOQUE
-          
+
                                   WHERE ESTOQUE.CODPROD = MOV.CODPROD(+)
                                     AND (PPROD_SEM_MOV = 'S' or MOV.CODPROD > 0)
                                   ORDER BY CODPROD, DTMOVLOG, DATA, SEQMOV, TIPO, NUMNOTA)
@@ -433,7 +437,7 @@ BEGIN
                 END if;
               END if;
 
-              if (V_UTILIZA_CUSTO_ULTIMA_ENTRADA) or 
+              if (V_UTILIZA_CUSTO_ULTIMA_ENTRADA) or
                  (NVL(V_CUSTOMEDIO, 0) = 0)
               then
                 case PTIPOCUSTO
@@ -454,7 +458,7 @@ BEGIN
                   when 7 then
                     V_CUSTOMEDIO := DADOS.CUSTOFISCAL_ESTOQUE;
                   when 8 then
-                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT_ESTOQUE;  
+                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT_ESTOQUE;
                 END case; END if;
 
               if V_CUSTOMEDIO <= 0
@@ -477,9 +481,9 @@ BEGIN
                   when 7 then
                     V_CUSTOMEDIO := DADOS.CUSTOFISCAL;
                   when 8 then
-                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT;  
+                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT;
                 END case; END if;
-                
+
               V_CUSTOMEDIO := ROUND(V_CUSTOMEDIO, PNUMCASAS_UNIT);
               V_SALDOQT    := ROUND(DADOS.QT_ESTOQUE, PNUMCASAS_QT);
 
@@ -493,7 +497,7 @@ BEGIN
               V_CODPROD := DADOS.CODPROD;
             END if;
 
-            if (DADOS.ESPECIE is null and DADOS.SERIE <> 'SM') 
+            if (DADOS.ESPECIE is null and DADOS.SERIE <> 'SM')
             then
               V_INFORMACAO := 'PRODUTO SEM MOVIMENTAÇÃO';
             else
@@ -520,8 +524,8 @@ BEGIN
                   when 7 then
                     V_CUSTOUTILIZAR := DADOS.CUSTOFISCAL;
                   when 8 then
-                    V_CUSTOUTILIZAR := DADOS.CUSTOULTENTCONT;  
-                END case;              
+                    V_CUSTOUTILIZAR := DADOS.CUSTOULTENTCONT;
+                END case;
 
                 case PTIPOCUSTO
                   when 0 then
@@ -587,7 +591,7 @@ BEGIN
                                                        V_SALDOQT,
                                                        V_CUSTOTOTAL,
                                                        DADOS.DTCANCEL);
-                                                       
+
                 V_CUSTOSAIDA := V_CUSTOMEDIO;
 
                 if PUTILIZA_PRECO_NOTA = 'S'
@@ -607,33 +611,33 @@ BEGIN
                 ---------------------------------------------------------------------------------------------
                 -- MUDANDO CUSTO DA SAIDA DEVOLUÇÃO A FORNECEDOR SE PARAMETRO PCONSCUSTODEVENT_ENTVINC = S
                 if PCONSCUSTODEVENT_ENTVINC = 'S' then
-                 -- SAIDA DEVOLUÇÃO A FORNECEDOR -- 
+                 -- SAIDA DEVOLUÇÃO A FORNECEDOR --
                    if (DADOS.CODOPER = 'SD') then
-    			         begin
-                      SELECT max(MC.CUSTOULTENTCONT) 
+                   begin
+                      SELECT max(MC.CUSTOULTENTCONT)
                         INTO V_CUSTOSAIDA
-                        FROM PCMOV M, PCMOVCOMPLE MC 
-                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM 
+                        FROM PCMOV M, PCMOVCOMPLE MC
+                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM
                          AND M.CODPROD = DADOS.CODPROD
-                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT 
-    					                                  FROM PCDEVFORNEC F 
-    									                         WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
-    		            exception 
+                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT
+                                                FROM PCDEVFORNEC F
+                                               WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
+                    exception
                        when NO_DATA_FOUND THEN
                        V_CUSTOSAIDA := V_CUSTOMEDIO; -- Se não retornar o custo vincualdo, então volta o custo do processo atual
-                    end;    
-                    
-                      IF NVL(V_CUSTOSAIDA,0) = 0THEN 
+                    end;
+
+                      IF NVL(V_CUSTOSAIDA,0) = 0THEN
                          V_CUSTOSAIDA := V_CUSTOMEDIO;
-                      END IF;  
-                                                          				   
+                      END IF;
+
                       V_CUSTOSAIDA := ROUND(V_CUSTOSAIDA, PNUMCASAS_UNIT);
-                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) * 
+                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) *
                                                        V_CUSTOSAIDA,
                                                        PNUMCASAS_TOTAL);
                    end if;
                 end if;
-                ---------------------------------------------------------------------------------------------            
+                ---------------------------------------------------------------------------------------------
               END if;
             END if;
 
@@ -708,9 +712,18 @@ BEGIN
             OUTROW.NCM           := DADOS.NCM;
             OUTROW.POSSE         := DADOS.POSSE;
             OUTROW.DTMOVLOG      := DADOS.DTMOVLOG;
-			OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
-			OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
-            
+            OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
+            OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
+            OUTROW.CUSTOULTENTFISCAL  := DADOS.CUSTOULTENTFISCAL;
+            OUTROW.NUMTRANSITEM       := DADOS.NUMTRANSITEM;
+            OUTROW.STATUS             := DADOS.STATUS;
+            OUTROW.CUSTOULTENTFIN     := DADOS.CUSTOULTENTFIN;
+            OUTROW.CUSTOULTENTSEMST   := DADOS.CUSTOULTENTSEMST;
+            OUTROW.CUSTOULTENTFINSEMST:= DADOS.CUSTOULTENTFINSEMST;
+            OUTROW.CUSTOULTENTLIQ     := DADOS.CUSTOULTENTLIQ;
+            OUTROW.CUSTOFINSEMST      := DADOS.CUSTOFINSEMST;
+            OUTROW.CUSTOREALLIQ       := DADOS.CUSTOREALLIQ;
+
             pipe row(OUTROW);
           END LOOP;
  END IF;
@@ -752,7 +765,9 @@ BEGIN
                           PDESCONS_CUSTO_NFENTCANC,
                           PDESCONS_ENT_AJUSTE_ER,
                           PDESCONS_ITEM_BRINDE,
-                          PSTATUSPROD
+                          PSTATUSPROD,
+                          PCONSCUSTODEVENT_ENTVINC,
+                          PSOMENTEENTRADAS
                           );
 
           V_CODPROD := -1;
@@ -814,11 +829,18 @@ BEGIN
                                MOV.HORALANC,
                                MOV.NCM, -- NÃO EXIBE NENHUMA INFORMAÇÃO
                                MOV.POSSE,-- NÃO EXIBE NENHUMA INFORMAÇÃO
-                               MOV.DTMOVLOG, 
+                               MOV.DTMOVLOG,
                                MOV.CUSTOFISCAL,
                                ESTOQUE.CUSTOFISCAL AS CUSTOFISCAL_ESTOQUE,
-							   MOV.CUSTOULTENTFISCAL,
-							   MOV.NUMTRANSITEM
+                               MOV.CUSTOULTENTFISCAL,
+                               MOV.NUMTRANSITEM,
+                               MOV.CUSTOREALLIQ,
+                               MOV.CUSTOFINSEMST,
+                               MOV.CUSTOULTENTFIN,
+                               MOV.CUSTOULTENTSEMST,
+                               MOV.CUSTOULTENTFINSEMST,
+                               MOV.CUSTOULTENTLIQ,
+                               MOV.STATUS
                   FROM (SELECT TIPO
                               ,SEQMOV
                               ,BASECUSTOCONT
@@ -863,8 +885,15 @@ BEGIN
                               ,'' AS POSSE
                               ,DTMOVLOG
                               ,CUSTOFISCAL
-							  ,CUSTOULTENTFISCAL
-							  ,NUMTRANSITEM
+                              ,CUSTOULTENTFISCAL
+                              ,NUMTRANSITEM
+                              ,CUSTOREALLIQ
+                              ,CUSTOFINSEMST
+                              ,CUSTOULTENTFIN
+                              ,CUSTOULTENTSEMST
+                              ,CUSTOULTENTFINSEMST
+                              ,CUSTOULTENTLIQ
+                              ,STATUS
                           FROM PCDADOS1070_TEMP
                          WHERE DATA BETWEEN PDTINICIO AND PDTFIM) MOV,
                              (SELECT PCPRODUT.CODPROD,
@@ -884,7 +913,7 @@ BEGIN
                                      NVL(HISTEST.CUSTOULTENT, 0) CUSTOULTENT,
                                      NVL(HISTEST.CUSTOULTENTCONT, 0) CUSTOULTENTCONT,
                                      NVL(HISTEST.VALORULTENT, 0) VALORULTENT,
-                                     NVL(HISTEST.CUSTOFISCAL, 0) CUSTOFISCAL,                                     
+                                     NVL(HISTEST.CUSTOFISCAL, 0) CUSTOFISCAL,
                                      HISTEST.DATA
                               FROM (SELECT CODPROD,
                                            QTEST,
@@ -898,7 +927,7 @@ BEGIN
                                            CUSTOULTENT,
                                            CUSTOULTENTCONT,
                                            VALORULTENT,
-                                           TIPOMERC, 
+                                           TIPOMERC,
                                            CUSTOFISCAL
                                     FROM PCHISTEST
                                     WHERE DATA      = V_DATA_INVENTARIO
@@ -911,13 +940,13 @@ BEGIN
                                                    WHEN PSTATUSPROD = 'T'
                                                       THEN 'S'
                                                    WHEN PSTATUSPROD = 'A'
-                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO) 
+                                                        AND (PCHISTEST.DTEXCLUSAOPROD IS NULL OR DTEXCLUSAOPROD > V_DATA_INVENTARIO)
                                                       THEN 'S'
                                                    WHEN PSTATUSPROD = 'I'
                                                          AND (PCHISTEST.DTEXCLUSAOPROD IS NOT NULL AND DTEXCLUSAOPROD <= V_DATA_INVENTARIO)
                                                       THEN 'N'
                                                    ELSE 'N'
-                                               END = 'S') 
+                                               END = 'S')
                                       ) HISTEST,
                                    PCPRODUT
                               WHERE PCPRODUT.CODPROD = HISTEST.CODPROD(+)
@@ -952,7 +981,7 @@ BEGIN
                 END if;
               END if;
 
-              if (V_UTILIZA_CUSTO_ULTIMA_ENTRADA) or 
+              if (V_UTILIZA_CUSTO_ULTIMA_ENTRADA) or
                  (NVL(V_CUSTOMEDIO, 0) = 0)
               then
                 case PTIPOCUSTO
@@ -973,12 +1002,12 @@ BEGIN
                   when 7 then
                     V_CUSTOMEDIO := DADOS.CUSTOFISCAL_ESTOQUE;
                   when 8 then
-                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT_ESTOQUE;                    
+                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT_ESTOQUE;
                 END case; END if;
 
               if V_CUSTOMEDIO <= 0
               then
-                case PTIPOCUSTO 
+                case PTIPOCUSTO
                   when 0 then
                     V_CUSTOMEDIO := DADOS.CUSTOCONT;
                   when 1 then
@@ -996,7 +1025,7 @@ BEGIN
                   when 7 then
                     V_CUSTOMEDIO := DADOS.CUSTOFISCAL;
                   when 8 then
-                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT;  
+                    V_CUSTOMEDIO := DADOS.CUSTOULTENTCONT;
                 END case; END if;
 
               V_CUSTOMEDIO := ROUND(V_CUSTOMEDIO, PNUMCASAS_UNIT);
@@ -1039,8 +1068,8 @@ BEGIN
                   when 7 then
                     V_CUSTOUTILIZAR := DADOS.CUSTOFISCAL;
                   when 8 then
-                    V_CUSTOUTILIZAR := DADOS.CUSTOULTENTCONT;   
-                END case;  
+                    V_CUSTOUTILIZAR := DADOS.CUSTOULTENTCONT;
+                END case;
 
                 case PTIPOCUSTO
                   when 0 then
@@ -1120,37 +1149,37 @@ BEGIN
                 V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) *
                                            V_CUSTOSAIDA,
                                            PNUMCASAS_TOTAL);
-                                           
+
                 ---------------------------------------------------------------------------------------------
                 -- MUDANDO CUSTO DA SAIDA DEVOLUÇÃO A FORNECEDOR SE PARAMETRO PCONSCUSTODEVENT_ENTVINC = S
                 if PCONSCUSTODEVENT_ENTVINC = 'S' then
-                 -- SAIDA DEVOLUÇÃO A FORNECEDOR -- 
+                 -- SAIDA DEVOLUÇÃO A FORNECEDOR --
                    if (DADOS.CODOPER = 'SD') then
-    			         begin
-                      SELECT max(MC.CUSTOULTENTCONT) 
+                   begin
+                      SELECT max(MC.CUSTOULTENTCONT)
                         INTO V_CUSTOSAIDA
-                        FROM PCMOV M, PCMOVCOMPLE MC 
-                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM 
+                        FROM PCMOV M, PCMOVCOMPLE MC
+                       WHERE M.NUMTRANSITEM = MC.NUMTRANSITEM
                          AND M.CODPROD = DADOS.CODPROD
-                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT 
-    					                                  FROM PCDEVFORNEC F 
-    									                         WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
-    		            exception 
+                         AND M.NUMTRANSENT = (SELECT F.NUMTRANSENT
+                                                FROM PCDEVFORNEC F
+                                               WHERE F.NUMTRANSVENDA = DADOS.NUMTRANSVENDA);
+                    exception
                        when NO_DATA_FOUND THEN
                        V_CUSTOSAIDA := V_CUSTOMEDIO; -- Se não retornar o custo vincualdo, então volta o custo do processo atual
-                    end;   
-                      
-                      IF NVL(V_CUSTOSAIDA,0) = 0 THEN 
+                    end;
+
+                      IF NVL(V_CUSTOSAIDA,0) = 0 THEN
                          V_CUSTOSAIDA := V_CUSTOMEDIO;
-                      END IF;                 				   
-                      
+                      END IF;
+
                       V_CUSTOSAIDA := ROUND(V_CUSTOSAIDA, PNUMCASAS_UNIT);
-                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) * 
+                      V_CUSTOTOTALSAIDA := ROUND(ROUND(DADOS.QTSAIDA, PNUMCASAS_QT) *
                                                        V_CUSTOSAIDA,
                                                        PNUMCASAS_TOTAL);
                    end if;
                 end if;
-                ---------------------------------------------------------------------------------------------            
+                ---------------------------------------------------------------------------------------------
               END if;
             END if;
             --    V_RETORNO.extEND;
@@ -1225,8 +1254,17 @@ BEGIN
             OUTROW.POSSE         := DADOS.POSSE;
             OUTROW.DTMOVLOG      := DADOS.DTMOVLOG;
             OUTROW.CUSTOFISCAL   := DADOS.CUSTOFISCAL;
-			OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
-			OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
+            OUTROW.CUSTOULTENTFISCAL := DADOS.CUSTOULTENTFISCAL;
+            OUTROW.NUMTRANSITEM  := DADOS.NUMTRANSITEM;
+            OUTROW.CUSTOULTENTFISCAL  := DADOS.CUSTOULTENTFISCAL;
+            OUTROW.NUMTRANSITEM       := DADOS.NUMTRANSITEM;
+            OUTROW.STATUS             := DADOS.STATUS;
+            OUTROW.CUSTOULTENTFIN     := DADOS.CUSTOULTENTFIN;
+            OUTROW.CUSTOULTENTSEMST   := DADOS.CUSTOULTENTSEMST;
+            OUTROW.CUSTOULTENTFINSEMST:= DADOS.CUSTOULTENTFINSEMST;
+            OUTROW.CUSTOULTENTLIQ     := DADOS.CUSTOULTENTLIQ;
+            OUTROW.CUSTOFINSEMST      := DADOS.CUSTOFINSEMST;
+            OUTROW.CUSTOREALLIQ       := DADOS.CUSTOREALLIQ;
             pipe row(OUTROW);
           END LOOP;
  END IF;
@@ -1239,7 +1277,7 @@ EXCEPTION
                             CHR(13) || 'ERRO ORIGINAL: ' || sqlerrm);
 END;
 ----------------------------------------------//----------------------------------------------//----------------------------------------------//----------------------------------------------//
--- Últimas Alterações: 
+-- Últimas Alterações:
 -- Alt.: 17/04/2025 - Implementado novo parametro "PCONSCUSTODEVENT_ENTVINC". Ele irá substituir o custo do produto na saída devolução de compra para o custo vinculado na pcdevfornec, se não tiver vinculo, mantem-se o processo atual.
 -- Alt.: 05/09/2024 - Implementado ajuste em todos sqls na parte do StatusProd.
 -- Alt.: 22/01/2024 - Voltando a lista de custos de 1 a 6 e acrescentando o custo fiscal na posição 7

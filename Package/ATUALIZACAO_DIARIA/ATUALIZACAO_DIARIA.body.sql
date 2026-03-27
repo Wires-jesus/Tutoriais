@@ -2909,7 +2909,7 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
     VPARAMCODCLIPC NUMBER := 0;
 
     V_SQL    VARCHAR2(10000);
-    V_SQLAUX VARCHAR2(10000);    
+    V_SQLAUX VARCHAR2(20000);
 
     --PROCEDURE DE LOG
     PROCEDURE GRAVALOGJOB(P_MODULO     IN VARCHAR2,
@@ -2998,434 +2998,190 @@ PROCEDURE PC_CONSOLIDA_PLANOVOO(PDTINICIO    IN DATE,
                 ' / ' || PCODFILIAL);
 
     VQTDECOMMIT := 0;
-    
+
     -- GARANTE ALGUM TRANSACTION ABERTO ANTERIORMENTE pelo aplicativo
-    ROLLBACK;  
+    ROLLBACK;
+
     
-    FOR REGISTRO IN (SELECT CODIGO
-                       FROM PCFILIAL
-                      WHERE CODIGO <> '99'
-                        AND DTEXCLUSAO IS NULL
-                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
-    LOOP
-      V_SQL := 'SELECT
-              VENDAS.CODFILIAL,
-              VENDAS.CODPROD,
-              VENDAS.DTSAIDA DTMOV,
-              SUM(VENDAS.VLVENDA) VLVENDA,
-              SUM(VENDAS.VLCUSTOFINB) VLCUSTOFIN,
-              SUM(VENDAS.VLCUSTOREAL) VLCUSTOREAL,
-              SUM(VENDAS.VLCUSTOREP) VLCUSTOREP,
-              SUM(VENDAS.VLCUSTOCONT) VLCUSTOCONT,
-              SUM(VENDAS.QTVENDA) QTVENDA,
-              COUNT(DISTINCT(DECODE(VENDAS.CODOPER,
-                                    ''S'',
-                                    VENDAS.NUMNOTA,
-                                    ''SM'',
-                                    VENDAS.NUMNOTA,
-                                    0))) QTNOTA,
-              SUM(VENDAS.QTENT) QTENT,
-              SUM(VENDAS.VLENT) VLENT,
-              SUM(VENDAS.VLDEVOLCLI) VLDEVOLCLI,
-              SUM(VENDAS.QTBONIFIC) QTBONIFIC,
-              SUM(VENDAS.VLBONIFIC) VLBONIFIC,
-              SUM(VENDAS.QTDEVOLCLI) QTDEVOLCLI,
-              SUM(NVL(VENDAS.ICMSRETIDO,0)) ST,
-              SUM(NVL(VENDAS.VLIPI,0)) VLIPI,
-              SUM(NVL(VENDAS.VLREPASSE,0)) VLREPASSE,
-              SUM(VENDAS.VLCUSTOFINBONIF) VLCUSTOFINBONIF,
-              SUM(VENDAS.ICMSRETIDOBONIFIC) STBONIFICACAO,
-              SUM(VENDAS.VLIPIBONIFIC) VLIPIBONIFICACAO
-              --FIN-2983
-              , SUM(VENDAS.VLVERBACMV) AS VLVERBACMV
-              , SUM(VENDAS.VLVERBACMVCLI) AS VLVERBACMVCLI
-              , SUM((SELECT NVL(SUM(NVL(PCAPLICVERBAPEDI.VLVERBACMV,0)* NVL(I.QT, 0)) , 0)
-                     FROM PCAPLICVERBAPEDI, PCPEDI I
-                     WHERE PCAPLICVERBAPEDI.NUMPED = VENDAS.NUMPED
-                     AND PCAPLICVERBAPEDI.NUMPED = I.NUMPED
-                     AND PCAPLICVERBAPEDI.CODPROD = I.CODPROD
-                     AND PCAPLICVERBAPEDI.CODPROD = VENDAS.CODPROD)) AS VLVERBACMVAVULSO
-         FROM (VIEW_VENDAS_RESUMO_FATURAMENTO) VENDAS, PCFILIAL
-        WHERE VENDAS.CODFILIAL = PCFILIAL.CODIGO
-          AND VENDAS.DTSAIDA BETWEEN :P_PDTINICIO AND :P_PDTTERMINO
-          AND NVL(VENDAS.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
-          AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
-          AND PCFILIAL.CONSOLIDADADOS504 = ''S'' ';
-
-      IF (PLISTACODIGO IS NOT NULL) THEN
-        V_SQL := V_SQL || ' AND VENDAS.CODPROD IN (' || PLISTACODIGO || ')';
-      END IF;
-
-      --IF (PCODFILIAL IS NOT NULL) THEN
-        V_SQL := V_SQL || ' AND VENDAS.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
-      --END IF;
-
-      V_SQL := V_SQL ||
-               ' GROUP BY VENDAS.CODFILIAL, VENDAS.CODPROD, VENDAS.DTSAIDA';
-      V_SQL := V_SQL ||
-               ' ORDER BY VENDAS.CODFILIAL, VENDAS.DTSAIDA, VENDAS.CODPROD';         
-
-      GRAVALOGJOB('CONSOLIDACAODADOS',
-                  NULL,
-                  NULL,
-                  SYSDATE,
-                  'INICIO CONSOLIDACAO',
-                  TO_CHAR(PDTINICIO, 'DD/MM/YYYY') || ' / ' ||
-                  TO_CHAR(PDTTERMINO, 'DD/MM/YYYY') || ' / ' || POPCAO ||
-                  ' / ' || PCODFILIAL);     
-
-      VFUNCAO := 'Produtos';    
-      
-      begin      
-        PKG_PARAMETRO_CONTABIL.SET_CODFILIAL(REGISTRO.CODIGO);
-        PKG_PARAMETRO_CONTABIL.SET_DATA1(PDTINICIO);
-        PKG_PARAMETRO_CONTABIL.SET_DATA2(PDTTERMINO);  
-      end;
-      
-      OPEN CURSOR_MOVIMENTACAO FOR V_SQL
-        USING PDTINICIO, PDTTERMINO;
-      LOOP
-        FETCH CURSOR_MOVIMENTACAO
-          INTO ITENS_PCMOV;
-        EXIT WHEN CURSOR_MOVIMENTACAO%NOTFOUND;
-
-        VCODFORNEC    := 0;
-        VCODEPTO      := 0;
-        VCODSEC       := 0;
-        VCODPRODPRINC := 0;
-        VQTESTGER     := 0;
-        VCUSTOFIN     := 0;
-        VCUSTOREAL    := 0;
-        VCUSTOREP     := 0;
-        VCUSTOCONT    := 0;
-
-        --PRIMEIRO PROCURA OS REGISTROS NA TABELA PCHISTESTFILA E CASO NÃO EXISTA PEGA DA PCHISTEST
-        BEGIN
-          SELECT PCPRODUT.CODFORNEC,
-                 PCPRODUT.CODEPTO,
-                 DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
-                        0,
-                        PCPRODUT.CODPROD,
-                        PCPRODUT.CODPRODPRINC),
-                 PCPRODUT.CLASSE,
-                 PCPRODUT.CODSEC,
-                 PCHISTESTFILA.QTESTGER,
-                 PCHISTESTFILA.CUSTOFIN,
-                 PCHISTESTFILA.CUSTOREAL,
-                 PCHISTESTFILA.CUSTOREP,
-                 PCHISTESTFILA.CUSTOCONT
-          INTO VCODFORNEC,
-               VCODEPTO,
-               VCODPRODPRINC,
-               VCLASSE,
-               VCODSEC,
-               VQTESTGER,
-               VCUSTOFIN,
-               VCUSTOREAL,
-               VCUSTOREP,
-               VCUSTOCONT
-          FROM PCHISTESTFILA, PCPRODUT
-          WHERE PCHISTESTFILA.CODPROD = PCPRODUT.CODPROD
-          AND PCHISTESTFILA.CODFILIAL = ITENS_PCMOV.CODFILIAL
-          AND PCHISTESTFILA.CODPROD = ITENS_PCMOV.CODPROD
-          AND PCHISTESTFILA.DATA = ITENS_PCMOV.DTMOV;
-        EXCEPTION
-          WHEN OTHERS THEN
-            BEGIN
-              SELECT PCPRODUT.CODFORNEC,
-                     PCPRODUT.CODEPTO,
-                     DECODE(NVL(PCPRODUT.CODPRODPRINC, 0),
-                            0,
-                            PCPRODUT.CODPROD,
-                            PCPRODUT.CODPRODPRINC),
-                     PCPRODUT.CLASSE,
-                     PCPRODUT.CODSEC,
-                     PCHISTEST.QTESTGER,
-                     PCHISTEST.CUSTOFIN,
-                     PCHISTEST.CUSTOREAL,
-                     PCHISTEST.CUSTOREP,
-                     PCHISTEST.CUSTOCONT
-              INTO VCODFORNEC,
-                   VCODEPTO,
-                   VCODPRODPRINC,
-                   VCLASSE,
-                   VCODSEC,
-                   VQTESTGER,
-                   VCUSTOFIN,
-                   VCUSTOREAL,
-                   VCUSTOREP,
-                   VCUSTOCONT
-              FROM PCHISTEST, PCPRODUT
-              WHERE PCHISTEST.CODPROD = PCPRODUT.CODPROD
-              AND PCHISTEST.CODFILIAL = ITENS_PCMOV.CODFILIAL
-              AND PCHISTEST.CODPROD = ITENS_PCMOV.CODPROD
-              AND PCHISTEST.DATA = ITENS_PCMOV.DTMOV;
-            EXCEPTION
-              WHEN OTHERS THEN
-                NULL;
-          END;
-        END;
-
-        INSERT INTO PCDTPROD
-          (CODFILIAL,
-           CODPROD,
-           DTMOV,
-           CODEPTO,
-           CODFORNEC,
-           VLVENDA,
-           VLCUSTOFIN,
-           VLCUSTOREAL,
-           VLCUSTOREP,
-           VLCUSTOCONT,
-           QTVENDA,
-           QTNOTA,
-           VLENT,
-           QTENT,
-           QTDEVOLCLI,
-           VLDEVOLCLI,
-           QTBONIFIC,
-           VLBONIFIC,
-           CODPRODPRINC,
-           CLASSE,
-           CODSEC,
-           QTESTGER,
-           CUSTOFIN,
-           CUSTOREAL,
-           CUSTOREP,
-           CUSTOCONT,
-           ST,
-           VLIPI,
-           VLREPASSE,
-           VLCUSTOFINBONIF,
-           STBONIFICACAO,
-           VLIPIBONIFICACAO
-           --FIN-2983
-           ,VLVERBACMV
-           ,VLVERBACMVCLI
-           ,VLVERBACMVAVULSO
-           )
-        VALUES
-          (ITENS_PCMOV.CODFILIAL,
-           ITENS_PCMOV.CODPROD,
-           ITENS_PCMOV.DTMOV,
-           VCODEPTO,
-           VCODFORNEC,
-           ITENS_PCMOV.VLVENDA,
-           ITENS_PCMOV.VLCUSTOFIN,
-           ITENS_PCMOV.VLCUSTOREAL,
-           ITENS_PCMOV.VLCUSTOREP,
-           ITENS_PCMOV.VLCUSTOCONT,
-           ITENS_PCMOV.QTVENDA,
-           ITENS_PCMOV.QTNOTA,
-           ITENS_PCMOV.VLENT,
-           ITENS_PCMOV.QTENT,
-           ITENS_PCMOV.QTDEVOLCLI,
-           ITENS_PCMOV.VLDEVOLCLI,
-           ITENS_PCMOV.QTBONIFIC,
-           ITENS_PCMOV.VLBONIFIC,
-           VCODPRODPRINC,
-           VCLASSE,
-           VCODSEC,
-           VQTESTGER,
-           VCUSTOFIN,
-           VCUSTOREAL,
-           VCUSTOREP,
-           VCUSTOCONT,
-           ITENS_PCMOV.ST,
-           ITENS_PCMOV.VLIPI,
-           ITENS_PCMOV.VLREPASSE,
-           ITENS_PCMOV.VLCUSTOFINBONIF ,
-           ITENS_PCMOV.STBONIFICACAO,
-           ITENS_PCMOV.VLIPIBONIFICACAO
-           --FIN-2983
-           ,ITENS_PCMOV.VLVERBACMV
-           ,ITENS_PCMOV.VLVERBACMVCLI
-           ,ITENS_PCMOV.VLVERBACMVAVULSO
-           );
-
-        VQTDECOMMIT := VQTDECOMMIT + 1;
-
-        IF VQTDECOMMIT > 1000 THEN
-          COMMIT;
-          VQTDECOMMIT := 0;
-        END IF;
-      END LOOP;
-      COMMIT;
-      VQTDECOMMIT := 0;
-    END LOOP;
-    ---------------------------------------------------------------------------------------------
-
-    VQTDECOMMIT := 0;
-
-    -- Gera log da execucao da consolidacao
-    GRAVALOGJOB('CONSOLIDACAODADOS',
-                VFUNCAO,
-                'PV',
-                SYSDATE,
-                'TERMINO CONSOLIDACAO',
-                PCODFILIAL);
-
-    --GRAVAÇÃO DE ESTOQUE - CASO NÃO TENHA VENDA DO PRODUTO
-    --PRIMEIRO GRAVA PEGANDO REGISTRO DA TABELA PCHISTESTFILA
-    FOR REGISTRO IN (SELECT CODIGO
-                       FROM PCFILIAL
-                      WHERE CODIGO <> '99'
-                        AND DTEXCLUSAO IS NULL
-                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL)
-                      ORDER BY CODIGO)
-    LOOP
-        V_SQL := 'INSERT INTO PCDTPROD (CODFILIAL,
-										CODPROD,
-										DTMOV,
-										CODEPTO,
-										CODFORNEC,
-										VLVENDA,
-										VLCUSTOFIN,
-										VLCUSTOREAL,
-										VLCUSTOREP,
-										VLCUSTOCONT,
-										QTVENDA,
-										QTNOTA,
-										VLENT,
-										QTENT,
-										QTDEVOLCLI,
-										VLDEVOLCLI,
-										CODPRODPRINC,
-										CLASSE,
-										CODSEC,
-										QTESTGER,
-										CUSTOFIN,
-										CUSTOREAL,
-										CUSTOREP,
-										CUSTOCONT)
-                  SELECT PCHISTESTFILA.CODFILIAL,
-                         PCPRODUT.CODPROD,
-                         PCHISTESTFILA.DATA,
-                         PCPRODUT.CODEPTO,
-                         PCPRODUT.CODFORNEC,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         0,
-                         PCPRODUT.CODPRODPRINC,
-                         PCPRODUT.CLASSE,
-                         PCPRODUT.CODSEC,
-                         PCHISTESTFILA.QTESTGER,
-                         PCHISTESTFILA.CUSTOFIN,
-                         PCHISTESTFILA.CUSTOREAL,
-                         PCHISTESTFILA.CUSTOREP,
-                         PCHISTESTFILA.CUSTOCONT
-                  FROM   PCFILIAL,
-                         PCHISTESTFILA,
-                         PCPRODUT
-                  WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
-                  AND    PCHISTESTFILA.CODFILIAL    = PCFILIAL.CODIGO
-                  AND    PCHISTESTFILA.CODPROD      = PCPRODUT.CODPROD
-                  AND    PCHISTESTFILA.DATA         = :PDTTERMINO
-                  AND NOT EXISTS( SELECT 1
-                                  FROM   PCDTPROD
-                                  WHERE  DTMOV      = PCHISTESTFILA.DATA                                  
-                                  AND    CODFILIAL  = ''' || REGISTRO.CODIGO || '''
-                                  AND    CODPROD    = PCPRODUT.CODPROD)
-                  AND    PCFILIAL.CODIGO    		= ''' || REGISTRO.CODIGO || '''';
+     V_SQLAUX := 'MERGE INTO PCDTPROD DESTINO
+USING (
     
+    WITH FILIAIS AS (
+        SELECT CODIGO FROM PCFILIAL
+        WHERE CODIGO <> ''99''
+          AND DTEXCLUSAO IS NULL
+          AND CONSOLIDADADOS504 = ''S''        
+          AND (DECODE(:PCODFILIAL, ''99'', NULL, :PCODFILIAL) IS NULL OR CODIGO = :PCODFILIAL)
+    ),
+    
+   
+    VENDAS AS (
+        SELECT 
+            V.CODFILIAL, V.CODPROD, V.DTSAIDA AS DTMOV,
+            SUM(V.VLVENDA) AS VLVENDA,
+            SUM(V.VLCUSTOFINB) AS VLCUSTOFIN,
+            SUM(V.VLCUSTOREAL) AS VLCUSTOREAL,
+            SUM(V.VLCUSTOREP) AS VLCUSTOREP,
+            SUM(V.VLCUSTOCONT) AS VLCUSTOCONT,
+            SUM(V.QTVENDA) AS QTVENDA,
+            COUNT(DISTINCT(DECODE(V.CODOPER, ''S'', V.NUMNOTA, ''SM'', V.NUMNOTA, 0))) AS QTNOTA,
+            SUM(V.QTENT) AS QTENT,
+            SUM(V.VLENT) AS VLENT,
+            SUM(V.VLDEVOLCLI) AS VLDEVOLCLI,
+            SUM(V.QTBONIFIC) AS QTBONIFIC,
+            SUM(V.VLBONIFIC) AS VLBONIFIC,
+            SUM(V.QTDEVOLCLI) AS QTDEVOLCLI,
+            SUM(NVL(V.ICMSRETIDO, 0)) AS ST,
+            SUM(NVL(V.VLIPI, 0)) AS VLIPI,
+            SUM(NVL(V.VLREPASSE, 0)) AS VLREPASSE,
+            SUM(V.VLCUSTOFINBONIF) AS VLCUSTOFINBONIF,
+            SUM(V.ICMSRETIDOBONIFIC) AS STBONIFICACAO,
+            SUM(V.VLIPIBONIFIC) AS VLIPIBONIFICACAO,
+            SUM(V.VLVERBACMV) AS VLVERBACMV,
+            SUM(V.VLVERBACMVCLI) AS VLVERBACMVCLI,
+            SUM((SELECT NVL(SUM(NVL(A.VLVERBACMV,0) * NVL(I.QT, 0)), 0)
+                 FROM PCAPLICVERBAPEDI A, PCPEDI I
+                 WHERE A.NUMPED = V.NUMPED AND A.NUMPED = I.NUMPED 
+                 AND A.CODPROD = I.CODPROD AND A.CODPROD = V.CODPROD)) AS VLVERBACMVAVULSO
+        FROM VIEW_VENDAS_RESUMO_FATURAMENTO V, FILIAIS F 
+        WHERE V.CODFILIAL = F.CODIGO
+          AND  V.DTSAIDA BETWEEN :PDTINICIO AND :PDTTERMINO
+          AND NVL(V.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
+          AND V.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732) ';
+          -- AND V.CODPROD IN (:P_LISTACODIGO) -- Adicionar com IF
+          IF (PLISTACODIGO IS NOT NULL) THEN
+            V_SQLAUX := V_SQLAUX || ' AND CODPROD IN ( ' || PLISTACODIGO || ')';
+          END IF;
+          
+     V_SQLAUX := V_SQLAUX || '   GROUP BY V.CODFILIAL, V.CODPROD, V.DTSAIDA
+    ),
+    
+    ESTOQUE AS (
+        SELECT CODFILIAL, CODPROD, DATA, QTESTGER, CUSTOFIN, CUSTOREAL, CUSTOREP, CUSTOCONT
+        FROM (
+            SELECT CODFILIAL, CODPROD, DATA, QTESTGER, CUSTOFIN, CUSTOREAL, CUSTOREP, CUSTOCONT,
+                   ROW_NUMBER() OVER (PARTITION BY CODFILIAL, CODPROD, DATA ORDER BY PRIORIDADE ASC) AS RN
+            FROM (
+                SELECT CODFILIAL, CODPROD, DATA, QTESTGER, CUSTOFIN, CUSTOREAL, CUSTOREP, CUSTOCONT, 1 AS PRIORIDADE
+                FROM PCHISTESTFILA
+                WHERE DATA BETWEEN :PDTINICIO AND :PDTTERMINO ';
+                IF (PLISTACODIGO IS NOT NULL) THEN
+                  V_SQLAUX := V_SQLAUX || ' AND CODPROD IN ( ' || PLISTACODIGO || ')';
+                END IF;
+             V_SQLAUX := V_SQLAUX || '     UNION ALL
+                SELECT CODFILIAL, CODPROD, DATA, QTESTGER, CUSTOFIN, CUSTOREAL, CUSTOREP, CUSTOCONT, 2 AS PRIORIDADE
+                FROM PCHISTEST
+                WHERE DATA BETWEEN :PDTINICIO AND :PDTTERMINO ';
+                IF (PLISTACODIGO IS NOT NULL) THEN
+                  V_SQLAUX := V_SQLAUX || ' AND CODPROD IN ( ' || PLISTACODIGO || ')';
+                END IF;
+                
+          V_SQLAUX := V_SQLAUX || '  )
+        ) WHERE RN = 1
+    ),
+
+   
+    PRODUTOS AS (
+        SELECT CODPROD, CODFORNEC, CODEPTO, CLASSE, CODSEC,
+               DECODE(NVL(CODPRODPRINC, 0), 0, CODPROD, CODPRODPRINC) AS CODPRODPRINC
+        FROM PCPRODUT ';
         IF (PLISTACODIGO IS NOT NULL) THEN
-          V_SQL := V_SQL || ' AND PCHISTESTFILA.CODPROD IN ( ' || PLISTACODIGO || ')';
-        END IF;    
-        
-        EXECUTE immediate V_SQL USING PDTTERMINO;
+        V_SQLAUX := V_SQLAUX || ' WHERE CODPROD IN ( ' || PLISTACODIGO || ')';
+        END IF; 
+    V_SQLAUX := V_SQLAUX || ' ),
     
-        COMMIT;
-    END LOOP;
+   
+    BASE_UNIFICADA AS (
+       
+        SELECT 
+            V.CODFILIAL, V.CODPROD, V.DTMOV, P.CODFORNEC, P.CODEPTO, P.CODPRODPRINC, P.CLASSE, P.CODSEC,
+            V.VLVENDA, V.VLCUSTOFIN, V.VLCUSTOREAL, V.VLCUSTOREP, V.VLCUSTOCONT, V.QTVENDA, V.QTNOTA, 
+            V.VLENT, V.QTENT, V.QTDEVOLCLI, V.VLDEVOLCLI, V.QTBONIFIC, V.VLBONIFIC, V.ST, V.VLIPI, 
+            V.VLREPASSE, V.VLCUSTOFINBONIF, V.STBONIFICACAO, V.VLIPIBONIFICACAO, V.VLVERBACMV, 
+            V.VLVERBACMVCLI, V.VLVERBACMVAVULSO,
+            NVL(E.QTESTGER, 0) AS QTESTGER, NVL(E.CUSTOFIN, 0) AS CUSTOFIN, NVL(E.CUSTOREAL, 0) AS CUSTOREAL, 
+            NVL(E.CUSTOREP, 0) AS CUSTOREP, NVL(E.CUSTOCONT, 0) AS CUSTOCONT
+        FROM VENDAS V,PRODUTOS P, ESTOQUE E 
+		WHERE V.CODPROD = P.CODPROD
+        AND V.CODFILIAL = E.CODFILIAL AND V.CODPROD = E.CODPROD AND V.DTMOV = E.DATA
+        
+        UNION ALL
+        
+        
+        SELECT 
+            E.CODFILIAL, E.CODPROD, E.DATA AS DTMOV, P.CODFORNEC, P.CODEPTO, P.CODPRODPRINC, P.CLASSE, P.CODSEC,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            E.QTESTGER, E.CUSTOFIN, E.CUSTOREAL, E.CUSTOREP, E.CUSTOCONT
+        FROM ESTOQUE E, FILIAIS F, PRODUTOS P
+        WHERE E.DATA BETWEEN :PDTINICIO AND :PDTTERMINO
+		  AND E.CODFILIAL = F.CODIGO
+		  AND E.CODPROD = P.CODPROD
+          AND NOT EXISTS (
+              SELECT 1 FROM VENDAS V 
+              WHERE V.CODFILIAL = E.CODFILIAL AND V.CODPROD = E.CODPROD AND V.DTMOV = E.DATA
+          )
+    )
+    SELECT * FROM BASE_UNIFICADA
+) ORIGEM
 
-    --CASO NÃO TENHA REGISTROS NA TABELA PCHISTESTFILA PEGA OS REGISTROS DA TABELA PCHISTEST
-    FOR REGISTRO IN (SELECT CODIGO
-                       FROM PCFILIAL
-                      WHERE CODIGO <> '99'
-                        AND DTEXCLUSAO IS NULL
-                        AND (DECODE(PCODFILIAL,'99',NULL,PCODFILIAL) IS NULL OR PCFILIAL.CODIGO = PCODFILIAL))
-    LOOP
-      V_SQL := 'INSERT INTO PCDTPROD
-                  (CODFILIAL,
-                   CODPROD,
-                   DTMOV,
-                   CODEPTO,
-                   CODFORNEC,
-                   VLVENDA,
-                   VLCUSTOFIN,
-                   VLCUSTOREAL,
-                   VLCUSTOREP,
-                   VLCUSTOCONT,
-                   QTVENDA,
-                   QTNOTA,
-                   VLENT,
-                   QTENT,
-                   QTDEVOLCLI,
-                   VLDEVOLCLI,
-                   CODPRODPRINC,
-                   CLASSE,
-                   CODSEC,
-                   QTESTGER,
-                   CUSTOFIN,
-                   CUSTOREAL,
-                   CUSTOREP,
-                   CUSTOCONT)
-                SELECT PCHISTEST.CODFILIAL,
-                       PCPRODUT.CODPROD,
-                       PCHISTEST.DATA,
-                       PCPRODUT.CODEPTO,
-                       PCPRODUT.CODFORNEC,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       0,
-                       PCPRODUT.CODPRODPRINC,
-                       PCPRODUT.CLASSE,
-                       PCPRODUT.CODSEC,
-                       PCHISTEST.QTESTGER,
-                       PCHISTEST.CUSTOFIN,
-                       PCHISTEST.CUSTOREAL,
-                       PCHISTEST.CUSTOREP,
-                       PCHISTEST.CUSTOCONT
-                FROM   PCFILIAL,
-                       PCHISTEST,
-                       PCPRODUT
-                WHERE  PCFILIAL.CONSOLIDADADOS504 = ''S''
-                AND    PCHISTEST.CODFILIAL = PCFILIAL.CODIGO
-                AND    PCHISTEST.CODPROD = PCPRODUT.CODPROD
-                AND    PCHISTEST.DATA = :PDTTERMINO
-                AND NOT EXISTS( SELECT 1
-                                FROM PCDTPROD
-                                WHERE DTMOV = PCHISTEST.DATA
-                                AND CODFILIAL = ''' || REGISTRO.CODIGO || '''
-                                AND CODPROD = PCPRODUT.CODPROD)';
+ON (    DESTINO.CODFILIAL = ORIGEM.CODFILIAL
+    AND DESTINO.DTMOV     = ORIGEM.DTMOV
+    AND DESTINO.CODPROD   = ORIGEM.CODPROD )
 
-      IF (PLISTACODIGO IS NOT NULL) THEN
-        V_SQL := V_SQL || ' AND PCHISTEST.CODPROD IN ( ' || PLISTACODIGO || ')';
-      END IF;
+WHEN MATCHED THEN 
+    UPDATE SET 
+        DESTINO.CODEPTO = ORIGEM.CODEPTO,
+        DESTINO.CODFORNEC = ORIGEM.CODFORNEC,
+        DESTINO.VLVENDA = ORIGEM.VLVENDA,
+        DESTINO.VLCUSTOFIN = ORIGEM.VLCUSTOFIN,
+        DESTINO.VLCUSTOREAL = ORIGEM.VLCUSTOREAL,
+        DESTINO.VLCUSTOREP = ORIGEM.VLCUSTOREP,
+        DESTINO.VLCUSTOCONT = ORIGEM.VLCUSTOCONT,
+        DESTINO.QTVENDA = ORIGEM.QTVENDA,
+        DESTINO.QTNOTA = ORIGEM.QTNOTA,
+        DESTINO.VLENT = ORIGEM.VLENT,
+        DESTINO.QTENT = ORIGEM.QTENT,
+        DESTINO.QTDEVOLCLI = ORIGEM.QTDEVOLCLI,
+        DESTINO.VLDEVOLCLI = ORIGEM.VLDEVOLCLI,
+        DESTINO.QTBONIFIC = ORIGEM.QTBONIFIC,
+        DESTINO.VLBONIFIC = ORIGEM.VLBONIFIC,
+        DESTINO.CODPRODPRINC = ORIGEM.CODPRODPRINC,
+        DESTINO.CLASSE = ORIGEM.CLASSE,
+        DESTINO.CODSEC = ORIGEM.CODSEC,
+        DESTINO.QTESTGER = ORIGEM.QTESTGER,
+        DESTINO.CUSTOFIN = ORIGEM.CUSTOFIN,
+        DESTINO.CUSTOREAL = ORIGEM.CUSTOREAL,
+        DESTINO.CUSTOREP = ORIGEM.CUSTOREP,
+        DESTINO.CUSTOCONT = ORIGEM.CUSTOCONT,
+        DESTINO.ST = ORIGEM.ST,
+        DESTINO.VLIPI = ORIGEM.VLIPI,
+        DESTINO.VLREPASSE = ORIGEM.VLREPASSE,
+        DESTINO.VLCUSTOFINBONIF = ORIGEM.VLCUSTOFINBONIF,
+        DESTINO.STBONIFICACAO = ORIGEM.STBONIFICACAO,
+        DESTINO.VLIPIBONIFICACAO = ORIGEM.VLIPIBONIFICACAO,
+        DESTINO.VLVERBACMV = ORIGEM.VLVERBACMV,
+        DESTINO.VLVERBACMVCLI = ORIGEM.VLVERBACMVCLI,
+        DESTINO.VLVERBACMVAVULSO = ORIGEM.VLVERBACMVAVULSO
 
-      --IF (PCODFILIAL IS NOT NULL) THEN
-        V_SQL := V_SQL || ' AND PCHISTEST.CODFILIAL = ''' || REGISTRO.CODIGO || '''';
-      --END IF;
-
-      EXECUTE immediate V_SQL USING PDTTERMINO;
-
-      COMMIT;
-    END LOOP;
+WHEN NOT MATCHED THEN 
+    INSERT (
+        CODFILIAL, CODPROD, DTMOV, CODEPTO, CODFORNEC, VLVENDA, VLCUSTOFIN, VLCUSTOREAL, VLCUSTOREP, 
+        VLCUSTOCONT, QTVENDA, QTNOTA, VLENT, QTENT, QTDEVOLCLI, VLDEVOLCLI, QTBONIFIC, VLBONIFIC, 
+        CODPRODPRINC, CLASSE, CODSEC, QTESTGER, CUSTOFIN, CUSTOREAL, CUSTOREP, CUSTOCONT, ST, VLIPI, 
+        VLREPASSE, VLCUSTOFINBONIF, STBONIFICACAO, VLIPIBONIFICACAO, VLVERBACMV, VLVERBACMVCLI, VLVERBACMVAVULSO
+    ) VALUES (
+        ORIGEM.CODFILIAL, ORIGEM.CODPROD, ORIGEM.DTMOV, ORIGEM.CODEPTO, ORIGEM.CODFORNEC, ORIGEM.VLVENDA, 
+        ORIGEM.VLCUSTOFIN, ORIGEM.VLCUSTOREAL, ORIGEM.VLCUSTOREP, ORIGEM.VLCUSTOCONT, ORIGEM.QTVENDA, 
+        ORIGEM.QTNOTA, ORIGEM.VLENT, ORIGEM.QTENT, ORIGEM.QTDEVOLCLI, ORIGEM.VLDEVOLCLI, ORIGEM.QTBONIFIC, 
+        ORIGEM.VLBONIFIC, ORIGEM.CODPRODPRINC, ORIGEM.CLASSE, ORIGEM.CODSEC, ORIGEM.QTESTGER, ORIGEM.CUSTOFIN, 
+        ORIGEM.CUSTOREAL, ORIGEM.CUSTOREP, ORIGEM.CUSTOCONT, ORIGEM.ST, ORIGEM.VLIPI, ORIGEM.VLREPASSE, 
+        ORIGEM.VLCUSTOFINBONIF, ORIGEM.STBONIFICACAO, ORIGEM.VLIPIBONIFICACAO, ORIGEM.VLVERBACMV, 
+        ORIGEM.VLVERBACMVCLI, ORIGEM.VLVERBACMVAVULSO
+    )';
+      
+    EXECUTE IMMEDIATE V_SQLAUX
+        USING PCODFILIAL, PCODFILIAL, PCODFILIAL, PDTINICIO, PDTTERMINO, PDTINICIO, PDTTERMINO, PDTINICIO, PDTTERMINO
+        ,PDTINICIO, PDTTERMINO; 
     ---------------------------------------------------------------------------------------------
 
     -- Gera log da execucao da consolidacao
