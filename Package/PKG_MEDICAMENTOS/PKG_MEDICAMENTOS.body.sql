@@ -6007,7 +6007,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                   po_nVLICMSSUBSTITUTOANTERIOR = Base do ICMS Substituto Recolhido Anteriormente
                   po_nVLICMSSTRETANTERIOR      = Valor do ST Recolhido Anteriormente
    Alteração    : Anderson Silva - 30/09/2021 - Criação da Procedure - DDMEDICA-7697
-  **********************************************************************************/                                       
+  **********************************************************************************/                                                                         
   PROCEDURE P_OBTEM_STFONTE_42(pi_vCodFilial                IN VARCHAR2,
                                pi_nCodProd                  IN NUMBER,
                                pi_nCodCli                   IN NUMBER,
@@ -6886,6 +6886,47 @@ IS PRAGMA SERIALLY_REUSABLE;
                      
           END IF; -- Fim-Se possui regra para ignorar ST com valores zerados
         END IF; -- Fim-Se Pedido TV10     
+        
+        IF NOT (vbCalculaSTFonte) THEN
+
+          IF (NVL(p_CLIENTEFONTEST,'N') <> 'S') THEN
+            p_observacaostfonte := p_observacaostfonte || ',Aborto:ClienteSemMarcacaoFonteST';
+          END IF;
+
+          IF (NVL(p_ALIQICMS1FONTE,0) <= 0) AND
+             (NVL(p_ALIQICMS2FONTE,0) <= 0) THEN
+            p_observacaostfonte := p_observacaostfonte || ',Aborto:AliquotasSTFonteZeradas';
+          END IF;
+
+          IF (NVL(p_CALCSTPF,'S') = 'N') AND (vbpessoafisica) THEN
+            IF (p_TIPOFJ = 'F') AND (NVL(p_UTILIZAIESIMPLIFICADA,'N') = 'N') THEN
+              p_observacaostfonte := p_observacaostfonte || ',Aborto:PessoaFisicaSemIESimplificada';
+            END IF;
+
+            IF (NVL(p_CONSUMIDORFINAL,'N') = 'S') THEN
+              p_observacaostfonte := p_observacaostfonte || ',Aborto:ConsumidorFinalTratadoComoPF';
+            END IF;
+
+            IF (NVL(p_CONSIDERAISENTOSCOMOPF,'N') = 'S') AND
+               (NVL(vscontribuinte,'N') = 'N') AND
+               (NVL(TRIM(p_IEENT),'#SEMIE#') IN ('#SEMIE#','ISENTO','ISENTA')) THEN
+              p_observacaostfonte := p_observacaostfonte || ',Aborto:IEIsentaOuVaziaTratadaComoPF';
+            END IF;
+          END IF;
+
+          IF (NVL(p_itembonific,'N') = 'S') AND
+             (NVL(p_medretirarstbnfestadual,'N') = 'S') AND
+             (p_uffilial = p_estent) THEN
+            p_observacaostfonte := p_observacaostfonte || ',Aborto:BonificacaoSemSTNaNFEstadual';
+          END IF;
+
+          IF (pi_nCondVenda = 10) AND
+             (NVL(vvIgnorarSTFonteTV10Zerado,'N') = 'S') THEN
+            p_observacaostfonte := p_observacaostfonte || ',Aborto:TV10SemTributacaoSTFonte';
+          END IF;
+
+        END IF;
+        
         
        /*********************************************************************************************
         *********************************************************************************************
@@ -8022,6 +8063,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           --Se ST for menor que 0, torná-lo 0
           IF vnstfonte < 0 THEN
             vnstfonte := 0;
+            
+            p_observacaostfonte := p_observacaostfonte || ',Aborto:STNegativoZerado';
+            
           -- Não zerar a Base de Cálculo do ST se o resultado do ST for zero - HIS.03187.2015
           --ELSIF vnstfonte = 0 THEN
           --  vnbcst := 0;
@@ -8038,8 +8082,8 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF nvl(p_aliqicms1fonte, 0) = 0 AND
              nvl(p_aliqicms2fonte, 0) = 0 THEN
             vnbcst := 0;
-                                                                                                                         -- Observação ST Fonte
-                                                                                                                         p_observacaostfonte := p_observacaostfonte || ',Zerada';
+            -- Observação ST Fonte
+            p_observacaostfonte := p_observacaostfonte || ',BaseSTZeradaSemAliquotaSTFonte';
           END IF;            
   
           -------------------------------------------------------------------------
@@ -8155,7 +8199,7 @@ IS PRAGMA SERIALLY_REUSABLE;
 			  IF nvl(p_aliqicms1fonte, 0) = 0 AND
 			  nvl(p_aliqicms2fonte, 0) = 0 THEN
 				vnbcst := 0;                                                           -- Observação ST Fonte
-															   p_observacaostfonte := p_observacaostfonte || ',Zerada';
+				p_observacaostfonte := p_observacaostfonte || ',BaseSTPBZeradaSemAliquotaSTFonte';
 			  END IF;
 			
 		END IF;	   
@@ -8526,6 +8570,49 @@ IS PRAGMA SERIALLY_REUSABLE;
           END IF; -- Fim-Se possui regra para ignorar ST com valores zerados
         END IF; -- Fim-Se Pedido TV10     
         
+        IF NOT (vbCalculaSTFonte) THEN
+
+          po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso');
+
+          IF (NVL(p_CLIENTEFONTEST,'N') <> 'S') THEN
+            po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:ClienteSemMarcacaoFonteST';
+          END IF;
+
+          IF (NVL(p_ALIQICMS1FONTE,0) <= 0) AND
+             (NVL(p_ALIQICMS2FONTE,0) <= 0) THEN
+            po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:AliquotasSTFonteZeradas';
+          END IF;
+
+          IF (NVL(p_CALCSTPF,'S') = 'N') AND (vbpessoafisica) THEN
+            IF (p_TIPOFJ = 'F') AND (NVL(p_UTILIZAIESIMPLIFICADA,'N') = 'N') THEN
+              po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:PessoaFisicaSemIESimplificada';
+            END IF;
+
+            IF (NVL(p_CONSUMIDORFINAL,'N') = 'S') THEN
+              po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:ConsumidorFinalTratadoComoPF';
+            END IF;
+
+            IF (NVL(p_CONSIDERAISENTOSCOMOPF,'N') = 'S') AND
+               (NVL(vscontribuinte,'N') = 'N') AND
+               (NVL(TRIM(p_IEENT),'#SEMIE#') IN ('#SEMIE#','ISENTO','ISENTA')) THEN
+              po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:IEIsentaOuVaziaTratadaComoPF';
+            END IF;
+          END IF;
+
+          IF (NVL(p_itembonific,'N') = 'S') AND
+             (NVL(p_medretirarstbnfestadual,'N') = 'S') AND
+             (p_uffilial = p_estent) THEN
+            po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:BonificacaoSemSTNaNFEstadual';
+          END IF;
+
+          IF (pi_nCondVenda = 10) AND
+             (NVL(vvIgnorarSTFonteTV10Zerado,'N') = 'S') THEN
+            po_vObservacaoStFonte := po_vObservacaoStFonte || ',Aborto:TV10SemTributacaoSTFonte';
+          END IF;
+
+        END IF;
+        
+        
        /*********************************************************************************************
         *********************************************************************************************
         **                     CALCULAR VALOR DO ST PELA ULTIMA ENTRADA                            **
@@ -8534,6 +8621,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF   (vbUsaRegraStUltimaEntrada) AND
              (vbCalculaSTFonte)          THEN -->> HIS.03788.2015 - Somente se for STFONTE
   
+          
+          po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoUltimaEntradaNaoHabilitado';
+          
           p_mensagem := 'Funcionalidade não habilitada para o ST pela última entrada';
            
        /*********************************************************************************************
@@ -8544,6 +8634,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         ELSIF (vbUsaRegraRegSimplCargaTrib) AND
               (vbCalculaSTFonte)            THEN -->> HIS.03371.2017 - Somente se for STFONTE
             
+          
+          po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoCargaTribMediaNaoHabilitada';
+          
           p_mensagem := 'Funcionalidade não habilitada para o ST pela Carga Tributária Média';
           
        /*********************************************************************************************
@@ -8685,6 +8778,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF (p_USAREDUTORCAT49BASESTFONTE = 'S') THEN
             IF (NVL(p_PERCREDUTORCAT49BASESTFONTE,0) > 0) THEN
   
+              
+              po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoRedutorCat49NaoHabilitado';
+              
               p_mensagem := 'Funcionalidade não habilitada para o ST com Redutor Cat/49';
               
             END IF;
@@ -8700,6 +8796,9 @@ IS PRAGMA SERIALLY_REUSABLE;
              (NVL(p_PRECOMAXCONSUM,0) > 0) AND
              (NOT vbRegraFciaPopular) THEN
                        
+            
+            po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoAjusteCMEDNaoHabilitado';
+            
             p_mensagem := 'Funcionalidade não habilitada para o ST com Legislação Cat/35 (Ajuste Preço CMED)';
                                          
           -----------------------------------------------
@@ -8707,6 +8806,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           -----------------------------------------------
           ELSIF (NVL(p_usaptabelabasest,'N') = 'S') THEN
   
+            
+            po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoPrecoTabelaBaseSTNaoHabilitado';
+            
             p_mensagem := 'Funcionalidade não habilitada para o ST com Preço de Tabela na Base do ST';
                                                                                                           
           -----------------------------------------------
@@ -8914,6 +9016,9 @@ IS PRAGMA SERIALLY_REUSABLE;
           IF ((p_itembonific IN ('S','F')) and -- DDMEDICA-198 - Incluir F
               (p_bnfnaocalculaicms = 'S')) THEN
   
+            
+            po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoBonificacaoSemCalculoICMS';
+            
             p_mensagem := 'Funcionalidade não habilitada para o ST com Item Bonificado';
             --p_ALIQICMS2FONTE := 0;
   
@@ -8950,12 +9055,18 @@ IS PRAGMA SERIALLY_REUSABLE;
           -- Se usa Carga Mínima de ST Fonte
           IF (p_USACARGAMINIMADEFERIMSTFONTE = 'S') THEN
                          
+            
+            po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoCargaMinimaDeferimentoNaoHabilitada';
+            
             p_mensagem := 'Funcionalidade não habilitada para o ST com Carga Mínima de Deferimento do ST Fonte';
                                                         
           END IF; -- FIM: CARGA MÍNIMA DEFERIMENTO ST FONTE - HIS.01277.2017
   
           IF (p_USAVLSTMAIORPERCMINPMC = 'S') THEN
                          
+            
+            po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoSTMaiorQuePercMinPMCNaoHabilitado';
+            
             p_mensagem := 'Funcionalidade não habilitada para o Valor de ST Maior que Percentual Mínimo sobre PMC';
                                                         
           END IF; -- FIM: CARGA MÍNIMA DEFERIMENTO ST FONTE - HIS.01277.2017  
@@ -8991,6 +9102,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                             
             ELSE
              
+              
+              po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:InversoSemAliquotaVendaCredito';
+              
               p_mensagem := 'Funcionalidade não habilitada para o ST sem Alíquota de Venda (Crédito)';
              
             END IF;
@@ -9150,6 +9264,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Calcula o ST FECP
             p_vlfecp := NVL(p_baseicst,0) * (NVL(p_aliqicmsfecp,0) / 100);
             IF (NVL(p_vlfecp,0) < 0) THEN
+              
+              po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:ValorFECPNegativoZerado';
+              
               p_vlfecp := 0;
             END IF;
             -- Arredondamento ST
@@ -9163,6 +9280,9 @@ IS PRAGMA SERIALLY_REUSABLE;
             -- Abate o FECP do ST
             vnSTFONTE := NVL(vnSTFONTE,0) - NVL(p_vlfecp,0); 
             IF (NVL(vnSTFONTE,0) < 0) THEN
+              
+              po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte.Inverso') || ',Aborto:STFonteNegativoAposAbaterFECP';
+              
               vnSTFONTE := 0;
             END IF;          
             
@@ -9512,7 +9632,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2            := 0;
         po_nIva                  := 0;
         po_nPercBaseRedStFonte   := 0;
-        po_vObservacaoStFonte    := 'Fabricante não Relevante';    
+        po_vObservacaoStFonte    := 'Fabricante não Relevante';
         
                                                                                                                                              -- Memória de Cálculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_RELEVANTE');                     
@@ -9529,7 +9649,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         po_nAliqIcms2            := 0;
         po_nIva                  := 0;
         po_nPercBaseRedStFonte   := 0;
-        po_vObservacaoStFonte    := 'Isenção BNF';
+        po_vObservacaoStFonte    := 'Isenção ST Bonificação';
   
                                                                                                                                              -- Memória de Cálculo
                                                                                                                                              P_ATU_OPCAO_MEMORIA_CALCULO('CALCULARST', 'NAO_ISEBNF');
@@ -9837,7 +9957,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             po_nVlIcmsSubstitutoAnterior := 0;
             po_nVlIcmsStRetAnterior      := 0;
           
-            po_vObservacaoStFonte := po_vObservacaoStFonte || ',STGnre';
+            po_vObservacaoStFonte := po_vObservacaoStFonte || ',STClienteGNRE';
           
           ---------------------------------------------------
           -- ST Recolhido Anteriormente (Ajuste SINIEF 01/94)
@@ -9859,7 +9979,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               po_nAliqIcms2                := 0;
               po_nIva                      := 0;
               po_nPercBaseRedStFonte       := 0;
-              po_vObservacaoStFonte        := po_vObservacaoStFonte || ',StRecolhidoAnt';
+              po_vObservacaoStFonte        := po_vObservacaoStFonte || ',STRecolhidoAnterior';
               
             -- Não está enquadrado no ST Padrão (Possui uma Exceção à Regra)
             ELSE
@@ -10789,6 +10909,13 @@ IS PRAGMA SERIALLY_REUSABLE;
   
     -- Se ocorreram erros na Função
     IF (TRIM(po_vMensagem) IS NOT NULL) THEN
+      IF (INSTR(TRIM(po_vMensagem), 'Funcionalidade não habilitada') <> 1) THEN
+        
+        po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte') ||
+                                 ',Aborto:ErroFuncao-' ||
+                                 SUBSTR(REPLACE(REPLACE(TRIM(po_vMensagem), CHR(13), ' '), ',', ';'), 1, 180);
+        
+      END IF;
       RAISE e_tratado;
     END IF;                                         
                                                              
@@ -10798,11 +10925,17 @@ IS PRAGMA SERIALLY_REUSABLE;
       po_nBaseStFonte  := 0;
       po_nValorStFonte := 0;
     WHEN e_benef_fiscais THEN
+      
+      po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte') || ',Aborto:ErroBeneficiosFiscais';
+      
       -- Sem ST
       po_nBaseStFonte  := 0;
       po_nValorStFonte := 0;
       po_vMensagem     := 'Erro Cálculo ST Fonte: ' || SUBSTR(vvMsgErrosBenefFiscais,1,240);
     WHEN OTHERS THEN  
+      
+      po_vObservacaoStFonte := NVL(po_vObservacaoStFonte, 'St.Fonte') || ',Aborto:ErroNaoTratado';
+      
       -- Sem ST
       po_nBaseStFonte  := 0;
       po_nValorStFonte := 0;
