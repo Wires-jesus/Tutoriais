@@ -334,6 +334,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
     carrega_tb_prodempresa(10);
     carrega_tb_prodcodigo(10);
     carrega_tb_prodpreco(10);
+	
+	atualiza_carrega_produto('', 'S');
     
     BEGIN
       SELECT NVL(VALOR, 'N') VALOR INTO vSimulaErro FROM PCPARAMETROS2651 WHERE NOME = 'SIMULA_ERRO_PRODUTO';
