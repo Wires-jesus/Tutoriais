@@ -85,7 +85,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_CATEGORIA",
 			"tipo": "MIGRATION",
-			"versao": "8.0.37.000"
+			"versao": "8.0.38.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
