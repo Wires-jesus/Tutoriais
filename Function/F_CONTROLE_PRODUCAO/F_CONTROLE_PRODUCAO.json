@@ -17,7 +17,7 @@
 		{
             "nome": "TIPO_CONTROLE_PRODUCAO",
             "tipo": "MIGRATION",
-            "versao": "8.0.02.000"
+            "versao": "8.0.03.000"
         }
     ]
 }
