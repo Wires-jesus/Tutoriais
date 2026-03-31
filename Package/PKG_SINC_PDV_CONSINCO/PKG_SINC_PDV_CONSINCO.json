@@ -365,7 +365,7 @@
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_TRIBUTACAO",
 		  "tipo": "MIGRATION",
-		  "versao": "8.0.25.000"
+		  "versao": "8.0.26.000"
 		},
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_PESSOA",
