@@ -305,12 +305,30 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 		END; 
   END;
   
+  PROCEDURE normatiza_famdiv_materializada AS
+  BEGIN
+    atualiza_carrega_produto('Atualizando registros(Tributação)...', 'S');
+    
+	begin DBMS_MVIEW.REFRESH('VW_INT_C5_FAMDIV_MAT'); END;
+    
+	atualiza_carrega_produto('Fim Atualizando registros(Tributação)', 'S');
+    EXCEPTION
+	  WHEN OTHERS THEN
+		BEGIN
+		  prc_record_error(0, 'NORMATIZAR VIEW VW_INT_C5_FAMDIV_MAT');
+		  ROLLBACK;            
+		  RAISE;
+		END;    
+  END;
+  
   PROCEDURE carrega_produtos(p_id IN pccontroleconsinco.id%TYPE) AS
     vSimulaErro VARCHAR2(1);
   BEGIN
     normatizar_pcdeparaprodc5;
     
     carrega_tb_familia(10);
+	normatiza_famdiv_materializada;
+	
     carrega_tb_famembalagem(10);
     carrega_tb_produto(10);
     carrega_tb_prodempresa(10);
