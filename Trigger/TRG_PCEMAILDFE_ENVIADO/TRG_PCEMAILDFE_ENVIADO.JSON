@@ -1,0 +1,16 @@
+{
+  "nome":"TRG_PCEMAILDFE_ENVIADO",
+  "tipoPLSQL":"TRIGGER",
+  "dependencias": [
+   {
+     "nome": "PCEMAILDFE",
+     "tipo":"TABELA",
+     "versao": "7.0.01.000"
+   },
+   {
+     "nome": "PCEMAILDFEENVIADO",
+     "tipo":"TABELA",
+     "versao": "7.0.01.000"
+   }
+ ]
+}
