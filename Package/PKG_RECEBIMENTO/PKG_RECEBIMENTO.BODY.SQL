@@ -1,4 +1,4 @@
-                       MAX(B.QTNF) AS QTNF, OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
+CREATE OR REPLACE PACKAGE BODY PKG_RECEBIMENTO IS
 
   PROCEDURE WMS_MOV_AJUSTE_LOTES(pCodfilial IN VARCHAR2,pNumbonus  IN NUMBER) IS
     LINHA_ORIGINAL          PCMOV%ROWTYPE;
@@ -20,7 +20,7 @@
   
   BEGIN
   
-    vQTENTRADA_AJUSTE       := 0;                       MAX(B.QTNF) AS QTNF,
+    vQTENTRADA_AJUSTE       := 0;
     vQTSAIDA_AJUSTE         := 0;
     vNUMTRANSENT            := 0;
     vNUMTRANSVENDA          := 0;
