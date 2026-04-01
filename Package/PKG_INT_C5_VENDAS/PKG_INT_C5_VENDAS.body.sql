@@ -122,7 +122,8 @@ IS
     --
     PROCEDURE processar_venda(p_seqdocto        NUMBER DEFAULT 0,
                               p_nrocheckout     NUMBER DEFAULT 0,
-                              p_nroempresa      NUMBER DEFAULT 0)
+                              p_nroempresa      NUMBER DEFAULT 0,
+							  p_idmensagem      NUMBER DEFAULT 0)
     IS
         CURSOR c_pedido
         IS                         -- CABECALHO DO PEDIDO
@@ -1047,7 +1048,8 @@ IS
         END retornar_xml_venda;
 
         -- RETORNAR_PCFILAMENSAGEM
-        FUNCTION retornar_pcfilamensagem (r_pedido c_pedido%ROWTYPE)
+        FUNCTION retornar_pcfilamensagem (r_pedido c_pedido%ROWTYPE,
+		                                  p_idmensagem NUMBER DEFAULT 0)
             RETURN tr_dados_pcfilamensagem
         IS
             dados_pcfilamensagem   tr_dados_pcfilamensagem;
@@ -1057,8 +1059,12 @@ IS
         BEGIN
             -- recebe xml da VENDA
 
-
-            dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
+            if p_idmensagem > 0 then
+			  dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
+			ELSE
+			  dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := p_idmensagem;
+			end if;
+            
             dados_pcfilamensagem.rowpcfilamensagem.datatransacao    := SYSDATE;
             dados_pcfilamensagem.rowpcfilamensagem.codfilial        := r_pedido.codfilial;
             dados_pcfilamensagem.rowpcfilamensagem.numcaixa         := r_pedido.numcaixa;
