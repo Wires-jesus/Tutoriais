@@ -1215,7 +1215,7 @@ IS
                 -- REGRAS DO CABEÇALHO DA NF DE VENDA
                 adicionarregrascabecalhonf (r_pedido);
                 -- insere os dados da PCFILAMENSAGEM
-                dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido);
+                dados_pcfilamensagem := retornar_pcfilamensagem (r_pedido, p_idmensagem);
         atualizar_pccrecli(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
                 atualizar_pcorcavendac(r_pedido.numpedecf, r_pedido.numcupom, r_pedido.seqdocto, r_pedido.numcheckout, r_pedido.nroempresa);
         inserir_pcfilamensagem(dados_pcfilamensagem);
