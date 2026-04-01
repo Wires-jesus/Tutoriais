@@ -1060,9 +1060,9 @@ IS
             -- recebe xml da VENDA
 
             if p_idmensagem > 0 then
-			  dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
-			ELSE
 			  dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := p_idmensagem;
+			ELSE
+			  dados_pcfilamensagem.rowpcfilamensagem.idmensagem       := dfseq_pcfilamensagem.NEXTVAL;
 			end if;
             
             dados_pcfilamensagem.rowpcfilamensagem.datatransacao    := SYSDATE;
