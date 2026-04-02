@@ -5,12 +5,12 @@
       {
         "nome": "PCTRIBPISCOFINS",
         "tipo": "TABELA",
-        "versao": "7.0.02.000"
+        "versao": "8.0.02.000"
       },
 	  {
         "nome": "PCTRIBPISCOFINSVIGENCIA",
         "tipo": "TABELA",
-        "versao": "7.0.02.000"
+        "versao": "8.0.02.000"
       }
     ]
 }
