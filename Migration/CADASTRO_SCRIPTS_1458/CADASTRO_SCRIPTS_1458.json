@@ -1,0 +1,16 @@
+{
+    "nome": "CADASTRO_SCRIPTS_1458",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+      {
+        "nome": "PCTRIBPISCOFINS",
+        "tipo": "TABELA",
+        "versao": "7.0.02.000"
+      },
+	  {
+        "nome": "PCTRIBPISCOFINSVIGENCIA",
+        "tipo": "TABELA",
+        "versao": "7.0.02.000"
+      }
+    ]
+}
