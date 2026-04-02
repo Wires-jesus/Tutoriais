@@ -10011,6 +10011,8 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
     vnESTOQUE_CROSSDOCK       PCEST.QTCROSSDOCK%TYPE; -- DDMEDICA-1400
     vnCONTADORREGISTROSPCMOV  NUMBER := 0;
     vnDTMOVPRIMERIO           DATE;
+    vnCODPROD_NOTA            PCEST.CODPROD%TYPE; ----DDESTOQUE-22293
+    vnQTDE_NOTA               NUMBER := 0; ----DDESTOQUE-22293
   BEGIN
     -- Limpar variável P_INTERNO
     PRIV_LIMPAR_P_INTERNO;
@@ -10108,12 +10110,14 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
                          /* Listando os produtos e seu estoque */
                          SELECT PCMOV.ROWID NOTA_ROWID,
                                 PCEST.CODPROD,
+                                PCMOV.CODPRODORIGEMTV10, ----DDESTOQUE-22293
                                 PCEST.CODFILIAL,
                                 PCMOV.CODFILIALDESTINO,
                                 PCMOV.CODOPER,
                                 PCMOV.DESCRICAO,
                                 PCMOV.STATUS,
                                 DECODE(NVL(PCMOV.QTCONT, 0),0,NVL(PCMOV.QT, 0),NVL(PCMOV.QTCONT, 0)) NOTA_QT,
+                                NVL(PCMOV.QTORIGEMTV10, 0) QTORIGEMTV10, ----DDESTOQUE-22293
                                 CASE
                                   WHEN ((MOVIMENTACAO.TIPODESCARGA = 'I') AND
                                        (NVL(MOVIMENTACAO.MOVESTOQUEIMPORT,'N') = 'I')) THEN
@@ -10521,14 +10525,22 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
       UPDATE PCMOV
          SET DATAESTOQUE = SYSDATE
        WHERE PCMOV.ROWID = REGISTROS.NOTA_ROWID;
+      -- Gravar produto origem no processo TV10 na menor unidade (processo rotina 1301 parâmetro ("Entrada na menor unidade"))
+      IF REGISTROS.CODPRODORIGEMTV10 IS NULL THEN --DDESTOQUE-22293
+        vnQTDE_NOTA := REGISTROS.NOTA_QT;
+        vnCODPROD_NOTA := REGISTROS.CODPROD;
+      ELSE
+        vnQTDE_NOTA := REGISTROS.QTORIGEMTV10;
+        vnCODPROD_NOTA := REGISTROS.CODPRODORIGEMTV10;
+      END IF;
       -- Movimentar o estoque de terceiro caso seja entrada de transferência de venda TV-10.
-      PRIV_COMPRAS_TERCEIRO (REGISTROS.CODPROD
+      PRIV_COMPRAS_TERCEIRO (vnCODPROD_NOTA --DDESTOQUE-22293
                             ,psECANCELAMENTO
                             ,REGISTROS.NUMTRANSENT
                             ,REGISTROS.CODFORNEC
                             ,REGISTROS.CNPJ
                             ,REGISTROS.CODFISCAL
-                            ,REGISTROS.NOTA_QT
+                            ,vnQTDE_NOTA --DDESTOQUE-22293
                             ,REGISTROS.CODFILIAL);
 
       IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
