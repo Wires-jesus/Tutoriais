@@ -3421,6 +3421,47 @@ WHERE NOT EXISTS(SELECT 1
       END;
   END;
 
+PROCEDURE inativa_regras_desconto(p_tabela IN VARCHAR2) AS
+  v_sql VARCHAR2(4000);
+  v_tabela_segura VARCHAR2(100);
+BEGIN
+  v_tabela_segura := DBMS_ASSERT.SQL_OBJECT_NAME('MONITORPDVMIDDLE.' || p_tabela);
+
+  v_sql := 'MERGE INTO ' || v_tabela_segura || ' DESTINO 
+            USING (
+                    SELECT NVL(L.CODFILIAL, ''99'') || 561 || L.CODDESCONTO AS IDREF
+                    FROM PCDESCONTOLOG L 
+                    WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
+                    UNION 
+                    SELECT NVL(D.CODFILIAL, ''99'') || 561 || D.CODDESCONTO AS IDREF
+                    FROM PCDESCONTO D
+                    WHERE D.DTFIM < TRUNC(SYSDATE)
+                    UNION 
+                    SELECT L.CODFILIAL || 357 || L.CODPRECOPROM AS IDREF
+                    FROM PCPRECOPROMLOG L
+                    WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIOVIGENCIA AND L.DTFIMVIGENCIA
+                    UNION 
+                    SELECT P.CODFILIAL || 2048 || P.CODFIDELIDADE AS IDREF
+                    FROM PCDESCONTOFIDELIDADE P
+                    WHERE P.DTEXCLUSAO IS NOT NULL
+                    OR P.DTFINAL < TRUNC(SYSDATE)
+                  ) ORIGEM
+            ON (DESTINO.IDREF = ORIGEM.IDREF) 
+            WHEN MATCHED THEN
+              UPDATE SET DESTINO.ATIVO = ''N''
+              WHERE DESTINO.ATIVO <> ''N''';
+
+  EXECUTE IMMEDIATE v_sql;
+
+  EXCEPTION
+  WHEN OTHERS THEN
+  BEGIN
+    prc_record_error(0, 'INATIVACAO DE REGRAS DA' || v_tabela_segura);
+    ROLLBACK;            
+    RAISE;
+  END; 
+END;
+
 PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
   BEGIN
       UPDATE monitorpdvmiddle.TB_REGRAINCENTIVO SET ATIVO = 'N'
@@ -3472,7 +3513,7 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
           VIEW_C5_INCENTIVO.IDREF
         );
 
-   UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
+   /*UPDATE MONITORPDVMIDDLE.tb_regraincentivo SET ATIVO = 'N'
    WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -3486,7 +3527,9 @@ PROCEDURE carrega_tb_regraincentivo(p_id IN pccontroleconsinco.id%TYPE) AS
       OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
+
+    inativa_regras_desconto('tb_regraincentivo');                  
    
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -3564,7 +3607,7 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
           VIEW_C5_INCENTIVO.IDREF
         );
 
-    UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
+    /*UPDATE MONITORPDVMIDDLE.tb_regraincentivoperiodo SET ATIVO = 'N'
     WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -3578,7 +3621,9 @@ PROCEDURE carrega_tb_regraincentperiodo(p_id IN pccontroleconsinco.id%TYPE) AS
 	   OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
+
+    inativa_regras_desconto('tb_regraincentivoperiodo');                  
 
     UPDATE MONITORPDVMIDDLE.tb_REGRAINCENTIVOPERIODO r SET ATIVO = 'N'
       WHERE NOT EXISTS (
@@ -3832,7 +3877,7 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
           vw_int_c5_regraproduto.IDREF
         );
 
-   UPDATE MONITORPDVMIDDLE.tb_regraproduto SET ATIVO = 'N'
+   /*UPDATE MONITORPDVMIDDLE.tb_regraproduto SET ATIVO = 'N'
     WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -3846,7 +3891,9 @@ PROCEDURE carrega_tb_regraproduto(p_id IN pccontroleconsinco.id%TYPE) AS
 	   OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
+
+    inativa_regras_desconto('tb_regraproduto');
 
       INSERT INTO PCDEVLOGCONSINCO
         (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
@@ -3926,7 +3973,7 @@ BEGIN
           S.ATIVO,
           S.IDREF);
 
-   UPDATE MONITORPDVMIDDLE.tb_regracliente SET ATIVO = 'N'
+   /*UPDATE MONITORPDVMIDDLE.tb_regracliente SET ATIVO = 'N'
     WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -3940,7 +3987,9 @@ BEGIN
 	   OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
+
+  inativa_regras_desconto('tb_regracliente');
   
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracliente', 'carrega_tb_regracliente OK', SYSDATE, CURRENT_TIMESTAMP);
@@ -4008,7 +4057,7 @@ BEGIN
           S.ATIVO,
 		  S.IDREF);
 
-   UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
+   /*UPDATE MONITORPDVMIDDLE.tb_regracategoria SET ATIVO = 'N'
     WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -4022,8 +4071,10 @@ BEGIN
 	   OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
   
+  inativa_regras_desconto('tb_regracategoria');
+
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regracategoria', 'carrega_tb_regracategoria OK', SYSDATE, CURRENT_TIMESTAMP);
 
@@ -4168,7 +4219,7 @@ BEGIN
           S.IDREF,
           S.ATIVO);
 
-   UPDATE MONITORPDVMIDDLE.tb_regradestino SET ATIVO = 'N'
+   /*UPDATE MONITORPDVMIDDLE.tb_regradestino SET ATIVO = 'N'
     WHERE IDREF IN (SELECT NVL(L.CODFILIAL,'99')||561||L.CODDESCONTO  
                        FROM PCDESCONTOLOG L 
                        WHERE TRUNC(SYSDATE) BETWEEN L.DTINICIO AND L.DTFIM
@@ -4182,8 +4233,9 @@ BEGIN
 	   OR IDREF IN (SELECT P.CODFILIAL||2048||P.CODFIDELIDADE
 	                FROM PCDESCONTOFIDELIDADE P
 				   WHERE P.DTEXCLUSAO IS NOT NULL
-                      OR P.DTFINAL < TRUNC(SYSDATE));
+                      OR P.DTFINAL < TRUNC(SYSDATE));*/
 
+  inativa_regras_desconto('tb_regradestino');
 
   INSERT INTO PCDEVLOGCONSINCO  (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_regradestino', 'carrega_tb_regradestino OK', SYSDATE, CURRENT_TIMESTAMP);
