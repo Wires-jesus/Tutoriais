@@ -1,0 +1,6 @@
+{
+	"nome": "ALTER_TABLE_PCMED_TEMP_PREMIA_COMPLEMPRO_CODFILIALORIGINAL",
+    "tipoPLSQL": "MIGRATION",
+    "dependencias":[
+    ]
+}
