@@ -203,6 +203,30 @@ SELECT NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
        NVL(MCE.VLACRESCIMOFUNCEP,0) VLACRESCIMOFUNCEP_UNIT, 
        ROUND(ME.QTCONT * NVL(MCE.VLACRESCIMOFUNCEP,0), 2) VLACRESCIMOFUNCEPENT, 
        ------------------------------------------------------
+       CASE WHEN E.TIPODESCARGA IN ('N','F') THEN 
+               ME.QTCONT * NVL(MCE.VLIPISUSPENSO,0) 
+            ELSE 
+               0 
+       END VLIPISUSPENT, 
+       ------------------------------------------------------       
+       CASE WHEN E.TIPODESCARGA IN ('N','F') THEN 
+               NVL(MCE.VLIPISUSPENSO,0) 
+            ELSE 
+               0 
+       END VLIPISUSPENT_UNIT, 			 
+			------------------------------------------------------
+       CASE WHEN E.TIPODESCARGA IN ('N','F') THEN 
+               ME.QTCONT * NVL(MCE.VLIISUSPENSO,0) 
+            ELSE 
+               0 
+       END VLIISUSPENT, 
+       ------------------------------------------------------       
+       CASE WHEN E.TIPODESCARGA IN ('N','F') THEN 
+               NVL(MCE.VLIISUSPENSO,0) 
+            ELSE 
+               0 
+       END VLIISUSPENT_UNIT,  
+       ------------------------------------------------------
        -- Informações de Saídas 
        ------------------------------------------------------
        SAI.CODFILIALSAI, 

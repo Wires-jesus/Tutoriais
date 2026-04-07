@@ -1,20 +1,4 @@
-DECLARE
-   V_EXISTE NUMBER;
-BEGIN
-   -- Verifica se a TYPE tabela existe
-   SELECT COUNT(*)
-     INTO V_EXISTE
-     FROM ALL_TYPES T
-    WHERE T.TYPE_NAME = 'TABELA_ROTINA_1017'
-      AND OWNER = SYS_CONTEXT('USERENV', 'SESSION_USER');
-
-   -- Dropa se existir
-   IF V_EXISTE > 0 THEN
-      EXECUTE IMMEDIATE 'DROP TYPE TABELA_ROTINA_1017';
-   END IF;
-   
-EXECUTE IMMEDIATE 
-    'CREATE OR REPLACE TYPE TIPO_ROTINA_1017 AS OBJECT
+CREATE OR REPLACE TYPE TIPO_ROTINA_1017 FORCE AS OBJECT
     (
       CODFILIAL                 VARCHAR2(2),
       NCM                       VARCHAR(20),
@@ -219,8 +203,10 @@ EXECUTE IMMEDIATE
       QTCONTMOVSAI              NUMBER(18,6),
       VLBASEICMSSTENT_14        NUMBER(18,6),
       NITEMXML                  NUMBER(20),
-      VLIIENT_UNIT              NUMBER(18,6),
-      VLIIENT                   NUMBER(18,6)
-    )';
-
-END;
+      VLIIENT_UNIT              NUMBER(18, 6),
+      VLIIENT                   NUMBER(18, 6),
+      VLIPISUSPENT_UNIT         NUMBER(18, 6),
+      VLIPISUSPENT              NUMBER(18, 6),
+      VLIISUSPENT_UNIT          NUMBER(18, 6),
+      VLIISUSPENT               NUMBER(18, 6)
+    )
