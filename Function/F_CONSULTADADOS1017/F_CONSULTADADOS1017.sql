@@ -10,7 +10,7 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
 -- Definição do Parâmetro pRELATORIO
    -- 'R45_UE' - RELATÓRIO 45 OPÇÃO UE (ÚLTIMA ENTRADA)
    -- 'R45_CC' - RELATÓRIO 45 OPÇÃO CC (CONTA CORRENTE)
----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------- 
   return TABELA_ROTINA_1017
   parallel_enable
   pipelined is
@@ -26,8 +26,8 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
       NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL, -- 20
-      NULL,NULL,NULL,NULL,NULL
-      ); -- 205 colunas
+      NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL
+      ); -- 209 colunas
 ---------------------------------------------------------------------------------
   BEGIN
 ---------------------------------------------------------------------------------
@@ -424,6 +424,12 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                              MCE.UNIDADECOMERCIAL UNIDADECOMERCIALENT,
                              MCE.CODFABRICA CODFABRICAENT,
                              ME.QTUNITCX QTUNITCXENT,
+				                     NVL(ME.VLIMPORTACAO,0) VLIIENT_UNIT,
+                             ROUND(ME.QTCONT * NVL(ME.VLIMPORTACAO,0), 2) VLIIENT, 				   
+				                     NVL(MCE.VLIPISUSPENSO,0) VLIPISUSPENT_UNIT,
+                             ROUND(ME.QTCONT * NVL(MCE.VLIPISUSPENSO,0), 2) VLIPISUSPENT,
+				                     NVL(MCE.VLIISUSPENSO,0) VLIISUSPENT_UNIT,
+                             ROUND(ME.QTCONT * NVL(MCE.VLIISUSPENSO,0), 2) VLIISUSPENT,
                              ------------------------------------------------------
                              -- Informações de Saídas
                              ------------------------------------------------------
@@ -887,6 +893,12 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
             OUTROW.UNIDADECOMERCIALSAI            := DADOS.UNIDADECOMERCIALSAI             ;
             OUTROW.CODFABRICASAI                  := DADOS.CODFABRICASAI                   ;
             OUTROW.QTUNITCXSAI                    := DADOS.QTUNITCXSAI                     ;
+		        OUTROW.VLIIENT_UNIT                   := DADOS.VLIIENT_UNIT                    ;
+            OUTROW.VLIIENT                        := DADOS.VLIIENT                         ; 
+            OUTROW.VLIPISUSPENT_UNIT              := DADOS.VLIPISUSPENT_UNIT               ;
+            OUTROW.VLIPISUSPENT                   := DADOS.VLIPISUSPENT                    ;
+            OUTROW.VLIISUSPENT_UNIT               := DADOS.VLIISUSPENT_UNIT                ;
+            OUTROW.VLIISUSPENT                    := DADOS.VLIISUSPENT                     ;	
       pipe row(OUTROW);
    END LOOP;
   END IF;
@@ -1294,7 +1306,11 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
                            NVL(MCE.VLACRESCIMOFUNCEP,0) VLACRESCIMOFUNCEP_UNIT,
                            ROUND(ME.QTCONT * NVL(MCE.VLACRESCIMOFUNCEP,0), 2) VLACRESCIMOFUNCEPENT,
                            NVL(ME.VLIMPORTACAO,0) VLIIENT_UNIT,
-                           ROUND(ME.QTCONT * NVL(ME.VLIMPORTACAO,0), 2) VLIIENT,
+                           ROUND(ME.QTCONT * NVL(ME.VLIMPORTACAO,0), 2) VLIIENT, 				   
+				                   NVL(MCE.VLIPISUSPENSO,0) VLIPISUSPENT_UNIT,
+                           ROUND(ME.QTCONT * NVL(MCE.VLIPISUSPENSO,0), 2) VLIPISUSPENT,
+				                   NVL(MCE.VLIISUSPENSO,0) VLIISUSPENT_UNIT,
+                           ROUND(ME.QTCONT * NVL(MCE.VLIISUSPENSO,0), 2) VLIISUSPENT,
                            ------------------------------------------------------
                            -- Informações de Saídas
                            ------------------------------------------------------
@@ -1753,7 +1769,11 @@ CREATE OR REPLACE FUNCTION F_CONSULTADADOS1017(pCODFILIAL               in varch
             OUTROW.QTDEVOL                        := DADOS.QTDEVOL                         ;
             OUTROW.QTCONTMOVSAI                   := DADOS.QTCONTMOVSAI                    ;
             OUTROW.VLIIENT_UNIT                   := DADOS.VLIIENT_UNIT                    ;
-            OUTROW.VLIIENT                        := DADOS.VLIIENT                         ;
+            OUTROW.VLIIENT                        := DADOS.VLIIENT                         ; 
+            OUTROW.VLIPISUSPENT_UNIT              := DADOS.VLIPISUSPENT_UNIT               ;
+            OUTROW.VLIPISUSPENT                   := DADOS.VLIPISUSPENT                    ;
+            OUTROW.VLIISUSPENT_UNIT               := DADOS.VLIISUSPENT_UNIT                ;
+            OUTROW.VLIISUSPENT                    := DADOS.VLIISUSPENT                     ;				
      pipe row(OUTROW);
      END LOOP;
   END IF;
