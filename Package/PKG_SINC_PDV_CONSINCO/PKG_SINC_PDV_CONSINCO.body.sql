@@ -2147,7 +2147,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
                     e.pesobruto,
                     e.pesoliquido,
                     0 nrocarga
-      FROM VW_INT_C5_EMBFAMILIA e) b
+	  FROM VW_INT_C5_EMBFAMILIA E,
+	       MONITORPDVMIDDLE.TB_FAMILIA F
+      WHERE F.SEQFAMILIA = E.SEQFAMILIA) b
 
     ON (s.seqfamilia = b.seqfamilia and s.QTDEMBALAGEM = b.QTDEMBALAGEM)
     WHEN MATCHED THEN
