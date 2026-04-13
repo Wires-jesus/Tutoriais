@@ -3,6 +3,6 @@
 "dependencias": [{
             "nome": "PCNFSAID",
             "tipo": "TABELA",
-            "versao": "7.0.21.000"
+            "versao": "8.0.08.000"
         }]
 }        
