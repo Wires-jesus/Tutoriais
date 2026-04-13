@@ -147,5 +147,13 @@ CREATE OR REPLACE package GERA_HISTORICO is
                                     PTIPOMOV       in varchar2);
 
 /****************************************************************************/
+  PROCEDURE ATUALIZAR_DADOS_XML_CAB(PCODFILIAL     IN VARCHAR2,
+					      PDTINICIAL     IN DATE,
+					      PDTFINAL       IN DATE,
+					      PTRANSACAO     IN NUMBER,
+					      PCODCLI_FORNEC IN NUMBER, 
+					      PREPROCESSAR   IN VARCHAR2,
+					      MSG            OUT VARCHAR2);  
+/****************************************************************************/
 end GERA_HISTORICO; 
 -- 24/11/2022 - Gleibe - Alteração de melhorias de performance

@@ -3120,6 +3120,85 @@ procedure GERAR_INVENTARIO(PCODFILIAL in varchar2,
     END LOOP;
   end;
 
+PROCEDURE ATUALIZAR_DADOS_XML_CAB(PCODFILIAL     IN VARCHAR2,
+																	PDTINICIAL     IN DATE,
+																	PDTFINAL       IN DATE,
+																	PTRANSACAO     IN NUMBER,
+																	PCODCLI_FORNEC IN NUMBER, 
+																	PREPROCESSAR   IN VARCHAR2,
+																	MSG            OUT VARCHAR2) IS
+  BEGIN
+    VERRO := 'Erro ao consultar dados xml NF saídas';
+  
+    FOR DADOS IN (SELECT IDREGISTRO
+												,INFADFISCO
+												,NUMNOTA
+			  FROM (SELECT N.ROWID IDREGISTRO
+					  ,N.NUMNOTA
+					  ,(SELECT MAX(CAST(REGEXP_SUBSTR(D.XMLNFE
+										   ,'<[^>]*infAdFisco[^>]*>(.*?)</[^>]*infAdFisco>'
+										   ,1
+										   ,1
+										   ,'n'
+										   ,1) AS
+								  VARCHAR2(4000)))
+						FROM PCDOCELETRONICO D
+					     WHERE D.NUMTRANSACAO = N.NUMTRANSVENDA
+						 AND NVL(D.MOVIMENTO, 'S') = 'S'
+						 AND D.XMLNFE IS NOT NULL
+						 AND ROWNUM = 1) AS INFADFISCO
+				    FROM PCNFSAID       N
+								,PCCLIENT       C
+								,PCCARREG       CR
+								,PCVEICUL       V
+								,PCVENDACONSUM  VC
+								,PCFILIAL       FL
+								,PCPAIS         P
+								,PCESTADO       E
+								,PCFORNEC       F
+								,PCPRACA        PR
+								,PCCOB          CB
+								,PCATIVI        AT
+								,PCPEDC         PD
+								,PCCLIENTENDENT EN
+				   WHERE N.DTSAIDA BETWEEN PDTINICIAL AND PDTFINAL
+				     AND NVL(N.CODFILIALNF, N.CODFILIAL) = PCODFILIAL
+				     AND (NVL(PCODCLI_FORNEC, 0) = 0 OR N.CODCLI = PCODCLI_FORNEC)
+				     AND (NVL(PTRANSACAO, 0) = 0 OR N.NUMTRANSVENDA = PTRANSACAO)
+				     AND N.CODPRACA = PR.CODPRACA(+)
+				     AND C.CODATV1 = AT.CODATIV(+)
+				     AND C.CODCLI = DECODE(NVL(N.CODCLINF, 0),0,N.CODCLI,N.CODCLINF)
+				     AND N.NUMCAR = CR.NUMCAR(+)
+				     AND CR.CODVEICULO = V.CODVEICULO(+)
+				     AND N.CODFORNECFRETE = F.CODFORNEC(+)
+				     AND N.NUMPED = VC.NUMPED(+)
+				     AND N.CODCOB = CB.CODCOB(+)
+				     AND E.CODPAIS = P.CODPAIS(+)
+				     AND FL.CODIGO(+) = NVL(N.CODFILIALNF, N.CODFILIAL)
+				     AND C.ESTENT = E.UF(+)
+				     AND N.NUMPED = PD.NUMPED(+)
+				     AND PD.CODCLI = EN.CODCLI(+)
+				     AND PD.CODENDENTCLI = EN.CODENDENTCLI(+)
+				     AND (NVL(PREPROCESSAR, 'N') = 'S' OR N.INFADFISCO IS NULL))
+			 WHERE INFADFISCO IS NOT NULL) 
+    LOOP
+	VERRO    := 'Erro ao gravar dados xml NF saídas';
+	VNUMNOTA := DADOS.NUMNOTA;
+    
+	UPDATE PCNFSAID
+	   SET INFADFISCO = DADOS.INFADFISCO
+	 WHERE ROWID = DADOS.IDREGISTRO;
+    END LOOP; 
+		
+    COMMIT;
+    MSG := 'OK';
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    MSG := 'Erro: ' || VERRO || ' - ' || SQLERRM;
+    RAISE;
+END ATUALIZAR_DADOS_XML_CAB;	  
+
 end GERA_HISTORICO;
 -- 24/11/2022 - Gleibe - Implementado ajuste de performance.
 -- 24/11/2022 - Gleibe - inicio do processo de implementado de parametros de atualização do historico
