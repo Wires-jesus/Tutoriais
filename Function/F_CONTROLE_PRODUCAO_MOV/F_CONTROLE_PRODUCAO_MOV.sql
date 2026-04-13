@@ -455,7 +455,9 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
-  
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
+
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -800,10 +802,10 @@ BEGIN
                                  ELSE
                                   'N'
                                END = 'S')
-                        
+
                         ) TAB
                  WHERE TAB.DTCANCEL_ORIG BETWEEN PDTINICIO AND PDTFIM
-                
+
                 ) LOOP
     OUTROW.TIPO                := SUBSTR(DADOS.TIPO, 0, 5);
     OUTROW.SEQMOV              := DADOS.SEQMOV;
@@ -860,6 +862,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
 
@@ -1096,7 +1100,7 @@ BEGIN
                          ELSE
                           'N'
                        END = 'S')
-                
+
                 ) LOOP
     OUTROW.TIPO                := SUBSTR(DADOS.TIPO, 0, 5);
     OUTROW.SEQMOV              := DADOS.SEQMOV;
@@ -1153,6 +1157,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -1444,6 +1450,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -1743,6 +1751,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -2036,6 +2046,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -2217,6 +2229,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -2465,6 +2479,8 @@ BEGIN
       OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
       OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
       OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+      OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+      OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
       pipe row(OUTROW);
     END LOOP;
   END IF;
@@ -2503,7 +2519,7 @@ BEGIN
                          PCMOV.CODFISCAL,
                          NVL(ROUND(PCMOV.QTCONT, PNUMCASAS_QT), 0) QTCONT,
                          0 QTENTRADA,
-                         
+
                          NVL(DECODE(SUBSTR(PCMOV.CODOPER, 1, 1),
                                     'S',
                                     ROUND(PCMOV.QTCONT, PNUMCASAS_QT),
@@ -2712,6 +2728,8 @@ BEGIN
       OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
       OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
       OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+      OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+      OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
       pipe row(OUTROW);
     END LOOP;
   END IF;
@@ -2974,7 +2992,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
-  
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -3224,6 +3243,8 @@ BEGIN
     OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
     OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
     OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+    OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+    OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
     pipe row(OUTROW);
   END LOOP;
   --------------------------------------------------------------------------------------------------------------
@@ -3239,7 +3260,7 @@ BEGIN
                          PCMOV.CUSTOULTENT,
                          PCMOV.CUSTOREALSEMST,
                          PCMOV.VALORULTENT,
-                         
+
                          CASE
                            WHEN PGERA_NUMOP_NA_OBS = 'S' THEN
                             ''
@@ -3254,7 +3275,7 @@ BEGIN
                            ELSE
                             'Requisição de material de consumo'
                          END OBSERVACAO,
-                         
+
                          PCMOV.CODPROD,
                          PCMOV.CODOPER,
                          PCMOV.NUMTRANSVENDA NUMNOTA,
@@ -3437,6 +3458,8 @@ BEGIN
       OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
       OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
       OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+      OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+      OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
       pipe row(OUTROW);
     END LOOP;
   END IF;
@@ -3646,6 +3669,8 @@ BEGIN
       OUTROW.CUSTOULTENTLIQ      := DADOS.CUSTOULTENTLIQ;
       OUTROW.CUSTOFINSEMST       := DADOS.CUSTOFINSEMST;
       OUTROW.CUSTOREALLIQ        := DADOS.CUSTOREALLIQ;
+      OUTROW.ID_PCMOV            := DADOS.ID_PCMOV;
+      OUTROW.ID_PCMOVCOMPLE      := DADOS.ID_PCMOVCOMPLE;
       pipe row(OUTROW);
     END LOOP;
   END IF;
