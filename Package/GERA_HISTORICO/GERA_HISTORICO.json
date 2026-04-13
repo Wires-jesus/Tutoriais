@@ -1,1 +1,7 @@
-{"nome":"GERA_HISTORICO","tipoPLSQL":"PACKAGE","dependencias":""}	
+{"nome":"GERA_HISTORICO",
+"tipoPLSQL":"PACKAGE",
+"dependencias": [{
+            "nome": "PCNFSAID",
+            "tipo": "TABELA",
+            "versao": "7.0.21.000"
+        }]
