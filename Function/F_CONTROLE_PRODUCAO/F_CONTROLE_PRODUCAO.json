@@ -12,7 +12,7 @@
         }, {
             "nome": "F_CONTROLE_PRODUCAO_MOV",
             "tipo": "OBJETO_PLSQL",
-            "versao": "8.0.01.000"
+            "versao": "8.0.03.000"
         },
 		{
             "nome": "TIPO_CONTROLE_PRODUCAO",
