@@ -4,11 +4,11 @@
   {
    "nome": "NFE_PRODUTO_ENTRADA",
    "tipo": "OBJETO_PLSQL",
-   "versao": "8.0.04.000"
+   "versao": "8.0.17.000"
   },
   {
    "nome": "PCNFENT",
    "tipo": "TABELA",
-   "versao": "7.0.12.000"
+   "versao": "8.0.10.000"
   }
  ]}
