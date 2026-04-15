@@ -9,11 +9,11 @@
  {
   "nome": "PCNFSAID",
   "tipo": "TABELA",
-  "versao": "8.0.03.000"
+  "versao": "8.0.09.000"
  },
  {
   "nome": "PCNFSAIDPREFAT",
   "tipo": "TABELA",
-  "versao": "8.0.04.000"
+  "versao": "8.0.06.000"
  } 
  ]}
