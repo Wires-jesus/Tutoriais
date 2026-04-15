@@ -1,4 +1,10 @@
 {"nome":"SQL_NFE_RODAPE_SAIDA_COMP",
  "tipoPLSQL":"VIEW",
- "dependencias": ""
+ "dependencias": [
+  {
+   "nome": "PCNFBASE",
+   "tipo":"TABELA",
+   "versao": "8.0.04.000"
+  }
+ ]
 }
