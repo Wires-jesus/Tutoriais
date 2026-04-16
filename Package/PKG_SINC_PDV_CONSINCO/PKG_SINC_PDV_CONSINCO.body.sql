@@ -7421,74 +7421,25 @@ BEGIN
       S.IDREF
     );
 
-/*  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
-  SET CCT.ATIVO = 'N'
-  WHERE CCT.ATIVO = 'S'
-    AND (( CCT.IDENTIFICADOR = 'PRODUTO'
-            AND (
-                  EXISTS (
-                  SELECT 1
-                      FROM PCDEPARAPRODC5 DEPARA
-                    WHERE TO_CHAR(DEPARA.SEQPRODUTO) = CCT.VALOR
-                      AND DEPARA.ATIVO = 'N'
-                  )
-                  OR
-                  NOT EXISTS (
-                    SELECT 1
-                    FROM PCTRIBUTACAO_FILTRO_PRODUTO T,
-	                     PCDEPARAPRODC5 DEPARA
-                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
-                      AND T.CODPROD = DEPARA.CODPROD 
-                      AND DEPARA.SEQPRODUTO  = CCT.VALOR
-                      AND T.DTEXCLUSAO IS NULL
-                  )
-          ))
-          OR
-          ( CCT.IDENTIFICADOR = 'UFORIGEM'
-            AND EXISTS (
-                  SELECT 1
-                    FROM PCTRIBUTACAO TRIB
-                    WHERE TRIB.CODIGO_TRIBUTACAO = CCT.IDREF
-                      AND TRIB.DTINATIVACAO IS NULL
-                      AND (CASE
-                            WHEN TRIB.TIPO_LOCAL_CONSUMO = 'G'
-                              THEN TO_CHAR(NVL(TRIB.LOCAL_CONSUMO_GERAL, 'BR'))
-                            ELSE TO_CHAR(TRIB.LOCAL_CONSUMO_MUNICIPIO)
-                          END) <> CCT.VALOR
-          ))
-          OR ( CCT.IDENTIFICADOR = 'NCM'
-                AND NOT EXISTS (
-                  SELECT 1
-                    FROM PCTRIBUTACAO_FILTRO_NCM T
-                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
-                      AND T.NCM = CCT.VALOR
-                      AND T.DTEXCLUSAO IS NULL
-                )
-        ));
-
-  UPDATE MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM CCT
-  SET CCT.ATIVO = 'S'
-  WHERE CCT.ATIVO = 'N'
-    AND CCT.VALOR = '0'
-    AND EXISTS (SELECT 1 FROM PCTRIBUTACAO T WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF AND T.DTEXCLUSAO IS NULL)    
-    AND (( CCT.IDENTIFICADOR = 'PRODUTO'
-            AND (
-                  NOT EXISTS (
-                    SELECT 1
-                    FROM PCTRIBUTACAO_FILTRO_PRODUTO T
-                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
-                      AND T.DTEXCLUSAO IS NULL
-                  )
-          ))
-          OR ( CCT.IDENTIFICADOR = 'NCM'
-                AND NOT EXISTS (
-                  SELECT 1
-                    FROM PCTRIBUTACAO_FILTRO_NCM T
-                    WHERE T.CODIGO_TRIBUTACAO = CCT.IDREF
-                      AND T.DTEXCLUSAO IS NULL
-                )
-        )
-  		);*/
+  BEGIN
+    MERGE /*+ USE_HASH(ITEM, T) */ 
+    INTO MONITORPDVMIDDLE.TB_CCTCENARIOCONDICAOITEM ITEM
+    USING (
+        SELECT 
+            CODIGO_TRIBUTACAO,
+            CASE 
+                WHEN TIPO_LOCAL_CONSUMO = 'G' THEN TO_CHAR(NVL(LOCAL_CONSUMO_GERAL, 'BR'))
+                ELSE TO_CHAR(LOCAL_CONSUMO_MUNICIPIO)
+            END AS VALOR_ESPERADO
+        FROM PCTRIBUTACAO
+    ) T
+    ON (ITEM.IDREF = T.CODIGO_TRIBUTACAO)
+    WHEN MATCHED THEN
+        UPDATE SET ITEM.ATIVO = 'N'
+        WHERE ITEM.IDENTIFICADOR = 'UFORIGEM' 
+          AND ITEM.ATIVO = 'S'
+          AND NVL(ITEM.VALOR, '0') <> NVL(T.VALOR_ESPERADO, '0');
+  END;
 
   INSERT INTO PCDEVLOGCONSINCO (dv_name, dv_message, dv_message_2, dv_date, dv_timestamp)
   VALUES ('pkg_sinc_PDV_Consinco', 'carrega_tb_cctcenconditem', 'carrega_tb_cctcenconditem OK', SYSDATE, CURRENT_TIMESTAMP);
