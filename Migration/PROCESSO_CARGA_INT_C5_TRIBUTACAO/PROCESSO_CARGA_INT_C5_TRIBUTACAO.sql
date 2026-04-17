@@ -374,7 +374,83 @@ CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPER AS
  \
 
 CREATE OR REPLACE VIEW VW_INT_C5_CODGERALOPERCFOP AS
-(SELECT   65      codgeraloper,
+(
+SELECT 65 codgeraloper,
+       T.CODST nrotributacao,
+       'N' contribicms,
+       T.CODFISCALPF cfopestado,
+       T.CODFISCALINTERPF cfopforaestado,
+       'S' ativo,
+       T.DTALTERC5 dtalterc5
+  FROM PCTRIBUT T,
+
+       (select s.ultimaexecucao
+          from pccontroleconsinco s
+         where (upper(s.objetoreferencia) =
+               'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')) DTPADRAO
+
+ WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+   AND T.CODFISCALPF IS NOT NULL
+
+UNION ALL
+
+SELECT 65 codgeraloper,
+       T.CODST nrotributacao,
+       'S' contribicms,
+       T.CODFISCAL cfopestado,
+       T.CODFISCALINTER cfopforaestado,
+       'S' ativo,
+       T.DTALTERC5 dtalterc5
+  FROM PCTRIBUT T,
+
+       (select s.ultimaexecucao
+          from pccontroleconsinco s
+         where (upper(s.objetoreferencia) =
+               'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')) DTPADRAO
+
+ WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
+   AND T.CODFISCAL IS NOT NULL
+
+ UNION ALL
+
+  SELECT 55 codgeraloper,
+         T.CODST nrotributacao,
+         'N' contribicms,
+         T.CODFISCALPF cfopestado,
+         T.CODFISCALINTERPF cfopforaestado,
+         'S' ativo,
+         T.DTALTERC5 dtalterc5
+          FROM PCTRIBUT T,
+
+         (select s.ultimaexecucao
+            from pccontroleconsinco s
+           where (upper(s.objetoreferencia) =
+                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')) DTPADRAO
+
+         WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >=
+               DTPADRAO.ULTIMAEXECUCAO
+           AND T.CODFISCALPF IS NOT NULL
+
+        UNION ALL
+
+        SELECT 55 codgeraloper,
+         T.CODST nrotributacao,
+         'S' contribicms,
+         T.CODFISCAL cfopestado,
+         T.CODFISCALINTER cfopforaestado,
+         'S' ativo,
+         T.DTALTERC5 dtalterc5
+          FROM PCTRIBUT T,
+
+         (select s.ultimaexecucao
+            from pccontroleconsinco s
+           where (upper(s.objetoreferencia) =
+                 'PKG_SINC_PDV_CONSINCO.CARREGA_TB_CODGERALOPERCFOP')) DTPADRAO
+
+         WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >=
+               DTPADRAO.ULTIMAEXECUCAO
+           AND T.CODFISCAL IS NOT NULL
+/*SELECT   65      codgeraloper,
           T.CODST nrotributacao,
           'N'     contribicms,
           T.CODFISCAL  cfopestado,
@@ -389,7 +465,7 @@ FROM  PCTRIBUT T,
      )DTPADRAO
 --WHERE  NVL(T.SITTRIBUTECF, T.SITTRIBUTPF) IN ('00','20','40','41','60','61','90')
 WHERE NVL(T.DTALTERC5, DTPADRAO.ULTIMAEXECUCAO) >= DTPADRAO.ULTIMAEXECUCAO
-AND   T.CODFISCAL IS NOT NULL
+AND   T.CODFISCAL IS NOT NULL*/
 
 )
 
