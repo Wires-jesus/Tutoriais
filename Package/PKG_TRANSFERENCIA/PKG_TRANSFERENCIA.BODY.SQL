@@ -760,7 +760,12 @@ END;
                      CM.VERSAOREGISTRO,
                      CM.VLICMS VLICMS_MOV_COMPLE,
                      S.CONDVENDA,
-                     S.TIPOVENDA
+                     S.TIPOVENDA,
+                     -- Convenio ICMS 109/2024 - flag por tributacao (PCTRIBUT).
+                     NVL((SELECT T.TRANSFCREDCONVICMS1092024
+                            FROM PCTRIBUT T
+                           WHERE T.CODST = M.CODST
+                             AND ROWNUM = 1), 'N') TRANSFCREDCONVICMS1092024
                 FROM PCMOV M, PCPRODUT P, PCNFSAID S, PCMOVCOMPLE CM
                WHERE M.CODPROD = P.CODPROD
                  AND M.NUMTRANSVENDA = S.NUMTRANSVENDA
@@ -795,6 +800,9 @@ END;
     VNNUMREGIAO              PCNFSAID.NUMREGIAO%TYPE;
     VNCODCLI                 PCNFSAID.CODCLI%TYPE;
     VNUFDESTINO              PCFILIAL.UF%TYPE;
+    VSCGCORIGEM              PCFILIAL.CGC%TYPE;
+    VSCGCDESTINO             PCFILIAL.CGC%TYPE;
+    VBMESMARAIZCNPJ          BOOLEAN := FALSE;
     VNCODFISCALITEM          NUMBER;
     VNCODFISCALENTRADAITEM   NUMBER;
     VNBASEICMS_ENTRADA       NUMBER;
@@ -828,27 +836,35 @@ END;
     
     --- BUSCA O CODIGO DO FORNECEDOR DA FILIAL ORIGEM
     BEGIN
-      SELECT CODFORNEC, UF
-        INTO VNCODFORNEC, VNUFORIGEM
+      SELECT CODFORNEC, UF, CGC
+        INTO VNCODFORNEC, VNUFORIGEM, VSCGCORIGEM
         FROM PCFILIAL
        WHERE CODIGO = VSCODFILIAL; --FILIAL
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        VNCODFORNEC := 0;
-        VNUFORIGEM  := '';
+        VNCODFORNEC  := 0;
+        VNUFORIGEM   := '';
+        VSCGCORIGEM  := '';
     END;
 
     -- BUSCA O CODIGO DO CLIENTE DA FILIAL DESTINO
     BEGIN
-      SELECT CODCLI, UF
-        INTO VNCODCLI, VNUFDESTINO
+      SELECT CODCLI, UF, CGC
+        INTO VNCODCLI, VNUFDESTINO, VSCGCDESTINO
         FROM PCFILIAL
        WHERE CODIGO = VSCODFILIALNF; --FILIAL NF
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        VNCODCLI    := 0;
-        VNUFDESTINO := '';
+        VNCODCLI     := 0;
+        VNUFDESTINO  := '';
+        VSCGCDESTINO := '';
     END;
+
+    -- Convenio ICMS 109/2024 - avalia mesma raiz CNPJ (primeiros 8 digitos apenas numericos).
+    VBMESMARAIZCNPJ := (VSCGCORIGEM IS NOT NULL)
+                      AND (VSCGCDESTINO IS NOT NULL)
+                      AND (SUBSTR(REGEXP_REPLACE(VSCGCORIGEM,  '[^0-9]', ''), 1, 8) =
+                           SUBSTR(REGEXP_REPLACE(VSCGCDESTINO, '[^0-9]', ''), 1, 8));
 
     --  TRANSF.CLIENTE := BUSCAR_CLIENTE(10);
     BEGIN
@@ -1243,6 +1259,18 @@ END;
      END IF;
 
       ROWPCMOV_ET.PERCICM := NVL(MOV_ENT.PERCICM, ROWPCMOV_ET.PERCICM);
+
+      -- Convenio ICMS 109/2024 - replica na entrada quando: flag tributacao = 'S',
+      -- mesma raiz CNPJ e saida com Base/Aliquota zeradas e VLICMS (PCMOVCOMPLE) > 0.
+      -- PCMOV nao possui VLICMS (fica em PCMOVCOMPLE via VLICMS_MOV_COMPLE, ja propagado na linha 1299).
+      IF MOV_ENT.TRANSFCREDCONVICMS1092024 = 'S'
+         AND VBMESMARAIZCNPJ
+         AND NVL(MOV_ENT.BASEICMS, 0) = 0
+         AND NVL(MOV_ENT.PERCICM, 0) = 0
+         AND NVL(MOV_ENT.VLICMS_MOV_COMPLE, 0) > 0 THEN
+        ROWPCMOV_ET.BASEICMS := 0;
+        ROWPCMOV_ET.PERCICM  := 0;
+      END IF;
 
       ROWPCMOV_ET.CUSTOFIN  := (0);
       ROWPCMOV_ET.CUSTOCONT := VNCUSTOCONTABIL; --// 907.010135.2015
