@@ -8,7 +8,7 @@
         },
 		{
             "nome": "PKG_CNPJ_VALIDATOR",
-            "tipo": "Objeto PL/SQL",
+            "tipo": "OBJETO_PLSQL",
             "versao": "8.0.02.000"
         }
     ]
