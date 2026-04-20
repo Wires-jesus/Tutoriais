@@ -5,6 +5,11 @@
             "nome": "PCMOVPREENT",
             "tipo": "TABELA",
             "versao": "7.0.03.000"
+        },
+		{
+            "nome": "PKG_CNPJ_VALIDATOR",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "8.0.02.000"
         }
     ]
 }
