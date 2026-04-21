@@ -1,5 +1,11 @@
-{"nome":"PKG_SL_CDC_MANAGER","tipoPLSQL":"PACKAGE","dependencias":[{
-  "nome": "INITIAL_DATA_SETUP",
-  "tipo": "MIGRATION",
-  "versao": "8.0.02.000"
-}]}
+{
+  "nome": "PKG_SL_CDC_MANAGER",
+  "tipoPLSQL": "PACKAGE",
+  "dependencias": [
+    {
+      "nome": "INITIAL_DATA_SETUP",
+      "tipo": "MIGRATION",
+      "versao": "8.0.02.000"
+    }
+  ]
+}

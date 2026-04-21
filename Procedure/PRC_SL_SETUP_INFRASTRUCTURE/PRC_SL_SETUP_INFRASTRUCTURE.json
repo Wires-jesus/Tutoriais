@@ -1,2 +1,5 @@
-{"nome":"PRC_SL_SETUP_INFRASTRUCTURE","tipoPLSQL":"PROCEDURE","dependencias":""}
-
+{
+    "nome": "PRC_SL_SETUP_INFRASTRUCTURE",
+    "tipoPLSQL": "PROCEDURE",
+    "dependencias": ""
+}
