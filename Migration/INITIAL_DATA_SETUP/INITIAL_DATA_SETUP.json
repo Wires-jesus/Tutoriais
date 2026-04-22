@@ -1,6 +1,11 @@
-{"nome":"INITIAL_DATA_SETUP","tipoPLSQL":"MIGRATION","dependencias":[{
-  "nome": "PRC_SL_SETUP_INFRASTRUCTURE",
-  "tipo": "OBJETO_PLSQL",
-  "versao": "8.0.02.000"
-}]}
-
+{
+  "nome": "INITIAL_DATA_SETUP",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PRC_SL_SETUP_INFRASTRUCTURE",
+      "tipo": "OBJETO_PLSQL",
+      "versao": "8.0.02.000"
+    }
+  ]
+}

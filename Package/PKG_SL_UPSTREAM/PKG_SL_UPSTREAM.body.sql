@@ -1,19 +1,32 @@
 CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
 
     FUNCTION IS_TABLE_LOCKED_BY_TRANSACTION(p_table_name IN VARCHAR2) RETURN BOOLEAN IS
-        v_lock_count NUMBER;
+    -- Define a transação como autônoma para não afetar a transação principal do Winthor
+    PRAGMA AUTONOMOUS_TRANSACTION;
     BEGIN
         BEGIN
-            SELECT COUNT(*) INTO v_lock_count
-            FROM v$locked_object l
-            JOIN dba_objects o ON l.object_id = o.object_id
-            WHERE o.object_name = UPPER(p_table_name);
+            -- Tenta obter um lock exclusivo na tabela imediatamente (sem esperar)
+            -- Usamos SQL Dinâmico para aceitar o nome da tabela como variável
+            EXECUTE IMMEDIATE 'LOCK TABLE ' || p_table_name || ' IN EXCLUSIVE MODE NOWAIT';
             
-            IF v_lock_count > 0 THEN RETURN TRUE; ELSE RETURN FALSE; END IF;
+            -- Se o comando acima passou, a tabela ESTÁ LIVRE.
+            -- Devemos liberar o lock que acabamos de criar imediatamente.
+            ROLLBACK; 
+            RETURN FALSE; 
+            
         EXCEPTION
+            -- ORA-00054: resource busy and acquire with NOWAIT specified
+            -- Isso significa que ALGUÉM já tem um lock na tabela ou em linhas dela
             WHEN OTHERS THEN
-                PKG_SL_LOGGING.WRITE_LOG('ERROR', 'PKG_SL_UPSTREAM', 'LOCK_CHECK', 'Erro ao verificar lock na tabela ' || p_table_name || ': ' || SQLERRM);
-                RETURN TRUE; 
+                IF SQLCODE = -54 THEN
+                    ROLLBACK; -- Garante limpeza do contexto autônomo
+                    RETURN TRUE; -- Tabela está bloqueada por outra transação
+                ELSE
+                    -- Qualquer outro erro (tabela não existe, erro de sintaxe, etc)
+                    PKG_SL_LOGGING.WRITE_LOG('ERROR', 'PKG_SL_UPSTREAM', 'LOCK_CHECK', 'Erro ao verificar lock na tabela ' || p_table_name || ': ' || SQLERRM);
+                    ROLLBACK;
+                    RETURN TRUE; -- Por segurança, assumimos que há problema/lock
+                END IF;
         END;
     END IS_TABLE_LOCKED_BY_TRANSACTION;
 
