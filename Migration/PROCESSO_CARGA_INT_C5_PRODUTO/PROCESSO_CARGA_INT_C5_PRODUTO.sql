@@ -669,7 +669,8 @@ WITH CTE_PRECO AS (
             (E.CODAUXILIAR = P.CODAUXILIAR AND P.ATIVO = 'S')
             OR (P.CODAUXILIAR = 0 AND P.ATIVO = 'S' AND E.QTUNIT = (SELECT MIN(QTUNIT) FROM VW_INT_C5_EMBPROD_MAT EMB
                                                                     WHERE E.CODFILIAL = EMB.CODFILIAL
-                                                                    AND E.CODPROD = EMB.CODPROD)
+                                                                    AND E.CODPROD = EMB.CODPROD
+																	AND EMB.DTINATIVO IS NOT NULL )
                                                                     )
         )
     AND E.QTMINIMAATACADO >= 1
