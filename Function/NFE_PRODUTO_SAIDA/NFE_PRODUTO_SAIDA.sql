@@ -1123,7 +1123,7 @@ begin
       RETORNO(RETORNO.COUNT).NUMRECEITUARIOAGRICOLA     := NULL;
       RETORNO(RETORNO.COUNT).VIBSESTCRED                := PRODUTO.VIBSESTCRED;
       RETORNO(RETORNO.COUNT).VCBSESTCRED                := PRODUTO.VCBSESTCRED;
-      RETORNO(RETORNO.COUNT).CBENEFRBC                  := NULL
+      RETORNO(RETORNO.COUNT).CBENEFRBC                  := NULL;
     end loop;
   end if;
   --fim processo de geração do item de notas complementares ou notas de ajustes
