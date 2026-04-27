@@ -22,4 +22,12 @@ BEGIN
     
     -- Log de acompanhamento
     -- DBMS_OUTPUT.PUT_LINE('*** Atualização concluída. Total de linhas atualizadas: ' || v_total || ' ***');
+	
+    EXECUTE IMMEDIATE 'ALTER TABLE PCCORTEI DROP CONSTRAINT PCCORTEI_PK';
+
+    EXECUTE IMMEDIATE '
+        ALTER TABLE PCCORTEI 
+        ADD CONSTRAINT PCCORTEI_PK 
+        PRIMARY KEY (CODPROD, NUMCAR, NUMPED, NUMSEQ, QTORIG)
+    ';
 END;
