@@ -1,8 +1,5 @@
 CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
 
-    -- 10_PKG_SL_UPSTREAM.sql
-    -- Correção: Expansão completa do bloco de bind combinado (Start + End PKs) para até 10 colunas.
- 
     FUNCTION IS_TABLE_LOCKED_BY_TRANSACTION(p_table_name IN VARCHAR2) RETURN BOOLEAN IS
     -- Define a transação como autônoma para não afetar a transação principal do Winthor
     PRAGMA AUTONOMOUS_TRANSACTION;
@@ -32,8 +29,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
                 END IF;
         END;
     END IS_TABLE_LOCKED_BY_TRANSACTION;
-	
-	FUNCTION STRIP_WHERE(p_clause IN CLOB) RETURN VARCHAR2 IS
+
+    FUNCTION STRIP_WHERE(p_clause IN CLOB) RETURN VARCHAR2 IS
     BEGIN
         IF p_clause IS NULL THEN RETURN NULL; END IF;
         IF UPPER(SUBSTR(p_clause, 1, 6)) = 'WHERE ' THEN
@@ -93,10 +90,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
         END LOOP;
 
         -- 2. Fase 1: Determinar o Range do Lote
-        --v_sql_pk := 'SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.PK_COLUMNS_LIST || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
-        --v_where_accum := NULL;
-		-- Adicionado o SELECT * FROM ( no início
-        v_sql_pk := 'SELECT * FROM (SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.PK_COLUMNS_LIST || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
+        v_sql_pk := 'SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.PK_COLUMNS_LIST || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
         v_where_accum := NULL;
 
         IF v_entity.CUSTOM_FILTER_CLAUSE IS NOT NULL THEN
@@ -111,9 +105,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
         IF v_where_accum IS NOT NULL THEN v_where_accum := v_where_accum || ' AND '; END IF;
         v_where_accum := v_where_accum || '(' || v_not_null_clause || ')';
 
-        --v_sql_pk := v_sql_pk || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST;
-		v_sql_pk := v_sql_pk || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST || ') WHERE ROWNUM <= ' || p_batch_size;
-		
+        v_sql_pk := v_sql_pk || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST;
+
         -- Parser Dinâmico para o Start PK (Suporta até 10 colunas)
         IF v_last_pk_concat IS NOT NULL THEN
             v_prev_pos := 1;
@@ -233,10 +226,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
             DBMS_LOB.APPEND(v_pk_upper_clause, ')');
         END LOOP;
 
-        --v_sql_data := 'SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.DATA_SELECT_TEMPLATE || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
-		-- Adicionado o SELECT * FROM ( no início
-		v_sql_data := 'SELECT * FROM (SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.DATA_SELECT_TEMPLATE || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
-		
+        v_sql_data := 'SELECT /*+ FIRST_ROWS(' || p_batch_size || ') */ ' || v_entity.DATA_SELECT_TEMPLATE || ' FROM ' || v_entity.OWNER || '.' || v_entity.SOURCE_TABLE_NAME || ' s ';
         v_where_accum := NULL;
         IF v_entity.CUSTOM_FILTER_CLAUSE IS NOT NULL THEN
             v_where_accum := '(' || v_entity.CUSTOM_FILTER_CLAUSE || ')';
@@ -250,9 +240,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SL_UPSTREAM AS
         IF v_where_accum IS NOT NULL THEN v_where_accum := v_where_accum || ' AND '; END IF;
         v_where_accum := v_where_accum || '(' || v_pk_upper_clause || ')';
 
-        --v_sql_data := v_sql_data || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST;
-		-- Fechando o parêntese e adicionando a limitação do ROWNUM
-        v_sql_data := v_sql_data || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST || ') WHERE ROWNUM <= ' || p_batch_size;
+        v_sql_data := v_sql_data || ' WHERE ' || v_where_accum || ' ORDER BY ' || v_entity.PK_COLUMNS_LIST;
         
         DBMS_LOB.FREETEMPORARY(v_pk_upper_clause);
 
