@@ -104,10 +104,10 @@ VALUES
                WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
                  AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM
                  AND PCNFSAID.NUMTRANSVENDA = :NUM_TRANSACAO
-                 AND NVL(PCMOVCOMPLE.CSTICMS, ''00'') = ''90''
-                 AND NVL(PCMOVCOMPLE.BASEICMS, 0) = 0
-                 AND NVL(PCMOVCOMPLE.ALIQICMS, 0) = 0
-             )',
+                 AND NVL(PCMOV.SITTRIBUT, ''00'') = ''90''
+                 AND NVL(PCMOV.BASEICMS, 0) = 0
+                 AND NVL(PCMOV.PERCICM, 0) = 0
+                 AND NVL(PCMOVCOMPLE.VLICMS, 0) > 0)',
      'S',
      'N');
 
