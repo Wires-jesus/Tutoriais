@@ -7851,8 +7851,229 @@ create or replace package body FISCAL is
       );
     END IF;
   END;
+  
+  ----- FUNCTION DO PROCESSO - CODIGO BENFICIO FISCAL 
+  FUNCTION CODIGO_BENEFICIO_FISCAL(P_PARAMETROS in TIPO_CODIGO_BENEFICIO_FISCAL)
+   RETURN TIPO_CODIGO_BENEFICIO_FISCAL IS
+   ---------------------------------------------------------------------------------  
+   V_DADOS_BENEFICIOFISCAL TIPO_CODIGO_BENEFICIO_FISCAL;
+   ---------------------------------------------------------------------------------
+   V_TIPOTRIBUTACAOENTRADA       VARCHAR2(1);
+   VSQL                          VARCHAR2(6000);
+   VCODIGOBENEFICIOFISCAL        VARCHAR2(10);
+   VCODIGOBENEFICIOFISCALEXCECAO VARCHAR2(10);
+   VCODIGOBENEFICIOFISCALRBC     VARCHAR2(10);   
+   VCODIGOBENEFICIOFISCALCOMPLEM VARCHAR2(10);   
+   VCONTADORTABELA               INTEGER;
+   VCONTADORCAMPO                INTEGER;
+   VMENSAGEM_RETORNO             VARCHAR2(4000); 
+   ---------------------------------------------------------------------------------
+   FUNCTION OBTER_CODCADASTROEXCECAO RETURN VARCHAR2
+            IS VCODCADASTROEXCECAO VARCHAR2(10);
+   BEGIN
+      VCODCADASTROEXCECAO := NULL;
+      VSQL := '';
+      BEGIN
+      -- VERIFICAR EXCEÇÃO COM CÓDIGO DE PRODUTO, CÓDIGO DE CLIENTE, CÓDIGO DE FIGURA TRIBUTÁRIA E CÓDIGO DE NCM
+            VSQL := 'SELECT E.CODCADASTROEXCECAO,                                                                                    ' ||
+                    '       E.CODBENEFICIOFISCALCOMPLE                                                                               ' ||
+                    'FROM PCCODIGOBENEFICIOFISCAL B,                                                                                 ' ||
+                    '     (SELECT CODEXCECAO,                                                                                        ' ||
+                    '             CODCADASTROPRINC,                                                                                  ' ||
+                    '             CODCADASTROEXCECAO,                                                                                ' ||
+                    '             TIPO1,                                                                                             ' ||
+                    '             VALOR1,                                                                                            ' ||
+                    '             TIPO2,                                                                                             ' ||
+                    '             VALOR2,                                                                                            ' ||
+                    '             CODBENEFICIOFISCALCOMPLE                                                                           ' ||
+                    '      FROM PCEXCECAOCADASTROSFISCAIS                                                                            ' ||
+                    '      WHERE CODCADASTROPRINC = :VCODIGOBENEFICIOFISCAL                                                          ' ||
+                    '        AND ROTINA = ''PCSIS4008'') E                                                                           ' ||
+                    'WHERE B.CODIGOBENEFICIO = E.CODCADASTROPRINC                                                                    ' ||
+                    '  AND B.UF = :P_UFORIGEM                                                                                        ' ||
+                    '  AND NVL(B.TIPOCREDPRES,''AB'') IN (''AB'',''CB'')                                                             ' ||
+                    '  AND (NVL(E.VALOR1, ''0'') =  (DECODE(NVL(E.TIPO1,''XX''), ''PR'', :P_CODPROD, ''CC'', :P_CODCLI, ''FT'', :P_FIGURATRIBUTARIA, ''CM'', :P_NCM)))          ' ||
+                    '  AND ((TRIM(E.VALOR2) IS NULL ) OR                                                                             ' ||
+                    '       (TRIM(NVL(E.VALOR2, ''0'')) =  (DECODE(NVL(E.TIPO2, ''XX''), ''PR'', :P_CODPROD, ''CC'', :P_CODCLI, ''FT'', :P_FIGURATRIBUTARIA, ''CM'', :P_NCM)))) ' ||
+                    '  AND ROWNUM = 1                                                                                                ' ||
+                    '  ORDER BY DECODE(NVL(E.TIPO1,''XX''), ''PR'', 1, ''CM'', 2,''FT'', 3, ''CC'', 4),                              ' ||
+                    '           DECODE(NVL(E.TIPO2,''XX''), ''PR'', 1, ''CM'', 2,''FT'', 3, ''CC'', 4)                               ';
+
+            EXECUTE IMMEDIATE VSQL
+               INTO VCODCADASTROEXCECAO, VCODIGOBENEFICIOFISCALCOMPLEM
+              USING VCODIGOBENEFICIOFISCAL, 
+                    V_DADOS_BENEFICIOFISCAL.UFORIGEM, 
+                    V_DADOS_BENEFICIOFISCAL.CODPROD, 
+                    V_DADOS_BENEFICIOFISCAL.CODCLI, 
+                    V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA, 
+                    V_DADOS_BENEFICIOFISCAL.NCM, 
+                    V_DADOS_BENEFICIOFISCAL.CODPROD, 
+                    V_DADOS_BENEFICIOFISCAL.CODCLI, 
+                    V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA, 
+                    V_DADOS_BENEFICIOFISCAL.NCM;
+
+            EXCEPTION
+            WHEN OTHERS THEN
+              VCODCADASTROEXCECAO := NULL;
+            END;
+
+      IF VCODCADASTROEXCECAO IS NOT NULL THEN
+         RETURN VCODCADASTROEXCECAO;
+      ELSE
+         RETURN VCODIGOBENEFICIOFISCAL;
+      END IF;
+
+   END OBTER_CODCADASTROEXCECAO;
+   ---------------------------------------------------------------------------------   
+   BEGIN  --- INICIO 
+    VCODIGOBENEFICIOFISCAL        := NULL;
+    VCODIGOBENEFICIOFISCALEXCECAO := NULL;  
+    VCODIGOBENEFICIOFISCALRBC     := NULL; 
+    VCODIGOBENEFICIOFISCALCOMPLEM := NULL; 
+    VMENSAGEM_RETORNO             := NULL; 
+    V_DADOS_BENEFICIOFISCAL       := P_PARAMETROS;
+   ---------------------------------------------------------------------------------   
+   
+    PKG_DEBUGGING_FWPC.LOG('021 - Parametros registrados FISCAL Beneficio Fiscal:'|| CHR(10) ||
+       ' Natureza    : '   || V_DADOS_BENEFICIOFISCAL.NATUREZAVINCULO  || CHR(10) ||
+       ' Tipo Cliente :'   || V_DADOS_BENEFICIOFISCAL.TIPOCLIENTEFORNEC|| CHR(10) ||
+       ' Filial   : '      || V_DADOS_BENEFICIOFISCAL.CODFILIAL        || CHR(10) ||
+       ' Cod.Produto: '    || V_DADOS_BENEFICIOFISCAL.CODPROD          || CHR(10) ||
+       ' UF Origem : '     || V_DADOS_BENEFICIOFISCAL.UFORIGEM         || CHR(10) ||
+       ' UF Destino   : '  || V_DADOS_BENEFICIOFISCAL.UFDESTINO        || CHR(10) ||
+       ' NCM : '           || V_DADOS_BENEFICIOFISCAL.NCM              || CHR(10) ||
+       ' Fig.Tribut   : '  || V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA || CHR(10) ||
+       ' Cst Icms       : '|| V_DADOS_BENEFICIOFISCAL.CSTICMS          || CHR(10) ||
+       ' Cod.Fiscal: '     || V_DADOS_BENEFICIOFISCAL.CODFISCAL        || CHR(10) ||
+       ' Cod.Cli   : '     || V_DADOS_BENEFICIOFISCAL.CODCLI           || CHR(10) ||
+       ' N.Processo   : '  || V_DADOS_BENEFICIOFISCAL.NOVOPROCESSO     || CHR(10) ||
+       ' Prefat     : '    || V_DADOS_BENEFICIOFISCAL.PREFAT           || CHR(10) ||
+       ' Num.TransItem   :'|| V_DADOS_BENEFICIOFISCAL.NUMTRANSITEM ,'S');  
+
+   ---------------------------------------------------------------------------------
+   -- VERIFICAR SE A TABELA JÁ FOI CRIADA NO BANCO DE DADOS PARA QUE NÃO OCORRA ERROS NO PROCESSO ANTIGO.
+   SELECT COUNT(TABLE_NAME) CONT
+     INTO VCONTADORTABELA
+     FROM ALL_TABLES
+    WHERE TABLE_NAME = 'PCEXCECAOCADASTROSFISCAIS';
+   ---------------------------------------------------------------------------------
+   -- VERIFICAR SE OS CAMPOS DA TABELA PCCODIGOBENEFICIOFISCALVINCULO JÁ FORAM CRIADOS NO BANCO DE DADOS PARA QUE NÃO OCORRA ERROS NO PROCESSO ANTIGO.
+   SELECT COUNT(COLUNAS.COLUMN_NAME) CONT
+     INTO VCONTADORCAMPO
+     FROM USER_TABLES TABELA,
+          USER_TAB_COLUMNS COLUNAS
+    WHERE TABELA.TABLE_NAME = COLUNAS.TABLE_NAME
+      AND TABELA.TABLE_NAME = 'PCCODIGOBENEFICIOFISCALVINCULO'
+      AND COLUNAS.COLUMN_NAME IN ('SITTRIBUT', 'CODFISCAL');
+   ---------------------------------------------------------------------------------    
+   IF (V_DADOS_BENEFICIOFISCAL.NOVOPROCESSO = 'S') AND 
+      (VCONTADORTABELA > 0) AND 
+      (VCONTADORCAMPO > 0) THEN
+      BEGIN
+         IF V_DADOS_BENEFICIOFISCAL.CSTICMS IS NULL THEN
+           VMENSAGEM_RETORNO := 'N: O PARAMETRO CSTICMS NÃO FOI INFORMADO.';
+           RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
+         END IF;
+
+         IF V_DADOS_BENEFICIOFISCAL.CODFISCAL = 0 OR 
+		        V_DADOS_BENEFICIOFISCAL.CODFISCAL IS NULL THEN
+           VMENSAGEM_RETORNO := 'N: O PARAMETRO CODFISCAL NÃO FOI INFORMADO.';
+           RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
+         END IF;
+
+         IF V_DADOS_BENEFICIOFISCAL.UFORIGEM IS NOT NULL AND 
+		        V_DADOS_BENEFICIOFISCAL.CSTICMS IS NOT NULL AND 
+			      V_DADOS_BENEFICIOFISCAL.CODFISCAL > 0 THEN
+            BEGIN
+              SELECT COD.CODIGOBENEFICIO,
+                     COD.CODBENEFICIOFISCALCOMPLE, 
+					           COD.CBENEFRBC
+                INTO VCODIGOBENEFICIOFISCAL,
+                     VCODIGOBENEFICIOFISCALCOMPLEM,
+					           VCODIGOBENEFICIOFISCALRBC
+                FROM PCCODIGOBENEFICIOFISCALVINCULO COD,
+                     PCCODIGOBENEFICIOFISCAL B
+               WHERE COD.CODIGOBENEFICIO = B.CODIGOBENEFICIO
+                 AND NVL(B.TIPOCREDPRES,'AB') IN ('AB','CB')
+                 AND COD.SITTRIBUT = V_DADOS_BENEFICIOFISCAL.CSTICMS
+                 AND COD.CODFISCAL = V_DADOS_BENEFICIOFISCAL.CODFISCAL
+                 AND COD.UFDESTINO = V_DADOS_BENEFICIOFISCAL.UFORIGEM
+                 AND NVL(COD.FIGURATRIBUTARIA,0) = TO_CHAR(V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA)
+                 AND ROWNUM = 1;
+
+                 VMENSAGEM_RETORNO := 'S: CÓDIGO BENEFÍCIO LOCALIZADO POR FIGURA TRIBUTÁRIA.';
+            EXCEPTION
+               WHEN NO_DATA_FOUND THEN
+                 BEGIN
+                    SELECT COD.CODIGOBENEFICIO,
+                           COD.CODBENEFICIOFISCALCOMPLE,
+						               COD.CBENEFRBC
+                      INTO VCODIGOBENEFICIOFISCAL,
+                           VCODIGOBENEFICIOFISCALCOMPLEM, 
+						               VCODIGOBENEFICIOFISCALRBC
+                      FROM PCCODIGOBENEFICIOFISCALVINCULO COD,
+                           PCCODIGOBENEFICIOFISCAL B
+                     WHERE COD.CODIGOBENEFICIO = B.CODIGOBENEFICIO
+                       AND NVL(B.TIPOCREDPRES,'AB') IN ('AB','CB')
+                       AND COD.SITTRIBUT = V_DADOS_BENEFICIOFISCAL.CSTICMS
+                       AND COD.CODFISCAL = V_DADOS_BENEFICIOFISCAL.CODFISCAL
+                       AND COD.UFDESTINO = V_DADOS_BENEFICIOFISCAL.UFORIGEM
+                       AND COD.FIGURATRIBUTARIA IS NULL
+                       AND ROWNUM = 1;
+
+                       VMENSAGEM_RETORNO := 'S: CÓDIGO BENEFÍCIO LOCALIZADO SEM FIGURA TRIBUTÁRIA.';
+                  EXCEPTION
+                     WHEN NO_DATA_FOUND THEN
+                        VCODIGOBENEFICIOFISCAL := '';
+                        VMENSAGEM_RETORNO := 'S: NÃO ENCONTRADO CÓDIGO BENEFÍCIO';
+                  END;
+            END;
+         END IF;
+      EXCEPTION
+         WHEN OTHERS THEN
+            IF VCODIGOBENEFICIOFISCAL IS NULL THEN
+               VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO CÓDIGO BENEFÍCIO FISCAL.';
+            END IF;
+      END;
+
+      BEGIN
+          IF (VCODIGOBENEFICIOFISCAL IS NOT NULL) THEN
+             VCODIGOBENEFICIOFISCALEXCECAO := OBTER_CODCADASTROEXCECAO;
+          END IF;
+      EXCEPTION
+         WHEN OTHERS THEN
+            IF VCODIGOBENEFICIOFISCAL IS NULL THEN
+               VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO CÓDIGO BENEFÍCIO FISCAL.';
+            END IF;
+      END;
+
+      IF (VCODIGOBENEFICIOFISCAL IS NOT NULL) THEN
+         BEGIN
+            VCODIGOBENEFICIOFISCALEXCECAO := OBTER_CODCADASTROEXCECAO;
+            
+            IF VCODIGOBENEFICIOFISCALEXCECAO IS NOT NULL THEN
+              VCODIGOBENEFICIOFISCAL := VCODIGOBENEFICIOFISCALEXCECAO;
+            END IF;
+         EXCEPTION
+            WHEN OTHERS THEN
+               IF VCODIGOBENEFICIOFISCALEXCECAO IS NULL THEN
+                  VMENSAGEM_RETORNO := 'S: CÓDIGO BENEFÍCIO LOCALIZADO, MAS CÓDIGO DE BENEFÍCIO DE EXCEÇÃO NÃO FOI ENCONTRADO.';
+               END IF;
+         END;
+      END IF;
+   END IF;
+   -----------------------------------------------------------------------------------------    
+
+   V_DADOS_BENEFICIOFISCAL.CODBENEFICIOFISCAL             := VCODIGOBENEFICIOFISCAL;
+   V_DADOS_BENEFICIOFISCAL.CODBENEFICIOFISCALCOMPLEMENTAR := VCODIGOBENEFICIOFISCALCOMPLEM;
+   V_DADOS_BENEFICIOFISCAL.CODBENEFICIOFISCALRBC          := VCODIGOBENEFICIOFISCALRBC;
+   V_DADOS_BENEFICIOFISCAL.CODBENEFICIOFISCALEXCECAO      := VCODIGOBENEFICIOFISCALEXCECAO;
+   V_DADOS_BENEFICIOFISCAL.MENSAGEM_RETORNO               := VMENSAGEM_RETORNO; 
+
+    RETURN V_DADOS_BENEFICIOFISCAL;
+  END CODIGO_BENEFICIO_FISCAL;  
 
 END;
+-- Alteração 23/04/2026 - Implementado função CODIGO_BENEFICIO_FISCAL
 -- Alteração 26/03/2026 - Implementado de 2 para 10 casas decimais o cálculo do campo VIBS que recebe a soma do vIBSUF e vIBSMun
 -- Alteração 17/03/2026 - Inclusão do processo de não calcular os tributos para filial do simples nacional.
--- Alteração 20/02/2026 - Inclusão de tratamento para o tributo regular não calcular se objeto não for preenchido.
