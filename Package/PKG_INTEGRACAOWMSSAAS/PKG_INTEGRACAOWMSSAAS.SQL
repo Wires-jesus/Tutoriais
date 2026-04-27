@@ -48,6 +48,12 @@ CREATE OR REPLACE PACKAGE PKG_INTEGRACAOWMSSAAS IS
                        pTIPO  IN VARCHAR2,
                        pBODY  IN VARCHAR2);
 
+  PROCEDURE GRAVAR_LOG(pPATCH IN VARCHAR2,
+                       pTIPO  IN VARCHAR2,
+                       pDESCRICAO  IN VARCHAR2,
+                       pBODY  IN VARCHAR2,
+                       pIDENTIFICADOR  IN VARCHAR2);
+
   PROCEDURE ENVIARDOCFILAINTEGRACAOITEM(pNUMDOCWMSSAAS IN NUMBER,
                                         pCODPROD       IN NUMBER,
                                         pQTORIG        IN NUMBER,
