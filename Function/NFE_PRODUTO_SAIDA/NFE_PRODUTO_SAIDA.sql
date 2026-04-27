@@ -452,15 +452,6 @@ begin
         AND NVL(PRODUTO.VLICMS_COMPLE, 0) > 0
         THEN
           RETORNO(RETORNO.COUNT).VALOR_ICMS     := PRODUTO.VLICMS_COMPLE;
-
-          RETORNO(RETORNO.COUNT).OBSFISCOXTEXTO :=
-            SUBSTR(
-              NVL(RETORNO(RETORNO.COUNT).OBSFISCOXTEXTO, '') ||
-              CASE WHEN RETORNO(RETORNO.COUNT).OBSFISCOXTEXTO IS NOT NULL
-                   THEN ' | ' ELSE '' END ||
-              'Procedimento autorizado conforme Convenio ICMS no 109/24',
-              1, 500
-            );
     END IF;
 
    end loop;
