@@ -18,8 +18,10 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS AS
      CODIGO_MENSAGEM_RETORNO   NUMBER,
      MENSAGEM_RETORNO          VARCHAR2(4000)
   );
-
+  
   FUNCTION RETORNA_GRAVARLOG RETURN VARCHAR2;
+
+  PROCEDURE CONSULTAR_E_GRAVAR_COD_BENEF(P_PARAMETROS IN T_PARAMETROS_CENTRAL_TRIBUTOS);
 
   FUNCTION CALCULAR_E_GRAVAR_CBSIBS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMETROS_CENTRAL_TRIBUTOS)
     RETURN T_PARAMETROS_CENTRAL_TRIBUTOS;
@@ -29,18 +31,19 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS AS
 
   FUNCTION CALCULAR_E_GRAVAR_TODOS_TRIB(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMETROS_CENTRAL_TRIBUTOS)
     RETURN T_PARAMETROS_CENTRAL_TRIBUTOS;
+   
 
   PROCEDURE CALC_E_GRAVAR_TODOS_TRIB_TEST(P_CODIGO_FILIAL           IN  VARCHAR2,
-                                         P_NUMERO_NOTA             IN  NUMBER,
-                                         P_NUMERO_TRANSACAO        IN  NUMBER,
-                                         P_NUMERO_PEDIDO           IN  NUMBER,
-                                         P_TIPOMOVIMENTO           IN  VARCHAR2,
-                                         P_DEVOLUCAO               IN  VARCHAR2,
-                                         P_PRE_FATURAMENTO         IN  VARCHAR2,
-                                         P_ESPECIE                 IN  VARCHAR2,
-                                         P_NFCIAP                  IN  VARCHAR2,
-                                         P_CODIGO_MENSAGEM_RETORNO OUT NUMBER,
-                                         P_MENSAGEM_RETORNO        OUT VARCHAR2
+                                          P_NUMERO_NOTA             IN  NUMBER,
+                                          P_NUMERO_TRANSACAO        IN  NUMBER,
+                                          P_NUMERO_PEDIDO           IN  NUMBER,
+                                          P_TIPOMOVIMENTO           IN  VARCHAR2,
+                                          P_DEVOLUCAO               IN  VARCHAR2,
+                                          P_PRE_FATURAMENTO         IN  VARCHAR2,
+                                          P_ESPECIE                 IN  VARCHAR2,
+                                          P_NFCIAP                  IN  VARCHAR2,
+                                          P_CODIGO_MENSAGEM_RETORNO OUT NUMBER,
+                                          P_MENSAGEM_RETORNO        OUT VARCHAR2
    );
 
 END PKG_CENTRAL_TRIBUTOS;
