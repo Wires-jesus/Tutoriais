@@ -78,9 +78,46 @@ BEGIN
     (CODMENSAGEM, ORDEM, TEXTO)
   VALUES
     (vCodMensagem, 0, '[MENSAGEM01]');
-  ------------------Fim: Operação sujeita à redução linear de benefícios da LC 224/2025 (NF-e)------------------
+------------------Fim: Operação sujeita à redução linear de benefícios da LC 224/2025 (NF-e)------------------
 ------------------------------------------------------------------------------------------------------------------------------
-  
+------------------Inicio: Procedimento autorizado conforme Convênio ICMS nº 109/24------------------
+vCodMensagem := getNextvalSequence();
+  vNomeMensagem := 'Procedimento autorizado conforme Convênio ICMS nº 109/24';
+  vMovimento := 'SA';
+
+  if mensagemJaExiste(vNomeMensagem, vMovimento) = 'S' then
+    deletarMensagemExiste(vNomeMensagem, vMovimento);
+end if;
+
+INSERT INTO PCMENSAGEMADICIONAL
+(CODMENSAGEM, DESCRICAO, MOVIMENTO, SQL, MENSAGEMATIVA, OBRIGATORIA)
+VALUES
+    (vCodMensagem,
+     vNomeMensagem,
+     vMovimento,
+     'SELECT DISTINCT MENSAGEM01
+        FROM (
+              SELECT ''Procedimento autorizado conforme Convênio ICMS nº 109/24'' MENSAGEM01
+                FROM PCNFSAID
+                    ,PCMOV
+                    ,PCMOVCOMPLE
+               WHERE PCNFSAID.NUMTRANSVENDA = PCMOV.NUMTRANSVENDA
+                 AND PCMOV.NUMTRANSITEM = PCMOVCOMPLE.NUMTRANSITEM
+                 AND PCNFSAID.NUMTRANSVENDA = :NUM_TRANSACAO
+                 AND NVL(PCMOV.SITTRIBUT, ''00'') = ''90''
+                 AND NVL(PCMOV.BASEICMS, 0) = 0
+                 AND NVL(PCMOV.PERCICM, 0) = 0
+                 AND NVL(PCMOVCOMPLE.VLICMS, 0) > 0)',
+     'S',
+     'N');
+
+INSERT INTO PCMENSAGEMADICIONALITENS
+(CODMENSAGEM, ORDEM, TEXTO)
+VALUES
+    (vCodMensagem, 0, '[MENSAGEM01]');
+------------------Fim: Procedimento autorizado conforme Convênio ICMS nº 109/24------------------
+------------------------------------------------------------------------------------------------------------------------------
+
   
   COMMIT;
 END;

@@ -445,7 +445,16 @@ begin
     RETORNO(RETORNO.COUNT).VIBSESTCRED                := PRODUTO.VIBSESTCRED;
     RETORNO(RETORNO.COUNT).VCBSESTCRED                := PRODUTO.VCBSESTCRED;
     RETORNO(RETORNO.COUNT).CBENEFRBC                  := PRODUTO.CBENEFRBC;
-  end loop;
+
+    -- Convênio ICMS 109/24: recupera VLICMS da view quando CST=90 e base/alíquota zeradas
+        IF  PRODUTO.SITUACAO_TRIBUTARIA = '90'
+        AND NVL(PRODUTO.BASE_ICMS, 0)     = 0
+        AND NVL(PRODUTO.VLICMS_COMPLE, 0) > 0
+        THEN
+          RETORNO(RETORNO.COUNT).VALOR_ICMS     := PRODUTO.VLICMS_COMPLE;
+    END IF;
+
+   end loop;
 
   --inicio processo de gera??o do item de notas complementares ou notas de ajustes.
   if RETORNO.count = 0
