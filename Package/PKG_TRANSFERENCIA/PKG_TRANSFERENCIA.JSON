@@ -12,6 +12,11 @@
       "tipo":"TABELA",
       "versao": "7.0.06.000"
     },
+	{
+      "nome": "PCTRIBUT",
+      "tipo":"TABELA",
+      "versao": "8.0.02.000"
+    },
     {
       "nome": "PCTRIBUTACAO",
       "tipo":"TABELA",
