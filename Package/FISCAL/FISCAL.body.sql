@@ -7858,12 +7858,11 @@ create or replace package body FISCAL is
    ---------------------------------------------------------------------------------  
    V_DADOS_BENEFICIOFISCAL TIPO_CODIGO_BENEFICIO_FISCAL;
    ---------------------------------------------------------------------------------
-   V_TIPOTRIBUTACAOENTRADA       VARCHAR2(1);
    VSQL                          VARCHAR2(6000);
    VCODIGOBENEFICIOFISCAL        VARCHAR2(10);
    VCODIGOBENEFICIOFISCALEXCECAO VARCHAR2(10);
    VCODIGOBENEFICIOFISCALRBC     VARCHAR2(10);   
-   VCODIGOBENEFICIOFISCALCOMPLEM VARCHAR2(10);   
+   VCODIGOBENEFICIOFISCALCOMPLEM VARCHAR2(100);   
    VCONTADORTABELA               INTEGER;
    VCONTADORCAMPO                INTEGER;
    VMENSAGEM_RETORNO             VARCHAR2(4000); 
