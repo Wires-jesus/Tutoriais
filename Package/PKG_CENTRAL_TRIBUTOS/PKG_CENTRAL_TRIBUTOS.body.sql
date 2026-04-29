@@ -730,7 +730,7 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
   END GRAVAR_PCMOV_TRIBUTO;
 
   PROCEDURE GRAVAR_PCMOVCOMPLE(P_DADOS_BENEFICIOFISCAL IN FISCAL.TIPO_CODIGO_BENEFICIO_FISCAL) IS
-    V_TABELA VARCHAR2(15);   
+    V_TABELA VARCHAR2(20);   
     BEGIN
      BEGIN 
       IF P_DADOS_BENEFICIOFISCAL.PREFAT  = 'S' THEN
@@ -1277,6 +1277,6 @@ END CALC_E_GRAVAR_TODOS_TRIB_TEST;
   END CONSULTAR_E_GRAVAR_COD_BENEF;  
   ----------------------------------------------------------------------------------------------------
 END PKG_CENTRAL_TRIBUTOS;
--- Alteração 23/04/2026 -
+-- Alteração 23/04/2026 - Implementado processo de pesquisa e grvação do beneficio fiscal. 
 -- Alteração 19/03/2026 - Retirando a chamada e gravação dos tributos de documento "entrada devolução"
 -- Alteração 17/03/2026 - Implementado do processo do simples nacional 
