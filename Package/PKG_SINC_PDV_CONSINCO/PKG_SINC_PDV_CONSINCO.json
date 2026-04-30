@@ -90,7 +90,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_DESC561",
 			"tipo": "MIGRATION",
-			"versao": "8.0.03.000"
+			"versao": "8.0.04.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_INCENTIVO",
@@ -130,7 +130,7 @@
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQUENCE",
 			"tipo": "MIGRATION",
-			"versao": "8.0.04.000"
+			"versao": "8.0.03.000"
 		},
 		{
 			"nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
