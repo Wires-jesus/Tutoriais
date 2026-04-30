@@ -1286,8 +1286,9 @@ END;
         THEN
         ROWPCMOV_ET.DATAESTOQUE := '';
       END IF;
-      ROWPCMOV_ET.ROTINACAD := OBTER_NOME_PROGRAMA;
-      ROWPCMOV_ET.VITEM := ROWPCMOV_ET.PUNITCONT;
+      ROWPCMOV_ET.ROTINACAD  := OBTER_NOME_PROGRAMA;
+      ROWPCMOV_ET.VITEM      := ROWPCMOV_ET.PUNITCONT;
+	  ROWPCMOV_ET.VLCREDICMS := MOV_ENT.VLICMS_MOV_COMPLE;
       --------------------------- INSERIR PCMOV - CODOPER = 'ET' ----------------------------------
       INSERT INTO PCMOV ROWPCMOV_ET VALUES ROWPCMOV_ET;
       ---------------------------------------------------------------------------------------------

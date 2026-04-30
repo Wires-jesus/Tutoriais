@@ -3,7 +3,7 @@
 
 CREATE OR REPLACE PROCEDURE PRC_SL_SETUP_INFRASTRUCTURE (
     p_force_recreate IN NUMBER DEFAULT 0 -- 0 = Preserva se existir; 1 = Dropa e recria tudo
-) IS
+) AUTHID CURRENT_USER IS
     v_action_log VARCHAR2(4000);
 
     -- Sub-procedure para executar DDL de criação com tratamento de erro -955 (Objeto já existe)
