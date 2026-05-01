@@ -1533,6 +1533,8 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
           EXCEPTION
             WHEN NO_DATA_FOUND THEN
               vnIntegradora := NULL;
+            WHEN OTHERS THEN
+              vnIntegradora := NULL;              
           END;
           -- Se não for a mesma integradora
           IF (NVL(p_integradora,0) <> NVL(vnIntegradora,0)) THEN
@@ -1550,14 +1552,19 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
           -- Função para Verificar se Usa Regra Específica de Medicamentos --
           -- 4348.097738.2015
           -------------------------------------------------------------------
-          IF (NVL(p_tipofv,' ') IN ('OL','PE')) THEN
-            vvExistePedPCPEDC := INTEGRADORACOMPLE_MED.FPEDIDO_EXISTE_PCPEDC(cr_pedcab.cgccli,
-                                                                             cr_pedcab.numpedrca,
-                                                                             cr_pedcab.dtaberturapedpalm,
-                                                                             cr_pedcab.codusur);
-          ELSE
-            vvExistePedPCPEDC := 'N';
-          END IF;
+          BEGIN          
+            IF (NVL(p_tipofv,' ') IN ('OL','PE')) THEN
+              vvExistePedPCPEDC := INTEGRADORACOMPLE_MED.FPEDIDO_EXISTE_PCPEDC(cr_pedcab.cgccli,
+                                                                               cr_pedcab.numpedrca,
+                                                                               cr_pedcab.dtaberturapedpalm,
+                                                                               cr_pedcab.codusur);
+            ELSE
+              vvExistePedPCPEDC := 'N';
+            END IF;
+          EXCEPTION
+            WHEN OTHERS THEN
+              vvExistePedPCPEDC := 'N';  -- em caso de erro, segue processamento normal
+          END;          
 
           -- Se o Pedido existe na PCPEDC
           IF (SUBSTR(vvExistePedPCPEDC,1,1) = 'S') THEN
@@ -2082,6 +2089,19 @@ PROCEDURE proc_processarleitura(p_existerro   IN OUT BOOLEAN,
               if gregpedido.codmotivonaoatend is null then
                 gregpedido.codmotivonaoatend := 2;
               end if;
+              BEGIN
+                UPDATE pcpedcfv
+                   SET importado       = 3,
+                       observacao_pc   = 'Erro ao processar leitura',
+                       posicao_atual   = 'R'
+                 WHERE numpedrca         = cr_pedcab.numpedrca
+                   AND codusur           = cr_pedcab.codusur
+                   AND cgccli            = cr_pedcab.cgccli
+                   AND dtaberturapedpalm = cr_pedcab.dtaberturapedpalm;
+                COMMIT;
+              EXCEPTION
+                WHEN OTHERS THEN NULL;
+              END;              
       END;
 
     END LOOP;
@@ -34124,6 +34144,18 @@ PROCEDURE proc_encontracmvcomred (p_regitem       IN t_itemped,
         EXCEPTION
           WHEN OTHERS THEN
             ROLLBACK;
+            BEGIN
+              UPDATE pcpedcfv
+                 SET importado = 3
+               WHERE numpedrca         = gvet_regpedido(i).numpedrca
+                 AND codusur           = gvet_regpedido(i).codusur
+                 AND cgccli            = gvet_regpedido(i).cgccli
+                 AND dtaberturapedpalm = gvet_regpedido(i).dtaberturapedpalm;
+              COMMIT;
+            EXCEPTION
+              WHEN OTHERS THEN NULL;
+            END;            
+            
         END;
 
 
