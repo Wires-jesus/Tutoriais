@@ -1917,6 +1917,8 @@ IS PRAGMA SERIALLY_REUSABLE;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vnCodCliAux := NULL;
+      WHEN OTHERS THEN 
+        vnCodCliAux := NULL;
     END;
 
     -- Pesquisa Pedido
@@ -1932,7 +1934,9 @@ IS PRAGMA SERIALLY_REUSABLE;
          and rownum            = 1;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-       vnNumPedAux := NULL;
+        vnNumPedAux := NULL;
+      WHEN OTHERS THEN 
+        vnNumPedAux := NULL;
     END;
 
     -- Se Pedido existir
