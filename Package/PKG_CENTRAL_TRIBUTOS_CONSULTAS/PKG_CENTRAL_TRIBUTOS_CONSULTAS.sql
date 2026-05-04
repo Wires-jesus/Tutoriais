@@ -65,7 +65,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.ROWID AS ID_PCMOV,
             'S' AS TIPOMOV,            
             'N' AS PREFAT, 
-            F.UF AS UFORIGEM
+            F.UF AS UFORIGEM,
+						N.DTSAIDA AS DATA
        from PCNFSAID       N,
             PCMOV          M,
             PCMOVCOMPLE    MC,
@@ -154,7 +155,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.ROWID AS ID_PCMOV,
             'S' AS TIPOMOV,            
             'S' AS PREFAT, 
-            FI.UF AS UFORIGEM
+            FI.UF AS UFORIGEM,
+						N.DTSAIDA AS DATA
       from PCNFSAIDPREFAT       N,
            PCMOVPREFAT          M,
            PCMOVCOMPLEPREFAT    MC,
@@ -227,7 +229,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             N.ROWID AS ID_PCMOV,
             'S' AS TIPOMOV,
             'N' AS PREFAT, 
-            F.UF AS UFORIGEM             
+            F.UF AS UFORIGEM,
+						N.DTSAIDA AS DATA             
        from PCNFSAID N, PCNFBASE B, PCFILIAL F  
       where NVL(N.CODFILIALNF,N.CODFILIAL) = P_CODFILIAL
         AND F.CODIGO = P_CODFILIAL
@@ -297,7 +300,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.ROWID AS ID_PCMOV,
             'S' AS TIPOMOV,
             'N' AS PREFAT, 
-            F.UF AS UFORIGEM 
+            F.UF AS UFORIGEM,
+						N.DTEMISSAO AS DATA 
       from PCNFENT N, 
            PCMOV M, 
            PCMOVCOMPLE MC, 
@@ -376,7 +380,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             M.ROWID AS ID_PCMOV,
             'E' AS TIPOMOV,
             'N' AS PREFAT, 
-            F.UF AS UFORIGEM      
+            F.UF AS UFORIGEM,
+						N.DTEMISSAO AS DATA      
       from PCNFENT N, 
            PCMOV M, 
            PCMOVCOMPLE MC, 
@@ -440,7 +445,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             C.ROWID AS ID_PCMOV,
             'S' AS TIPOMOV,
             'N' AS PREFAT, 
-            '' AS UFORIGEM 
+            '' AS UFORIGEM,
+						C.DATA  AS DATA 
       from PCPEDC C,
            PCPEDI PI
      where C.CODFILIAL = P_CODFILIAL
@@ -493,7 +499,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
       M.ROWID AS ID_PCMOV,
       'S' AS TIPOMOV,
       'N' AS PREFAT, 
-      F.UF AS UFORIGEM 
+      F.UF AS UFORIGEM,
+			N.DTSAIDA AS DATA 
   FROM PCNFSAID   N
       ,PCMOVCIAP  M
       ,PCPRODCIAP P
@@ -563,7 +570,8 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
       N.ROWID AS ID_PCMOV,
       'E' AS TIPOMOV,
       'N' AS PREFAT, 
-      F.UF AS UFORIGEM     
+      F.UF AS UFORIGEM,
+			N.DTEMISSAO AS DATA     
   FROM PCNFENT    N
       ,PCMOVCIAP  M
       ,PCPRODCIAP P
