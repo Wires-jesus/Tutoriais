@@ -206,6 +206,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
     P_DADOS_BENEFICIOFISCAL.NOVOPROCESSO      := 'S';   
     P_DADOS_BENEFICIOFISCAL.PREFAT            := P_LISTA_DADOS_NOTAS.PREFAT;   
     P_DADOS_BENEFICIOFISCAL.NUMTRANSITEM      := P_LISTA_DADOS_NOTAS.NUMTRANSITEM;
+		P_DADOS_BENEFICIOFISCAL.DTEMISSAO         := P_LISTA_DADOS_NOTAS.DATA;
 
     PKG_DEBUGGING_FWPC.LOG('020 - Parametros registrados CENTRAL para o processo - Beneficio Fiscal:'|| CHR(10) ||
        ' Natureza     : ' || P_DADOS_BENEFICIOFISCAL.NATUREZAVINCULO  || CHR(10) ||
@@ -221,6 +222,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
        ' Cod.Cli      : ' || P_DADOS_BENEFICIOFISCAL.CODCLI           || CHR(10) ||
        ' N.Processo   : ' || P_DADOS_BENEFICIOFISCAL.NOVOPROCESSO     || CHR(10) ||
        ' Prefat       : ' || P_DADOS_BENEFICIOFISCAL.PREFAT           || CHR(10) ||
+			 ' DtEmissao    : ' || P_DADOS_BENEFICIOFISCAL.DTEMISSAO        || CHR(10) ||
        ' Num.TransItem: ' || P_DADOS_BENEFICIOFISCAL.NUMTRANSITEM ,'S');  
   END TRANSPORTAR_LISTA_PARA_TRIB;
   ---------------------------------------------------------------------------------------------
@@ -1269,6 +1271,7 @@ END CALC_E_GRAVAR_TODOS_TRIB_TEST;
          ' Cod.Cli      : ' || V_DADOS_BENEFICIOFISCAL.CODCLI           || CHR(10) ||
          ' N.Processo   : ' || V_DADOS_BENEFICIOFISCAL.NOVOPROCESSO     || CHR(10) ||
          ' Prefat       : ' || V_DADOS_BENEFICIOFISCAL.PREFAT           || CHR(10) ||
+				 ' DtEmissao    : ' || V_DADOS_BENEFICIOFISCAL.DTEMISSAO        || CHR(10) ||
          ' Num.TransItem: ' || V_DADOS_BENEFICIOFISCAL.NUMTRANSITEM ,'S');  
       END LOOP;    
   EXCEPTION
