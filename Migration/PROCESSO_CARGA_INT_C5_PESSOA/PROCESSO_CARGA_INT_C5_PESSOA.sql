@@ -108,9 +108,9 @@ SELECT c.codcli seqpessoa,
        REPLACE(REPLACE(REPLACE(c.cgcent,'.',''),'/',''),'-','') cnpjcpf,
        (CASE
             WHEN NVL(c.tipofj,'J') = 'J'
-                THEN c.ieent
+                THEN REPLACE(REPLACE(REPLACE(c.ieent,'.',''),'/',''),'-','')
             ELSE
-                c.rg
+                REPLACE(REPLACE(REPLACE(c.rg,'.',''),'/',''),'-','')
         END) inscrestadualrg,
        c.dtnasc dtanascimento,
        NVL(c.contribuinte,'N') contribuinteicms,
