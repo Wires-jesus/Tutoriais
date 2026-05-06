@@ -2365,7 +2365,7 @@ GROUP BY   TAB.NUMSQL,
            ------------------------------------------------------------------
            DECODE(NVL(A.CODCLINF, 0), 0, A.CODCLI, A.CODCLINF) CODCLI,
            ------------------------------------------------------------------
-           DECODE(B.TIPO, '1', DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.ALIQUOTA, 0)), 0) PERCICM,
+           DECODE(B.TIPO, '1', DECODE(NVL(B.CTSUBSTITDEICMS,'N'),'N',DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.ALIQUOTA, 0)),0), 0) PERCICM,
            ------------------------------------------------------------------
            DECODE(B.TIPO, '1', 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.ALIQUOTA, 0))) PERCICMNAOTRIB,
            ------------------------------------------------------------------
@@ -2391,15 +2391,15 @@ GROUP BY   TAB.NUMSQL,
            ------------------------------------------------------------------
            CF.CODOPER,
            ------------------------------------------------------------------
-           DECODE(B.TIPO, '1', sum(DECODE(NVL(B.ALIQUOTA, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLBASE, 0)))), 0) VLBASE_ARRED_POR_ITEM,
+           DECODE(B.TIPO, '1', DECODE(NVL(B.CTSUBSTITDEICMS,'N'),'N',sum(DECODE(NVL(B.ALIQUOTA, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLBASE, 0)))),0), 0) VLBASE_ARRED_POR_ITEM,
            ------------------------------------------------------------------
            DECODE(B.TIPO, '1', sum(DECODE(NVL(B.ALIQUOTA, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', NVL(B.VLBASE, 0), 0))), 0) VLBASENAOTRIB,
            ------------------------------------------------------------------
            0 VLBASE_REDUCAO,
            ------------------------------------------------------------------
-           DECODE(B.TIPO, '1', sum(DECODE(NVL(B.ALIQUOTA, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLBASE, 0)))), 0) VLBASE,
+           DECODE(B.TIPO, '1', DECODE(NVL(B.CTSUBSTITDEICMS,'N'),'N',sum(DECODE(NVL(B.ALIQUOTA, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLBASE, 0)))),0), 0) VLBASE,
            ------------------------------------------------------------------
-           DECODE(B.TIPO, '1', sum(DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLICMS, 0))), 0) VLICMS,
+           DECODE(B.TIPO, '1', DECODE(NVL(B.CTSUBSTITDEICMS,'N'),'N',sum(DECODE(B.GERAICMSLIVROFISCAL, 'N', 0, NVL(B.VLICMS, 0))),0), 0) VLICMS,
            ------------------------------------------------------------------
            DECODE(B.TIPO, '1', sum(DECODE(B.GERAICMSLIVROFISCAL, 'N', NVL(B.VLICMS, 0), 0)), 0) VLICMSNAOTRIB,
            ------------------------------------------------------------------
@@ -2673,7 +2673,8 @@ GROUP BY   TAB.NUMSQL,
               A.UF,
               C.ESTENT,
               A.SITUACAONFE,
-              A.DTSAIDA
+              A.DTSAIDA,
+		  NVL(B.CTSUBSTITDEICMS,'N')
        order by
               DTSAIDA,
               NUMTRANSVENDA,
