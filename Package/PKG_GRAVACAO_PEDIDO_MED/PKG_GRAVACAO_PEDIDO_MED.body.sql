@@ -643,6 +643,9 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 65);
       ELSIF pi_nCodMotivo = 22 THEN
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 38);
+        IF (vvRetRegraPermissao = 'N') THEN
+          vvRetRegraPermissao := 'S';
+        END IF;
       ELSE
         CASE pi_vTipoBloqueio
           WHEN 1 THEN
