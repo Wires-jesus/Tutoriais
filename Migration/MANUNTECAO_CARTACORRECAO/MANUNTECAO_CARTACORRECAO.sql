@@ -1,23 +1,19 @@
-begin
-  for mdfes in (select pcmanifestoeletronicoc.numtransacao,
-                       protocolomdfe,
-                       to_char(substr(xmlmdfe,
-                                      instr(xmlmdfe, '<nProt>') + 7,
-                                      15)) as protocolo_xml
-                  from pcmanifestoeletronicoc, pcdoceletronico
-                 where pcmanifestoeletronicoc.numtransacao =
-                       pcdoceletronico.numtransacao
-                   and pcmanifestoeletronicoc.situacaomdfe = 100
-                   and pcmanifestoeletronicoc.protocolomdfe is null
-                   and pcmanifestoeletronicoc.chavemdfe is not null
-                   and pcdoceletronico.movimento = 'M'
-                   and pcdoceletronico.xmlmdfe is not null
-                   and trunc(pcmanifestoeletronicoc.datahorageracao) >= to_date('30-jun-2024') ) loop
-  
-    update pcmanifestoeletronicoc
-       set protocolomdfe = mdfes.protocolo_xml
-     where numtransacao = mdfes.numtransacao
-       and protocolomdfe is null;
-  
-  end loop;
-end;
+BEGIN
+   FOR CC IN (SELECT C.NUMTRANSACAO
+                   , C.NUMCARTACORRECAO
+                   , E.ROWID LINHA
+                FROM PCCARTACORRECAOC C
+                   , PCDOCELETRONICO E
+               WHERE C.SITUACAOCCE = 135
+                 AND C.ESPECIE = 'CC'
+                 AND TRUNC(C.DATACARTACORRECAO) >= TO_DATE('01-jan-2025')
+                 AND C.NUMCARTACORRECAO = E.NUMTRANSACAO
+                 AND E.MOVIMENTO = 'C'
+                 AND E.XMLCCE IS NOT NULL)
+   LOOP
+      UPDATE PCDOCELETRONICO
+         SET NUMTRANSACAO = CC.NUMTRANSACAO
+       WHERE ROWID = CC.LINHA;
+      COMMIT;
+   END LOOP;
+END;
