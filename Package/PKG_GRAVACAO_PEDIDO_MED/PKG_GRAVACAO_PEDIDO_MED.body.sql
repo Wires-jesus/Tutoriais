@@ -625,8 +625,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 46);
       ELSIF pi_nCodMotivo = 5 THEN
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 39);
+        IF (vvRetRegraPermissao = 'N') THEN
+          vvRetRegraPermissao := 'S';
+        END IF;
       ELSIF pi_nCodMotivo = 7 THEN
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 26);
+        IF (vvRetRegraPermissao = 'N') THEN
+          vvRetRegraPermissao := 'S';
+        END IF;
       ELSIF pi_nCodMotivo = 9 THEN
         vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 34);
       ELSIF pi_nCodMotivo = 10 THEN
