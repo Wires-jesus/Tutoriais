@@ -78,7 +78,12 @@ begin
              vPercTotVolume,
              vLancEmbalagensPesoVar
         from pcparametrowms
-       where codfilial = :old.codfilial
+       where codfilial = (select NVL(pcpedi.codfilialretira, :old.codfilial)
+                       from pcpedi, pcfilial
+                      where pcpedi.numped = :old.numped
+                        and pcfilial.usawms = 'S' 
+                        and rownum = 1
+                        and pcfilial.codigo = NVL(pcpedi.codfilialretira, :old.codfilial))
          and nome in ('ALTERARVOLUMEPORPEDIDO',
                       'INTEGRACAOWMS',
                       'TIPOVOLUMEPEDIDOVENDA',
