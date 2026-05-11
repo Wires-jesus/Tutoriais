@@ -3926,6 +3926,28 @@ BEGIN
   */
   IF vDISPDEST < 0 THEN
 
+    -- Validar se usa a requisição automática
+    IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_GERAPREREQDEPNEGATIVO',pnCODFILIAL,'N') = 'N' THEN
+      
+      P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo.'||CHR(13)||
+                               'Favor realizar o ajuste do depósito via inventário ou na rotina 1108.'||CHR(13)||
+                               'Depósito destino..........: '||pnCODDEPOSITO_DEST||CHR(13)||
+                               'Qt. disponível no depósito: '||vDISPDEST||CHR(13)||
+                               'Produto...................: '||pnCODPROD||CHR(13)||
+                               'Filial....................: '||pnCODFILIAL||CHR(13);
+      
+      P_INTERNO.INFORMACOES_LOG := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo. '||
+                               'Favor realizar o ajuste do depósito via inventário ou na rotina 1108. '||
+                               'Depósito destino..........: '||pnCODDEPOSITO_DEST||
+                               ' Qt. disponível no depósito: '||vDISPDEST||
+                               ' Produto...................: '||pnCODPROD||
+                               ' Filial....................: '||pnCODFILIAL;
+      PRIV_GERARLOG;
+      
+      RETURN;  
+      
+    END IF;
+
     -- Alvo do depósito venda:
     IF vQTGERALPCEST < 0 THEN
       vTARGETDEST := vQTGERALPCEST;
@@ -20492,6 +20514,11 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                                     P_INTERNO.NUMPED,      -- pnNUMPED
                                     P_INTERNO.NUMSEQ       -- pnNUMSEQ
                                    );
+
+          IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
+            psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
+            RETURN 0;
+          END IF;                          
 
           -- Valida parametro ... para fechar a requisição automaticamento depois de baixar o estoque na 2030 - DDESTOQUE-20959
           IF (vsROTINA LIKE '%2030%') AND 
