@@ -49,7 +49,7 @@ IS
                  ,BANDEIRACARTAO           ,CODMOEDABAIXA            ,REINFEVENTOR4040      ,CODSERVICOSPEDIRPJ 
                  ,CODSERVICOSPEDIRPF       ,CODSERVICOSPEDBNI        ,CODTIPOCHAVEPIX       ,TIPOCHAVEPIX       
                  ,CHAVEPIX                 ,QRCODEPIX                ,DTCOMPETENCIAIRRETIDO 
-				 ,VLBASEIR,                ,VLBASEPCC
+				 ,VLBASEIR                 ,VLBASEPCC
 			   ';
 			   
     END; --GET_PCLANC
@@ -72,7 +72,8 @@ IS
                  ,RECNUMREF
                  ,PERCRATCONTREF
                  ,TIPOTRIB
-                 ,LANCIMPRETIDO ';
+                 ,LANCIMPRETIDO 
+			    ';
 				 
     END; --GET_PCRATEIOCENTROCUSTO
     
@@ -89,7 +90,8 @@ IS
                  ,CONTRAPARTIDA
                  ,RECNUMPRINC
                  ,CODFILIAL
-                 ,ORCAMENTOEXCEDIDO ';
+                 ,ORCAMENTOEXCEDIDO 
+				';
 		
     END; --GET_PCRATEIOCENTROCUSTOBLOQ
     
