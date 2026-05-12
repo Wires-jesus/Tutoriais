@@ -206,7 +206,8 @@ create or replace package body FISCAL is
                            ,P_ROWIDPCMOV in varchar2
                            ,P_ESTENT     in varchar2
                            ,P_CHAVENFE   IN VARCHAR2
-                           ,P_CONSLIVRO  in varchar2 := 'S' ) return number is
+                           ,P_CONSLIVRO  in varchar2 := 'S'
+													 ,P_NFCOMPLEMENTAR IN VARCHAR2 := 'N' ) return number is
 
    V_VALORICMS              PCMOVCOMPLE.VLICMS%type;
    V_GERABASENORMALQUANDOST varchar2(1);
@@ -231,7 +232,9 @@ create or replace package body FISCAL is
                 CASE  P_CURSOR
                   WHEN 'NF' THEN
                     SUM(
-                        CASE WHEN (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'N') OR
+                        CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+												   ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)													 												
+											       WHEN (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'N') OR
                                   (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
                            0
                         ELSE
@@ -302,10 +305,12 @@ create or replace package body FISCAL is
          SELECT
             CASE P_CURSOR
               WHEN 'NF' THEN
-                SUM(
-                     CASE WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
+                SUM(  
+				CASE WHEN P_NFCOMPLEMENTAR = 'S' AND NVL(MC.VLICMS,0) > 0 AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+				    ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)	
+                             WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
                           (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
-                        0
+                            0
                      ELSE
 ---------------
                       DECODE(B.CODOPER,'ET',
@@ -326,8 +331,10 @@ create or replace package body FISCAL is
                    END)
 
               WHEN 'NFE' THEN
-                SUM(
-                CASE WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
+                SUM(  
+				 CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+					ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)	
+                         WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
                           (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
                    0
                 ELSE
@@ -348,9 +355,14 @@ create or replace package body FISCAL is
                         )
                 END)
               WHEN 'IMP' THEN
-                 SUM(DECODE(NVL(B.PERCICM, 0), 0, 0,
-                            DECODE(decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S'), 'N', 0,
-                                   ROUND(B.QTCONT * DECODE(NVL(MC.VLICMS,0), 0, NVL(B.VLCREDICMS,0), MC.VLICMS), 2))))
+                    SUM(CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+										      DECODE(decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S'), 'N', 0,
+												   ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2))	
+								        ELSE								 
+												  DECODE(NVL(B.PERCICM, 0), 0, 0,
+																		DECODE(decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S'), 'N', 0,
+																					 ROUND(B.QTCONT * DECODE(NVL(MC.VLICMS,0), 0, NVL(B.VLCREDICMS,0), MC.VLICMS), 2)))
+												END)
               WHEN 'DEVNF' THEN
                 SUM(
                 CASE WHEN (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') OR
@@ -7979,13 +7991,13 @@ create or replace package body FISCAL is
            VMENSAGEM_RETORNO := 'N: O PARAMETRO CODFISCAL NÃO FOI INFORMADO.';
            RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
          END IF;  
-				 
-				 IF V_DADOS_BENEFICIOFISCAL.DTEMISSAO IS NULL THEN
+         
+         IF V_DADOS_BENEFICIOFISCAL.DTEMISSAO IS NULL THEN
            VMENSAGEM_RETORNO := 'N: O PARAMETRO DTEMISSAO NÃO FOI INFORMADO.';
            RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
-         END IF;		 
-				 
-				 IF V_DADOS_BENEFICIOFISCAL.UFORIGEM IS NOT NULL AND 
+         END IF;     
+         
+         IF V_DADOS_BENEFICIOFISCAL.UFORIGEM IS NOT NULL AND 
             V_DADOS_BENEFICIOFISCAL.CSTICMS IS NOT NULL AND 
             V_DADOS_BENEFICIOFISCAL.CODFISCAL > 0 THEN
             BEGIN
@@ -8002,7 +8014,7 @@ create or replace package body FISCAL is
                  AND COD.SITTRIBUT = V_DADOS_BENEFICIOFISCAL.CSTICMS
                  AND COD.CODFISCAL = V_DADOS_BENEFICIOFISCAL.CODFISCAL
                  AND COD.UFDESTINO = V_DADOS_BENEFICIOFISCAL.UFORIGEM 
-								 AND TRUNC(V_DADOS_BENEFICIOFISCAL.DTEMISSAO) BETWEEN TRUNC(NVL(COD.DTVIGENCIAINI, DATE '1900-01-01')) AND TRUNC(NVL(COD.DTVIGENCIAFIM, DATE '2999-12-31'))
+                 AND TRUNC(V_DADOS_BENEFICIOFISCAL.DTEMISSAO) BETWEEN TRUNC(NVL(COD.DTVIGENCIAINI, DATE '1900-01-01')) AND TRUNC(NVL(COD.DTVIGENCIAFIM, DATE '2999-12-31'))
                  AND NVL(COD.FIGURATRIBUTARIA,0) = TO_CHAR(V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA)
                  AND ROWNUM = 1;
 
@@ -8023,7 +8035,7 @@ create or replace package body FISCAL is
                        AND COD.SITTRIBUT = V_DADOS_BENEFICIOFISCAL.CSTICMS
                        AND COD.CODFISCAL = V_DADOS_BENEFICIOFISCAL.CODFISCAL
                        AND COD.UFDESTINO = V_DADOS_BENEFICIOFISCAL.UFORIGEM
-											 AND TRUNC(V_DADOS_BENEFICIOFISCAL.DTEMISSAO) BETWEEN TRUNC(NVL(COD.DTVIGENCIAINI, DATE '1900-01-01')) AND TRUNC(NVL(COD.DTVIGENCIAFIM, DATE '2999-12-31'))
+                       AND TRUNC(V_DADOS_BENEFICIOFISCAL.DTEMISSAO) BETWEEN TRUNC(NVL(COD.DTVIGENCIAINI, DATE '1900-01-01')) AND TRUNC(NVL(COD.DTVIGENCIAFIM, DATE '2999-12-31'))
                        AND COD.FIGURATRIBUTARIA IS NULL
                        AND ROWNUM = 1;
 
@@ -8037,11 +8049,11 @@ create or replace package body FISCAL is
          END IF;
       EXCEPTION
          WHEN OTHERS THEN  
-				    IF VMENSAGEM_RETORNO IS NULL THEN
-							IF VCODIGOBENEFICIOFISCAL IS NULL THEN
-								 VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO CÓDIGO BENEFÍCIO FISCAL.';
-							END IF;
-					  END IF;  						 		
+            IF VMENSAGEM_RETORNO IS NULL THEN
+              IF VCODIGOBENEFICIOFISCAL IS NULL THEN
+                 VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO CÓDIGO BENEFÍCIO FISCAL.';
+              END IF;
+            END IF;                   
       END;
 
       BEGIN
