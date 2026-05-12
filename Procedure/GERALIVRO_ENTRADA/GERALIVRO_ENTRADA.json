@@ -5,6 +5,11 @@
             "nome": "PCNFBASEENT",
             "tipo": "TABELA",
             "versao": "6.0.02.000"
+        }, 
+        {
+            "nome": "FISCAL",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "8.0.40.000"
         }
     ]
 }
