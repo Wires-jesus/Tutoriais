@@ -232,7 +232,8 @@ create or replace package body FISCAL is
                 CASE  P_CURSOR
                   WHEN 'NF' THEN
                     SUM(
-                        CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+                        CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) AND 
+				   (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'S') THEN
 												   ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)													 												
 											       WHEN (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'N') OR
                                   (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
@@ -306,7 +307,8 @@ create or replace package body FISCAL is
             CASE P_CURSOR
               WHEN 'NF' THEN
                 SUM(  
-				CASE WHEN P_NFCOMPLEMENTAR = 'S' AND NVL(MC.VLICMS,0) > 0 AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+				CASE WHEN P_NFCOMPLEMENTAR = 'S' AND NVL(MC.VLICMS,0) > 0 AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) AND
+				(decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'S') THEN
 				    ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)	
                              WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
                           (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
@@ -332,7 +334,8 @@ create or replace package body FISCAL is
 
               WHEN 'NFE' THEN
                 SUM(  
-				 CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+				 CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) AND
+				    (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'S') THEN
 					ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2)	
                          WHEN (decode(P_CONSLIVRO,'S',(NVL(B.GERAICMSLIVROFISCAL, 'S') ),'S')= 'N') or
                           (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
@@ -355,7 +358,8 @@ create or replace package body FISCAL is
                         )
                 END)
               WHEN 'IMP' THEN
-                    SUM(CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) THEN
+                    SUM(CASE WHEN (P_NFCOMPLEMENTAR = 'S') AND (NVL(MC.VLICMS,0) > 0) AND (NVL(B.BASEICMS,0) <= 0) OR (NVL(B.PERCICM,0) <= 0) AND
+			  (decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S') = 'S') THEN
 										      DECODE(decode(P_CONSLIVRO,'S',NVL(B.GERAICMSLIVROFISCAL, 'S'),'S'), 'N', 0,
 												   ROUND(DECODE(NVL(B.QTCONT,0),0,1,NVL(B.QTCONT,0)) * NVL(MC.VLICMS,0), 2))	
 								        ELSE								 
