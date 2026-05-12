@@ -184,7 +184,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                            ,P_ROWIDPCMOV IN VARCHAR2
                            ,P_ESTENT     IN VARCHAR2
                            ,P_CHAVENFE   IN VARCHAR2
-                           ,P_CONSLIVRO  IN VARCHAR2 := 'S')
+                           ,P_CONSLIVRO  IN VARCHAR2 := 'S'
+                           ,P_NFCOMPLEMENTAR IN VARCHAR2 := 'N')
       RETURN NUMBER;
 
    FUNCTION CALCULARPISCOFINS_TRANSPORTE(NUMTRANSACAO IN NUMBER,
