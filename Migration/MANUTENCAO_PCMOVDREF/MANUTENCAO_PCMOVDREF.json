@@ -1,0 +1,11 @@
+{
+  "nome": "MANUTENCAO_PCMOVDREF",
+  "tipoPLSQL": "MIGRATION",
+  "dependencias": [
+    {
+      "nome": "PCMOV",
+      "tipo": "TABELA",
+      "versao": "8.0.11.000"
+    }
+  ]
+}
