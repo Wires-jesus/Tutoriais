@@ -169,7 +169,7 @@ CREATE OR REPLACE PROCEDURE GERALIVRO_ENTRADA(DATA1      IN DATE,
            ----------------------------------------------------------------
            A.PERBASEREDOUTRASDESP,
            ----------------------------------------------------------------
-           sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'NF', B.ROWID,'', a.chavenfe),0)) VLICMS,
+           sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'NF', B.ROWID,'', a.chavenfe,'S',DECODE(A.TIPODESCARGA,'G','S','N')),0)) VLICMS,
            ----------------------------------------------------------------
            sum(ROUND(B.QTCONT * case
                        when (NVL(B.GERAICMSLIVROFISCAL, 'S') = 'N') or
@@ -631,7 +631,7 @@ cursor C_NOTAS_NFE(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in date, P_
            CASE WHEN SUM(NVL(XML.VICMS,0)) > 0 THEN
                 SUM(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'),'S', XML.VICMS,0))
            ELSE
-           (sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'NFE', B.ROWID,'', a.chavenfe),0))) END VLICMS,
+           (sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'NFE', B.ROWID,'', a.chavenfe,'S',DECODE(A.TIPODESCARGA,'G','S','N')),0))) END VLICMS,
 
            ----------------------------------------------------------------
            sum(ROUND(B.QTCONT * case
@@ -1073,7 +1073,7 @@ cursor C_NOTAS_IMPORTACAO(P_CODFILIAL in varchar2, P_DATA1 in date, P_DATA2 in d
            ----------------------------------------------------------------
            A.PERBASEREDOUTRASDESP,
            ----------------------------------------------------------------
-           sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'IMP', B.ROWID,'', a.chavenfe),0)) VLICMS,
+           sum(DECODE(NVL(B.GERAICMSLIVROFISCAL, 'S'), 'S',FISCAL.GET_DADOS_ICMS( P_CODFILIAL, 'E', 'IMP', B.ROWID,'', a.chavenfe,'S',DECODE(A.TIPODESCARGA,'P','S','N')),0)) VLICMS,
            ----------------------------------------------------------------
            sum(DECODE(NVL(B.PERCICM, 0), 0, 0, DECODE(B.GERAICMSLIVROFISCAL, 'N', ROUND(B.QTCONT *
                                      DECODE(NVL(MC.VLICMS, 0), 0, NVL(B.VLCREDICMS, 0), MC.VLICMS), 2), 0))) VLICMSNAOTRIB,
