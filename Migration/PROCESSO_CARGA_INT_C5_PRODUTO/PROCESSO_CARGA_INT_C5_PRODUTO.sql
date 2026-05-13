@@ -122,14 +122,7 @@ FROM (
                    
                    MIN(NVL(p.indescalarelevante, 'S')) indescala,
                    
-				   MAX(
-				     CASE
-					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
-					     fnc_remove_char_esp_v2(p.cnpjfabricante) 
-					   ELSE
-					     fnc_remove_char_esp(p.cnpjfabricante)    
-					 END
-				   ) as cnpjfabricante,
+				   MAX(PKG_CNPJ_VALIDATOR.limpar_cnpj(p.cnpjfabricante)) as cnpjfabricante,
                    MAX(p.codauxiliartrib) eantrib,
                    MAX(P.codprodprinc) seqfamiliaprinc,
                    MAX(P.estoqueporlote) estoqueporlote,
@@ -171,12 +164,7 @@ FROM (
                       ELSE  'N'
                    END)PESAVEL,
                    NVL(p.indescalarelevante, 'S') indescala,
-				   CASE 
-					   WHEN (SELECT VALOR FROM PCPARAMETROS2651 WHERE NOME = 'UTILIZAR_FNC_REMOVE_CHAR_ESP_V2') = 'S' THEN
-                         fnc_remove_char_esp_v2(p.cnpjfabricante) 
-					   ELSE
-					     fnc_remove_char_esp(p.cnpjfabricante)    
-					   END as cnpjfabricante,
+				   PKG_CNPJ_VALIDATOR.limpar_cnpj(p.cnpjfabricante) as cnpjfabricante,
                    p.codauxiliartrib eantrib,
                    P.codprodprinc seqfamiliaprinc,
                    P.estoqueporlote,
