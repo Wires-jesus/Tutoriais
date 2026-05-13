@@ -370,7 +370,7 @@
 		{
 		  "nome": "PROCESSO_CARGA_INT_C5_PESSOA",
 		  "tipo": "MIGRATION",
-		  "versao": "8.0.03.000"
+		  "versao": "8.0.04.000"
 		},
 		{
 		  "nome": "PROCESSO_INT_C5_LIMCRED_CONV",
