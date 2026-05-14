@@ -808,9 +808,10 @@ BEGIN
                                                 :NEW.CODFILIALNF),'V',
                                                 DECODE(NVL(E.VOLTARESTOQUEFILIALVIRTUAL, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALVIRTUAL',:NEW.CODFILIAL,'N')), 'S', :NEW.CODFILIALNF, :NEW.CODFILIAL), 'R',
                                                 DECODE(NVL(E.VOLTARESTOQUEFILIALRETIRA, FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('VOLTARESTOQUEFILIALRETIRA',:NEW.CODFILIAL,'N')), 'N', :NEW.CODFILIAL, NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL)), :NEW.CODFILIAL)
-                                           FROM PCNFENT E
+                                           FROM PCNFENT E, PCCONSUM C 
                                           WHERE E.NUMTRANSENT = NVL(:NEW.NUMTRANSENTORIGDESDLOTE, :NEW.NUMTRANSENT)
-                                            AND E.ESPECIE NOT IN ('CT', 'CO', 'CF'));
+                                            AND E.ESPECIE NOT IN ('CT', 'CO', 'CF')
+                                            AND E.CODCONT = C.CODCONTFOR);
                  END IF;
                EXCEPTION
                  WHEN OTHERS THEN
