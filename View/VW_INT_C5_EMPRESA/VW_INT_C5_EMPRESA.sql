@@ -42,7 +42,7 @@ SELECT c5.CODFILIALINTEGRACAO nroempresa,
           1 -- Regime Normal
          ELSE
           4 -- Simples Nacional, Simples Nacional - Excesso
-       END) regimetributacacao
+       END) regimetributacao
         
   FROM  pcfilial f,
        (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
