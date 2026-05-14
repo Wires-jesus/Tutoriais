@@ -35,7 +35,14 @@ SELECT c5.CODFILIALINTEGRACAO nroempresa,
                WHERE NUMREGIAO = ferramentas.f_buscarparametro_num('NUMREGIAOPADRAOVAREJO', f.codigo, '1') 
               )
          ELSE f.UF     
-       END) IDREF
+       END) IDREF,
+
+       (CASE
+         WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_OPTANTESIMPLESNAC', F.CODIGO, 'N') = 'N' THEN
+          1 -- Regime Normal
+         ELSE
+          4 -- Simples Nacional, Simples Nacional - Excesso
+       END) regimetributacacao
         
   FROM  pcfilial f,
        (select min(s.ultimaexecucao) ultimaexecucao from pccontroleconsinco s
