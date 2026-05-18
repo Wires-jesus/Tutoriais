@@ -8,6 +8,8 @@ BEGIN
       SELECT 'TIMER_SINCRONIZACAO_CARGA_SUBIDA' NOME, '30000' VALOR, 'Intervalo de carga da subida de dados' DESCRICAO, '99' CODFILIAL FROM DUAL
       UNION ALL
       SELECT 'SINCRONIZAR_COM_TELA_ABERTA' NOME, 'N' VALOR, 'Se o timer continua rodando em background' DESCRICAO, '99' CODFILIAL FROM DUAL
+      UNION ALL
+      SELECT 'REGRA_INCENTIVO_FORNECEDOR_MARCA' NOME, 'N' VALOR, 'Descida da política de desconto da 561 por fornecedor e marca na TB_PRODPRECO' DESCRICAO, '99' CODFILIAL FROM DUAL
     ) S
     ON (T.NOME = S.NOME)
     WHEN NOT MATCHED THEN
