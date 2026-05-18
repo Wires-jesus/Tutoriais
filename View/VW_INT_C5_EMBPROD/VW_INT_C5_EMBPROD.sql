@@ -35,35 +35,20 @@ WITH
     WHERE PAR.NOME = 'DTFIMCARGA'
   ),
 
-PROD_ALTERADOS AS (SELECT * FROM(
-                   SELECT R.*,
-                          /*OVERPARTITION PARA IDENTIFICAR REGISTROS COM O MESMO CODPROD ENTRE PCTABPR E AS DEMAIS TABELAS.
-                            QUANDO RETORNAR REGISTRO VINDOS DA PCTABPR, DEVE-SE MANTER O MESMO E ELIMINAR OS DEMAIS COM O
-                            MESMO CODPROD, INDEPENDENTE DE QUAL SEJA A TABELA(PCEMBALAGEM, PCPRODUT OU PCPRODFILIAL).
-                            CASO NAO RETORNE REGISTRO DA PCTABPR, A CLAUSULA UNION SELECIONARÁ APENAS UM DOS REGISTROS
-                            ENTRE AS TABELAS PCEMBALAGEM, PCPRODUT E PCPRODFILIAL. DESSA FORMA O RESULTADO DO CTE NUNCA TRARÁ
-                            REGISTROS DUPLICADOS.
-                          */
-                          MAX(CASE
-                                WHEN R.NUMREGIAO > 0 THEN
-                                     1 --QUANDO CLIENTE TRABALHA COM PREÇO POR REGIÃO
-                                ELSE 0 --QUANDO CLIENTE TRABALHA COM PREÇO POR EMBALAGEM
-                              END
-                             ) OVER (PARTITION BY R.CODPROD) AS MANTEM_REGIAO
-                   FROM(
+PROD_ALTERADOS AS (
                         /*PCEMBALAGEM*/
                         SELECT /*+
                                 USE_HASH(F)
                                 INDEX(E IDX_E_SINC_C5_COVERING) CARDINALITY(E 100)
                             */
-                            E.CODPROD,
-                            0 NUMREGIAO,
+                            E.CODPROD
+                            /*0 NUMREGIAO,
                             '0' CODFILIAL, --NAO PRECISA SETAR FILIAL, POIS SERÁ CONSIDERADO TODAS AS EMBALAGENS, INDEPENDENTE DA FILIAL
                             0 PVENDA,
                             TRUNC(SYSDATE) DTULTALTPVENDA,
                             0 PVENDAATAC,
                             TRUNC(SYSDATE) DTULTALTPVENDAATAC,
-                            0 COMISSAO
+                            0 COMISSAO*/
 
                         FROM PCEMBALAGEM E
                         JOIN FILIAIS F ON F.CODFILIAL = E.CODFILIAL
@@ -80,14 +65,14 @@ PROD_ALTERADOS AS (SELECT * FROM(
                                 USE_HASH(PF F)
                                 INDEX(PF IDX_PCPRODFILIAL_C5_TESTE) CARDINALITY(PF 100)
                             */
-                            PF.CODPROD,
-                            0 NUMREGIAO,
+                            PF.CODPROD
+                            /*0 NUMREGIAO,
                             '0' CODFILIAL, --NAO PRECISA SETAR FILIAL, POIS SERÁ CONSIDERADO TODAS AS EMBALAGENS, INDEPENDENTE DA FILIAL
                             0 PVENDA,
                             TRUNC(SYSDATE) DTULTALTPVENDA,
                             0 PVENDAATAC,
                             TRUNC(SYSDATE) DTULTALTPVENDAATAC,
-                            0 COMISSAO
+                            0 COMISSAO*/
 
                         FROM PCPRODFILIAL PF
                         JOIN PCEMBALAGEM E ON E.CODPROD = PF.CODPROD AND E.CODFILIAL = PF.CODFILIAL
@@ -102,14 +87,14 @@ PROD_ALTERADOS AS (SELECT * FROM(
                                 USE_HASH(P)
                                 INDEX(P IDX_PCPRODUT_C5_TESTE) LEADING(D P)
                             */
-                            P.CODPROD,
-                            0 NUMREGIAO,
+                            P.CODPROD
+                            /*0 NUMREGIAO,
                             '0' CODFILIAL,--NAO PRECISA SETAR FILIAL, POIS SERÁ CONSIDERADO TODAS AS EMBALAGENS, INDEPENDENTE DA FILIAL
                             0 PVENDA,
                             TRUNC(SYSDATE) DTULTALTPVENDA,
                             0 PVENDAATAC,
                             TRUNC(SYSDATE) DTULTALTPVENDAATAC,
-                            0 COMISSAO
+                            0 COMISSAO*/
 
                         FROM PCPRODUT P
                         CROSS JOIN DTFIMCARGA DTC
@@ -124,14 +109,14 @@ PROD_ALTERADOS AS (SELECT * FROM(
                                 USE_HASH(P)
                                 INDEX(TPR IDX_PCTABPR_SINC_C5_COVERING) LEADING(D PR F TPR)
                             */
-                            TPR.CODPROD,
-                            TPR.NUMREGIAO,
+                            TPR.CODPROD
+                            /*TPR.NUMREGIAO,
                             F.CODFILIAL, --SETA A FILIAL POIS PODE NÃO EXISITIR EMBALAGENS NA FILIAL VINCULADA A UMA REGIÃO DO PRODUTO
                             TPR.PVENDA1 PVENDA,
                             TPR.DTULTALTPVENDA,
                             TPR.PVENDAATAC1 PVENDAATAC,
                             TPR.DTULTALTPVENDA DTULTALTPVENDAATAC,
-                            TPR.PCOMREP1 COMISSAO
+                            TPR.PCOMREP1 COMISSAO*/
 
                         FROM PCTABPR TPR
                         JOIN PARAM_REGIAO PR ON TPR.NUMREGIAO = PR.NUMREGIAO
@@ -143,9 +128,6 @@ PROD_ALTERADOS AS (SELECT * FROM(
                                                                   F.CODFILIAL,
                                                                   'N') = 'N'
 
-                   )R
-                 )
-                 WHERE (MANTEM_REGIAO = 1 AND NUMREGIAO > 0) OR (MANTEM_REGIAO = 0)
     )
 
     SELECT  /*+
@@ -304,7 +286,7 @@ PROD_ALTERADOS AS (SELECT * FROM(
       FROM PROD_ALTERADOS PA
            /*PARA PREÇO POR EMBALAGEM: VINCULA O CODPROD DO CTE COM A PCEMBALAGEM E OS REGISTROS C/ FILIAL "ZERO", PARA TRAZER TODAS AS EMBALAGENS DO PRODUTO*/
            /*PARA PREÇO POR REGIÃO :   VINCULA CODPROD E FILIAL DO CTE COM A PCEMBALAGEM(ELIMINAR REGIÕES QUE NÃO POSSUEM EMBALAGEM CADASTRADAS), PARA TRAZER TODAS AS EMBALAGENS DO PRODUTO*/
-           JOIN PCEMBALAGEM E ON E.CODPROD = PA.CODPROD AND (PA.CODFILIAL = '0' OR E.CODFILIAL = PA.CODFILIAL)
+           JOIN PCEMBALAGEM E ON E.CODPROD = PA.CODPROD --AND (PA.CODFILIAL = '0' OR E.CODFILIAL = PA.CODFILIAL)
            JOIN PCPRODFILIAL F ON (F.CODPROD = E.CODPROD AND F.CODFILIAL = E.CODFILIAL AND F.CODPROD = PA.CODPROD)
            JOIN PCPRODUT P ON (P.CODPROD = E.CODPROD AND  P.CODPROD = PA.CODPROD)
            JOIN VW_INT_C5_OBTER_FILIAIS_C5 C5 ON C5.CODFILIAL = E.CODFILIAL
