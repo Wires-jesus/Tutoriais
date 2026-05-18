@@ -9,7 +9,7 @@ BEGIN
       UNION ALL
       SELECT 'SINCRONIZAR_COM_TELA_ABERTA' NOME, 'N' VALOR, 'Se o timer continua rodando em background' DESCRICAO, '99' CODFILIAL FROM DUAL
       UNION ALL
-      SELECT 'REGRA_INCENTIVO_FORNECEDOR_MARCA' NOME, 'N' VALOR, 'Descida da política de desconto da 561 por fornecedor e marca na TB_PRODPRECO' DESCRICAO, '99' CODFILIAL FROM DUAL
+      SELECT 'REGRA_INCENTIVO_FORNECEDOR_MARCA' NOME, 'N' VALOR, 'Política de desc. da 561 por fornec. e marca na TB_PRODPRECO' DESCRICAO, '99' CODFILIAL FROM DUAL
     ) S
     ON (T.NOME = S.NOME)
     WHEN NOT MATCHED THEN
