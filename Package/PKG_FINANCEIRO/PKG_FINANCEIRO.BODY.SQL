@@ -297,6 +297,36 @@ IS
             G_MENSAGEM   := SQLERRM;
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
-	END;
+	END; 
+    ----------------------------------------------------------------------------
+    PROCEDURE ADDLOG(P_FONTE IN VARCHAR2,
+                     P_LOG IN VARCHAR2)
+    IS                 
+        PRAGMA AUTONOMOUS_TRANSACTION;
+        G_MENSAGEM                  VARCHAR2(300);
+    BEGIN
+        INSERT INTO PCMONITORAMENTO(SEQUENCIA,
+                                    ROTINA,
+                                    FONTE,
+                                    DATA,
+                                    HORA,
+                                    LOG,
+                                    EQUIPAMENTO,
+                                    USUARIO
+                                    )
+                             VALUES(DFSEQ_PCMONITORAMENTO.NEXTVAL,
+                                    SYS_CONTEXT('USERENV','MODULE'),
+                                    P_FONTE,
+                                    TRUNC(SYSDATE),
+                                    TO_CHAR(SYSDATE, 'HH24:MI:SS'),
+                                    P_LOG,
+                                    SUBSTR(SYS_CONTEXT('USERENV','TERMINAL'),1,2000),
+                                    SUBSTR(SYS_CONTEXT('USERENV','OS_USER'),1,2000));      
+        COMMIT;
+        EXCEPTION
+        WHEN OTHERS THEN
+            G_MENSAGEM   := SQLERRM;
+            RAISE_APPLICATION_ERROR(-20001, '200 - Erro na Exclusão da ADDLOG. Log recebido: ('||G_MENSAGEM||')');            
+    END;
     
 END;
