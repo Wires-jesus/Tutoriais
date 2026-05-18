@@ -77,7 +77,8 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                          ,P_CODTIPOCHAVEPIX    			PCLANC.CODTIPOCHAVEPIX%TYPE    			,P_TIPOCHAVEPIX        			PCLANC.DUPLIC%TYPE             
                          ,P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE                	,P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE               
                          ,P_DTCOMPETENCIAIRRETIDO 		PCLANC.DTCOMPETENCIAIRRETIDO%TYPE
-						 );
+						 ,P_VLBASEIR                    PCLANC.VLBASEIR%TYPE                	,P_VLBASEPCC                 	PCLANC.VLBASEPCC%TYPE
+                         );
 
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCLANCBLOQ(P_MENSAGEM_OUT             	OUT VARCHAR2
@@ -155,6 +156,7 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
 							 ,P_CODTIPOCHAVEPIX    			PCLANC.CODTIPOCHAVEPIX%TYPE    			,P_TIPOCHAVEPIX        			PCLANC.DUPLIC%TYPE             
 							 ,P_CHAVEPIX					PCLANC.CHAVEPIX%TYPE                 	,P_QRCODEPIX                	PCLANC.QRCODEPIX%TYPE               
 							 ,P_DTCOMPETENCIAIRRETIDO 		PCLANC.DTCOMPETENCIAIRRETIDO%TYPE
+							 ,P_VLBASEIR                    PCLANC.VLBASEIR%TYPE                    ,P_VLBASEPCC                    PCLANC.VLBASEPCC%TYPE
 							 );	
     */                                
 
@@ -225,5 +227,5 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
 	----------------------------------------------------------------------------
     PROCEDURE ADDLOG(P_FONTE VARCHAR2,
                      P_LOG   VARCHAR2);                                          
-                     
+
 END PKG_FINANCEIRO;
