@@ -8,7 +8,7 @@
         }, {
             "nome": "FISCAL",
             "tipo": "OBJETO_PLSQL",
-            "versao": "8.0.39.000"
+            "versao": "8.0.41.000"
         }, {
             "nome": "PKG_DEBUGGING_FWPC",
             "tipo": "OBJETO_PLSQL",
