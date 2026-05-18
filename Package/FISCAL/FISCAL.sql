@@ -129,7 +129,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
        CODPROD           NUMBER(6),
        UFORIGEM          VARCHAR2(2),
        UFDESTINO         VARCHAR2(2),
-       NCM               VARCHAR2(8),
+       NCM               VARCHAR2(15),
        FIGURATRIBUTARIA  NUMBER(4),
        CSTICMS           VARCHAR2(3),
        CODFISCAL         NUMBER(8),
@@ -137,7 +137,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
        NOVOPROCESSO      VARCHAR2(1),
        NUMTRANSITEM      NUMBER := 0,
        PREFAT            VARCHAR2(1),
-		 DTEMISSAO         DATE,
+	   DTEMISSAO         DATE,
        -- Dados de retorno 
        CODBENEFICIOFISCAL             VARCHAR2(10), 
        CODBENEFICIOFISCALCOMPLEMENTAR VARCHAR2(100),        
