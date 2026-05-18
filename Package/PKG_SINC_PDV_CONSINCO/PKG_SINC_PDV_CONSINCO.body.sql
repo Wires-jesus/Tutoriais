@@ -2346,7 +2346,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
          OR NVL(TB_PRODPRECO_C5.preco, 0)       <> NVL(VIEW_TB_PRODPRECO.preco, 0)
          OR NVL(TB_PRODPRECO_C5.PRECONORMAL, 0) <> NVL(VIEW_TB_PRODPRECO.PRECONORMAL, 0))
          AND (
-		      (TB_PRODPRECO_C5.idref not like '%P357%') --AND (TB_PRODPRECO_C5.promocao <> 'S')
+		      (TB_PRODPRECO_C5.idref not like '%P357%')
+          OR (TB_PRODPRECO_C5.idref not like '% - 561') --AND (TB_PRODPRECO_C5.promocao <> 'S')
 		     )
 		 
       WHEN NOT MATCHED THEN
