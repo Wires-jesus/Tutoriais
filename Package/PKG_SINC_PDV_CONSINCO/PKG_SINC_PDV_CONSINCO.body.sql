@@ -603,14 +603,14 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
         t.nroempresamatriz    = s.nroempresamatriz,
         t.nroempresaseguranca = s.nroempresaseguranca,
         t.ativo               = s.ativo,
-        t.regimetributacacao  = s.regimetributacacao
+        t.regimetributacao    = s.regimetributacao
 	  WHERE NVL(t.seqpessoa,0) <> NVL(s.seqpessoa,0)
          OR NVL(t.nrodivisao,0) <> NVL(s.nrodivisao,0)
          OR NVL(t.nomereduzido,'-') <> NVL(s.nomereduzido,'-')
          OR NVL(t.nroempresamatriz,0) <> NVL(s.nroempresamatriz,0)
          OR NVL(t.nroempresaseguranca,0) <> NVL(s.nroempresaseguranca,0)
          OR NVL(t.ativo,0) <> NVL(s.ativo,0)
-         OR NVL(t.regimetributacacao,0) <> NVL(s.regimetributacacao,0)
+         OR NVL(t.regimetributacao,0) <> NVL(s.regimetributacao,0)
 		 
     WHEN NOT MATCHED THEN
       INSERT (t.nroempresa,
@@ -620,7 +620,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               t.nroempresamatriz,
               t.nroempresaseguranca,
               t.ativo,
-              t.regimetributacacao
+              t.regimetributacao
              )
       VALUES (s.nroempresa,
               s.seqpessoa,
@@ -629,7 +629,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
               s.nroempresamatriz,
               s.nroempresaseguranca,
               s.ativo,
-              s.regimetributacacao
+              s.regimetributacao
              );
 
     
