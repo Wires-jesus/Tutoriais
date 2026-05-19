@@ -12,7 +12,7 @@ SELECT c.codcli seqpessoa,
          ELSE
            c.tipofj
          END fisicajuridica,
-       REPLACE(REPLACE(REPLACE(c.cgcent,'.',''),'/',''),'-','') cnpjcpf,
+       FERRAMENTAS.RETORNAR_ALFANUMERICO(c.cgcent) cnpjcpf,
        (CASE
             WHEN NVL(c.tipofj,'J') = 'J'
                 THEN c.ieent
