@@ -4488,7 +4488,12 @@ IS
             VALORMULTA NUMBER (10, 2),
             CONTATRANSITORIA PCMODELOPC.CODREDUZIDO_PC%TYPE,
             CODFILIALBANCO PCFILIAL.CODIGO%TYPE,
-            ERRO_MULTIFILIAL VARCHAR2 (1)
+            ERRO_MULTIFILIAL VARCHAR2 (1),
+            VALORCBS PCNFBASEENT.VLCBS%TYPE,
+            VALORIBSMUN PCNFBASEENT.VLIBSMUN%TYPE,
+            VALORIBSUF PCNFBASEENT.VLIBSUF%TYPE,
+            VALORIS PCNFBASEENT.VLIS%TYPE,
+            VALORTOTALIBS PCNFBASEENT.VLTOTALIBS%TYPE
         );
 
 
@@ -4781,6 +4786,36 @@ IS
                         REGEXP_REPLACE (VS_FORMULA,
                                         'VALORMULTA([^_[:alnum:]])',
                                         NVL (ITEM.VALORMULTA, 0) || '\1');
+
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORCBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORCBS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSMUN([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSMUN, 0) || '\1');
+                     
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIBSUF([^_[:alnum:]])',
+                            NVL (ITEM.VALORIBSUF, 0) || '\1');
+                                                   
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORIS([^_[:alnum:]])',
+                            NVL (ITEM.VALORIS, 0) || '\1');
+                    
+                    VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALORTOTALIBS([^_[:alnum:]])',
+                            NVL (ITEM.VALORTOTALIBS, 0) || '\1');                     
 
                     CALCULAREXPRESSAO;
 
