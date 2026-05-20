@@ -1,4 +1,5 @@
 {"nome":"VW_INT_C5_CLIPESSOA","tipoPLSQL":"VIEW","dependencias":[
       {"nome": "PCCLIENT","tipo": "TABELA","versao": "4.0.03.000"},
-      {"nome": "PCCONTROLECONSINCO","tipo": "TABELA","versao": "4.0.05.000"}
+      {"nome": "PCCONTROLECONSINCO","tipo": "TABELA","versao": "4.0.05.000"},
+	  {"nome": "PKG_CNPJ_VALIDATOR","tipo": "OBJETO_PLSQL","versao": "8.0.02.000"}
 ]}

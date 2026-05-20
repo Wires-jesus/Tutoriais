@@ -12,7 +12,7 @@ SELECT c.codcli seqpessoa,
          ELSE
            c.tipofj
          END fisicajuridica,
-       FERRAMENTAS.RETORNAR_ALFANUMERICO(c.cgcent) cnpjcpf,
+	   PKG_CNPJ_VALIDATOR.LIMPAR_CNPJ(c.cgcent) cnpjcpf,
        (CASE
             WHEN NVL(c.tipofj,'J') = 'J'
                 THEN c.ieent
