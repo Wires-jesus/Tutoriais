@@ -124,7 +124,7 @@ BEGIN
   -----------------------------------------------------------------
   -- O código 29 representava o cadastro da base do CBS que foi unificado no codigo 28
   --Exclusão e insersão dos tipos de fórmula.
-  DELETE FROM PCFORMULA WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33);
+  DELETE FROM PCFORMULA WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33, 34);
   
   DELETE FROM PCFORMULATIPO WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33);
 
@@ -152,8 +152,8 @@ BEGIN
   INSERT INTO PCFORMULATIPO
     (CODTIPOFORMULA, DESCRICAO, DTCADASTRO)
   VALUES
-    (33, 'ALIQUOTA_IS', SYSDATE);
-
+    (33, 'ALIQUOTA_IS', SYSDATE);    
+ 
   --Insersão das formulas. 
   INSERT INTO PCFORMULA
     (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
@@ -201,7 +201,7 @@ BEGIN
   VALUES
     ('BASE_IS_2',
      'Soma do PUNITCONT, frete, seguro, despesas, vll e outros, menos tributos (PIS, COFINS, ICMS, ICMSUFDest, FCP, ST, FCPST, IPI e FCPUFDest).',
-	 'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
+       'GREATEST(' || '&' || 'PUNITCONT' || '&' || '+'
                  || '&' || 'VLFRETE' || '&' || '+' 
                  || '&' || 'VLSEGURO' || '&' || '+' 
                  || '&' || 'VLOUTROS' || '&' || '+' 
@@ -216,7 +216,22 @@ BEGIN
                  || '&' || 'VAR_FECP' || '&' || '-'  
                  || '&' || 'VLFCPUFDEST' || '&' ||  ',0)',
      32,
-     SYSDATE);   
+     SYSDATE);       
+     
+---------------------------------------------------------------
+  INSERT INTO PCFORMULA
+    (CODFORMULA, DESCRICAO, FORMULA, CODTIPOFORMULA, DTCADASTRO)
+  VALUES
+    ('BASE_CBSIBS_IMPORTACAO',
+     'Preço da Mercadoria deduzido Vlr ICMS, Vlr.Pis, Vlr.Cofins, Vlr.FCP ST e Vlr.FCP ICMS',
+       'GREATEST(' || '&' || 'PUNITCONT' || '&' || '-'
+                   || '&' || 'VLICMS' || '&' || '-' 
+			             || '&' || 'VLFCP' || '&' || '-' 
+			             || '&' || 'VLFCPST' || '&' || '-' 
+                   || '&' || 'VLPIS' || '&' || '-' 
+                   || '&' || 'VLCOFINS' || '&' ||  ',0)',
+     28,
+     SYSDATE);           
 ---------------------------------------------------------------
   COMMIT;     
 ---------------------------------------------------------------
