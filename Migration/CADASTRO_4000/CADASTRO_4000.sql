@@ -124,7 +124,7 @@ BEGIN
   -----------------------------------------------------------------
   -- O código 29 representava o cadastro da base do CBS que foi unificado no codigo 28
   --Exclusão e insersão dos tipos de fórmula.
-  DELETE FROM PCFORMULA WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33, 34);
+  DELETE FROM PCFORMULA WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33);
   
   DELETE FROM PCFORMULATIPO WHERE CODTIPOFORMULA IN (28, 29, 30, 31, 32, 33);
 
