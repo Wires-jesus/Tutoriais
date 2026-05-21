@@ -34,7 +34,7 @@ DECLARE
   VNNUMNOTACONSIG            PCPEDC.NUMNOTACONSIG%TYPE := 0;
   VNNUMTRANSVENDAORIG        PCMOV.NUMTRANSVENDA%TYPE := 0;
   VSPROGRAMA                 PCMOV.ROTINACAD%TYPE := '';
-  VNTRANSFERENCIASAIDA         NUMBER;
+  VNTRANSFERENCIASAIDA       NUMBER := 0;
   VDDATAFABRICACAO           PCLOTE.DATAFABRICACAO%TYPE := NULL;
   VDDTVALIDADE               PCLOTE.DTVALIDADE%TYPE := NULL;
   VDDTCANCELOP               PCOPC.DTCANCEL%TYPE;
@@ -44,6 +44,144 @@ DECLARE
   VSFILIALRESERVALOTE        PCFILIAL.CODIGO%TYPE := '';
   VSORIGEMPED                PCPEDC.ORIGEMPED%TYPE := '';
   VSPEDIDOAVARIA             PCPEDC.PEDIDOAVARIA%TYPE := '';
+
+  PROCEDURE ENTRADAS_ATUALIZAR_PCLOTE(VSTIPO_MOVIMENTACAO IN VARCHAR2 DEFAULT 'E')
+  IS
+    VNOPERACAO          NUMBER;
+    VQT                 PCMOV.QT%TYPE;
+    VQTCONT             PCMOV.QTCONT%TYPE;
+    VQTINDUSTRIA        PCMOV.QTINDUSTRIA%TYPE;
+    VQTBLOQUEADA        PCMOV.QTBLOQUEADA%TYPE;
+    VQTAVARIA           PCMOV.QTAVARIA%TYPE;
+
+    VCODOPER            PCMOV.CODOPER%TYPE;
+    VNUMOP              PCMOV.NUMOP%TYPE;
+    VSTATUS             PCMOV.STATUS%TYPE;
+    VNUMTRANSDEV        PCMOV.NUMTRANSDEV%TYPE;
+
+    VNUMLOTE            PCMOV.NUMLOTE%TYPE;
+    VCODPROD            PCMOV.CODPROD%TYPE;
+    VCODFILIAL          PCMOV.CODFILIAL%TYPE;
+    VCODFILIALNF        PCMOV.CODFILIALNF%TYPE;
+    VCODFILIALRETIRA    PCMOV.CODFILIALRETIRA%TYPE;    
+  BEGIN
+    BEGIN                        
+      -- 1 = soma | -1 = subtração
+      IF VSTIPO_MOVIMENTACAO = 'E' THEN
+        -- ENTRADA SOMA 
+        VNOPERACAO := 1;
+      ELSIF VSTIPO_MOVIMENTACAO = 'S' THEN 
+        -- SAIDA SUBTRAÇÃO
+        VNOPERACAO := -1;
+      END IF;
+
+      -- Definindo a origem do dado, ao DELETAR deve-se utilizar o :OLD, em outras operações como INSERT ou UPDATE, utilizar o :NEW
+      IF DELETING THEN
+        VQT              := :OLD.QT;
+        VQTCONT          := :OLD.QTCONT;
+        VQTINDUSTRIA     := :OLD.QTINDUSTRIA;
+        VQTBLOQUEADA     := :OLD.QTBLOQUEADA;
+        VQTAVARIA        := :OLD.QTAVARIA;
+
+        VCODOPER         := :OLD.CODOPER;
+        VNUMOP           := :OLD.NUMOP;
+        VSTATUS          := :OLD.STATUS;
+        VNUMTRANSDEV     := :OLD.NUMTRANSDEV;
+
+        VNUMLOTE         := :OLD.NUMLOTE;
+        VCODPROD         := :OLD.CODPROD;
+        VCODFILIAL       := :OLD.CODFILIAL;
+        VCODFILIALNF     := :OLD.CODFILIALNF;
+        VCODFILIALRETIRA := :OLD.CODFILIALRETIRA;
+      ELSE
+        VQT              := :NEW.QT;
+        VQTCONT          := :NEW.QTCONT;
+        VQTINDUSTRIA     := :NEW.QTINDUSTRIA;
+        VQTBLOQUEADA     := :NEW.QTBLOQUEADA;
+        VQTAVARIA        := :NEW.QTAVARIA;
+
+        VCODOPER         := :NEW.CODOPER;
+        VNUMOP           := :NEW.NUMOP;
+        VSTATUS          := :NEW.STATUS;
+        VNUMTRANSDEV     := :NEW.NUMTRANSDEV;
+
+        VNUMLOTE         := :NEW.NUMLOTE;
+        VCODPROD         := :NEW.CODPROD;
+        VCODFILIAL       := :NEW.CODFILIAL;
+        VCODFILIALNF     := :NEW.CODFILIALNF;
+        VCODFILIALRETIRA := :NEW.CODFILIALRETIRA;
+      END IF;
+
+      UPDATE PCLOTE
+          SET QT          = NVL(QT, 0) + (NVL(VQT, 0) * VNOPERACAO),
+              QTEST       = NVL(QTEST, 0) + (NVL(VQTCONT, 0) * VNOPERACAO),
+              QTINDUSTRIA = GREATEST((NVL(QTINDUSTRIA, 0) + (NVL(VQTINDUSTRIA, 0) * VNOPERACAO)), 0),
+              QTRESERV    = CASE 
+                              WHEN ((VCODOPER = 'EX') AND (NVL(VNUMOP, 0) <> 0)) THEN 
+                                GREATEST((NVL(QTRESERV, 0) + (NVL(VQT, 0) * VNOPERACAO)), 0)
+                              WHEN ((VCODOPER = 'ET') AND (VNCONDVENDA IN (1, 5, 9, 8)) AND (VSTATUS = 'B') AND (VNUMTRANSDEV IS NULL)) THEN
+                                GREATEST((NVL(QTRESERV, 0) + (NVL(VQT, 0) * VNOPERACAO)), 0)                                             
+                              ELSE NVL(QTRESERV, 0) END,
+              DATAFABRICACAO = CASE WHEN VDDATAFABRICACAO IS NULL THEN DATAFABRICACAO ELSE VDDATAFABRICACAO END,
+              DTVALIDADE     = CASE WHEN VDDTVALIDADE IS NULL THEN DTVALIDADE ELSE VDDTVALIDADE END
+        WHERE NUMLOTE = VNUMLOTE
+          AND CODPROD = VCODPROD
+          AND CODFILIAL = (CASE
+              WHEN ((VCODOPER IN ('ED') AND NVL(VQT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0)) THEN
+                DECODE(VNVOLTAESTOQUEFILIALRETIRA,
+                      'N',
+                      VCODFILIAL,
+                      NVL(VCODFILIALRETIRA, VCODFILIAL))
+              
+              WHEN (VCODOPER IN ('ED') AND NVL(VQT, 0) > 0) THEN 
+                NVL(VCODFILIALNF, VCODFILIAL)
+                      
+              WHEN VNCONDVENDA = 10 THEN
+                NVL(VCODFILIALNF, VCODFILIAL)
+
+              WHEN (VCODOPER IN ('EN') AND NVL(VQT, 0) <> 0) THEN
+                DECODE(VNVOLTAESTOQUEFILIALVIRTUAL,
+                      'N',
+                      NVL(VCODFILIALRETIRA, VCODFILIAL),
+                      NVL(VCODFILIALNF, VCODFILIAL))
+              ELSE
+                NVL(VCODFILIALRETIRA, VCODFILIAL) END);
+        
+      IF( NVL(VQTBLOQUEADA, 0) <> 0 or NVL(VQTAVARIA, 0) <> 0) THEN
+        -- Separado o update do QTBLOQUEADO e QTINDENIZ para atender o processo de Devolução de venda com Filial Retira
+        UPDATE PCLOTE
+            SET QTBLOQUEADA = GREATEST( GREATEST((NVL(QTBLOQUEADA, 0) + (NVL(VQTBLOQUEADA, 0) * VNOPERACAO)), 0), GREATEST((NVL(QTINDENIZ, 0) + (NVL(VQTAVARIA, 0) * VNOPERACAO)), 0) ),
+                QTINDENIZ   = GREATEST((NVL(QTINDENIZ, 0) + (NVL(VQTAVARIA, 0) * VNOPERACAO)), 0)
+          WHERE NUMLOTE = VNUMLOTE
+            AND CODPROD = VCODPROD
+            AND CODFILIAL = (
+            CASE
+                WHEN (VCODOPER IN ('ED')) THEN
+                  DECODE(VNVOLTAESTOQUEFILIALRETIRA,
+                          'N',
+                          VCODFILIAL,
+                          NVL(VCODFILIALRETIRA, VCODFILIAL))
+                        
+                WHEN VNCONDVENDA = 10 THEN
+                  NVL(VCODFILIALNF, VCODFILIAL)
+
+                WHEN (VCODOPER IN ('EN') AND NVL(VQT, 0) <> 0) THEN
+                  DECODE(VNVOLTAESTOQUEFILIALVIRTUAL,
+                        'N',
+                        NVL(VCODFILIALRETIRA, VCODFILIAL),
+                        NVL(VCODFILIALNF, VCODFILIAL))                        
+                ELSE
+                  NVL(VCODFILIALRETIRA, VCODFILIAL) END);                   
+      END IF;
+    EXCEPTION
+      WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20003,
+                                'ENTRADAS_ATUALIZAR_PCLOTE: ERRO AO ATUALIZAR O LOTE  - ' ||
+                                SQLERRM);
+    END;         
+  END;
+
+
 BEGIN
   BEGIN
     SELECT NVL(ESTOQUEPORLOTE, 'N')
@@ -549,71 +687,10 @@ BEGIN
                                                 SQLERRM);
                     END;
                   END IF;
-                  
-                  
-                  -- Separado o update do QTBLOQUEADO e QTINDENIZ para atender o processo de Devolução de venda com Filial Retira
-                  UPDATE PCLOTE
-                     SET QT          = NVL(QT, 0) + NVL(:NEW.QT, 0),
-                         QTEST       = NVL(QTEST, 0) + NVL(:NEW.QTCONT, 0),
-                      --   QTBLOQUEADA = GREATEST( GREATEST((NVL(QTBLOQUEADA, 0) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST((NVL(QTINDENIZ, 0) + NVL(:NEW.QTAVARIA, 0)), 0) ),
-                      --   QTINDENIZ   = GREATEST((NVL(QTINDENIZ, 0) + NVL(:NEW.QTAVARIA, 0)), 0),
-                         QTINDUSTRIA = GREATEST((NVL(QTINDUSTRIA, 0) + NVL(:NEW.QTINDUSTRIA, 0)), 0),
-                         QTRESERV    = CASE 
-                                         WHEN ((:NEW.CODOPER = 'EX') AND (NVL(:NEW.NUMOP, 0) <> 0)) THEN 
-                                            GREATEST((NVL(QTRESERV, 0) + NVL(:NEW.QT, 0)), 0)
-                                         WHEN ((:NEW.CODOPER = 'ET') AND (VNCONDVENDA IN (1, 5, 9, 8)) AND (:NEW.STATUS = 'B') AND (:NEW.NUMTRANSDEV IS NULL)) THEN
-                                            GREATEST((NVL(QTRESERV, 0) + NVL(:NEW.QT, 0)), 0)                                             
-                                         ELSE NVL(QTRESERV, 0) END,
-                         DATAFABRICACAO = CASE WHEN VDDATAFABRICACAO IS NULL THEN DATAFABRICACAO ELSE VDDATAFABRICACAO END,
-                         DTVALIDADE     = CASE WHEN VDDTVALIDADE IS NULL THEN DTVALIDADE ELSE VDDTVALIDADE END
-                   WHERE NUMLOTE = :NEW.NUMLOTE
-                     AND CODPROD = :NEW.CODPROD
-                     AND CODFILIAL = (CASE /*HUGO AQUINO*/
-                          WHEN ((:NEW.CODOPER IN ('ED') AND NVL(:NEW.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0)) THEN
-                          DECODE(VNVOLTAESTOQUEFILIALRETIRA,
-                                 'N',
-                                 :NEW.CODFILIAL,
-                                 NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))
-                          
-                          WHEN (:NEW.CODOPER IN ('ED') AND NVL(:NEW.QT, 0) > 0) THEN NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
-                                 
-                          WHEN VNCONDVENDA = 10 THEN
-                          NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
-                          WHEN (:NEW.CODOPER IN ('EN') AND NVL(:NEW.QT, 0) <> 0) THEN
-                            DECODE(VNVOLTAESTOQUEFILIALVIRTUAL,
-                                 'N',
-                                 NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL),
-                                 NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL))
-                          ELSE
-                          NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
-                    
-                  IF( NVL(:NEW.QTBLOQUEADA, 0) <> 0 or NVL(:NEW.QTAVARIA, 0) <> 0) THEN
-                  
-                      UPDATE PCLOTE
-                         SET QTBLOQUEADA = GREATEST( GREATEST((NVL(QTBLOQUEADA, 0) + NVL(:NEW.QTBLOQUEADA, 0)), 0), GREATEST((NVL(QTINDENIZ, 0) + NVL(:NEW.QTAVARIA, 0)), 0) ),
-                             QTINDENIZ   = GREATEST((NVL(QTINDENIZ, 0) + NVL(:NEW.QTAVARIA, 0)), 0)
-                       WHERE NUMLOTE = :NEW.NUMLOTE
-                         AND CODPROD = :NEW.CODPROD
-                         AND CODFILIAL = (CASE /*HUGO AQUINO*/
-                              WHEN (:NEW.CODOPER IN ('ED')) THEN
-                              NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
-                              /*DECODE(VNVOLTAESTOQUEFILIALRETIRA,
-                                     'N',
-                                     :NEW.CODFILIAL,
-                                     NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL))*/
-                                     
-                              WHEN VNCONDVENDA = 10 THEN
-                              NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL)
-                              WHEN (:NEW.CODOPER IN ('EN') AND NVL(:NEW.QT, 0) <> 0) THEN
-                                DECODE(VNVOLTAESTOQUEFILIALVIRTUAL,
-                                     'N',
-                                     NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL),
-                                     NVL(:NEW.CODFILIALNF, :NEW.CODFILIAL))
-                              ELSE
-                              NVL(:NEW.CODFILIALRETIRA, :NEW.CODFILIAL) END);
-                   
-                   END IF; 
-                   
+
+                  -- UPDATE PCLOTE SOMANDO NO ESTOQUE                  
+                  ENTRADAS_ATUALIZAR_PCLOTE('E');
+
           IF SQL%ROWCOUNT = 0 THEN
           INSERT INTO PCLOTE
                 (NUMLOTE
@@ -879,6 +956,27 @@ BEGIN
             END IF;
 
             BEGIN
+              -- Inicializando campos utilizados pela procedure ENTRADAS_ATUALIZAR_PCLOTE
+              -- Campos utilizados na criação de novo lote no fluxo de criação da PCMOV
+              -- O fluxo abaixo de deleção não necessita dos campos em questão
+              VDDATAFABRICACAO := NULL;            
+              VDDTVALIDADE := NULL;
+
+              IF :OLD.CODOPER IN ('S', 'SR', 'SB') THEN
+                BEGIN
+                  SELECT COUNT(*)
+                    INTO VNTRANSFERENCIASAIDA
+                  FROM PCTRANSFDEP
+                  WHERE NUMTRANSVENDA = :NEW.NUMTRANSVENDA
+                        AND CODPROD = :NEW.CODPROD
+                        AND (NVL(NUMTRANSTRANSFSAIDA, 0) > 0
+                        OR NVL(NUMTRANSTRANSFENT, 0) > 0);
+                EXCEPTION
+                  WHEN NO_DATA_FOUND THEN
+                    VNTRANSFERENCIASAIDA := 0;
+                END;
+              END IF;
+
               ----- SAÍDA -----
               IF SUBSTR(:OLD.CODOPER, 1, 1) IN ('S', 'R') THEN
                 BEGIN
@@ -967,23 +1065,8 @@ BEGIN
                 ----- ENTRADA -----
               ELSIF SUBSTR(:OLD.CODOPER, 1, 1) = 'E' THEN
                 BEGIN
-                  UPDATE PCLOTE
-                     SET QT          = NVL(QT, 0) - NVL(:OLD.QT, 0),
-                         QTEST       = NVL(QTEST, 0) - NVL(:OLD.QTCONT, 0),
-                         QTBLOQUEADA = GREATEST( GREATEST((NVL(QTBLOQUEADA, 0) - NVL(:OLD.QTBLOQUEADA, 0)), 0), GREATEST((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)), 0) ),
-                         QTINDENIZ   = GREATEST((NVL(QTINDENIZ, 0) - NVL(:OLD.QTAVARIA, 0)), 0),
-                         QTINDUSTRIA = GREATEST((NVL(QTINDUSTRIA, 0) - NVL(:OLD.QTINDUSTRIA, 0)), 0)
-                   WHERE NUMLOTE = :OLD.NUMLOTE
-                     AND CODPROD = :OLD.CODPROD
-                     AND CODFILIAL = (CASE /*HUGO AQUINO*/
-                          WHEN ((:OLD.CODOPER IN ('S') AND NVL(:OLD.QT, 0) < 0 AND VNTRANSFERENCIASAIDA > 0) /*OR :OLD.CODOPER IN ('ED')*/) THEN
-                          DECODE(VNVOLTAESTOQUEFILIALRETIRA, 'N', :OLD.CODFILIAL, NVL(:OLD.CODFILIALRETIRA, :OLD.CODFILIAL))
-                          WHEN (:OLD.CODOPER IN ('ED')) THEN 
-                          NVL(:OLD.CODFILIALNF, :OLD.CODFILIAL)
-                          WHEN VNCONDVENDA = 10 THEN
-                          NVL(:OLD.CODFILIALNF, :OLD.CODFILIAL)
-                          ELSE
-                          NVL(:OLD.CODFILIALRETIRA, :OLD.CODFILIAL) END);
+                  -- UPDATE PCLOTE SUBTRAINDO NO ESTOQUE
+                  ENTRADAS_ATUALIZAR_PCLOTE('S');
                 EXCEPTION
                   WHEN OTHERS THEN
                     RAISE_APPLICATION_ERROR(-20003,
