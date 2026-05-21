@@ -7656,7 +7656,7 @@ create or replace package body FISCAL is
         P_MSG := 'OK';
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
         
@@ -7724,7 +7724,7 @@ create or replace package body FISCAL is
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
     EXCEPTION
@@ -7782,7 +7782,7 @@ create or replace package body FISCAL is
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional'; 
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional'; 
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;   
     EXCEPTION
