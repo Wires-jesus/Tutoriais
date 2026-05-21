@@ -7350,6 +7350,10 @@ create or replace package body FISCAL is
 
          VARIAVEL.NOME  := '&VLFCP&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_FCP IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_FCP END;
+         FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS); 
+	   
+	       VARIAVEL.NOME  := '&VLFCPST&';
+         VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_FCP_ST IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_FCP_ST END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
          VARIAVEL.NOME  := '&VLFCPUFDEST&';
@@ -7652,7 +7656,7 @@ create or replace package body FISCAL is
         P_MSG := 'OK';
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
         
@@ -7720,7 +7724,7 @@ create or replace package body FISCAL is
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
     EXCEPTION
@@ -7778,7 +7782,7 @@ create or replace package body FISCAL is
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
-        P_MSG := 'Tributos não gravados. Filial Optante Simples Nacional'; 
+        P_MSG := 'OK : Tributos não gravados. Filial Optante Simples Nacional'; 
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;   
     EXCEPTION
