@@ -1,22 +1,36 @@
 DECLARE
   vQtde NUMBER(10);
 BEGIN
-  SELECT count(*)
-  INTO vQtde
-  FROM PCMOV S
+  SELECT 
+    count(*)
+  INTO 
+    vQtde
+  FROM 
+    PCMOV S
   WHERE S.DFEREF_CHAVEACESSO IS NOT NULL
-  OR S.NUMSEQ IS NOT NULL;
+  OR S.DFEREF_NITEM IS NOT NULL;
 
-  
   IF vQtde < 1 THEN
-    return;
+    RETURN;
   END IF;
 
   UPDATE PCMOV S SET 
     S.DFEREF_CHAVEACESSO = NULL,
-    S.NUMSEQ = NULL
-  WHERE S.DFEREF_CHAVEACESSO IS NOT NULL 
-  OR S.NUMSEQ IS NOT NULL 
+    S.DFEREF_NITEM = NULL
+  WHERE (S.DFEREF_CHAVEACESSO IS NOT NULL OR S.DFEREF_NITEM IS NOT NULL)
   AND ROTINACAD = 'PCSIS1360.EXE'
-  AND numtransvenda in (SELECT numtransvenda FROM pcnfent WHERE situacaonfe NOT IN (100, 150, 101, 151, 102, 152));
+  AND NUMTRANSVENDA IN (
+    SELECT 
+      numtransvenda 
+    FROM 
+      pcnfent 
+    WHERE situacaonfe NOT IN (
+      100, 
+      150, 
+      101, 
+      151, 
+      102, 
+      152
+    )
+  );
 END;
