@@ -6978,78 +6978,68 @@ PROCEDURE buscarprecocestabasica -- 13 parametros ( sendo 7 obrigatórios)
 
     --Tarefa 21265: Por Faixa de Desconto por RCA
     --Por RCA
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND nvl(tipo, 'R') = 'R';
-    IF vicont <> 0 THEN
-      SELECT MAX(percom)
-        INTO vnpercom
+    vicont := 0;
+    FOR r IN (
+      SELECT MAX(percom) as percom
         FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND nvl(tipo, 'R') = 'R';
-      vsletracomiss := NULL;
-    END IF;
+       WHERE codusur = p_codusur
+         AND nvl(tipo, 'R') = 'R'
+         AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+    ) LOOP
+      IF r.percom IS NOT NULL THEN
+        vnpercom := r.percom;
+        vicont := 1;
+        vsletracomiss := NULL;
+      END IF;
+    END LOOP;
 
     --Por RCA/Departamento
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codepto = p_codepto
-       AND nvl(tipo, 'R') = 'RD';
-    IF vicont <> 0 THEN
-      SELECT percom
-        INTO vnpercom
+    FOR r IN (
+      SELECT MAX(percom) as percom
         FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
+       WHERE codusur = p_codusur
          AND codepto = p_codepto
-         AND nvl(tipo, 'R') = 'RD';
-      vsletracomiss := NULL;
-    END IF;
+         AND nvl(tipo, 'R') = 'RD'
+         AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+    ) LOOP
+      IF r.percom IS NOT NULL THEN
+        vnpercom := r.percom;
+        vicont := 1;
+        vsletracomiss := NULL;
+      END IF;
+    END LOOP;
 
     --Por RCA/Seção
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codsec = p_codsec
-       AND nvl(tipo, 'R') = 'RS';
-    IF vicont <> 0 THEN
-      SELECT percom
-        INTO vnpercom
+    FOR r IN (
+      SELECT MAX(percom) as percom
         FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
+       WHERE codusur = p_codusur
          AND codsec = p_codsec
-         AND nvl(tipo, 'R') = 'RS';
-      vsletracomiss := NULL;
-    END IF;
+         AND nvl(tipo, 'R') = 'RS'
+         AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+    ) LOOP
+      IF r.percom IS NOT NULL THEN
+        vnpercom := r.percom;
+        vicont := 1;
+        vsletracomiss := NULL;
+      END IF;
+    END LOOP;
 
     --Por RCA/Produto
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codprod = p_codprod
-       AND nvl(tipo, 'R') = 'RP';
-    IF vicont <> 0 THEN
-      SELECT percom
-        INTO vnpercom
+    FOR r IN (
+      SELECT MAX(percom) as percom
         FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
+       WHERE codusur = p_codusur
          AND codprod = p_codprod
-         AND nvl(tipo, 'R') = 'RP';
-      vsletracomiss := NULL;
-    END IF;
+         AND nvl(tipo, 'R') = 'RP'
+         AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+    ) LOOP
+      IF r.percom IS NOT NULL THEN
+        vnpercom := r.percom;
+        vicont := 1;
+        vsletracomiss := NULL;
+      END IF;
+    END LOOP;
 
     --Tarefa 21534: Por Faixa de Desconto por Pl. Pagto
     SELECT COUNT(*)
@@ -14349,35 +14339,24 @@ FUNCTION validarpoliticasdesconto_med -- 28 parametros
   begin
 
     --Por RCA
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND nvl(tipo, 'R') = 'R'
-       AND ROWNUM = 1;
+    vicont := 0;
+    FOR r IN (
+        SELECT percom, codfaixa
+          FROM pccomissaousur
+         WHERE codusur = p_codusur
+           AND NVL(tipo, 'R') = 'R'
+           AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+         ORDER BY percom DESC
+    ) LOOP
+        vnpercom := r.percom;
+        vncodfaixa := r.codfaixa;
+        vicont := 1;
+        EXIT;
+    END LOOP;
 
    IF vicont <> 0 THEN
 
      if vicont = 1 then
-
-            SELECT percom
-              INTO vnpercom
-              FROM pccomissaousur
-             WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-               AND codusur = p_codusur
-               AND nvl(tipo, 'R') = 'R'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
-             SELECT codfaixa
-              INTO vncodfaixa
-              FROM pccomissaousur
-             WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-               AND codusur = p_codusur
-               AND nvl(tipo, 'R') = 'R'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
 
            if vnpercom = 0 then
 
@@ -14403,41 +14382,25 @@ FUNCTION validarpoliticasdesconto_med -- 28 parametros
     END IF;
 
     --Por RCA/Departamento
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codepto = p_codepto
-       AND nvl(tipo, 'R') = 'RD'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
+    vicont := 0;
+    FOR r IN (
+        SELECT percom, codfaixa
+          FROM pccomissaousur
+         WHERE codusur = p_codusur
+           AND codepto = p_codepto
+           AND NVL(tipo, 'R') = 'RD'
+           AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+         ORDER BY percom DESC
+    ) LOOP
+        vnpercom := r.percom;
+        vncodfaixa := r.codfaixa;
+        vicont := 1;
+        EXIT;
+    END LOOP;
 
    IF vicont <> 0 THEN
 
      if vicont = 1 then
-
-      SELECT percom
-        INTO vnpercom
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codepto = p_codepto
-         AND nvl(tipo, 'R') = 'RD'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
-      SELECT codfaixa
-        INTO vncodfaixa
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codepto = p_codepto
-         AND nvl(tipo, 'R') = 'RD'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
-
              if vnpercom = 0 then
 
               if p_ConsiderarComissaoZero = 'S' then
@@ -14465,39 +14428,25 @@ FUNCTION validarpoliticasdesconto_med -- 28 parametros
     END IF;
 
     --Por RCA/Seção
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codsec = p_codsec
-       AND nvl(tipo, 'R') = 'RS'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
+    vicont := 0;
+    FOR r IN (
+        SELECT percom, codfaixa
+          FROM pccomissaousur
+         WHERE codusur = p_codusur
+           AND codsec = p_codsec
+           AND NVL(tipo, 'R') = 'RS'
+           AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+         ORDER BY percom DESC
+    ) LOOP
+        vnpercom := r.percom;
+        vncodfaixa := r.codfaixa;
+        vicont := 1;
+        EXIT;
+    END LOOP;
 
    IF vicont <> 0 THEN
 
     if vicont = 1 then
-
-      SELECT percom
-        INTO vnpercom
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codsec = p_codsec
-         AND nvl(tipo, 'R') = 'RS'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
-      SELECT codfaixa
-        INTO vncodfaixa
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codsec = p_codsec
-         AND nvl(tipo, 'R') = 'RS'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
 
      if vnpercom = 0 then
 
@@ -14521,40 +14470,25 @@ FUNCTION validarpoliticasdesconto_med -- 28 parametros
     END IF;
 
     --Por RCA/Produto
-    SELECT COUNT(*)
-      INTO vicont
-      FROM pccomissaousur
-     WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-       AND codusur = p_codusur
-       AND codprod = p_codprod
-       AND nvl(tipo, 'R') = 'RP'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
+    vicont := 0;
+    FOR r IN (
+        SELECT percom, codfaixa
+          FROM pccomissaousur
+         WHERE codusur = p_codusur
+           AND codprod = p_codprod
+           AND NVL(tipo, 'R') = 'RP'
+           AND round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
+         ORDER BY percom DESC
+    ) LOOP
+        vnpercom := r.percom;
+        vncodfaixa := r.codfaixa;
+        vicont := 1;
+        EXIT;
+    END LOOP;
 
    IF vicont <> 0 THEN
 
      if vicont = 1 then
-
-      SELECT percom
-        INTO vnpercom
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codprod = p_codprod
-         AND nvl(tipo, 'R') = 'RP'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
-      SELECT codfaixa
-        INTO vncodfaixa
-        FROM pccomissaousur
-       WHERE round(p_perdesc, 2) BETWEEN percdescini AND percdescfim
-         AND codusur = p_codusur
-         AND codprod = p_codprod
-         AND nvl(tipo, 'R') = 'RP'
-               AND ROWNUM = 1
-          ORDER BY PERCOM DESC;
-
 
            if vnpercom = 0 then
 

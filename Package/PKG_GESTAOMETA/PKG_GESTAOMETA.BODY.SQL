@@ -690,7 +690,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
     IF PN_CODIGOINDICADOR IN (-1) THEN
       NULL;
       --  VSSQL := PS_REGRAINDICADOR;
-      /*      ELSIF PN_CODIGOINDICADOR IN (8, 11) THEN
+      /* ELSIF PN_CODIGOINDICADOR IN (8, 11) THEN
       VSSQL := ' SELECT NVL(MAX(DISTINCT
                  (SELECT VALOR
                     FROM TABLE(PKG_GESTAOMETA.F_VENDAS('''||PS_CODFILIAL||''',
@@ -703,7 +703,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                                        '''||PD_DATAFIM||''')))), 0)'; */
     ELSE
 
-      VSSQL := ' SELECT DISTINCT 
+      VSSQL := ' SELECT  
         REALIZADO.NUMTRANSVENDA,
         0 CODCOMBINACAO ,
         0 CODENTIDADE   ,
@@ -842,9 +842,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                               VSSQL := VSSQL || ' AND V.CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
                             END IF;
                          
-                            VSSQL := VSSQL || ' AND V.CODFILIAL IN(' || PS_CODFILIAL || ')
-                                             AND V.NUMTRANSVENDA IN ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) ))';
-                            VSSQL := VSSQL || ') VENDAS ';
+                              VSSQL := VSSQL || ' AND V.CODFILIAL IN(' || PS_CODFILIAL || ')
+                                               AND EXISTS (SELECT 1 FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' GTT WHERE GTT.NUMTRANSVENDA = V.NUMTRANSVENDA AND NVL(GTT.TIPOMOV, ''NT'') = ''NT'' AND GTT.DATA = TRUNC(SYSDATE))';
+                              VSSQL := VSSQL || ') VENDAS ';
     
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
     
@@ -859,9 +859,9 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                     AND SAID.CODFILIAL IN(' || PS_CODFILIAL || ')
                     AND NVL(VENDAS.CONDVENDA, -1) IN (1, 5, -1, 7, 9, 11, 14)
                     AND VENDAS.CODFISCAL NOT IN (522, 622, 722, 532, 632, 732)
-                    AND SAID.NUMTRANSVENDA IN( SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE) )';
-
-    VSSQL := VSSQL || ')  UNION ALL (';
+                    AND EXISTS (SELECT 1 FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' GTT WHERE GTT.NUMTRANSVENDA = SAID.NUMTRANSVENDA AND NVL(GTT.TIPOMOV, ''NT'') = ''NT'' AND GTT.DATA = TRUNC(SYSDATE))';
+  
+      VSSQL := VSSQL || ')  UNION ALL (';
     
     -- VIEW_DEVOL_RESUMO_FATURAMENTO
     VSSQL := VSSQL || 'SELECT DEVOL.VLDEVOLUCAO * -1 VLLIQUIDO,
@@ -947,10 +947,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                             VSSQL := VSSQL || ' AND D.CODSUPERVMOV = ''' || PN_CODSUPERVISOR || '''';
                         END IF;
     
-              VSSQL := VSSQL || ' AND D.CODFILIAL IN(' || PS_CODFILIAL || ')
-                       AND D.NUMTRANSVENDA IN ((SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE)))';
-         
-              VSSQL := VSSQL ||') DEVOL';
+                VSSQL := VSSQL || ' AND D.CODFILIAL IN(' || PS_CODFILIAL || ')
+                         AND EXISTS (SELECT 1 FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' GTT WHERE GTT.NUMTRANSVENDA = D.NUMTRANSVENDA AND NVL(GTT.TIPOMOV, ''NT'') = ''NT'' AND GTT.DATA = TRUNC(SYSDATE))';
+           
+                VSSQL := VSSQL ||') DEVOL';
 
     VSSQL := VSSQL || CASE WHEN PS_BLOCOSQLCONSVENDAS IS NOT NULL THEN PS_BLOCOSQLCONSVENDAS ELSE ' WHERE 1=1 ' END;
 
@@ -992,13 +992,12 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                                   MOV.QT)),
                                           0)
 
-                    AND PCNFENT.DTENT >= ''' || PD_DATAINI || '''
-                    AND PCNFENT.DTENT <= ''' || PD_DATAFIM || '''
-                    AND PCNFENT.CODFILIAL IN(' || PS_CODFILIAL || ')
-                    AND DEVOL.CONDVENDA NOT IN (4, 8, 10, 13, 20, 98, 99)
-                    AND SAID.NUMTRANSVENDA IN(SELECT DISTINCT NUMTRANSVENDA FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' WHERE NVL(TIPOMOV, ''NT'') = ''NT'' AND DATA = TRUNC(SYSDATE))';
-
-    VSSQL := VSSQL || ' AND PCNFENT.DTCANCEL IS NULL ';
+                      AND PCNFENT.DTENT <= ''' || PD_DATAFIM || '''
+                      AND PCNFENT.CODFILIAL IN(' || PS_CODFILIAL || ')
+                      AND DEVOL.CONDVENDA NOT IN (4, 8, 10, 13, 20, 98, 99)
+                      AND EXISTS (SELECT 1 FROM ' || DEF_PCGMMETAGLOBALTEMP(PS_CODFILIAL) || ' GTT WHERE GTT.NUMTRANSVENDA = SAID.NUMTRANSVENDA AND NVL(GTT.TIPOMOV, ''NT'') = ''NT'' AND GTT.DATA = TRUNC(SYSDATE))';
+  
+      VSSQL := VSSQL || ' AND PCNFENT.DTCANCEL IS NULL ';
 
     VSSQL := VSSQL || ') UNION ALL (';
     
@@ -1226,7 +1225,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
       P_CODRCA := CASE VSTIPOIDENTIDADE WHEN 'U' THEN VNCODENTIDADEMETA ELSE NULL END;
     END IF;
 
-    /*    VSSQL := 'SELECT  0, ''0'', ' || PSREGRAINDICADOR ||
+    /* VSSQL := 'SELECT  0, ''0'', ' || PSREGRAINDICADOR ||
     ', ''0'',''0'', 0, 0,0,0, 0,0*/
     VSSQL := 'SELECT ' || PSREGRAINDICADOR || '
                 FROM (SELECT DISTINCT NUMTRANSVENDA
@@ -1507,15 +1506,13 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
 
         VSBLOCOSQL := VSBLOCOSQL ||
                       '   AND EXISTS
-                                  (SELECT 1 FROM PCFORNEC
-                                          WHERE MOV.CODFORNEC = PCFORNEC.CODFORNEC
-                                            AND PCFORNEC.CODFORNECPRINC IN
-                                                ((SELECT CODENTIDADE
-                                                    FROM ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || '
-                                                   WHERE CODENTIDADE =
-                                                   DECODE(' || PNCODENTIDADEMETA || ', 0, CODENTIDADE, ' || PNCODENTIDADEMETA || ')
-                                                           AND TABELAENTIDADE = ''' || PSTIPOENTIDADE || '''
-                                                           AND NVL(CODPROD, 0) = 0) ))';
+                                  (SELECT 1 FROM PCFORNEC PF
+                                            JOIN ' || DEF_PCGMMETAGLOBALTEMP(PSCODFILIAL) || ' GTT
+                                              ON PF.CODFORNECPRINC = GTT.CODENTIDADE
+                                           WHERE MOV.CODFORNEC = PF.CODFORNEC
+                                             AND GTT.CODENTIDADE = DECODE(' || PNCODENTIDADEMETA || ', 0, GTT.CODENTIDADE, ' || PNCODENTIDADEMETA || ')
+                                             AND GTT.TABELAENTIDADE = ''' || PSTIPOENTIDADE || '''
+                                             AND NVL(GTT.CODPROD, 0) = 0)';
 
 
 
@@ -1573,7 +1570,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                       DADOS.TIPOENTIDADE || ''' )';*/
 
       ELSIF PSTIPOENTIDADE = 'PRO' THEN
-        /*        VSBLOCOSQL := VSBLOCOSQL ||
+        /* VSBLOCOSQL := VSBLOCOSQL ||
         ' AND MOV.CODPROD IN( SELECT CODENTIDADE
                                             FROM (SELECT *
                                                     FROM TABLE(PKG_GESTAOMETA.F_DADOSMETATEMP(' || PNCODMETA || ',
@@ -2151,6 +2148,10 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                     FROM DUAL
                   CONNECT BY REGEXP_SUBSTR(PSCODENTIDADE, '[^;]+', 1, LEVEL) IS NOT NULL) LOOP
 
+      VSNOMETABELA      := NULL;
+      VSCOLUNATABELA    := NULL;
+      VSCAMPOCONDICAO   := NULL;
+      VSRECEBENOMECAMPO := '';
       VSCODENTIDADE := DADOS.CODENTIDADE;
       IF DADOS.TIPOENTIDADE = 'CLI' THEN
         VSNOMETABELA                  := 'PCCLIENT';
@@ -2316,23 +2317,30 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
                                          VSCODENTIDADE || ')';
       END IF;
 
-      VSSQL := 'SELECT ' || VSCOLUNATABELA ||
-               ' AS NOME
-                    FROM PCGMCOMBITEM, ' || VSNOMETABELA ||
-               ' WHERE PCGMCOMBITEM.FILTRO = ''' || DADOS.TIPOENTIDADE || '''
-                     AND PCGMCOMBITEM.ITEM = ' ||
-               VSCAMPOCONDICAO || ' AND PCGMCOMBITEM.ITEM = ' ||
-               VSCODENTIDADE || ' AND PCGMCOMBITEM.CODIGO = ' ||
-               PNCODCOMBINACAO;
+      IF VSNOMETABELA IS NOT NULL 
+         AND VSCOLUNATABELA IS NOT NULL 
+         AND VSCAMPOCONDICAO IS NOT NULL 
+         AND VSCODENTIDADE IS NOT NULL 
+         AND PNCODCOMBINACAO IS NOT NULL 
+      THEN
+          VSSQL := 'SELECT ' || VSCOLUNATABELA || ' AS NOME ' ||
+                   '  FROM PCGMCOMBITEM, ' || VSNOMETABELA ||
+                   ' WHERE PCGMCOMBITEM.FILTRO = :1 ' ||
+                   '   AND PCGMCOMBITEM.ITEM   = ' || VSCAMPOCONDICAO || 
+                   '   AND PCGMCOMBITEM.ITEM   = :2 ' ||
+                   '   AND PCGMCOMBITEM.CODIGO = :3';
 
-      BEGIN
-        EXECUTE IMMEDIATE VSSQL
-          INTO VSRECEBENOMECAMPO;
-
-      EXCEPTION
-        WHEN OTHERS THEN
+          BEGIN
+            EXECUTE IMMEDIATE VSSQL 
+                 INTO VSRECEBENOMECAMPO
+                USING DADOS.TIPOENTIDADE, DADOS.CODENTIDADE, PNCODCOMBINACAO;
+          EXCEPTION
+            WHEN OTHERS THEN
+              VSRECEBENOMECAMPO := '';
+          END;
+      ELSE
           VSRECEBENOMECAMPO := '';
-      END;
+      END IF;
 
       IF VNCONTADOR = 0 THEN
         RETORNO := VSRECEBENOMECAMPO;
@@ -3371,7 +3379,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_GESTAOMETA IS
           DADOS_SAIDA.CODINDICADOR := DADOSMETACOMB.CODINDICADOR;
           DADOS_SAIDA.TIPOENTIDADE := NVL(DADOSMETACOMB.TIPOENTIDADE, 'GER');
 
-          /*          DADOS_SAIDA.NOMEENTIDADE := ENCONTRA_NOME_ENTIDADE(DADOSMETACOMB.CODCOMBINACAO,
+          /* DADOS_SAIDA.NOMEENTIDADE := ENCONTRA_NOME_ENTIDADE(DADOSMETACOMB.CODCOMBINACAO,
           DADOSMETACOMB.CODENTIDADE,
           DADOSMETACOMB.TIPOENTIDADE,
           VSBLOCOSQLCALCREALIZADO);*/
