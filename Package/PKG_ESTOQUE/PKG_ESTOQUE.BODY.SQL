@@ -3926,28 +3926,6 @@ BEGIN
   */
   IF vDISPDEST < 0 THEN
 
-    -- Validar se usa a requisição automática
-    IF FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_GERAPREREQDEPNEGATIVO',pnCODFILIAL,'N') = 'N' THEN
-      
-      P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo.'||CHR(13)||
-                               'Favor realizar o ajuste do depósito via inventário ou na rotina 1108.'||CHR(13)||
-                               'Depósito destino..........: '||pnCODDEPOSITO_DEST||CHR(13)||
-                               'Qt. disponível no depósito: '||vDISPDEST||CHR(13)||
-                               'Produto...................: '||pnCODPROD||CHR(13)||
-                               'Filial....................: '||pnCODFILIAL||CHR(13);
-      
-      P_INTERNO.INFORMACOES_LOG := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo. '||
-                               'Favor realizar o ajuste do depósito via inventário ou na rotina 1108. '||
-                               'Depósito destino..........: '||pnCODDEPOSITO_DEST||
-                               ' Qt. disponível no depósito: '||vDISPDEST||
-                               ' Produto...................: '||pnCODPROD||
-                               ' Filial....................: '||pnCODFILIAL;
-      PRIV_GERARLOG;
-      
-      RETURN;  
-      
-    END IF;
-
     -- Alvo do depósito venda:
     IF vQTGERALPCEST < 0 THEN
       vTARGETDEST := vQTGERALPCEST;
@@ -4151,9 +4129,12 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
   -------------------------------------------------------------------------------------------------------------------------
   30/05/2019     Fernandes Brito   0                   Criada procedure para movimentar o estoque do depósito na entrada de mercadoria
   ************************************************************************************************************************/
-  PROCEDURE PRIV_DEP_VENDAS_ENTRADA
+  PROCEDURE PRIV_DEP_VENDAS_ENTRADA(psCODOPER IN PCMOV.CODOPER%TYPE DEFAULT '')
   IS-- Declaração das variáveis internas
     vtESTOQUE_DEPOSITO T_ESTOQUE_DEPOSITO;
+    vQTFISDEST    PCESTOQUEDEPOSITOPROD.QTESTOQUE%TYPE    := 0;
+    vQTRESDEST    PCESTOQUEDEPOSITOPROD.QTRESERVADA%TYPE  := 0;
+    vQTBLOQDEST   PCESTOQUEDEPOSITOPROD.QTBLOQUEADA%TYPE  := 0;
   BEGIN
     -- Inserindo informações de debug (LOG)
     P_INTERNO.INFORMACOES_LOG := 'Iniciou a função depósito vendas entrada';
@@ -4182,6 +4163,42 @@ END PRIV_DEP_INCLUIR_REQ_AUTO;
             RETURN;
         END;
       END IF;
+      
+      --VALIDAR O PARAMETRO 4911 PARA DEVOLUÇÃO DE CLIENTE NA ROTINA 1360 COM ESTOQUE NEGATIVO NO DEPÓSITO.
+      IF (pSCODOPER = 'ED') AND (vsROTINA LIKE '%PCSIS1360%') THEN
+          
+        --CALCULAR O SALDO DE ESTOQUE DO DEPÓSITO CONSIDERANDO O VALOR NEGATIVO.
+        SELECT NVL(E.QTESTOQUE, 0), NVL(E.QTRESERVADA, 0), NVL(E.QTBLOQUEADA, 0)
+          INTO vQTFISDEST, vQTRESDEST, vQTBLOQDEST
+          FROM PCESTOQUEDEPOSITOPROD E
+         WHERE E.CODFILIAL = P_INTERNO.CODFILIAL
+           AND E.CODDEPOSITO = P_INTERNO.CODDEPOSITO
+           AND E.CODPROD = P_INTERNO.CODPROD;
+        
+        P_INTERNO.QTDE_DISPONIVEL  := vQTFISDEST - vQTRESDEST - vQTBLOQDEST;
+          
+        IF (P_INTERNO.QTDE_DISPONIVEL < 0) AND 
+          (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_BLOQDEVESTOQUENEGATIVODEPOSITO',P_INTERNO.CODFILIAL,'N') = 'S') THEN
+            
+          P_INTERNO.MSG_RETORNO := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo.'||CHR(13)||
+                           'Favor realizar o ajuste do depósito via inventário ou na rotina 1108.'||CHR(13)||
+                           'Depósito destino..........: '||P_INTERNO.CODDEPOSITO||CHR(13)||
+                           'Qt. disponível no depósito: '||P_INTERNO.QTDE_DISPONIVEL||CHR(13)||
+                           'Produto...................: '||P_INTERNO.CODPROD||CHR(13)||
+                           'Filial....................: '||P_INTERNO.CODFILIAL||CHR(13);
+
+          P_INTERNO.INFORMACOES_LOG := 'Erro 1 (PRIV_DEP_INCLUIR_REQ_AUTO): Depósito destino negativo. '||
+                                   'Favor realizar o ajuste do depósito via inventário ou na rotina 1108. '||
+                                   'Depósito destino..........: '||P_INTERNO.CODDEPOSITO||
+                                   'Qt. disponível no depósito: '||P_INTERNO.QTDE_DISPONIVEL||
+                                   'Produto...................: '||P_INTERNO.CODPROD||
+                                   'Filial....................: '||P_INTERNO.CODFILIAL;
+          PRIV_GERARLOG;
+
+          RETURN;
+        END IF;          
+      END IF;
+      
       -- Bloquear estoque depósito
       PRIV_BLOQUEAR_DEPOSITO (P_INTERNO.CODFILIAL
                              ,P_INTERNO.CODDEPOSITO
@@ -19220,7 +19237,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
             END;
           END IF;
 
-          PRIV_DEP_VENDAS_ENTRADA;
+          PRIV_DEP_VENDAS_ENTRADA(REGISTROS.CODOPER);
         END IF;
 
         -- Erro na administração do estoque depósito
@@ -20509,17 +20526,16 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
 
           PRIV_DEP_VENDAS_SAIDA;
 
-          PRIV_DEP_INCLUIR_REQ_AUTO(P_INTERNO.CODFILIAL,   -- pnCODFILIAL
-                                    P_INTERNO.CODDEPOSITO, -- pnCODDEPOSITO_DEST (depósito de venda)
-                                    P_INTERNO.CODPROD,     -- pnCODPROD
-                                    P_INTERNO.NUMPED,      -- pnNUMPED
-                                    P_INTERNO.NUMSEQ       -- pnNUMSEQ
-                                   );
-
-          IF P_INTERNO.MSG_RETORNO <> 'OK' THEN
-            psMSG_RETORNO := P_INTERNO.MSG_RETORNO;
-            RETURN 0;
-          END IF;                          
+          IF (vsROTINA LIKE '%2075%') AND 
+            (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_GERAPREREQDEPNEGATIVO',P_INTERNO.CODFILIAL,'N') = 'S') THEN
+            
+            PRIV_DEP_INCLUIR_REQ_AUTO(P_INTERNO.CODFILIAL,   -- pnCODFILIAL
+                                      P_INTERNO.CODDEPOSITO, -- pnCODDEPOSITO_DEST (depósito de venda)
+                                      P_INTERNO.CODPROD,     -- pnCODPROD
+                                      P_INTERNO.NUMPED,      -- pnNUMPED
+                                      P_INTERNO.NUMSEQ       -- pnNUMSEQ
+                                     );          
+          END IF;                         
 
           -- Valida parametro ... para fechar a requisição automaticamento depois de baixar o estoque na 2030 - DDESTOQUE-20959
           IF (vsROTINA LIKE '%2030%') AND 
