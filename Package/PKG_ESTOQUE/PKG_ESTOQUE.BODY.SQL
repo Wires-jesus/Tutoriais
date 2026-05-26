@@ -20526,8 +20526,8 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
 
           PRIV_DEP_VENDAS_SAIDA;
 
-          IF (vsROTINA LIKE '%2030%') OR (((UPPER(vsROTINA) LIKE UPPER('%AutoServico.Faturamento%')) OR (vsROTINA LIKE UPPER('%2075%'))) AND 
-            (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_GERAPREREQDEPNEGATIVO',P_INTERNO.CODFILIAL,'N') = 'S')) THEN
+          IF ((UPPER(vsROTINA) LIKE UPPER('%AutoServico.Faturamento%')) OR (vsROTINA LIKE UPPER('%2075%'))) AND 
+            (FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_GERAPREREQDEPNEGATIVO',P_INTERNO.CODFILIAL,'N') = 'S') THEN
             
             PRIV_DEP_INCLUIR_REQ_AUTO(P_INTERNO.CODFILIAL,   -- pnCODFILIAL
                                       P_INTERNO.CODDEPOSITO, -- pnCODDEPOSITO_DEST (depósito de venda)
@@ -20535,7 +20535,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
                                       P_INTERNO.NUMPED,      -- pnNUMPED
                                       P_INTERNO.NUMSEQ       -- pnNUMSEQ
                                      );          
-          END IF;                         
+          END IF;                        
 
           -- Valida parametro ... para fechar a requisição automaticamento depois de baixar o estoque na 2030 - DDESTOQUE-20959
           IF (vsROTINA LIKE '%2030%') AND 
