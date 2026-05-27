@@ -3,6 +3,10 @@
 	"tipoPLSQL":"PACKAGE",
 	"dependencias":
 	[
-	   
+		{
+		  	"nome": "PCCONTROLENUMSERIE",
+ 		 	"tipo": "TABELA",
+ 		 	"versao": "8.0.01.000"
+		}
 	]
 }
