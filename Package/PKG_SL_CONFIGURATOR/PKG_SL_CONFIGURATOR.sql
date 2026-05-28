@@ -1,7 +1,7 @@
 -- 07_PKG_SL_CONFIGURATOR.sql
 -- Alteração: Suporte dinâmico para N colunas na PK (Foco em até 10) para Carga Inicial.
  
-CREATE OR REPLACE PACKAGE PKG_SL_CONFIGURATOR AS
+CREATE OR REPLACE PACKAGE PKG_SL_CONFIGURATOR AUTHID CURRENT_USER AS
     PROCEDURE CONFIGURE_ENTITY(
         p_owner             IN VARCHAR2,
         p_source_table_name IN VARCHAR2,
