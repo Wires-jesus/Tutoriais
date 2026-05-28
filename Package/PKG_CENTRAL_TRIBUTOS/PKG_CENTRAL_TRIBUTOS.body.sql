@@ -290,7 +290,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CENTRAL_TRIBUTOS AS
   
 PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMETROS_CENTRAL_TRIBUTOS) IS
   V_ERROS VARCHAR2(4000);    
-  V_RESULT VARCHAR2(1);
+  V_RESULT VARCHAR2(400);
   V_MSG VARCHAR2(4000);
  BEGIN
    IF P_PARAMETROS_CENTRAL_TRIBUTOS.TIPOMOVIMENTO = 'S' THEN 
@@ -345,6 +345,7 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                                             
              PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULARPISCOFINS_DEVOLUCAO','1.0', P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO);
              PKG_DEBUGGING_FWPC.LOG(V_ERROS, 'S'); 
+             PKG_DEBUGGING_FWPC.LOG(V_RESULT, 'S');             
 
              IF (RETORNA_GRAVARLOG <> 'S') THEN  
                PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
@@ -534,32 +535,38 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 'PREDALIQIBSUF           = :6, ' ||
                 'PALIQEFETIBSUF          = :7, ' ||
                 'VIBSUF                  = :8, ' ||
-                'PIBSMUN                 = :9, ' ||
-                'PREDALIQIBSMUN          = :10,' ||
-                'PALIQEFETIBSMUN         = :11,' ||
-                'VIBSMUN                 = :12,' ||
-                'ALIQCBS                 = :13,' ||
-                'PREDALIQCBS             = :14,' ||
-                'PALIQEFETCBS            = :15,' ||
-                'VLCBS                   = :16,' ||
-                'SOMATOTALNF_CBS         = :17,' ||
-                'SOMATOTALNF_IBS         = :18,' ||
-                'VLIBS                   = :19,' ||
-                'PCBGCOMPRAGOV           = :20,' ||
-                'VCBSCOMPRAGOV           = :21,' ||        
-                'PIBSUFCOMPRAGOV         = :22,' ||
-                'VIBSUFCOMPRAGOV         = :23,' ||
-                'PIBSMUNCOMPRAGOV        = :24,' ||
-                'VIBSMUNCOMPRAGOV        = :25,' ||                             
-                'CSTTRIBREG              = :26,' ||  
-                'CCLASSTRIBREG           = :27,' ||  
-                'PALIQEFETREGIBSUF       = :28,' ||  
-                'VTRIBREGIBSUF           = :29,' ||  
-                'ALIQEFETREGIBSMUN       = :30,' ||  
-                'VTRIBREGIBSMUN          = :31,' ||  
-                'PALIQEFETREGCBS         = :32,' ||  
-                'VTRIBREGCBS             = :33'  ||  
-                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :34 AND NUMTRANSITEM = :35 AND CODPROD = :36'
+                'PDIFIBSUF               = :9, ' ||
+                'VDIFIBSUF               = :10,' ||
+                'PIBSMUN                 = :11,' ||
+                'PREDALIQIBSMUN          = :12,' ||
+                'PALIQEFETIBSMUN         = :13,' ||
+                'VIBSMUN                 = :14,' ||
+                'PDIFIBSMUN              = :15,' ||
+                'VDIFIBSMUN              = :16,' ||
+                'ALIQCBS                 = :17,' ||
+                'PREDALIQCBS             = :18,' ||
+                'PALIQEFETCBS            = :19,' ||
+                'VLCBS                   = :20,' ||
+                'PDIFCBS                 = :21,' ||
+                'VDIFCBS                 = :22,' ||                
+                'SOMATOTALNF_CBS         = :23,' ||
+                'SOMATOTALNF_IBS         = :24,' ||
+                'VLIBS                   = :25,' ||
+                'PCBGCOMPRAGOV           = :26,' ||
+                'VCBSCOMPRAGOV           = :27,' ||        
+                'PIBSUFCOMPRAGOV         = :28,' ||
+                'VIBSUFCOMPRAGOV         = :29,' ||
+                'PIBSMUNCOMPRAGOV        = :30,' ||
+                'VIBSMUNCOMPRAGOV        = :31,' ||                             
+                'CSTTRIBREG              = :32,' ||  
+                'CCLASSTRIBREG           = :33,' ||  
+                'PALIQEFETREGIBSUF       = :34,' ||  
+                'VTRIBREGIBSUF           = :35,' ||  
+                'ALIQEFETREGIBSMUN       = :36,' ||  
+                'VTRIBREGIBSMUN          = :37,' ||  
+                'PALIQEFETREGCBS         = :38,' ||  
+                'VTRIBREGCBS             = :39'  ||  
+                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :40 AND NUMTRANSITEM = :41 AND CODPROD = :42'
               USING
                 P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
                 P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :2
@@ -569,34 +576,40 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_UF,     -- :6
                 P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_UF,      -- :7
                 P_DADOS_TRIBUTOS.VALOR_IBS_UF,             -- :8
-                P_DADOS_TRIBUTOS.PERC_IBS_MUN,             -- :9
-                P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_MUN,    -- :10
-                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_MUN,     -- :11
-                P_DADOS_TRIBUTOS.VALOR_IBS_MUN,            -- :12
-                P_DADOS_TRIBUTOS.PERC_CBS,                 -- :13
-                P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :14
-                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :15
-                P_DADOS_TRIBUTOS.VALOR_CBS,                -- :16
-                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :17
-                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :18
-                P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :19          
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV,     -- :20
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_CBS_COMPRA_GOV,    -- :21
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_UF_COMPRA_GOV,  -- :22
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_UF_COMPRA_GOV, -- :23
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV, -- :24
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV,-- :25
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.CST_TRIB_REG,         -- :26          
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.CCLASSTRIB_REG,       -- :27
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_UF, -- :28
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_UF,     -- :29
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_MUN,-- :30
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_MUN,    -- :31
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_CBS,    -- :32
-                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_CBS,        -- :33 
-                P_LISTA_DADOS_NOTAS.NUMTRANSACAO,                         -- :34
-                P_LISTA_DADOS_NOTAS.NUMTRANSITEM,                         -- :35
-                P_LISTA_DADOS_NOTAS.CODPROD                               -- :36
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_UF.PERC_DIFERIMENTO,  -- :9
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_UF.VALOR_DIFERIMENTO, -- :10
+                P_DADOS_TRIBUTOS.PERC_IBS_MUN,             -- :11
+                P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_MUN,    -- :12
+                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_MUN,     -- :13
+                P_DADOS_TRIBUTOS.VALOR_IBS_MUN,            -- :14
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO,  -- :15
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_MUN.VALOR_DIFERIMENTO, -- :16                
+                P_DADOS_TRIBUTOS.PERC_CBS,                 -- :17
+                P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :18
+                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :19
+                P_DADOS_TRIBUTOS.VALOR_CBS,                -- :20
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO,  -- :21
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_CBS.VALOR_DIFERIMENTO, -- :22
+                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :23
+                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :24
+                P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :25          
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV,     -- :26
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_CBS_COMPRA_GOV,    -- :27
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_UF_COMPRA_GOV,  -- :28
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_UF_COMPRA_GOV, -- :29
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV, -- :30
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV,-- :31
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.CST_TRIB_REG,         -- :32     
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.CCLASSTRIB_REG,       -- :33
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_UF, -- :34
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_UF,     -- :35
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_MUN,-- :36
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_MUN,    -- :37
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_CBS,    -- :38
+                P_DADOS_TRIBUTOS.TRIBUTACAO_REGULAR.VTRIB_REG_CBS,        -- :39 
+                P_LISTA_DADOS_NOTAS.NUMTRANSACAO,                         -- :40
+                P_LISTA_DADOS_NOTAS.NUMTRANSITEM,                         -- :41
+                P_LISTA_DADOS_NOTAS.CODPROD                               -- :42
                 ;
           ELSE
               EXECUTE IMMEDIATE
@@ -609,24 +622,30 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 'PREDALIQIBSUF           = :6, ' ||
                 'PALIQEFETIBSUF          = :7, ' ||
                 'VIBSUF                  = :8, ' ||
-                'PIBSMUN                 = :9, ' ||
-                'PREDALIQIBSMUN          = :10,' ||
-                'PALIQEFETIBSMUN         = :11,' ||
-                'VIBSMUN                 = :12,' ||
-                'ALIQCBS                 = :13,' ||
-                'PREDALIQCBS             = :14,' ||
-                'PALIQEFETCBS            = :15,' ||
-                'VLCBS                   = :16,' ||
-                'SOMATOTALNF_CBS         = :17,' ||
-                'SOMATOTALNF_IBS         = :18,' ||
-                'VLIBS                   = :19,' ||
-                'PCBGCOMPRAGOV           = :20,' ||
-                'VCBSCOMPRAGOV           = :21,' ||        
-                'PIBSUFCOMPRAGOV         = :22,' ||
-                'VIBSUFCOMPRAGOV         = :23,' ||
-                'PIBSMUNCOMPRAGOV        = :24,' ||
-                'VIBSMUNCOMPRAGOV        = :25'  ||                             
-                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :26 AND CODPROD = :27'
+                'PDIFIBSUF               = :9, ' ||
+                'VDIFIBSUF               = :10,' ||
+                'PIBSMUN                 = :11,' ||
+                'PREDALIQIBSMUN          = :12,' ||
+                'PALIQEFETIBSMUN         = :13,' ||
+                'VIBSMUN                 = :14,' ||
+                'PDIFIBSMUN              = :15,' ||
+                'VDIFIBSMUN              = :16,' ||                
+                'ALIQCBS                 = :17,' ||
+                'PREDALIQCBS             = :18,' ||
+                'PALIQEFETCBS            = :19,' ||
+                'VLCBS                   = :20,' ||
+                'PDIFCBS                 = :21,' ||
+                'VDIFCBS                 = :22,' ||                    
+                'SOMATOTALNF_CBS         = :23,' ||
+                'SOMATOTALNF_IBS         = :24,' ||
+                'VLIBS                   = :25,' ||
+                'PCBGCOMPRAGOV           = :26,' ||
+                'VCBSCOMPRAGOV           = :27,' ||        
+                'PIBSUFCOMPRAGOV         = :28,' ||
+                'VIBSUFCOMPRAGOV         = :29,' ||
+                'PIBSMUNCOMPRAGOV        = :30,' ||
+                'VIBSMUNCOMPRAGOV        = :31'  ||                             
+                'WHERE '||V_TRANSENT_OU_TRANSVENDA||' = :32 AND CODPROD = :33'
               USING
                 P_DADOS_TRIBUTOS.CODIGO_TRIBUTACAO_CBSIBS, -- :1
                 P_DADOS_TRIBUTOS.CST_CBSIBS,               -- :2
@@ -636,25 +655,31 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
                 P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_UF,     -- :6
                 P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_UF,      -- :7
                 P_DADOS_TRIBUTOS.VALOR_IBS_UF,             -- :8
-                P_DADOS_TRIBUTOS.PERC_IBS_MUN,             -- :9
-                P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_MUN,    -- :10
-                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_MUN,     -- :11
-                P_DADOS_TRIBUTOS.VALOR_IBS_MUN,            -- :12
-                P_DADOS_TRIBUTOS.PERC_CBS,                 -- :13
-                P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :14
-                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :15
-                P_DADOS_TRIBUTOS.VALOR_CBS,                -- :16
-                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :17
-                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :18
-                P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :19          
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV,     -- :20
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_CBS_COMPRA_GOV,    -- :21
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_UF_COMPRA_GOV,  -- :22
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_UF_COMPRA_GOV, -- :23
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV, -- :24
-                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV,-- :25
-                P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :26
-                P_LISTA_DADOS_NOTAS.CODPROD                -- :27
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_UF.PERC_DIFERIMENTO,  -- :9
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_UF.VALOR_DIFERIMENTO, -- :10
+                P_DADOS_TRIBUTOS.PERC_IBS_MUN,             -- :11
+                P_DADOS_TRIBUTOS.PERC_RED_ALIQ_IBS_MUN,    -- :12
+                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_IBS_MUN,     -- :13
+                P_DADOS_TRIBUTOS.VALOR_IBS_MUN,            -- :14
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO,  -- :15
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_IBS_MUN.VALOR_DIFERIMENTO, -- :16                
+                P_DADOS_TRIBUTOS.PERC_CBS,                 -- :17
+                P_DADOS_TRIBUTOS.PERC_RED_CBS,             -- :18
+                P_DADOS_TRIBUTOS.ALIQ_EFETIVA_CBS,         -- :19
+                P_DADOS_TRIBUTOS.VALOR_CBS,                -- :20
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO,  -- :21
+                P_DADOS_TRIBUTOS.DADOS_DIFERIMENTO_CBS.VALOR_DIFERIMENTO, -- :22
+                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :23
+                P_DADOS_TRIBUTOS.SOMATOTALNF_CBSIBS,       -- :24
+                P_DADOS_TRIBUTOS.VLTOTALIBS,               -- :25          
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV,     -- :26
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_CBS_COMPRA_GOV,    -- :27
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_UF_COMPRA_GOV,  -- :28
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_UF_COMPRA_GOV, -- :29
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV, -- :30
+                P_DADOS_TRIBUTOS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV,-- :31
+                P_LISTA_DADOS_NOTAS.NUMTRANSACAO ,         -- :32
+                P_LISTA_DADOS_NOTAS.CODPROD                -- :33
                 ;
         END IF;
 
@@ -1249,11 +1274,9 @@ END CALC_E_GRAVAR_TODOS_TRIB_TEST;
  PROCEDURE CONSULTAR_E_GRAVAR_COD_BENEF(P_PARAMETROS IN T_PARAMETROS_CENTRAL_TRIBUTOS) IS 
     V_DADOS_BENEFICIOFISCAL FISCAL.TIPO_CODIGO_BENEFICIO_FISCAL;
     V_RESULT_CODBENEF FISCAL.TIPO_CODIGO_BENEFICIO_FISCAL;
-    V_PARAMETROS_CENTRAL_TRIBUTOS T_PARAMETROS_CENTRAL_TRIBUTOS;
     V_LISTA_DADOS_NOTA T_LISTA_DADOS_NOTAS;
     V_DADOS_TRIBUTACAO FISCAL.TIPO_TRIBUT_REFORMA;
   BEGIN -- Inicio do Corpo principal.
-    V_PARAMETROS_CENTRAL_TRIBUTOS := P_PARAMETROS;
 
     V_LISTA_DADOS_NOTA := CONSULTAR_DADOS_MOVIMENTACAO(P_PARAMETROS);
 
