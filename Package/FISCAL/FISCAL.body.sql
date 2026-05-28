@@ -6336,12 +6336,15 @@ create or replace package body FISCAL is
     --Retorno valores IBS UF
     V_PERC_IBS_UF                     NUMBER(18,6);
     V_PERC_RED_ALIQ_IBS_UF            NUMBER(7,4);
+    V_PERC_DIFERIMENTO_IBS_UF         NUMBER(7,4);    
     --Retorno valores IBS Municipio
     V_PERC_IBS_MUN                    NUMBER(18,6);
     V_PERC_RED_ALIQ_IBS_MUN           NUMBER(7,4);
+    V_PERC_DIFERIMENTO_IBS_MUN        NUMBER(7,4);    
     --Retorno valores CBS
     V_PERC_CBS                        NUMBER(7,4);
     V_PERC_RED_CBS                    NUMBER(7,4);
+    V_PERC_DIFERIMENTO_CBS            NUMBER(7,4);    
     --Retornos valores IS
     V_CODIGO_TRIBUTACAO_IS        NUMBER(10);
     V_COD_FORMULA_BASE_CALCULO_IS VARCHAR2(200);
@@ -6372,12 +6375,15 @@ create or replace package body FISCAL is
              --Retorno valores IBS UF
              PERC_IBS_UF,
              PERC_RED_IBS_UF,
+             PERC_DIFERIMENTO_IBS_UF,             
              --Retorno valores IBS Municipio
              PERC_IBS_MUN,
              PERC_RED_IBS_MUN,
+             PERC_DIFERIMENTO_IBS_MUN,
              --Retorno valores CBS
              PERC_CBS,
              PERC_RED_CBS,
+             PERC_DIFERIMENTO_CBS,
              --Retornos valores IS
              CODIGO_TRIBUTACAO_IS,
              BASE_CALCULO BASE_CALCULO_IS,
@@ -6394,12 +6400,15 @@ create or replace package body FISCAL is
                    --Retorno valores IBS UF
                    NVL(PCTRIBUTACAO.PERC_IBS_UF,0) PERC_IBS_UF,
                    NVL(PCTRIBUTACAO.PERC_RED_IBS_UF,0) PERC_RED_IBS_UF,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_IBS_UF,0) PERC_DIFERIMENTO_IBS_UF,
                    --Retorno valores IBS Municipio
                    NVL(PCTRIBUTACAO.PERC_IBS_MUN,0) PERC_IBS_MUN,
                    NVL(PCTRIBUTACAO.PERC_RED_IBS_MUN,0) PERC_RED_IBS_MUN,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_IBS_MUN,0) PERC_DIFERIMENTO_IBS_MUN,
                    --Retorno valores CBS
                    NVL(PCTRIBUTACAO.PERC_CBS,0) PERC_CBS,
                    NVL(PCTRIBUTACAO.PERC_RED_CBS,0) PERC_RED_CBS,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_CBS,0) PERC_DIFERIMENTO_CBS,
                    --Retornos valores IS
                    PCTRIBUTACAO.CODIGO_TRIBUTACAO CODIGO_TRIBUTACAO_IS,
                    PCTRIBUTACAO.BASE_CALCULO BASE_CALCULO_IS,
@@ -6608,12 +6617,15 @@ create or replace package body FISCAL is
              --Retorno valores IBS UF
              PERC_IBS_UF,
              PERC_RED_IBS_UF,
+             PERC_DIFERIMENTO_IBS_UF,
              --Retorno valores IBS Municipio
              PERC_IBS_MUN,
              PERC_RED_IBS_MUN,
+             PERC_DIFERIMENTO_IBS_MUN,
              --Retorno valores CBS
              PERC_CBS,
              PERC_RED_CBS,
+             PERC_DIFERIMENTO_CBS,
              --Retornos valores IS
              CODIGO_TRIBUTACAO_IS,
              BASE_CALCULO BASE_CALCULO_IS,
@@ -6630,12 +6642,15 @@ create or replace package body FISCAL is
              --Retorno valores IBS UF
              V_PERC_IBS_UF,
              V_PERC_RED_ALIQ_IBS_UF,
+             V_PERC_DIFERIMENTO_IBS_UF,
              --Retorno valores IBS Municipio
              V_PERC_IBS_MUN,
              V_PERC_RED_ALIQ_IBS_MUN,
+             V_PERC_DIFERIMENTO_IBS_MUN,
              --Retorno valores CBS
              V_PERC_CBS,
              V_PERC_RED_CBS,
+             V_PERC_DIFERIMENTO_CBS,
              --Retornos valores IS
              V_CODIGO_TRIBUTACAO_IS,
              V_COD_FORMULA_BASE_CALCULO_IS,
@@ -6652,12 +6667,15 @@ create or replace package body FISCAL is
                    --Retorno valores IBS UF
                    NVL(PCTRIBUTACAO.PERC_IBS_UF,0) PERC_IBS_UF,
                    NVL(PCTRIBUTACAO.PERC_RED_IBS_UF,0) PERC_RED_IBS_UF,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_IBS_UF,0) PERC_DIFERIMENTO_IBS_UF,                   
                    --Retorno valores IBS Municipio
                    NVL(PCTRIBUTACAO.PERC_IBS_MUN,0) PERC_IBS_MUN,
                    NVL(PCTRIBUTACAO.PERC_RED_IBS_MUN,0) PERC_RED_IBS_MUN,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_IBS_MUN,0) PERC_DIFERIMENTO_IBS_MUN,                   
                    --Retorno valores CBS
                    NVL(PCTRIBUTACAO.PERC_CBS,0) PERC_CBS,
                    NVL(PCTRIBUTACAO.PERC_RED_CBS,0) PERC_RED_CBS,
+                   NVL(PCTRIBUTACAO.PERC_DIFERIMENTO_CBS,0) PERC_DIFERIMENTO_CBS,
                    --Retornos valores IS
                    PCTRIBUTACAO.CODIGO_TRIBUTACAO CODIGO_TRIBUTACAO_IS,
                    PCTRIBUTACAO.BASE_CALCULO BASE_CALCULO_IS,
@@ -6841,12 +6859,18 @@ create or replace package body FISCAL is
              --Retorno valores IBS UF
         V_PARAMETROS.PERC_IBS_UF               := V_PERC_IBS_UF;
         V_PARAMETROS.PERC_RED_ALIQ_IBS_UF      := V_PERC_RED_ALIQ_IBS_UF;
+        
+        V_PARAMETROS.DADOS_DIFERIMENTO_IBS_UF.PERC_DIFERIMENTO := V_PERC_DIFERIMENTO_IBS_UF;
              --Retorno valores IBS Municipio
         V_PARAMETROS.PERC_IBS_MUN              := V_PERC_IBS_MUN;
         V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN     := V_PERC_RED_ALIQ_IBS_MUN;
+        
+        V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO := V_PERC_DIFERIMENTO_IBS_MUN;        
              --Retorno valores CBS
         V_PARAMETROS.PERC_CBS                  := V_PERC_CBS;
         V_PARAMETROS.PERC_RED_CBS              := V_PERC_RED_CBS;
+        
+        V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO := V_PERC_DIFERIMENTO_CBS;        
 
 
         IF (V_COD_FORMULA_BASE_CBSIBS NOT LIKE '%CBSIBS%') THEN
@@ -7206,6 +7230,11 @@ create or replace package body FISCAL is
          V_PARAMETROS.ALIQ_EFETIVA_IBS_UF  := V_ALIQ_EFETIVA_IBS_UF;
          V_PARAMETROS.ALIQ_EFETIVA_IBS_MUN := V_ALIQ_EFETIVA_IBS_MUN;
       END IF;
+      
+       V_PARAMETROS.DADOS_DIFERIMENTO_CBS.VALOR_DIFERIMENTO := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100) * V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO/100),10);
+       V_PARAMETROS.DADOS_DIFERIMENTO_IBS_UF.VALOR_DIFERIMENTO := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100) * V_PARAMETROS.DADOS_DIFERIMENTO_IBS_UF.PERC_DIFERIMENTO/100),10);     
+       V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.VALOR_DIFERIMENTO := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100) * V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO/100),10);
+      
 
        VARIAVEL.NOME  := '[ALIQUOTA_CBS]';
        VARIAVEL.VALOR := V_ALIQ_EFETIVA_CBS;
