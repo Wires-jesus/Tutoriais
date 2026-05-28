@@ -1,7 +1,7 @@
 -- 10_PKG_SL_UPSTREAM.sql
 -- Correção V6.1: Expansão completa do bloco de bind combinado (Start + End PKs) para até 10 colunas.
  
-CREATE OR REPLACE PACKAGE PKG_SL_UPSTREAM AUTHID CURRENT_USER AS
+CREATE OR REPLACE PACKAGE PKG_SL_UPSTREAM AS
 
     PROCEDURE PROCESS_INITIAL_LOAD(
         p_entity_name   IN VARCHAR2,
