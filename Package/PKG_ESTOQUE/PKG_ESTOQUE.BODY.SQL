@@ -13309,7 +13309,7 @@ END IF;
            AND M.DTCANCEL IS NULL
            AND M.STATUS <> 'A'
            AND E.ESPECIE NOT IN ('CT', 'CO', 'CF')
-           AND E.CODCONT = C.CODCONTFOR
+           AND NVL(E.TOTPESO, 0) > 0
            AND ROWNUM = 1;
 
         -- PROCESSA A REGRA DE NEGÓCIO EM MEMÓRIA (PL/SQL PURO - MUITO MAIS RÁPIDO)

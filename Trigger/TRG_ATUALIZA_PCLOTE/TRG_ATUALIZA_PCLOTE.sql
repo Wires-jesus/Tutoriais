@@ -888,7 +888,7 @@ BEGIN
                                            FROM PCNFENT E, PCCONSUM C 
                                           WHERE E.NUMTRANSENT = NVL(:NEW.NUMTRANSENTORIGDESDLOTE, :NEW.NUMTRANSENT)
                                             AND E.ESPECIE NOT IN ('CT', 'CO', 'CF')
-                                            AND E.CODCONT = C.CODCONTFOR);
+                                            AND NVL(E.TOTPESO, 0) > 0);
                  END IF;
                EXCEPTION
                  WHEN OTHERS THEN
