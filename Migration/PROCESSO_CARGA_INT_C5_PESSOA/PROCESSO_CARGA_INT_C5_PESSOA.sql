@@ -96,17 +96,21 @@ CREATE OR REPLACE VIEW VW_INT_C5_CLIPESSOA AS
 SELECT c.codcli seqpessoa,
        SUBSTR(UPPER(COALESCE(c.cliente,c.fantasia, ' ')),1,50) nomerazao,
        SUBSTR(UPPER(COALESCE(c.fantasia,c.cliente, ' ')), 1, 50) nomefantasia,
-       CASE WHEN c.tipofj IS NULL THEN
-         CASE WHEN LENGTH(FERRAMENTAS.SONUMEROS(c.cgcent)) = 11 THEN
+       
+	   CASE WHEN c.tipofj IS NULL THEN
+         CASE WHEN LENGTH(PKG_CNPJ_VALIDATOR.LIMPAR_CNPJ(c.cgcent)) = 11 THEN
              'F'
            ELSE
              'J' 
            END
          ELSE
            c.tipofj
-         END fisicajuridica,
-       REPLACE(REPLACE(REPLACE(c.cgcent,'.',''),'/',''),'-','') cnpjcpf,
-       (CASE
+       END fisicajuridica,
+		 
+       --REPLACE(REPLACE(REPLACE(c.cgcent,'.',''),'/',''),'-','') cnpjcpf,
+	   PKG_CNPJ_VALIDATOR.LIMPAR_CNPJ(c.cgcent) cnpjcpf,
+       
+	   (CASE
             WHEN NVL(c.tipofj,'J') = 'J'
                 THEN REPLACE(REPLACE(REPLACE(c.ieent,'.',''),'/',''),'-','')
             ELSE
