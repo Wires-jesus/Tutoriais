@@ -193,12 +193,12 @@ IS PRAGMA SERIALLY_REUSABLE;
   FUNÇÃO     : F_USA_REGRA_PERMISSAO
   DESCRIÇÃO  : Função para Verificar se Usa Regra de Permissão da Rotina 2345
   ***************************************************************************/
-  FUNCTION F_USA_REGRA_PERMISSAO RETURN VARCHAR2 IS
+  FUNCTION F_USA_REGRA_PERMISSAO_2345 RETURN VARCHAR2 IS
     vvRetUsaRegraPermissao VARCHAR2(1);
   BEGIN
   
     -- Verifica se utiliza Regra de Permissão da Rotina 2345
-    BEGIN
+    /*BEGIN
       SELECT 'S'
         INTO vvRetUsaRegraPermissao
         FROM PCPERMISSAOLIBPEDIDOMED
@@ -206,12 +206,32 @@ IS PRAGMA SERIALLY_REUSABLE;
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         vvRetUsaRegraPermissao := 'N';
-    END;
+    END;*/
+    
+    vvRetUsaRegraPermissao := NVL(F_REGRA_MEDICAMENTOS('99', 'IGNORARPERMISSOESACESSO2336'), 'N');
     
     -- Retorno
     RETURN vvRetUsaRegraPermissao;
     
-  END F_USA_REGRA_PERMISSAO;
+  END F_USA_REGRA_PERMISSAO_2345;
+  
+  FUNCTION F_TIPO_MOTIVO_BLOQUEIO_398(P_CODIGO_MOTIVO IN NUMBER) RETURN VARCHAR2 IS  
+    V_TIPO_BLOQUEIO VARCHAR2(1);
+  BEGIN
+    
+    BEGIN
+      SELECT TIPO
+        INTO V_TIPO_BLOQUEIO
+        FROM PCMOTBLOQUEIO
+       WHERE CODMOTIVO = P_CODIGO_MOTIVO;
+    EXCEPTION
+      WHEN OTHERS THEN
+        V_TIPO_BLOQUEIO := 'X';
+    END;
+    
+    RETURN V_TIPO_BLOQUEIO;
+    
+  END F_TIPO_MOTIVO_BLOQUEIO_398;
 
  /**************************************************************************************************
   FUNÇÃO     : F_IGNORA_AUTORIZACAO_LIB_BLOQ
@@ -238,7 +258,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     vbRetIgnorarControleAcesso BOOLEAN;
   BEGIN 
     IF (NVL(pi_nCodRotina,0) = 2336) THEN
-      IF (NVL(F_USA_REGRA_PERMISSAO,'N') = 'S') THEN
+      IF (NVL(F_USA_REGRA_PERMISSAO_2345,'N') = 'S') THEN
         vbRetIgnorarControleAcesso := NVL(F_REGRA_MEDICAMENTOS('99', 'IGNORARPERMISSOESACESSO2336') = 'S', FALSE);
       ELSE
         vbRetIgnorarControleAcesso := FALSE;
@@ -253,9 +273,9 @@ IS PRAGMA SERIALLY_REUSABLE;
   FUNÇÃO   : F_VERIFICARACESSOCONTROLE
   DESCRIÇÃO: Verificar Controle de Acesso
   ************************************************************************/
-  FUNCTION F_VERIFICARACESSOCONTROLE(pi_nCodRotina   IN NUMBER,
-                                     pi_nCodControle IN NUMBER,
-                                     pi_nCodUsuario  IN NUMBER)
+  FUNCTION F_VERIFICAR_ACESSO_CONTROLE(pi_nCodRotina   IN NUMBER,
+                                       pi_nCodControle IN NUMBER,
+                                       pi_nCodUsuario  IN NUMBER)
   RETURN BOOLEAN IS
     vbRetControleAcesso BOOLEAN;
     vvAcesso            PCCONTROI.ACESSO%TYPE; 
@@ -501,9 +521,9 @@ IS PRAGMA SERIALLY_REUSABLE;
     vbRetMantemCriticas := TRUE;
     
     IF (pi_vPERMITIRTROCACLIENTEPFCONS = 'S') THEN
-      IF (F_VERIFICARACESSOCONTROLE(2316,
-                                    98,
-                                    pi_nMatricula)) THEN
+      IF (F_VERIFICAR_ACESSO_CONTROLE(2316,
+                                      98,
+                                      pi_nMatricula)) THEN
         -- Não terá a Crítica de Pessoa Física
         vbRetMantemCriticas := FALSE;
       END IF;
@@ -526,65 +546,25 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         pi_nMatricula IN NUMBER) RETURN VARCHAR2 IS
     vvRetAcao VARCHAR2(1);
   BEGIN
-    IF pi_nCodMotivo = 3 THEN
-      BEGIN
-        SELECT 'I'
-          INTO vvRetAcao
-          FROM PCPERMISSAOLIBPEDIDOMED
-        WHERE (MATRICULA = pi_nMatricula)
-          AND (CODMOTIVO = pi_nCodMotivo);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vvRetAcao := 'A';
-      END;
-    ELSE
-      BEGIN
-        SELECT 'A'
-          INTO vvRetAcao
-          FROM PCPERMISSAOLIBPEDIDOMED
-        WHERE (MATRICULA = pi_nMatricula)
-          AND (CODMOTIVO = pi_nCodMotivo);
-      EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-          vvRetAcao := 'I';
-      END;
-    END IF;
-    RETURN vvRetAcao;
-  END F_OBTER_ACAO_CONFORME_ACESSO;
-  
-  FUNCTION F_TEM_PERMISSAO(P_CODIGO_ROTINA IN NUMBER,
-                           P_CODIGO_USUARIO IN NUMBER,
-                           P_CODIGO_PERMISSAO IN NUMBER) RETURN VARCHAR2
-  IS
-    V_PERMISSAO VARCHAR2(1);
-  BEGIN
-    
     BEGIN
-      
-      SELECT ACESSO
-        INTO V_PERMISSAO
-        FROM PCCONTROI
-       WHERE CODROTINA = P_CODIGO_ROTINA
-         AND CODCONTROLE = P_CODIGO_PERMISSAO
-         AND CODUSUARIO = P_CODIGO_USUARIO;
-          
-    EXCEPTION      
+      SELECT 'I'
+        INTO vvRetAcao
+        FROM PCPERMISSAOLIBPEDIDOMED
+      WHERE (MATRICULA = pi_nMatricula)
+        AND (CODMOTIVO = pi_nCodMotivo);
+    EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        V_PERMISSAO := 'N';
+        vvRetAcao := 'A';
     END;
     
-    RETURN V_PERMISSAO;
-    
-  EXCEPTION
-    WHEN OTHERS THEN
-      RETURN 'N';
-  END F_TEM_PERMISSAO;
+    RETURN vvRetAcao;
+  END F_OBTER_ACAO_CONFORME_ACESSO;
 
  /*********************************************************************************
   FUNÇÃO     : F_REGRA_PERMISSAO_MATRICULA
   DESCRIÇÃO  : Função para Verificar se a Matricula tem acesso a Liberar o Bloqueio
   *********************************************************************************/
-  FUNCTION F_REGRA_PERMISSAO_MATRICULA(pi_vUsaRegraPermissao   IN VARCHAR2,
+  FUNCTION F_REGRA_PERMISSAO_MATRICULA(pi_vUsaRegraPermissao2345   IN VARCHAR2,
                                        pi_nMatricula           IN NUMBER,
                                        pi_nCodMotivo           IN NUMBER,
                                        pi_vIgnoraAutoriLibBloq IN VARCHAR2,
@@ -595,10 +575,11 @@ IS PRAGMA SERIALLY_REUSABLE;
     vvRetRegraPermissao VARCHAR2(1);
     vnCodMotivo         NUMBER;
     vnCondicaoVenda     NUMBER;
+    vsOrigemPedido      VARCHAR2(1);
   BEGIN
   
-    -- Verifica se Matricula tem acesso a Liberar o Bloqueio
-    IF (NVL(pi_vUsaRegraPermissao,'N') = 'S') THEN
+    -- Verifica se Matricula tem acesso a Liberar o Bloqueio (ROTINA 2345)
+    IF (NVL(pi_vUsaRegraPermissao2345, 'N') = 'S') THEN
       -- Se por algum motivo bloquear sem o código do motivo, assumirá -1, porque senão não conseguirá liberar porque não existirá o motivo "0" liberado para a Matrícula
       vnCodMotivo := pi_nCodMotivo;
       IF (NVL(vnCodMotivo,0) = 0) THEN
@@ -615,43 +596,61 @@ IS PRAGMA SERIALLY_REUSABLE;
         WHEN NO_DATA_FOUND THEN
           vvRetRegraPermissao := 'N';
       END;
-    ELSIF pi_nCodRotina = 2336 THEN
+    ELSIF pi_nCodRotina = 2336 THEN --Verifica se Matricula tem acesso a Liberar o Bloqueio (ROTINA 2336)
       SELECT CONDVENDA
+           , ORIGEMPED
         INTO vnCondicaoVenda
+           , vsOrigemPedido
         FROM PCPEDC
        WHERE NUMPED = pi_nNumPed;
        
       IF pi_nCodMotivo = 3 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 46);
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 46, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+      ELSIF pi_nCodMotivo = 4 THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 37, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END; 
       ELSIF pi_nCodMotivo = 5 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 39);
-        IF (vvRetRegraPermissao = 'N') THEN
-          vvRetRegraPermissao := 'S';
-        END IF;
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 39, pi_nMatricula) WHEN TRUE THEN 'N' ELSE 'S' END;
       ELSIF pi_nCodMotivo = 7 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 26);
-        IF (vvRetRegraPermissao = 'N') THEN
-          vvRetRegraPermissao := 'S';
-        END IF;
+        CASE
+          WHEN vnCondicaoVenda IN (5, 6) THEN
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 26, pi_nMatricula) WHEN TRUE THEN 'N' ELSE 'S' END;
+          WHEN vnCondicaoVenda = 11 THEN
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 27, pi_nMatricula) WHEN TRUE THEN 'N' ELSE 'S' END;
+          ELSE
+            vvRetRegraPermissao := 'S'; 
+        END CASE;
       ELSIF pi_nCodMotivo = 9 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 34);
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 34, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
       ELSIF pi_nCodMotivo = 10 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 33);
-      ELSIF pi_nCodMotivo = 11 AND vnCondicaoVenda = '5' THEN        
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 36);
-      ELSIF pi_nCodMotivo = 18 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 65);
-      ELSIF pi_nCodMotivo = 22 THEN
-        vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 38);
-        IF (vvRetRegraPermissao = 'N') THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 33, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+      ELSIF pi_nCodMotivo = 11 THEN  
+        IF vnCondicaoVenda = 5 THEN
+          vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 36, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+        ELSIF vnCondicaoVenda NOT IN (4, 8, 11, 13, 20) THEN
+          IF vsOrigemPedido = 'B' THEN
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 74, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+          ELSIF vsOrigemPedido = 'R' THEN
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 75, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+          ELSE
+            vvRetRegraPermissao := 'S';
+          END IF;
+        ELSE
           vvRetRegraPermissao := 'S';
         END IF;
+      ELSIF pi_nCodMotivo = 13 THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 64, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+      ELSIF pi_nCodMotivo = 16 THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 7, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+      ELSIF pi_nCodMotivo = 18 THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 65, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
+      ELSIF pi_nCodMotivo = 22 THEN
+        vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 67, pi_nMatricula) WHEN TRUE THEN 'N' ELSE 'S' END;
       ELSE
         CASE pi_vTipoBloqueio
           WHEN 1 THEN
-            vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 25);
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 25, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
           WHEN 2 THEN
-            vvRetRegraPermissao := F_TEM_PERMISSAO(pi_nCodRotina, pi_nMatricula, 24);
+            vvRetRegraPermissao := CASE F_VERIFICAR_ACESSO_CONTROLE(2336, 24, pi_nMatricula) WHEN TRUE THEN 'S' ELSE 'N' END;
           ELSE
             vvRetRegraPermissao := 'S';
         END CASE;
@@ -1452,7 +1451,7 @@ IS PRAGMA SERIALLY_REUSABLE;
   BEGIN
 
     -- Verifica se utiliza Regra de Permissão da Rotina 2345
-    vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO;
+    vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO_2345;
     -- Verifica se Ignora Autorização do Bloqueio da Rotina 320 - DDMEDICA-3918
     vvIgnoraAutoriLibBloq := F_IGNORA_AUTORIZACAO_LIB_BLOQ;
 
@@ -1708,7 +1707,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     po_vBloqueioPendente := 'N';
   
     -- Verifica se utiliza Regra de Permissão da Rotina 2345
-    vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO;
+    vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO_2345;
     -- Verifica se Ignora Autorização do Bloqueio da Rotina 320 - DDMEDICA-3918
     vvIgnoraAutoriLibBloq := F_IGNORA_AUTORIZACAO_LIB_BLOQ;
   
@@ -2412,7 +2411,7 @@ IS PRAGMA SERIALLY_REUSABLE;
       END IF;
 
       -- Permissão na 2316 - Desmarcado permite digitar pedidos com data liite vencido
-      IF (pi_nCodRotina = 2316) AND (NOT F_VERIFICARACESSOCONTROLE(pi_nCodRotina, 50, pi_nMatricula)) THEN
+      IF (pi_nCodRotina = 2316) AND (NOT F_VERIFICAR_ACESSO_CONTROLE(pi_nCodRotina, 50, pi_nMatricula)) THEN
          vdatavalidadecredito := trunc(sysdate);
       END IF;
 
@@ -2676,7 +2675,7 @@ IS PRAGMA SERIALLY_REUSABLE;
        (pi_vChamadaProcesso IN ('VM','MP')) AND
        (vrRetValidacao.vvRejeitado = 'S')   THEN
       
-      IF (NOT F_VERIFICARACESSOCONTROLE(pi_nCodRotina, 46, pi_nMatricula)) AND
+      IF (NOT F_VERIFICAR_ACESSO_CONTROLE(pi_nCodRotina, 46, pi_nMatricula)) AND
          (NOT F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
       
 
@@ -8027,6 +8026,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvLibValorMinVendaBnf          VARCHAR2(1),
          vvAcaoValorMinRca              VARCHAR2(1),
          vnPermissAcaoValorMinRca       NUMBER,
+         vvLibValorMinRca               VARCHAR(1),
          vvAcaoValorMinimoPedVenda      VARCHAR2(1),
          vnPermissValorMinimoPedVenda   VARCHAR2(10),
          vvParamsValorMinimoPedVenda    VARCHAR2(40),
@@ -8039,6 +8039,7 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvAcaoValorDescNeg             VARCHAR2(1),
          vvAcaoValorMinDescNeg          VARCHAR2(1),
          vvAcaoVendaRcaSemSaldo         VARCHAR2(1),
+         vnPermissVendaRcaSemSaldo      NUMBER,
          vvLibVendaRcaSemSaldo          VARCHAR2(1),
          vvAcaoTerEstoqueTotal          VARCHAR2(1),
          vvAcaoValorMinCob              VARCHAR2(1),
@@ -8047,12 +8048,15 @@ IS PRAGMA SERIALLY_REUSABLE;
          vvLibValorMinCob               VARCHAR2(1),
          vvAcaoRcaBloqueado             VARCHAR2(1),
          vnPermissRcaBloqueado          NUMBER,
+         vvLibRcaBloqueado              VARCHAR2(1),
          vvParamsRcaBloqueado           VARCHAR2(40),
          vvAcaoClienteBloqueado         VARCHAR2(1),
          vnPermissClienteBloqueado      NUMBER,
+         vvLibClienteBloqueado          VARCHAR2(1),
          vvParamsClienteBloqueado       VARCHAR2(40),
          vvAcaoClienteSemCredito        VARCHAR2(1),
          vnPermissClienteSemCredito     NUMBER,
+         vvLibClienteSemCredito         VARCHAR2(1),
          vvParamsClienteSemCredito      VARCHAR2(40),
          vvAcaoVlMaxVenda               VARCHAR2(1),
          vnPermissVlMaxVenda            NUMBER,
@@ -10442,7 +10446,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , CODMOTIVO
                     , CODMOTBLOQUEIO
                     , MOTIVOPOSICAO
-                    , SOLUCAOP4 )
+                    , SOLUCAOP4
+                    , PERMISSAO
+                    , REGRAPERMISSAO )
              VALUES ( pi_nNumPed
                     , 0 -- Sem Plano de Pagamento
                     , 5 -- CODREJEICAO
@@ -10457,7 +10463,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                     , 8
                     , NULL
                     , SUBSTR('Pedido com valor abaixo do mínimo permitido para o RCA',1,60)
-                    , vvSolucaoP4 );
+                    , vvSolucaoP4
+                    , vrAcaoSobreCritica.vnPermissAcaoValorMinRca
+                    , vrAcaoSobreCritica.vvLibValorMinRca );
   
         END IF;
         
@@ -10859,6 +10867,8 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , SALDOITEM
                   , VENDAPERMITIDA
                   , QT
+                  , PERMISSAO
+                  , CODMOTIVO
                   )
            VALUES ( pi_nNumPed
                   , pi_nCodProd
@@ -10874,7 +10884,9 @@ IS PRAGMA SERIALLY_REUSABLE;
                   , NULL -- SALDOPED - Vai atualizar depois
                   , vnSaldoItemRca
                   , NULL -- VENDAPERMITIDA - Vai atualizar depois
-                  , vnQtValidaSaldoRca );
+                  , vnQtValidaSaldoRca
+                  , vrAcaoSobreCritica.vnPermissVendaRcaSemSaldo
+                  , 22 );
         
       END IF; -- Fim Condição: -- CRÍTICA - Venda de Rca sem Saldo - MED-1669
   
@@ -11027,8 +11039,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         , 1    -- Código do Motivo
                                         , NULL -- Código Motivo Bloqueio
                                         , SUBSTR(vvMotivoPosicao,1,60)
-                                        , NULL -- PERMISSAO
-                                        , vvSolucaoP4 );
+                                        , vrAcaoSobreCritica.vnPermissRcaBloqueado -- PERMISSAO
+                                        , vvSolucaoP4
+                                        , 'P'
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , vrAcaoSobreCritica.vvLibRcaBloqueado );
     
         END IF;
       END IF; -- Fim Condição: -- CRÍTICA - RCA Bloqueado
@@ -11059,8 +11078,15 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         , 2    -- Código do Motivo
                                         , NULL -- Código Motivo Bloqueio
                                         , SUBSTR(vvMotivoPosicao,1,60)
-                                        , NULL -- PERMISSAO
-                                        , vvSolucaoP4 );
+                                        , vrAcaoSobreCritica.vnPermissClienteBloqueado -- PERMISSAO
+                                        , vvSolucaoP4
+                                        , 'P'
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , vrAcaoSobreCritica.vvLibClienteBloqueado );
     
         END IF;
       END IF; -- Fim Condição: -- CRÍTICA - Cliente Bloqueado
@@ -11093,11 +11119,18 @@ IS PRAGMA SERIALLY_REUSABLE;
                                         , NULL -- Código Motivo Bloqueio
                                         , SUBSTR('Cliente sem limite de credito / data vencto. limite credito.',1,60)
                                         , vrAcaoSobreCritica.vnPermissClienteSemCredito
-                                        , vvSolucaoP4 );
+                                        , vvSolucaoP4
+                                        , 'P'
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , NULL
+                                        , vrAcaoSobreCritica.vvLibClienteSemCredito );
                                        
         END IF;                               
     
-      END IF; -- Fim Condição: -- CRÍTICA - Cliente Bloqueado
+      END IF; -- Fim Condição: -- CRÍTICA - Cliente sem Crédito
   
       ----------------------------------
       -- CRÍTICA - Valor Máximo de Venda
@@ -11443,7 +11476,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                     
         END IF;
         
-      END IF; -- Fim Condição: -- CRÍTICA - Valor Mínimo do Plano de Pagamento
+      END IF; -- Fim Condição: -- CRÍTICA - Prazo Médio do Pedido Superior ao Prazo Médio do Cliente
 
       ------------------------------------------------
       -- CRÍTICA - Margem Mínima do Plano de Pagamento
@@ -12265,7 +12298,7 @@ IS PRAGMA SERIALLY_REUSABLE;
               IF (pi_nCodRotina = 2336) THEN
                 IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
                   vvVendaPermitida := 'S';
-                ELSIF (NOT F_VERIFICARACESSOCONTROLE(2336,67,pi_nMatricula)) THEN -->> Não liberar pedido de venda de rca sem saldo c/c
+                ELSIF (NOT F_VERIFICAR_ACESSO_CONTROLE(2336,67,pi_nMatricula)) THEN -->> Não liberar pedido de venda de rca sem saldo c/c
                   vvVendaPermitida := 'S';
                 END IF;          
               END IF;
@@ -12305,7 +12338,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             IF (pi_nCodRotina = 2336) THEN
               IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
                 vvVendaPermitida := 'S';
-              ELSIF (NOT F_VERIFICARACESSOCONTROLE(2336,67,pi_nMatricula)) THEN -->> Não liberar pedido de venda de rca sem saldo c/c
+              ELSIF (NOT F_VERIFICAR_ACESSO_CONTROLE(2336,67,pi_nMatricula)) THEN -->> Não liberar pedido de venda de rca sem saldo c/c
                 vvVendaPermitida := 'S';
               END IF;          
             END IF;
@@ -12434,7 +12467,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     BEGIN
     
       -- Verifica se utiliza Regra de Permissão da Rotina 2345
-      vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO;
+      vvUsaRegraPermissao   := F_USA_REGRA_PERMISSAO_2345;
       -- Verifica se Ignora Autorização do Bloqueio da Rotina 320 - DDMEDICA-3918
       vvIgnoraAutoriLibBloq := F_IGNORA_AUTORIZACAO_LIB_BLOQ;
     
@@ -14844,7 +14877,7 @@ IS PRAGMA SERIALLY_REUSABLE;
     END;   
        
     -- Verifica se utiliza Regra de Permissão da Rotina 2345 - DDMEDICA-4851
-    vrParametros.vUSAREGRAPERMISSAO := F_USA_REGRA_PERMISSAO;
+    vrParametros.vUSAREGRAPERMISSAO := F_USA_REGRA_PERMISSAO_2345;
   
     -------------------------------------------------------
     -- Pesquisa Valor do Desconto Aprovado - HIS.05093.2017
@@ -15002,7 +15035,7 @@ IS PRAGMA SERIALLY_REUSABLE;
             vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk := 'P';
           ELSE
             -- Abortar Continuação do Processo
-            IF (F_VERIFICARACESSOCONTROLE(2316,56,pi_nMatricula)) THEN -->> Não permitir gravar pedido alterando Cobrança
+            IF (F_VERIFICAR_ACESSO_CONTROLE(2316,56,pi_nMatricula)) THEN -->> Não permitir gravar pedido alterando Cobrança
               vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk := 'A';
             ELSE
               -- Perguntar se Altera Cobrança para Cheque
@@ -15200,21 +15233,21 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
           vrAcaoSobreCritica.vnPermissMargemMinima := 20;
         ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,86,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,86,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
           ELSE
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'P';
           END IF;
           vrAcaoSobreCritica.vnPermissMargemMinima := 86;
         ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,92,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,92,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
           ELSE
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'P';
           END IF;
           vrAcaoSobreCritica.vnPermissMargemMinima := 92;
         ELSE
-          IF (F_VERIFICARACESSOCONTROLE(2316,20,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,20,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'P';
           ELSE
             IF (NVL(vrParametros.vACEITAVENDABLOQ,'N') = 'S') THEN
@@ -15233,14 +15266,14 @@ IS PRAGMA SERIALLY_REUSABLE;
           vrAcaoSobreCritica.vvAcaoMargemMinima132  := 'I';
           vrAcaoSobreCritica.vnPermissMargemMinima132 := NULL;
         ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,86,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,86,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'I';
           ELSE
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'P';
           END IF;
           vrAcaoSobreCritica.vnPermissMargemMinima132 := 86;
         ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,92,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,92,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'I';
           ELSE
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'P';
@@ -15425,14 +15458,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF    (NVL(vrPedido.vvOrigemPed,' ') IN ('B','R')) THEN
           vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
         ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,86,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,86,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
           ELSE
             -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'B';
           END IF;
         ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,92,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,92,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
           ELSE
             -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
@@ -15448,14 +15481,14 @@ IS PRAGMA SERIALLY_REUSABLE;
         IF    (NVL(vrPedido.vvOrigemPed,' ') IN ('B','R')) THEN
           vrAcaoSobreCritica.vvAcaoMargemMinima132  := 'I';
         ELSIF (NVL(vrPedido.vvPedidoAvaria,'N') = 'S') THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,86,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,86,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'I';
           ELSE
             -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'B';
           END IF;
         ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN
-          IF (F_VERIFICARACESSOCONTROLE(2316,92,pi_nMatricula)) THEN
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2316,92,pi_nMatricula)) THEN
             vrAcaoSobreCritica.vvAcaoMargemMinima132 := 'I';
           ELSE
             -- Bloquear o Pedido (Não tem mais como voltar - baixou estoque)
@@ -15514,101 +15547,132 @@ IS PRAGMA SERIALLY_REUSABLE;
       IF (NVL(po_vPosicaoFinalPedido,' ') IN ('L','M')) OR
          (pi_vChamadaProcesso IN ('LB')) THEN
 
-        --********** VALOR MÍNIMO DO PLANO DE PAGAMENTO **********--
-        -- Abortar a Liberação do Pedido
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinPlPag    := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,33,pi_nMatricula)) THEN    
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinPlPag    := 'I';
-          vrAcaoSobreCritica.vnPermissValorMinPlPag := 33;
+        --********** VALOR MÍNIMO DO PLANO DE PAGAMENTO **********--        
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinPlPag := F_OBTER_ACAO_CONFORME_ACESSO(10, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinPlPag <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinPlPag := 'N';
+          END IF;
         ELSE
-          -- Abortar a Liberação do Pedido por NÃO ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinPlPag    := 'A';
+          --PERMISSÃO 2336 (530)
           vrAcaoSobreCritica.vnPermissValorMinPlPag := 33;
-          vrAcaoSobreCritica.vvLibValorMinPlPag     := 'A';
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 33, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinPlPag := 'I';            
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinPlPag := 'A';
+            vrAcaoSobreCritica.vvLibValorMinPlPag := 'A';
+          END IF;
         END IF;
+        
   
         --********** QTDE. MIN. ITENS DO PLANO DE PAGAMENTO **********--
         -- Perguntar para a Ação
         vrAcaoSobreCritica.vvAcaoNumItensMinPlPag := 'P';
         
         --********** VALOR MÍNIMO VENDA BK **********--
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk    := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,34,pi_nMatricula)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk    := 'I';
-          vrAcaoSobreCritica.vnPermissValorMinimoVendaBk := 34;
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk := F_OBTER_ACAO_CONFORME_ACESSO(15, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinimoVendaBk := 'N';
+          END IF;
         ELSE
-          -- Abortar a Liberação do Pedido por NÃO ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk    := 'A';
+          --PERMISSÃO 2336 (530)
           vrAcaoSobreCritica.vnPermissValorMinimoVendaBk := 34;
-          vrAcaoSobreCritica.vvLibValorMinimoVendaBk     := 'A';
+            
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 34, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinimoVendaBk := 'A';
+            vrAcaoSobreCritica.vvLibValorMinimoVendaBk := 'A';
+          END IF;
         END IF;
   
         --********** VALOR MÍNIMO VENDA BNF **********--
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinVendaBnf    := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,36,pi_nMatricula)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinVendaBnf    := 'I';
-          vrAcaoSobreCritica.vnPermissValorMinVendaBnf := 36;
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinVendaBnf := F_OBTER_ACAO_CONFORME_ACESSO(11, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinVendaBnf <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinVendaBnf := 'N';
+          END IF;
         ELSE
-          -- Abortar a Liberação do Pedido por NÃO ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinVendaBnf    := 'A';
+          --PERMISSÃO 2336 (530)
           vrAcaoSobreCritica.vnPermissValorMinVendaBnf := 36;
-          vrAcaoSobreCritica.vvLibValorMinVendaBnf     := 'A';
+            
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 36, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinVendaBnf := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinVendaBnf := 'A';
+            vrAcaoSobreCritica.vvLibValorMinVendaBnf := 'A';
+          END IF;
         END IF;
         
         --********** VALOR MÍNIMO DO RCA **********--
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN -- DDMEDICA-5689
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinRca        := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,73,pi_nMatricula)) THEN -- DDMEDICA-5689
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinRca        := 'I';
-        -- Serão liberados os demais motivos que a matrícula tem acesso mas o pedido continuará como bloqueado - DDMEDICA-4851
-        ELSIF (NVL(vrParametros.vUSAREGRAPERMISSAO,'N') = 'S') THEN
-          vrAcaoSobreCritica.vvAcaoValorMinRca        := F_OBTER_ACAO_CONFORME_ACESSO(8,pi_nMatricula);
-        -- Abortar a Liberação do Pedido (Não tem permissão de Acesso)
-        ELSE        
-          vrAcaoSobreCritica.vvAcaoValorMinRca        := 'A';
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinRca := F_OBTER_ACAO_CONFORME_ACESSO(8, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinRca <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinRca := 'N';
+          END IF;
+        ELSE
+          --PERMISSÃO 2336 (530)
           vrAcaoSobreCritica.vnPermissAcaoValorMinRca := 73;
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 73, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinRca := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinRca := 'A';
+          END IF;
         END IF;
         
         --********** VALOR MÍNIMO DO PEDIDO **********--
         -- Abortar a Liberação do Pedido (Não tem permissão de Acesso)
         -- AO TENTAR LIBERAR PEDIDO E TIVER A PERMISSÃO 74 OU 75 DEVERA REALIZAR O PROCESSO POIS
         -- SÃO AS DUAS PERMISSOES PARA LIBERAR ABAIXO DO VALOR MINIMO (74 = balcao,75- balcao reserva)
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,74,pi_nMatricula) AND (NVL(vrPedido.vvOrigemPed,'') IN ('B')))  THEN
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,75,pi_nMatricula) AND (NVL(vrPedido.vvOrigemPed,'') IN ('R'))) THEN
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'I';
-        ELSIF ((NVL(vrPedido.vvOrigemPed,'') IN ('R')) AND ( NOT F_VERIFICARACESSOCONTROLE(2336,74,pi_nMatricula))) THEN
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda    := 'A';
-           vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := '75';
-           vrAcaoSobreCritica.vvLibValorMinimoPedVenda     := 'A';
-        ELSIF((NVL(vrPedido.vvOrigemPed,'') IN ('B')) AND (NOT F_VERIFICARACESSOCONTROLE(2336,75,pi_nMatricula))) THEN
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda    := 'A';
-           vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := '74';
-           vrAcaoSobreCritica.vvLibValorMinimoPedVenda     := 'A';
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinPlPag := F_OBTER_ACAO_CONFORME_ACESSO(11, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinPlPag <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinPlPag := 'N';
+          END IF;
         ELSE
-           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda      := 'A';
-           IF    (NVL(vrPedido.vvOrigemPed,'') IN ('B')) THEN
-             vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := '74';
-           ELSIF (NVL(vrPedido.vvOrigemPed,'') IN ('R')) THEN
-             vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := '75';
-           ELSE
-             vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := NULL;
-           END IF;
-           vrAcaoSobreCritica.vvLibValorMinimoPedVenda       := 'A';
+          --PERMISSÃO 2336 (530)
+          IF (F_VERIFICAR_ACESSO_CONTROLE(2336, 74, pi_nMatricula) AND (NVL(vrPedido.vvOrigemPed, '') IN ('B'))) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'I';
+            vrAcaoSobreCritica.vnPermissValorMinPlPag := 74;
+          ELSIF (F_VERIFICAR_ACESSO_CONTROLE(2336, 75 ,pi_nMatricula) AND (NVL(vrPedido.vvOrigemPed, '') IN ('R'))) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'I';
+            vrAcaoSobreCritica.vnPermissValorMinPlPag := 75;
+          ELSIF ((NVL(vrPedido.vvOrigemPed, '') IN ('R')) AND (NOT F_VERIFICAR_ACESSO_CONTROLE(2336, 74, pi_nMatricula))) THEN
+           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'A';
+           vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := 75;
+           vrAcaoSobreCritica.vvLibValorMinimoPedVenda := 'A';
+          ELSIF ((NVL(vrPedido.vvOrigemPed, '') IN ('B')) AND (NOT F_VERIFICAR_ACESSO_CONTROLE(2336, 75, pi_nMatricula))) THEN
+           vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'A';
+           vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := 74;
+           vrAcaoSobreCritica.vvLibValorMinimoPedVenda := 'A';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinimoPedVenda := 'A';
+            
+            IF (NVL(vrPedido.vvOrigemPed, '') IN ('B')) THEN
+              vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := 74;
+            ELSIF (NVL(vrPedido.vvOrigemPed, '') IN ('R')) THEN
+              vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := 75;
+            ELSE
+              vrAcaoSobreCritica.vnPermissValorMinimoPedVenda := NULL;
+            END IF;
+           
+            vrAcaoSobreCritica.vvLibValorMinimoPedVenda := 'A';
+          END IF;
         END IF;
+        
         IF (vrPedido.vvOrigemPed = 'F') THEN
           vrAcaoSobreCritica.vvParamsValorMinimoPedVenda := '1458,2325,2833';
         ELSE
@@ -15627,31 +15691,36 @@ IS PRAGMA SERIALLY_REUSABLE;
         --*** BLOQUEAR PEDIDOS BONIFICADOS ***--
         -- Balcão/Balcão Reserva não tem tratamento diferenciado para esta Validação
         -- Se Bonificação estiver Parametrizado para Gravar Sempre como Bloqueado no Telemarketing
-        IF    (NVL(vrParametros.vBLOQUEARPEDBONIFIC,'N') = 'S') AND
-              (NVL(vrPedido.vnCondVenda,0) IN (5,6,11))         AND
-              (NVL(vrPedido.vvOrigemPed,' ') IN ('T','F'))      THEN
-          IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-            -- Ignorar Ação por ter permissão de acesso
-            vrAcaoSobreCritica.vvAcaoPedidoBonific    := 'I';
-          ELSIF (NVL(vrPedido.vnCondVenda,0) IN (5,6)) AND
-                (NOT F_VERIFICARACESSOCONTROLE(2336,26,pi_nMatricula)) THEN
-            -- Ignorar Ação por ter permissão de acesso
-            vrAcaoSobreCritica.vvAcaoPedidoBonific    := 'I';
-            vrAcaoSobreCritica.vnPermissPedidoBonific := '26';
-          ELSIF (NVL(vrPedido.vnCondVenda,0) IN (11)) AND
-                (NOT F_VERIFICARACESSOCONTROLE(2336,27,pi_nMatricula)) THEN
-            -- Ignorar Ação por ter permissão de acesso
-            vrAcaoSobreCritica.vvAcaoPedidoBonific    := 'I';
-            vrAcaoSobreCritica.vnPermissPedidoBonific := '27';
-          ELSE
-            -- Abortar a Liberação do Pedido (Não tem permissão de Acesso)
-            vrAcaoSobreCritica.vvAcaoPedidoBonific      := 'A';
-            IF (NVL(vrPedido.vnCondVenda,0) IN (5,6)) THEN
-              vrAcaoSobreCritica.vnPermissPedidoBonific := '26';
-            ELSE
-              vrAcaoSobreCritica.vnPermissPedidoBonific := '27';
+        IF (NVL(vrParametros.vBLOQUEARPEDBONIFIC,'N') = 'S') AND
+           (NVL(vrPedido.vnCondVenda,0) IN (5,6,11)) AND
+           (NVL(vrPedido.vvOrigemPed,' ') IN ('T','F')) THEN           
+          IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+            -- PERMISSÃO 2345
+            vrAcaoSobreCritica.vvAcaoPedidoBonific := F_OBTER_ACAO_CONFORME_ACESSO(7, pi_nMatricula);
+          
+            IF vrAcaoSobreCritica.vvAcaoPedidoBonific <> 'I' THEN
+              vrAcaoSobreCritica.vvLibPedidoBonific := 'N';
             END IF;
-            vrAcaoSobreCritica.vvLibPedidoBonific       := 'A';
+          ELSE
+            -- PERMISSÃO 2336 (530)
+            IF (NVL(vrPedido.vnCondVenda,0) IN (5, 6)) AND
+               (NOT F_VERIFICAR_ACESSO_CONTROLE(2336, 26, pi_nMatricula)) THEN
+              vrAcaoSobreCritica.vvAcaoPedidoBonific := 'I';
+              vrAcaoSobreCritica.vnPermissPedidoBonific := '26';
+            ELSIF (NVL(vrPedido.vnCondVenda, 0) = 11) AND
+                  (NOT F_VERIFICAR_ACESSO_CONTROLE(2336, 27, pi_nMatricula)) THEN
+              vrAcaoSobreCritica.vvAcaoPedidoBonific := 'I';
+              vrAcaoSobreCritica.vnPermissPedidoBonific := '27';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoPedidoBonific := 'A';
+              vrAcaoSobreCritica.vvLibPedidoBonific := 'A';
+               
+              IF (NVL(vrPedido.vnCondVenda,0) IN (5, 6)) THEN
+                vrAcaoSobreCritica.vnPermissPedidoBonific := 26;
+              ELSE
+                vrAcaoSobreCritica.vnPermissPedidoBonific := 27;
+              END IF;            
+            END IF;
           END IF;
         END IF;
         
@@ -15661,7 +15730,7 @@ IS PRAGMA SERIALLY_REUSABLE;
         --*** VALOR MINIMO APROVADO PARA APLICACAO DO DESCONTO NEGOCIADO ***--
         -- Se Pedido com valor de Desconto Negociado  - HIS.05093.2017 (Exceto Balcão)
         IF (NVL(vrRegrasEspecificas.vNEGOCIARVALORDESCOMPEDIDO,'N') = 'S') AND
-           (NVL(vrPedido.vvOrigemPed,' ') NOT IN ('B'))                    THEN
+           (NVL(vrPedido.vvOrigemPed, ' ') NOT IN ('B')) THEN
           -- Serão liberados os demais motivos que a matrícula tem acesso mas o pedido continuará como bloqueado - DDMEDICA-4851
           IF (NVL(vrParametros.vUSAREGRAPERMISSAO,'N') = 'S') THEN
             vrAcaoSobreCritica.vvAcaoValorMinDescNeg := F_OBTER_ACAO_CONFORME_ACESSO(703,pi_nMatricula);
@@ -15672,14 +15741,23 @@ IS PRAGMA SERIALLY_REUSABLE;
         END IF;
   
         --********** SALDO CONTA-CORRENTE RCA **********--    
-        IF (NVL(pi_vMovimentarSaldoRca,'N') = 'S') THEN
-          IF (NOT F_VERIFICARACESSOCONTROLE(2336,67,pi_nMatricula)) THEN
-            vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo := 'I';
+        IF NVL(pi_vMovimentarSaldoRca,'N') = 'S' THEN
+          IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+            vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo := F_OBTER_ACAO_CONFORME_ACESSO(22, pi_nMatricula);
+            
+            IF vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo <> 'I' THEN
+              vrAcaoSobreCritica.vvLibVendaRcaSemSaldo := 'N';
+            END IF;
           ELSE
-            -- Abortar a Liberação do Pedido
-            vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo := 'A';
-            vrAcaoSobreCritica.vvLibVendaRcaSemSaldo  := 'A';
-          END IF;
+            vrAcaoSobreCritica.vnPermissVendaRcaSemSaldo := 67;
+            
+            IF NOT F_VERIFICAR_ACESSO_CONTROLE(2336, 67, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo := 'I';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoVendaRcaSemSaldo := 'A';
+              vrAcaoSobreCritica.vvLibVendaRcaSemSaldo  := 'A';
+            END IF;
+          END IF;          
         END IF;
         
         --********** TER ESTOQUE TOTAL **********--    
@@ -15687,49 +15765,107 @@ IS PRAGMA SERIALLY_REUSABLE;
         
         --********** VALOR MÍNIMO DA COBRANÇA **********--
         -- Abortar a Liberação do Pedido
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinCob    := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,34,pi_nMatricula)) THEN
-          -- Ignorar Ação por ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinCob    := 'I';
-          vrAcaoSobreCritica.vnPermissValorMinCob := 34;
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          --PERMISSÃO 2325
+          vrAcaoSobreCritica.vvAcaoValorMinCob := F_OBTER_ACAO_CONFORME_ACESSO(9, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoValorMinCob <> 'I' THEN
+            vrAcaoSobreCritica.vvLibValorMinCob := 'N';
+          END IF;
         ELSE
-          -- Abortar a Liberação do Pedido por NÃO ter permissão de acesso
-          vrAcaoSobreCritica.vvAcaoValorMinCob    := 'A';
+          --PERMISSÃO 2336 (530)
           vrAcaoSobreCritica.vnPermissValorMinCob := 34;
-          vrAcaoSobreCritica.vvLibValorMinCob     := 'A';
-        END IF;      
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 34, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoValorMinCob := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoValorMinCob := 'A';
+            vrAcaoSobreCritica.vvLibValorMinCob := 'A';
+          END IF;
+        END IF;
   
         --********** RCA BLOQUEADO **********
         -- Serão liberados os demais motivos que a matrícula tem acesso mas o pedido continuará como bloqueado - DDMEDICA-4851
-        IF (NVL(vrParametros.vUSAREGRAPERMISSAO,'N') = 'S') THEN
-          vrAcaoSobreCritica.vvAcaoRcaBloqueado := F_OBTER_ACAO_CONFORME_ACESSO(1,pi_nMatricula);
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoRcaBloqueado := F_OBTER_ACAO_CONFORME_ACESSO(9, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoRcaBloqueado <> 'I' THEN
+            vrAcaoSobreCritica.vvLibRcaBloqueado := 'N';
+          END IF;
         ELSE
-          -- Abortar Continuação do Processo
-          vrAcaoSobreCritica.vvAcaoRcaBloqueado := 'A';
+          IF F_TIPO_MOTIVO_BLOQUEIO_398(1) = 'C' THEN
+            vrAcaoSobreCritica.vnPermissRcaBloqueado := 24;
+            
+            IF F_VERIFICAR_ACESSO_CONTROLE(2336, 24, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoRcaBloqueado := 'I';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoRcaBloqueado := 'A';
+              vrAcaoSobreCritica.vvLibRcaBloqueado := 'A';
+            END IF;
+          ELSE
+            vrAcaoSobreCritica.vnPermissRcaBloqueado := 25;
+            
+            IF F_VERIFICAR_ACESSO_CONTROLE(2336, 25, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoRcaBloqueado := 'I';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoRcaBloqueado := 'A';
+              vrAcaoSobreCritica.vvLibRcaBloqueado := 'A';
+            END IF;
+          END IF;
         END IF;
+        
         vrAcaoSobreCritica.vvParamsRcaBloqueado := '1429';
         
         --********** CLIENTE BLOQUEADO **********--
         -- Serão liberados os demais motivos que a matrícula tem acesso mas o pedido continuará como bloqueado - DDMEDICA-4851
-        IF (NVL(vrParametros.vUSAREGRAPERMISSAO,'N') = 'S') THEN
-          vrAcaoSobreCritica.vvAcaoClienteBloqueado := F_OBTER_ACAO_CONFORME_ACESSO(2,pi_nMatricula);
-        -- Abortar Continuação do Processo
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoClienteBloqueado := F_OBTER_ACAO_CONFORME_ACESSO(9, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoClienteBloqueado <> 'I' THEN
+            vrAcaoSobreCritica.vvLibClienteBloqueado := 'N';
+          END IF;
         ELSE
-          vrAcaoSobreCritica.vvAcaoClienteBloqueado := 'A';
+          IF F_TIPO_MOTIVO_BLOQUEIO_398(2) = 'C' THEN
+            vrAcaoSobreCritica.vnPermissClienteBloqueado := 24;
+            
+            IF F_VERIFICAR_ACESSO_CONTROLE(2336, 24, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoClienteBloqueado := 'I';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoClienteBloqueado := 'A';
+              vrAcaoSobreCritica.vvLibClienteBloqueado := 'A';
+            END IF;
+          ELSE
+            vrAcaoSobreCritica.vnPermissClienteBloqueado := 25;
+            
+            IF F_VERIFICAR_ACESSO_CONTROLE(2336, 25, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoClienteBloqueado := 'I';
+            ELSE
+              vrAcaoSobreCritica.vvAcaoClienteBloqueado := 'A';
+              vrAcaoSobreCritica.vvLibClienteBloqueado := 'A';
+            END IF;
+          END IF;
         END IF;
+        
         vrAcaoSobreCritica.vvParamsClienteBloqueado := '1429';
   
         --********** CLIENTE SEM CREDITO **********--
         -- Serão liberados os demais motivos que a matrícula tem acesso mas o pedido continuará como bloqueado - DDMEDICA-4851
-        IF (NVL(vrParametros.vUSAREGRAPERMISSAO,'N') = 'S') THEN
-          vrAcaoSobreCritica.vvAcaoClienteSemCredito  := F_OBTER_ACAO_CONFORME_ACESSO(3,pi_nMatricula);
-        -- Abortar Continuação do Processo
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoClienteSemCredito := F_OBTER_ACAO_CONFORME_ACESSO(3, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoClienteSemCredito <> 'I' THEN
+            vrAcaoSobreCritica.vvLibClienteSemCredito := 'N';
+          END IF;
         ELSE
-          vrAcaoSobreCritica.vvAcaoClienteSemCredito  := 'A';
+          vrAcaoSobreCritica.vnPermissClienteSemCredito := 46;
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 46, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoClienteSemCredito := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoClienteSemCredito := 'A';
+            vrAcaoSobreCritica.vvLibClienteSemCredito := 'A';
+          END IF;
         END IF;
-        vrAcaoSobreCritica.vnPermissClienteSemCredito := 46;
 
         --********** VALOR MÁXIMO VENDA **********--
         -- Ignorar Ação (Não existe permissão)
@@ -15742,17 +15878,24 @@ IS PRAGMA SERIALLY_REUSABLE;
         vrAcaoSobreCritica.vvParamsVlMaxVendaPF := '2198';
 
         --********** VALOR MÁXIMO VENDA BNF **********--
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF  := 'I';
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,37,pi_nMatricula)) THEN
-          vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF  := 'I';
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF := F_OBTER_ACAO_CONFORME_ACESSO(4, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF <> 'I' THEN
+             vrAcaoSobreCritica.vvLibVlMaxVendaBNF := 'N';
+          END IF;
         ELSE
-          -- Abortar Continuação do Processo
-          vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF   := 'A';
-          vrAcaoSobreCritica.vvLibVlMaxVendaBNF    := 'A';
+          vrAcaoSobreCritica.vnPermissVlMaxVendaBNF := 37;
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 37, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoVlMaxVendaBNF := 'A';
+            vrAcaoSobreCritica.vvLibVlMaxVendaBNF := 'A';
+          END IF;
         END IF;
-        vrAcaoSobreCritica.vvParamsVlMaxVendaBNF   := '2198';
-        vrAcaoSobreCritica.vnPermissVlMaxVendaBNF  := '37';
+        
+        vrAcaoSobreCritica.vvParamsVlMaxVendaBNF := '2198';
 
         --********** PREÇO ABAIXO DO MÍMIMO **********--
         -- Ignorar Ação (Não existe permissão)
@@ -15760,48 +15903,47 @@ IS PRAGMA SERIALLY_REUSABLE;
         vrAcaoSobreCritica.vvParamsPrecoMinimo := '1942';
 
         --********** PRAZO MÉDIO DO PEDIDO **********--
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          vrAcaoSobreCritica.vvAcaoPrazoMedio     := 'I';
-        -- Ignorar Ação (Se OL sem validar Prazo Médio)
-        ELSIF (NVL(vrParametros.vIGNORARPRAZOMEDIOCLIENTE,'N') = 'S') THEN
-          vrAcaoSobreCritica.vvAcaoPrazoMedio     := 'I';
-        -- Ignorar Ação (Se permissão)
-        ELSIF (F_VERIFICARACESSOCONTROLE(2336,64,pi_nMatricula)) THEN
-          vrAcaoSobreCritica.vvAcaoPrazoMedio     := 'I';
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoPrazoMedio := F_OBTER_ACAO_CONFORME_ACESSO(13, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoPrazoMedio <> 'I' THEN
+            vrAcaoSobreCritica.vvLibVendaPrazoMedio := 'N';
+          END IF;
         ELSE
-          -- Abortar Continuação do Processo
-          vrAcaoSobreCritica.vvAcaoPrazoMedio     := 'A';
-          vrAcaoSobreCritica.vvLibVendaPrazoMedio := 'A';
-          vrAcaoSobreCritica.vnPermissPrazoMedio  := '64';
-        END IF;
-
-        --********** MARGEM MÍNIMA DO PLANO DE PAGAMENTO **********--
-        -- Perguntar se Bloqueia
-        IF    (F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-          vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
-        ELSIF (NVL(vrPedido.vvOrigemPed,' ') IN ('B','R')) THEN
-          vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
-        ELSIF (NVL(vrPedido.vnNumTransEntCrossDock,0) > 0) THEN
-          vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
-        ELSIF (vrPedido.vvOrigemPed = 'F') AND
-              (NVL(vrPedido.vvTipoFv,'FV') IN ('OL','PE')) AND
-              (NVL(vrParametros.vVALIDARMARGEMMINIMA,'N') <> 'S') THEN
-          vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
-        ELSE
-          IF (F_VERIFICARACESSOCONTROLE(2336,7,pi_nMatricula)) THEN
-            vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
+          IF NVL(vrParametros.vIGNORARPRAZOMEDIOCLIENTE,'N') = 'S' THEN
+            vrAcaoSobreCritica.vvAcaoPrazoMedio := 'I';
           ELSE
-            IF (NVL(vrParametros.vVERIFICAMARGEMLIBPEDIDO,'N') = 'S') THEN
-              -- Abortar Continuação do Processo
-              vrAcaoSobreCritica.vvAcaoMargemMinima := 'A';
-              vrAcaoSobreCritica.vvLibMargemMinima  := 'A';
+            vrAcaoSobreCritica.vnPermissPrazoMedio := '64';
+            
+            IF F_VERIFICAR_ACESSO_CONTROLE(2336, 64, pi_nMatricula) THEN
+              vrAcaoSobreCritica.vvAcaoPrazoMedio := 'I';
             ELSE
-              vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
+              vrAcaoSobreCritica.vvAcaoPrazoMedio:= 'A';
+              vrAcaoSobreCritica.vvLibVendaPrazoMedio := 'A';
             END IF;
           END IF;
         END IF;
-        vrAcaoSobreCritica.vnPermissMargemMinima := 7;
-        vrAcaoSobreCritica.vvParamsMargemMinima  := '1982,1429';
+
+        --********** MARGEM MÍNIMA DO PLANO DE PAGAMENTO **********--
+        -- Perguntar se Bloqueia        
+        IF F_USA_REGRA_PERMISSAO_2345 = 'S' THEN
+          vrAcaoSobreCritica.vvAcaoMargemMinima := F_OBTER_ACAO_CONFORME_ACESSO(16, pi_nMatricula);
+          
+          IF vrAcaoSobreCritica.vvAcaoMargemMinima <> 'I' THEN
+            vrAcaoSobreCritica.vvLibMargemMinima := 'N';
+          END IF;
+        ELSE
+          vrAcaoSobreCritica.vnPermissMargemMinima := 7;
+          
+          IF F_VERIFICAR_ACESSO_CONTROLE(2336, 7, pi_nMatricula) THEN
+            vrAcaoSobreCritica.vvAcaoMargemMinima := 'I';
+          ELSE
+            vrAcaoSobreCritica.vvAcaoMargemMinima := 'A';
+            vrAcaoSobreCritica.vvLibMargemMinima := 'A';
+          END IF;
+        END IF;
+        
+        vrAcaoSobreCritica.vvParamsMargemMinima := '1982,1429';
 
         --********** MARGEM MÍNIMA DA 132 **********--
         -- Perguntar se Bloqueia
@@ -17558,13 +17700,13 @@ IS PRAGMA SERIALLY_REUSABLE;
         
               -- Se 2316 e tiver permissão para gravar pedido de faltas, não utilizará o processo de corte de combo
               IF (pi_nCodRotina = 2316) AND
-                 (F_VERIFICARACESSOCONTROLE(2316,93,pi_nMatricula)) THEN
+                 (F_VERIFICAR_ACESSO_CONTROLE(2316,93,pi_nMatricula)) THEN
                 vrPromocao.vvCorteCombo         := NULL;
                 vrPromocao.vvMensagemCorteCombo := NULL;
               END IF;
               -- Se 2336 e tiver permissão para gravar pedido de faltas, não utilizará o processo de corte de combo
               IF (pi_nCodRotina = 2336) AND
-                 (F_VERIFICARACESSOCONTROLE(2336,76,pi_nMatricula)) THEN
+                 (F_VERIFICAR_ACESSO_CONTROLE(2336,76,pi_nMatricula)) THEN
                 vrPromocao.vvCorteCombo         := NULL;
                 vrPromocao.vvMensagemCorteCombo := NULL;
               END IF;
