@@ -2469,7 +2469,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_SINC_PDV_CONSINCO IS
 
   /*Atualização do cabeçalho da cesta básica e kit */
     MERGE INTO monitorpdvmiddle.tb_prodpreco TB_PRODPRECO_C5
-      USING (SELECT * FROM VW_INT_C5_CAB_CESTA) VIEW_TB_PRODPRECO
+      USING (SELECT distinct seqproduto, nroempresa, preco FROM VW_INT_C5_CAB_CESTA) VIEW_TB_PRODPRECO
     on(TB_PRODPRECO_C5.seqproduto = VIEW_TB_PRODPRECO.seqproduto AND TB_PRODPRECO_C5.nroempresa = VIEW_TB_PRODPRECO.nroempresa)
       WHEN MATCHED THEN
       UPDATE SET TB_PRODPRECO_C5.preco = VIEW_TB_PRODPRECO.preco;
