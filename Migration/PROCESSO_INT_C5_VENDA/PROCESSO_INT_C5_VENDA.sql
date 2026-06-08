@@ -493,7 +493,7 @@ AS
               AND F.SEQPRODUTO = X.SEQPRODUTO
               AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
         AND F.ATIVO = 'S'
-              AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+              AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
             ELSE
             (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
         END ) poriginal,
@@ -511,7 +511,7 @@ AS
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
       AND F.ATIVO = 'S'
-          AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+          AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
         ELSE
          CASE WHEN i.PROMOCAO = 'S' THEN
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
@@ -527,7 +527,7 @@ AS
             AND X.nrocheckout = i.nrocheckout
             AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
             AND F.SEQPRODUTO = X.SEQPRODUTO
-            AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO
+            AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1)
       AND F.ATIVO = 'S'
             AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO)
           ELSE
@@ -675,7 +675,7 @@ AS
               AND X.nroempresa = i.nroempresa
             AND X.nrocheckout = i.nrocheckout
             AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
-			AND X.SEQITEMPRODCOMPOSTO = I.SEQITEMPRODCOMPOSTO)
+			AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
           ELSE
           (i.vlrtotal)
         END )  vlsubtotitem,
@@ -861,7 +861,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
                             AND x.nroempresa = i.nroempresa
                             AND x.nrocheckout = i.nrocheckout
                             AND x.seqprodcomposto = i.seqprodcomposto
-              AND x.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO
+              AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1)
                       )
       OR 
         i.SEQPRODCOMPOSTO IS NULL 
@@ -1037,7 +1037,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
       AND F.ATIVO = 'S'
-          AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+          AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
         ELSE
         (i.VLRUNITARIO / NVL(i.QTDEMBALAGEM, 1))
         END ) poriginal,
@@ -1055,7 +1055,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
       AND F.ATIVO = 'S'
-          AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+          AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
         ELSE
          CASE WHEN i.PROMOCAO = 'S' THEN
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
@@ -1073,7 +1073,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
           AND F.SEQPRODUTO = X.SEQPRODUTO
           AND F.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
       AND F.ATIVO = 'S'
-          AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)
+          AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
         ELSE
         ((i.vlrunitario - (NVL(i.vlrdesconto,0)/NVL(i.quantidade,1)) + ((NVL(i.vlracrescimo,0) - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))/NVL(i.quantidade,1)) )/NVL(i.QTDEMBALAGEM, 1))
         END ) pvenda,
@@ -1213,7 +1213,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
             AND X.nroempresa = i.nroempresa
           AND X.nrocheckout = i.nrocheckout
           AND X.SEQPRODCOMPOSTO = i.SEQPRODCOMPOSTO
-		  AND X.SEQITEMPRODCOMPOSTO = I.SEQITEMPRODCOMPOSTO)
+		  AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))
         ELSE
         (i.vlrtotal)
         END )  vlsubtotitem,
@@ -1398,7 +1398,7 @@ FROM  monitorpdvmiddle.tb_doctoitem      i,
                             AND x.nroempresa = i.nroempresa
                             AND x.nrocheckout = i.nrocheckout
                             AND x.seqprodcomposto = i.seqprodcomposto
-              AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO
+              AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1)
                       )
       OR 
         i.SEQPRODCOMPOSTO IS NULL 
@@ -1438,7 +1438,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
         AND x.nroempresa = i.nroempresa
         AND x.nrocheckout = i.nrocheckout
         AND x.seqprodcomposto = i.seqprodcomposto
-    AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)  NUMSEQ,
+    AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))  NUMSEQ,
     I.CODACESSO CODAUXILIAR,    
     V.CODPROD CODPRODMP,
     I.QUANTIDADE QTMP,
@@ -1760,7 +1760,7 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
         AND x.nroempresa = i.nroempresa
         AND x.nrocheckout = i.nrocheckout
         AND x.seqprodcomposto = i.seqprodcomposto
-    AND X.SEQITEMPRODCOMPOSTO = i.SEQITEMPRODCOMPOSTO)  NUMSEQ,
+    AND nvl(X.SEQITEMPRODCOMPOSTO, 1) = nvl(i.SEQITEMPRODCOMPOSTO, 1))  NUMSEQ,
     I.CODACESSO CODAUXILIAR,    
     V.CODPROD CODPRODMP,
     I.QUANTIDADE QTMP,
