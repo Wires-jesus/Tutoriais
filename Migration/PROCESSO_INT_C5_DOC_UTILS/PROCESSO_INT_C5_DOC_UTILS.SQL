@@ -1819,7 +1819,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL assinatura,
        NULL numgnf,
        nf.numseriesat,
-       p.codcredenciadoratef cnpjcredenccartao,
+       p.Cnpjcredtef cnpjcredenccartao,
        NULL numcartaocrm,
        (CASE
             WHEN f.especie = 'G'
