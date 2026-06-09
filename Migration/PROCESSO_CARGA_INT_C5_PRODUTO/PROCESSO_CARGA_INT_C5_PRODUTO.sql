@@ -103,7 +103,7 @@ FROM (
                       ELSE  'N'
                    END)PESAVEL,*/
 
-                   CASE
+                   /*CASE
                        WHEN (SELECT COUNT(DISTINCT TIPOEMBALAGEM)
                              FROM PCEMBALAGEM
                              WHERE codprod = p.codprod
@@ -117,7 +117,8 @@ FROM (
                                'S'
                        ELSE
                                'N'
-                  END PESAVEL,
+                  END PESAVEL,*/
+                   MAX(p.PESOVARIAVEL) PESAVEL,
 
                    
                    MIN(NVL(p.indescalarelevante, 'S')) indescala,
