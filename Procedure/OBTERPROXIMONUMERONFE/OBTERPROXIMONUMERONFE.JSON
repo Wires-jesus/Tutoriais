@@ -6,6 +6,11 @@
   "nome": "PCFILIALSEQNFEPORPRODUTO",
   "tipo": "TABELA",
   "versao": "2.1.01.000"
+ },
+ {
+  "nome": "PCFILIAL",
+  "tipo": "TABELA",
+  "versao": "7.0.03.000"
  }
  ]
 }

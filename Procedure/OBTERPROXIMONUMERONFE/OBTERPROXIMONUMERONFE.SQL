@@ -534,6 +534,59 @@ begin
             raise SAIR_COM_ERRO;
         end;
     --------------fim melhoria do ajuste-----------------------
+    --------------Melhoria para buscar numerador diferente para notas com pagamento com cheque moradia(SAIDA)--------------
+    --C = CHEQUE MORADIA
+    elsif P_TIPONUMERADOR = 'C' then
+        begin
+          select DECODE(NVL(PCFILIAL.PROXNUMNFECHMORADIA, 1),
+                        0,
+                        1,
+                        NVL(PCFILIAL.PROXNUMNFECHMORADIA, 1)),
+                 TO_NUMBER(DECODE(NVL(PCFILIAL.SERIENFECHMORADIA, 'U'),
+                                  'U',
+                                  '0',
+                                  PCFILIAL.SERIENFECHMORADIA))
+            into P_NUMERO, P_SERIE
+            from PCFILIAL
+           where CODIGO = P_CODIGOFILIAL
+             for update;
+        exception
+          when NO_DATA_FOUND then
+            P_RESULTADO := 29;
+            P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                           ' - Numerador para notas com pagamento em cheque moradia não encontrou valor. ' ||
+                           sqlcode || ' - ' ||
+                           sqlerrm;
+
+            raise SAIR_COM_ERRO;
+          when others then
+            P_RESULTADO := 30;
+            P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                           ' - Erro ao obter numerador para notas com pagamento em cheque moradia.  "' ||
+                           P_CODIGOFILIAL || '". ' || sqlcode || ' - ' ||
+                           sqlerrm;
+
+            raise SAIR_COM_ERRO;
+        end;
+
+        /* Atualiza na filial informada, o próximo número */
+        begin
+          update PCFILIAL
+             set PCFILIAL.PROXNUMNFECHMORADIA = P_NUMERO + 1
+           where CODIGO = P_CODIGOFILIAL;
+
+          return;
+        exception
+          when others then
+            P_RESULTADO := 31;
+            P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                           ' - Erro ao atualizar os dados do próximo número de nota para notas com pagamento em cheque moradia. ' ||
+                           sqlcode || ' - ' || sqlerrm;
+
+            raise SAIR_COM_ERRO;
+        end;      
+    --------------fim melhoria do cheque moradia-----------------------    
+        
     --------------Melhoria para buscar numerador diferente para serie por produto--------------
     --O = serie por produto
     elsif P_TIPONUMERADOR = 'O' then
@@ -865,7 +918,59 @@ begin
                       raise SAIR_COM_ERRO;
                   end;
               --------------fim melhoria do ajuste-----------------------
+              --------------Melhoria para buscar numerador diferente para notas com pagamento com cheque moradia(ENTRADA)--------------
+              --C = CHEQUE MORADIA
+              elsif P_TIPONUMERADOR = 'C' then
+                  begin
+                    select DECODE(NVL(PCFILIAL.PROXNUMNFECHMORADIA, 1),
+                                  0,
+                                  1,
+                                  NVL(PCFILIAL.PROXNUMNFECHMORADIA, 1)),
+                           TO_NUMBER(DECODE(NVL(PCFILIAL.SERIENFECHMORADIA, 'U'),
+                                            'U',
+                                            '0',
+                                            PCFILIAL.SERIENFECHMORADIA))
+                      into P_NUMERO, P_SERIE
+                      from PCFILIAL
+                     where CODIGO = P_CODIGOFILIAL
+                       for update;
+                  exception
+                    when NO_DATA_FOUND then
+                      P_RESULTADO := 32;
+                      P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                                     ' - Numerador para notas com pagamento em cheque moradia não encontrou valor. ' ||
+                                     sqlcode || ' - ' ||
+                                     sqlerrm;
 
+                      raise SAIR_COM_ERRO;
+                    when others then
+                      P_RESULTADO := 33;
+                      P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                                     ' - Erro ao obter numerador para notas com pagamento em cheque moradia.  "' ||
+                                     P_CODIGOFILIAL || '". ' || sqlcode || ' - ' ||
+                                     sqlerrm;
+
+                      raise SAIR_COM_ERRO;
+                  end;
+
+                  /* Atualiza na filial informada, o próximo número */
+                  begin
+                    update PCFILIAL
+                       set PCFILIAL.PROXNUMNFECHMORADIA = P_NUMERO + 1
+                     where CODIGO = P_CODIGOFILIAL;
+
+                    return;
+                  exception
+                    when others then
+                      P_RESULTADO := 34;
+                      P_MENSAGEM  := 'Código: ' || P_RESULTADO ||
+                                     ' - Erro ao atualizar os dados do próximo número de nota para notas com pagamento em cheque moradia. ' ||
+                                     sqlcode || ' - ' || sqlerrm;
+
+                      raise SAIR_COM_ERRO;
+                  end;      
+              --------------fim melhoria do cheque moradia----------------------- 
+              
               --------------Melhoria para buscar numerador diferente para serie por produto--------------
               --O = serie por produto
               elsif P_TIPONUMERADOR = 'O' then
