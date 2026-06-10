@@ -41,6 +41,9 @@ create or replace procedure OBTERPROXIMONUMERONOTANFE(P_CODIGOFILIAL in varchar2
 
   CONTROLE_NFE_DEP_FECHADO    PCFILIAL.CONTROLENFEPORSERIEDEPOFECHADO%type;
   GERAR_NUM_SERIE_DEP_FECHADO varchar2(1);
+  
+  CONTROLE_NFE_CH_MORADIA PCFILIAL.CONTROLENFECHMORADIA%TYPE;
+  PAG_CHEQUE_MORADIA PCNFSAID.PAGCHEQUEMORADIA%TYPE;
 
   V_CODFILIALDESTINO         PCFILIAL.CODIGO%TYPE;
   V_NUMTRANSACAO_VENDA_TRASF PCNFSAID.NUMTRANSVENDA%type;
@@ -105,6 +108,8 @@ begin
   TIPOVENDA_NF               := '';
   SERIE_POR_PRODUTO          := 'N';
   V_QTD_REGISTROS_TEMP       := 0;
+  CONTROLE_NFE_CH_MORADIA    := 'N';
+  PAG_CHEQUE_MORADIA         := 'N';
 
   if UPPER(P_MOVIMENTO) = 'S' then
     --Movimento de Saída
@@ -136,6 +141,8 @@ begin
                                 PCNFSAID.FINALIDADENFE,
                                 PCNFSAID.NUMTRANSVENDAORIGEM,
                                 'N' PREFATURAMENTO,
+                                NVL(PCFILIAL.CONTROLENFECHMORADIA, 'N') CONTROLENFECHMORADIA,
+                                NVL(PCNFSAID.PAGCHEQUEMORADIA, 'N') PAGCHEQUEMORADIA,
                                 NVL(PCNFSAID.TIPOVENDA, 'X') TIPOVENDA
                            from PCNFSAID, PCFILIAL, PCPEDC
                           where NVL(PCNFSAID.CODFILIALNF, PCNFSAID.CODFILIAL) =
@@ -163,6 +170,8 @@ begin
                                 PCNFSAIDPREFAT.FINALIDADENFE,
                                 PCNFSAIDPREFAT.NUMTRANSVENDAORIGEM,
                                 'S' PREFATURAMENTO,
+                                NVL(PCFILIAL.CONTROLENFECHMORADIA, 'N') CONTROLENFECHMORADIA,
+                                NVL(PCNFSAIDPREFAT.PAGCHEQUEMORADIA, 'N') PAGCHEQUEMORADIA,
                                 NVL(PCNFSAIDPREFAT.TIPOVENDA, 'X') TIPOVENDA
                            from PCNFSAIDPREFAT, PCFILIAL, PCPEDC
                           where NVL(PCNFSAIDPREFAT.CODFILIALNF,
@@ -190,6 +199,8 @@ begin
         CONTROLE_NFE_DEP_FECHADO := NOTA_SAIDA.CONTROLENFEPORSERIEDEPOFECHADO;
         FINALIDADENFE            := NOTA_SAIDA.FINALIDADENFE;
         TIPOVENDA_NF             := NOTA_SAIDA.TIPOVENDA;
+        CONTROLE_NFE_CH_MORADIA  := NOTA_SAIDA.CONTROLENFECHMORADIA;
+        PAG_CHEQUE_MORADIA       := NOTA_SAIDA.PAGCHEQUEMORADIA;
       end loop;
 
       if (V_CONT_NOTA_SAIDA <= 0) then
@@ -507,6 +518,13 @@ begin
       end;
 
     end if;
+    
+    --Consumir sequencial de cheque moradia
+    IF ((CONTROLE_NFE_CH_MORADIA = 'S') AND
+        (PAG_CHEQUE_MORADIA = 'S')) THEN
+      GERAR_NUM_SERIE_DEP_FECHADO := 'N';
+      TIPONUMERADOR := 'C';
+    END IF;    
 
     if (JA_UTILIZOUNUMNFE = 'N') then
 
@@ -1428,11 +1446,13 @@ begin
       select NVL(PCFILIAL.USANUMNFDEVCLI, ''),
              NVL(PCFILIAL.TIPONUMNFENTRADA, ''),
              NVL(PCFILIAL.CONTROLENFEPORSERIE, 'N'),
-             NVL(PCFILIAL.UTILIZASEQNFENT, 'N')
+             NVL(PCFILIAL.UTILIZASEQNFENT, 'N'),
+             NVL(PCFILIAL.CONTROLENFECHMORADIA, 'N')
         into USANUMNFDEVCLI,
              TIPONUMNFENTRADA,
              CONTROLE_NFE_POR_SERIE,
-             UTILIZASEQNFENT
+             UTILIZASEQNFENT,
+             CONTROLE_NFE_CH_MORADIA
         from PCFILIAL
        where CODIGO = P_CODIGOFILIAL;
 
@@ -1445,7 +1465,8 @@ begin
              NVL(PCNFENT.GERANFVENDA, 'N') as GERANOTAVENDA,
              NUMTRANSVENDAORIG,
              NVL(PCFILIAL.CONTROLENFEPORSERIEDEPOFECHADO, 'N'),
-             PCNFENT.FINALIDADENFE
+             PCNFENT.FINALIDADENFE,
+             NVL(PCNFENT.PAGCHEQUEMORADIA, 'N')
         into TIPODESCARGA,
              NUMNOTA_ATUAL,
              SERIE_ATUAL,
@@ -1455,7 +1476,8 @@ begin
              GERANFVENDA,
              NUMTRANSACAOORIG,
              CONTROLE_NFE_DEP_FECHADO,
-             FINALIDADENFE
+             FINALIDADENFE,
+             PAG_CHEQUE_MORADIA
         from PCNFENT, PCFILIAL
        where NVL(PCNFENT.CODFILIALNF, PCNFENT.CODFILIAL) = PCFILIAL.CODIGO
          and PCNFENT.NUMTRANSENT = P_TRANSACAO
@@ -1627,6 +1649,13 @@ begin
         rollback;
         return;
       end if;
+      
+      --Consumir sequencial de cheque moradia
+      IF ((CONTROLE_NFE_CH_MORADIA = 'S') AND
+          (PAG_CHEQUE_MORADIA = 'S')) THEN
+        GERAR_NUM_SERIE_DEP_FECHADO := 'N';
+        TIPONUMERADOR := 'C';
+      END IF;        
 
       if (JA_UTILIZOUNUMNFE = 'N') then
         if TIPODESCARGA in ('6', '7', '8', 'T') then
