@@ -4337,6 +4337,9 @@ IS
    VNVLDIFST201         PCPEDI.ST%TYPE;
    VNPERCIMPOSTOPTABELA NUMBER(18, 6);
    vnCALCULAR_PVENDA_SEM_IMPOSTO PCPEDI.PVENDA%TYPE;
+   VNVLSTTAB              PCPEDI.ST%TYPE;
+   vnVLFECPTAB            PCPEDI.VLFECP%TYPE;
+   VNBASEICSTTAB          PCPEDI.BASEICST%TYPE;
 BEGIN
    P_REGITEM.VALIDO := TRUE;
    VSMENSAGEM       := NULL;
@@ -5051,8 +5054,9 @@ BEGIN
                  NVL(PCTRIBUT.USAALIQICMSSIMPLESNACIONAL, 'N'),
                  NVL(PCTRIBUT.ALIQSTSIMPLESNACIONAL, 0),
                  NVL(PCTRIBUT.AGREGARIPICALCULOST, 'N'),
-                 NVL(PCTABPR.VLST, 0)
-            INTO P_REGPRECOS
+                 NVL(PCTABPR.VLST, 0),
+                 NVL(PCTABPR.Vlfcpst,0)
+			 INTO P_REGPRECOS
             FROM PCTABPR, PCTRIBUT, PCEST
            WHERE PCTABPR.CODST = PCTRIBUT.CODST(+)
              AND PCEST.CODPROD = PCTABPR.CODPROD(+)
@@ -5264,7 +5268,8 @@ BEGIN
                        NVL(PCTRIBUT.USAALIQICMSSIMPLESNACIONAL, 'N'),
                        NVL(PCTRIBUT.ALIQSTSIMPLESNACIONAL, 0),
                        NVL(PCTRIBUT.AGREGARIPICALCULOST, 'N'),
-                       NVL(PCTABPR.VLST, 0)
+                       NVL(PCTABPR.VLST, 0),
+                       NVL(PCTABPR.Vlfcpst,0)
                   INTO P_REGPRECOS
                   FROM PCTABPR, PCTRIBUT, PCEST, PCEMBALAGEM
                  WHERE PCTRIBUT.CODST = VNCODST
@@ -5446,7 +5451,8 @@ BEGIN
                      NVL(PCTRIBUT.USAALIQICMSSIMPLESNACIONAL, 'N'),
                      NVL(PCTRIBUT.ALIQSTSIMPLESNACIONAL, 0),
                      NVL(PCTRIBUT.AGREGARIPICALCULOST, 'N'),
-                     NVL(PCTABPR.VLST, 0)
+                     NVL(PCTABPR.VLST, 0),
+                     NVL(PCTABPR.Vlfcpst,0)
                 INTO P_REGPRECOS
                 FROM PCTABPR, PCTRIBUT, PCEST, PCEMBALAGEM
                WHERE PCTABPR.CODST = PCTRIBUT.CODST
@@ -5638,7 +5644,8 @@ BEGIN
                        NVL(PCTRIBUT.USAALIQICMSSIMPLESNACIONAL, 'N'),
                        NVL(PCTRIBUT.ALIQSTSIMPLESNACIONAL, 0),
                        NVL(PCTRIBUT.AGREGARIPICALCULOST, 'N'),
-                       NVL(PCTABPR.VLST, 0)
+                       NVL(PCTABPR.VLST, 0),
+                       NVL(PCTABPR.Vlfcpst,0)
                   INTO P_REGPRECOS
                   FROM PCTABPR, PCTRIBUT, PCEST
                  WHERE PCTRIBUT.CODST = VNCODST
@@ -5777,7 +5784,8 @@ BEGIN
                      NVL(PCTRIBUT.USAALIQICMSSIMPLESNACIONAL, 'N'),
                      NVL(PCTRIBUT.ALIQSTSIMPLESNACIONAL, 0),
                      NVL(PCTRIBUT.AGREGARIPICALCULOST, 'N'),
-                     NVL(PCTABPR.VLST, 0)
+                     NVL(PCTABPR.VLST, 0),
+                     NVL(PCTABPR.Vlfcpst,0)
                 INTO P_REGPRECOS
                 FROM PCTABPR, PCTRIBUT, PCEST
                WHERE PCTABPR.CODST = PCTRIBUT.CODST
@@ -6346,10 +6354,102 @@ BEGIN
                                                                     P_REGPRECOS.USAVLULTENTMEDIOBASEST,
                                                                     P_REGPRECOS.VLULTENTMES,
                                                                     P_REGPRECOS.PERCBASESTRJ);
+         BEGIN
+                 SELECT NVL(VALORSEMIMPOSTO,0) VALORSEMIMPOSTO
+                 INTO vnCALCULAR_PVENDA_SEM_IMPOSTO
+                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_PVENDA_SEM_IMPOSTO(
+                               P_REGPEDIDO.CODFILIAL,
+                               NVL(P_REGPEDIDO.CODFILIALNF, P_REGCLIENTE.CODFILIALNF),
+                               P_REGITEM.CODFILIALRETIRA,
+                               NVL(P_REGPEDIDO.CODCLI, P_REGCLIENTE.CODCLI),
+                               NVL(P_REGPEDIDO.CODPLPAG, P_REGCLIENTE.CODPLPAG),
+                               P_REGITEM.CODPROD,
+                               P_REGITEM.CODAUXILIAR,
+                               NVL(P_REGPEDIDO.CONDVENDA, 1),
+                               'N',
+                               0,
+                               0,
+                               P_REGITEM.PVENDA
+                               ));
+              EXCEPTION WHEN OTHERS THEN
+                  vnCALCULAR_PVENDA_SEM_IMPOSTO := P_REGITEM.PVENDA;
+              END;
+
+              BEGIN
+                 SELECT NVL(VALORSEMIMPOSTO,0) VALORSEMIMPOSTO
+                 INTO VNPTABELASEMIMPOSTO
+                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_PVENDA_SEM_IMPOSTO(
+                               P_REGPEDIDO.CODFILIAL,
+                               NVL(P_REGPEDIDO.CODFILIALNF, P_REGCLIENTE.CODFILIALNF),
+                               P_REGITEM.CODFILIALRETIRA,
+                               NVL(P_REGPEDIDO.CODCLI, P_REGCLIENTE.CODCLI),
+                               NVL(P_REGPEDIDO.CODPLPAG, P_REGCLIENTE.CODPLPAG),
+                               P_REGITEM.CODPROD,
+                               P_REGITEM.CODAUXILIAR,
+                               NVL(P_REGPEDIDO.CONDVENDA, 1),
+                               'N',
+                               0,
+                               0,
+                               P_REGPRODUTO.PTABELA
+                               ));
+              EXCEPTION WHEN OTHERS THEN
+                  VNPTABELASEMIMPOSTO := P_REGPRODUTO.PTABELA;
+              END;
+              
+              IF(vnCALCULAR_PVENDA_SEM_IMPOSTO > 0) THEN
+   							
+   							 VNPVENDASEMIMPOSTO := vnCALCULAR_PVENDA_SEM_IMPOSTO;
+						  END IF;
+                 BEGIN
+                 SELECT NVL(BASEST,0),
+                        NVL(ST,0),
+                        NVL(VLRFECP,0)
+                 INTO VNBASEICST,
+                      VNVLST,
+                      vnVLFECP
+                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_ST(P_REGPEDIDO.CODFILIAL,
+                                                       NVL(P_REGPEDIDO.CODFILIALNF, P_REGCLIENTE.CODFILIALNF),
+                                                       P_REGITEM.CODFILIALRETIRA,
+                                                       NVL(P_REGPEDIDO.CODCLI, P_REGCLIENTE.CODCLI),
+                                                       NVL(P_REGPEDIDO.CODPLPAG, P_REGCLIENTE.CODPLPAG),
+                                                       P_REGITEM.CODPROD,
+                                                       P_REGITEM.CODAUXILIAR,
+                                                       NVL(P_REGPEDIDO.CONDVENDA, 1),
+                                                       'N',
+                                                       VNPVENDASEMIMPOSTO,
+                                                       0));
+              EXCEPTION WHEN OTHERS THEN
+                 VNBASEICST := 0;
+                 VNVLST     := 0;
+                 vnVLFECP   := 0;
+              END;   
+              BEGIN
+                 SELECT NVL(BASEST,0),
+                        NVL(ST,0),
+                        NVL(VLRFECP,0)
+                 INTO VNBASEICSTTAB,
+                      VNVLSTTAB,
+                      vnVLFECPTAB
+                 FROM TABLE(PKG_TRIBUTACAO.CALCULAR_ST(P_REGPEDIDO.CODFILIAL,
+                                                       NVL(P_REGPEDIDO.CODFILIALNF, P_REGCLIENTE.CODFILIALNF),
+                                                       P_REGITEM.CODFILIALRETIRA,
+                                                       NVL(P_REGPEDIDO.CODCLI, P_REGCLIENTE.CODCLI),
+                                                       NVL(P_REGPEDIDO.CODPLPAG, P_REGCLIENTE.CODPLPAG),
+                                                       P_REGITEM.CODPROD,
+                                                       P_REGITEM.CODAUXILIAR,
+                                                       NVL(P_REGPEDIDO.CONDVENDA, 1),
+                                                       'N',
+                                                       VNPTABELASEMIMPOSTO,
+                                                       0));
+              EXCEPTION WHEN OTHERS THEN
+                 VNBASEICSTTAB := 0;
+                 VNVLSTTAB     := 0;
+                 vnVLFECPTAB   := 0;
+              END;                                                                  
 
                 P_REGITEM.PERCIMPOSTO := 0;
                 IF NVL(P_REGITEM.PVENDA,0) <> 0 THEN
-                   P_REGITEM.PERCIMPOSTO := (NVL(VNVLST, 0) * 100) / P_REGITEM.PVENDA;
+                   P_REGITEM.PERCIMPOSTO := (NVL(VNVLST+vnVLFECP, 0) * 100) / P_REGITEM.PVENDA;
                 END IF;
                 
                 VNPERCIMPOSTOPTABELA := 0;
@@ -6357,13 +6457,13 @@ BEGIN
                    VNPERCIMPOSTOPTABELA := (P_REGPRODUTO.PTABELA * 100) / NVL(P_REGPRODUTO.PTABELASEMIMPOSTO, P_REGPRODUTO.PTABELA) - 100;
                 END IF;
 
-                VNVLDIFST201 := ABS(NVL(VNVLST, 0) - (P_REGPRODUTO.PTABELA - P_REGPRODUTO.PTABELASEMIMPOSTO));
+                VNVLDIFST201 := ABS(NVL(VNVLST+vnVLFECP, 0) - (P_REGPRODUTO.PTABELA - P_REGPRODUTO.PTABELASEMIMPOSTO));
 
                 IF P_REGITEM.INTEGRADORA = 23 THEN 
                    P_REGPRODUTO.PTABELA  := P_REGPRODUTO.PTABELA;
                 ELSE   
-                   P_REGPRODUTO.PTABELA  := (P_REGPRODUTO.PTABELA - NVL(P_REGPRECOS.VLST,0)) / (1 + (VNPERCIPI/100));
-                   P_REGITEM.PVENDA      := (P_REGITEM.PVENDA - NVL(VNVLST, 0)) / (1 + (VNPERCIPI/100));
+                   P_REGPRODUTO.PTABELA  := (P_REGPRODUTO.PTABELA - NVL(VNVLSTTAB+vnVLFECPTAB,0)) / (1 + (VNPERCIPI/100));
+                   P_REGITEM.PVENDA      := (P_REGITEM.PVENDA - NVL(VNVLST+vnVLFECP, 0)) / (1 + (VNPERCIPI/100));
                 END IF; 
                 
                 VSRETIROUIMPOSTO      := TRUE;
@@ -14330,9 +14430,13 @@ PROCEDURE PROC_PROCESSARPEDIDOS(P_EXISTERRO IN OUT BOOLEAN) IS
     VNPTABELASEMIMPOSTOTEMP NUMBER;
     VNPDESCONTOITEMTEMP     NUMBER;
     vnCALCULAR_PVENDA_SEM_IMPOSTO PCPEDI.PVENDA%TYPE;
+    vnCALCULAR_PTABELA_SEM_IMPOSTO PCPEDI.PTABELA%TYPE;				
     vPVENDACOMIMPOSTO PCPEDI.PVENDA%TYPE;
 	VST NUMBER(18,6);
     vVLFECP PCPEDI.VLFECP%TYPE;
+    VNVLIPITAB                 PCPEDI.VLIPI%TYPE;
+    VNSTTAB                 PCPEDI.ST%TYPE;
+    vVLFECPTAB PCPEDI.VLFECP%TYPE;								  
 BEGIN
    VNCONTPED := GVET_REGPEDIDO.COUNT;
 
@@ -14688,6 +14792,7 @@ BEGIN
 
 						   IF GVET_REGPEDIDO(I).INTEGRADORA = 23 THEN
 						       vnCALCULAR_PVENDA_SEM_IMPOSTO := GVET_REGITEM(J).PVENDA;   						
+							   vnCALCULAR_PTABELA_SEM_IMPOSTO := REGPRODUTO.PTABELA; 	
 						   ELSE	   
 							   BEGIN
 								  SELECT NVL(VALORSEMIMPOSTO,0) VALORSEMIMPOSTO
@@ -14708,7 +14813,26 @@ BEGIN
 							   EXCEPTION WHEN OTHERS THEN
 								  vnCALCULAR_PVENDA_SEM_IMPOSTO := GVET_REGITEM(J).PVENDA;
 							   END;							   
-                           END IF;						   
+                 BEGIN
+								  SELECT NVL(VALORSEMIMPOSTO,0) VALORSEMIMPOSTO
+								  INTO vnCALCULAR_PTABELA_SEM_IMPOSTO
+								  FROM TABLE(PKG_TRIBUTACAO.CALCULAR_PVENDA_SEM_IMPOSTO(GVET_REGPEDIDO(I).CODFILIAL,
+																						NVL(GVET_REGPEDIDO(I).CODFILIALNF, 
+																						REGCLIENTE.CODFILIALNF),
+																						GVET_REGITEM(J).CODFILIALRETIRA,
+																						NVL(GVET_REGPEDIDO(I).CODCLI,REGCLIENTE.CODCLI),
+																						NVL(GVET_REGPEDIDO(I).CODPLPAG,REGCLIENTE.CODPLPAG),
+																						GVET_REGITEM(J).CODPROD,
+																						GVET_REGITEM(J).CODAUXILIAR,
+																						NVL(GVET_REGPEDIDO(I).CONDVENDA, 1),
+																						'N',
+																						0,
+																						0,
+																						REGPRODUTO.PTABELA));
+							   EXCEPTION WHEN OTHERS THEN
+								  vnCALCULAR_PTABELA_SEM_IMPOSTO := REGPRODUTO.PTABELA;
+							   END;					   
+              END IF;	  
 													
                            BEGIN
                               SELECT BASEST,ST,VLRFECP,BASEFECP,ALIQFECP
@@ -14745,7 +14869,8 @@ BEGIN
 																  'I',
 																  NULL,
 																  GREGPEDIDO.CODENDENTCLI));	
-																  															  																											  
+		EXCEPTION
+                WHEN OTHERS THEN	  																	  															  																											  
                               GVET_REGITEM(J).BASEICST := 0;
                               VST := 0;
                               vVLFECP := 0;
@@ -14784,9 +14909,79 @@ BEGIN
                 WHEN OTHERS THEN
                   GVET_REGITEM(J).VLIPI := 0;
               END;
+			  BEGIN
+                        SELECT ST,VLRFECP
+                             INTO VNSTTAB,
+                                   vVLFECPTAB                                
+							  FROM TABLE(PKG_TRIBUTACAO.CALCULAR_ST(GVET_REGPEDIDO(I).CODFILIAL,
+																  NVL(GVET_REGPEDIDO(I).CODFILIALNF, 
+                                                                  REGCLIENTE.CODFILIALNF), 
+																  GVET_REGITEM(J).CODFILIALRETIRA,
+																  NVL(GVET_REGPEDIDO(I).CODCLI,REGCLIENTE.CODCLI), 
+																  NVL(GVET_REGPEDIDO(I).CODPLPAG,REGCLIENTE.CODPLPAG),
+																  GVET_REGITEM(J).CODPROD,
+                                                                  GVET_REGITEM(J).CODAUXILIAR,
+																  NVL(GVET_REGPEDIDO(I).CONDVENDA, 1),
+																  'N', 
+																  REGPRODUTO.PTABELA,
+															      0,
+																  'N',
+																  0,
+																  0,
+																  0,
+																  NULL,
+																  'S',
+																  'N',
+																  'T',
+																  'N',
+																  0,
+																  'N',
+																  0,
+																  NULL,
+																  'I',
+																  NULL,
+																  GREGPEDIDO.CODENDENTCLI));	
+                  EXCEPTION
+                  WHEN OTHERS THEN	  															  																											  
+                         
+                      VNSTTAB := 0;
+                      vVLFECPTAB := 0;
+                 
+                   END;
+						   
+					
+
+               BEGIN
+                SELECT VALORIPI
+                  INTO VNVLIPITAB
+                  FROM TABLE(PKG_TRIBUTACAO.CALCULAR_IPI(GVET_REGPEDIDO(I).CODFILIAL,
+                                                         GVET_REGPEDIDO(I).CODFILIALNF,
+                                                         GVET_REGPEDIDO(I).CODFILIAL,
+                                                         NVL(GVET_REGPEDIDO(I).CODCLI, REGCLIENTE.CODCLI),
+                                                         GVET_REGITEM(J).CODPROD,
+                                                         GVET_REGITEM(J).CODAUXILIAR,
+                                                         NVL(GVET_REGPEDIDO(I).CONDVENDA, 1),
+                                                         'N',
+                                                         REGPRODUTO.PTABELA,
+                                                         'N',
+                                                         GVET_REGPEDIDO(I).CODENDENTCLI,
+                                                         'N', --transferencia
+                                                         'N', --transferenciaVirtual
+                                                         'N',
+                                                         'F',
+                                                         NULL,
+                                                         'I',
+                                                         0,
+                                                         'S',
+                                                         'N'
+                                                         ));
+              EXCEPTION
+                WHEN OTHERS THEN
+                  VNVLIPITAB:= 0;
+              END;
 						   						   
                            IF NVL(REGPRODUTO.PTABELASEMIMPOSTO, 0) > 0 THEN
-                              REGPRODUTO.PTABELA := (REGPRODUTO.PTABELA + VST + vVLFECP);
+                              REGPRODUTO.PTABELA := (REGPRODUTO.PTABELA + VNSTTAB + vVLFECPTAB +VNVLIPITAB);
                            END IF;
 
                            IF GVET_REGPEDIDO(I).INTEGRADORA = 23 THEN        
@@ -14808,7 +15003,7 @@ BEGIN
                                     REGPRODUTO.PTABELA := REGPRODUTO.PTABELA;
                                  END IF; 
                               ELSE
-                                 GVET_REGITEM(J).PVENDA := GVET_REGITEM(J).PVENDA + VST + vVLFECP;
+                                 GVET_REGITEM(J).PVENDA := GVET_REGITEM(J).PVENDA + VST + vVLFECP+GVET_REGITEM(J).VLIPI;
                                  
                                  IF REGPLPAG.NUMPR = 1 THEN
                                     REGPRODUTO.PTABELA := REGPRECOS.PVENDA1;
@@ -14866,7 +15061,7 @@ BEGIN
 
                            IF GVET_REGITEM(J).PVENDASEMIMPOSTO = 'S' THEN
                               IF GVET_REGPEDIDO(I).INTEGRADORA <> 23 THEN 
-                                 GVET_REGITEM(J).PVENDA := GVET_REGITEM(J).PVENDA + NVL(GVET_REGITEM(J).ST,0) + NVL(GVET_REGITEM(J).VLRFECP,0);
+                                 GVET_REGITEM(J).PVENDA := GVET_REGITEM(J).PVENDA + NVL(GVET_REGITEM(J).ST,0) + NVL(GVET_REGITEM(J).VLRFECP,0)+GVET_REGITEM(J).VLIPI;
                               END IF; 
 					  
                               GVET_REGITEM(J).PVENDASEMIMPOSTO := 'N';
