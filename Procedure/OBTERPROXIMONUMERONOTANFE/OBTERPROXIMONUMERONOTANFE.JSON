@@ -5,22 +5,22 @@
  {
   "nome":"OBTERPROXIMONUMERONFE",
   "tipo":"OBJETO_PLSQL",
-  "versao":"7.0.01.000"
+  "versao":"8.0.02.000"
  },
  {
   "nome": "PCNFENT",
   "tipo": "TABELA",
-  "versao": "7.0.29.000"
+  "versao": "8.0.11.000"
  },
  {
   "nome": "PCNFSAID",
   "tipo": "TABELA",
-  "versao": "7.0.22.000"
+  "versao": "8.0.09.000"
  },
  {
   "nome": "PCNFSAIDPREFAT",
   "tipo": "TABELA",
-  "versao": "7.0.15.000"
+  "versao": "8.0.06.000"
  }
  ]
 }
