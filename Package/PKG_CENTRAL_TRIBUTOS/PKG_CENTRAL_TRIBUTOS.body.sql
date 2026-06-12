@@ -984,7 +984,9 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
       IF (RETORNA_GRAVARLOG <> 'S') THEN  
          PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
       END IF;      
-   
+
+      V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem1;
+      V_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO        := 'Tributos não calculados. Motivo: Filial optante pelo Simples Nacional.';
       RETURN P_PARAMETROS_CENTRAL_TRIBUTOS;
    END IF;    
 --------------------------------------------------------------
@@ -1081,7 +1083,9 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
       IF (RETORNA_GRAVARLOG <> 'S') THEN  
          PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
       END IF; 
-      
+
+      V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem1;
+      V_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO        := 'Tributos não calculados. Motivo: Filial optante pelo Simples Nacional.';
       RETURN P_PARAMETROS_CENTRAL_TRIBUTOS;
     END IF;   
   EXCEPTION
@@ -1105,7 +1109,7 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
     V_MSG VARCHAR2(4000);    
   BEGIN
     IF NOT FISCAL.FIL_OPTANTESIMPLESNACIONAL(P_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_FILIAL) THEN
-      
+
       IF (RETORNA_GRAVARLOG = 'S') THEN
         PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_E_GRAVAR_TODOS_TRIB', '1.0', P_PARAMETROS_CENTRAL_TRIBUTOS.NUMERO_TRANSACAO);
       END IF;
@@ -1208,8 +1212,10 @@ PROCEDURE CALCULAR_E_GRAVAR_PISCOFINS(P_PARAMETROS_CENTRAL_TRIBUTOS IN T_PARAMET
       IF (RETORNA_GRAVARLOG <> 'S') THEN  
          PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
       END IF; 
-        
-     RETURN V_PARAMETROS_CENTRAL_TRIBUTOS;
+      
+      V_PARAMETROS_CENTRAL_TRIBUTOS.CODIGO_MENSAGEM_RETORNO := cCodMensagem1;
+      V_PARAMETROS_CENTRAL_TRIBUTOS.MENSAGEM_RETORNO        := 'Tributos não calculados. Motivo: Filial optante pelo Simples Nacional.';
+      RETURN V_PARAMETROS_CENTRAL_TRIBUTOS;
     END IF;         
   EXCEPTION
      WHEN OTHERS THEN
@@ -1316,6 +1322,5 @@ END CALC_E_GRAVAR_TODOS_TRIB_TEST;
   END CONSULTAR_E_GRAVAR_COD_BENEF;  
   ----------------------------------------------------------------------------------------------------
 END PKG_CENTRAL_TRIBUTOS;
+-- Alteração 12/06/2026 - Imlementado ajustes no processo do optante do simples nacional. 
 -- Alteração 23/04/2026 - Implementado processo de pesquisa e grvação do beneficio fiscal. 
--- Alteração 19/03/2026 - Retirando a chamada e gravação dos tributos de documento "entrada devolução"
--- Alteração 17/03/2026 - Implementado do processo do simples nacional 
