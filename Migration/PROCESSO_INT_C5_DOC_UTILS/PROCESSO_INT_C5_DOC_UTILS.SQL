@@ -1758,10 +1758,10 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
         CASE WHEN FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem) = 'CONV' AND ((SELECT NVL(PL.FORMAPARCELAMENTO,'C') FROM PCPLPAG PL WHERE PL.CODPLPAG = F.codplpag ) = 'T'  )THEN
-            TO_CHAR(FNC_INT_C5_CALCDIAFIXO(TRUNC(p.Dtahoremissao),FNC_INT_C5_DIASCARENCIA(p.nroformapagto), fnc_int_c5_DIAFIXO(p.nroformapagto) , TRUNC(SYSDATE)), 'YYYY-MM-DD' )
+            TO_CHAR(NVL(FNC_INT_C5_CALCDIAFIXO(TRUNC(p.Dtahoremissao),FNC_INT_C5_DIASCARENCIA(p.nroformapagto), fnc_int_c5_DIAFIXO(p.nroformapagto) , TRUNC(SYSDATE)), TRUNC(SYSDATE)), 'YYYY-MM-DD' )
           ELSE 
-            TO_CHAR(NVL(r.dtvenc,
-                p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))) ),'YYYY-MM-DD')
+            TO_CHAR(NVL(NVL(r.dtvenc,
+                p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))) ), TRUNC(SYSDATE)),'YYYY-MM-DD')
         END dtvenc,
         NVL(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
@@ -1769,9 +1769,9 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(NVL(r.dtvenc,
+        TO_CHAR(NVL(NVL(r.dtvenc,
                 p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
-          ),'YYYY-MM-DD') dtvencorig,
+          ), TRUNC(SYSDATE)),'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
         NULL numbanco,
@@ -1926,7 +1926,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvenc,
         NVL(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)),'D') codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
@@ -1934,7 +1934,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
@@ -2052,7 +2052,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvenc,
         NVL(
         (CASE
@@ -2066,7 +2066,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
@@ -2184,7 +2184,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         'NOTAFISCAL' numserieequip,
         case when nf.DOCEMISSAO in ('SF', 'MF') then nf.NUMCUPOMSAT else c.nronotafiscal end duplic,
         NVL(TO_NUMBER(regexp_replace(P.NROCARTAO, '[^0-9]', '')) ,NVL(c.seqpessoa,1)) codcli,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvenc,
         'DOAC' codcob,
         TO_CHAR(p.dtabasecobranca,'YYYY-MM-DD') dtemissao,
@@ -2192,7 +2192,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilialintegracao, 
         'A' status,
         fnc_int_c5_codusur(d.sequsuario) codusur,
-        TO_CHAR(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
+        TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
         f.boleto,
