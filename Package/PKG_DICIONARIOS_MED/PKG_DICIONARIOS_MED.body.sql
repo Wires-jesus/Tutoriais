@@ -4959,6 +4959,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                               , PCPRODUT.CODLINHAPRAZO -- DDMEDICA-545
                               , PCDEPTO.TIPOMERC TIPOMERCDEP
                               , PCTABPR.VLST -- STP
+                              , PCTABPR.VLFCPST -- FECP
                            FROM PCPRODUT
                               , PCTABPR
                               , PCDEPTO
@@ -5340,7 +5341,7 @@ IS PRAGMA SERIALLY_REUSABLE;
                 -- Tira st fonte da precificaçao -- STP
                 IF (vvutilizarstfonteprecific = 'S') AND
                    (vnPreco > 0) THEN
-                  vnPreco := NVL(vnPreco,0) - NVL(vc_Produto.VLST,0);  
+                  vnPreco := NVL(vnPreco,0) - NVL(vc_Produto.VLST,0) - NVL(vc_Produto.VLFCPST,0);
                 END IF;                
               -- Aplica Indice sobre o Preço Tabela
               vnIndicePreco := 0;
