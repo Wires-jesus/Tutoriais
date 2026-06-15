@@ -65,6 +65,7 @@ select  c5.codfilial codfilial,
                       and i.nrocheckout = m.nrocheckout
                       and i.nroempresa = m.nroempresa
                       and i.nronotafiscal = c.nronotafiscal)
+   AND c.CGO = 65					  
    AND M.ESPECIE IN ('NF', 'CF')
 )
  
