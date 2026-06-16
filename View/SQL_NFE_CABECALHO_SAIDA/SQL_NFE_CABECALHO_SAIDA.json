@@ -15,5 +15,10 @@
   "nome": "PCNFSAIDPREFAT",
   "tipo": "TABELA",
   "versao": "8.0.06.000"
+ },
+ {
+  "nome": "PARAMETRO",
+  "tipo": "PARAMETRO",
+  "versao": "7.0.227.000"
  } 
  ]}
