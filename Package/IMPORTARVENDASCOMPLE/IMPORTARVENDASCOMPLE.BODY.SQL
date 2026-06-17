@@ -2582,6 +2582,23 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
             END LOOP; --FIM LOOP ITEM
          END LOOP; --FIM LOOP CABEÇALHO
       END IF;
+      IF VERRO = 'S'
+      THEN
+         SELECT COUNT(1)
+         INTO   VCONTADOR
+         FROM   PCPEDITEMP
+         WHERE  PCPEDITEMP.NUMPEDWEB = PNUMPEDWEB AND
+                PCPEDITEMP.INTEGRADORA = PINTEGRADORA AND
+                PCPEDITEMP.CODUSUR = PCODUSUR AND
+                PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
+                PCPEDITEMP.OBSERVACAO_PC IS NULL;
+      
+         IF VCONTADOR > 0
+         THEN
+            VERRO     := 'N';
+            VMENSAGEM := '';
+         END IF;
+      END IF;      
       ---OBTENDO O PRÓXIMO NÚMERO DE PEDIDO---------------------------------
       IF VERRO = 'N'
       THEN
@@ -2610,7 +2627,8 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
                             WHERE  PCPEDITEMP.NUMPEDWEB = PNUMPEDWEB AND
                                    PCPEDITEMP.INTEGRADORA = PINTEGRADORA AND
                                    PCPEDITEMP.CODUSUR = PCODUSUR AND
-                                   PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED)
+                                   PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
+                                   PCPEDITEMP.OBSERVACAO_PC IS NULL)
             LOOP
                BEGIN
                   SELECT NVL(PCEST.CUSTOFIN, 0) CUSTOFIN,
@@ -3828,6 +3846,24 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
             END LOOP; --FIM LOOP ITEM
          END LOOP; --FIM LOOP CABEÇALHO
       END IF;
+      IF VERRO = 'S'
+      THEN
+         SELECT COUNT(1)
+         INTO   VCONTADOR
+         FROM   PCPEDITEMP
+         WHERE  PCPEDITEMP.NUMPEDWEB = PNUMPEDWEB AND
+                PCPEDITEMP.INTEGRADORA = PINTEGRADORA AND
+                PCPEDITEMP.CODUSUR = PCODUSUR AND
+                PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
+                NVL(PCPEDITEMP.BONIFIC, 'N') = P_NORMAL_E_BNF AND
+                PCPEDITEMP.OBSERVACAO_PC IS NULL;
+      
+         IF VCONTADOR > 0
+         THEN
+            VERRO     := 'N';
+            VMENSAGEM := '';
+         END IF;
+      END IF;      
       ---OBTENDO O PRÓXIMO NÚMERO DE PEDIDO---------------------------------
       IF VERRO = 'N'
       THEN
@@ -3859,6 +3895,7 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
                                    PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
                                    NVL(PCPEDITEMP.BONIFIC, 'N') =
                                    P_NORMAL_E_BNF AND
+                                   PCPEDITEMP.OBSERVACAO_PC IS NULL AND
                                    EXISTS
                              (SELECT T.NUMPEDWEB
                                     FROM   PCPEDCTEMP T
@@ -4931,6 +4968,24 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
             END LOOP; --FIM LOOP ITEM
          END LOOP; --FIM LOOP CABEÇALHO
       END IF;
+      IF VERRO = 'S'
+      THEN
+         SELECT COUNT(1)
+         INTO   VCONTADOR
+         FROM   PCPEDITEMP
+         WHERE  PCPEDITEMP.NUMPEDWEB = PNUMPEDWEB AND
+                PCPEDITEMP.INTEGRADORA = PINTEGRADORA AND
+                PCPEDITEMP.CODUSUR = PCODUSUR AND
+                PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
+                NVL(PCPEDITEMP.BONIFIC, 'N') = P_NORMAL_E_BNF AND
+                PCPEDITEMP.OBSERVACAO_PC IS NULL;
+      
+         IF VCONTADOR > 0
+         THEN
+            VERRO     := 'N';
+            VMENSAGEM := '';
+         END IF;
+      END IF;      
       ---OBTENDO O PRÓXIMO NÚMERO DE PEDIDO---------------------------------
       IF VERRO = 'N'
       THEN
@@ -4962,6 +5017,7 @@ CREATE OR REPLACE PACKAGE BODY IMPORTARVENDASCOMPLE IS
                                    PCPEDITEMP.TIPOINTEGRACAO = VORIGEMPED AND
                                    NVL(PCPEDITEMP.BONIFIC, 'N') =
                                    P_NORMAL_E_BNF AND
+                                   PCPEDITEMP.OBSERVACAO_PC IS NULL AND
                                    EXISTS
                              (SELECT T.NUMPEDWEB
                                     FROM   PCPEDCTEMP T
