@@ -1,6 +1,5 @@
 create or replace package body FISCAL is
 
-
     CURSOR CONSULTA_DADOS_CREDPRESUMIDO(P_NUMTRANSACAO  NUMBER,
                                         P_TIPOMOV VARCHAR2 ) IS
                      (SELECT 'N' PREFATURAMENTO,
@@ -5457,57 +5456,11 @@ create or replace package body FISCAL is
    END;
  END;
 
- ----------
   FUNCTION GET_HORACERTA_TIMEZONE(P_UF VARCHAR2) RETURN DATE IS
-    /*
-    * Método que faz o cálculo da data e hora correta de acordo com o fusorário da uf
-    * Author: Eddy Pereira
-    *OBS: só funciona se a tabela PCESTADOTIMEZONE estiver populada. Quem popula é a rotina 820 do WTA.
-    */
-    V_DATA_CORRETA DATE;
-    V_TIMEZONE     VARCHAR2(100);
-
-  BEGIN
-    BEGIN
-      --INICIALIZA A VARIÁVEL DE RETORNO
-      V_DATA_CORRETA := SYSDATE;
-
-      --CASO A UF ESTEJA NULA, DEVOLVE A DATA DO BANCO
-      IF (P_UF IS NULL) THEN
-        RETURN V_DATA_CORRETA;
-      END IF;
-
-      BEGIN
-        --PEGA O INTERVALO DA ZONA DA UF
-        SELECT REGEXP_SUBSTR(TIMEZONE, '(-?\d{2})') TIMEZONE
-          INTO V_TIMEZONE
-          FROM PCESTADOTIMEZONE
-         WHERE UPPER(SIGLAESTADO) = UPPER(P_UF);
-      EXCEPTION
-        WHEN OTHERS THEN
-          --CASO NÃO TENHA REGISTRO NA TABELA, RETORNA A DATA DO BANCO
-          RETURN V_DATA_CORRETA;
-      END;
-
-      --FAZ O CÁLCULO DE ACORDO COM O TIMEZONE DA UF
-      SELECT CAST(((CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + NUMTODSINTERVAL(V_TIMEZONE, 'HOUR')) AS DATE) AS HORA_AJUSTADA
-        INTO V_DATA_CORRETA
-        FROM DUAL;
-
-      IF (V_DATA_CORRETA IS NOT NULL) THEN
-        RETURN V_DATA_CORRETA;
-      ELSE
-        RETURN SYSDATE;
-      END IF;
-
-    EXCEPTION
-      WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE(SQLERRM);
-        RETURN V_DATA_CORRETA;
-    END;
-
+  BEGIN    
+    RETURN FERRAMENTAS_DOCFISCAL.GET_HORACERTA_TIMEZONE(P_UF);
   END;
- ----------
+
   FUNCTION OBTER_ALIQUOTAS_PISCOFINS(P_CODPROD   IN NUMBER,
                                      P_CODFISCAL IN NUMBER,
                                      P_CODOPER   IN VARCHAR2,
@@ -5686,34 +5639,6 @@ create or replace package body FISCAL is
 
   END;
 
-  FUNCTION GET_VIGENCIANTSEFAZ(P_IDENTIFICADORNT IN VARCHAR2,
-                               P_DATADOCUMENTO IN DATE) RETURN VARCHAR2 IS
-    vDATAINICIALVIGENCIA DATE;
-    vDATAFINALVIGENCIA   DATE;
-    vRESULTADO           VARCHAR2(1);
-  BEGIN
-    BEGIN
-      SELECT DATAINICIALVIGENCIA,
-             NVL(DATAFINALVIGENCIA,TO_DATE('01/01/2999','DD/MM/YYYY'))
-        INTO vDATAINICIALVIGENCIA,
-             vDATAFINALVIGENCIA
-        FROM PCVIGENCIANTSEFAZ
-       WHERE UPPER(IDENTIFICADOR_NT) = UPPER(P_IDENTIFICADORNT);
-
-       IF vDATAINICIALVIGENCIA <= P_DATADOCUMENTO AND
-          vDATAFINALVIGENCIA >= P_DATADOCUMENTO THEN
-          vRESULTADO := 'S';
-       ELSE
-         vRESULTADO := 'N';
-       END IF;
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        vRESULTADO := 'N';
-    END;
-
-    RETURN  vRESULTADO;
-  END;
-
   FUNCTION GET_NATUREZAOPERACAO(P_CODFISCAL IN VARCHAR2,
                                 P_CODOPER IN VARCHAR2,
                                 P_CODROTINAEMISSAO IN VARCHAR2 := 0) RETURN VARCHAR2 IS
@@ -5755,64 +5680,21 @@ create or replace package body FISCAL is
 
   FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
                         P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2 IS
-  vRetorno VARCHAR2(1);
-  vDataDocumentos DATE;
   BEGIN
-    BEGIN
-
-      IF P_DATADOCUMENTOS IS NULL THEN
-        vDataDocumentos := TRUNC(SYSDATE); /*Em alguns casos o valor default não está sendo passado para o parâmetro*/
-      ELSE
-        vDataDocumentos := P_DATADOCUMENTOS;
-      END IF;
-
-      IF (P_SITUACAONFE IS NOT NULL) THEN
-        vRetorno := 'N';
-
-        IF GET_VIGENCIANTSEFAZ('NFE-NT2024.001-CRT-MEIv1.10', vDataDocumentos) = 'N' THEN
-          IF (P_SITUACAONFE IN ('110','205','301','302','303','307')) THEN
-            vRetorno := 'S';
-          END IF;
-        ELSE
-          IF (P_SITUACAONFE IN ('110','205')) THEN
-            vRetorno := 'S';
-          END IF;
-        END IF;
-      ELSE
-        vRetorno := 'N';
-      END IF;
-    EXCEPTION
-      WHEN OTHERS THEN
-        vRetorno := 'N';
-    END;
-
-    RETURN vRetorno;
+    RETURN FERRAMENTAS_DOCFISCAL.NFE_DENEGADA(P_SITUACAONFE, P_DATADOCUMENTOS);
   END;
 
   FUNCTION CTE_DENEGADO(P_SITUACAOCTE IN VARCHAR2) RETURN VARCHAR2 IS
   BEGIN
-    BEGIN
-      IF (P_SITUACAOCTE IS NOT NULL) THEN
-        IF (P_SITUACAOCTE IN ('110','205','301')) THEN
-          RETURN 'S';
-        ELSE
-          RETURN 'N';
-        END IF;
-      ELSE
-        RETURN 'N';
-      END IF;
-    EXCEPTION
-      WHEN OTHERS THEN
-        RETURN 'N';
-    END;
+    RETURN FERRAMENTAS_DOCFISCAL.CTE_DENEGADO(P_SITUACAOCTE);
   END;
 
- FUNCTION GET_DESCRICAO_NATUREZA_OP(
+  FUNCTION GET_DESCRICAO_NATUREZA_OP(
     P_CODFISCAL       NUMBER,
     P_CODOPER         VARCHAR2,
     P_CODROTINAORIGEM NUMBER DEFAULT 0,
     P_CHEQUEMORADIA   VARCHAR2 DEFAULT 'N') RETURN VARCHAR2 IS
-  V_DESCRICAO VARCHAR2(60);
+    V_DESCRICAO VARCHAR2(60);
   BEGIN
       V_DESCRICAO:='';
       -- VALIDAÇÃO DOS PARÂMETROS
@@ -7396,8 +7278,8 @@ create or replace package body FISCAL is
          VARIAVEL.NOME  := '&VLFCP&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_FCP IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_FCP END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS); 
-	   
-	       VARIAVEL.NOME  := '&VLFCPST&';
+     
+         VARIAVEL.NOME  := '&VLFCPST&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_FCP_ST IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_FCP_ST END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
@@ -8147,6 +8029,3 @@ create or replace package body FISCAL is
   END CODIGO_BENEFICIO_FISCAL;  
 
 END;
--- Alteração 15/06/2026 - Implementado retorno das regras de pesquisa da pkg anterior. Foi mantido o ajuste do diferimento e mensagem de retorno do optante nacional
--- Alteração 11/06/2026 - Ajuste nos valores quando tributação for com diferimento.
--- Alteração 29/05/2026 - Gerando nova versão para ver se passa o erro de atualização  que está tendo na 814 sem alterações
