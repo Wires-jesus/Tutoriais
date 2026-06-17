@@ -1768,7 +1768,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilial codfilial,
         c5.codfilialintegracao, 
         'A' status,
-        fnc_int_c5_codusur(d.sequsuario) codusur,
+        NVL(
+          (
+            SELECT NROVENDEDOR 
+             FROM MONITORPDVMIDDLE.TB_DOCTOITEM 
+             WHERE SEQDOCTO = D.SEQDOCTO AND NROCHECKOUT = D.NROCHECKOUT AND NROEMPRESA = D.NROEMPRESA AND ROWNUM = 1),
+          NVL(fnc_int_c5_codusur(d.sequsuario),1)
+        ) codusur,
         TO_CHAR(NVL(NVL(r.dtvenc,
                 p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem)))
           ), TRUNC(SYSDATE)),'YYYY-MM-DD') dtvencorig,
@@ -1933,7 +1939,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilial codfilial,
         c5.codfilialintegracao, 
         'A' status,
-        fnc_int_c5_codusur(d.sequsuario) codusur,
+        NVL(
+          (
+            SELECT NROVENDEDOR 
+             FROM MONITORPDVMIDDLE.TB_DOCTOITEM 
+             WHERE SEQDOCTO = D.SEQDOCTO AND NROCHECKOUT = D.NROCHECKOUT AND NROEMPRESA = D.NROEMPRESA AND ROWNUM = 1),
+          NVL(fnc_int_c5_codusur(d.sequsuario),1)
+        ) codusur,
         TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
@@ -2065,7 +2077,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilial codfilial,
         c5.codfilialintegracao, 
         'A' status,
-        fnc_int_c5_codusur(d.sequsuario) codusur,
+        NVL(
+          (
+            SELECT NROVENDEDOR 
+             FROM MONITORPDVMIDDLE.TB_DOCTOITEM 
+             WHERE SEQDOCTO = D.SEQDOCTO AND NROCHECKOUT = D.NROCHECKOUT AND NROEMPRESA = D.NROEMPRESA AND ROWNUM = 1),
+          NVL(fnc_int_c5_codusur(d.sequsuario),1)
+        ) codusur,
         TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
@@ -2191,7 +2209,13 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
         c5.codfilial codfilial,
         c5.codfilialintegracao, 
         'A' status,
-        fnc_int_c5_codusur(d.sequsuario) codusur,
+        NVL(
+          (
+            SELECT NROVENDEDOR 
+             FROM MONITORPDVMIDDLE.TB_DOCTOITEM 
+             WHERE SEQDOCTO = D.SEQDOCTO AND NROCHECKOUT = D.NROCHECKOUT AND NROEMPRESA = D.NROEMPRESA AND ROWNUM = 1),
+          NVL(fnc_int_c5_codusur(d.sequsuario),1)
+        ) codusur,
         TO_CHAR(NVL(p.dtavencimento + FNC_INT_C5_PRAZOCC(NVL(f.codcob ,FNC_INT_C5_ESPECIE_COB_VENDAS(p.seqdocto, p.nrocheckout,p.nroempresa, p.seqitem))), TRUNC(SYSDATE))
             ,'YYYY-MM-DD') dtvencorig,
         'N' operacao,
