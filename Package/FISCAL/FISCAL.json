@@ -88,7 +88,11 @@
         },{
             "nome": "PCCODIGOBENEFICIOFISCALVINCULO",
             "tipo": "TABELA",
-            "versao": "8.0.02.000"
-        }  
+            "versao": "7.0.02.000"
+        },{
+            "nome": "FERRAMENTAS_DOCFISCAL",
+            "tipo": "OBJETO_PLSQL",
+            "versao": "7.0.01.000"
+        } 
     ]
 }
