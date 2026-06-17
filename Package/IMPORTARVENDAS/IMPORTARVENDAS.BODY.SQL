@@ -4391,6 +4391,23 @@ BEGIN
       P_REGITEM.VALIDO        := FALSE;
       P_REGORIGEMPRECO.VALIDO := FALSE;
       P_REGITEM.CODRETORNOS   := P_REGITEM.CODRETORNOS || ';' || 97;
+
+      PROC_REGISTRALOG(P_REGPEDIDO.NUMPED,
+                       P_REGPEDIDO.NUMPEDINT,
+                       P_REGITEM.CODPROD,
+                       P_REGITEM.CODAUXILIAR,
+                       P_REGITEM.NUMSEQORIG,
+                       P_REGPEDIDO.CODCLI,
+                       P_REGPEDIDO.CODUSUR,
+                       NULL,
+                       NULL,
+                       P_REGPEDIDO.INTEGRADORA,
+                       P_REGITEM.CODRETORNOS,
+                       '3',
+                       'Erro3:' || VSMENSAGEM,
+                       NULL);
+
+      RETURN;
    ELSE
       SELECT CODCATEGORIA,
              CODEPTO,
