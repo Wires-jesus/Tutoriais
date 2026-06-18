@@ -189,7 +189,7 @@ BEGIN
 			:NEW.ROTINAPAG := VSPROGRAMA;                                                                                                                           		
 	END IF;  
 
-    :NEW.DATAINSERT = TRUNC(SYSDATE);	
+    :NEW.DATAINSERT := TRUNC(SYSDATE);	
                                                                                                                                                               
     IF (:NEW.DTFECHA IS NOT NULL) THEN                                                                                                                        
       :NEW.ROTINAFECHA := VSPROGRAMA;                                                                                                                         
