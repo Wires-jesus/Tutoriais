@@ -444,4 +444,4 @@ EXCEPTION
     ROLLBACK;
     DBMS_OUTPUT.PUT_LINE('Erro na execução: ' || SQLERRM);
     RAISE;
-END
+END;

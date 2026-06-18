@@ -11,7 +11,3 @@
 # Built Visual Studio Code Extensions
 *.vsix
 Package/PKG_REPOSICAOLOJAS/__history/
-
-# Flow Analysis Output
-tools/analysis/*.csv
-docs/superpowers/flows/fluxo-c5-consinco.md
