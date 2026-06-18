@@ -2670,38 +2670,47 @@ IS PRAGMA SERIALLY_REUSABLE;
 
     ----------------------------------------------------------------
     -- DDMEDICA-1706 - Limites Adicionais da 2336 ao Mudar a Posição
+    -- DDVENDAS-60906 - Validar limite de crédito ANTES de validar permissão
     ----------------------------------------------------------------
     IF (pi_nCodRotina = 2336)               AND
        (pi_vChamadaProcesso IN ('VM','MP')) AND
        (vrRetValidacao.vvRejeitado = 'S')   THEN
       
-      IF (NOT F_VERIFICAR_ACESSO_CONTROLE(pi_nCodRotina, 46, pi_nMatricula)) AND
-         (NOT F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
-      
-
-        vrRetValidacao.vvObservacao := '* Usuário sem permissão para liberar pedido com limite de crédito excedido *' || CHR(13) || vrRetValidacao.vvObservacao;
+      -- DDVENDAS-60906: Verificar se cliente tem crédito disponível agora
+      -- Se tiver crédito, libera automaticamente sem exigir permissão 46
+      IF (NVL(vrRetValidacao.vnValorRetSaldoDisp,0) >= NVL(pi_nValorPedido,0)) THEN
+        
+        -- ✅ Cliente tem crédito disponível: libera automaticamente
+        vrRetValidacao.vvRejeitado           := 'N';
+        vrRetValidacao.vvObservacao          := 'Pedido liberado automaticamente - cliente com limite de crédito disponível após atualização.' || CHR(13) || vrRetValidacao.vvObservacao;
+        vrRetValidacao.vvGravarComoBloqueado := 'N';
       
       ELSE
-         
-        vnVLAUTORMENSAL := func_RetonarVlAutorMensal(pi_nCodCli, 
-                                                     pi_nMatricula);
-                     
-        -- O Limite de Crédito da Autorização para o Funcionário é o Limite do Cliente + Extra + Sanzonal
-        vnVlMaxAutorizacao := NVL(vrRetValidacao.vnLimiteCreditoTotal,0) * (NVL(func_RetornarPercExcLimCred(pi_nMatricula),0) / 100);
-  
-        IF (NVL(vnVlMaxAutorizacao,0) = 0) THEN
-          vrRetValidacao.vvObservacao := '* Usuário não pode conceder autorização de crédito *' || CHR(13) || vrRetValidacao.vvObservacao;
+        
+        -- Cliente AINDA não tem crédito suficiente: validar permissão para autorização
+        IF (NOT F_VERIFICAR_ACESSO_CONTROLE(pi_nCodRotina, 46, pi_nMatricula)) AND
+           (NOT F_IGNORARACESSOCONTROLE2336(pi_nCodRotina)) THEN
+        
+          vrRetValidacao.vvObservacao := '* Usuário sem permissão para liberar pedido com limite de crédito excedido *' || CHR(13) || vrRetValidacao.vvObservacao;
+        
         ELSE
-          IF (NVL(vnVLAUTORMENSAL,0) >= (NVL(vnVlMaxAutorizacao,0) + NVL(pi_nValorPedido,0))) THEN
-            vrRetValidacao.vvObservacao := '* Usuário não pode conceder mais autorização de crédito *'                                                  || CHR(13) ||
-                                           'Somatória de limite de crédito autorizado no valor de ' || F_FORMATAR_NUMERO_PARA_TEXTO(vnVLAUTORMENSAL,2)  || CHR(13) ||
-                                           ' superou o limite do usuário no valor de ' || F_FORMATAR_NUMERO_PARA_TEXTO(vnVlMaxAutorizacao,2)            || CHR(13) ||
-                                           '(Ajuste o limite de crédito do cliente ou ajuste o % Excesso limite de crédito do usuario na rotina 528)'   || CHR(13) || 
-                                           vrRetValidacao.vvObservacao;
+           
+          vnVLAUTORMENSAL := func_RetonarVlAutorMensal(pi_nCodCli, 
+                                                       pi_nMatricula);
+                       
+          -- O Limite de Crédito da Autorização para o Funcionário é o Limite do Cliente + Extra + Sanzonal
+          vnVlMaxAutorizacao := NVL(vrRetValidacao.vnLimiteCreditoTotal,0) * (NVL(func_RetornarPercExcLimCred(pi_nMatricula),0) / 100);
+    
+          IF (NVL(vnVlMaxAutorizacao,0) = 0) THEN
+            vrRetValidacao.vvObservacao := '* Usuário não pode conceder autorização de crédito *' || CHR(13) || vrRetValidacao.vvObservacao;
           ELSE
-            -- Saldo Dispoível  menor que Valor do Pedido
-            IF (NVL(vrRetValidacao.vnValorRetSaldoDisp,0) < NVL(pi_nValorPedido,0)) THEN
-            
+            IF (NVL(vnVLAUTORMENSAL,0) >= (NVL(vnVlMaxAutorizacao,0) + NVL(pi_nValorPedido,0))) THEN
+              vrRetValidacao.vvObservacao := '* Usuário não pode conceder mais autorização de crédito *'                                                  || CHR(13) ||
+                                             'Somatória de limite de crédito autorizado no valor de ' || F_FORMATAR_NUMERO_PARA_TEXTO(vnVLAUTORMENSAL,2)  || CHR(13) ||
+                                             ' superou o limite do usuário no valor de ' || F_FORMATAR_NUMERO_PARA_TEXTO(vnVlMaxAutorizacao,2)            || CHR(13) ||
+                                             '(Ajuste o limite de crédito do cliente ou ajuste o % Excesso limite de crédito do usuario na rotina 528)'   || CHR(13) || 
+                                             vrRetValidacao.vvObservacao;
+            ELSE
               -- DDMEDICA-6631 - Zera o Saldo de Limite de Crédito se estiver negativo para não afetar as operações matemáticas com subtração de negativo
               IF (NVL(vrRetValidacao.vnValorRetSaldoDisp,0) < 0) THEN
                 vrRetValidacao.vnValorRetSaldoDisp := 0;
@@ -2766,12 +2775,13 @@ IS PRAGMA SERIALLY_REUSABLE;
                 vrRetValidacao.vvGravarComoBloqueado := 'N';
                     
               END IF; -- Fim Condição: Somente ao mudar a posição do pedido para Liberado que cria a autorização de limite de crédito
-             
-            END IF;        
-          END IF;                                 
-        END IF; 
+              
+            END IF; -- Fim: Verificação de limite de autorização mensal
+          END IF; -- Fim: Verificação de limite máximo de autorização
         
-      END IF; -- Fim: Permissão para Liberar Pedido sem Limite de Crédito
+        END IF; -- Fim: Validação de Permissão para Liberar Pedido sem Limite de Crédito
+      
+      END IF; -- Fim: Verificação se cliente tem crédito disponível agora
       
     END IF; -- Fim: Limites Adicionais da 2336
       
