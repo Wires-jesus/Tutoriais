@@ -6,6 +6,7 @@ REFERENCING NEW AS NEW OLD AS OLD
  FOR EACH ROW
 declare
   vQtVolTipo13  integer;
+  vQtVolTipo17  integer; -- INSERIDO: variável para OS tipo 17
   vQtVolTipo20  integer;
   vQtVolTipo22  integer;
   vQtVolRest    integer;
@@ -334,6 +335,44 @@ where numos IN (SELECT NUMOS
             /* Fim do cÃ¡lculo dos tipoOS 13 */
           end if;
 
+          /* INSERIDO: InÃ­cio dos cÃ¡lculos de volume para o tipo 17 */
+          select count(1)
+            into vQtVolTipo17
+            from pcmovendpend
+           where numped = :new.numped
+             and tipoOS = 17
+             and dtEstorno is null;
+
+          if (nvl(vQtVolTipo17,0) > 0) then
+            /* Por padrÃ£o, sÃ£o somados os volumes que constam na pcmovendpend */
+            select sum(nvl(numVol, 0))
+              into vQtVolTipo17
+              from pcmovendpend
+             where numped = :new.numped
+               and tipoOS = 17
+               and dtEstorno is null;
+
+            /* Caso nÃ£o tenha obtido nenhum volume com a soma, calcula com base no peso */
+            if (nvl(vQtVolTipo17,0) = 0) then
+              select sum(nvl(vol, 0))
+                into vQtVolTipo17
+                from (select sum(ceil(case
+                                        when tipoEstoque = 'FR' then
+                                         pcmovendpend.qt / pcprodut.pesoBrutoMaster
+                                        else
+                                         pcmovendpend.qt / pcprodut.qtUnitCx
+                                      end)) vol
+                        from pcmovendpend, pcprodut
+                       where pcmovendpend.numped = :new.numped
+                         and pcmovendpend.tipoOS = 17
+                         and pcmovendpend.codProd = pcprodut.codProd
+                         and nvl(pcprodut.pesoVariavel, 'N') <> 'S'
+                         and pcmovendpend.dtEstorno is null
+                       group by pcmovendpend.numos);
+            end if;
+          end if;
+          /* INSERIDO: Fim dos cÃ¡lculos de volume para o tipo 17 */
+
           /* InÃ­cio dos cÃ¡lculos de volume para o tipo 20 */
           /* Verifica se existe alguma OS para o tipo 20 antes de iniciar os cÃ¡lculos */
           select count(1)
@@ -404,7 +443,7 @@ where numos IN (SELECT NUMOS
                               nvl((select sum(qt)
                                      from pcmovendpend
                                     where numped = :new.numped
-                                      and tipoOS in (13, 20, 22)
+                                      and tipoOS in (13, 17, 20, 22) -- INSERIDO: 17
                                       and codProd = pcpedi.codProd
                                       and dtEstorno is null),
                                    0)) / (case
@@ -425,8 +464,9 @@ where numos IN (SELECT NUMOS
           /* Fim do cÃ¡lculo dos volumes restantes */
 
           /* Atribui o novo nÃºmero de volumes a coluna da pcpedc.numvolume */
-          :new.numVolume := NVL(vQtVolTipo13,0) + NVL(vQtVolTipo20,0) + NVL(vQtVolTipo22,0) +
-                            NVL(vQtVolRest,0) + NVL (vVolumes3724,0) ;
+          :new.numVolume := NVL(vQtVolTipo13,0) + NVL(vQtVolTipo17,0) + -- INSERIDO: vQtVolTipo17
+                            NVL(vQtVolTipo20,0) + NVL(vQtVolTipo22,0) +
+                            NVL(vQtVolRest,0) + NVL(vVolumes3724,0);
 
           /* Fim do cÃ¡lculo dos volumes por O.S. */
         end if;
