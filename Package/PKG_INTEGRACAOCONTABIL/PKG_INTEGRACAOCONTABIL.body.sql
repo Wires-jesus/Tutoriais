@@ -34,7 +34,7 @@ IS
         TABELAGESTAO VARCHAR2 (100),
         TIPOPARCEIRO VARCHAR2 (1),
         CODPARCEIRO NUMBER (8),
-        DOCUMENTO VARCHAR2 (50),
+        DOCUMENTO VARCHAR2 (60),
         NUMTRANSACAO NUMBER (38)
     );
 
@@ -108,7 +108,8 @@ IS
         NUMINVOCE VARCHAR2 (20),
         NUMPROFORMA VARCHAR2 (20),
         PERCRATEIO NUMBER (18, 6),
-        TEMINTEGRACAO VARCHAR2 (1)
+        NUMNOTASERVICO PCLANC.NUMNOTASERVICO%TYPE,
+        TEMINTEGRACAO VARCHAR2 (1)        
     );
 
     TYPE CONSULTAS_PROVISOES IS TABLE OF CONSULTA_LANCPROVISOES;
@@ -3651,7 +3652,8 @@ IS
             ERRO_MULTIFILIAL VARCHAR2 (1),
             VALORDEVOLUCAO PCLANC.VALORDEV%TYPE,
             VALORDESCVERBAMANUAL PCVERBA.VALOR%TYPE,
-            GERAPROVLANCCONTAB PCCONTA.GERAPROVLANCCONTAB%TYPE
+            GERAPROVLANCCONTAB PCCONTA.GERAPROVLANCCONTAB%TYPE,
+			NUMNOTASERVICO PCLANC.NUMNOTASERVICO%TYPE
         );
 
         ITEM                      CONSULTA_PAGAMENTOS;
@@ -3832,6 +3834,8 @@ IS
                         '3 - PAGAMENTOS: ATRIBUINDO VALOR DO DOCUMENTO';
                     ---------------------------------------------------------------------------------
                     VS_DOCUMENTO := ITENSREGRA.DOCUMENTO;
+					VS_DOCUMENTO :=
+                        REPLACE (VS_DOCUMENTO, 'NUMNOTASERVICO', ITEM.NUMNOTASERVICO);
                     VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO,
                                  'DATAOPERACAO1',
@@ -7944,6 +7948,8 @@ IS
                         '9 - LANÇAMENTOS DE PROVISÕES: ATRIBUINDO VALOR DO DOCUMENTO';
                     ---------------------------------------------------------------------------------
                     VS_DOCUMENTO := ITENSREGRA.DOCUMENTO;
+                    VS_DOCUMENTO :=
+                        REPLACE (VS_DOCUMENTO, 'NUMNOTASERVICO', ITEM.NUMNOTASERVICO);
                     VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'NUMNOTA', ITEM.NUMNOTA);
                     VS_DOCUMENTO :=
@@ -13752,7 +13758,8 @@ IS
             MOEDA PCLANC.MOEDA%TYPE,
             RECNUMPRINC PCLANC.RECNUMPRINC%TYPE,
             TEMINTEGRACAO VARCHAR2 (2),
-            CODCONTADESP PCCONTA.CONTA%TYPE
+            CODCONTADESP PCCONTA.CONTA%TYPE,
+            NUMNOTASERVICO PCLANC.NUMNOTASERVICO%TYPE
         );
 
         ITEM                CONSULTA_PISCOFINSSERVTOMADOS;
@@ -13891,6 +13898,8 @@ IS
                     ---------------------------------------------------------------------------------
 
                     VS_DOCUMENTO := ITENSREGRA.DOCUMENTO;
+                    VS_DOCUMENTO :=
+                        REPLACE (VS_DOCUMENTO, 'NUMNOTASERVICO', ITEM.NUMNOTASERVICO);
                     VS_DOCUMENTO :=
                         REPLACE (VS_DOCUMENTO, 'NUMNOTA', ITEM.NUMNOTA);
                     VS_DOCUMENTO :=
