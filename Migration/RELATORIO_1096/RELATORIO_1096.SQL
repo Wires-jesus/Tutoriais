@@ -67,7 +67,20 @@ VALUES
   ,'Valor do Produto(pUnitCont) + Outras Despesas(vlOutros) - Vl. ST BCR(STBCR) - Vl. ICMS BCR (VLICMSBCR) '
   ,'GREATEST([PUNITCONT] + [VLOUTROS] - [STBCR] - [VLICMSBCR],0)'
   ,34
-  ,SYSDATE);  
+  ,SYSDATE); 
+
+INSERT INTO PCFORMULA
+  (CODFORMULA
+  ,DESCRICAO
+  ,FORMULA
+  ,CODTIPOFORMULA
+  ,DTCADASTRO)
+VALUES
+  ('BASE_PIS_COFINS_5'
+  ,'Valor Prod(pUnitCont) + Vl.Outras Despesas(vlOutrasDesp) + (Vl.Frete) - (Vl.Suframa) - (Vl.Icms Desoneração) - (VlIcms)'
+  ,'GREATEST( [PUNITCONT] + [VLOUTRASDESP] + [VLFRETE] - [VLSUFRAMA] - [VLICMSDESONERACAO] - [VLICMS],0)'
+  ,34
+  ,SYSDATE);   
 
 COMMIT;
 
