@@ -3136,12 +3136,10 @@ PROCEDURE ATUALIZAR_DADOS_XML_CAB(PCODFILIAL     IN VARCHAR2,
 			  FROM (SELECT N.ROWID IDREGISTRO
 					  ,N.NUMNOTA
 					  ,(SELECT MAX(CAST(REGEXP_SUBSTR(D.XMLNFE
-										   ,'<[^>]*infAdFisco[^>]*>(.*?)</[^>]*infAdFisco>'
-										   ,1
-										   ,1
-										   ,'n'
-										   ,1) AS
-								  VARCHAR2(4000)))
+                          ,'&lt;[^&gt;]infAdFisco[^&gt;]&gt;(._?)]_infAdFisco&gt;'
+                          ,1
+                          ,1
+                          ,'n') AS VARCHAR2(4000)))
 						FROM PCDOCELETRONICO D
 					     WHERE D.NUMTRANSACAO = N.NUMTRANSVENDA
 						 AND NVL(D.MOVIMENTO, 'S') = 'S'
@@ -3200,5 +3198,5 @@ EXCEPTION
 END ATUALIZAR_DADOS_XML_CAB;	  
 
 end GERA_HISTORICO;
--- 24/11/2022 - Gleibe - Implementado ajuste de performance.
--- 24/11/2022 - Gleibe - inicio do processo de implementado de parametros de atualização do historico
+-- 22/06/2026 - Implementado ajuste no método ATUALIZAR_DADOS_XML_CAB.
+-- 24/11/2022 - Implementado ajuste de performance.
