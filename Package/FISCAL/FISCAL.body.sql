@@ -2356,7 +2356,7 @@ create or replace package body FISCAL is
                                   ,M.CODOPER
                                   ,max(MC.QTLITRAGEM) QTLITRAGEM
                                   ,max(M.QTCONT) QTCONT
-                                  ,max(NVL(M.VLSUFRAMA, 0)) VLDESCSUFRAMA
+                                  ,max(NVL(M.VLDESCSUFRAMA, NVL(M.VLSUFRAMA,0))) VLDESCSUFRAMA
                                   ----------------------------------------------
                                   ,max(M.PUNITCONT - NVL(M.ST, 0) - NVL(M.VLIPI, 0)  - NVL(MC.VLFECP, 0) +
                                        NVL(M.VLDESCSUFRAMA, 0)) VLPRODUTO
