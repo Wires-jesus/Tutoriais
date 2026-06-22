@@ -1,1 +1,17 @@
-{"nome":"PKG_INTEGRACAOCONTABIL","tipoPLSQL":"PACKAGE","dependencias":[]}
+{"nome":"PKG_INTEGRACAOCONTABIL","tipoPLSQL":"PACKAGE","dependencias":[
+		{
+		  "nome": "PCLANC",
+		  "tipo": "TABELA",
+		  "versao": "8.0.06.000"
+		},
+		{
+		  "nome": "PCNFSAID",
+		  "tipo": "TABELA",
+		  "versao": "8.0.10.000"
+		},
+		{
+		  "nome": "PCNFENT",
+		  "tipo": "TABELA",
+		  "versao": "8.0.13.000"
+		}
+]}
