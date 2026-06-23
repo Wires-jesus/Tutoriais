@@ -2,7 +2,7 @@
 -- Descrição: Orquestra os processos de carga. 
 -- Alteração: Ativação do CDC movida para o início da Carga Inicial para garantir captura durante o processo.
 
-CREATE OR REPLACE PACKAGE PKG_SL_ORCHESTRATOR AS
+CREATE OR REPLACE PACKAGE PKG_SL_ORCHESTRATOR AUTHID CURRENT_USER AS
 
     -- Inicia o processo de carga inicial e ativa o CDC imediatamente.
     PROCEDURE START_INITIAL_LOAD_PROCESS;
