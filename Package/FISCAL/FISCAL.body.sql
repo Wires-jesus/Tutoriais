@@ -5458,58 +5458,12 @@ create or replace package body FISCAL is
    END;
  END;
 
- ----------
   FUNCTION GET_HORACERTA_TIMEZONE(P_UF VARCHAR2) RETURN DATE IS
-    /*
-    * Método que faz o cálculo da data e hora correta de acordo com o fusorário da uf
-    * Author: Eddy Pereira
-    *OBS: só funciona se a tabela PCESTADOTIMEZONE estiver populada. Quem popula é a rotina 820 do WTA.
-    */
-    V_DATA_CORRETA DATE;
-    V_TIMEZONE     VARCHAR2(100);
-
   BEGIN
-    BEGIN
-      --INICIALIZA A VARIÁVEL DE RETORNO
-      V_DATA_CORRETA := SYSDATE;
-
-      --CASO A UF ESTEJA NULA, DEVOLVE A DATA DO BANCO
-      IF (P_UF IS NULL) THEN
-        RETURN V_DATA_CORRETA;
-      END IF;
-
-      BEGIN
-        --PEGA O INTERVALO DA ZONA DA UF
-        SELECT REGEXP_SUBSTR(TIMEZONE, '(-?\d{2})') TIMEZONE
-          INTO V_TIMEZONE
-          FROM PCESTADOTIMEZONE
-         WHERE UPPER(SIGLAESTADO) = UPPER(P_UF);
-      EXCEPTION
-        WHEN OTHERS THEN
-          --CASO NÃO TENHA REGISTRO NA TABELA, RETORNA A DATA DO BANCO
-          RETURN V_DATA_CORRETA;
-      END;
-
-      --FAZ O CÁLCULO DE ACORDO COM O TIMEZONE DA UF
-      SELECT CAST(((CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + NUMTODSINTERVAL(V_TIMEZONE, 'HOUR')) AS DATE) AS HORA_AJUSTADA
-        INTO V_DATA_CORRETA
-        FROM DUAL;
-
-      IF (V_DATA_CORRETA IS NOT NULL) THEN
-        RETURN V_DATA_CORRETA;
-      ELSE
-        RETURN SYSDATE;
-      END IF;
-
-    EXCEPTION
-      WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE(SQLERRM);
-        RETURN V_DATA_CORRETA;
-    END;
-
+    RETURN FERRAMENTAS_DOCFISCAL.GET_HORACERTA_TIMEZONE(P_UF);
   END;
- ----------
-  FUNCTION OBTER_ALIQUOTAS_PISCOFINS(P_CODPROD   IN NUMBER,
+ 
+ FUNCTION OBTER_ALIQUOTAS_PISCOFINS(P_CODPROD   IN NUMBER,
                                      P_CODFISCAL IN NUMBER,
                                      P_CODOPER   IN VARCHAR2,
                                      P_CONDVENDA IN NUMBER,
@@ -5687,34 +5641,6 @@ create or replace package body FISCAL is
 
   END;
 
-  FUNCTION GET_VIGENCIANTSEFAZ(P_IDENTIFICADORNT IN VARCHAR2,
-                               P_DATADOCUMENTO IN DATE) RETURN VARCHAR2 IS
-    vDATAINICIALVIGENCIA DATE;
-    vDATAFINALVIGENCIA   DATE;
-    vRESULTADO           VARCHAR2(1);
-  BEGIN
-    BEGIN
-      SELECT DATAINICIALVIGENCIA,
-             NVL(DATAFINALVIGENCIA,TO_DATE('01/01/2999','DD/MM/YYYY'))
-        INTO vDATAINICIALVIGENCIA,
-             vDATAFINALVIGENCIA
-        FROM PCVIGENCIANTSEFAZ
-       WHERE UPPER(IDENTIFICADOR_NT) = UPPER(P_IDENTIFICADORNT);
-
-       IF vDATAINICIALVIGENCIA <= P_DATADOCUMENTO AND
-          vDATAFINALVIGENCIA >= P_DATADOCUMENTO THEN
-          vRESULTADO := 'S';
-       ELSE
-         vRESULTADO := 'N';
-       END IF;
-    EXCEPTION
-      WHEN NO_DATA_FOUND THEN
-        vRESULTADO := 'N';
-    END;
-
-    RETURN  vRESULTADO;
-  END;
-
   FUNCTION GET_NATUREZAOPERACAO(P_CODFISCAL IN VARCHAR2,
                                 P_CODOPER IN VARCHAR2,
                                 P_CODROTINAEMISSAO IN VARCHAR2 := 0) RETURN VARCHAR2 IS
@@ -5756,56 +5682,13 @@ create or replace package body FISCAL is
 
   FUNCTION NFE_DENEGADA(P_SITUACAONFE IN VARCHAR2,
                         P_DATADOCUMENTOS IN DATE := SYSDATE) RETURN VARCHAR2 IS
-  vRetorno VARCHAR2(1);
-  vDataDocumentos DATE;
   BEGIN
-    BEGIN
-
-      IF P_DATADOCUMENTOS IS NULL THEN
-        vDataDocumentos := TRUNC(SYSDATE); /*Em alguns casos o valor default não está sendo passado para o parâmetro*/
-      ELSE
-        vDataDocumentos := P_DATADOCUMENTOS;
-      END IF;
-
-      IF (P_SITUACAONFE IS NOT NULL) THEN
-        vRetorno := 'N';
-
-        IF GET_VIGENCIANTSEFAZ('NFE-NT2024.001-CRT-MEIv1.10', vDataDocumentos) = 'N' THEN
-          IF (P_SITUACAONFE IN ('110','205','301','302','303','307')) THEN
-            vRetorno := 'S';
-          END IF;
-        ELSE
-          IF (P_SITUACAONFE IN ('110','205')) THEN
-            vRetorno := 'S';
-          END IF;
-        END IF;
-      ELSE
-        vRetorno := 'N';
-      END IF;
-    EXCEPTION
-      WHEN OTHERS THEN
-        vRetorno := 'N';
-    END;
-
-    RETURN vRetorno;
+    RETURN FERRAMENTAS_DOCFISCAL.NFE_DENEGADA(P_SITUACAONFE, P_DATADOCUMENTOS);
   END;
 
   FUNCTION CTE_DENEGADO(P_SITUACAOCTE IN VARCHAR2) RETURN VARCHAR2 IS
   BEGIN
-    BEGIN
-      IF (P_SITUACAOCTE IS NOT NULL) THEN
-        IF (P_SITUACAOCTE IN ('110','205','301')) THEN
-          RETURN 'S';
-        ELSE
-          RETURN 'N';
-        END IF;
-      ELSE
-        RETURN 'N';
-      END IF;
-    EXCEPTION
-      WHEN OTHERS THEN
-        RETURN 'N';
-    END;
+    RETURN FERRAMENTAS_DOCFISCAL.CTE_DENEGADO(P_SITUACAOCTE);
   END;
 
  FUNCTION GET_DESCRICAO_NATUREZA_OP(
