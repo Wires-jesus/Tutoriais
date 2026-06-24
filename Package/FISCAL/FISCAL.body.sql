@@ -313,7 +313,6 @@ create or replace package body FISCAL is
                           (NVL(B.BASEICMS,0) <= 0) or (NVL(B.PERCICM,0) <= 0) THEN
                             0
                      ELSE
----------------
                       DECODE(B.CODOPER,'ET',
                           DECODE(DECODE(LENGTH(NVL(B.SITTRIBUT, 0)), 3, SUBSTR(B.SITTRIBUT, 2, 3), B.SITTRIBUT), '51',
                                  ROUND( ROUND(B.QTCONT * NVL(B.BASEICMS,0),2) * NVL(B.PERCICM, 0) / 100, 2) -
