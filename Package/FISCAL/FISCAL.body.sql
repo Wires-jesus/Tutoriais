@@ -6458,7 +6458,8 @@ create or replace package body FISCAL is
                WHEN ''E'' THEN 2
                WHEN ''A'' THEN 3
                ELSE 3
-            END
+            END,
+               PCTRIBUTACAO.CODIGO_TRIBUTACAO
     )
     WHERE ROWNUM = 1;';
     PKG_DEBUGGING_FWPC.LOG_SQL(V_SQL , 'S');
@@ -6725,7 +6726,8 @@ create or replace package body FISCAL is
                WHEN 'E' THEN 2
                WHEN 'A' THEN 3
                ELSE 3
-            END
+             END,
+             PCTRIBUTACAO.CODIGO_TRIBUTACAO
     )
     WHERE ROWNUM = 1;
 
@@ -6853,6 +6855,10 @@ create or replace package body FISCAL is
     ELSIF CONSULTA_TRIBUTOS('G', 'BR') THEN
       PKG_DEBUGGING_FWPC.LOG('Tributação localizada por Nação: BR', 'S');
 
+    -- Senão tenta Exterior
+    ELSIF CONSULTA_TRIBUTOS('G', 'EX') THEN
+      PKG_DEBUGGING_FWPC.LOG('Tributação localizada Exterior: EX', 'S');
+
     ELSE
       PKG_DEBUGGING_FWPC.LOG('Nenhuma configuração encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
     END IF;
@@ -6862,7 +6868,6 @@ create or replace package body FISCAL is
   
   ------------------------------------------------ // -----------------------------------------------
  
-
   FUNCTION GET_DADOS_TRIBUTO_REGULAR(P_PARAMETROS IN TIPO_TRIBUT_REFORMA)
   RETURN TIPO_TRIBUT_REFORMA IS
     V_PARAMETROS TIPO_TRIBUT_REFORMA := P_PARAMETROS;
@@ -7124,7 +7129,7 @@ create or replace package body FISCAL is
       
        V_PARAMETROS.DADOS_DIFERIMENTO_CBS.VALOR_DIFERIMENTO    := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100)    * V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO/100),10);
        V_PARAMETROS.DADOS_DIFERIMENTO_IBS_UF.VALOR_DIFERIMENTO := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100) * V_PARAMETROS.DADOS_DIFERIMENTO_IBS_UF.PERC_DIFERIMENTO/100),10);     
-       V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.VALOR_DIFERIMENTO:= ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100)* V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO/100),10);
+       V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.VALOR_DIFERIMENTO := ROUND((((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100) * V_PARAMETROS.DADOS_DIFERIMENTO_IBS_MUN.PERC_DIFERIMENTO/100),10);
 
        VARIAVEL.NOME  := '[ALIQUOTA_CBS]';
        VARIAVEL.VALOR := V_ALIQ_EFETIVA_CBS;
@@ -7158,6 +7163,19 @@ create or replace package body FISCAL is
          V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),10);
          V_PARAMETROS.VLTOTALIBS    := ROUND(V_PARAMETROS.VALOR_IBS_UF,10) + ROUND(V_PARAMETROS.VALOR_IBS_MUN,10);
        END IF; 
+
+       -- Se Diferimento, então os valores devem ser aplicados com a aliquota já reduzida pro referimento.
+       IF V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO > 0 THEN 
+         V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS_DIFERIM)/100),10);
+         V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF_DIFERIM)/100),10);
+         V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN_DIFERIM)/100),10);
+         V_PARAMETROS.VLTOTALIBS    := ROUND(V_PARAMETROS.VALOR_IBS_UF,10) + ROUND(V_PARAMETROS.VALOR_IBS_MUN,10);
+       ELSE 
+         V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS)/100),10);
+         V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF)/100),10);
+         V_PARAMETROS.VALOR_IBS_MUN := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),10);
+         V_PARAMETROS.VLTOTALIBS    := ROUND(V_PARAMETROS.VALOR_IBS_UF,10) + ROUND(V_PARAMETROS.VALOR_IBS_MUN,10);
+       END IF;
 
     END CALCULAR_VALOR_CBSIBS;
  -- 
@@ -8029,3 +8047,6 @@ create or replace package body FISCAL is
   END CODIGO_BENEFICIO_FISCAL;  
 
 END;
+-- Alteração 24/06/2026 - Implementado ajuste na pesquisa do fornecedor. A uf passa a ser do cadastro e não mais da cidade vinculada ao fornecedor
+-- Alteração 15/06/2026 - Implementado retorno das regras de pesquisa da pkg anterior. Foi mantido o ajuste do diferimento e mensagem de retorno do optante nacional
+-- Alteração 12/06/2026 - Ajuste nos valores quando tributação for com diferimento + Alteração na ordenação da pesquisa da tributação
