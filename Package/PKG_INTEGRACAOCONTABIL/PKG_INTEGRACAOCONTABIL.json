@@ -13,5 +13,10 @@
 		  "nome": "PCNFENT",
 		  "tipo": "TABELA",
 		  "versao": "8.0.13.000"
+		},
+		{
+		  "nome": "PCLOGLANCAMENTO",
+		  "tipo": "TABELA",
+		  "versao": "8.0.02.000"
 		}
 ]}
