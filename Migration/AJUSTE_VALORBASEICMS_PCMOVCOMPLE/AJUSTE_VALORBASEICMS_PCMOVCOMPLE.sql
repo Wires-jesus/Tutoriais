@@ -1,4 +1,6 @@
 DECLARE
+    v_data_corte DATE := TRUNC(SYSDATE) - 90;
+    
     -- Declaração do cursor com as regras da sua query otimizada
     CURSOR c_correcao IS
         SELECT m.numtransitem,
@@ -6,8 +8,8 @@ DECLARE
           FROM pcmov m
          INNER JOIN pcmovcomple mc
             ON m.numtransitem = mc.numtransitem
-         WHERE m.dtmov >= TRUNC(SYSDATE) - 90
-           AND m.rotinacad = UPPER('AUTOSERVICO.FATURAMENTO.EXE')
+         WHERE m.dtmov >= v_data_corte
+           AND m.rotinacad = 'AUTOSERVICO.FATURAMENTO.EXE'
            AND m.sittribut = '00'
            AND (mc.VLBASEFCPICMS IS NULL OR mc.VLBASEFCPICMS = 0)
            AND mc.vlacrescimofuncep > 0
@@ -30,13 +32,16 @@ BEGIN
             COMMIT;
         END IF;
         
-    END LOOP;    -- Efetiva os registros restantes e finaliza
+    END LOOP;    
+    
+    -- Efetiva os registros restantes e finaliza
     COMMIT;
     
     -- Imprime no console a quantidade de linhas que foram corrigidas
     DBMS_OUTPUT.PUT_LINE('Correção concluída com sucesso!');
     DBMS_OUTPUT.PUT_LINE('Total de registros atualizados: ' || v_qtd_atualizados);
-	EXCEPTION
+    
+EXCEPTION
     -- Em caso de erro, desfaz tudo que não foi "commitado" e exibe o problema
     WHEN OTHERS THEN
         ROLLBACK;
