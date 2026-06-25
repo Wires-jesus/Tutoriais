@@ -5461,10 +5461,6 @@ create or replace package body FISCAL is
     RETURN FERRAMENTAS_DOCFISCAL.GET_HORACERTA_TIMEZONE(P_UF);
   END;
 
-  BEGIN
-    RETURN FERRAMENTAS_DOCFISCAL.GET_HORACERTA_TIMEZONE(P_UF);
-  END;
- 
  FUNCTION OBTER_ALIQUOTAS_PISCOFINS(P_CODPROD   IN NUMBER,
                                      P_CODFISCAL IN NUMBER,
                                      P_CODOPER   IN VARCHAR2,
@@ -6859,10 +6855,6 @@ create or replace package body FISCAL is
     ELSIF CONSULTA_TRIBUTOS('G', 'BR') THEN
       PKG_DEBUGGING_FWPC.LOG('Tributação localizada por Nação: BR', 'S');
 
-    -- Senão tenta Exterior
-    ELSIF CONSULTA_TRIBUTOS('G', 'EX') THEN
-      PKG_DEBUGGING_FWPC.LOG('Tributação localizada Exterior: EX', 'S');
-
     ELSE
       PKG_DEBUGGING_FWPC.LOG('Nenhuma configuração encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
     END IF;
@@ -7406,7 +7398,7 @@ create or replace package body FISCAL is
         PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do código de município para o codfornec: '||V_PARAMETROS.CODFORNEC,'S');
 
         SELECT PCCIDADE.CODIBGE,
-               PCCIDADE.UF,
+               NVL(PCFORNEC.ESTADO, PCCLIENT.ESTENT) UF,
                PCCLIENT.CONSUMIDORFINAL,
                PCCLIENT.TIPOEMPRESA,
                PCCLIENT.TIPOFJ,
