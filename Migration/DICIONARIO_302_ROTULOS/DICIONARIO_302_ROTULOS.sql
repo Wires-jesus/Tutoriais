@@ -1,13 +1,64 @@
-BEGIN
-  --Adicionar o valor LR na lista do rotulo PRECONFE
-  INSERT INTO PCROTULOITEM(
-    ID, DESCRICAO, VALOR, DTCADASTRO, CRIADOPELOCLIENTE
-  ) VALUES(
-    'PRECONFE', 'LR - Preço Líquido + Repasse (LR)', 'LR', sysdate, 'N'
-  ); 
+DECLARE
+  VEXISTE NUMBER;
+BEGIN    
+  -- PRECONFE
+  SELECT COUNT(*)
+    INTO VEXISTE
+    FROM PCROTULOITEM
+   WHERE ID = 'PRECONFE'
+     AND VALOR = 'LR';
 
+  IF VEXISTE = 0 THEN
+    INSERT INTO PCROTULOITEM
+	(ID
+	,DESCRICAO
+	,VALOR
+	,DTCADASTRO
+	,CRIADOPELOCLIENTE)
+    VALUES
+	('PRECONFE'
+	,'LR - Preço Líquido + Repasse (LR)'
+	,'LR'
+	,SYSDATE
+	,'N');
+  END IF;  
   
----------------------------------------------------------------
-  COMMIT;     
----------------------------------------------------------------
+  -- REIDI
+  SELECT COUNT(*)
+    INTO VEXISTE
+    FROM PCROTULOITEM
+   WHERE ID = 'TIPOEMPRESA'
+     AND VALOR = 'REIDI';
+
+  IF VEXISTE = 0 THEN
+    INSERT INTO PCROTULOITEM
+	(ID
+	,DESCRICAO
+	,VALOR)
+    VALUES
+	('TIPOEMPRESA'
+	,'Beneficiário REIDI'
+	,'REIDI');
+  END IF;
+
+  -- SUFRAMA
+  SELECT COUNT(*)
+    INTO VEXISTE
+    FROM PCROTULOITEM
+   WHERE ID = 'TIPOEMPRESA'
+     AND VALOR = 'SUFRAMA';
+
+  IF VEXISTE = 0 THEN
+    INSERT INTO PCROTULOITEM
+	(ID
+	,DESCRICAO
+	,VALOR)
+    VALUES
+	('TIPOEMPRESA'
+	,'Suframa'
+	,'SUFRAMA');
+  END IF;
+
+  COMMIT;
+
 END;
