@@ -227,6 +227,7 @@ BEGIN
                  AND PCFILIAL.CODIGO = P_CODFILIAL
                  AND SUBSTR(TO_CHAR(PCNFSAIDPREFAT.DTSAIDA, 'YYYY'), 3, 2) =
                      SUBSTR(LPAD(TO_CHAR(P_ANO), 4, '0'), 3, 2)
+                 AND NVL(PCNFSAIDPREFAT.NUMCUPOM, 0) = 0
                  AND PCNFSAIDPREFAT.DTSAIDA >= TRUNC(PCFILIAL.DTUTILIZANFE)
               UNION ALL
               SELECT COUNT(*) QT, MAX('N') PREFTURAMENTO
@@ -239,6 +240,7 @@ BEGIN
                  AND PCFILIAL.CODIGO = P_CODFILIAL
                  AND SUBSTR(TO_CHAR(PCNFSAID.DTSAIDA, 'YYYY'), 3, 2) =
                      SUBSTR(LPAD(TO_CHAR(P_ANO), 4, '0'), 3, 2)
+                 AND NVL(PCNFSAID.NUMCUPOM, 0) = 0
                  AND PCNFSAID.DTSAIDA >= TRUNC(PCFILIAL.DTUTILIZANFE));
 
       IF VNTOTAL = 0 THEN
@@ -293,6 +295,9 @@ BEGIN
            WHERE NUMNOTA = I
              AND SERIE = TO_CHAR(P_SERIE)
              AND NVL(CODFILIALNF, CODFILIAL) = P_CODFILIAL
+             AND SUBSTR(TO_CHAR(DTSAIDA, 'YYYY'), 3, 2) =
+                 SUBSTR(LPAD(TO_CHAR(P_ANO), 4, '0'), 3, 2)
+             AND NVL(NUMCUPOM, 0) = 0
              AND ESPECIE <> 'NS';
         ELSE
 
@@ -301,6 +306,9 @@ BEGIN
            WHERE NUMNOTA = I
              AND SERIE = TO_CHAR(P_SERIE)
              AND NVL(CODFILIALNF, CODFILIAL) = P_CODFILIAL
+             AND SUBSTR(TO_CHAR(DTSAIDA, 'YYYY'), 3, 2) =
+                 SUBSTR(LPAD(TO_CHAR(P_ANO), 4, '0'), 3, 2)
+             AND NVL(NUMCUPOM, 0) = 0
              AND ESPECIE <> 'NS';
         END IF;
       END IF;
