@@ -12505,6 +12505,71 @@ IS
 
         RETURN RESULTADO;
     END;
+    
+    FUNCTION SQL_MOV_BANCO_FATO_4(PBUSCARDADOSPELADATA IN VARCHAR2) RETURN VARCHAR2
+      IS
+      V_SQL VARCHAR2(20000);
+    BEGIN
+      --Por pagamento  
+      IF PBUSCARDADOSPELADATA = 'P' THEN  
+      V_SQL :=  'SELECT R.DTCOMPENSACAO,                                               
+           SUM(R.VALOR) VLRMOVCR,                                                        
+           R.CODBANCO,                                                                     
+           R.CODCOB,                                                                          
+           MAX(R.HISTORICO) HISTORICO,                                                                 
+           MAX(R.HISTORICO2) HISTORICO2,                                                               
+           R.CODROTINALANC,                   
+           R.CODFUNCESTORNOCONCIL,                             
+           R.DTESTORNO,                                              
+           R.INDICE,                                                    
+           R.NUMTRANS                                                       
+      FROM PCMOVCR R
+      JOIN PCPREST P2 ON P2.NUMTRANS = R.NUMTRANS 
+                     AND P2.CODCOBBANCO = R.CODCOB
+                     AND P2.CODBANCO = R.CODBANCO
+     WHERE P2.DTPAG BETWEEN :DATA1 AND :DATA2 
+       AND P2.DTBAIXA = R.DATA            
+       AND P2.CODCOB NOT IN (''DESD'', ''DEVT'', ''DEVP'', ''BNF'') 
+       AND P2.NUMTRANS > 0 
+       AND P2.DTFECHAVENDOR IS NULL  
+       &MACROESTORNO2& 
+       AND R.CODROTINALANC NOT IN (402,409,410,4149,41491) 
+       AND SUBSTR(UPPER(NVL(R.HISTORICO,''X'')), 1, 17) <> ''DIF. BAIXA DE DNI''                        
+       AND NVL(R.ESTORNO, ''N'') = ''N''                                                       
+
+       AND NVL(P2.CODFILIALNF, P2.CODFILIAL) IN (SELECT CODFILIAL FROM FILIAISREGRA)
+                                          
+     GROUP BY R.DTCOMPENSACAO, R.CODBANCO, R.CODCOB, R.CODROTINALANC, R.CODFUNCESTORNOCONCIL, R.DTESTORNO, R.INDICE, R.NUMTRANS'; 
+     ELSE
+       V_SQL := 'SELECT R.DTCOMPENSACAO,  
+                         SUM(R.VALOR) VLRMOVCR,                                                 
+                         R.CODBANCO,                                                            
+                         R.CODCOB,                                                              
+                         MAX(R.HISTORICO) HISTORICO,                                            
+                         MAX(R.HISTORICO2) HISTORICO2,                                          
+                         R.CODROTINALANC,                                                       
+                         R.CODFUNCESTORNOCONCIL,                                                
+                         R.DTESTORNO,                                                           
+                         R.INDICE,                                                              
+                         R.NUMTRANS                                                             
+                    FROM PCMOVCR  R                                   
+                    WHERE R.DATA BETWEEN :DATA1 AND :DATA2 
+                    AND R.CODROTINALANC NOT IN (402,409,410,4149,41491) 
+                    AND SUBSTR(UPPER(NVL(R.HISTORICO,''X'')), 1, 17) <> ''DIF. BAIXA DE DNI''   
+                    AND NVL(R.ESTORNO, ''N'') = ''N''                                          
+            
+                   GROUP BY R.DTCOMPENSACAO,                                                    
+                            R.CODBANCO,                                                         
+                            R.CODCOB,                                                           
+                            R.CODROTINALANC,                                                    
+                            R.CODFUNCESTORNOCONCIL,                                             
+                            R.DTESTORNO,                                                        
+                            R.INDICE,                                                           
+                            R.NUMTRANS';
+     END IF;
+     
+     RETURN  V_SQL;
+    END;    
 
     FUNCTION F_PREPARA_SQL_FATO_PELA_REGRA (PCODREGRA    IN NUMBER,
                                             PCODFILIAL   IN VARCHAR2)
@@ -12549,14 +12614,16 @@ IS
          WHERE     CODREGRA = PCODREGRA
                AND TRIM (I.CODFILIALLANCTO) <> 'FILIALLANCAMENTO';
 
+        SELECT SQLFATOGERADOR
+          INTO V_SQLFATO
+        FROM PCFATOGERADOR
+        WHERE CODFATOGERADOR = V_CODFATOGERADOR;
+        
+        IF V_CODFATOGERADOR = 4 THEN
+              V_SQLFATO := REPLACE (V_SQLFATO, '&MACROPCMOVCR&' ,SQL_MOV_BANCO_FATO_4(VS_BUSCARDADOSPELADATA)); 
+        END IF;     
         --Verifica se contabiliza estorno para buscar SQL
-        IF VS_CONTABILIZAESTORNO = 'N'
-        THEN
-            SELECT SQLFATOGERADOR
-              INTO V_SQLFATO
-              FROM PCFATOGERADOR
-             WHERE CODFATOGERADOR = V_CODFATOGERADOR;
-        ELSIF V_CODFATOGERADOR = 3
+        IF V_CODFATOGERADOR = 3
         THEN
             SELECT SQLFATOGERADOR
               INTO V_SQLFATO
@@ -12638,11 +12705,12 @@ IS
                         V_SQLFATO,
                         '&MACROESTORNO&',
                         ' AND (P.PERMITEESTORNO = ''S'' OR ((P.CODCOB <> ''ESTR'') AND P.PERMITEESTORNO IS NULL))  ');
-                V_SQLFATO :=
-                    REPLACE (
-                        V_SQLFATO,
-                        '&MACROESTORNO2&',
-                        ' AND (P2.PERMITEESTORNO = ''S'' OR ((P2.CODCOB <> ''ESTR'') AND P2.PERMITEESTORNO IS NULL))  ');
+                
+                  V_SQLFATO :=
+                      REPLACE (
+                          V_SQLFATO,
+                          '&MACROESTORNO2&',
+                          ' AND (P2.PERMITEESTORNO = ''S'' OR ((P2.CODCOB <> ''ESTR'') AND P2.PERMITEESTORNO IS NULL))  ');
             END IF;
         END IF;
 
