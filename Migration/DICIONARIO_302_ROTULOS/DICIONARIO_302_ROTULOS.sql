@@ -22,6 +22,20 @@ BEGIN
 	,SYSDATE
 	,'N');
   END IF;  
+
+  -- Corrige cadastro antigo do REIDI
+  UPDATE PCROTULOITEM
+     SET VALOR     = 'REID',
+         DESCRICAO = 'Beneficiário REIDI'
+   WHERE ID = 'TIPOEMPRESA'
+     AND VALOR = 'REIDI';
+
+  -- Corrige cadastro antigo da SUFRAMA
+  UPDATE PCROTULOITEM
+     SET VALOR     = 'SUFR',
+         DESCRICAO = 'Suframa'
+   WHERE ID = 'TIPOEMPRESA'
+     AND VALOR = 'SUFRAMA';
   
   -- REIDI
   SELECT COUNT(*)
