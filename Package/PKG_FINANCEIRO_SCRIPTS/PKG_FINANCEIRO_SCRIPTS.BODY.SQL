@@ -48,7 +48,7 @@ IS
                  ,CODCOBSEFAZ              ,RAZAOCREDENCCARTAO       ,CNPJCREDENCCARTAO     ,NSUTEF             
                  ,BANDEIRACARTAO           ,CODMOEDABAIXA            ,REINFEVENTOR4040      ,CODSERVICOSPEDIRPJ 
                  ,CODSERVICOSPEDIRPF       ,CODSERVICOSPEDBNI        ,CODTIPOCHAVEPIX       ,TIPOCHAVEPIX       
-                 ,CHAVEPIX                 ,QRCODEPIX                ,DTCOMPETENCIAIRRETIDO 
+                 ,CHAVEPIX                 ,QRCODEPIX                ,DTCOMPETENCIAIRRETIDO ,NUMNOTASERVICO
 				 ,VLBASEIR                 ,VLBASEPCC
 			   ';
 			   
