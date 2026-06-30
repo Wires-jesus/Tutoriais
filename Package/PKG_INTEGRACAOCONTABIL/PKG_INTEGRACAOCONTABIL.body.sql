@@ -2030,7 +2030,8 @@ IS
             VALORCAPATAZIA PCNFBASEENT.VLCAPATAZIA%TYPE,
             VALORAFRMM PCNFBASEENT.VLAFRMM%TYPE,
             VALORADUANEIRA PCNFBASEENT.VLADUANEIRA%TYPE,
-            VALOROUTRASDESPIMP PCNFBASEENT.VLOUTRASDESP%TYPE,
+            VALOROUTRASDESPIMP PCNFBASEENT.VLOUTRASDESPIMP%TYPE,
+			VALOROUTRASDESP PCNFBASEENT.VLOUTRASDESP%TYPE,
             VALORANTIDUMPING PCNFBASEENT.VLANTIDUMPING%TYPE,
             VALORSEGURO PCNFBASEENT.VLSEGURO%TYPE,
             VALOROUTROSCUSTOS PCNFBASEENT.VLOUTROSCUSTOSCUSTO%TYPE,
@@ -2389,6 +2390,13 @@ IS
                             VS_FORMULA,
                             'VALOROUTRASDESPIMP([^_[:alnum:]])',
                             NVL (ITEM.VALOROUTRASDESPIMP, 0) || '\1');
+							
+					VS_FORMULA :=
+                        REGEXP_REPLACE (
+                            VS_FORMULA,
+                            'VALOROUTRASDESP([^_[:alnum:]])',
+                            NVL (ITEM.VALOROUTRASDESP, 0) || '\1');	
+							
                     VS_FORMULA :=
                         REGEXP_REPLACE (
                             VS_FORMULA,
