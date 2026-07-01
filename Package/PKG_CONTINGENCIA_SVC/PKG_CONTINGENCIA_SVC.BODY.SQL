@@ -86,7 +86,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
             CAB_SAIDA.NUMTRANSVENDA            := FERRAMENTAS.F_PROX_NUMTRANSVENDA;
             CAB_SAIDA.NUMNOTA                  := DADOS.NUMNOTA;
             CAB_SAIDA.ESPECIE                  := 'NF';
-            CAB_SAIDA.SITUACAONFE              := P_SITUACAONFE;
+            CAB_SAIDA.SITUACAONFE              := 100; --P_SITUACAONFE;
             CAB_SAIDA.SERIE                    := P_SERIE;
             CAB_SAIDA.CHAVENFE                 := P_CHAVENFE;
             CAB_SAIDA.PROTOCOLONFE             := P_PROTOCOLONFE;
@@ -106,6 +106,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
             CAB_SAIDA.NUMCAR                   := NULL;
             CAB_SAIDA.NUMPED                   := NULL;
             CAB_SAIDA.DTHORAAUTORIZACAOSEFAZ   := NULL;
+            CAB_SAIDA.PROTOCOLOCANCELAMENTO    := NULL;
 
             IF (DADOS.NF_ORIGEM_CANCELADA = 'S') THEN
               CAB_SAIDA.VLTOTAL := DADOS.NF_ORIGEM_VLTOTAL;
@@ -166,6 +167,34 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                 END;
               END IF;
             END LOOP;
+            
+           MERGE INTO PCNFSAID M
+            USING (
+                SELECT NUMTRANSVENDA,
+                       SUM(ROUND(VLIPI * QTCONT, 2)) AS TOT_VLIPI,
+                       SUM(ROUND(VLBASEIPI * QTCONT, 2)) AS TOT_VLBASEIPI,
+                       SUM(ROUND(BASEICST * QTCONT, 2)) AS TOT_VBCST,
+                       SUM(ROUND(ST * QTCONT, 2)) AS TOT_VICMSRETIDO,
+                       SUM(ROUND(VLDESCONTO * QTCONT, 2)) AS TOT_VLDESCONTO,
+                       SUM(ROUND(VLOUTRASDESP * QTCONT, 2)) AS TOT_VVLOUTRASDESP,
+                       SUM(ROUND(VLFRETE * QTCONT, 2)) AS TOT_VVLFRETE,
+                       SUM(ROUND(PUNITCONT * QTCONT, 2)) AS TOT_PRODUTOS
+                  FROM PCMOV
+                 WHERE NUMTRANSVENDA = V_NUMTRANSACAO
+                   AND QTCONT > 0
+              GROUP BY NUMTRANSVENDA) D
+            ON (M.NUMTRANSVENDA = D.NUMTRANSVENDA)
+            WHEN MATCHED THEN
+              UPDATE SET 
+                M.VLIPI        = D.TOT_VLIPI,
+                M.VLBASEIPI    = D.TOT_VLBASEIPI,
+                M.BCST         = D.TOT_VBCST,
+                M.ICMSRETIDO   = D.TOT_VICMSRETIDO,
+                M.VLDESCONTO   = D.TOT_VLDESCONTO,
+                M.VLOUTRASDESP = D.TOT_VVLOUTRASDESP,
+                M.VLFRETE      = D.TOT_VVLFRETE,
+                M.VLTOTAL      = D.TOT_PRODUTOS,
+                M.VLTOTGER     = D.TOT_PRODUTOS; 
 
            UPDATE PCINUTILIZARNFE
               SET NUMTRANSACAONOVA = CAB_SAIDA.NUMTRANSVENDA
@@ -220,7 +249,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
             CAB_ENT.NUMTRANSENT     := FERRAMENTAS.F_PROX_NUMTRANSENT;
             CAB_ENT.NUMNOTA         := DADOS.NUMNOTA;
             CAB_ENT.ESPECIE         := 'NF';
-            CAB_ENT.SITUACAONFE     := P_SITUACAONFE;
+            CAB_ENT.SITUACAONFE     := 100; --P_SITUACAONFE;
             CAB_ENT.SERIE           := P_SERIE;
             CAB_ENT.CHAVENFE        := P_CHAVENFE;
             CAB_ENT.PROTOCOLONFE    := P_PROTOCOLONFE;
@@ -229,6 +258,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
             CAB_ENT.OBS             := 'NOTA FISCAL DUPLICADA. NUMTRANSENT REF: ' || DADOS.NUMTRANSACAO;
             CAB_ENT.TIPOEMISSAO     := SUBSTR(CAB_ENT.CHAVENFE, 35, 1);
             CAB_ENT.DTHORAAUTORIZACAOSEFAZ := NULL;
+            CAB_ENT.PROTOCOLOCANCELAMENTO  := NULL;
 
             IF (DADOS.NF_ORIGEM_CANCELADA = 'S') THEN
               CAB_ENT.VLTOTAL := DADOS.NF_ORIGEM_TOTAL;
@@ -288,6 +318,30 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                 END;
               END IF;
             END LOOP;
+            
+            MERGE INTO PCNFENT M
+            USING (
+                SELECT NUMTRANSENT,
+                       SUM(ROUND(VLIPI * QTCONT, 2)) AS TOT_VLIPI,
+                       SUM(ROUND(VLBASEIPI * QTCONT, 2)) AS TOT_VLBASEIPI,
+                       SUM(ROUND(VLDESCONTO * QTCONT, 2)) AS TOT_VLDESCONTO,
+                       SUM(ROUND(VLOUTRASDESPIMP * QTCONT, 2)) AS TOT_VLOUTRASDESPIMP,
+                       SUM(ROUND(VLFRETE * QTCONT, 2)) AS TOT_VLFRETE,
+                       SUM(ROUND(PUNITCONT * QTCONT, 2)) AS TOT_PRODUTOS
+                  FROM PCMOV
+                 WHERE NUMTRANSENT = V_NUMTRANSACAO
+                   AND QTCONT > 0
+              GROUP BY NUMTRANSENT) D
+            ON (M.NUMTRANSENT = D.NUMTRANSENT)
+            WHEN MATCHED THEN
+              UPDATE SET 
+                M.VLIPI           = D.TOT_VLIPI,
+                M.VLBASEIPI       = D.TOT_VLBASEIPI,
+                M.VLDESCONTO      = D.TOT_VLDESCONTO,
+                M.VLOUTRASDESPIMP = D.TOT_VLOUTRASDESPIMP,
+                M.VLFRETE         = D.TOT_VLFRETE,
+                M.VLTOTAL         = D.TOT_PRODUTOS,
+                M.VLTOTGER        = D.TOT_PRODUTOS;            
 
             UPDATE PCINUTILIZARNFE
                SET NUMTRANSACAONOVA = CAB_ENT.NUMTRANSENT
