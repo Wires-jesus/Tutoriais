@@ -484,13 +484,14 @@ CREATE OR REPLACE PROCEDURE P_CTBCONTABILIZALANCAMENTOS(PCODFILIAL        IN VAR
                                                END * (B.PERCRATEIO / 100), 2) VALORTEMPORARIO
                                        , ROW_NUMBER()
                                             OVER(PARTITION BY B.NUMTRANSLANCTO
-                                                 ORDER BY
+                                                 ORDER BY B.VLTOTAL,
                                                     B.VALORBASE) MAIORVALOR
                                     FROM (SELECT A.*
                                                , CASE WHEN (SUM(A.VALORBASE) OVER (PARTITION BY A.NUMTRANSLANCTO)) <> 0
                                                       THEN ROUND(((A.VALORBASE / (SUM(A.VALORBASE) OVER (PARTITION BY A.NUMTRANSLANCTO))) * 100), 2)
                                                       ELSE 0
                                                   END PERCRATEIO
+                                                  ,(SUM(A.VALORBASE) OVER(PARTITION BY A.NUMTRANSLANCTO)) VLTOTAL
                                             FROM (SELECT PCCENTRORECEITA.CODIGOCENTRORECEITA
                                                        , PCCENTRORECEITA.DESCRICAO
                                                        , PCCONSOLIDARECEITA.CODFILIAL
@@ -508,7 +509,7 @@ CREATE OR REPLACE PROCEDURE P_CTBCONTABILIZALANCAMENTOS(PCODFILIAL        IN VAR
                                                      AND PCCONSOLIDARECEITA.CLASSIFICACAOCENTRORECEITA = PCITENSCLASSIFICACAOCR.CLASSIFICACAO
                                                      AND PCITENSCLASSIFICACAOCR.CODIGOCENTRORECEITA = PCCENTRORECEITA.CODIGOCENTRORECEITA
                                                      AND NVL(PCCONSOLIDARECEITA.NUMTRANSVENDA, PCCONSOLIDARECEITA.NUMTRANSENT) = LANCAMENTOS.NUMTRANSOPERACAO
-                                                     AND PCCONSOLIDARECEITA.DTMOV = PD_DATALANCTO
+                                                    
                                                    GROUP
                                                       BY PCCENTRORECEITA.CODIGOCENTRORECEITA, PCCENTRORECEITA.DESCRICAO
                                                        , PCCONSOLIDARECEITA.CODFILIAL, NVL(PCCONSOLIDARECEITA.NUMTRANSVENDA, PCCONSOLIDARECEITA.NUMTRANSENT)
