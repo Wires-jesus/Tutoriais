@@ -5,23 +5,23 @@ create or replace package body FISCAL is
                      (SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             MC.CODBENEFICIOFISCAL, -- CÛdigo Beneficio Fiscal
-                             M.CODST, -- Figura tribut·ria rotina 514
-                             M.PERCICM, -- AlÌquota ICMS NF
+                             MC.CODBENEFICIOFISCAL, -- C√≥digo Beneficio Fiscal
+                             M.CODST, -- Figura tribut√°ria rotina 514
+                             M.PERCICM, -- Al√≠quota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                              CLIENTE.TIPOEMPRESA, -- Tipo de empresa (Opcional)
                              CLIENTE.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
                              MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
-                             M.SITTRIBUT, -- SituaÁ„o tribut·ria (Opcional)
-                             M.CODFISCAL, -- CÛdigo fiscal(CFOP) (Opcional)
+                             M.SITTRIBUT, -- Situa√ß√£o tribut√°ria (Opcional)
+                             M.CODFISCAL, -- C√≥digo fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
-                             M.PUNITCONT, -- PreÁo unit·rio
+                             M.PUNITCONT, -- Pre√ßo unit√°rio
                              M.VLIPI, -- Valor do IPI
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
                              M.BASEICMS, -- Base ICMS
-                             M.PERCBASERED -- ReduÁ„o Base ICMS
+                             M.PERCBASERED -- Redu√ß√£o Base ICMS
                         from PCNFSAID       N,
                              PCMOV          M,
                              PCMOVCOMPLE    MC,
@@ -51,23 +51,23 @@ create or replace package body FISCAL is
                       SELECT 'S' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             MC.CODBENEFICIOFISCAL, -- CÛdigo Beneficio Fiscal
-                             M.CODST, -- Figura tribut·ria rotina 514
-                             M.PERCICM, -- AlÌquota ICMS NF
+                             MC.CODBENEFICIOFISCAL, -- C√≥digo Beneficio Fiscal
+                             M.CODST, -- Figura tribut√°ria rotina 514
+                             M.PERCICM, -- Al√≠quota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                              CLIENTE.TIPOEMPRESA, -- Tipo de empresa (Opcional)
                              CLIENTE.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
                              MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
-                             M.SITTRIBUT, -- SituaÁ„o tribut·ria (Opcional)
-                             M.CODFISCAL, -- CÛdigo fiscal(CFOP) (Opcional)
+                             M.SITTRIBUT, -- Situa√ß√£o tribut√°ria (Opcional)
+                             M.CODFISCAL, -- C√≥digo fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
-                             M.PUNITCONT, -- PreÁo unit·rio
+                             M.PUNITCONT, -- Pre√ßo unit√°rio
                              M.VLIPI, -- Valor do IPI
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
                              M.BASEICMS, -- Base ICMS
-                             M.PERCBASERED -- ReduÁ„o Base ICMS
+                             M.PERCBASERED -- Redu√ß√£o Base ICMS
                         from PCNFSAIDPREFAT       N,
                              PCMOVPREFAT          M,
                              PCMOVCOMPLEPREFAT    MC,
@@ -97,23 +97,23 @@ create or replace package body FISCAL is
                       SELECT 'N' PREFATURAMENTO,
                              M.CODPROD,
                              M.NUMTRANSITEM,
-                             MC.CODBENEFICIOFISCAL, -- CÛdigo Beneficio Fiscal
-                             M.CODST, -- Figura tribut·ria rotina 514
-                             M.PERCICM, -- AlÌquota ICMS NF
+                             MC.CODBENEFICIOFISCAL, -- C√≥digo Beneficio Fiscal
+                             M.CODST, -- Figura tribut√°ria rotina 514
+                             M.PERCICM, -- Al√≠quota ICMS NF
                              DECODE(NVL(N.CONSUMIDORFINAL,'N'),'S',NVL(N.CONTRIBUINTE,'N'),  'S', 'S', 'N') CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                              'N' TIPOEMPRESA, -- Tipo de empresa (Opcional)
                              N.TIPOFJ TIPOPESSOA, -- Tipo de pessoa (Opcional)
                              MC.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
-                             M.SITTRIBUT, -- SituaÁ„o tribut·ria (Opcional)
-                             M.CODFISCAL, -- CÛdigo fiscal(CFOP) (Opcional)
+                             M.SITTRIBUT, -- Situa√ß√£o tribut√°ria (Opcional)
+                             M.CODFISCAL, -- C√≥digo fiscal(CFOP) (Opcional)
                              M.NBM, -- NCM da mercadoria (Opcional)
-                             M.PUNITCONT, -- PreÁo unit·rio
+                             M.PUNITCONT, -- Pre√ßo unit√°rio
                              M.VLIPI, -- Valor do IPI
                              M.VLFRETE, -- Valor do frete
                              M.ST VLST, -- Valor do ST
                              M.VLOUTROS, -- Valor de outros
                              M.BASEICMS, -- Base ICMS
-                             M.PERCBASERED -- ReduÁ„o Base ICMS
+                             M.PERCBASERED -- Redu√ß√£o Base ICMS
                         from PCNFENT N, PCMOV M, PCMOVCOMPLE MC, PCPRODUT P
                        where N.NUMTRANSENT = P_NUMTRANSACAO
                          and N.NUMTRANSENT = M.NUMTRANSENT
@@ -422,7 +422,8 @@ create or replace package body FISCAL is
       RETURN V_DADOS;
     END PREENCHE_JSON_RETORNO;
 
-   -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT¡RIA
+
+   -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT√ÅRIA
    function UTILIZA_FIGURA_PISCOFINS(MSG out varchar2) return boolean is
    begin
          begin
@@ -430,15 +431,15 @@ create or replace package body FISCAL is
             then
                return true;
             else
-               MSG := 'S:Esta filial n„o utiliza PIS/COFINS por figura tribut·ria!'||
-                      ' Isso significa que o par‚metro 2506 - (UTILIZAPISCOFINSFIGVENDA) est· marcado como N„o.'||
-                      ' Marque o mesmo como Sim, depois verifique o par‚metro 1092 - (CON_USATRIBUTACAOPORUF),  '||
-                      'se o mesmo tiver como Sim, faÁa a configuraÁ„o da tributaÁ„o na rotina 574 se N„o, faÁa a configuraÁ„o na rotina 271.' ;
+               MSG := 'S:Esta filial n√£o utiliza PIS/COFINS por figura tribut√°ria!'||
+                      ' Isso significa que o par√¢metro 2506 - (UTILIZAPISCOFINSFIGVENDA) est√° marcado como N√£o.'||
+                      ' Marque o mesmo como Sim, depois verifique o par√¢metro 1092 - (CON_USATRIBUTACAOPORUF),  '||
+                      'se o mesmo tiver como Sim, fa√ßa a configura√ß√£o da tributa√ß√£o na rotina 574 se N√£o, fa√ßa a configura√ß√£o na rotina 271.' ;
                return false;
             end if;
          exception
             when others then
-               MSG := 'S:Esta filial n„o utiliza PIS/COFINS por figura tribut·ria!';
+               MSG := 'S:Esta filial n√£o utiliza PIS/COFINS por figura tribut√°ria!';
                return false;
          end;
    end;
@@ -449,7 +450,7 @@ create or replace package body FISCAL is
      VRET := PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', P_CODFILIAL);
       IF VRET IN ('S','E') THEN
         PKG_DEBUGGING_FWPC.LOG(
-           'Tributos n„o calculados.' || CHR(10) ||
+           'Tributos n√£o calculados.' || CHR(10) ||
            'Motivo: Filial optante pelo Simples Nacional.' || CHR(10) ||
            'Filial: ' || P_CODFILIAL,'S');
         RETURN TRUE;
@@ -746,7 +747,7 @@ create or replace package body FISCAL is
          return '';
    end;
 
-   --FunÁ„o de buscar informaÁıes de IPI
+   --Fun√ß√£o de buscar informa√ß√µes de IPI
    function GET_DADOS_TRIBUTACAO_IPI(P_CODCLI           in number
                                     ,P_CODPROD          in number
                                     ,P_CODFILIAL        in varchar2
@@ -769,14 +770,14 @@ create or replace package body FISCAL is
       V_PROD_IMPORTADO      PCPRODUT.IMPORTADO%type;
    begin
 
-      -- Nota complementar n„o deve calcular ipi
+      -- Nota complementar n√£o deve calcular ipi
       if (NVL(P_FINALIDADENFE, 'N') = 'C') then
         P_CST_ENTRADA := '49';
         P_CST_SAIDA := '99';
         P_GERABASEALIQZERO := 'S';
         P_CODENQENTRADA := '999';
         P_CODENQSAIDA := '999';
-        P_MSG := 'NOTA COMPLEMENTAR N√O TEM IPI';
+        P_MSG := 'NOTA COMPLEMENTAR N√ÉO TEM IPI';
         return 'S';
       end if;
 
@@ -789,14 +790,14 @@ create or replace package body FISCAL is
             and CODPROD = P_CODPROD;
       exception
          when others then
-            P_MSG := 'FIGURA TRIBUT¡RIA DO IPI INEXISTENTE OU N√O VINCULADA!';
+            P_MSG := 'FIGURA TRIBUT√ÅRIA DO IPI INEXISTENTE OU N√ÉO VINCULADA!';
             return 'N';
       end;
 
       if V_CODFIGURAIPI > 0
       then
          begin
-            -- Pegar informaÁıes do cliente
+            -- Pegar informa√ß√µes do cliente
             select case
                       when (trim(C.SULFRAMA) is not null and C.DTVENCSUFRAMA >= P_DATAOPERACAO) then
                        'S'
@@ -812,7 +813,7 @@ create or replace package body FISCAL is
          end;
 
          begin
-            -- Pegar informaÁıes do produto
+            -- Pegar informa√ß√µes do produto
             select IMPORTADO into V_PROD_IMPORTADO from PCPRODUT P where CODPROD = P_CODPROD;
          exception
             when others then
@@ -820,7 +821,7 @@ create or replace package body FISCAL is
          end;
 
          begin
-            -- Verificar se enquadra numa das regras de exceÁ„o
+            -- Verificar se enquadra numa das regras de exce√ß√£o
             select min(CODFIGURAIPIEXCECAO)
               into V_CODFIGURAIPIEXCECAO
               from PCEXCECAOIPI
@@ -1118,7 +1119,7 @@ create or replace package body FISCAL is
       elsif PPRODUTORRURAL = 'S' then
         vTipoCliente := 'PR';
       else
-        vTipoCliente := 'NI'; --n„o informado
+        vTipoCliente := 'NI'; --n√£o informado
       end if;
 
       PTIPOCLIENTE := vTipoCliente;
@@ -1279,7 +1280,7 @@ create or replace package body FISCAL is
        end if;
 
      else
-      -- GRAVA«√O -----------------------------------------------------
+      -- GRAVA√á√ÉO -----------------------------------------------------
       -- So executar o update se pelo menos uma das colunas estiver diferente das atuais.
       if ((pPISCOFINSDEDUZIDO_ATUAL      <> PPISCOFINSDEDUZIDO         ) or
           (pCODTRIBPISCOFINS_ATUAL       <> PCODTRIB                   ) or
@@ -1434,9 +1435,9 @@ create or replace package body FISCAL is
       V_EXCLUIRDIFALBASEPISCOFINS VARCHAR2(1);
       VMENSAGEM PCTRIBPISCOFINS.MENSAGEMGERAL%type;
    begin
-     -- Busca de Par‚metros
+     -- Busca de Par√¢metros
      V_AGREGARFCPBASEPISCOFINSSAIDA := pAGREGARFCPBASEPISCOFINSSAIDA;
-      -- VERIFICAR SE … DOCUMENTO TV8
+      -- VERIFICAR SE √â DOCUMENTO TV8
       IF PCODOPER = 'ED' AND PCONDVENDA = 8 THEN
          BEGIN
             SELECT NVL(CODEXCTRIBPISCOFINS,0)
@@ -1459,7 +1460,7 @@ create or replace package body FISCAL is
             END;
          END IF;
       END IF;
-      -- VERIFICAR SE H¡ EXCE«√O TRIBUTA«√O -------------------------------------
+      -- VERIFICAR SE H√Å EXCE√á√ÉO TRIBUTA√á√ÉO -------------------------------------
       VCODTRIB := GET_CODTRIBEXCECAO_PISCOFINS(PCODTRIB
                                               ,PCODFISCAL
                                               ,PCODOPER
@@ -1473,7 +1474,7 @@ create or replace package body FISCAL is
                                               ,PCODIGOCLIENTE
                                               ,V_CODEXCTRIBPISCOFINS
                                               ,PNCM);
-      -- BUSCAR INFORMA«OES DA FIGURA TRIBUT¡RIA -----------------------------------
+      -- BUSCAR INFORMA√á√ïES DA FIGURA TRIBUT√ÅRIA -----------------------------------
       begin
          begin
             V_USAVIGENCIA := 'N';
@@ -1567,7 +1568,7 @@ create or replace package body FISCAL is
                                end
                            else
                                0
-                           end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDU«√O DO ICMS DIFAL DA BASE
+                           end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDU√á√ÉO DO ICMS DIFAL DA BASE
                                 - case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
                                             (T.EXCLUIRICMSSTBCRBASEPISCOFINS  = 'S') then
                                        PVLSTBCR
@@ -1726,7 +1727,7 @@ create or replace package body FISCAL is
                                end
                       else
                           0
-                      end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDU«√O DO ICMS DIFAL DA BASE
+                      end) - DECODE(T.EXCLUIRDIFALBASEPISCOFINS, 'S', PVLDIFALIQUOTAS, 0) -- DEDU√á√ÉO DO ICMS DIFAL DA BASE
                            - case when (PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, PDATAOPER) = 'S') AND
                                        (T.EXCLUIRICMSSTBCRBASEPISCOFINS  = 'S') then
                                  PVLSTBCR
@@ -1862,7 +1863,7 @@ create or replace package body FISCAL is
       if ((not PDEVOLUCAO) and (NVL(NVL(VCSTPIS, VCSTCOFINS), 0) <= 0))
          or ((PDEVOLUCAO) and (NVL(VCSTDEV, 0) <= 0))
       then
-         MSG := 'N:CST PIS/COFINS n„o informado para tributaÁ„o: ' || TO_CHAR(VCODTRIB) ||
+         MSG := 'N:CST PIS/COFINS n√£o informado para tributa√ß√£o: ' || TO_CHAR(VCODTRIB) ||
                 ' Produto relacionado: ' || PCODPROD;
          return false;
       end if;
@@ -1896,7 +1897,7 @@ create or replace package body FISCAL is
          end if;
       end if;
       -----------------------------------------------------------------
-      -- ZERAR BASE SE N√O HOUVER VALORES E TIVER MARCADO NA ROTINA 4001 PRA N√O GERAR O VALOR DA BASE DO PIS/COFINS
+      -- ZERAR BASE SE N√ÉO HOUVER VALORES E TIVER MARCADO NA ROTINA 4001 PRA N√ÉO GERAR O VALOR DA BASE DO PIS/COFINS
       if (NVL(VVLPIS, 0) = 0)
          and (NVL(VVLCOFINS, 0) = 0)
          and (NVL(VPERPIS, 0) = 0)
@@ -1949,7 +1950,7 @@ create or replace package body FISCAL is
                if ((not PDEVOLUCAO) and (NVL(NVL(VCSTPIS, VCSTCOFINS), 0) <= 0))
                   or ((PDEVOLUCAO) and (NVL(VCSTDEV, 0) <= 0))
                then
-                  MSG := 'N:CST PIS/COFINS Pauta MÌnima n„o informado para tributaÁ„o: ' ||
+                  MSG := 'N:CST PIS/COFINS Pauta M√≠nima n√£o informado para tributa√ß√£o: ' ||
                          TO_CHAR(VCODTRIB) || ' Produto relacionado: ' || PCODPROD;
                   return false;
                end if;
@@ -1966,7 +1967,7 @@ create or replace package body FISCAL is
          end;
       end if;
       -----------------------------------------------------------------
-      -- Zerar o valor da Base do PIS/COFINS e do imposto tambÈm, deixando lanÁado apenas a alÌquota do PIS/COFINS (Rotina 4001 campo ZERARBCCSTST). AlÈm da marcaÁ„o do par‚metro o CST do PIS/COFINS dever· ser igual a 05 ou 75.
+      -- Zerar o valor da Base do PIS/COFINS e do imposto tamb√©m, deixando lan√ßado apenas a al√≠quota do PIS/COFINS (Rotina 4001 campo ZERARBCCSTST). Al√©m da marca√ß√£o do par√¢metro o CST do PIS/COFINS dever√° ser igual a 05 ou 75.
       if ((V_ZERARBCCSTST = 'S') AND
           ((NVL(VCSTCOFINS,VCSTPIS) = 05) OR (VCSTDEV = 75))) then
          VVLPIS         := 0;
@@ -1974,7 +1975,7 @@ create or replace package body FISCAL is
          VBASEPISCOFINS := 0;
       end if;
       -----------------------------------------------------------------
-      -- Verificar se existe reduÁ„o na Base de C·lculo do PIS/COFINS
+      -- Verificar se existe redu√ß√£o na Base de C√°lculo do PIS/COFINS
       IF (VBASEPISCOFINS > 0) AND (V_PERCREDBASCALPC > 0) THEN
          VBASEPISCOFINS := VBASEPISCOFINS - (NVL(VBASEPISCOFINS,0) * V_PERCREDBASCALPC / 100);
       END IF;
@@ -2078,17 +2079,17 @@ create or replace package body FISCAL is
 
       exception
          when others then
-            MSG := 'N:Nota Fiscal inexistente ou Cod.Filial n„o informado!';
+            MSG := 'N:Nota Fiscal inexistente ou Cod.Filial n√£o informado!';
             raise VFALHATRIBUTACAO;
       end;
 
-      -- Nota complementar n„o deve calcular pis/cofins
+      -- Nota complementar n√£o deve calcular pis/cofins
       if (V_FINALIDADE = 'C') then
-        MSG := 'Nota fiscal complementar n„o deve calcular pis/cofins!';
+        MSG := 'Nota fiscal complementar n√£o deve calcular pis/cofins!';
         return 'S';
       end if;
 
-      -- Atualizar pcnfsaid se par‚metro 4085(EXCLUIRICMSBASEPISCOFINS) como Sim.
+      -- Atualizar pcnfsaid se par√¢metro 4085(EXCLUIRICMSBASEPISCOFINS) como Sim.
       if V_DEDUZIRICMSBASEPISCOFINS = 'N'
         AND PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, V_DTSAIDA) = 'S'
       then
@@ -2097,7 +2098,7 @@ create or replace package body FISCAL is
           WHERE NUMTRANSVENDA = NUMTRANSACAO;
       end if;
 
-      -- Buscando par‚metro da filial
+      -- Buscando par√¢metro da filial
       begin
         select F.UF,
                NVL(F.GERABASENORMALQUANDOST, 'S')
@@ -2107,12 +2108,12 @@ create or replace package body FISCAL is
        where F.CODIGO = VCODFILIAL;
      exception
          when NO_DATA_FOUND then
-            MSG := 'Dados da Filial Inexistente ou CÛd.Filial N„o Informado!';
+            MSG := 'Dados da Filial Inexistente ou C√≥d.Filial N√£o Informado!';
             raise VFALHATRIBUTACAO;
       end;
       -----------------------------------------
 
-      -- VALIDANDO TIPO DE NOTA FISCAL (SEM ITENS N?O ? CONTEMPLADO) ----
+      -- VALIDANDO TIPO DE NOTA FISCAL (SEM ITENS N√ÉO √â CONTEMPLADO) ----
       begin
         WITH MOV AS (
          SELECT NVL(CODFILIALNF, CODFILIAL) CODFILIAL
@@ -2132,11 +2133,11 @@ create or replace package body FISCAL is
 
       exception
          when others then
-            MSG := 'S:Nota Fiscal sem item! O procedimento n„o contempla este tipo de documento.';
+            MSG := 'S:Nota Fiscal sem item! O procedimento n√£o contempla este tipo de documento.';
             return 'S';
       end;
 
-      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT¡RIA ---
+      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT√ÅRIA ---
       if not UTILIZA_FIGURA_PISCOFINS(MSG)
       then
          return 'S';
@@ -2146,7 +2147,7 @@ create or replace package body FISCAL is
       VVLCOFINS_NF := 0;
       VMENSAGENS   := '';
 
-      -- Busca de Par‚metros
+      -- Busca de Par√¢metros
        V_AGREGARFCPBASEPISCOFINSSAIDA := PARAMFILIAL.OBTERCOMOVARCHAR2('AGREGARFCPBASEPISCOFINSSAIDA', VCODFILIAL);
 
       PKG_DEBUGGING_FWPC.LOG('Inicio consulta para dados do Pis/Cofins| '||VCODFILIAL||
@@ -2327,7 +2328,7 @@ create or replace package body FISCAL is
                           ,NVL(N.TIPOFJ, C.TIPOFJ) TIPOFJ
                           ,NVL(C.PISCOFINSCUMULATIVO, 'N') PISCOFINSCUMULATIVO
                           ,N.CODCLI
-                          --C·lculo do valor do icms conforme livro fiscal
+                          --C√°lculo do valor do icms conforme livro fiscal
 --                          ,((NVL(M.BASEICMS, 0) + NVL(MC.VLBASEFRETE, 0) + NVL(MC.VLBASEOUTROS, 0)) * (NVL(NVL(M.PERCICMCP, M.PERCICM), 0) / 100)) AS VLICMS
                           ,CASE WHEN (M.CODOPER ='SD' AND PARAMFILIAL.OBTERCOMOVARCHAR2('ENVIASIMPNACDEVFORNECNFE', NVL(N.CODFILIALNF, N.CODFILIAL)) = 'N') AND
                                   PARAMFILIAL.OBTERCOMOVARCHAR2('FIL_OPTANTESIMPLESNAC', NVL(N.CODFILIALNF, N.CODFILIAL)) IN  ('E', 'S') THEN
@@ -2407,7 +2408,7 @@ create or replace package body FISCAL is
                        AND M.DATACONSOLIDACAOPREFAT IS NULL
                        AND MC.DATACONSOLIDACAOPREFAT IS NULL)
       loop
-         VMSG_REGIAO := 'N:N˙m. Regi„o: ' || DADOS.NUMREGIAO;
+         VMSG_REGIAO := 'N:N√∫m. Regi√£o: ' || DADOS.NUMREGIAO;
 
          -- CALCULAR E GRAVAR ITEM -----------------------------------------
          if not CALCULAR_ITEM_PISCOFINS(DADOS.PREFATURAMENTO = 'S'
@@ -2536,11 +2537,11 @@ create or replace package body FISCAL is
             and ROWNUM = 1;
       exception
          when others then
-            MSG := 'N:Nota Fiscal inexistente ou Cod.Filial n„o informado!';
+            MSG := 'N:Nota Fiscal inexistente ou Cod.Filial n√£o informado!';
             return 'N';
       end;
 
-      -- VALIDANDO TIPO DE NOTA FISCAL (SEM ITENS N√O … CONTEMPLADO) ----
+      -- VALIDANDO TIPO DE NOTA FISCAL (SEM ITENS N√ÉO √â CONTEMPLADO) ----
       begin
          select NVL(CODFILIALNF, CODFILIAL)
            into VCODFILIAL
@@ -2549,11 +2550,11 @@ create or replace package body FISCAL is
             and ROWNUM = 1;
       exception
          when others then
-            MSG := 'S:Nota Fiscal sem item! O procedimento n„o contempla este tipo de documento.';
+            MSG := 'S:Nota Fiscal sem item! O procedimento n√£o contempla este tipo de documento.';
             return 'S';
       end;
 
-      -- RATEAR A DESPESA ACESSORIA SE AINDA N√O ESTIVER RATEADA
+      -- RATEAR A DESPESA ACESSORIA SE AINDA N√ÉO ESTIVER RATEADA
       begin
          if NVL(VDESPESA_RATEADA, 'N') <> 'S'
          then
@@ -2564,7 +2565,7 @@ create or replace package body FISCAL is
             null;
       end;
 
-      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT?RIA ---
+      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT√ÅRIA ---
       if UPPER(SYS_CONTEXT('USERENV', 'MODULE')) not like '%PCSIS1000.EXE%'
       then
          if not UTILIZA_FIGURA_PISCOFINS(MSG)
@@ -2582,7 +2583,7 @@ create or replace package body FISCAL is
       V_AGREGARFCPBASEPISCOFINSSAIDA := PARAMFILIAL.OBTERCOMOVARCHAR2('AGREGARFCPBASEPISCOFINSSAIDA',
                                                                       VCODFILIAL);
 
-      -- BUSCAR DADOS DA DEVOLU«√O
+      -- BUSCAR DADOS DA DEVOLU√á√ÉO
       for DADOS in (select CODFILIAL
                           ,CODPROD
                           ,CONDVENDA
@@ -2849,11 +2850,11 @@ create or replace package body FISCAL is
          if (NVL(DADOS.CST_DEV, 0) <= 0)
             and (DADOS.CODTRIBPISCOFINS is not null)
          then
-            if LENGTH(VMENSAGENS || CHR(13) || 'CST PIS/COFINS n„o informado para tributaÁ„o: ' ||
+            if LENGTH(VMENSAGENS || CHR(13) || 'CST PIS/COFINS n√£o informado para tributa√ß√£o: ' ||
                       TO_CHAR(DADOS.CODTRIBPISCOFINS) || ' Produto relacionado: ' || DADOS.CODPROD) <= 3700
             then
                VMENSAGENS := VMENSAGENS || CHR(13) ||
-                             'CST PIS/COFINS n„o informado para tributaÁ„o: ' ||
+                             'CST PIS/COFINS n√£o informado para tributa√ß√£o: ' ||
                              TO_CHAR(DADOS.CODTRIBPISCOFINS) || ' Produto relacionado: ' ||
                              DADOS.CODPROD;
             end if;
@@ -2930,7 +2931,7 @@ create or replace package body FISCAL is
          end if;
       end loop;
 
-      -- GERAR VALORES DE PIS/COFINS SEM A VENDA, INDO NOVAMENTE NA TRIBUTA«√O
+      -- GERAR VALORES DE PIS/COFINS SEM A VENDA, INDO NOVAMENTE NA TRIBUTA√á√ÉO
       if not VREPLICOU_VENDA
       then
          for DADOS in (select NVL((select min(NS.CONDVENDA)
@@ -3120,7 +3121,7 @@ create or replace package body FISCAL is
          return 'S';
 
       when others then
-         MSG := 'N:Erro ao calcular PIS/COFINS para devoluÁ„o. ' || CHR(13) || 'Erro original: ' ||
+         MSG := 'N:Erro ao calcular PIS/COFINS para devolu√ß√£o. ' || CHR(13) || 'Erro original: ' ||
                 sqlerrm;
          return 'S';
    end;
@@ -3170,18 +3171,18 @@ create or replace package body FISCAL is
 
          if VESPECIE not in ('CT', 'CO', 'CE')
          then
-            MSG := 'N:O documento fiscal informado n„o È um conhecimento de frete.';
+            MSG := 'N:O documento fiscal informado n√£o √© um conhecimento de frete.';
             raise VFALHATRIBUTACAO;
          end if;
       exception
          when others then
-            MSG := 'N:Conhecimento de frete inexistente para a transaÁ„o informada.';
+            MSG := 'N:Conhecimento de frete inexistente para a transa√ß√£o informada.';
             raise VFALHATRIBUTACAO;
       end;
 
       VDEDUZIR_ICMS_BC := PODE_DEDUZIR_ICMS_BCPISCOFINS(VCODFILIAL, V_DATAOPER);
 
-      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT?RIA ---
+      -- VERIFICANDO SE A FILIAL UTILIZA PIS/COFINS POR FIGURA TRIBUT√ÅRIA ---
       if UPPER(SYS_CONTEXT('USERENV', 'MODULE')) not like '%PCSIS1000%'
       then
          if not UTILIZA_FIGURA_PISCOFINS(MSG)
@@ -3190,7 +3191,7 @@ create or replace package body FISCAL is
          end if;
       end if;
 
-      -- BUSCANDO A TRIBUTA«√O
+      -- BUSCANDO A TRIBUTA√á√ÉO
       begin
          select NVL(T.PERCPIS, 0)
                ,NVL(T.PERCCOFINS, 0)
@@ -3204,14 +3205,14 @@ create or replace package body FISCAL is
 
          if NVL(VCSTFRETE, 0) <= 0
          then
-            MSG := 'N:CST PIS/COFINS n„o informado. UF: ' || VUF;
+            MSG := 'N:CST PIS/COFINS n√£o informado. UF: ' || VUF;
 
             raise VFALHATRIBUTACAO;
          end if;
 
       exception
          when others then
-            MSG := 'N:TributaÁ„o PIS/COFINS inexistente para a UF: ' || VUF;
+            MSG := 'N:Tributa√ß√£o PIS/COFINS inexistente para a UF: ' || VUF;
             raise VFALHATRIBUTACAO;
       end;
 
@@ -3238,7 +3239,7 @@ create or replace package body FISCAL is
 
       if NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARENTTRANSPCIFPROPVENDA', VCODFILIAL), 'N') = 'S'
       then
-         -- APLICAR TRIBUTA«√O NO CONHECIMENTO DE ENTRADA
+         -- APLICAR TRIBUTA√á√ÉO NO CONHECIMENTO DE ENTRADA
          declare
             VL_TOTAL  PCNFSAID.VLTOTAL%type;
             TRANSACAO PCNFSAID.NUMTRANSENTORIGEM%type;
@@ -3432,13 +3433,13 @@ create or replace package body FISCAL is
             end if;
          end;
       end if;
-      --  FIM APLICAR TRIBUTA«√O NO CONHECIMENTO DE ENTRADA
+      --  FIM APLICAR TRIBUTA√á√ÉO NO CONHECIMENTO DE ENTRADA
 
 
      -- REPLICAR PCNFENTPISCOFINS
       if NVL(PARAMFILIAL.OBTERCOMOVARCHAR2('CONSIDERARENTTRANSPCIFPROPVENDA', VCODFILIAL), 'N') = 'N'
       then
-         -- APLICAR TRIBUTA«√O NO CONHECIMENTO DE ENTRADA
+         -- APLICAR TRIBUTA√á√ÉO NO CONHECIMENTO DE ENTRADA
          declare
             VL_TOTAL  PCNFSAID.VLTOTAL%type;
             TRANSACAO PCNFSAID.NUMTRANSENTORIGEM%type;
@@ -3634,7 +3635,7 @@ create or replace package body FISCAL is
          END;
       END IF;
    END LOOP;
- -- FIM DEDU«√O VLICMS
+ -- FIM DEDU√á√ÉO VLICMS
 
       MSG := 'S:PIS/COFINS calculado';
       return 'S';
@@ -4096,7 +4097,7 @@ create or replace package body FISCAL is
         end if;
       END IF;
       --------------------------------------- FIM ATUALIZAR DIFERENCA DE RATEIO--------------------------------------------------
-      --ATUALIZAR INFORMACAO DO RECALCULO REALIZADA.
+      -- ATUALIZAR INFORMA√á√ÉO DO REC√ÅLCULO REALIZADA.
       update PCNFSAIDPREFAT
          set DESPESASRATEADA = 'S'
        where NUMTRANSVENDA = P_TRANSACAO
@@ -4416,7 +4417,7 @@ create or replace package body FISCAL is
       end if;
 
       --------------------------------------- FIM ATUALIZAR DIFERENCA DE RATEIO--------------------------------------------------
-      --ATUALIZAR INFORMA«√O DO REC¡LCULO REALIZADA.
+      -- ATUALIZAR INFORMA√á√ÉO DO REC√ÅLCULO REALIZADA.
       update PCNFENT set PCNFENT.DESPESASRATEADA = 'S' where PCNFENT.NUMTRANSENT = P_TRANSACAO;
 
       MSG := 'OK';
@@ -4444,12 +4445,12 @@ create or replace package body FISCAL is
         P_CODENQENTRADA varchar2(6);
         P_CODENQSAIDA   varchar2(6);
    begin
-      -- Nota complementar n„o deve calcular ipi
+      -- Nota complementar n√£o deve calcular ipi
       if (NVL(P_FINALIDADENFE, 'N') = 'C') then
         P_CST_ENTRADA := '49';
         P_CST_SAIDA := '99';
         P_GERABASEALIQZERO := 'S';
-        P_MSG := 'NOTA COMPLEMENTAR N√O TEM IPI';
+        P_MSG := 'NOTA COMPLEMENTAR N√ÉO TEM IPI';
         return 'S';
       end if;
 
@@ -4500,7 +4501,7 @@ create or replace package body FISCAL is
           from NFSAID;
       exception
         when others then
-          MSG := 'N:NOTA FISCAL INEXISTENTE OU COD.FILIAL N√O INFORMADO!';
+          MSG := 'N:NOTA FISCAL INEXISTENTE OU COD.FILIAL N√ÉO INFORMADO!';
           raise VFALHATRIBUTACAO;
       end;
 
@@ -4523,7 +4524,7 @@ create or replace package body FISCAL is
 
       exception
         when others then
-          MSG := 'S:NOTA FISCAL SEM ITEM! O PROCEDIMENTO N√O CONTEMPLA ESTE TIPO DE DOCUMENTO.';
+          MSG := 'S:NOTA FISCAL SEM ITEM! O PROCEDIMENTO N√ÉO CONTEMPLA ESTE TIPO DE DOCUMENTO.';
           return 'S';
       end;
 
@@ -4820,7 +4821,7 @@ create or replace package body FISCAL is
                vINDDEDUZDESONERACAO := '1';
             end if;
 
-            --S” GRAVA MOTIVO E VALOR CASO TENHA VALOR, POIS SE GRAVAR VALOR ZERO E MOTIVO, DA REJEI«√O
+            --S√ì GRAVA MOTIVO E VALOR CASO TENHA VALOR, POIS SE GRAVAR VALOR ZERO E MOTIVO, DA REJEI√á√ÉO
             IF (VVALORDESONERADO + VVALOR_ST_DESONERADO > 0) THEN
               IF DADOS.PREFATURAMENTO = 'N' THEN
                 update PCMOVCOMPLE
@@ -4871,25 +4872,25 @@ create or replace package body FISCAL is
                      vINDDEDUZDESONERACAO);
                 end if;
               END IF;
-               --  HABILITANDO SERVI«O LOG
-               PKG_DEBUGGING_FWPC.ATIVARDEBUG('C·lculo DesoneraÁ„o ICMS SaÌda', '1.0',NUMTRANSACAO);
+               --  HABILITANDO SERVI√áO LOG
+               PKG_DEBUGGING_FWPC.ATIVARDEBUG('C√°lculo Desonera√ß√£o ICMS Sa√≠da', '1.0',NUMTRANSACAO);
                -- GRAVANDO LOG
                PKG_DEBUGGING_FWPC.LOG('Produto: ' || DADOS.CODPROD || ' Cod.Motivo: ' || VMOTIVODESONERACAO , 'S');
-               -- DESABILITANDO SERVI«O LOG
+               -- DESABILITANDO SERVI√áO LOG
                PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
             END IF;
 
 
           else
             MSG := MSG ||
-                   'S:N√O FOI ENCONTRADO CADASTRO DE TRIBUTA«√O, VERIFIQUE ROTINA 4003! CST N√O ENCONTRADO: ' ||
+                   'S:N√ÉO FOI ENCONTRADO CADASTRO DE TRIBUTA√á√ÉO, VERIFIQUE ROTINA 4003! CST N√ÉO ENCONTRADO: ' ||
                    DADOS.SITTRIBUT;
           end if;
         end if;
       end loop;
 
       if NVL(MSG, 'X') = 'X' then
-        MSG := 'S:DesoneraÁ„o do ICMS calculado';
+        MSG := 'S:Desonera√ß√£o do ICMS calculado';
       end if;
 
       return 'S';
@@ -4898,7 +4899,7 @@ create or replace package body FISCAL is
         return 'S';
 
       when others then
-        MSG := 'N:Erro ao calcular DesoneraÁ„o do ICMS. ' || CHR(13) ||
+        MSG := 'N:Erro ao calcular Desonera√ß√£o do ICMS. ' || CHR(13) ||
                'Erro original: ' || sqlerrm;
         return 'S';
     end;
@@ -4947,7 +4948,7 @@ create or replace package body FISCAL is
         IF DADOS.CODENQIPI IS NULL THEN
           IF DADOS.CODFIGURAIPI IS NULL THEN
             VMENSAGENS := VMENSAGENS ||
-                          'FIGURA TRIBUT¡RIA DO IPI INEXISTENTE OU N√O VINCULADA, PRODUTO:' ||
+                          'FIGURA TRIBUT√ÅRIA DO IPI INEXISTENTE OU N√ÉO VINCULADA, PRODUTO:' ||
                           DADOS.CODPROD;
           ELSE
             UPDATE PCMOVCOMPLE
@@ -5009,7 +5010,7 @@ create or replace package body FISCAL is
         IF DADOS.CODENQIPI IS NULL THEN
           IF DADOS.CODFIGURAIPI IS NULL THEN
             VMENSAGENS := VMENSAGENS ||
-                          'FIGURA TRIBUT¡RIA DO IPI INEXISTENTE OU N√O VINCULADA, PRODUTO:' ||
+                          'FIGURA TRIBUT√ÅRIA DO IPI INEXISTENTE OU N√ÉO VINCULADA, PRODUTO:' ||
                           DADOS.CODPROD;
           ELSE
               IF DADOS.PREFATURAMENTO = 'N' THEN
@@ -5069,11 +5070,11 @@ create or replace package body FISCAL is
     vCONTA_CONTABIL_SPED := NULL;
 
     IF P_COD_FILIAL IS NULL THEN
-      P_MENSAGEM_RETORNO := 'N: O PARAMETRO P_COD_FILIAL N√O FOI INFORMADO.';
+      P_MENSAGEM_RETORNO := 'N: O PARAMETRO P_COD_FILIAL N√ÉO FOI INFORMADO.';
       RAISE_APPLICATION_ERROR(-20999,P_MENSAGEM_RETORNO);
     END IF;
-    --Implementado essa alteraÁ„o, j· que na construÁ„o da melhoria de CONTA_CONT¡BIL n„o viabilizaram o CO
-    -- CO deve seguir o mesmo processo de CT j· que utilizam o mesmo CFOP, validado pelo analista Douglas.
+    --Implementado essa altera√ß√£o, j√° que na constru√ß√£o da melhoria de CONTA_CONT√ÅBIL n√£o viabilizaram o CO
+    -- CO deve seguir o mesmo processo de CT j√° que utilizam o mesmo CFOP, validado pelo analista Douglas.
     if P_ESPECIE = 'CO' THEN
       V_ESPECIE := 'CT';
     else
@@ -5251,7 +5252,7 @@ create or replace package body FISCAL is
 
     /*CONSULTA DOS DADOS NA PCMOVCIAP*/
     CURSOR CR_DADOS_PCMOVCIAP IS
-           SELECT 'S' TIPO,--SAÕDA
+           SELECT 'S' TIPO,--SA√çDA
                   NVL(S.CODFILIALNF, S.CODFILIAL) CODFILIAL,
                   S.ESPECIE,
                   M.CODFISCAL CFOP,
@@ -5291,7 +5292,7 @@ create or replace package body FISCAL is
                 OR (PTIPOMOV = 'T'));
     /*CONSULTA DE NOTAS SEM ITENS*/
     CURSOR CR_DADOS_PCNFBASE IS
-            SELECT 'S' TIPO,--SAÕDA
+            SELECT 'S' TIPO,--SA√çDA
                    S.ESPECIE,
                    NVL(S.CODFILIALNF, S.CODFILIAL) CODFILIAL,
                    S.NUMTRANSVENDA TRANSACAO,
@@ -5326,7 +5327,7 @@ create or replace package body FISCAL is
             -----------------------------------
              UNION ALL
             -----------------------------------
-            -- LAN«AMENTOS 1
+            -- LAN√áAMENTOS 1
             SELECT 'E' TIPO,
                    E.ESPECIE,
                    NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
@@ -5366,7 +5367,7 @@ create or replace package body FISCAL is
             -----------------------------------
              UNION ALL
             -----------------------------------
-            -- LAN«AMENTOS SEM VINCULO COM CODCONT E COM OBRIG DE TER A PCNFENTPISCOFINS
+            -- LAN√áAMENTOS SEM VINCULO COM CODCONT E COM OBRIG DE TER A PCNFENTPISCOFINS
             SELECT 'E' TIPO,
                    E.ESPECIE,
                    NVL(E.CODFILIALNF, E.CODFILIAL) CODFILIAL,
@@ -5727,7 +5728,7 @@ create or replace package body FISCAL is
       when others then
         P_CODCEST := '';
         P_CODMSG  := 999;
-        P_MSG     := 'Erro o obter cÛdigo cest.' || CHR(13) ||
+        P_MSG     := 'Erro o obter c√≥digo cest.' || CHR(13) ||
                      'Erro original: ' || sqlerrm;
     end;
  end;
@@ -5805,7 +5806,7 @@ create or replace package body FISCAL is
 
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        P_MENSAGEM_RETORNO := 'N„o foi encontrado cliente com o cÛdigo informado (' ||
+        P_MENSAGEM_RETORNO := 'N√£o foi encontrado cliente com o c√≥digo informado (' ||
                              P_CODIGO_CLIENTE || ').';
         RETURN FALSE;
     END;
@@ -5824,12 +5825,12 @@ create or replace package body FISCAL is
 
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
-        P_MENSAGEM_RETORNO := 'N„o foi encontrado produto com o cÛdigo informado (' ||
+        P_MENSAGEM_RETORNO := 'N√£o foi encontrado produto com o c√≥digo informado (' ||
                              P_CODPROD || ').';
         RETURN FALSE;
     END;
 
-    -- VERIFICAR SE … DOCUMENTO TV8
+    -- VERIFICAR SE √â DOCUMENTO TV8
     IF P_CODOPER = 'ED' AND P_CONDVENDA = 8 THEN
       BEGIN
         SELECT NVL(CODEXCTRIBPISCOFINS, 0)
@@ -5855,7 +5856,7 @@ create or replace package body FISCAL is
       END IF;
     END IF;
 
-    -- VERIFICAR SE H¡ EXCE«√O TRIBUTA«√O --
+    -- VERIFICAR SE H√Å EXCE√á√ÉO TRIBUTA√á√ÉO --
     V_CODTRIB := GET_CODTRIBEXCECAO_PISCOFINS(P_CODTRIB,
                                               P_CODFISCAL,
                                               P_CODOPER,
@@ -5871,7 +5872,7 @@ create or replace package body FISCAL is
                                               P_NCM);
     BEGIN
       BEGIN
-        --CASO USE VIG NCIA
+        --CASO USE VIG√äNCIA
         SELECT PERPIS, PERCOFINS
           INTO V_PERPIS, V_PERCOFINS
           FROM (SELECT CASE
@@ -5895,7 +5896,7 @@ create or replace package body FISCAL is
          WHERE ROWNUM = 1;
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          --CASO N√O USE VIG NCIA
+          --CASO N√ÉO USE VIG√äNCIA
           SELECT CASE
                    WHEN (V_CONSUMIDOR = 'S') AND (T.UTILIZAPERCPISCOFINSDIFCONS = 'S') THEN
                     T.PERCPISCONSUMO
@@ -5992,14 +5993,14 @@ create or replace package body FISCAL is
     V_DESCRICAO VARCHAR2(60);
   BEGIN
       V_DESCRICAO:='';
-      -- VALIDA«√O DOS PAR¬METROS
+      -- VALIDA√á√ÉO DOS PAR√ÇMETROS
       IF P_CODFISCAL < 1000 OR P_CODFISCAL > 7999 THEN
           RAISE_APPLICATION_ERROR(-20001, 'CFOP deve estar entre 1000 e 7999.');
       ELSIF P_CODOPER IS NULL OR TRIM(P_CODOPER) = '' THEN
-          RAISE_APPLICATION_ERROR(-20002, 'CÛdigo da OperaÁ„o n„o pode ser vazio.');
+          RAISE_APPLICATION_ERROR(-20002, 'C√≥digo da Opera√ß√£o n√£o pode ser vazio.');
       END IF;
 
-      -- BUSCA A DESCRI«√O ROTINA 4014 BASEADA NOS PAR¬METROS RECEBIDOS
+      -- BUSCA A DESCRI√á√ÉO ROTINA 4014 BASEADA NOS PAR√ÇMETROS RECEBIDOS
       BEGIN
           IF P_CHEQUEMORADIA = 'S' THEN
             V_DESCRICAO := 'VENDA COM CHEQUE MORADIA';
@@ -6018,14 +6019,14 @@ create or replace package body FISCAL is
           PKG_DEBUGGING_FWPC.ATIVARDEBUG('Chamou GET_DESCRICAO_NATUREZA_OP retorno:','1.0');
           PKG_DEBUGGING_FWPC.LOG('DESCRICAO ROTINA 4014: '||V_DESCRICAO||' ', 'S');
           PKG_DEBUGGING_FWPC.LOG('CODFISCAL: '||P_CODFISCAL||' CODOPER: '||P_CODOPER||' CODROTINAORIGEM: '||P_CODROTINAORIGEM, 'S');
-          -- DESABILITANDO SERVI«O LOG
+          -- DESABILITANDO SERVI√áO LOG
           PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
 
           RETURN V_DESCRICAO;
 
       EXCEPTION
           WHEN NO_DATA_FOUND THEN
-              -- SE N√O ENCONTRAR NA 4014 VERIFICA SE O CFOP EXISTE NA ROTINA 543
+              -- SE N√ÉO ENCONTRAR NA 4014 VERIFICA SE O CFOP EXISTE NA ROTINA 543
               BEGIN
                   SELECT DESCCFO
                   INTO V_DESCRICAO
@@ -6033,13 +6034,13 @@ create or replace package body FISCAL is
                   WHERE CODFISCAL = P_CODFISCAL;
               EXCEPTION
                   WHEN NO_DATA_FOUND THEN
-                      RETURN 'CFOP n„o encontrado rotinas: 4014/543.';
+                      RETURN 'CFOP n√£o encontrado rotinas: 4014/543.';
               END;
               -- GRAVANDO LOG
               PKG_DEBUGGING_FWPC.ATIVARDEBUG('Chamou GET_DESCRICAO_NATUREZA_OP retorno:','1.0');
               PKG_DEBUGGING_FWPC.LOG('DESCRICAO ROTINA 543: '||V_DESCRICAO||' ', 'S');
               PKG_DEBUGGING_FWPC.LOG('CODFISCAL: '||P_CODFISCAL||' CODOPER: '||P_CODOPER||' CODROTINAORIGEM: '||P_CODROTINAORIGEM, 'S');
-              -- DESABILITANDO SERVI«O LOG
+              -- DESABILITANDO SERVI√áO LOG
               PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
               RETURN V_DESCRICAO;
       END;
@@ -6050,7 +6051,7 @@ create or replace package body FISCAL is
            IF SQLCODE IN (-20001, -20002) THEN
               RETURN SQLERRM;
           ELSE
-              RETURN 'Erro ao buscar descriÁ„o Natureza da OperaÁ„o.';
+              RETURN 'Erro ao buscar descri√ß√£o Natureza da Opera√ß√£o.';
           END IF;
   END GET_DESCRICAO_NATUREZA_OP;
 
@@ -6085,7 +6086,7 @@ create or replace package body FISCAL is
         WHERE P.IDPRES = I.IDPRES
           AND P.CODST = P_CODST
           AND I.ALIQICMSNF = P_ALIQICMSNF
-          -- Filtros adicionais somente se os par‚metros n„o forem nulos
+          -- Filtros adicionais somente se os par√¢metros n√£o forem nulos
           AND (P_CONTRIBUINTECONSFINAL IS NULL OR NVL(CONTRIBUINTECONSFINAL, 'N') = P_CONTRIBUINTECONSFINAL)
           AND ((NVL(TIPOEMPRESA, 'N') = P_TIPO_EMPRESA) OR (TIPOEMPRESA IS NULL ))
           AND ((NVL(TIPOPESSOA, 'N') = P_TIPO_PESSOA) OR (TIPOPESSOA IS NULL ))
@@ -6100,7 +6101,7 @@ create or replace package body FISCAL is
           AND ROWNUM  = 1
           ORDER BY P.DTCADASTRO;
 
-        -- Atribui os valores para os par‚metros de saÌda
+        -- Atribui os valores para os par√¢metros de sa√≠da
         P_FORMULACREDPRES := v_FORMULACREDPRES;
         P_ALIQCREDPRESUMIDO := v_ALIQCREDPRESUMIDO;
         P_CCREDPRESUMIDO := V_CCREDPRESUMIDO;
@@ -6126,24 +6127,24 @@ create or replace package body FISCAL is
   END GET_FORMULA_CREDPRESUMIDO;
 
   FUNCTION GET_DADOS_CREDITOPRESUMIDO (
-                                        P_CODBENEFICIOFISCAL IN VARCHAR2, -- CÛdigo Beneficio Fiscal
-                                        P_CODST IN NUMBER, -- Figura tribut·ria rotina 514
-                                        P_ALIQICMSNF IN NUMBER, -- AlÌquota ICMS NF
+                                        P_CODBENEFICIOFISCAL IN VARCHAR2, -- C√≥digo Beneficio Fiscal
+                                        P_CODST IN NUMBER, -- Figura tribut√°ria rotina 514
+                                        P_ALIQICMSNF IN NUMBER, -- Al√≠quota ICMS NF
                                         P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
                                         P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional)
                                         P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)
                                         P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional)
-                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- SituaÁ„o tribut·ria (Opcional)
-                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- CÛdigo fiscal(CFOP) (Opcional)
+                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situa√ß√£o tribut√°ria (Opcional)
+                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- C√≥digo fiscal(CFOP) (Opcional)
                                         P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional)
-                                        P_PUNITCONT IN NUMBER DEFAULT 0, -- PreÁo unit·rio
+                                        P_PUNITCONT IN NUMBER DEFAULT 0, -- Pre√ßo unit√°rio
                                         P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
                                         P_VLFRETE IN NUMBER DEFAULT 0, -- Valor do frete
                                         P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
                                         P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
                                         P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
-                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- ReduÁ„o Base ICMS
-                                        -- Declarando as vari·veis de saÌda
+                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- Redu√ß√£o Base ICMS
+                                        -- Declarando as vari√°veis de sa√≠da
                                         P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
                                         P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
@@ -6163,7 +6164,7 @@ create or replace package body FISCAL is
     /*
     TIPO DE EMPRESA:
     Empresa Pequeno Porte        - EPP
-    FilantrÛpica                 - FI
+    Filantr√≥pica                 - FI
     Micro Empresa                - ME
     Microempreendedor Individual - MEI
     Normal RPA                   - NRPA
@@ -6174,34 +6175,34 @@ create or replace package body FISCAL is
     Nenhum                       - NULL
 
     TIPO DE PESSOA:
-    FÌsica - F
-    JurÌdica - J
+    F√≠sica - F
+    Jur√≠dica - J
     Nenhum   - NULL
 
     Origem Mercadoria (valores de 0 a 8 ou NULL)
-    SituaÁ„o Tribut·ria: (valores 00, 10, 20 ,30 ,40, 41, 50, 51, 60, 70, 90 ou NULL)
+    Situa√ß√£o Tribut√°ria: (valores 00, 10, 20 ,30 ,40, 41, 50, 51, 60, 70, 90 ou NULL)
     Contribuinte consumidor final (valores 'S', 'N' ou NULL)
     */
 
   BEGIN
-    -- ValidaÁıes obrigatÛrias
+    -- Valida√ß√µes obrigat√≥rias
     IF NVL(P_PUNITCONT, 0) + NVL(P_BASEICMS, 0) <= 0 THEN
         P_MSG := 'Erro: Pelo menos um dos valores P_PUNITCONT ou P_BASEICMS deve ser maior que zero.';
         RETURN P_MSG;
     END IF;
 
     IF (P_CODST IS NULL) OR (P_CODST <= 0) THEN
-        P_MSG := 'Erro: CÛdigo figura tribut·ria rotina 514 n„o informada.';
+        P_MSG := 'Erro: C√≥digo figura tribut√°ria rotina 514 n√£o informada.';
         RETURN P_MSG;
     END IF;
 
     IF (P_ALIQICMSNF IS NULL) OR (P_ALIQICMSNF < 0) THEN
-        P_MSG := 'Erro: AlÌquota de ICMS NF n„o informada e/ou inv·lida.';
+        P_MSG := 'Erro: Al√≠quota de ICMS NF n√£o informada e/ou inv√°lida.';
         RETURN P_MSG;
     END IF;
 
 
-    -- Obter fÛrmula do crÈdito presumido
+    -- Obter f√≥rmula do cr√©dito presumido
     V_RESULT := FISCAL.GET_FORMULA_CREDPRESUMIDO(
         P_CODBENEFICIOFISCAL => P_CODBENEFICIOFISCAL,
         P_CODST => P_CODST,
@@ -6220,7 +6221,7 @@ create or replace package body FISCAL is
     );
 
     IF V_RESULT = 'OK' THEN
-        -- Atribuir valores das vari·veis
+        -- Atribuir valores das vari√°veis
         VARIAVEL.NOME  := '[PUNITCONT]';
         VARIAVEL.VALOR := CASE WHEN P_PUNITCONT IS NULL THEN 0 ELSE P_PUNITCONT END;
         FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
@@ -6253,7 +6254,7 @@ create or replace package body FISCAL is
         VARIAVEL.VALOR := CASE WHEN P_ALIQCREDITOPRESUMIDO IS NULL THEN 0 ELSE P_ALIQCREDITOPRESUMIDO END;
         FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
-        -- Calcular crÈdito presumido ICMS
+        -- Calcular cr√©dito presumido ICMS
         VFORMULACREDPRES := FORMULA.SUBSTITUIFORMULAS(VFORMULACREDPRES, RESULTADO);
         VFORMULARESULT := FORMULA.BUSCAVALOR(RESULTADO, 'VLR_CRED_PRES_BENEF_FISCAL');
         P_VLCREDITOPRESUMIDO := FORMULA.CALCULARSUBFORMULA(VFORMULARESULT, VTVARIAVEIS);
@@ -6288,7 +6289,7 @@ create or replace package body FISCAL is
                                      ,P_MSG      OUT VARCHAR2)
   RETURN VARCHAR2 IS
   V_RETURN VARCHAR2(1);
-  -- Vari·veis de saÌda
+  -- Vari√°veis de sa√≠da
   V_BASECREDITOPRESUMIDO NUMBER;
   v_VLCREDITOPRESUMIDO   NUMBER;
   v_ALIQCREDITOPRESUMIDO NUMBER;
@@ -6299,8 +6300,8 @@ create or replace package body FISCAL is
 
   BEGIN
      BEGIN
-       PKG_DEBUGGING_FWPC.ATIVARDEBUG('C·lculo de crÈdito presumido', '1.0',P_NUMTRANSACAO);
-       PKG_DEBUGGING_FWPC.LOG('Chamada da funÁ„o CALCULAR_CREDITOPRESUMIDO','S');
+       PKG_DEBUGGING_FWPC.ATIVARDEBUG('C√°lculo de cr√©dito presumido', '1.0',P_NUMTRANSACAO);
+       PKG_DEBUGGING_FWPC.LOG('Chamada da fun√ß√£o CALCULAR_CREDITOPRESUMIDO','S');
        FOR DADOS_CREDITOPRESUMIDO IN CONSULTA_DADOS_CREDPRESUMIDO(P_NUMTRANSACAO,
                                                                    P_TIPOMOV)
        LOOP
@@ -6325,23 +6326,23 @@ create or replace package body FISCAL is
                                        ,'S');
 
 
-       V_MSG_RETORNO := GET_DADOS_CREDITOPRESUMIDO(DADOS_CREDITOPRESUMIDO.CODBENEFICIOFISCAL, --CÛdigo Beneficio Fiscal
-                                                   DADOS_CREDITOPRESUMIDO.CODST, -- Figura tribut·ria rotina 514
-                                                   DADOS_CREDITOPRESUMIDO.PERCICM, -- AlÌquota ICMS NF
+       V_MSG_RETORNO := GET_DADOS_CREDITOPRESUMIDO(DADOS_CREDITOPRESUMIDO.CODBENEFICIOFISCAL, --C√≥digo Beneficio Fiscal
+                                                   DADOS_CREDITOPRESUMIDO.CODST, -- Figura tribut√°ria rotina 514
+                                                   DADOS_CREDITOPRESUMIDO.PERCICM, -- Al√≠quota ICMS NF
                                                    DADOS_CREDITOPRESUMIDO.CONTRIBUINTECONSFINAL, -- Contribuinte consumidor final (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.TIPOEMPRESA, -- Tipo de empresa (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.TIPOPESSOA, -- Tipo de pessoa (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.ORIGMERCTRIB, -- Origem da mercadoria (Opcional)
-                                                   DADOS_CREDITOPRESUMIDO.SITTRIBUT, -- SituaÁ„o tribut·ria (Opcional)
-                                                   DADOS_CREDITOPRESUMIDO.CODFISCAL, -- CÛdigo fiscal(CFOP) (Opcional)
+                                                   DADOS_CREDITOPRESUMIDO.SITTRIBUT, -- Situa√ß√£o tribut√°ria (Opcional)
+                                                   DADOS_CREDITOPRESUMIDO.CODFISCAL, -- C√≥digo fiscal(CFOP) (Opcional)
                                                    DADOS_CREDITOPRESUMIDO.NBM, -- NCM da mercadoria (Opcional)
-                                                   DADOS_CREDITOPRESUMIDO.PUNITCONT, -- PreÁo unit·rio
+                                                   DADOS_CREDITOPRESUMIDO.PUNITCONT, -- Pre√ßo unit√°rio
                                                    DADOS_CREDITOPRESUMIDO.VLIPI, -- Valor do IPI
                                                    DADOS_CREDITOPRESUMIDO.VLFRETE, -- Valor do frete
                                                    DADOS_CREDITOPRESUMIDO.VLST, -- Valor do ST
                                                    DADOS_CREDITOPRESUMIDO.VLOUTROS, -- Valor de outros
                                                    DADOS_CREDITOPRESUMIDO.BASEICMS, -- Base ICMS
-                                                   DADOS_CREDITOPRESUMIDO.PERCBASERED, -- ReduÁ„o Base ICMS
+                                                   DADOS_CREDITOPRESUMIDO.PERCBASERED, -- Redu√ß√£o Base ICMS
                                                    V_BASECREDITOPRESUMIDO,
                                                    v_VLCREDITOPRESUMIDO,
                                                    v_ALIQCREDITOPRESUMIDO,
@@ -6386,16 +6387,16 @@ create or replace package body FISCAL is
        END LOOP;
 
        IF NOT v_entrou THEN
-         PKG_DEBUGGING_FWPC.LOG('N„o retornou dados da funÁ„o CONSULTA_DADOS_CREDPRESUMIDO','S');
+         PKG_DEBUGGING_FWPC.LOG('N√£o retornou dados da fun√ß√£o CONSULTA_DADOS_CREDPRESUMIDO','S');
        END IF;
 
        V_RETURN := 'S';
-       -- DESABILITANDO SERVI«O LOG
+       -- DESABILITANDO SERVI√áO LOG
        PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
      EXCEPTION
         WHEN OTHERS THEN
         PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
-          P_MSG     := 'Erro o calcular CrÈdito Presumido.' || CHR(13) ||
+          P_MSG     := 'Erro o calcular Cr√©dito Presumido.' || CHR(13) ||
                        'Erro original: ' || SQLERRM;
           V_RETURN := 'N';
      END;
@@ -6408,7 +6409,7 @@ create or replace package body FISCAL is
     v_rows  PLS_INTEGER;
   BEGIN
     BEGIN
-      PKG_DEBUGGING_FWPC.LOG('Iniciando exclus„o dos tributos antigos', 'S');
+      PKG_DEBUGGING_FWPC.LOG('Iniciando exclus√£o dos tributos antigos', 'S');
 
       v_DeleteBaseCBSIBS_Antigo := 'DELETE FROM pctributacao WHERE base_calculo IN (';
 
@@ -6434,7 +6435,7 @@ create or replace package body FISCAL is
       EXECUTE IMMEDIATE v_DeleteBaseCBSIBS_Antigo;
 
       v_rows := SQL%ROWCOUNT;
-      PKG_DEBUGGING_FWPC.LOG(v_rows||' Registros excluÌdos com sucesso', 'S');
+      PKG_DEBUGGING_FWPC.LOG(v_rows||' Registros exclu√≠dos com sucesso', 'S');
     EXCEPTION
       WHEN OTHERS THEN
         PKG_DEBUGGING_FWPC.LOG('Erro ao executar DELETE: ' || SQLERRM, 'S');
@@ -6477,15 +6478,15 @@ create or replace package body FISCAL is
           V_PERC_RED_CBS    := V_PARAMETROS.PERC_RED_CBS;
           V_PERC_RED_IBS_UF := V_PARAMETROS.PERC_RED_ALIQ_IBS_UF;
           V_PERC_RED_IBS_MUN := V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN;
-          PKG_DEBUGGING_FWPC.LOG('N„o encontramos a cclasstrib na tabela PCCSTTRIBUTACAOIBSCBS: ' ||V_CCLASSTRIB||' ' || SQLERRM, 'S');
+          PKG_DEBUGGING_FWPC.LOG('N√£o encontramos a cclasstrib na tabela PCCSTTRIBUTACAOIBSCBS: ' ||V_CCLASSTRIB||' ' || SQLERRM, 'S');
         END;
     END;
 
     PKG_DEBUGGING_FWPC.LOG('Foi encontrado o seguinte resultado na tabela  PCCSTTRIBUTACAOIBSCBS cClassTrib: ' ||V_CCLASSTRIB ||
-                           ' ReduÁ„o do cbs no cadastro: ' ||V_PARAMETROS.PERC_RED_CBS||' ReduÁ„o CBS na tabela '||V_PERC_RED_CBS ||
-                           ' ReduÁ„o do ibs_uf no cadastro:  ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_UF||' ReduÁ„o Ibs_UF na tabela '||V_PERC_RED_IBS_UF||
-                           ' ReduÁ„o do ibs_mun no cadastro: ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN||' ReduÁ„o IBS_Mun na tabela '||V_PERC_RED_IBS_MUN||
-                           ' Gera Grupo de IBS e CBS: ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN||' ReduÁ„o IBS_Mun na tabela '||V_GERA_GRUPO_IBS_CBS
+                           ' Redu√ß√£o do cbs no cadastro: ' ||V_PARAMETROS.PERC_RED_CBS||' Redu√ß√£o CBS na tabela '||V_PERC_RED_CBS ||
+                           ' Redu√ß√£o do ibs_uf no cadastro:  ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_UF||' Redu√ß√£o Ibs_UF na tabela '||V_PERC_RED_IBS_UF||
+                           ' Redu√ß√£o do ibs_mun no cadastro: ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN||' Redu√ß√£o IBS_Mun na tabela '||V_PERC_RED_IBS_MUN||
+                           ' Gera Grupo de IBS e CBS: ' ||V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN||' Redu√ß√£o IBS_Mun na tabela '||V_GERA_GRUPO_IBS_CBS
 
      , 'S');
 
@@ -6502,7 +6503,7 @@ create or replace package body FISCAL is
   RETURN TIPO_TRIBUT_REFORMA IS
     V_PARAMETROS TIPO_TRIBUT_REFORMA := P_PARAMETROS;
 
-    -- Vari·veis para armazenar resultado
+    -- Vari√°veis para armazenar resultado
     V_CODIGO_TRIBUTACAO_CBSIBS        NUMBER(10);
     V_CODIGO_TRIBUTACAO_REGULAR       NUMBER(10);
     V_COD_FORMULA_BASE_CBSIBS         VARCHAR2(200);
@@ -6532,7 +6533,7 @@ create or replace package body FISCAL is
     V_UF VARCHAR2(2) := 'BR';
     V_BASE_CALCULO_PADRAO VARCHAR2(50) := '(&BASE_CALCULO& * [ALIQUOTA])';
 
-    -- FunÁ„o para gravar o Sql da pesquisa da tributaÁ„o
+    -- Fun√ß√£o para gravar o Sql da pesquisa da tributa√ß√£o
     PROCEDURE GRAVA_SQL_CONSULTA_TRIBUTOS(
       P_TIPO_LOCAL_CONSUMO VARCHAR2,
       P_LOCAL_CONSUMO VARCHAR2
@@ -6610,7 +6611,7 @@ create or replace package body FISCAL is
               AND ( (TRUNC(SYSDATE) BETWEEN TRUNC(PCTRIBUTACAO.DTINICIO_VIGENCIA) AND NVL(TRUNC(PCTRIBUTACAO.DTFIM_VIGENCIA),TRUNC(SYSDATE)))
                   OR (PCTRIBUTACAO.DTINICIO_VIGENCIA IS NULL AND PCTRIBUTACAO.DTFIM_VIGENCIA IS NULL) )
               AND (
-                  (-- N„o existe QUALQUER filtro de produto para esse cÛdigo
+                  (-- N√£o existe QUALQUER filtro de produto para esse c√≥digo
                       NOT EXISTS (
                       SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                       WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6624,7 +6625,7 @@ create or replace package body FISCAL is
                         AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = ' ||P_PARAMETROS.CODPROD|| '
                       )
                    AND (
-                      -- N„o existe QUALQUER filtro de produto para esse CFOP
+                      -- N√£o existe QUALQUER filtro de produto para esse CFOP
                       NOT EXISTS (
                       SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                       WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6639,7 +6640,7 @@ create or replace package body FISCAL is
                       )
                     )
                   )
-              OR (-- N„o existe QUALQUER filtro de NCM para esse cÛdigo
+              OR (-- N√£o existe QUALQUER filtro de NCM para esse c√≥digo
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6653,7 +6654,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = ' || '''' || P_PARAMETROS.NCM ||''''|| '
                     )
                AND (
-                  -- N„o existe QUALQUER filtro de produto para esse CFOP
+                  -- N√£o existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6669,7 +6670,7 @@ create or replace package body FISCAL is
                   )
                 )
               OR ((
-                  -- N„o existe QUALQUER filtro de produto para esse CFOP
+                  -- N√£o existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6683,7 +6684,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_CFOP.CODFISCAL = ' ||P_PARAMETROS.CFOP|| '
                     )
                   )
-                  AND (-- N„o existe QUALQUER filtro de produto para esse CFOP
+                  AND (-- N√£o existe QUALQUER filtro de produto para esse CFOP
                        NOT EXISTS (
                        SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                         WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6740,7 +6741,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
             -----------------------------------------------------------------------------------------
-            -- (MantÈm outros critÈrios existentes)
+            -- (Mant√©m outros crit√©rios existentes)
             CASE WHEN NVL(PCTRIBUTACAO.CONSUMIDOR_FINAL,''N'')  = NVL(' ||''''||P_PARAMETROS.CONSUMIDOR_FINAL||''''||',''N'')  THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.CONTRIBUINTE,''N'')      = NVL(' ||''''||P_PARAMETROS.CONTRIBUINTE||''''||',''N'')      THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.TIPO_EMPRESA,''N'')      = NVL(' ||''''||P_PARAMETROS.TIPO_EMPRESA||''''||',''N'')      THEN 1 ELSE 2 END,
@@ -6760,13 +6761,13 @@ create or replace package body FISCAL is
     PKG_DEBUGGING_FWPC.LOG_SQL(V_SQL , 'S');
   END GRAVA_SQL_CONSULTA_TRIBUTOS;
 
-    -- FunÁ„o auxiliar para consulta, recebe filtros de consumo especÌficos
+    -- Fun√ß√£o auxiliar para consulta, recebe filtros de consumo espec√≠ficos
     FUNCTION CONSULTA_TRIBUTOS(
       P_TIPO_LOCAL_CONSUMO VARCHAR2,
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
     BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO com os seguintes par‚metros:' || CHR(10)
+    PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO com os seguintes par√¢metros:' || CHR(10)
                          ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
                          ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
                          ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
@@ -6878,7 +6879,7 @@ create or replace package body FISCAL is
               AND ((TRUNC(SYSDATE) BETWEEN TRUNC(PCTRIBUTACAO.DTINICIO_VIGENCIA) AND NVL(TRUNC(PCTRIBUTACAO.DTFIM_VIGENCIA),TRUNC(SYSDATE))) OR
                    (PCTRIBUTACAO.DTINICIO_VIGENCIA IS NULL AND PCTRIBUTACAO.DTFIM_VIGENCIA IS NULL))
               AND (
-                  (-- N„o existe QUALQUER filtro de produto para esse cÛdigo
+                  (-- N√£o existe QUALQUER filtro de produto para esse c√≥digo
                       NOT EXISTS (
                       SELECT 1 FROM PCTRIBUTACAO_FILTRO_PRODUTO
                       WHERE PCTRIBUTACAO_FILTRO_PRODUTO.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6892,7 +6893,7 @@ create or replace package body FISCAL is
                         AND PCTRIBUTACAO_FILTRO_PRODUTO.CODPROD = P_PARAMETROS.CODPROD
                       )
                    AND (
-                      -- N„o existe QUALQUER filtro de produto para esse CFOP
+                      -- N√£o existe QUALQUER filtro de produto para esse CFOP
                       NOT EXISTS (
                       SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                       WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6907,7 +6908,7 @@ create or replace package body FISCAL is
                       )
                     )
                   )
-              OR (-- N„o existe QUALQUER filtro de NCM para esse cÛdigo
+              OR (-- N√£o existe QUALQUER filtro de NCM para esse c√≥digo
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                   WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6921,7 +6922,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_NCM.NCM = P_PARAMETROS.NCM
                     )
                AND (
-                  -- N„o existe QUALQUER filtro de produto para esse CFOP
+                  -- N√£o existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6937,7 +6938,7 @@ create or replace package body FISCAL is
                   )
                 )
               OR ((
-                  -- N„o existe QUALQUER filtro de produto para esse CFOP
+                  -- N√£o existe QUALQUER filtro de produto para esse CFOP
                   NOT EXISTS (
                   SELECT 1 FROM PCTRIBUTACAO_FILTRO_CFOP
                   WHERE PCTRIBUTACAO_FILTRO_CFOP.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -6951,7 +6952,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_CFOP.CODFISCAL = P_PARAMETROS.CFOP
                     )
                   )
-                  AND (-- N„o existe QUALQUER filtro de produto para esse CFOP
+                  AND (-- N√£o existe QUALQUER filtro de produto para esse CFOP
                        NOT EXISTS (
                        SELECT 1 FROM PCTRIBUTACAO_FILTRO_NCM
                         WHERE PCTRIBUTACAO_FILTRO_NCM.CODIGO_TRIBUTACAO = PCTRIBUTACAO.CODIGO_TRIBUTACAO
@@ -7008,7 +7009,7 @@ create or replace package body FISCAL is
                     AND PCTRIBUTACAO_FILTRO_CFOP.DTEXCLUSAO IS NULL
                ) THEN 0 ELSE 1 END,
             -----------------------------------------------------------------------------------------
-            -- (mantÈm outros critÈrios existentes)
+            -- (mant√©m outros crit√©rios existentes)
             CASE WHEN NVL(PCTRIBUTACAO.CONSUMIDOR_FINAL,'N')  = NVL(P_PARAMETROS.CONSUMIDOR_FINAL,'N')  THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.CONTRIBUINTE,'N')      = NVL(P_PARAMETROS.CONTRIBUINTE,'N')      THEN 1 ELSE 2 END,
             CASE WHEN NVL(PCTRIBUTACAO.TIPO_EMPRESA,'N')      = NVL(P_PARAMETROS.TIPO_EMPRESA,'N')      THEN 1 ELSE 2 END,
@@ -7053,10 +7054,10 @@ create or replace package body FISCAL is
 
         IF (V_COD_FORMULA_BASE_CBSIBS NOT LIKE '%CBSIBS%') THEN
            RAISE_APPLICATION_ERROR(-20999,
-              'O tipo do imposto selecionado È diferente do tipo da base de c·lculo escolhida'||
+              'O tipo do imposto selecionado √© diferente do tipo da base de c√°lculo escolhida'||
               ' "Tipo imposto: '||V_COD_FORMULA_BASE_CBSIBS||
               '  Tipo Base de Calculo: CBSIBS" '||
-              'O correto È selecionar a base de c·lculo conforme o Tipo de Imposto "CBSIBS = BASE_CBSIBS".'
+              'O correto √© selecionar a base de c√°lculo conforme o Tipo de Imposto "CBSIBS = BASE_CBSIBS".'
            );
         END IF;
 
@@ -7072,10 +7073,10 @@ create or replace package body FISCAL is
 
         IF (V_COD_FORMULA_BASE_CALCULO_IS NOT LIKE '%IS%') THEN
            RAISE_APPLICATION_ERROR(-20999,
-              'O tipo do imposto selecionado È diferente do tipo da base de c·lculo escolhida'||
+              'O tipo do imposto selecionado √© diferente do tipo da base de c√°lculo escolhida'||
               ' "Tipo imposto: '||V_COD_FORMULA_BASE_CALCULO_IS||
               '  Tipo Base de Calculo: IS" '||
-              'O correto È selecionar a base de c·lculo conforme o Tipo de Imposto "IS = BASE_IS".'
+              'O correto √© selecionar a base de c√°lculo conforme o Tipo de Imposto "IS = BASE_IS".'
            );
         END IF;
       END IF;
@@ -7106,7 +7107,7 @@ create or replace package body FISCAL is
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('N„o foi encontrado nenhum registro na tabela PCTRIBUTACAO com os par‚metros:' || CHR(10)
+          PKG_DEBUGGING_FWPC.LOG('N√£o foi encontrado nenhum registro na tabela PCTRIBUTACAO com os par√¢metros:' || CHR(10)
                                ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
                                ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
                                ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
@@ -7138,20 +7139,20 @@ create or replace package body FISCAL is
 
     PKG_DEBUGGING_FWPC.LOG('Iniciando consulta dos dados de novos tributos.', 'S');
 
-    -- Tenta por MunicÌpio
+    -- Tenta por Munic√≠pio
     IF CONSULTA_TRIBUTOS('M', TO_CHAR(P_PARAMETROS.CODIGO_MUNICIPIO)) THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por MunicÌpio: ' || P_PARAMETROS.CODIGO_MUNICIPIO, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por Munic√≠pio: ' || P_PARAMETROS.CODIGO_MUNICIPIO, 'S');
 
-    -- Sen„o tenta por UF
+    -- Sen√£o tenta por UF
     ELSIF CONSULTA_TRIBUTOS('G', V_UF) THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por UF: ' || V_UF, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por UF: ' || V_UF, 'S');
 
-    -- Sen„o tenta por Brasil
+    -- Sen√£o tenta por Brasil
     ELSIF CONSULTA_TRIBUTOS('G', 'BR') THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por NaÁ„o: BR', 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por Na√ß√£o: BR', 'S');
 
     ELSE
-      PKG_DEBUGGING_FWPC.LOG('Nenhuma configuraÁ„o encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Nenhuma configura√ß√£o encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
     END IF;
 
     RETURN V_PARAMETROS;
@@ -7163,7 +7164,7 @@ create or replace package body FISCAL is
   RETURN TIPO_TRIBUT_REFORMA IS
     V_PARAMETROS TIPO_TRIBUT_REFORMA := P_PARAMETROS;
 
-    -- Vari·veis para armazenar resultado
+    -- Vari√°veis para armazenar resultado
     V_CODIGO_TRIBUTACAO_CBSIBS        NUMBER(10);
     V_COD_FORMULA_BASE_CBSIBS         VARCHAR2(200);
     V_SOMATOTALNF_CBSIBS              VARCHAR2(1);
@@ -7176,13 +7177,13 @@ create or replace package body FISCAL is
     V_UF VARCHAR2(2) := 'BR';
     V_BASE_CALCULO_PADRAO VARCHAR2(50) := '(&BASE_CALCULO& * [ALIQUOTA])';
 
-    -- FunÁ„o auxiliar para consulta, recebe filtros de consumo especÌficos
+    -- Fun√ß√£o auxiliar para consulta, recebe filtros de consumo espec√≠ficos
     FUNCTION CONSULTA_TRIBUTO_REGULAR(
       P_TIPO_LOCAL_CONSUMO VARCHAR2,
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
     BEGIN
-    PKG_DEBUGGING_FWPC.LOG('TributaÁ„o Regular - Iniciando consulta na PCTRIBUTACAO:' || CHR(10)
+    PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o Regular - Iniciando consulta na PCTRIBUTACAO:' || CHR(10)
                          ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
                          ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
                          ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
@@ -7238,10 +7239,10 @@ create or replace package body FISCAL is
 
         IF (V_COD_FORMULA_BASE_CBSIBS NOT LIKE '%CBSIBS%') THEN
            RAISE_APPLICATION_ERROR(-20999,
-              'O tipo do imposto selecionado È diferente do tipo da base de c·lculo escolhida'||
+              'O tipo do imposto selecionado √© diferente do tipo da base de c√°lculo escolhida'||
               ' "Tipo imposto: '||V_COD_FORMULA_BASE_CBSIBS||
               '  Tipo Base de Calculo: CBSIBS" '||
-              'O correto È selecionar a base de c·lculo conforme o Tipo de Imposto "CBSIBS = BASE_CBSIBS".'
+              'O correto √© selecionar a base de c√°lculo conforme o Tipo de Imposto "CBSIBS = BASE_CBSIBS".'
            );
         END IF;
       END IF;
@@ -7251,7 +7252,7 @@ create or replace package body FISCAL is
     EXCEPTION
       WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('TributaÁ„o Regular - N„o foi encontrado nenhum registro na tabela PCTRIBUTACAO com o par‚metros:' || CHR(10)
+          PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o Regular - N√£o foi encontrado nenhum registro na tabela PCTRIBUTACAO com o par√¢metros:' || CHR(10)
                                ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
                                ||' P_PARAMETROS.TIPO_OPERACAO:'||' '||P_PARAMETROS.TIPO_OPERACAO || CHR(10)
                                ||' P_PARAMETROS.DEVOLUCAO:'||' '|| P_PARAMETROS.DEVOLUCAO || CHR(10)
@@ -7282,20 +7283,20 @@ create or replace package body FISCAL is
 
     PKG_DEBUGGING_FWPC.LOG('Iniciando consulta dos dados de novos tributos.', 'S');
 
-    -- Tenta por MunicÌpio
+    -- Tenta por Munic√≠pio
     IF CONSULTA_TRIBUTO_REGULAR('M', TO_CHAR(P_PARAMETROS.CODIGO_MUNICIPIO)) THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por MunicÌpio: ' || P_PARAMETROS.CODIGO_MUNICIPIO, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por Munic√≠pio: ' || P_PARAMETROS.CODIGO_MUNICIPIO, 'S');
 
-    -- Sen„o tenta por UF
+    -- Sen√£o tenta por UF
     ELSIF CONSULTA_TRIBUTO_REGULAR('G', V_UF) THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por UF: ' || V_UF, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por UF: ' || V_UF, 'S');
 
-    -- Sen„o tenta por Brasil
+    -- Sen√£o tenta por Brasil
     ELSIF CONSULTA_TRIBUTO_REGULAR('G', 'BR') THEN
-      PKG_DEBUGGING_FWPC.LOG('TributaÁ„o localizada por NaÁ„o: BR', 'S');
+      PKG_DEBUGGING_FWPC.LOG('Tributa√ß√£o localizada por Na√ß√£o: BR', 'S');
 
     ELSE
-      PKG_DEBUGGING_FWPC.LOG('Nenhuma configuraÁ„o encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
+      PKG_DEBUGGING_FWPC.LOG('Nenhuma configura√ß√£o encontrada para o tipo de imposto: ' || P_PARAMETROS.TIPO_IMPOSTO, 'S');
     END IF;
 
     RETURN V_PARAMETROS;
@@ -7313,7 +7314,7 @@ create or replace package body FISCAL is
     V_PARAMETROS       TIPO_TRIBUT_REFORMA;
     V_TIPO_IMPOSTO     VARCHAR2(15);
 
-    /*Inicio sub funÁıes/procedures*/
+    /*Inicio sub fun√ß√µes/procedures*/
     PROCEDURE CALCULAR_VALOR_IS IS
     BEGIN
       -- Calcular tributo
@@ -7341,11 +7342,11 @@ create or replace package body FISCAL is
 
     PROCEDURE CALCULAR_VALOR_CBSIBS IS
       V_ALIQ_EFETIVA_CBS             NUMBER(7,4);
-      V_ALIQ_EFETIVA_CBS_DIFERIM     NUMBER(7,4); -- Variavel tempor·ria para calculo do diferimento
+      V_ALIQ_EFETIVA_CBS_DIFERIM     NUMBER(7,4); -- Variavel tempor√°ria para calculo do diferimento
       V_ALIQ_EFETIVA_IBS_UF          NUMBER(7,4);
-      V_ALIQ_EFETIVA_IBS_UF_DIFERIM  NUMBER(7,4); -- Variavel tempor·ria para calculo do diferimento
+      V_ALIQ_EFETIVA_IBS_UF_DIFERIM  NUMBER(7,4); -- Variavel tempor√°ria para calculo do diferimento
       V_ALIQ_EFETIVA_IBS_MUN         NUMBER(7,4);
-      V_ALIQ_EFETIVA_IBS_MUN_DIFERIM NUMBER(7,4); -- Variavel tempor·ria para calculo do diferimento
+      V_ALIQ_EFETIVA_IBS_MUN_DIFERIM NUMBER(7,4); -- Variavel tempor√°ria para calculo do diferimento
     BEGIN
       -- Calcular tributo
       VFORMULA_TRIBUTOS  := FORMULA.SUBSTITUIFORMULAS(P_PARAMETROS.COD_FORMULA_BASE_CBSIBS, RESULTADO);
@@ -7370,7 +7371,7 @@ create or replace package body FISCAL is
         V_ALIQ_EFETIVA_CBS := V_PARAMETROS.PERC_CBS;
       end if;
 
-       -- C·lculo para UF --
+       -- C√°lculo para UF --
       if (V_PARAMETROS.PERC_RED_ALIQ_IBS_UF > 0) then
         V_ALIQ_EFETIVA_IBS_UF := (V_PARAMETROS.PERC_IBS_UF * (1-(V_PARAMETROS.PERC_RED_ALIQ_IBS_UF/100)));
         V_PARAMETROS.ALIQ_EFETIVA_IBS_UF := V_ALIQ_EFETIVA_IBS_UF;
@@ -7378,7 +7379,7 @@ create or replace package body FISCAL is
         V_ALIQ_EFETIVA_IBS_UF := V_PARAMETROS.PERC_IBS_UF;
       end if;
 
-      -- C·lculo para MunicÌpio --
+      -- C√°lculo para Munic√≠pio --
       if (V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN > 0) then
         V_ALIQ_EFETIVA_IBS_MUN := (V_PARAMETROS.PERC_IBS_MUN * (1-(V_PARAMETROS.PERC_RED_ALIQ_IBS_MUN/100)));
         V_PARAMETROS.ALIQ_EFETIVA_IBS_MUN := V_ALIQ_EFETIVA_IBS_MUN;
@@ -7386,7 +7387,7 @@ create or replace package body FISCAL is
         V_ALIQ_EFETIVA_IBS_MUN := V_PARAMETROS.PERC_IBS_MUN;
       end if;
 
-      -- C·lculo para Org„o Publico --
+      -- C√°lculo para Org√£o Publico --
       IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO <> '0' AND 
        V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB >= 0 THEN
 
@@ -7399,7 +7400,7 @@ create or replace package body FISCAL is
          V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_IBS_MUN_COMPRA_GOV := V_ALIQ_EFETIVA_IBS_MUN;
          V_PARAMETROS.COMPRA_GOVERNAMENTAL.VALOR_IBS_MUN_COMPRA_GOV := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_MUN)/100),10);
 
-         -- Reduzindo aliquotas efetivas para tributaÁ„o com COMPRA_GOVERNAMENTAL
+         -- Reduzindo aliquotas efetivas para tributa√ß√£o com COMPRA_GOVERNAMENTAL
          IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB > 0 THEN
            V_ALIQ_EFETIVA_CBS     := (V_ALIQ_EFETIVA_CBS     * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100)));
            V_ALIQ_EFETIVA_IBS_UF  := (V_ALIQ_EFETIVA_IBS_UF  * (1-(V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB/100)));
@@ -7411,7 +7412,7 @@ create or replace package body FISCAL is
          V_PARAMETROS.ALIQ_EFETIVA_IBS_MUN := V_ALIQ_EFETIVA_IBS_MUN;
       END IF;
 
-      -- Reduzindo aliquotas efetivas para tributaÁ„o com DIFERIMENTO
+      -- Reduzindo aliquotas efetivas para tributa√ß√£o com DIFERIMENTO
       IF V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO > 0 THEN 
          V_ALIQ_EFETIVA_CBS_DIFERIM     := (V_ALIQ_EFETIVA_CBS     * (1-(V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO/100)));
          V_ALIQ_EFETIVA_IBS_UF_DIFERIM  := (V_ALIQ_EFETIVA_IBS_UF  * (1-(V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO/100)));
@@ -7438,11 +7439,11 @@ create or replace package body FISCAL is
        V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_UF  := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_UF,VTVARIAVEIS);
        V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_MUN := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_VALOR_TRIBUTO_IBS_MUN,VTVARIAVEIS);
 
-       if (V_PARAMETROS.DADOS_PCCSTTRIBUTACAOIBSCBS.GERA_GRUPO_IBS_CBS = 'N„o') then
+       if (V_PARAMETROS.DADOS_PCCSTTRIBUTACAOIBSCBS.GERA_GRUPO_IBS_CBS = 'N√£o') then
          V_PARAMETROS.VALOR_BASE_CBSIBS := 0;
        end if;
        
-       -- Se Diferimento, ent„o os valores devem ser aplicados com a aliquota j· reduzida pro referimento.
+       -- Se Diferimento, ent√£o os valores devem ser aplicados com a aliquota j√° reduzida pro referimento.
        IF V_PARAMETROS.DADOS_DIFERIMENTO_CBS.PERC_DIFERIMENTO > 0 THEN 
          V_PARAMETROS.VALOR_CBS     := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_CBS_DIFERIM)/100),10);
          V_PARAMETROS.VALOR_IBS_UF  := ROUND(((V_PARAMETROS.VALOR_BASE_CBSIBS * V_ALIQ_EFETIVA_IBS_UF_DIFERIM)/100),10);
@@ -7478,7 +7479,7 @@ create or replace package body FISCAL is
       V_ALIQ_EFET_REG_IBS_UF  := V_PARAMETROS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_UF;
       V_ALIQ_EFET_REG_IBS_MUN := V_PARAMETROS.TRIBUTACAO_REGULAR.ALIQ_EFET_REG_IBS_MUN;
 
-      -- C·lculo para Org„o Publico --
+      -- C√°lculo para Org√£o Publico --
       IF V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO <> '0' AND 
          V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB >= 0 THEN
          V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_CBS_COMPRA_GOV     := V_ALIQ_EFET_REG_CBS;
@@ -7507,18 +7508,18 @@ create or replace package body FISCAL is
        V_PARAMETROS.TRIBUTACAO_REGULAR.VLTOTAL_TRIB_REGULAR := ROUND(V_PARAMETROS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_UF,10) + ROUND(V_PARAMETROS.TRIBUTACAO_REGULAR.VTRIB_REG_IBS_MUN,10);
 
     END CALCULAR_VALOR_TRIBUTO_REGULAR;
-    /*Fim sub funÁıes/procedures*/
+    /*Fim sub fun√ß√µes/procedures*/
 
   BEGIN
     V_PARAMETROS := P_PARAMETROS;
 
-    PKG_DEBUGGING_FWPC.LOG('Inicio do processo de c·lculo dos novos tributos','S');
+    PKG_DEBUGGING_FWPC.LOG('Inicio do processo de c√°lculo dos novos tributos','S');
 
       IF ((P_PARAMETROS.COD_FORMULA_BASE_CBSIBS IS NOT NULL) AND
           (P_PARAMETROS.TIPO_IMPOSTO = 'CBSIBS')) OR
          ((P_PARAMETROS.COD_FORMULA_BASE_CALCULO_IS IS NOT NULL) AND
           (P_PARAMETROS.TIPO_IMPOSTO = 'IS'))  THEN
-         -- Atribuir valores das vari·veis
+         -- Atribuir valores das vari√°veis
          VARIAVEL.NOME  := '&PUNITCONT&';
          VARIAVEL.VALOR := CASE WHEN P_PARAMETROS.VALOR_PRODUTO IS NULL THEN 0 ELSE P_PARAMETROS.VALOR_PRODUTO END;
          FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
@@ -7619,13 +7620,13 @@ create or replace package body FISCAL is
 
     V_PARAMETROS       TIPO_TRIBUT_REFORMA;
   BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Inicio da consulta por cÛdigo de municÌpio','S');
+    PKG_DEBUGGING_FWPC.LOG('Inicio da consulta por c√≥digo de munic√≠pio','S');
 
     V_PARAMETROS  := P_PARAMETROS;
 
     IF V_PARAMETROS.CODCLI > 0 THEN
       BEGIN
-        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do cÛdigo de municÌpio para o codcli: '||V_PARAMETROS.CODCLI,'S');
+        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do c√≥digo de munic√≠pio para o codcli: '||V_PARAMETROS.CODCLI,'S');
 
         SELECT PCCIDADE.CODIBGE,
                PCCIDADE.UF,
@@ -7667,8 +7668,8 @@ create or replace package body FISCAL is
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.TIPO_ORGAOPUBLICO  := V_TIPO_ORGAOPUBLICO;
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB := V_PERC_RED_ORG_PUB;
 
-        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado cÛdigo de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||V_PARAMETROS.CODCLI|| CHR(10) ||
-                               ' CÛd Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
+        PKG_DEBUGGING_FWPC.LOG('OK: Encontrado c√≥digo de municipio '||V_CODIGO_MUNICIPIO||' para o codcli: '||V_PARAMETROS.CODCLI|| CHR(10) ||
+                               ' C√≥d Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
                                ' UF Cliente: '||V_PARAMETROS.UF_CLIENTE|| CHR(10) ||
                                ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL|| CHR(10) ||
                                ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA|| CHR(10) ||
@@ -7679,18 +7680,18 @@ create or replace package body FISCAL is
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('ERRO: N„o encontrado dados para o CODCLI: '||V_PARAMETROS.CODCLI||' '||SQLERRM,'S');
+          PKG_DEBUGGING_FWPC.LOG('ERRO: N√£o encontrado dados para o CODCLI: '||V_PARAMETROS.CODCLI||' '||SQLERRM,'S');
         END;
         WHEN OTHERS THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o cÛdigo de cliente: '||V_PARAMETROS.CODCLI||' '|| SQLERRM,'S');
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o c√≥digo de cliente: '||V_PARAMETROS.CODCLI||' '|| SQLERRM,'S');
         END;
       END;
     END IF;
 
     IF V_PARAMETROS.CODFORNEC > 0 THEN
       BEGIN
-        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do cÛdigo de municÌpio para o codfornec: '||V_PARAMETROS.CODFORNEC,'S');
+        PKG_DEBUGGING_FWPC.LOG('Realizando a consulta do c√≥digo de munic√≠pio para o codfornec: '||V_PARAMETROS.CODFORNEC,'S');
 
         SELECT PCCIDADE.CODIBGE,
                NVL(PCFORNEC.ESTADO, PCCLIENT.ESTENT) UF,
@@ -7734,7 +7735,7 @@ create or replace package body FISCAL is
         V_PARAMETROS.COMPRA_GOVERNAMENTAL.PERC_RED_ORGAO_PUB := V_PERC_RED_ORG_PUB;
 
         PKG_DEBUGGING_FWPC.LOG('OK: Encontrado dados para o fornecedor codfornec: '||V_PARAMETROS.CODFORNEC|| CHR(10) ||
-                               ' CÛd Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
+                               ' C√≥d Municipio: '||V_PARAMETROS.CODIGO_MUNICIPIO|| CHR(10) ||
                                ' UF Cliente: '||V_PARAMETROS.UF_FORNECEDOR|| CHR(10) ||
                                ' Consumidor Final: '||V_PARAMETROS.CONSUMIDOR_FINAL|| CHR(10) ||
                                ' Tipo Empresa: '||V_PARAMETROS.TIPO_EMPRESA|| CHR(10) ||
@@ -7745,11 +7746,11 @@ create or replace package body FISCAL is
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('ERRO: N„o encontrado dados para o fornecedor codfornec: '||V_PARAMETROS.CODFORNEC||' '||SQLERRM,'S');
+          PKG_DEBUGGING_FWPC.LOG('ERRO: N√£o encontrado dados para o fornecedor codfornec: '||V_PARAMETROS.CODFORNEC||' '||SQLERRM,'S');
         END;
         WHEN OTHERS THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o cÛdigo do fornecedor: '||V_PARAMETROS.CODFORNEC||' '|| SQLERRM,'S');
+          PKG_DEBUGGING_FWPC.LOG('ERRO: Erro ao consultar o c√≥digo do fornecedor: '||V_PARAMETROS.CODFORNEC||' '|| SQLERRM,'S');
         END;
       END;
     END IF;
@@ -7764,7 +7765,7 @@ create or replace package body FISCAL is
 
     V_PARAMETROS       TIPO_TRIBUT_REFORMA;
   BEGIN
-    PKG_DEBUGGING_FWPC.LOG('Inicio da consulta por endereÁo de entrega codCli: '||V_PARAMETROS.CODCLI||
+    PKG_DEBUGGING_FWPC.LOG('Inicio da consulta por endere√ßo de entrega codCli: '||V_PARAMETROS.CODCLI||
                            ' V_PARAMETROS.CODIGO_ENDERECO_CLI: '||V_PARAMETROS.CODIGO_ENDERECO_CLI,'S');
 
     V_PARAMETROS  := P_PARAMETROS;
@@ -7798,7 +7799,7 @@ create or replace package body FISCAL is
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
         BEGIN
-         PKG_DEBUGGING_FWPC.LOG('ERRO: N„o encontrado endereco de entrega para o CODCLI: '||V_PARAMETROS.CODCLI||' V_PARAMETROS.CODIGO_ENDERECO_CLI: '||V_PARAMETROS.CODIGO_ENDERECO_CLI||' '||SQLERRM,'S');
+         PKG_DEBUGGING_FWPC.LOG('ERRO: N√£o encontrado endereco de entrega para o CODCLI: '||V_PARAMETROS.CODCLI||' V_PARAMETROS.CODIGO_ENDERECO_CLI: '||V_PARAMETROS.CODIGO_ENDERECO_CLI||' '||SQLERRM,'S');
         END;
       END;
     END IF;
@@ -7814,7 +7815,7 @@ create or replace package body FISCAL is
   BEGIN
     BEGIN
       --PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_TODOS_TRIB', '1.0');
-      PKG_DEBUGGING_FWPC.LOG('Inicio c·lculo IS para filial| '||P_PARAMETROS.CODFILIAL||
+      PKG_DEBUGGING_FWPC.LOG('Inicio c√°lculo IS para filial| '||P_PARAMETROS.CODFILIAL||
                              ' Produto: '||P_PARAMETROS.CODPROD||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
 
@@ -7827,16 +7828,16 @@ create or replace package body FISCAL is
         --Busca os dados do cliente ou fornecedor
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-        --Busca os dados do endereÁo de entrega do cliente
+        --Busca os dados do endere√ßo de entrega do cliente
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
         --Busca os dados de cadastro da rotina 4000
         V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        --Calcula os novos impostos com base na tributaÁ„o que foi encontrada
+        --Calcula os novos impostos com base na tributa√ß√£o que foi encontrada
         V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
  
-        PKG_DEBUGGING_FWPC.LOG(' Inicio c·lculo CBSIBS para filial| '|| P_PARAMETROS.CODFILIAL || CHR(10) ||
+        PKG_DEBUGGING_FWPC.LOG(' Inicio c√°lculo CBSIBS para filial| '|| P_PARAMETROS.CODFILIAL || CHR(10) ||
                                ' Produto: '||P_PARAMETROS.CODPROD || CHR(10) ||
                                ' Ncm:'||P_PARAMETROS.NCM,'S');
 
@@ -7849,15 +7850,15 @@ create or replace package body FISCAL is
           V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTO_REGULAR(V_DADOS_TRIBUTACAO);
         END IF;      
         
-        --Calcula os novos impostos com base na tributaÁ„o que foi encontrada
+        --Calcula os novos impostos com base na tributa√ß√£o que foi encontrada
         V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de c·lculo CBS com os seguintes dados:' || CHR(10) ||
-                               ' CÛdigo TributaÁ„o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
-                               ' CÛdigo da Base de C·lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
+        PKG_DEBUGGING_FWPC.LOG('Finalizando o processo de c√°lculo CBS com os seguintes dados:' || CHR(10) ||
+                               ' C√≥digo Tributa√ß√£o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
+                               ' C√≥digo da Base de C√°lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
                                ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS|| CHR(10) ||
                                ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS|| CHR(10) ||
-                               ' Valor da base de c·lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
+                               ' Valor da base de c√°lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
                                ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS|| CHR(10) ||
                                ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS|| CHR(10) ||
                                ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF|| CHR(10) ||
@@ -7867,11 +7868,11 @@ create or replace package body FISCAL is
                                ' Perc Red IBS MUN: '||V_DADOS_TRIBUTACAO.PERC_RED_ALIQ_IBS_MUN|| CHR(10) ||
                                ' Valor IBS MUN calculado: '||V_DADOS_TRIBUTACAO.VALOR_IBS_MUN|| CHR(10) ||
                                ' Valor Total IBS(UF+MUN) calculado: '||V_DADOS_TRIBUTACAO.VLTOTALIBS|| CHR(10) ||
-                               ' CÛdigo TributaÁ„o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
-                               ' CÛdigo da Base de C·lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
+                               ' C√≥digo Tributa√ß√£o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
+                               ' C√≥digo da Base de C√°lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
                                ' CST: '||V_DADOS_TRIBUTACAO.CST_IS|| CHR(10) ||
                                ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS|| CHR(10) ||
-                               ' Valor da base de c·lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
+                               ' Valor da base de c√°lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
                                ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS|| CHR(10) ||
                                ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
                                ,'S');
@@ -7881,14 +7882,14 @@ create or replace package body FISCAL is
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
-        P_MSG := 'OK : Tributos n„o gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos n√£o gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
         
       EXCEPTION
         WHEN OTHERS THEN
           BEGIN
-            PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c·lculo do CALCULAR_TODOS_TRIBUTOS: '||SQLERRM,'S');
+            PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c√°lculo do CALCULAR_TODOS_TRIBUTOS: '||SQLERRM,'S');
             V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
             P_MSG := 'ERRO: '||SQLERRM;
             RETURN(V_DADOS_TRIBUTACAO);
@@ -7903,7 +7904,7 @@ create or replace package body FISCAL is
   BEGIN
     BEGIN
       --PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_CBSIBS', '1.0');
-      PKG_DEBUGGING_FWPC.LOG('Inicio c·lculo CBS para filial| '||P_PARAMETROS.CODFILIAL|| CHR(10) ||
+      PKG_DEBUGGING_FWPC.LOG('Inicio c√°lculo CBS para filial| '||P_PARAMETROS.CODFILIAL|| CHR(10) ||
                              ' Produto: '||P_PARAMETROS.CODPROD|| CHR(10) ||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
 
@@ -7916,21 +7917,21 @@ create or replace package body FISCAL is
         --Busca os dados do cliente ou fornecedor
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-        --Busca os dados do endereÁo de entrega do cliente
+        --Busca os dados do endere√ßo de entrega do cliente
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
         --Busca os dados de cadastro da rotina 4000
         V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        --Calcula os novos impostos com base na tributaÁ„o que foi encontrada
+        --Calcula os novos impostos com base na tributa√ß√£o que foi encontrada
         V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de c·lculo CBS com os seguintes dados:'|| CHR(10) ||
-                               ' CÛdigo TributaÁ„o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
-                               ' CÛdigo da Base de C·lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
+        PKG_DEBUGGING_FWPC.LOG('Finalizando o processo de c√°lculo CBS com os seguintes dados:'|| CHR(10) ||
+                               ' C√≥digo Tributa√ß√£o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_CBSIBS|| CHR(10) ||
+                               ' C√≥digo da Base de C√°lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CBSIBS|| CHR(10) ||
                                ' CST: '||V_DADOS_TRIBUTACAO.CST_CBSIBS|| CHR(10) ||
                                ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_CBSIBS|| CHR(10) ||
-                               ' Valor da base de c·lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
+                               ' Valor da base de c√°lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_CBSIBS|| CHR(10) ||
                                ' Aliquota CBS: '||V_DADOS_TRIBUTACAO.PERC_CBS|| CHR(10) ||
                                ' Valor Cbs calculado: '||V_DADOS_TRIBUTACAO.VALOR_CBS|| CHR(10) ||
                                ' Perc IBS UF: '||V_DADOS_TRIBUTACAO.PERC_IBS_UF|| CHR(10) ||
@@ -7945,20 +7946,19 @@ create or replace package body FISCAL is
 
 
         PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
-
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
         P_MSG := 'OK';
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
-        P_MSG := 'OK : Tributos n„o gravados. Filial Optante Simples Nacional';
+        P_MSG := 'OK : Tributos n√£o gravados. Filial Optante Simples Nacional';
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c·lculo do CBS: '||SQLERRM,'S');
+          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c√°lculo do CBS: '||SQLERRM,'S');
           V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
           P_MSG := 'ERRO: '||SQLERRM;
           RETURN(V_DADOS_TRIBUTACAO);
@@ -7974,7 +7974,7 @@ create or replace package body FISCAL is
   BEGIN
     BEGIN
       --PKG_DEBUGGING_FWPC.ATIVARDEBUG('CALCULAR_IS', '1.0');
-      PKG_DEBUGGING_FWPC.LOG('Inicio c·lculo IS para filial| '||P_PARAMETROS.CODFILIAL||
+      PKG_DEBUGGING_FWPC.LOG('Inicio c√°lculo IS para filial| '||P_PARAMETROS.CODFILIAL||
                              ' Produto: '||P_PARAMETROS.CODPROD||
                              ' Ncm:'||P_PARAMETROS.NCM,'S');
 
@@ -7986,41 +7986,39 @@ create or replace package body FISCAL is
         --Busca os dados do cliente ou fornecedor
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_FORNECEDOR(V_DADOS_TRIBUTACAO);
 
-        --Busca os dados do endereÁo de entrega do cliente
+        --Busca os dados do endere√ßo de entrega do cliente
         V_DADOS_TRIBUTACAO := GET_DADOS_CLIENTE_END_ENTREGA(V_DADOS_TRIBUTACAO);
 
         --Busca os dados de cadastro da rotina 4000
         V_DADOS_TRIBUTACAO := GET_DADOS_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        --Calcula os novos impostos com base na tributaÁ„o que foi encontrada
+        --Calcula os novos impostos com base na tributa√ß√£o que foi encontrada
         V_DADOS_TRIBUTACAO := GET_CALCULAR_TRIBUTOS_REFORMA(V_DADOS_TRIBUTACAO);
 
-        PKG_DEBUGGING_FWPC.LOG('Finailzando o processo de c·lculo IS com os seguintes dados:'|| CHR(10) ||
-                               ' CÛdigo TributaÁ„o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
-                               ' CÛdigo da Base de C·lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
+        PKG_DEBUGGING_FWPC.LOG('Finalizando o processo de c√°lculo IS com os seguintes dados:'|| CHR(10) ||
+                               ' C√≥digo Tributa√ß√£o: '||V_DADOS_TRIBUTACAO.CODIGO_TRIBUTACAO_IS|| CHR(10) ||
+                               ' C√≥digo da Base de C√°lculo: '||V_DADOS_TRIBUTACAO.COD_FORMULA_BASE_CALCULO_IS|| CHR(10) ||
                                ' CST: '||V_DADOS_TRIBUTACAO.CST_IS|| CHR(10) ||
                                ' CClassTrib: '||V_DADOS_TRIBUTACAO.CCLASSTRIB_IS|| CHR(10) ||
-                               ' Valor da base de c·lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
+                               ' Valor da base de c√°lculo: '||V_DADOS_TRIBUTACAO.VALOR_BASE_IS|| CHR(10) ||
                                ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS|| CHR(10) ||
                                ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
                                ,'S');
 
         PKG_DEBUGGING_FWPC.DESATIVARDEBUG;
-
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
         P_MSG := 'OK';
 
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
-        P_MSG := 'OK : Tributos n„o gravados. Filial Optante Simples Nacional'; 
+        P_MSG := 'OK : Tributos n√£o gravados. Filial Optante Simples Nacional'; 
         RETURN(V_DADOS_TRIBUTACAO);
       END IF;   
     EXCEPTION
       WHEN OTHERS THEN
         BEGIN
-          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c·lculo do IS: '||SQLERRM,'S');
-
+          PKG_DEBUGGING_FWPC.LOG('Erro geral no processo de c√°lculo do IS: '||SQLERRM,'S');
           V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
           P_MSG := 'ERRO: '||SQLERRM;
           RETURN(V_DADOS_TRIBUTACAO);
@@ -8071,7 +8069,7 @@ create or replace package body FISCAL is
     SELECT COUNT(*)
       INTO V_COUNT
       FROM PCTRIBUTACAO
-     WHERE DESCRICAO_TRIBUTACAO = 'TRIBUTA«√O EMERGENCIAL REFORMA TRIBUT¡RIA';
+     WHERE DESCRICAO_TRIBUTACAO = 'TRIBUTA√á√ÉO EMERGENCIAL REFORMA TRIBUT√ÅRIA';
 
     IF V_COUNT = 0 THEN
       INSERT INTO PCTRIBUTACAO(
@@ -8091,7 +8089,7 @@ create or replace package body FISCAL is
         DFSEQ_PCTRIBUTACAO.NEXTVAL,
         'CBSIBS',
         'G',
-        'TRIBUTA«√O EMERGENCIAL REFORMA TRIBUT¡RIA',
+        'TRIBUTA√á√ÉO EMERGENCIAL REFORMA TRIBUT√ÅRIA',
         'BR',
         '000',
         '000001',
@@ -8125,7 +8123,7 @@ create or replace package body FISCAL is
       VCODCADASTROEXCECAO := NULL;
       VSQL := '';
       BEGIN
-      -- VERIFICAR EXCE«√O COM C”DIGO DE PRODUTO, C”DIGO DE CLIENTE, C”DIGO DE FIGURA TRIBUT¡RIA E C”DIGO DE NCM
+      -- VERIFICAR EXCE√á√ÉO COM C√ìDIGO DE PRODUTO, C√ìDIGO DE CLIENTE, C√ìDIGO DE FIGURA TRIBUT√ÅRIA E C√ìDIGO DE NCM
             VSQL := 'SELECT E.CODCADASTROEXCECAO,                                                                                    ' ||
                     '       E.CODBENEFICIOFISCALCOMPLE                                                                               ' ||
                     'FROM PCCODIGOBENEFICIOFISCAL B,                                                                                 ' ||
@@ -8202,13 +8200,13 @@ create or replace package body FISCAL is
        ' Num.TransItem   :'|| V_DADOS_BENEFICIOFISCAL.NUMTRANSITEM ,'S');  
 
    ---------------------------------------------------------------------------------
-   -- VERIFICAR SE A TABELA J¡ FOI CRIADA NO BANCO DE DADOS PARA QUE N√O OCORRA ERROS NO PROCESSO ANTIGO.
+   -- VERIFICAR SE A TABELA J√Å FOI CRIADA NO BANCO DE DADOS PARA QUE N√ÉO OCORRA ERROS NO PROCESSO ANTIGO.
    SELECT COUNT(TABLE_NAME) CONT
      INTO VCONTADORTABELA
      FROM ALL_TABLES
     WHERE TABLE_NAME = 'PCEXCECAOCADASTROSFISCAIS';
    ---------------------------------------------------------------------------------
-   -- VERIFICAR SE OS CAMPOS DA TABELA PCCODIGOBENEFICIOFISCALVINCULO J¡ FORAM CRIADOS NO BANCO DE DADOS PARA QUE N√O OCORRA ERROS NO PROCESSO ANTIGO.
+   -- VERIFICAR SE OS CAMPOS DA TABELA PCCODIGOBENEFICIOFISCALVINCULO J√Å FORAM CRIADOS NO BANCO DE DADOS PARA QUE N√ÉO OCORRA ERROS NO PROCESSO ANTIGO.
    SELECT COUNT(COLUNAS.COLUMN_NAME) CONT
      INTO VCONTADORCAMPO
      FROM USER_TABLES TABELA,
@@ -8222,18 +8220,18 @@ create or replace package body FISCAL is
       (VCONTADORCAMPO > 0) THEN
       BEGIN
          IF V_DADOS_BENEFICIOFISCAL.CSTICMS IS NULL THEN
-           VMENSAGEM_RETORNO := 'N: O PARAMETRO CSTICMS N√O FOI INFORMADO.';
+           VMENSAGEM_RETORNO := 'N: O PARAMETRO CSTICMS N√ÉO FOI INFORMADO.';
            RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
          END IF;
 
          IF V_DADOS_BENEFICIOFISCAL.CODFISCAL = 0 OR 
             V_DADOS_BENEFICIOFISCAL.CODFISCAL IS NULL THEN
-           VMENSAGEM_RETORNO := 'N: O PARAMETRO CODFISCAL N√O FOI INFORMADO.';
+           VMENSAGEM_RETORNO := 'N: O PARAMETRO CODFISCAL N√ÉO FOI INFORMADO.';
            RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
          END IF;  
          
          IF V_DADOS_BENEFICIOFISCAL.DTEMISSAO IS NULL THEN
-           VMENSAGEM_RETORNO := 'N: O PARAMETRO DTEMISSAO N√O FOI INFORMADO.';
+           VMENSAGEM_RETORNO := 'N: O PARAMETRO DTEMISSAO N√ÉO FOI INFORMADO.';
            RAISE_APPLICATION_ERROR(-20999,VMENSAGEM_RETORNO);
          END IF;     
          
@@ -8258,7 +8256,7 @@ create or replace package body FISCAL is
                  AND NVL(COD.FIGURATRIBUTARIA,0) = TO_CHAR(V_DADOS_BENEFICIOFISCAL.FIGURATRIBUTARIA)
                  AND ROWNUM = 1;
 
-                 VMENSAGEM_RETORNO := 'S: C”DIGO BENEFÕCIO LOCALIZADO POR FIGURA TRIBUT¡RIA.';
+                 VMENSAGEM_RETORNO := 'S: C√ìDIGO BENEF√çCIO LOCALIZADO POR FIGURA TRIBUT√ÅRIA.';
             EXCEPTION
                WHEN NO_DATA_FOUND THEN
                  BEGIN
@@ -8279,11 +8277,11 @@ create or replace package body FISCAL is
                        AND COD.FIGURATRIBUTARIA IS NULL
                        AND ROWNUM = 1;
 
-                       VMENSAGEM_RETORNO := 'S: C”DIGO BENEFÕCIO LOCALIZADO SEM FIGURA TRIBUT¡RIA.';
+                       VMENSAGEM_RETORNO := 'S: C√ìDIGO BENEF√çCIO LOCALIZADO SEM FIGURA TRIBUT√ÅRIA.';
                   EXCEPTION
                      WHEN NO_DATA_FOUND THEN
                         VCODIGOBENEFICIOFISCAL := '';
-                        VMENSAGEM_RETORNO := 'S: N√O ENCONTRADO C”DIGO BENEFÕCIO';
+                        VMENSAGEM_RETORNO := 'S: N√ÉO ENCONTRADO C√ìDIGO BENEF√çCIO';
                   END;
             END;
          END IF;
@@ -8291,7 +8289,7 @@ create or replace package body FISCAL is
          WHEN OTHERS THEN  
             IF VMENSAGEM_RETORNO IS NULL THEN
               IF VCODIGOBENEFICIOFISCAL IS NULL THEN
-                 VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO C”DIGO BENEFÕCIO FISCAL.';
+                 VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO C√ìDIGO BENEF√çCIO FISCAL.';
               END IF;
             END IF;                   
       END;
@@ -8303,7 +8301,7 @@ create or replace package body FISCAL is
       EXCEPTION
          WHEN OTHERS THEN
             IF VCODIGOBENEFICIOFISCAL IS NULL THEN
-               VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO C”DIGO BENEFÕCIO FISCAL.';
+               VMENSAGEM_RETORNO := 'N: ERRO NA BUSCA DO C√ìDIGO BENEF√çCIO FISCAL.';
             END IF;
       END;
 
@@ -8317,7 +8315,7 @@ create or replace package body FISCAL is
          EXCEPTION
             WHEN OTHERS THEN
                IF VCODIGOBENEFICIOFISCALEXCECAO IS NULL THEN
-                  VMENSAGEM_RETORNO := 'S: C”DIGO BENEFÕCIO LOCALIZADO, MAS C”DIGO DE BENEFÕCIO DE EXCE«√O N√O FOI ENCONTRADO.';
+                  VMENSAGEM_RETORNO := 'S: C√ìDIGO BENEF√çCIO LOCALIZADO, MAS C√ìDIGO DE BENEF√çCIO DE EXCE√á√ÉO N√ÉO FOI ENCONTRADO.';
                END IF;
          END;
       END IF;
@@ -8334,6 +8332,6 @@ create or replace package body FISCAL is
   END CODIGO_BENEFICIO_FISCAL;  
 
 END;
--- AlteraÁ„o 24/06/2026 - Implementado ajuste na pesquisa do fornecedor. A uf passa a ser do cadastro e n„o mais da cidade vinculada ao fornecedor
--- AlteraÁ„o 15/06/2026 - Implementado retorno das regras de pesquisa da pkg anterior. Foi mantido o ajuste do diferimento e mensagem de retorno do optante nacional
--- AlteraÁ„o 12/06/2026 - Ajuste nos valores quando tributaÁ„o for com diferimento + AlteraÁ„o na ordenaÁ„o da pesquisa da tributaÁ„o
+-- Altera√ß√£o 24/06/2026 - Implementado ajuste na pesquisa do fornecedor. A uf passa a ser do cadastro e n√£o mais da cidade vinculada ao fornecedor
+-- Altera√ß√£o 15/06/2026 - Implementado retorno das regras de pesquisa da pkg anterior. Foi mantido o ajuste do diferimento e mensagem de retorno do optante nacional
+-- Altera√ß√£o 12/06/2026 - Ajuste nos valores quando tributa√ß√£o for com diferimento + Altera√ß√£o na ordena√ß√£o da pesquisa da tributa√ß√£o
