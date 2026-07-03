@@ -52,6 +52,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       TIPO_IMPOSTO      VARCHAR2(6),
       CODIGO_ENDERECO_CLI NUMBER(6),
       NFCIAP            VARCHAR2(1),
+      GERA_JSON         VARCHAR2(1),
       --Filtros adicionais
       CODPROD           NUMBER(6),
       NCM               VARCHAR2(15),
@@ -63,7 +64,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       ORGAO_PUBLICO     VARCHAR2(1),
       ORIGEM_MERCADORIA VARCHAR2(1),
       TIPO_MERC         VARCHAR2(2),
-      --Valores para formação da base de cáluclo por meio da fórmula
+      --Valores para formação da base de cálculo por meio da fórmula
       VALOR_PRODUTO         NUMBER(18,6),
       VALOR_ICMS_ST         NUMBER(18,6),
       VALOR_FCP_ST          NUMBER(18,6),
@@ -126,7 +127,8 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       -- Retorno valores Tributação Regular 
       TRIBUTACAO_REGULAR          TIPO_GRUPO_TRIBUTACAO_REGULAR,
       -- Dados referente ao registro da tabela PCCSTTRIBUTACAOIBSCBS
-      DADOS_PCCSTTRIBUTACAOIBSCBS TIPO_PCCSTTRIBUTACAOIBSCBS      
+      DADOS_PCCSTTRIBUTACAOIBSCBS TIPO_PCCSTTRIBUTACAOIBSCBS,
+      JSON_RETORNO                CLOB
    );
    
   TYPE TIPO_CODIGO_BENEFICIO_FISCAL IS RECORD (
@@ -465,6 +467,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                        P_USASUFIXO IN VARCHAR2,
                        P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;
+
+  FUNCTION TIPO_TRIBUT_REFORMA_TO_JSON(
+    P_DADOS IN TIPO_TRIBUT_REFORMA
+  ) RETURN CLOB;
 
   PROCEDURE CADASTRAR_TRIBUTACAO_PADRAO;
   
