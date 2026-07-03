@@ -52,6 +52,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       TIPO_IMPOSTO      VARCHAR2(6),
       CODIGO_ENDERECO_CLI NUMBER(6),
       NFCIAP            VARCHAR2(1),
+      GERA_JSON         VARCHAR2(1),
       --Filtros adicionais
       CODPROD           NUMBER(6),
       NCM               VARCHAR2(15),
@@ -63,7 +64,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       ORGAO_PUBLICO     VARCHAR2(1),
       ORIGEM_MERCADORIA VARCHAR2(1),
       TIPO_MERC         VARCHAR2(2),
-      --Valores para formaÃ§Ã£o da base de cÃ¡luclo por meio da fÃ³rmula
+      --Valores para formação da base de cáluclo por meio da fórmula
       VALOR_PRODUTO         NUMBER(18,6),
       VALOR_ICMS_ST         NUMBER(18,6),
       VALOR_FCP_ST          NUMBER(18,6),
@@ -123,10 +124,11 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VLTOTALIBS                  NUMBER(23,10),
       -- Retorno valores Compra Governamental
       COMPRA_GOVERNAMENTAL        TIPO_GRUPO_COMPRA_GOV,
-      -- Retorno valores TributaÃ§Ã£o Regular 
+      -- Retorno valores Tributação Regular 
       TRIBUTACAO_REGULAR          TIPO_GRUPO_TRIBUTACAO_REGULAR,
       -- Dados referente ao registro da tabela PCCSTTRIBUTACAOIBSCBS
-      DADOS_PCCSTTRIBUTACAOIBSCBS TIPO_PCCSTTRIBUTACAOIBSCBS      
+      DADOS_PCCSTTRIBUTACAOIBSCBS TIPO_PCCSTTRIBUTACAOIBSCBS,
+      JSON_RETORNO                CLOB
    );
    
   TYPE TIPO_CODIGO_BENEFICIO_FISCAL IS RECORD (
@@ -406,25 +408,25 @@ CREATE OR REPLACE PACKAGE FISCAL IS
     RETURN VARCHAR2;
 
    FUNCTION GET_DADOS_CREDITOPRESUMIDO (
-                                        P_CODBENEFICIOFISCAL IN VARCHAR2, -- CÃ³digo Beneficio Fiscal
-                                        P_CODST IN NUMBER, -- Figura tributÃ¡ria rotina 514
-                                        P_ALIQICMSNF IN NUMBER, -- AlÃ­quota ICMS NF
+                                        P_CODBENEFICIOFISCAL IN VARCHAR2, -- Código Beneficio Fiscal
+                                        P_CODST IN NUMBER, -- Figura tributária rotina 514
+                                        P_ALIQICMSNF IN NUMBER, -- Alíquota ICMS NF
                                         P_CONTRIBUINTECONSFINAL IN VARCHAR2 DEFAULT NULL, -- Contribuinte consumidor final (Opcional)
                                         P_TIPO_EMPRESA IN VARCHAR2 DEFAULT NULL, -- Tipo de empresa (Opcional)
                                         P_TIPO_PESSOA IN VARCHAR2 DEFAULT NULL, -- Tipo de pessoa (Opcional)
                                         P_ORIGEM_MERC IN VARCHAR2 DEFAULT NULL, -- Origem da mercadoria (Opcional)
-                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- SituaÃ§Ã£o tributÃ¡ria (Opcional)
-                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- CÃ³digo fiscal(CFOP) (Opcional)
+                                        P_SIT_TRIBUT IN VARCHAR2 DEFAULT NULL, -- Situação tributária (Opcional)
+                                        P_CODFISCAL IN NUMBER DEFAULT NULL, -- Código fiscal(CFOP) (Opcional)
                                         P_NCM IN VARCHAR2 DEFAULT NULL, -- NCM da mercadoria (Opcional)
-                                        P_PUNITCONT IN NUMBER DEFAULT 0, -- PreÃ§o unitÃ¡rio
+                                        P_PUNITCONT IN NUMBER DEFAULT 0, -- Preço unitário
                                         P_VLIPI IN NUMBER DEFAULT 0, -- Valor do IPI
 
                                         P_VLFRETE IN NUMBER DEFAULT 0, -- Valor do frete
                                         P_VLST IN NUMBER DEFAULT 0, -- Valor do ST
                                         P_VLOUTROS IN NUMBER DEFAULT 0, -- Valor de outros
                                         P_BASEICMS IN NUMBER DEFAULT 0, -- Base ICMS
-                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- ReduÃ§Ã£o Base ICMS
-                                        -- Declarando as variÃ¡veis de saÃ­da
+                                        P_PERCBASERED IN NUMBER DEFAULT 0, -- Redução Base ICMS
+                                        -- Declarando as variáveis de saída
                                         P_BASECREDITOPRESUMIDO OUT PCMOV.BASEICMS%TYPE,
                                         P_VLCREDITOPRESUMIDO OUT PCMOV.VLCREDPRESUMIDO%TYPE,
                                         P_ALIQCREDITOPRESUMIDO OUT PCMOV.PERCCREDICMPRESUMIDO%TYPE,
@@ -465,6 +467,10 @@ CREATE OR REPLACE PACKAGE FISCAL IS
                        P_USASUFIXO IN VARCHAR2,
                        P_MSG      out varchar2)
   RETURN TIPO_TRIBUT_REFORMA;
+
+  FUNCTION TIPO_TRIBUT_REFORMA_TO_JSON(
+    P_DADOS IN TIPO_TRIBUT_REFORMA
+  ) RETURN CLOB;
 
   PROCEDURE CADASTRAR_TRIBUTACAO_PADRAO;
   
