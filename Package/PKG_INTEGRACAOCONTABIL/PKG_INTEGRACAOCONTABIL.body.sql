@@ -12631,59 +12631,52 @@ IS
               V_SQLFATO := REPLACE (V_SQLFATO, '&MACROPCMOVCR&' ,SQL_MOV_BANCO_FATO_4(VS_BUSCARDADOSPELADATA)); 
         END IF;     
         --Verifica se contabiliza estorno para buscar SQL
-        IF V_CODFATOGERADOR = 3
-        THEN
-            SELECT SQLFATOGERADOR
-              INTO V_SQLFATO
-              FROM PCFATOGERADOR
-             WHERE CODFATOGERADOR = V_CODFATOGERADOR;
+        IF VS_DESCLANCESTORNO = 'S' THEN
+			IF V_CODFATOGERADOR = 3
+			THEN
+				
 
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'NVL(L.VALOR, 0)',
-                         '(NVL(L.VALOR, 0) - NVL(L.VALORDEV, 0))');
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND L.DTESTORNOBAIXA IS NULL',
-                         'AND L.DTESTORNOBAIXA IS NOT NULL');
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND L.CODFUNCESTORNOBAIXA IS NULL',
-                         'AND L.CODFUNCESTORNOBAIXA IS NOT NULL');
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO, '/*ROTINALANCVALE*/', '''614'',');
-            V_SQLFATO := REPLACE (V_SQLFATO, '/*CONTABESTORNO*/', '--');
-        ELSIF V_CODFATOGERADOR = 16
-        THEN
-            SELECT SQLFATOGERADOR
-              INTO V_SQLFATO
-              FROM PCFATOGERADOR
-             WHERE CODFATOGERADOR = V_CODFATOGERADOR;
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'NVL(L.VALOR, 0)',
+							 '(NVL(L.VALOR, 0) - NVL(L.VALORDEV, 0))');
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND L.DTESTORNOBAIXA IS NULL',
+							 'AND L.DTESTORNOBAIXA IS NOT NULL');
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND L.CODFUNCESTORNOBAIXA IS NULL',
+							 'AND L.CODFUNCESTORNOBAIXA IS NOT NULL');
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO, '/*ROTINALANCVALE*/', '''614'',');
+				V_SQLFATO := REPLACE (V_SQLFATO, '/*CONTABESTORNO*/', '--');
+			ELSIF V_CODFATOGERADOR = 16
+			THEN
+				
 
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND C.DTESTORNO IS NULL',
-                         'AND C.DTESTORNO IS NOT NULL');
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND R.DTESTORNO IS NULL',
-                         'AND R.DTESTORNO IS NOT NULL');             
-        ELSIF V_CODFATOGERADOR = 13
-        THEN
-            SELECT SQLFATOGERADOR
-              INTO V_SQLFATO
-              FROM PCFATOGERADOR
-             WHERE CODFATOGERADOR = V_CODFATOGERADOR;
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND C.DTESTORNO IS NULL',
+							 'AND C.DTESTORNO IS NOT NULL');
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND R.DTESTORNO IS NULL',
+							 'AND R.DTESTORNO IS NOT NULL');             
+			ELSIF V_CODFATOGERADOR = 13
+			THEN
+				
 
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND L.DTESTORNOBAIXA IS NULL',
-                         'AND L.DTESTORNOBAIXA IS NOT NULL');
-            V_SQLFATO :=
-                REPLACE (V_SQLFATO,
-                         'AND L.CODFUNCESTORNOBAIXA IS NULL',
-                         'AND L.CODFUNCESTORNOBAIXA IS NOT NULL');
-        END IF;
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND L.DTESTORNOBAIXA IS NULL',
+							 'AND L.DTESTORNOBAIXA IS NOT NULL');
+				V_SQLFATO :=
+					REPLACE (V_SQLFATO,
+							 'AND L.CODFUNCESTORNOBAIXA IS NULL',
+							 'AND L.CODFUNCESTORNOBAIXA IS NOT NULL');
+			END IF;
+		END IF;
 
         IF V_CODFATOGERADOR IN (4, 10, 7)
         THEN
@@ -12758,6 +12751,7 @@ IS
                              'DECODE(SUBSTR(M.CODOPER, 1, 1)');
             END IF;
         END IF;
+		
 
 
         LISTA_FILIAIS := '';
