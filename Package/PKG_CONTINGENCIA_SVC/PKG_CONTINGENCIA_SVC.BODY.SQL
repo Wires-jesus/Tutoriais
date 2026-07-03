@@ -760,7 +760,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
         CAB_ENT.NUMNOTA := P_NUMTRANSACAO;
         CAB_ENT.EMISSAOPROPRIA := 'S';
         CAB_ENT.SERIE := '';
-        CAB_ENT.VLBASEIPI := CAB_SAIDA.Vlbaseipi;
+        CAB_ENT.CONSUMIUNUMNFE := 'N';
+        CAB_ENT.VLBASEIPI := CAB_SAIDA.VLBASEIPI;
         CAB_ENT.CODFORNEC := CAB_SAIDA.CODCLI;
         CAB_ENT.CODFILIALNF := CAB_SAIDA.CODFILIALNF;
         CAB_ENT.CODFILIAL := CAB_SAIDA.CODFILIAL;
@@ -816,8 +817,24 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                    , CAB_SAIDA.SERIE
                    , '55'
                    , CAB_SAIDA.DTSAIDA);
+                   
+        INSERT INTO PCESTCOM
+                    (NUMTRANSVENDA
+                   , NUMTRANSENT
+                   , VLDEVOLUCAO
+                   , VLESTORNO
+                   , DTESTORNO
+                   , CODUSUR)
+             VALUES (P_NUMTRANSACAO
+                   , V_NUMTRANSACAO
+                   , CAB_SAIDA.VLTOTAL
+                   , 0
+                   , TRUNC(SYSDATE)
+                   , 1);
 
-        UPDATE PCINUTILIZARNFE SET NUMTRANSCONTRAPARTIDA = V_NUMTRANSACAO 
+        UPDATE PCINUTILIZARNFE 
+           SET NUMTRANSCONTRAPARTIDA = V_NUMTRANSACAO
+             , RECIBONFE = '0'
          WHERE NUMTRANSACAONOVA = P_NUMTRANSACAO 
            AND TIPOMOV = P_TIPOMOV;
         
@@ -924,6 +941,7 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
 
         SELECT * INTO CAB_SAIDA FROM PCNFSAID WHERE NUMTRANSVENDA = V_NUMTRANSACAO;
 
+        CAB_SAIDA.NUMNOTA                := P_NUMTRANSACAO;
         CAB_SAIDA.ESPECIE                := 'NE';
         CAB_SAIDA.DTSAIDA                := TRUNC(SYSDATE);
         CAB_SAIDA.SITUACAONFE            := 0;
@@ -949,6 +967,8 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
         CAB_SAIDA.CONSUMIUNUMNFE         := 'N';
         CAB_SAIDA.DTHORAAUTORIZACAOSEFAZ := NULL;
         CAB_SAIDA.CAIXA                  := 0;
+        CAB_SAIDA.SERIE                  := '';
+        CAB_SAIDA.CONSUMIUNUMNFE         := 'N';
 
         UPDATE PCNFSAID S SET ROW = CAB_SAIDA WHERE S.NUMTRANSVENDA = V_NUMTRANSACAO;
 
@@ -969,8 +989,26 @@ CREATE OR REPLACE PACKAGE BODY PKG_CONTINGENCIA_SVC IS
                    , CAB_ENT.SERIE
                    , '55'
                    , CAB_ENT.DTEMISSAO);
+                   
+        INSERT INTO PCDEVFORNEC
+                    (NUMTRANSVENDA
+                   , NUMTRANSENT
+                   , CODFORNEC
+                   , DTDEVOL
+                   , CODFUNCDEV
+                   , NUMNOTADEV
+                   , NUMNOTAENT)
+             VALUES (V_NUMTRANSACAO
+                   , P_NUMTRANSACAO
+                   , CAB_ENT.CODFORNEC
+                   , TRUNC(SYSDATE)
+                   , 1
+                   , 0
+                   , 0);
         
-        UPDATE PCINUTILIZARNFE SET NUMTRANSCONTRAPARTIDA = V_NUMTRANSACAO 
+        UPDATE PCINUTILIZARNFE 
+           SET NUMTRANSCONTRAPARTIDA = V_NUMTRANSACAO
+             , RECIBONFE = '0'
          WHERE NUMTRANSACAONOVA = P_NUMTRANSACAO 
            AND TIPOMOV = P_TIPOMOV;
         
