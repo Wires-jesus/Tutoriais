@@ -520,7 +520,7 @@ AS
      END
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+          (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, X.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1))
               FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
                 WHERE X.SEQDOCTO = i.seqdocto
               AND X.nroempresa = i.nroempresa
@@ -1064,7 +1064,7 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
      END
         END )ptabela,
         (CASE WHEN i.seqprodcomposto is not null THEN
-        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, i.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
+        (SELECT SUM(((X.vlrunitario*F.QUANTIDADE) - (NVL(X.vlrdesconto*F.QUANTIDADE,0)/NVL(X.quantidade,1)) + (NVL((X.vlracrescimo - NVL(fnc_int_c5_vlrdeliveryrateio(i.nroempresa, i.nrocheckout, i.seqdocto, X.seqitem), 0))*F.QUANTIDADE,0)/NVL(X.quantidade,1)) )/NVL(X.QTDEMBALAGEM, 1)) 
             FROM MONITORPDVMIDDLE.TB_DOCTOITEM X, MONITORPDVMIDDLE.TB_PRODCOMPOSTO F
               WHERE X.SEQDOCTO = i.seqdocto
             AND X.nroempresa = i.nroempresa
