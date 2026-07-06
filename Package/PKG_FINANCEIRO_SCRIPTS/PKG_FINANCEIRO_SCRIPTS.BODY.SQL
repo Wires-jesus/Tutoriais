@@ -137,3 +137,5 @@ IS
 
 
 END PKG_FINANCEIRO_SCRIPTS;
+
+-- 06/07/2026 - Rogério - Alteração feita apenas para gerar um novo número de versão da package
