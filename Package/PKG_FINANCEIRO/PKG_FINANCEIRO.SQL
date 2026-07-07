@@ -228,4 +228,16 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
     PROCEDURE ADDLOG(P_FONTE VARCHAR2,
                      P_LOG   VARCHAR2);                                          
 
+    ----------------------------------------------------------------------------
+    -- Reforma Tributária - Recebimento de Juros/Multas/Descontos
+    ----------------------------------------------------------------------------
+    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD IN PCPREST%ROWTYPE,
+                                      P_NEW IN PCPREST%ROWTYPE);
+    
+    ----------------------------------------------------------------------------
+    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE);
+    
+    ----------------------------------------------------------------------------
+    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE);
+                     
 END PKG_FINANCEIRO;

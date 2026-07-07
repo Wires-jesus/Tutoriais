@@ -328,5 +328,96 @@ IS
             G_MENSAGEM   := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, '200 - Erro na Exclusão da ADDLOG. Log recebido: ('||G_MENSAGEM||')');            
     END;
+    ----------------------------------------------------------------------------    
+    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD IN PCPREST%ROWTYPE,
+                                      P_NEW IN PCPREST%ROWTYPE)
+    IS
+    BEGIN
     
+        ------------------------------------------------------------------------
+        -- Estorno
+        ------------------------------------------------------------------------
+        IF P_NEW.CODCOB = 'ESTR' AND P_NEW.DTESTORNO IS NOT NULL THEN    
+            DEL_PCRECEBIMENTOJUROSDESCONTO(P_OLD);
+            RETURN;    
+        END IF;
+    
+        ------------------------------------------------------------------------
+        -- Somente quando ocorrer a baixa
+        ------------------------------------------------------------------------
+        IF P_OLD.DTPAG IS NOT NULL OR P_NEW.DTPAG IS NULL THEN
+            RETURN;
+        END IF;
+    
+        ------------------------------------------------------------------------
+        -- Cobranças ignoradas
+        ------------------------------------------------------------------------
+        IF P_NEW.CODCOB IN ('DESD',
+                            'DEVP',
+                            'DEVT',
+                            'CANC',
+                            'ESTR') THEN
+            RETURN;
+        END IF;
+    
+        ------------------------------------------------------------------------
+        -- Não possui juros, multa ou desconto
+        ------------------------------------------------------------------------
+        IF NVL(P_NEW.TXPERM,0)          = 0
+           AND NVL(P_NEW.VALORMULTA,0)  = 0
+           AND NVL(P_NEW.VALORDESC,0)   = 0 THEN
+            RETURN;
+        END IF;
+    
+        INS_PCRECEBIMENTOJUROSDESCONTO(P_NEW);
+    
+    END;
+    ----------------------------------------------------------------------------
+    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE)
+    IS
+    BEGIN
+    
+        INSERT INTO PCRECEBIMENTOJUROSDESCONTO(NUMTRANSVENDA,
+                                               PREST,
+                                               CODCLI,
+                                               CODFILIAL,
+                                               VPAGO,
+                                               VALORMULTA,
+                                               VALORJUROS,
+                                               VALORDESC,
+                                               DTPAG,
+                                               NUMTRANSVENDAORIG,
+                                               PRESTORIG,
+                                               GERADONF)
+                                        VALUES(P_REG.NUMTRANSVENDA,
+                                               P_REG.PREST,
+                                               P_REG.CODCLI,
+                                               P_REG.CODFILIAL,
+                                               P_REG.VPAGO,
+                                               P_REG.VALORMULTA,
+                                               P_REG.TXPERM,
+                                               P_REG.VALORDESC,
+                                               TRUNC(P_REG.DTPAG),
+                                               P_REG.NUMTRANSVENDAORIG,
+                                               P_REG.PRESTORIG,
+                                               NULL);
+    
+    EXCEPTION
+        WHEN DUP_VAL_ON_INDEX THEN
+            NULL;
+    END;
+    ----------------------------------------------------------------------------
+    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE)
+    IS
+    BEGIN
+    
+        DELETE
+          FROM PCRECEBIMENTOJUROSDESCONTO
+         WHERE NUMTRANSVENDA     = P_REG.NUMTRANSVENDA
+           AND PREST             = P_REG.PREST
+           AND CODFILIAL         = P_REG.CODFILIAL
+           AND CODCLI            = P_REG.CODCLI
+           AND NVL(GERADONF,'N') = 'N';
+    
+    END;
 END;
