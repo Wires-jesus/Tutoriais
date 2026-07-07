@@ -2626,7 +2626,7 @@ GROUP BY   TAB.NUMSQL,
        and NVL(A.CODFILIALNF, A.CODFILIAL) = P_CODFILIAL
        and A.DTSAIDA between TO_DATE(P_DATA1) and TO_DATE(P_DATA2)
        and A.NUMNOTA between P_NOTA1 and P_NOTA2
-
+       AND NVL(A.TIPONOTACREDDEB, 'N') = 'N'
        and not exists (select PCMOV.CODPROD
                          from PCMOV
                         where PCMOV.NUMTRANSVENDA = A.NUMTRANSVENDA 
@@ -9241,6 +9241,7 @@ END;
                AND NVL(S.CODFILIALNF, S.CODFILIAL) = PCODFILIAL
                AND S.ESPECIE <> 'OE'
                AND NVL(B.CODFISCAL,0) > 0
+               AND NVL(S.TIPONOTACREDDEB, 'N') = 'N'
                AND CASE S.ESPECIE
                         WHEN 'NF' THEN (SELECT COUNT(1)
                                           FROM PCMOV M,
