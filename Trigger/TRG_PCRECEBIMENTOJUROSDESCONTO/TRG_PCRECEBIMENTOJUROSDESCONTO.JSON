@@ -1,0 +1,5 @@
+{
+	"nome": "TRG_PCRECEBIMENTOJUROSDESCONTO",
+	"tipoPLSQL": "TRIGGER",
+	"dependencias": ""
+}
