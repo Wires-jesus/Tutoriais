@@ -11,6 +11,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
+            M.QTCONT, 
             M.NUMTRANSITEM,
             M.NUMSEQ,
             M.PERCICM,
@@ -100,6 +101,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             N.CODCLI,
             NULL CODFORNEC,
             M.CODPROD,
+            M.QTCONT,
             M.NUMTRANSITEM,
             M.NUMSEQ,
             M.PERCICM,
@@ -195,6 +197,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             N.CODCLI,
             NULL CODFORNEC,
             0 CODPROD,
+            1 QTCONT,
             0 NUMTRANSITEM,
             0 NUMSEQ,
             0 PERCICM,
@@ -251,6 +254,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             NULL CODCLI,
             N.CODFORNEC,
             M.CODPROD,
+            M.QTCONT, 
             M.NUMTRANSITEM,
             M.NUMSEQ,
             M.PERCICM,
@@ -331,6 +335,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             NULL CODCLI,
             N.CODFORNEC,
             M.CODPROD,
+            M.QTCONT,
             M.NUMTRANSITEM,
             M.NUMSEQ,
             M.PERCICM,
@@ -423,6 +428,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
             C.CODCLI,
             NULL CODFORNEC,
             PI.CODPROD,
+            PI.QT AS QTCONT,
             NULL NUMTRANSITEM,
             PI.NUMSEQ,
             0 PERCICM,
@@ -477,6 +483,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
       ,N.CODCLI
       ,NULL CODFORNEC
       ,M.CODPROD
+      ,M.QTCONT
       ,0 NUMTRANSITEM
       ,M.NUMSEQ
       ,M.PERCICM
@@ -548,6 +555,7 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
       ,NULL CODCLI
       ,N.CODFORNEC
       ,M.CODPROD
+      ,M.QTCONT
       ,0 NUMTRANSITEM
       ,M.NUMSEQ
       ,M.PERCICM
@@ -607,5 +615,6 @@ CREATE OR REPLACE PACKAGE PKG_CENTRAL_TRIBUTOS_CONSULTAS AS
    );    
 
 END PKG_CENTRAL_TRIBUTOS_CONSULTAS;
+-- 07/07/2026 - Implementação da coluna QTCONT.
 -- 24/04/2026 - Implementado novas colunas nos sqls C_DADOS_NF_SAIDA_NORMAL, C_DADOS_NF_SAIDA_PREFAT e C_DADOS_NF_ENTRADA. Essas colunas estão no processo do código beneficio fiscal. 
 -- 11/03/2026 - Alteração de arredondamento das colunas PunitCont e VlIcms e também ajuste no retorno dos impostos do CTe, vlpis, vlcofins e vlicms. 
