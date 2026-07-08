@@ -80,7 +80,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       VALOR_ICMSUFDEST      NUMBER(18,6), -- vICMSUFDest
       VALOR_FCP             NUMBER(18,6), -- vFCP
       VALOR_FCPUFDEST       NUMBER(18,6), -- vFCPUFDest
-      --Dados retorno  CBSIBS
+      --Dados retorno CBSIBS
       CODIGO_TRIBUTACAO_CBSIBS        NUMBER(10),
       FORMULA_BASE_CALCULO_CBSIBS     VARCHAR2(4000),
       FORMULA_VALOR_TRIBUTO_CBSIBS    VARCHAR2(4000),
@@ -89,6 +89,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       CST_CBSIBS                      VARCHAR2(3),
       CCLASSTRIB_CBSIBS               VARCHAR2(6),
       VALOR_BASE_CBSIBS               NUMBER(23,10),
+      FORMULA_VALOR_BASE_CBS          VARCHAR2(4000),
       --Retorno valores CBS
       PERC_CBS                NUMBER(7,4),
       PERC_RED_CBS            NUMBER(7,4),
@@ -122,6 +123,7 @@ CREATE OR REPLACE PACKAGE FISCAL IS
       PERC_IS                     NUMBER(7,4),
       VALOR_IS                    NUMBER(23,10), -- vIS
       VLTOTALIBS                  NUMBER(23,10),
+      FORMULA_VALOR_BASE_IS       VARCHAR2(4000),
       -- Retorno valores Compra Governamental
       COMPRA_GOVERNAMENTAL        TIPO_GRUPO_COMPRA_GOV,
       -- Retorno valores Tributação Regular 
