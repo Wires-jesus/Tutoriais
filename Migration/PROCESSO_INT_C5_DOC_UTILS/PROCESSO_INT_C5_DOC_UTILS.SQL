@@ -1644,7 +1644,8 @@ CREATE OR REPLACE VIEW vw_int_c5_agrup_dinheiro AS
        MAX(P.DTABASECOBRANCA) AS DTABASECOBRANCA,
        MAX(P.DTAVENCIMENTO) AS DTAVENCIMENTO,
        MIN(SEQITEM) SEQITEM,
-       P.NROCARTAO
+       P.NROCARTAO,
+       P.CODREDETEF
     FROM MONITORPDVMIDDLE.TB_DOCTOPAGTO P
    WHERE P.NROFORMAPAGTO IN
        (SELECT fp.nroformapagto
@@ -1664,7 +1665,7 @@ CREATE OR REPLACE VIEW vw_int_c5_agrup_dinheiro AS
           end = P.VLRTOTAL
          )
        )
-   GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto , P.NROCARTAO
+   GROUP BY P.NROEMPRESA, P.NROCHECKOUT, P.SEQDOCTO, P.nroformapagto , P.NROCARTAO, P.CODREDETEF
 )
 
 \
@@ -1856,7 +1857,16 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL md5paf,
        3 tipodoc,
        NULL dtcxmot,
-       NULL tipocorban,
+       CASE 
+           WHEN D.ESPECIE = 'PL' THEN
+               CASE
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 266 THEN 'DM'
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 269 THEN 'BZ'
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 52  THEN 'T'
+                   ELSE ''
+               END
+           ELSE NULL
+       END AS TIPOCORBAN,
        NULL autorizacaopagamentopontos,
        NULL autorizacaoacumulopontos,
        NULL somatxboleto,
@@ -2014,7 +2024,16 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL md5paf,
        3 tipodoc,
        NULL dtcxmot,
-       NULL tipocorban,
+       CASE 
+           WHEN D.ESPECIE = 'PL' THEN
+               CASE
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 266 THEN 'DM'
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 269 THEN 'BZ'
+                   WHEN TO_NUMBER(NVL(P.CODREDETEF, '0')) = 52  THEN 'T'
+                   ELSE ''
+               END
+           ELSE NULL
+       END AS TIPOCORBAN,
        NULL autorizacaopagamentopontos,
        NULL autorizacaoacumulopontos,
        NULL somatxboleto,
