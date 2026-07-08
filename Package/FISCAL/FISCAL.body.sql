@@ -7327,7 +7327,8 @@ create or replace package body FISCAL is
        VARIAVEL.VALOR := V_PARAMETROS.FORMULA_BASE_CALCULO_IS;
        FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
-      V_PARAMETROS.VALOR_BASE_IS := FORMULA.CALCULARSUBFORMULA(VFORMULA_TRIBUTOS, VTVARIAVEIS);
+       V_PARAMETROS.VALOR_BASE_IS := FORMULA.CALCULARSUBFORMULA(VFORMULA_TRIBUTOS, VTVARIAVEIS);
+       V_PARAMETROS.FORMULA_VALOR_BASE_IS := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_BASE_CALCULO_IS,VTVARIAVEIS);
 
        VARIAVEL.NOME  := '[ALIQUOTA_IS]';
        VARIAVEL.VALOR := V_PARAMETROS.PERC_IS;
@@ -7354,11 +7355,12 @@ create or replace package body FISCAL is
 
       V_PARAMETROS.FORMULA_BASE_CALCULO_CBSIBS := VFORMULA_TRIBUTOS;
 
-       VARIAVEL.NOME  := '&BASE_CALCULO_CBSIBS&';
-       VARIAVEL.VALOR := V_PARAMETROS.FORMULA_BASE_CALCULO_CBSIBS;
-       FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
+      VARIAVEL.NOME  := '&BASE_CALCULO_CBSIBS&';
+      VARIAVEL.VALOR := V_PARAMETROS.FORMULA_BASE_CALCULO_CBSIBS;
+      FORMULA.ATRIBUIVALOR(VARIAVEL, VTVARIAVEIS);
 
-      V_PARAMETROS.VALOR_BASE_CBSIBS           := FORMULA.CALCULARSUBFORMULA(VFORMULA_TRIBUTOS, VTVARIAVEIS);
+      V_PARAMETROS.VALOR_BASE_CBSIBS      := FORMULA.CALCULARSUBFORMULA(VFORMULA_TRIBUTOS, VTVARIAVEIS);
+      V_PARAMETROS.FORMULA_VALOR_BASE_CBS := FORMULA.SubstituiVariaveisF(V_PARAMETROS.FORMULA_BASE_CALCULO_CBSIBS,VTVARIAVEIS);
 
       V_PARAMETROS.ALIQ_EFETIVA_CBS     := 0;
       V_PARAMETROS.ALIQ_EFETIVA_IBS_UF  := 0;
@@ -7876,8 +7878,10 @@ create or replace package body FISCAL is
                                ' Aliquota: '||V_DADOS_TRIBUTACAO.PERC_IS|| CHR(10) ||
                                ' IS calculado: '||V_DADOS_TRIBUTACAO.VALOR_IS
                                ,'S');
-
+    
+        V_DADOS_TRIBUTACAO.GERA_JSON := 'S';
         V_DADOS_TRIBUTACAO := PREENCHE_JSON_RETORNO(V_DADOS_TRIBUTACAO);
+
         P_MSG := 'OK';
         RETURN(V_DADOS_TRIBUTACAO);
       ELSE 
@@ -8332,6 +8336,6 @@ create or replace package body FISCAL is
   END CODIGO_BENEFICIO_FISCAL;  
 
 END;
+-- Alteração 07/07/2026 - Implementado tags no type principal para gerar dados da formula substituida pelos valores
 -- Alteração 24/06/2026 - Implementado ajuste na pesquisa do fornecedor. A uf passa a ser do cadastro e não mais da cidade vinculada ao fornecedor
 -- Alteração 15/06/2026 - Implementado retorno das regras de pesquisa da pkg anterior. Foi mantido o ajuste do diferimento e mensagem de retorno do optante nacional
--- Alteração 12/06/2026 - Ajuste nos valores quando tributação for com diferimento + Alteração na ordenação da pesquisa da tributação
