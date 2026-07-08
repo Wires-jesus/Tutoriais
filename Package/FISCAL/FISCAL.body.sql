@@ -6766,6 +6766,8 @@ create or replace package body FISCAL is
       P_TIPO_LOCAL_CONSUMO VARCHAR2,
       P_LOCAL_CONSUMO VARCHAR2
     ) RETURN BOOLEAN IS
+      V_DATA_INICIO_VIGENCIA DATE := SYSDATE;
+      V_DATA_FIM_VIGENCIA DATE := SYSDATE;
     BEGIN
     PKG_DEBUGGING_FWPC.LOG('Iniciando consulta na PCTRIBUTACAO com os seguintes parâmetros:' || CHR(10)
                          ||' P_PARAMETROS.TIPO_IMPOSTO:'||' '||P_PARAMETROS.TIPO_IMPOSTO || CHR(10)
@@ -7032,7 +7034,14 @@ create or replace package body FISCAL is
         V_PARAMETROS.TRIBUTACAO_REGULAR.COD_TRIB_REGULAR := V_CODIGO_TRIBUTACAO_REGULAR;
         
         V_PARAMETROS.COD_FORMULA_BASE_CBSIBS   := V_COD_FORMULA_BASE_CBSIBS;
-        V_PARAMETROS.SOMATOTALNF_CBSIBS        := V_SOMATOTALNF_CBSIBS;
+        V_PARAMETROS.SOMATOTALNF_CBSIBS        := ferramentas_docfiscal.NOTA_TECNICA_EM_VIGENCIA(
+                                                    'NFe_e_CTe', 
+                                                    'NT 2025.002 - Aplicação de Somar NT',
+                                                    'A',
+                                                    'BR',
+                                                    V_DATA_INICIO_VIGENCIA,
+                                                    V_DATA_FIM_VIGENCIA
+                                                  );
         V_PARAMETROS.CST_CBSIBS                := V_CST_CBSIBS;
         V_PARAMETROS.CCLASSTRIB_CBSIBS         := V_CCLASSTRIB_CBSIBS;
              --Retorno valores IBS UF
@@ -7069,7 +7078,14 @@ create or replace package body FISCAL is
         V_PARAMETROS.CST_IS                      := V_CST_IS;
         V_PARAMETROS.CCLASSTRIB_IS               := V_CCLASSTRIB_IS;
         V_PARAMETROS.PERC_IS                     := V_PERC_IS;
-        V_PARAMETROS.SOMATOTALNF_IS              := V_SOMATOTALNF_IS;
+        V_PARAMETROS.SOMATOTALNF_IS              := ferramentas_docfiscal.NOTA_TECNICA_EM_VIGENCIA(
+                                                      'NFe_e_CTe', 
+                                                      'NT 2025.002 - Aplicação de Somar NT',
+                                                      'A',
+                                                      'BR',
+                                                      V_DATA_INICIO_VIGENCIA,
+                                                      V_DATA_FIM_VIGENCIA
+                                                    );
 
         IF (V_COD_FORMULA_BASE_CALCULO_IS NOT LIKE '%IS%') THEN
            RAISE_APPLICATION_ERROR(-20999,
