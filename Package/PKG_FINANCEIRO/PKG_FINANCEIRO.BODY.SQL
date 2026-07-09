@@ -329,52 +329,86 @@ IS
             RAISE_APPLICATION_ERROR(-20001, '200 - Erro na Exclusão da ADDLOG. Log recebido: ('||G_MENSAGEM||')');            
     END;
     ----------------------------------------------------------------------------    
-    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD IN PCPREST%ROWTYPE,
-                                      P_NEW IN PCPREST%ROWTYPE)
+    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD_DTPAG             IN PCPREST.DTPAG%TYPE,
+                                      P_NEW_DTPAG             IN PCPREST.DTPAG%TYPE,
+                                      P_NEW_CODCOB            IN PCPREST.CODCOB%TYPE,
+                                      P_NEW_DTESTORNO         IN PCPREST.DTESTORNO%TYPE,
+                                      P_NUMTRANSVENDA         IN PCPREST.NUMTRANSVENDA%TYPE,
+                                      P_PREST                 IN PCPREST.PREST%TYPE,
+                                      P_CODCLI                IN PCPREST.CODCLI%TYPE,
+                                      P_CODFILIAL             IN PCPREST.CODFILIAL%TYPE,
+                                      P_VPAGO                 IN PCPREST.VPAGO%TYPE,
+                                      P_VALORMULTA            IN PCPREST.VALORMULTA%TYPE,
+                                      P_VALORJUROS            IN PCPREST.TXPERM%TYPE,
+                                      P_VALORDESC             IN PCPREST.VALORDESC%TYPE,
+                                      P_DTPAG                 IN PCPREST.DTPAG%TYPE,
+                                      P_NUMTRANSVENDAORIG     IN PCPREST.NUMTRANSVENDAORIG%TYPE,
+                                      P_PRESTORIG             IN PCPREST.PRESTORIG%TYPE)
     IS
     BEGIN
     
         ------------------------------------------------------------------------
         -- Estorno
         ------------------------------------------------------------------------
-        IF P_NEW.CODCOB = 'ESTR' AND P_NEW.DTESTORNO IS NOT NULL THEN    
-            DEL_PCRECEBIMENTOJUROSDESCONTO(P_OLD);
-            RETURN;    
+        IF P_NEW_CODCOB = 'ESTR'
+           AND P_NEW_DTESTORNO IS NOT NULL THEN
+    
+            DEL_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA,
+                                           P_PREST,
+                                           P_CODCLI,
+                                           P_CODFILIAL);
+            RETURN;
         END IF;
     
         ------------------------------------------------------------------------
-        -- Somente quando ocorrer a baixa
+        -- Não houve baixa
         ------------------------------------------------------------------------
-        IF P_OLD.DTPAG IS NOT NULL OR P_NEW.DTPAG IS NULL THEN
+        IF P_OLD_DTPAG IS NOT NULL
+           OR P_NEW_DTPAG IS NULL THEN
             RETURN;
         END IF;
     
         ------------------------------------------------------------------------
         -- Cobranças ignoradas
         ------------------------------------------------------------------------
-        IF P_NEW.CODCOB IN ('DESD',
-                            'DEVP',
-                            'DEVT',
-                            'CANC',
-                            'ESTR') THEN
+        IF P_NEW_CODCOB IN ('DESD','DEVP','DEVT','CANC','ESTR') THEN
             RETURN;
         END IF;
     
         ------------------------------------------------------------------------
-        -- Não possui juros, multa ou desconto
+        -- Sem juros/multa/desconto
         ------------------------------------------------------------------------
-        IF NVL(P_NEW.TXPERM,0)          = 0
-           AND NVL(P_NEW.VALORMULTA,0)  = 0
-           AND NVL(P_NEW.VALORDESC,0)   = 0 THEN
+        IF NVL(P_VALORJUROS,0) = 0 AND NVL(P_VALORMULTA,0) = 0 AND NVL(P_VALORDESC,0) = 0 THEN
             RETURN;
         END IF;
     
-        INS_PCRECEBIMENTOJUROSDESCONTO(P_NEW);
+        INS_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA,
+                                       P_PREST,
+                                       P_CODCLI,
+                                       P_CODFILIAL,
+                                       P_VPAGO,
+                                       P_VALORMULTA,
+                                       P_VALORJUROS,
+                                       P_VALORDESC,
+                                       P_DTPAG,
+                                       P_NUMTRANSVENDAORIG,
+                                       P_PRESTORIG);
     
     END;
     ----------------------------------------------------------------------------
-    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE)
+    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA         IN PCPREST.NUMTRANSVENDA%TYPE,
+                                             P_PREST                 IN PCPREST.PREST%TYPE,
+                                             P_CODCLI                IN PCPREST.CODCLI%TYPE,
+                                             P_CODFILIAL             IN PCPREST.CODFILIAL%TYPE,
+                                             P_VPAGO                 IN PCPREST.VPAGO%TYPE,
+                                             P_VALORMULTA            IN PCPREST.VALORMULTA%TYPE,
+                                             P_VALORJUROS            IN PCPREST.TXPERM%TYPE,
+                                             P_VALORDESC             IN PCPREST.VALORDESC%TYPE,
+                                             P_DTPAG                 IN PCPREST.DTPAG%TYPE,
+                                             P_NUMTRANSVENDAORIG     IN PCPREST.NUMTRANSVENDAORIG%TYPE,
+                                             P_PRESTORIG             IN PCPREST.PRESTORIG%TYPE)
     IS
+        G_MENSAGEM VARCHAR2(4000);
     BEGIN
     
         INSERT INTO PCRECEBIMENTOJUROSDESCONTO(NUMTRANSVENDA,
@@ -389,35 +423,57 @@ IS
                                                NUMTRANSVENDAORIG,
                                                PRESTORIG,
                                                GERADONF)
-                                        VALUES(P_REG.NUMTRANSVENDA,
-                                               P_REG.PREST,
-                                               P_REG.CODCLI,
-                                               P_REG.CODFILIAL,
-                                               P_REG.VPAGO,
-                                               P_REG.VALORMULTA,
-                                               P_REG.TXPERM,
-                                               P_REG.VALORDESC,
-                                               TRUNC(P_REG.DTPAG),
-                                               P_REG.NUMTRANSVENDAORIG,
-                                               P_REG.PRESTORIG,
+                                        VALUES(P_NUMTRANSVENDA,
+                                               P_PREST,
+                                               P_CODCLI,
+                                               P_CODFILIAL,
+                                               P_VPAGO,
+                                               P_VALORMULTA,
+                                               P_VALORJUROS,
+                                               P_VALORDESC,
+                                               TRUNC(P_DTPAG),
+                                               P_NUMTRANSVENDAORIG,
+                                               P_PRESTORIG,
                                                NULL);
     
     EXCEPTION
         WHEN DUP_VAL_ON_INDEX THEN
             NULL;
+    
+        WHEN OTHERS THEN
+            G_MENSAGEM := SQLERRM;
+    
+            RAISE_APPLICATION_ERROR(
+                -20001,
+                'Erro na INS_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')'
+            );
+    
     END;
     ----------------------------------------------------------------------------
-    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE)
+    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA IN PCPREST.NUMTRANSVENDA%TYPE,
+                                             P_PREST         IN PCPREST.PREST%TYPE,
+                                             P_CODCLI        IN PCPREST.CODCLI%TYPE,
+                                             P_CODFILIAL     IN PCPREST.CODFILIAL%TYPE)
     IS
+        G_MENSAGEM VARCHAR2(4000);
     BEGIN
     
         DELETE
           FROM PCRECEBIMENTOJUROSDESCONTO
-         WHERE NUMTRANSVENDA     = P_REG.NUMTRANSVENDA
-           AND PREST             = P_REG.PREST
-           AND CODFILIAL         = P_REG.CODFILIAL
-           AND CODCLI            = P_REG.CODCLI
+         WHERE NUMTRANSVENDA     = P_NUMTRANSVENDA
+           AND PREST             = P_PREST
+           AND CODCLI            = P_CODCLI
+           AND CODFILIAL         = P_CODFILIAL
            AND NVL(GERADONF,'N') = 'N';
+    
+    EXCEPTION
+        WHEN OTHERS THEN
+            G_MENSAGEM := SQLERRM;
+    
+            RAISE_APPLICATION_ERROR(
+                -20001,
+                'Erro na DEL_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')'
+            );
     
     END;
 END;

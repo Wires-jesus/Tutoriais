@@ -231,13 +231,39 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
     ----------------------------------------------------------------------------
     -- Reforma Tributária - Recebimento de Juros/Multas/Descontos
     ----------------------------------------------------------------------------
-    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD IN PCPREST%ROWTYPE,
-                                      P_NEW IN PCPREST%ROWTYPE);
+    PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD_DTPAG             IN PCPREST.DTPAG%TYPE,
+                                      P_NEW_DTPAG             IN PCPREST.DTPAG%TYPE,
+                                      P_NEW_CODCOB            IN PCPREST.CODCOB%TYPE,
+                                      P_NEW_DTESTORNO         IN PCPREST.DTESTORNO%TYPE,
+                                      P_NUMTRANSVENDA         IN PCPREST.NUMTRANSVENDA%TYPE,
+                                      P_PREST                 IN PCPREST.PREST%TYPE,
+                                      P_CODCLI                IN PCPREST.CODCLI%TYPE,
+                                      P_CODFILIAL             IN PCPREST.CODFILIAL%TYPE,
+                                      P_VPAGO                 IN PCPREST.VPAGO%TYPE,
+                                      P_VALORMULTA            IN PCPREST.VALORMULTA%TYPE,
+                                      P_VALORJUROS            IN PCPREST.TXPERM%TYPE,
+                                      P_VALORDESC             IN PCPREST.VALORDESC%TYPE,
+                                      P_DTPAG                 IN PCPREST.DTPAG%TYPE,
+                                      P_NUMTRANSVENDAORIG     IN PCPREST.NUMTRANSVENDAORIG%TYPE,
+                                      P_PRESTORIG             IN PCPREST.PRESTORIG%TYPE);
     
     ----------------------------------------------------------------------------
-    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE);
+    PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA         IN PCPREST.NUMTRANSVENDA%TYPE,
+                                             P_PREST                 IN PCPREST.PREST%TYPE,
+                                             P_CODCLI                IN PCPREST.CODCLI%TYPE,
+                                             P_CODFILIAL             IN PCPREST.CODFILIAL%TYPE,
+                                             P_VPAGO                 IN PCPREST.VPAGO%TYPE,
+                                             P_VALORMULTA            IN PCPREST.VALORMULTA%TYPE,
+                                             P_VALORJUROS            IN PCPREST.TXPERM%TYPE,
+                                             P_VALORDESC             IN PCPREST.VALORDESC%TYPE,
+                                             P_DTPAG                 IN PCPREST.DTPAG%TYPE,
+                                             P_NUMTRANSVENDAORIG     IN PCPREST.NUMTRANSVENDAORIG%TYPE,
+                                             P_PRESTORIG             IN PCPREST.PRESTORIG%TYPE);
     
     ----------------------------------------------------------------------------
-    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_REG IN PCPREST%ROWTYPE);
+    PROCEDURE DEL_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA IN PCPREST.NUMTRANSVENDA%TYPE,
+                                             P_PREST         IN PCPREST.PREST%TYPE,
+                                             P_CODCLI        IN PCPREST.CODCLI%TYPE,
+                                             P_CODFILIAL     IN PCPREST.CODFILIAL%TYPE);
                      
 END PKG_FINANCEIRO;
