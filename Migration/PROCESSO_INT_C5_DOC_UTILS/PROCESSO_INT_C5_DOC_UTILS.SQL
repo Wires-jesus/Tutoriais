@@ -1825,7 +1825,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcprestecf AS
        NULL vlmexiva,
        NULL assinatura,
        NULL numgnf,
-       NULL,
+       NULL numseriesat,
        p.Cnpjcredtef cnpjcredenccartao,
        NULL numcartaocrm,
        (CASE
