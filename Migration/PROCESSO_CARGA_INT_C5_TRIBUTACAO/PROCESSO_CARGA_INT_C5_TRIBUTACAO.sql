@@ -6,20 +6,12 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             'SN' tipotributacao,
             0 nroregtributacao,
             c.percaliquota,
-            (CASE WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_OPTANTESIMPLESNAC','99','N') = 'N' THEN
-              case
-                when (Length(NVL(t.sittributecf, t.sittributpf))) = 2 then
-                     '0' || NVL(t.sittributecf, t.sittributpf) 
-                else NVL(t.sittributecf, t.sittributpf)
-              end
-            END)  situacaotributacao,
-            (CASE WHEN FERRAMENTAS.F_BUSCARPARAMETRO_ALFA('FIL_OPTANTESIMPLESNAC','99','N') <> 'N' THEN
-              case
-                when Length(t.sittributsimplesnac) = 2 then
-                     '0' || t.sittributsimplesnac 
-                else t.sittributsimplesnac
-              end
-            END) SITUACAOSIMPLES,
+            NVL(t.sittributecf, t.sittributpf) situacaotributacao,
+            (case
+              when Length(t.sittributsimplesnac) = 2 then
+                    '0' || t.sittributsimplesnac 
+              else t.sittributsimplesnac
+            end) SITUACAOSIMPLES,
             c.percisento,
             c.perctributado,
             c.percoutro,
