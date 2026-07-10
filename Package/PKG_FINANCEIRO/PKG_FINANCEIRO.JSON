@@ -22,21 +22,6 @@
 			"nome": "PKG_FINANCEIRO_SCRIPTS",
 			"tipo": "OBJETO_PLSQL",
 			"versao": "8.0.11.000"
-		},
-		{
-			"nome": "PCPREST",
-			"tipo": "TABELA",
-			"versao": "8.0.06.000"
-		},
-		{
-			"nome": "PCRECEBIMENTOJUROSDESCONTO",
-			"tipo": "TABELA",
-			"versao": "8.0.01.000"
-		},
-		{
-			"nome": "TRG_PCRECEBIMENTOJUROSDESCONTO",
-			"tipo": "OBJETO_PLSQL",
-			"versao": "8.0.01.000"
 		}
 	]
 }
