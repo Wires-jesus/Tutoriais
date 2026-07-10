@@ -6,11 +6,11 @@ CREATE OR REPLACE VIEW VW_INT_C5_TRIB_UF AS
             'SN' tipotributacao,
             0 nroregtributacao,
             c.percaliquota,
-            NVL(t.sittributecf, t.sittributpf) situacaotributacao,
+            C.SITTRIBUT situacaotributacao,
             (case
-              when Length(t.sittributsimplesnac) = 2 then
-                    '0' || t.sittributsimplesnac 
-              else t.sittributsimplesnac
+              when Length(C.SITTRIBUTSN) = 2 then
+                    '0' || C.SITTRIBUTSN 
+              else C.SITTRIBUTSN
             end) SITUACAOSIMPLES,
             c.percisento,
             c.perctributado,
