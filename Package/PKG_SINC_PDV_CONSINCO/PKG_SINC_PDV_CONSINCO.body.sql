@@ -7066,6 +7066,11 @@ BEGIN
                   IDREF  
            FROM VW_INT_C5_PRODLOTE
            WHERE SEQLOTEESTOQUE IS NOT NULL /*registros com seqloteestoque "null" indica que a tabela DEPARA não foi preenchida*/
+           AND   NROLOTEESTOQUE IS NOT NULL
+           AND   DTAVALIDADE IS NOT NULL
+           AND   DTAVALIDADE >= TRUNC(SYSDATE)
+           AND   DTAENTRADA IS NOT NULL
+           AND   NVL(ESTQLOTE, 0) > 0
           ) S 
     ON    (T.NROEMPRESA = S.NROEMPRESA AND T.NROLOTEESTOQUE = S.NROLOTEESTOQUE AND T.SEQPRODUTO = S.SEQPRODUTO)
   WHEN MATCHED THEN
