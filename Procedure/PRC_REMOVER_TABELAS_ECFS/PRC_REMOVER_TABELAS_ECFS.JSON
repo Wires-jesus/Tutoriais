@@ -1,4 +1,4 @@
-﻿{"nome":"PRC_REMOVER_TABELAS_ECFS","tipoPLSQL":"PROCEDURE","dependencias":[
+{"nome":"PRC_REMOVER_TABELAS_ECFS","tipoPLSQL":"PROCEDURE","dependencias":[
   {
     "nome": "PARAMETRO",
     "tipo": "PARAMETRO",
