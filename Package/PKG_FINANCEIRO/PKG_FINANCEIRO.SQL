@@ -266,4 +266,36 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                              P_CODCLI        IN PCPREST.CODCLI%TYPE,
                                              P_CODFILIAL     IN PCPREST.CODFILIAL%TYPE);
                      
+	----------------------------------------------------------------------------
+    PROCEDURE PROCESSA_PAGAMENTO_JD(P_RECNUM               IN PCLANC.RECNUM%TYPE,
+									P_NUMNOTA              IN PCLANC.NUMNOTA%TYPE,
+									P_CODFILIAL            IN PCLANC.CODFILIAL%TYPE,
+									P_DUPLIC               IN PCLANC.DUPLIC%TYPE,
+									P_PREST                IN PCLANC.PREST%TYPE,
+									P_CODFORNEC            IN PCLANC.CODFORNEC%TYPE,
+									P_VPAGOBORDERO         IN PCLANC.VPAGOBORDERO%TYPE,
+									P_TXPERM               IN PCLANC.TXPERM%TYPE,
+									P_DESCONTOFIN          IN PCLANC.DESCONTOFIN%TYPE,
+									P_DTPAGTO              IN PCLANC.DTPAGTO%TYPE,
+									P_RECNUMPRINC          IN PCLANC.RECNUMPRINC%TYPE,
+									P_DTESTORNOBAIXA       IN PCLANC.DTESTORNOBAIXA%TYPE,
+									P_DTCANCEL             IN PCLANC.DTCANCEL%TYPE,
+									P_DTDESD               IN PCLANC.DTDESD%TYPE);
+                                    
+    ----------------------------------------------------------------------------                                    
+    PROCEDURE INS_PCPAGAMENTOJUROSDESCONTO(P_RECNUM               IN PCPAGAMENTOJUROSDESCONTO.RECNUM%TYPE,
+                                           P_NUMNOTA              IN PCPAGAMENTOJUROSDESCONTO.NUMNOTA%TYPE,
+                                           P_CODFILIAL            IN PCPAGAMENTOJUROSDESCONTO.CODFILIAL%TYPE,
+                                           P_DUPLIC               IN PCPAGAMENTOJUROSDESCONTO.DUPLIC%TYPE,
+                                           P_PREST                IN PCPAGAMENTOJUROSDESCONTO.PREST%TYPE,
+                                           P_CODFORNEC            IN PCPAGAMENTOJUROSDESCONTO.CODFORNEC%TYPE,
+                                           P_VPAGO                IN PCPAGAMENTOJUROSDESCONTO.VPAGO%TYPE,
+                                           P_VALORJUROS           IN PCPAGAMENTOJUROSDESCONTO.VALORJUROS%TYPE,
+                                           P_VALORDESC            IN PCPAGAMENTOJUROSDESCONTO.VALORDESC%TYPE,
+                                           P_DTPAG                IN PCPAGAMENTOJUROSDESCONTO.DTPAG%TYPE,
+                                           P_RECNUMPRINC          IN PCPAGAMENTOJUROSDESCONTO.RECNUMPRINC%TYPE);
+                                           
+    ------------------------------------------------------------------------------
+    PROCEDURE DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM IN PCPAGAMENTOJUROSDESCONTO.RECNUM%TYPE);
+    
 END PKG_FINANCEIRO;

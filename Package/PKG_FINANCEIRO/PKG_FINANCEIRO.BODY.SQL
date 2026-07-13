@@ -328,6 +328,7 @@ IS
             G_MENSAGEM   := SQLERRM;
             RAISE_APPLICATION_ERROR(-20001, '200 - Erro na Exclusão da ADDLOG. Log recebido: ('||G_MENSAGEM||')');            
     END;
+    
     ----------------------------------------------------------------------------    
     PROCEDURE PROCESSA_RECEBIMENTO_JD(P_OLD_DTPAG             IN PCPREST.DTPAG%TYPE,
                                       P_NEW_DTPAG             IN PCPREST.DTPAG%TYPE,
@@ -347,24 +348,24 @@ IS
     IS
     BEGIN
     
+        ADDLOG('PROCESSA_RECEBIMENTO_JD','INICIO - NUMTRANSVENDA: ' || P_NUMTRANSVENDA);
+        
         ------------------------------------------------------------------------
         -- Estorno
         ------------------------------------------------------------------------
         IF P_NEW_CODCOB = 'ESTR'
-           AND P_NEW_DTESTORNO IS NOT NULL THEN
-    
+           AND P_NEW_DTESTORNO IS NOT NULL THEN    
             DEL_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA,
                                            P_PREST,
                                            P_CODCLI,
-                                           P_CODFILIAL);
+                                           P_CODFILIAL);            
             RETURN;
         END IF;
     
         ------------------------------------------------------------------------
         -- Não houve baixa
         ------------------------------------------------------------------------
-        IF P_OLD_DTPAG IS NOT NULL
-           OR P_NEW_DTPAG IS NULL THEN
+        IF P_OLD_DTPAG IS NOT NULL OR P_NEW_DTPAG IS NULL THEN
             RETURN;
         END IF;
     
@@ -393,7 +394,9 @@ IS
                                        P_DTPAG,
                                        P_NUMTRANSVENDAORIG,
                                        P_PRESTORIG);
-    
+                                       
+        ADDLOG('PROCESSA_RECEBIMENTO_JD','FIM');  
+        
     END;
     ----------------------------------------------------------------------------
     PROCEDURE INS_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA         IN PCPREST.NUMTRANSVENDA%TYPE,
@@ -411,6 +414,8 @@ IS
         G_MENSAGEM VARCHAR2(4000);
     BEGIN
     
+        ADDLOG('INS_PCRECEBIMENTOJUROSDESCONTO','INICIO - NUMTRANSVENDA: ' || P_NUMTRANSVENDA);  
+        
         INSERT INTO PCRECEBIMENTOJUROSDESCONTO(NUMTRANSVENDA,
                                                PREST,
                                                CODCLI,
@@ -435,18 +440,19 @@ IS
                                                P_NUMTRANSVENDAORIG,
                                                P_PRESTORIG,
                                                NULL);
-    
+                                               
+        ADDLOG('INS_PCRECEBIMENTOJUROSDESCONTO','FIM');
+        
     EXCEPTION
         WHEN DUP_VAL_ON_INDEX THEN
             NULL;
     
         WHEN OTHERS THEN
             G_MENSAGEM := SQLERRM;
-    
-            RAISE_APPLICATION_ERROR(
-                -20001,
-                'Erro na INS_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')'
-            );
+            
+            ADDLOG('INS_PCRECEBIMENTOJUROSDESCONTO','ERROR: '||G_MENSAGEM);      
+            
+            RAISE_APPLICATION_ERROR(-20001,'Erro na INS_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')');
     
     END;
     ----------------------------------------------------------------------------
@@ -458,6 +464,8 @@ IS
         G_MENSAGEM VARCHAR2(4000);
     BEGIN
     
+        ADDLOG('DEL_PCRECEBIMENTOJUROSDESCONTO','INICIO - NUMTRANSVENDA: ' || P_NUMTRANSVENDA);
+        
         DELETE
           FROM PCRECEBIMENTOJUROSDESCONTO
          WHERE NUMTRANSVENDA     = P_NUMTRANSVENDA
@@ -465,15 +473,224 @@ IS
            AND CODCLI            = P_CODCLI
            AND CODFILIAL         = P_CODFILIAL
            AND NVL(GERADONF,'N') = 'N';
+           
+        ADDLOG('DEL_PCRECEBIMENTOJUROSDESCONTO','FIM');
+        
+    EXCEPTION
+        WHEN OTHERS THEN
+            G_MENSAGEM := SQLERRM;
+            
+            ADDLOG('DEL_PCRECEBIMENTOJUROSDESCONTO','ERROR: ' || G_MENSAGEM);
+            
+            RAISE_APPLICATION_ERROR(-20001,'Erro na DEL_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')');
+    
+    END;
+    ------------------------------------------------------------------------------
+    PROCEDURE PROCESSA_PAGAMENTO_JD(P_RECNUM               IN PCLANC.RECNUM%TYPE,
+                                    P_NUMNOTA              IN PCLANC.NUMNOTA%TYPE,
+                                    P_CODFILIAL            IN PCLANC.CODFILIAL%TYPE,
+                                    P_DUPLIC               IN PCLANC.DUPLIC%TYPE,
+                                    P_PREST                IN PCLANC.PREST%TYPE,
+                                    P_CODFORNEC            IN PCLANC.CODFORNEC%TYPE,
+                                    P_VPAGOBORDERO         IN PCLANC.VPAGOBORDERO%TYPE,
+                                    P_TXPERM               IN PCLANC.TXPERM%TYPE,
+                                    P_DESCONTOFIN          IN PCLANC.DESCONTOFIN%TYPE,
+                                    P_DTPAGTO              IN PCLANC.DTPAGTO%TYPE,
+                                    P_RECNUMPRINC          IN PCLANC.RECNUMPRINC%TYPE,
+                                    P_DTESTORNOBAIXA       IN PCLANC.DTESTORNOBAIXA%TYPE,
+                                    P_DTCANCEL             IN PCLANC.DTCANCEL%TYPE,
+                                    P_DTDESD               IN PCLANC.DTDESD%TYPE)
+    IS
+    
+        V_EXISTE NUMBER;
+        G_MENSAGEM VARCHAR2(4000);
+        
+    BEGIN
+    
+        ADDLOG('PROCESSA_PAGAMENTO_JD','INICIO - RECNUM: ' || P_RECNUM);
+        
+        --------------------------------------------------------------------------
+        -- ESTORNO
+        --------------------------------------------------------------------------
+        IF P_DTESTORNOBAIXA IS NOT NULL THEN    
+            DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM);    
+            RETURN;    
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- CANCELAMENTO
+        --------------------------------------------------------------------------
+        IF P_DTCANCEL IS NOT NULL THEN    
+            DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM);    
+            RETURN;    
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- DESDOBRAMENTO
+        --------------------------------------------------------------------------
+        IF P_DTDESD IS NOT NULL THEN
+            RETURN;
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- NÃO BAIXADO
+        --------------------------------------------------------------------------
+        IF P_DTPAGTO IS NULL THEN
+            RETURN;
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- SEM JUROS E SEM DESCONTO
+        --------------------------------------------------------------------------
+        IF NVL(P_TXPERM,0) = 0 AND NVL(P_DESCONTOFIN,0) = 0 THEN    
+            DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM);   
+            RETURN;    
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- BAIXA 100% DESCONTO
+        --------------------------------------------------------------------------
+        IF NVL(P_VPAGOBORDERO,0) = 0 THEN    
+            DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM);    
+            RETURN;    
+        END IF;
+    
+        --------------------------------------------------------------------------
+        -- EXISTE REGISTRO?
+        --------------------------------------------------------------------------
+        SELECT COUNT(*)
+          INTO V_EXISTE
+          FROM PCPAGAMENTOJUROSDESCONTO
+         WHERE RECNUM = P_RECNUM;
+    
+        --------------------------------------------------------------------------
+        -- INSERE
+        --------------------------------------------------------------------------
+        IF V_EXISTE = 0 THEN
+    
+            INS_PCPAGAMENTOJUROSDESCONTO(P_RECNUM,
+                                         P_NUMNOTA,
+                                         P_CODFILIAL,
+                                         P_DUPLIC,
+                                         P_PREST,
+                                         P_CODFORNEC,
+                                         P_VPAGOBORDERO,
+                                         P_TXPERM,
+                                         P_DESCONTOFIN,
+                                         TRUNC(P_DTPAGTO),
+                                         NVL(P_RECNUMPRINC, P_RECNUM));
+    
+        ELSE
+    
+            ----------------------------------------------------------------------
+            -- RECRIA O REGISTRO
+            ----------------------------------------------------------------------
+            DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM);
+    
+            INS_PCPAGAMENTOJUROSDESCONTO(P_RECNUM,
+                                         P_NUMNOTA,
+                                         P_CODFILIAL,
+                                         P_DUPLIC,
+                                         P_PREST,
+                                         P_CODFORNEC,
+                                         P_VPAGOBORDERO,
+                                         P_TXPERM,
+                                         P_DESCONTOFIN,
+                                         TRUNC(P_DTPAGTO),
+                                         NVL(P_RECNUMPRINC, P_RECNUM));
+    
+        END IF;
+    
+        ADDLOG('PROCESSA_PAGAMENTO_JD','FIM');
+        
+    EXCEPTION
+        WHEN OTHERS THEN
+            G_MENSAGEM := SQLERRM;
+            
+            ADDLOG('PROCESSA_PAGAMENTO_JD','ERROR: ' || SQLERRM);
+            
+            RAISE_APPLICATION_ERROR(-20001,'Erro na PROCESSA_PAGAMENTO_JD: ' || SQLERRM);
+    
+    END PROCESSA_PAGAMENTO_JD;
+    
+    ------------------------------------------------------------------------------
+    PROCEDURE INS_PCPAGAMENTOJUROSDESCONTO(P_RECNUM               IN PCPAGAMENTOJUROSDESCONTO.RECNUM%TYPE,
+                                           P_NUMNOTA              IN PCPAGAMENTOJUROSDESCONTO.NUMNOTA%TYPE,
+                                           P_CODFILIAL            IN PCPAGAMENTOJUROSDESCONTO.CODFILIAL%TYPE,
+                                           P_DUPLIC               IN PCPAGAMENTOJUROSDESCONTO.DUPLIC%TYPE,
+                                           P_PREST                IN PCPAGAMENTOJUROSDESCONTO.PREST%TYPE,
+                                           P_CODFORNEC            IN PCPAGAMENTOJUROSDESCONTO.CODFORNEC%TYPE,
+                                           P_VPAGO                IN PCPAGAMENTOJUROSDESCONTO.VPAGO%TYPE,
+                                           P_VALORJUROS           IN PCPAGAMENTOJUROSDESCONTO.VALORJUROS%TYPE,
+                                           P_VALORDESC            IN PCPAGAMENTOJUROSDESCONTO.VALORDESC%TYPE,
+                                           P_DTPAG                IN PCPAGAMENTOJUROSDESCONTO.DTPAG%TYPE,
+                                           P_RECNUMPRINC          IN PCPAGAMENTOJUROSDESCONTO.RECNUMPRINC%TYPE)
+    IS
+        G_MENSAGEM VARCHAR2(4000);
+    BEGIN
+    
+        ADDLOG('INS_PCPAGAMENTOJUROSDESCONTO','INICIO - RECNUM: ' || P_RECNUM);
+    
+        INSERT INTO PCPAGAMENTOJUROSDESCONTO(RECNUM,
+                                             NUMNOTA,
+                                             CODFILIAL,
+                                             DUPLIC,
+                                             PREST,
+                                             CODFORNEC,
+                                             VPAGO,
+                                             VALORJUROS,
+                                             VALORDESC,
+                                             DTPAG,
+                                             RECNUMPRINC,
+                                             GERADONF)
+                                      VALUES(P_RECNUM,
+                                             P_NUMNOTA,
+                                             P_CODFILIAL,
+                                             P_DUPLIC,
+                                             P_PREST,
+                                             P_CODFORNEC,
+                                             P_VPAGO,
+                                             P_VALORJUROS,
+                                             P_VALORDESC,
+                                             TRUNC(P_DTPAG),
+                                             P_RECNUMPRINC,
+                                             NULL);
+                                             
+        ADDLOG('INS_PCPAGAMENTOJUROSDESCONTO','FIM');                                             
     
     EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM := SQLERRM;
+            
+            ADDLOG('INS_PCPAGAMENTOJUROSDESCONTO','ERROR: ' || G_MENSAGEM);
+            
+            RAISE_APPLICATION_ERROR(-20001,'Erro INS_PCPAGAMENTOJUROSDESCONTO: '|| SQLERRM);
     
-            RAISE_APPLICATION_ERROR(
-                -20001,
-                'Erro na DEL_PCRECEBIMENTOJUROSDESCONTO. ('||G_MENSAGEM||')'
-            );
+    END INS_PCPAGAMENTOJUROSDESCONTO;
     
-    END;
+    ------------------------------------------------------------------------------
+    PROCEDURE DEL_PCPAGAMENTOJUROSDESCONTO(P_RECNUM IN PCPAGAMENTOJUROSDESCONTO.RECNUM%TYPE)
+    IS
+        G_MENSAGEM VARCHAR2(4000);
+    BEGIN
+        
+        ADDLOG('DEL_PCPAGAMENTOJUROSDESCONTO','INICIO - RECNUM: ' || P_RECNUM);
+    
+        DELETE 
+          FROM PCPAGAMENTOJUROSDESCONTO
+         WHERE RECNUM            = P_RECNUM
+           AND NVL(GERADONF,'N') = 'N';
+
+        ADDLOG('DEL_PCPAGAMENTOJUROSDESCONTO','FIM');
+    
+    EXCEPTION
+        WHEN OTHERS THEN
+            G_MENSAGEM := SQLERRM;
+            
+            ADDLOG('DEL_PCPAGAMENTOJUROSDESCONTO','ERROR: ' || G_MENSAGEM);
+    
+            RAISE_APPLICATION_ERROR(-20001,'Erro DEL_PCPAGAMENTOJUROSDESCONTO: '|| SQLERRM);
+    
+    END DEL_PCPAGAMENTOJUROSDESCONTO;
+    
 END;
