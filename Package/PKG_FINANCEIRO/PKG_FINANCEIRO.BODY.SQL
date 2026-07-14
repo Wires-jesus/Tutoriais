@@ -23,6 +23,9 @@ IS
         G_SCRIPT       VARCHAR2(9999); 
         G_ERROR        VARCHAR2(10);
     BEGIN
+    
+        ADDLOG('INS_PCRATEIOCENTROCUSTO','INICIO');
+    
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
@@ -60,9 +63,15 @@ IS
                          ,P_TIPOTRIB              
                          ,P_LANCIMPRETIDO;         
         G_ERROR := '3.';
+                
+        ADDLOG('INS_PCRATEIOCENTROCUSTO','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('INS_PCRATEIOCENTROCUSTO','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSERÇÃO da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');        
     END; -- INS_PCRATEIOCENTROCUSTO
@@ -90,6 +99,9 @@ IS
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
+    
+        ADDLOG('INS_PCRATEIOCENTROCUSTOBLOQ','INICIO');
+    
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
@@ -118,9 +130,15 @@ IS
                          ,P_ORCAMENTOEXCEDIDO;            
         
         G_ERROR := '3.';
+        
+        ADDLOG('INS_PCRATEIOCENTROCUSTOBLOQ','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('INS_PCRATEIOCENTROCUSTOBLOQ','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na INSERÇÃO da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --INS_PCRATEIOCENTROCUSTOBLOQ
@@ -135,6 +153,8 @@ IS
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
+
+        ADDLOG('APROVAR_SUPLEMENTACAO','INICIO');
 
         /* RETORNOS DOS STATUS
         200 - Sucesso
@@ -188,9 +208,14 @@ IS
 
         END IF; --REPLICANCO PCLANCBLOQ         
 
+        ADDLOG('APROVAR_SUPLEMENTACAO','FIM');
+
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM := SQLERRM;
+            
+            ADDLOG('APROVAR_SUPLEMENTACAO','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT   := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na aprovação da suplementacao. Log recebido: ('||G_MENSAGEM||')');            
     END; --APROVA_SUPLEMENTACAO
@@ -204,6 +229,9 @@ IS
         G_SCRIPT     VARCHAR2(9999); 
         G_ERROR      VARCHAR2(10);
     BEGIN
+    
+        ADDLOG('EXP_PCLANCBLOQ','INICIO');
+    
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
@@ -216,9 +244,15 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;            
         
         G_ERROR := '3.';
+        
+        ADDLOG('EXP_PCLANCBLOQ','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('EXP_PCLANCBLOQ','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exportação da PCLANCBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --EXP_PCLANCBLOQ
@@ -232,6 +266,9 @@ IS
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
+        
+        ADDLOG('EXP_PCRATEIOCENTROCUSTOBLOQ','INICIO');
+        
         P_STATUS_OUT := 200;
         G_ERROR      := '1.';
         P_MENSAGEM_OUT := 'Inserção realizada com sucesso!';
@@ -243,9 +280,15 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
+        
+        ADDLOG('EXP_PCRATEIOCENTROCUSTOBLOQ','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('EXP_PCRATEIOCENTROCUSTOBLOQ','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exportação da PCRATEIOCENTROCUSTOBLOQ. Log recebido: ('||G_MENSAGEM||')');            
     END; --EXP_PCRATEIOCENTROCUSTOBLOQ
@@ -259,6 +302,9 @@ IS
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
+        
+        ADDLOG('DEL_PCRATEIOCENTROCUSTO','INICIO');
+    
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
         P_MENSAGEM_OUT := 'Exclusão realizada com sucesso!';
@@ -268,9 +314,15 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
+        
+        ADDLOG('DEL_PCRATEIOCENTROCUSTO','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('DEL_PCRATEIOCENTROCUSTO','ERROR: ' || G_MENSAGEM);
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
 	END;
@@ -283,6 +335,9 @@ IS
         G_SCRIPT                    VARCHAR2(9999); 
         G_ERROR                     VARCHAR2(10);
     BEGIN
+    
+        ADDLOG('DEL_PCRATEIOCENTROCUSTOBLOQ','INICIO');    
+        
         P_STATUS_OUT   := 200;
         G_ERROR        := '1.';
         P_MENSAGEM_OUT := 'Exclusão realizada com sucesso!';
@@ -292,9 +347,15 @@ IS
         EXECUTE IMMEDIATE G_SCRIPT USING P_RECNUM;
         
         G_ERROR := '3.';
+        
+        ADDLOG('DEL_PCRATEIOCENTROCUSTOBLOQ','FIM');
+        
         EXCEPTION
         WHEN OTHERS THEN
             G_MENSAGEM   := SQLERRM;
+            
+            ADDLOG('DEL_PCRATEIOCENTROCUSTOBLOQ','ERROR: ' || G_MENSAGEM);    
+            
             P_STATUS_OUT := '500';
             RAISE_APPLICATION_ERROR(-20001, G_ERROR || ' Erro na Exclusão da PCRATEIOCENTROCUSTO. Log recebido: ('||G_MENSAGEM||')');            
 	END; 
@@ -353,8 +414,7 @@ IS
         ------------------------------------------------------------------------
         -- Estorno
         ------------------------------------------------------------------------
-        IF P_NEW_CODCOB = 'ESTR'
-           AND P_NEW_DTESTORNO IS NOT NULL THEN    
+        IF P_NEW_CODCOB = 'ESTR' AND P_NEW_DTESTORNO IS NOT NULL THEN    
             DEL_PCRECEBIMENTOJUROSDESCONTO(P_NUMTRANSVENDA,
                                            P_PREST,
                                            P_CODCLI,

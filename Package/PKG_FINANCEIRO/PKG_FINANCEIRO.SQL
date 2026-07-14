@@ -266,7 +266,9 @@ CREATE OR REPLACE PACKAGE PKG_FINANCEIRO IS
                                              P_CODCLI        IN PCPREST.CODCLI%TYPE,
                                              P_CODFILIAL     IN PCPREST.CODFILIAL%TYPE);
                      
-	----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
+    -- Reforma Tributária - Pagamento de Juros/Multas/Descontos
+    ----------------------------------------------------------------------------
     PROCEDURE PROCESSA_PAGAMENTO_JD(P_RECNUM               IN PCLANC.RECNUM%TYPE,
 									P_NUMNOTA              IN PCLANC.NUMNOTA%TYPE,
 									P_CODFILIAL            IN PCLANC.CODFILIAL%TYPE,
