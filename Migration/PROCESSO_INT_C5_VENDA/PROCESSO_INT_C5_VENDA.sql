@@ -98,7 +98,7 @@ CREATE OR REPLACE VIEW vw_int_c5_pcpedcecf AS
         NULL obsnf2,
         NULL obsnf3,
         NULL obsnfce,
-        NULL percicm,
+        0 percicm,
         NULL placaveiculo,
         1 condvenda,
         'N' entrega,
@@ -457,13 +457,13 @@ AS
         0 perdifereimentoicms,
         0 percmexiva,
         0 perciss,
-        (select percaliquota
+        NVL((select percaliquota
            from monitorpdvmiddle.tb_doctotributacaoitem
           where nroempresa = i.nroempresa
             and nrocheckout = i.nrocheckout
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
-            and seqtipotributacao = 1) percicm,
+            and seqtipotributacao = 1), 0) percicm,
         0 percicmsefet,
         nvl(v.pcomrep1,0) percom,
         0 percredbaseefet,
@@ -1001,13 +1001,13 @@ FROM  monitorpdvmiddle.tb_doctoitem     i,
         0 perdifereimentoicms,
         0 percmexiva,
         0 perciss,
-        (select percaliquota
+        NVL((select percaliquota
            from monitorpdvmiddle.tb_doctotributacaoitem
           where nroempresa = i.nroempresa
             and nrocheckout = i.nrocheckout
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
-            and seqtipotributacao = 1) percicm,
+            and seqtipotributacao = 1), 0) percicm,
         0 percicmsefet,
         NVL(v.pcomrep1,0) percom,
         0 percredbaseefet,
@@ -1514,13 +1514,13 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
      and doctribitem.seqitem = i.seqitem
      and doctribitem.seqtipotributacao = 1
      ), 0) baseicms,
-    (select percaliquota
+    NVL((select percaliquota
            from monitorpdvmiddle.tb_doctotributacaoitem
           where nroempresa = i.nroempresa
             and nrocheckout = i.nrocheckout
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
-            and seqtipotributacao = 1) percicm,
+            and seqtipotributacao = 1), 0) percicm,
   0 PERPIS,
   ((NVL(h.percpis,0)/100) * i.vlrtotal) vlpis,
   0 PERCOFINS,
@@ -1840,13 +1840,13 @@ create or replace view VW_INT_C5_PCPEDIECFCESTA AS
      and doctribitem.seqitem = i.seqitem
      and doctribitem.seqtipotributacao = 1
      ), 0) baseicms,
-    (select percaliquota
+    NVL((select percaliquota
            from monitorpdvmiddle.tb_doctotributacaoitem
           where nroempresa = i.nroempresa
             and nrocheckout = i.nrocheckout
             and seqdocto = i.seqdocto
             and seqitem = i.seqitem
-            and seqtipotributacao = 1) percicm,
+            and seqtipotributacao = 1), 0) percicm,
   0 PERPIS,
   ((NVL(h.percpis,0)/100) * i.vlrtotal) vlpis,
   0 PERCOFINS,
