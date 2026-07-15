@@ -19441,6 +19441,7 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
     vnUTILIZOUCFAT               NUMBER;
     vnNUMPED                     PCPEDC.NUMPED%TYPE;
     vsCODOPER                    PCMOV.CODOPER%TYPE;
+    vbPDVSuper                   BOOLEAN;
   BEGIN
     -- Limpar variável P_INTERNO
     PRIV_LIMPAR_P_INTERNO;
@@ -19506,6 +19507,23 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
         vnNUMTRANSENTCROSSDOCK := NULL; -- DDMEDICA-620
         vnNUMPED               := 0;
     END;
+
+    --Valida se é uma NF PDV Super
+    BEGIN
+      vnCONTADORREGISTROS := 0;
+      vbPDVSuper := FALSE;      
+      
+      SELECT COUNT(1)
+        INTO vnCONTADORREGISTROS
+        FROM PCNFEPDVSUPER
+       WHERE PCNFEPDVSUPER.NUMTRANSVENDA = pnNUMTRANSACAO;
+       
+      vbPDVSuper := (vnCONTADORREGISTROS > 0);
+    EXCEPTION
+      WHEN OTHERS THEN
+        vbPDVSuper := FALSE;
+    END;
+
     -- Zerando retorno
     vnCONTADORREGISTROS := 0;
     -- Validando se transação foi informada
@@ -19691,7 +19709,8 @@ FUNCTION RESERVA_INCLUIR (pnIDENTIFICADOR   IN PCLOGPKG_ESTOQUE.IDENTIFICADOR%TY
            AND (NOT vbEH_PED_AVARIA_CROSSDOCK)
         THEN -- Pedido de Avaria e CrossDocking nao baixa a reserva - DDMEDICA-620
           -- Autosserviço?
-          IF (vsORIGEMPED <> 'A')AND 
+          IF ((vsORIGEMPED = 'A' AND vbPDVSuper) OR
+            (vsORIGEMPED <> 'A')) AND  
              NOT((NVL(vsPEDIDOAVARIA,'N') = 'S') AND 
              (vnCONDVENDA = 10) AND 
              (vsORIGEMPED = 'B') AND 
