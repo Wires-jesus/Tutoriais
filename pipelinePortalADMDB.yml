@@ -1,0 +1,20 @@
+trigger:
+  - master
+  - develop
+  - suporte
+  - release
+  - feature/*
+  - hotfix/*
+  - bugfix/*
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: Engenharia-Varejo/pipeline-az-templates
+
+variables:
+  - template: variables/general/branch-control.yml@templates
+
+stages:
+  - template: pipelines/winthor/portal-admdb.yml@templates
