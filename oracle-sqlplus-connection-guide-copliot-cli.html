@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conexão Oracle via SQLPlus — Winthor PL/SQL</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #f5f7fa;
+      padding: 40px 20px;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 36px 48px 28px;
+    }
+    .header .logo { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 10px; }
+    .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .header .subtitle { font-size: 13px; opacity: 0.8; }
+    .header .meta { margin-top: 18px; font-size: 11px; opacity: 0.65; display: flex; gap: 24px; }
+
+    .content { padding: 40px 48px; }
+
+    .how-it-works {
+      background: #f0f7ff; border: 1px solid #bfdbfe;
+      border-radius: 8px; padding: 20px 24px; margin-bottom: 32px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .how-it-works .icon { font-size: 28px; margin-top: 2px; }
+    .how-it-works p { font-size: 13px; line-height: 1.7; color: #1e3a5f; }
+    .how-it-works strong { color: #1a1a2e; }
+
+    .flow {
+      display: flex; align-items: center; gap: 0;
+      margin: 20px 0 32px; flex-wrap: wrap;
+    }
+    .flow-step {
+      background: #f8f9fc; border: 1px solid #e2e8f0;
+      border-radius: 8px; padding: 14px 18px; text-align: center;
+      min-width: 130px; flex: 1;
+    }
+    .flow-step .icon { font-size: 22px; margin-bottom: 6px; }
+    .flow-step .label { font-size: 12px; font-weight: 600; color: #1a1a2e; }
+    .flow-step .sub { font-size: 11px; color: #777; margin-top: 3px; }
+    .flow-arrow { font-size: 20px; color: #94a3b8; padding: 0 8px; }
+
+    .section { margin-bottom: 36px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .section-number {
+      background: #1a1a2e; color: white;
+      border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 16px; font-weight: 600; }
+
+    p { line-height: 1.7; margin-bottom: 12px; color: #333; }
+
+    .file-path {
+      background: #1e1e2e; color: #a6e3a1;
+      border-radius: 6px; padding: 12px 18px;
+      font-family: 'Consolas', monospace; font-size: 13px; margin: 12px 0;
+    }
+
+    .code-block {
+      background: #1e1e2e; color: #cdd6f4;
+      border-radius: 6px; padding: 16px 20px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12.5px; line-height: 1.8; overflow-x: auto; margin: 12px 0;
+    }
+    .code-block .key     { color: #89b4fa; }
+    .code-block .value   { color: #a6e3a1; }
+    .code-block .comment { color: #6c7086; font-style: italic; }
+    .code-block .sep     { color: #cba6f7; }
+
+    .callout {
+      border-radius: 6px; padding: 14px 18px; margin: 14px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 13px; line-height: 1.6;
+    }
+    .callout-warning { background: #fff8e1; border-left: 4px solid #f59e0b; color: #7c5700; }
+    .callout-info    { background: #e8f4fd; border-left: 4px solid #3b82f6; color: #1e40af; }
+    .callout-copilot { background: #f0f7f0; border-left: 4px solid #22c55e; color: #14532d; }
+    .callout-icon { font-size: 16px; margin-top: 1px; }
+
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step; display: flex;
+      gap: 14px; margin-bottom: 14px; align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(step);
+      background: #eef2f7; color: #1a1a2e; font-weight: 700; font-size: 12px;
+      min-width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .steps li span { line-height: 1.6; color: #333; }
+    .steps li code {
+      background: #f4f6f9; border: 1px solid #dde3ed;
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Consolas', monospace; font-size: 12px; color: #1a1a2e;
+    }
+
+    /* Profiles grid */
+    .profiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+    .profile-card {
+      border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;
+    }
+    .profile-card .profile-header {
+      background: #1a1a2e; color: white;
+      padding: 10px 16px; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .profile-card .profile-body { padding: 12px 16px; background: #f8f9fc; }
+    .profile-card .profile-body code {
+      display: block; font-family: 'Consolas', monospace;
+      font-size: 11.5px; color: #333; line-height: 1.8;
+    }
+    .profile-card .profile-body .field { color: #3b82f6; }
+    .profile-card .profile-cmd {
+      background: #eef2f7; padding: 8px 16px;
+      font-size: 12px; color: #555; font-style: italic;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .examples { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0; }
+    .example-card {
+      background: #f8f9fc; border: 1px solid #e2e8f0;
+      border-radius: 6px; padding: 12px 16px;
+    }
+    .example-card .prompt { font-size: 12px; color: #555; font-style: italic; margin-bottom: 4px; }
+    .example-card .result { font-size: 11px; color: #888; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { background: #f0f3f8; padding: 10px 14px; text-align: left; font-weight: 600; border-bottom: 2px solid #dde3ed; }
+    td { padding: 9px 14px; border-bottom: 1px solid #eef0f4; color: #333; }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      background: #f4f6f9; border: 1px solid #dde3ed;
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Consolas', monospace; font-size: 11.5px; color: #1a1a2e;
+    }
+    .badge-ok { background: #dcfce7; color: #166534; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+
+    .footer {
+      background: #f8f9fc; border-top: 1px solid #e2e8f0;
+      padding: 20px 48px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-size: 11px; color: #888;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">TOTVS · Linha Winthor · ADMDB PL/SQL</div>
+    <h1>🔌 Conexão Oracle via SQLPlus + Copilot CLI</h1>
+    <div class="subtitle">Fluxo de conexão com suporte a múltiplos owners/bancos</div>
+    <div class="meta">
+      <span>📅 Julho de 2026</span>
+      <span>🔖 v2.0</span>
+      <span>📂 Base de Conhecimento</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- COMO FUNCIONA -->
+    <div class="how-it-works">
+      <span class="icon">💡</span>
+      <p>As credenciais ficam em um arquivo local <strong>fora do repositório Git</strong>, organizadas em perfis por owner. Basta solicitar ao Copilot informando qual owner usar: <em>"Conecte no owner local"</em> ou <em>"Conecte no owner monitorpdvmiddle"</em>.</p>
+    </div>
+
+    <!-- FLUXO -->
+    <div class="flow">
+      <div class="flow-step">
+        <div class="icon">📄</div>
+        <div class="label">db.env</div>
+        <div class="sub">Perfis de credenciais</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">🤖</div>
+        <div class="label">Copilot CLI</div>
+        <div class="sub">"Conecte no owner X"</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">⚡</div>
+        <div class="label">sqlplus</div>
+        <div class="sub">Conexão Oracle</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">📊</div>
+        <div class="label">Análise</div>
+        <div class="sub">Resultados no terminal</div>
+      </div>
+    </div>
+
+    <!-- PRÉ-REQUISITOS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">✓</div>
+        <h2>Pré-requisitos</h2>
+      </div>
+      <ul class="steps">
+        <li><span><code>sqlplus.exe</code> disponível no PATH (Oracle Database Home instalado)</span></li>
+        <li><span>GitHub Copilot CLI ativo no VS Code</span></li>
+        <li><span>Arquivo <code>db.env</code> preenchido com os perfis desejados</span></li>
+      </ul>
+    </div>
+
+    <!-- ARQUIVO DE CREDENCIAIS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2>Arquivo de credenciais com múltiplos perfis</h2>
+      </div>
+      <p>O arquivo fica em um diretório <strong>fora do repositório Git</strong>:</p>
+      <div class="file-path">C:\Analises-Copilot\Conexao_banco\db.env</div>
+
+      <p style="margin-top:14px">Cada perfil usa um <strong>prefixo em maiúsculas</strong> com o nome do owner:</p>
+      <div class="code-block">
+<span class="comment"># Perfil: local</span><br>
+<span class="key">LOCAL_USER</span>=<span class="value">seu_usuario</span><br>
+<span class="key">LOCAL_PASS</span>=<span class="value">sua_senha</span><br>
+<span class="key">LOCAL_HOST</span>=<span class="value">127.0.0.1</span><br>
+<span class="key">LOCAL_PORT</span>=<span class="value">1521</span><br>
+<span class="key">LOCAL_SERVICE</span>=<span class="value">orcl</span><br>
+<br>
+<span class="comment"># Perfil: monitorpdvmiddle</span><br>
+<span class="key">MONITORPDVMIDDLE_USER</span>=<span class="value">seu_usuario</span><br>
+<span class="key">MONITORPDVMIDDLE_PASS</span>=<span class="value">sua_senha</span><br>
+<span class="key">MONITORPDVMIDDLE_HOST</span>=<span class="value">host_do_banco</span><br>
+<span class="key">MONITORPDVMIDDLE_PORT</span>=<span class="value">1521</span><br>
+<span class="key">MONITORPDVMIDDLE_SERVICE</span>=<span class="value">nome_do_servico</span>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <span>Nunca adicione o arquivo <code>db.env</code> ao repositório Git. Substitua os valores pelos dados reais do seu ambiente.</span>
+      </div>
+    </div>
+
+    <!-- PERFIS CONFIGURADOS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2>Perfis disponíveis</h2>
+      </div>
+      <div class="profiles-grid">
+        <div class="profile-card">
+          <div class="profile-header">🗄️ local</div>
+          <div class="profile-body">
+            <code><span class="field">HOST:</span> 127.0.0.1:1521/orcl</code>
+            <code><span class="field">USER:</span> local</code>
+          </div>
+          <div class="profile-cmd">"Conecte no owner local"</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-header">🗄️ monitorpdvmiddle</div>
+          <div class="profile-body">
+            <code><span class="field">HOST:</span> host_do_banco:1521/service</code>
+            <code><span class="field">USER:</span> seu_usuario</code>
+          </div>
+          <div class="profile-cmd">"Conecte no owner monitorpdvmiddle"</div>
+        </div>
+      </div>
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>Para adicionar um novo perfil, inclua um novo bloco no <code>db.env</code> seguindo o padrão <code>NOVOOWNER_USER</code>, <code>NOVOOWNER_PASS</code>, etc.</span>
+      </div>
+    </div>
+
+    <!-- USO DIÁRIO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2>Uso diário</h2>
+      </div>
+      <table>
+        <thead><tr><th>Comando ao Copilot</th><th>Perfil utilizado</th></tr></thead>
+        <tbody>
+          <tr><td><em>"Conecte no owner local"</em></td><td><code>LOCAL_*</code></td></tr>
+          <tr><td><em>"Conecte no owner monitorpdvmiddle"</em></td><td><code>MONITORPDVMIDDLE_*</code></td></tr>
+          <tr><td><em>"Conecte no owner novoowner"</em></td><td><code>NOVOOWNER_*</code></td></tr>
+        </tbody>
+      </table>
+
+      <p style="margin-top:16px"><strong>Exemplos de análises após conexão:</strong></p>
+      <div class="examples">
+        <div class="example-card">
+          <div class="prompt">"Quais os campos da tabela PCDESCONTOFIDELIDADE?"</div>
+          <div class="result">→ Descreve colunas via ALL_TAB_COLUMNS</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Liste as tabelas que referenciam PCPRODUT"</div>
+          <div class="result">→ Consulta ALL_DEPENDENCIES</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Quantos registros tem PCGRUPOFIDELIDADE?"</div>
+          <div class="result">→ Executa SELECT COUNT(*)</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Descreva a estrutura da tabela PCCLIENT"</div>
+          <div class="result">→ Retorna DDL completo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEGURANÇA -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2>Segurança</h2>
+      </div>
+      <table>
+        <thead><tr><th>Prática</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Credenciais fora do repositório Git</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Arquivo não versionado</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Conexão somente sob demanda explícita</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Perfil informado pelo analista a cada sessão</td><td><span class="badge-ok">✅ OK</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COPILOT -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">💡</div>
+        <h2>Capacidades com Copilot conectado</h2>
+      </div>
+      <div class="callout callout-copilot">
+        <span class="callout-icon">🤖</span>
+        <div>
+          Com o Copilot conectado ao banco, é possível realizar análises em tempo real:
+          <ul style="margin-top:8px; padding-left:18px; line-height:1.9">
+            <li>Estrutura de tabelas (<code>ALL_TAB_COLUMNS</code>)</li>
+            <li>Dependências entre objetos (<code>ALL_DEPENDENCIES</code>)</li>
+            <li>Comparação entre estrutura do banco e objetos do repositório</li>
+            <li>Validação de dados e contagens em tempo real</li>
+          </ul>
+          <p style="margin-top:10px">O Copilot <strong>não acessa o banco automaticamente</strong> — a conexão só ocorre quando solicitada com o comando <em>"conecte no owner &lt;nome&gt;"</em>.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>TOTVS · Linha Winthor · Repositório ADMDB PL/SQL</span>
+    <span>docs/oracle-sqlplus-connection-guide.html</span>
+  </div>
+
+</div>
+</body>
+</html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conexão Oracle via SQLPlus — Winthor PL/SQL</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #f5f7fa;
+      padding: 40px 20px;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      padding: 36px 48px 28px;
+    }
+    .header .logo { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 10px; }
+    .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .header .subtitle { font-size: 13px; opacity: 0.8; }
+    .header .meta { margin-top: 18px; font-size: 11px; opacity: 0.65; display: flex; gap: 24px; }
+
+    .content { padding: 40px 48px; }
+
+    .how-it-works {
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .how-it-works .icon { font-size: 28px; margin-top: 2px; }
+    .how-it-works p { font-size: 13px; line-height: 1.7; color: #1e3a5f; }
+    .how-it-works strong { color: #1a1a2e; }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 20px 0 32px;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      background: #f8f9fc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 18px;
+      text-align: center;
+      min-width: 140px;
+      flex: 1;
+    }
+    .flow-step .icon { font-size: 22px; margin-bottom: 6px; }
+    .flow-step .label { font-size: 12px; font-weight: 600; color: #1a1a2e; }
+    .flow-step .sub { font-size: 11px; color: #777; margin-top: 3px; }
+    .flow-arrow { font-size: 20px; color: #94a3b8; padding: 0 8px; }
+
+    .section { margin-bottom: 36px; }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .section-number {
+      background: #1a1a2e; color: white;
+      border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 16px; font-weight: 600; }
+
+    p { line-height: 1.7; margin-bottom: 12px; color: #333; }
+
+    .file-path {
+      background: #1e1e2e;
+      color: #a6e3a1;
+      border-radius: 6px;
+      padding: 12px 18px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+
+    .code-block {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 6px;
+      padding: 16px 20px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block .key   { color: #89b4fa; }
+    .code-block .value { color: #a6e3a1; }
+    .code-block .comment { color: #6c7086; }
+
+    .callout {
+      border-radius: 6px; padding: 14px 18px; margin: 14px 0;
+      display: flex; gap: 12px; align-items: flex-start;
+      font-size: 13px; line-height: 1.6;
+    }
+    .callout-warning { background: #fff8e1; border-left: 4px solid #f59e0b; color: #7c5700; }
+    .callout-info    { background: #e8f4fd; border-left: 4px solid #3b82f6; color: #1e40af; }
+    .callout-copilot { background: #f0f7f0; border-left: 4px solid #22c55e; color: #14532d; }
+    .callout-icon { font-size: 16px; margin-top: 1px; }
+
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step; display: flex;
+      gap: 14px; margin-bottom: 14px; align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(step);
+      background: #eef2f7; color: #1a1a2e;
+      font-weight: 700; font-size: 12px;
+      min-width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .steps li span { line-height: 1.6; color: #333; }
+    .steps li code {
+      background: #f4f6f9; border: 1px solid #dde3ed;
+      border-radius: 4px; padding: 1px 6px;
+      font-family: 'Consolas', monospace; font-size: 12px; color: #1a1a2e;
+    }
+
+    .examples {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0;
+    }
+    .example-card {
+      background: #f8f9fc; border: 1px solid #e2e8f0;
+      border-radius: 6px; padding: 12px 16px;
+    }
+    .example-card .prompt { font-size: 12px; color: #555; font-style: italic; margin-bottom: 4px; }
+    .example-card .result { font-size: 11px; color: #888; }
+
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    th { background: #f0f3f8; padding: 10px 14px; text-align: left; font-weight: 600; border-bottom: 2px solid #dde3ed; }
+    td { padding: 9px 14px; border-bottom: 1px solid #eef0f4; color: #333; }
+    tr:last-child td { border-bottom: none; }
+    .badge-ok { background: #dcfce7; color: #166534; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+
+    .footer {
+      background: #f8f9fc; border-top: 1px solid #e2e8f0;
+      padding: 20px 48px; display: flex;
+      justify-content: space-between; align-items: center;
+      font-size: 11px; color: #888;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo">TOTVS · Linha Winthor · ADMDB PL/SQL</div>
+    <h1>🔌 Conexão Oracle via SQLPlus + Copilot CLI</h1>
+    <div class="subtitle">Fluxo de conexão diária para análises assistidas pelo GitHub Copilot</div>
+    <div class="meta">
+      <span>📅 Julho de 2026</span>
+      <span>🔖 v1.0</span>
+      <span>📂 Base de Conhecimento</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- COMO FUNCIONA -->
+    <div class="how-it-works">
+      <span class="icon">💡</span>
+      <p>As credenciais ficam em um arquivo local <strong>fora do repositório Git</strong>. Quando o analista solicita <em>"Conecte-se ao banco"</em>, o Copilot CLI lê o arquivo, abre conexão via <code>sqlplus</code> e executa consultas sob demanda — sem expor credenciais em commits.</p>
+    </div>
+
+    <!-- FLUXO VISUAL -->
+    <div class="flow">
+      <div class="flow-step">
+        <div class="icon">📄</div>
+        <div class="label">db.env</div>
+        <div class="sub">Credenciais locais</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">🤖</div>
+        <div class="label">Copilot CLI</div>
+        <div class="sub">"Conecte-se ao banco"</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">⚡</div>
+        <div class="label">sqlplus</div>
+        <div class="sub">Conexão Oracle</div>
+      </div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-step">
+        <div class="icon">📊</div>
+        <div class="label">Análise</div>
+        <div class="sub">Resultados no terminal</div>
+      </div>
+    </div>
+
+    <!-- PRÉ-REQUISITOS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">✓</div>
+        <h2>Pré-requisitos</h2>
+      </div>
+      <ul class="steps">
+        <li><span><code>sqlplus.exe</code> disponível no PATH (Oracle Database Home instalado)</span></li>
+        <li><span>GitHub Copilot CLI ativo no VS Code</span></li>
+        <li><span>Credenciais de acesso ao banco (usuário, senha, host, porta, service name)</span></li>
+      </ul>
+    </div>
+
+    <!-- CRIAR ARQUIVO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2>Criar o arquivo de credenciais</h2>
+      </div>
+      <p>Crie (ou edite) o arquivo no seguinte caminho — <strong>fora do repositório Git</strong>:</p>
+      <div class="file-path">C:\Analises-Copilot\Conexao_banco\db.env</div>
+
+      <p style="margin-top:14px"><strong>Conteúdo do arquivo:</strong></p>
+      <div class="code-block">
+        <span class="key">ORACLE_USER</span>=<span class="value">seu_usuario</span><br>
+        <span class="key">ORACLE_PASS</span>=<span class="value">sua_senha</span><br>
+        <span class="key">ORACLE_HOST</span>=<span class="value">host_do_banco</span><br>
+        <span class="key">ORACLE_PORT</span>=<span class="value">1521</span><br>
+        <span class="key">ORACLE_SERVICE</span>=<span class="value">nome_do_servico</span>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <span>Substitua os valores pelos dados reais do seu ambiente. Nunca adicione este arquivo ao repositório Git.</span>
+      </div>
+    </div>
+
+    <!-- USO DIÁRIO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2>Uso diário</h2>
+      </div>
+      <p>Com o <strong>GitHub Copilot CLI</strong> aberto no terminal do VS Code, solicite:</p>
+      <div class="code-block" style="color:#a6e3a1; font-style:italic;">
+        "Conecte-se ao banco"
+      </div>
+      <p>O Copilot irá ler o <code>db.env</code>, conectar via <code>sqlplus</code> e ficará pronto para consultas.</p>
+
+      <p style="margin-top:16px"><strong>Exemplos de análises após conexão:</strong></p>
+      <div class="examples">
+        <div class="example-card">
+          <div class="prompt">"Quais os campos da tabela PCDESCONTOFIDELIDADE?"</div>
+          <div class="result">→ Descreve colunas, tipos e nullability</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Liste as tabelas que referenciam PCPRODUT"</div>
+          <div class="result">→ Consulta ALL_DEPENDENCIES</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Descreva a estrutura da tabela PCCLIENT"</div>
+          <div class="result">→ Retorna DDL via ALL_TAB_COLUMNS</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Quantos registros tem PCDESCONTOFIDELIDADE?"</div>
+          <div class="result">→ Executa SELECT COUNT(*)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEGURANÇA -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2>Segurança</h2>
+      </div>
+      <table>
+        <thead><tr><th>Prática</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Credenciais fora do repositório Git</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Arquivo não versionado</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Conexão somente sob demanda explícita</td><td><span class="badge-ok">✅ OK</span></td></tr>
+          <tr><td>Acesso limitado ao solicitado pelo analista</td><td><span class="badge-ok">✅ OK</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- COPILOT -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">💡</div>
+        <h2>Capacidades com Copilot conectado</h2>
+      </div>
+      <div class="callout callout-copilot">
+        <span class="callout-icon">🤖</span>
+        <div>
+          Com o Copilot conectado ao banco via <code>sqlplus</code>, é possível realizar análises em tempo real como:
+          <ul style="margin-top:8px; padding-left:18px; line-height:1.9">
+            <li>Estrutura de tabelas (<code>ALL_TAB_COLUMNS</code>)</li>
+            <li>Dependências entre objetos (<code>ALL_DEPENDENCIES</code>)</li>
+            <li>Comparação entre estrutura do banco e objetos do repositório</li>
+            <li>Validação de dados e contagens em tempo real</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>TOTVS · Linha Winthor · Repositório ADMDB PL/SQL</span>
+    <span>docs/oracle-sqlplus-connection-guide.html</span>
+  </div>
+
+</div>
+</body>
+</html>
