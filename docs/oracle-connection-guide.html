@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guia de Conexão Oracle — Winthor PL/SQL</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      color: #1a1a2e;
+      background: #f5f7fa;
+      padding: 40px 20px;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #c74634 0%, #9b2a1f 100%);
+      color: white;
+      padding: 36px 48px 28px;
+    }
+    .header .logo {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 10px;
+    }
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .header .subtitle {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .header .meta {
+      margin-top: 18px;
+      font-size: 11px;
+      opacity: 0.7;
+      display: flex;
+      gap: 24px;
+    }
+
+    /* Content */
+    .content {
+      padding: 40px 48px;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 36px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .section-number {
+      background: #c74634;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    p {
+      line-height: 1.7;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    /* Steps */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(step);
+      background: #eef2f7;
+      color: #c74634;
+      font-weight: 700;
+      font-size: 12px;
+      min-width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .steps li span { line-height: 1.6; color: #333; }
+    .steps li code {
+      background: #f4f6f9;
+      border: 1px solid #dde3ed;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: #c74634;
+    }
+
+    /* Code block */
+    .code-block {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      border-radius: 6px;
+      padding: 16px 20px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    .code-block .key   { color: #89b4fa; }
+    .code-block .value { color: #a6e3a1; }
+    .code-block .punct { color: #cba6f7; }
+
+    /* Callout boxes */
+    .callout {
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .callout-warning {
+      background: #fff8e1;
+      border-left: 4px solid #f59e0b;
+      color: #7c5700;
+    }
+    .callout-info {
+      background: #e8f4fd;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+    .callout-copilot {
+      background: #f0f7f0;
+      border-left: 4px solid #22c55e;
+      color: #14532d;
+    }
+    .callout-icon { font-size: 16px; margin-top: 1px; }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 13px;
+    }
+    th {
+      background: #f0f3f8;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: #1a1a2e;
+      border-bottom: 2px solid #dde3ed;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eef0f4;
+      color: #333;
+    }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      background: #f4f6f9;
+      border: 1px solid #dde3ed;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 11.5px;
+      color: #c74634;
+    }
+
+    /* Prerequisites grid */
+    .prereq-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .prereq-card {
+      background: #f8f9fc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 14px;
+      text-align: center;
+    }
+    .prereq-card .icon { font-size: 22px; margin-bottom: 6px; }
+    .prereq-card .label { font-size: 12px; font-weight: 600; color: #1a1a2e; }
+    .prereq-card .sub { font-size: 11px; color: #777; margin-top: 2px; }
+
+    /* Footer */
+    .footer {
+      background: #f8f9fc;
+      border-top: 1px solid #e2e8f0;
+      padding: 20px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #888;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">TOTVS · Linha Winthor · ADMDB PL/SQL</div>
+    <h1>Guia de Conexão Oracle via VS Code</h1>
+    <div class="subtitle">Configuração da extensão Oracle Developer Tools for VS Code</div>
+    <div class="meta">
+      <span>📅 Julho de 2026</span>
+      <span>🔖 v1.0</span>
+      <span>📂 Base de Conhecimento</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- PRÉ-REQUISITOS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">✓</div>
+        <h2>Pré-requisitos</h2>
+      </div>
+      <div class="prereq-grid">
+        <div class="prereq-card">
+          <div class="icon">💻</div>
+          <div class="label">VS Code</div>
+          <div class="sub">code.visualstudio.com</div>
+        </div>
+        <div class="prereq-card">
+          <div class="icon">🗄️</div>
+          <div class="label">Oracle Client</div>
+          <div class="sub">Database Home ou Instant Client</div>
+        </div>
+        <div class="prereq-card">
+          <div class="icon">🔑</div>
+          <div class="label">Credenciais</div>
+          <div class="sub">Usuário, senha, host, porta, service name</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTALAR EXTENSÃO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2>Instalar a Extensão</h2>
+      </div>
+      <ol class="steps">
+        <li><span>Abra o <strong>Marketplace</strong> no VS Code com o atalho <code>Ctrl + Shift + X</code></span></li>
+        <li><span>Pesquise por <strong>Oracle Developer Tools for VS Code</strong></span></li>
+        <li><span>Instale a extensão publicada por <strong>Oracle</strong> (ID: <code>Oracle.oracledevtools</code>)</span></li>
+      </ol>
+    </div>
+
+    <!-- SETTINGS.JSON -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2>Configurar o settings.json</h2>
+      </div>
+      <p>A extensão precisa saber onde está o Oracle Client instalado na máquina.</p>
+
+      <p><strong>Como abrir o settings.json:</strong></p>
+      <ol class="steps">
+        <li><span>Pressione <code>Ctrl + Shift + P</code> para abrir o Command Palette</span></li>
+        <li><span>Digite <strong>Open User Settings (JSON)</strong> e pressione Enter</span></li>
+      </ol>
+
+      <p style="margin-top:12px"><em>Alternativamente:</em> <code>File → Preferences → Settings</code> → clique no ícone <code>{ }</code> no canto superior direito.</p>
+
+      <p style="margin-top:14px"><strong>Adicione a propriedade abaixo</strong> apontando para a pasta <code>bin</code> do Oracle Home:</p>
+
+      <div class="code-block">
+<span class="punct">{</span><br>
+&nbsp;&nbsp;<span class="key">"oracle.connections.instantClientDirectory"</span><span class="punct">:</span> <span class="value">"C:\\oracle\\product\\11.2.0\\dbhome_1\\bin"</span><br>
+<span class="punct">}</span>
+      </div>
+
+      <div class="callout callout-warning">
+        <span class="callout-icon">⚠️</span>
+        <span>No Windows, use barras duplas <code>\\</code> nos caminhos. Salve o arquivo e <strong>reinicie o VS Code</strong> após a alteração.</span>
+      </div>
+    </div>
+
+    <!-- CRIAR CONEXÃO -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2>Criar a Conexão no Oracle Explorer</h2>
+      </div>
+      <ol class="steps">
+        <li><span>Clique no ícone do <strong>Oracle Explorer</strong> na barra lateral esquerda do VS Code</span></li>
+        <li><span>Clique em <strong>"+"</strong> para adicionar uma nova conexão</span></li>
+        <li><span>Preencha os dados conforme a tabela abaixo e clique em <strong>Create Connection</strong></span></li>
+      </ol>
+
+      <table>
+        <thead>
+          <tr><th>Campo</th><th>Valor</th><th>Observação</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Connection Type</td><td><code>Basic</code></td><td>Conexão via host/porta/serviço</td></tr>
+          <tr><td>Host</td><td><code>endereço do servidor</code></td><td>IP ou hostname do banco</td></tr>
+          <tr><td>Port</td><td><code>1521</code></td><td>Porta padrão Oracle</td></tr>
+          <tr><td>Service Name / SID</td><td><code>nome do serviço</code></td><td>Service Name ou SID do banco</td></tr>
+          <tr><td>Username</td><td><code>seu usuário</code></td><td>—</td></tr>
+          <tr><td>Password</td><td><code>sua senha</code></td><td>—</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <span>Após criar, a conexão aparece no Oracle Explorer. Clique nela para expandir e navegar pelos objetos do banco (tabelas, packages, procedures, etc.).</span>
+      </div>
+    </div>
+
+    <!-- EXECUTAR SCRIPTS -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2>Executando Scripts PL/SQL</h2>
+      </div>
+      <ol class="steps">
+        <li><span>Abra qualquer arquivo <code>.sql</code>, <code>.pks</code> ou <code>.pkb</code> do repositório</span></li>
+        <li><span>Clique com o botão direito no editor → <strong>Execute in Oracle Database</strong></span></li>
+        <li><span>Ou selecione um bloco e use <code>Ctrl + Enter</code> para execução rápida</span></li>
+      </ol>
+      <p>Os resultados aparecem na aba <strong>Oracle DB Output</strong> no terminal inferior.</p>
+    </div>
+
+    <!-- COPILOT -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-number">💡</div>
+        <h2>Integração com GitHub Copilot</h2>
+      </div>
+      <div class="callout callout-copilot">
+        <span class="callout-icon">🤖</span>
+        <div>
+          <strong>Se o GitHub Copilot estiver integrado ao VS Code</strong>, é possível utilizá-lo para analisar a estrutura do banco de dados de forma assistida.<br><br>
+          O Copilot não acessa o banco diretamente, mas ao exportar DDLs ou resultados de consultas para arquivos no repositório (por exemplo, via <code>DBMS_METADATA.GET_DDL</code>), o Copilot consegue analisar esses arquivos e auxiliar com:
+          <ul style="margin-top:8px; padding-left:18px; line-height:1.8">
+            <li>Identificação de dependências entre objetos</li>
+            <li>Revisão de lógica em packages e procedures</li>
+            <li>Sugestões de melhoria e detecção de problemas no código PL/SQL</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>TOTVS · Linha Winthor · Repositório ADMDB PL/SQL</span>
+    <span>docs/oracle-connection-guide.html</span>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>

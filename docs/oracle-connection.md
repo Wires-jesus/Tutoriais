@@ -89,3 +89,23 @@ Com a conexão ativa, você pode executar arquivos `.sql`, `.pks` e `.pkb` diret
 - Ou use o atalho `Ctrl + Enter` para executar o bloco selecionado
 
 Os resultados aparecem na aba **Oracle DB Output** no terminal inferior.
+
+---
+
+## 5. Integração com GitHub Copilot
+
+> 💡 **Se o GitHub Copilot estiver integrado ao VS Code**, é possível utilizá-lo para analisar a estrutura do banco de dados de forma assistida.
+
+O Copilot não acessa o banco diretamente, mas ao exportar DDLs ou resultados de consultas para arquivos no repositório — por exemplo, via `DBMS_METADATA.GET_DDL` — o Copilot consegue analisar esses arquivos e auxiliar com:
+
+- Identificação de dependências entre objetos
+- Revisão de lógica em packages e procedures
+- Sugestões de melhoria e detecção de problemas no código PL/SQL
+
+Exemplo para exportar o DDL de uma tabela:
+
+```sql
+SELECT DBMS_METADATA.GET_DDL('TABLE', 'NOME_TABELA', 'SCHEMA') FROM DUAL;
+```
+
+Salve o resultado em um arquivo no repositório e o Copilot poderá analisá-lo.
