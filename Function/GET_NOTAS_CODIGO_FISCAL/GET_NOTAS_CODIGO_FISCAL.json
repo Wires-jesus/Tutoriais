@@ -1,5 +1,0 @@
-{
- "nome":"GET_NOTAS_CODIGO_FISCAL",
- "tipoPLSQL":"FUNCTION",
- "dependencias": []
-}

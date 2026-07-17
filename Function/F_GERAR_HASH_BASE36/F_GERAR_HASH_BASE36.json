@@ -1,5 +1,0 @@
-{
- "nome":"F_GERAR_HASH_BASE36",
- "tipoPLSQL":"FUNCTION",
- "dependencias": ""
-}
