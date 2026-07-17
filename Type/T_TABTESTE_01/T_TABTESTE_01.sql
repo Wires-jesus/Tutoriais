@@ -1,1 +1,0 @@
-CREATE OR REPLACE TYPE T_TABTESTE_01 as Object (id number(4))
