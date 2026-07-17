@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERACAO-TIPO-CAMPO-INFORMACAO",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }

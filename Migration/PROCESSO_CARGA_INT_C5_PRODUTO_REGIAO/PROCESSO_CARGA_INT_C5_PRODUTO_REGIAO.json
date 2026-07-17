@@ -1,7 +1,0 @@
-{"nome":"PROCESSO_CARGA_INT_C5_PRODUTO_REGIAO","tipoPLSQL":"MIGRATION","dependencias":[
-    {"nome":"FNC_REMOVE_CHAR_ESP","tipo":"OBJETO_PLSQL","versao":"4.0.01.000"},
-    {"nome":"PCPRODUT","tipo": "TABELA","versao": "4.0.03.000"},
-    {"nome":"PCMARCA","tipo": "TABELA","versao": "4.0.01.000"},
-    {"nome":"ROUNDABNT","tipo": "OBJETO_PLSQL","versao": "4.0.01.000"},
-    {"nome":"PCDEPARAEMBALAGENSC5","tipo": "TABELA","versao": "4.0.01.000"}
-]}

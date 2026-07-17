@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERACAO-TIPO-CEP-PCPORTOS",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }

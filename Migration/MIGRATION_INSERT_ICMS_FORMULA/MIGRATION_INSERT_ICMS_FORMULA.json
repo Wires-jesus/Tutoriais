@@ -1,7 +1,0 @@
-{
-    "nome": "MIGRATION_INSERT_ICMS_FORMULA",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-
-    ]
-  }

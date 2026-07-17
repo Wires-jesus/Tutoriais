@@ -1,6 +1,0 @@
-{
-    "nome": "PROCESSO_CARGA_INT_C5_SEQ_FAM_PROD",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
- }

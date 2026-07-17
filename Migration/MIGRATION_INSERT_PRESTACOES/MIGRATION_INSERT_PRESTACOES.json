@@ -1,6 +1,0 @@
-{
-    "nome": "MIGRATION_INSERT_PRESTACOES",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }

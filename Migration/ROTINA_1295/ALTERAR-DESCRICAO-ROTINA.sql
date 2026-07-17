@@ -1,9 +1,0 @@
-DECLARE
-  vSQL VARCHAR2(300);
-BEGIN 
-
- vSQL := 'UPDATE PCROTINA SET NOMEROTINA = ''Gestão de recebimentos antecipados'' WHERE ROTINA = ''PCSIS1295''';
- EXECUTE IMMEDIATE vSQL;
-  
- COMMIT;  
-END;

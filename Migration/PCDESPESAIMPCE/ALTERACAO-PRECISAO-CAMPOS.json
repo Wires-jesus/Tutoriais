@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERACAO-PRECISAO-CAMPOS",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }

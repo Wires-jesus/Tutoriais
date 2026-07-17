@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERTABLE_CAMPOS_CEP_PCFORNEC",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-}

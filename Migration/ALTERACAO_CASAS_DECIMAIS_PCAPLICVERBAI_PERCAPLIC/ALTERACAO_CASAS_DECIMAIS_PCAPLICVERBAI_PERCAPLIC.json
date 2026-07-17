@@ -1,6 +1,0 @@
-{
-    "nome": "ALTERACAO_CASAS_DECIMAIS_PCAPLICVERBAI_PERCAPLIC",
-    "tipoPLSQL": "MIGRATION",
-    "dependencias":[
-    ]
-  }

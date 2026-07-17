@@ -1,6 +1,0 @@
-{
-  "nome": "CRIACAO_SEQUENCE_PCCLIENTENDENT",
-  "tipoPLSQL": "MIGRATION",
-  "dependencias": [
-  ]
-}
