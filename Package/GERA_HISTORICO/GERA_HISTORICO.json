@@ -1,8 +1,0 @@
-{"nome":"GERA_HISTORICO",
-"tipoPLSQL":"PACKAGE",
-"dependencias": [{
-            "nome": "PCNFSAID",
-            "tipo": "TABELA",
-            "versao": "8.0.08.000"
-        }]
-}        
